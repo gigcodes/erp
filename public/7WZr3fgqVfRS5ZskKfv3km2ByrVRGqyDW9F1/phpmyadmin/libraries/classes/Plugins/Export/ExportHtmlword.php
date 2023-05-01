@@ -8,19 +8,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Export;
 
 use function __;
-use function htmlspecialchars;
-use function in_array;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\RadioPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\TextPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
 use PhpMyAdmin\Util;
+use function in_array;
 use function str_replace;
 use function stripslashes;
+use function htmlspecialchars;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
+use PhpMyAdmin\Properties\Options\Items\TextPropertyItem;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\RadioPropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the export for the HTML-Word format
@@ -106,11 +106,11 @@ class ExportHtmlword extends ExportPlugin
             xmlns="http://www.w3.org/TR/REC-html40">
 
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"'
-            .' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+            . ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
             <html>
             <head>
                 <meta http-equiv="Content-type" content="text/html;charset='
-            .($charset ?? 'utf-8').'" />
+            . ($charset ?? 'utf-8') . '" />
             </head>
             <body>'
         );
@@ -137,7 +137,7 @@ class ExportHtmlword extends ExportPlugin
         }
 
         return $this->export->outputHandler(
-            '<h1>'.__('Database').' '.htmlspecialchars($dbAlias).'</h1>'
+            '<h1>' . __('Database') . ' ' . htmlspecialchars($dbAlias) . '</h1>'
         );
     }
 
@@ -190,8 +190,8 @@ class ExportHtmlword extends ExportPlugin
         if (
             ! $this->export->outputHandler(
                 '<h2>'
-                .__('Dumping data for table').' '.htmlspecialchars($table_alias)
-                .'</h2>'
+                . __('Dumping data for table') . ' ' . htmlspecialchars($table_alias)
+                . '</h2>'
             )
         ) {
             return false;
@@ -215,8 +215,8 @@ class ExportHtmlword extends ExportPlugin
 
                 $col_as = stripslashes($col_as);
                 $schema_insert .= '<td class="print"><strong>'
-                    .htmlspecialchars($col_as)
-                    .'</strong></td>';
+                    . htmlspecialchars($col_as)
+                    . '</strong></td>';
             }
 
             $schema_insert .= '</tr>';
@@ -230,7 +230,7 @@ class ExportHtmlword extends ExportPlugin
             $schema_insert = '<tr class="print-category">';
             for ($j = 0; $j < $fields_cnt; $j++) {
                 if (! isset($row[$j])) {
-                    $value = $GLOBALS[$what.'_null'];
+                    $value = $GLOBALS[$what . '_null'];
                 } elseif ($row[$j] == '0' || $row[$j] != '') {
                     $value = $row[$j];
                 } else {
@@ -238,8 +238,8 @@ class ExportHtmlword extends ExportPlugin
                 }
 
                 $schema_insert .= '<td class="print">'
-                    .htmlspecialchars((string) $value)
-                    .'</td>';
+                    . htmlspecialchars((string) $value)
+                    . '</td>';
             }
 
             $schema_insert .= '</tr>';
@@ -265,20 +265,20 @@ class ExportHtmlword extends ExportPlugin
         global $dbi;
 
         $schema_insert = '<table width="100%" cellspacing="1">'
-            .'<tr class="print-category">'
-            .'<th class="print">'
-            .__('Column')
-            .'</th>'
-            .'<td class="print"><strong>'
-            .__('Type')
-            .'</strong></td>'
-            .'<td class="print"><strong>'
-            .__('Null')
-            .'</strong></td>'
-            .'<td class="print"><strong>'
-            .__('Default')
-            .'</strong></td>'
-            .'</tr>';
+            . '<tr class="print-category">'
+            . '<th class="print">'
+            . __('Column')
+            . '</th>'
+            . '<td class="print"><strong>'
+            . __('Type')
+            . '</strong></td>'
+            . '<td class="print"><strong>'
+            . __('Null')
+            . '</strong></td>'
+            . '<td class="print"><strong>'
+            . __('Default')
+            . '</strong></td>'
+            . '</tr>';
 
         /**
          * Get the unique keys in the view
@@ -361,34 +361,34 @@ class ExportHtmlword extends ExportPlugin
 
         $schema_insert .= '<tr class="print-category">';
         $schema_insert .= '<th class="print">'
-            .__('Column')
-            .'</th>';
+            . __('Column')
+            . '</th>';
         $schema_insert .= '<td class="print"><strong>'
-            .__('Type')
-            .'</strong></td>';
+            . __('Type')
+            . '</strong></td>';
         $schema_insert .= '<td class="print"><strong>'
-            .__('Null')
-            .'</strong></td>';
+            . __('Null')
+            . '</strong></td>';
         $schema_insert .= '<td class="print"><strong>'
-            .__('Default')
-            .'</strong></td>';
+            . __('Default')
+            . '</strong></td>';
         if ($do_relation && $have_rel) {
             $schema_insert .= '<td class="print"><strong>'
-                .__('Links to')
-                .'</strong></td>';
+                . __('Links to')
+                . '</strong></td>';
         }
 
         if ($do_comments) {
             $schema_insert .= '<td class="print"><strong>'
-                .__('Comments')
-                .'</strong></td>';
+                . __('Comments')
+                . '</strong></td>';
             $comments = $this->relation->getComments($db, $table);
         }
 
         if ($do_mime && $relationParameters->browserTransformationFeature !== null) {
             $schema_insert .= '<td class="print"><strong>'
-                .__('Media type')
-                .'</strong></td>';
+                . __('Media type')
+                . '</strong></td>';
             $mime_map = $this->transformations->getMime($db, $table, true);
         }
 
@@ -418,7 +418,7 @@ class ExportHtmlword extends ExportPlugin
             $field_name = $column['Field'];
             if ($do_relation && $have_rel) {
                 $schema_insert .= '<td class="print">'
-                    .htmlspecialchars(
+                    . htmlspecialchars(
                         $this->getRelationString(
                             $res_rel,
                             $field_name,
@@ -426,23 +426,23 @@ class ExportHtmlword extends ExportPlugin
                             $aliases
                         )
                     )
-                    .'</td>';
+                    . '</td>';
             }
 
             if ($do_comments && $relationParameters->columnCommentsFeature !== null) {
                 $schema_insert .= '<td class="print">'
-                    .(isset($comments[$field_name])
+                    . (isset($comments[$field_name])
                         ? htmlspecialchars($comments[$field_name])
-                        : '').'</td>';
+                        : '') . '</td>';
             }
 
             if ($do_mime && $relationParameters->browserTransformationFeature !== null) {
                 $schema_insert .= '<td class="print">'
-                    .(isset($mime_map[$field_name]) ?
+                    . (isset($mime_map[$field_name]) ?
                         htmlspecialchars(
                             str_replace('_', '/', $mime_map[$field_name]['mimetype'])
                         )
-                        : '').'</td>';
+                        : '') . '</td>';
             }
 
             $schema_insert .= '</tr>';
@@ -466,10 +466,10 @@ class ExportHtmlword extends ExportPlugin
 
         $dump = '<table width="100%" cellspacing="1">';
         $dump .= '<tr class="print-category">';
-        $dump .= '<th class="print">'.__('Name').'</th>';
-        $dump .= '<td class="print"><strong>'.__('Time').'</strong></td>';
-        $dump .= '<td class="print"><strong>'.__('Event').'</strong></td>';
-        $dump .= '<td class="print"><strong>'.__('Definition').'</strong></td>';
+        $dump .= '<th class="print">' . __('Name') . '</th>';
+        $dump .= '<td class="print"><strong>' . __('Time') . '</strong></td>';
+        $dump .= '<td class="print"><strong>' . __('Event') . '</strong></td>';
+        $dump .= '<td class="print"><strong>' . __('Definition') . '</strong></td>';
         $dump .= '</tr>';
 
         $triggers = $dbi->getTriggers($db, $table);
@@ -477,18 +477,18 @@ class ExportHtmlword extends ExportPlugin
         foreach ($triggers as $trigger) {
             $dump .= '<tr class="print-category">';
             $dump .= '<td class="print">'
-                .htmlspecialchars($trigger['name'])
-                .'</td>'
-                .'<td class="print">'
-                .htmlspecialchars($trigger['action_timing'])
-                .'</td>'
-                .'<td class="print">'
-                .htmlspecialchars($trigger['event_manipulation'])
-                .'</td>'
-                .'<td class="print">'
-                .htmlspecialchars($trigger['definition'])
-                .'</td>'
-                .'</tr>';
+                . htmlspecialchars($trigger['name'])
+                . '</td>'
+                . '<td class="print">'
+                . htmlspecialchars($trigger['action_timing'])
+                . '</td>'
+                . '<td class="print">'
+                . htmlspecialchars($trigger['event_manipulation'])
+                . '</td>'
+                . '<td class="print">'
+                . htmlspecialchars($trigger['definition'])
+                . '</td>'
+                . '</tr>';
         }
 
         $dump .= '</table>';
@@ -541,9 +541,9 @@ class ExportHtmlword extends ExportPlugin
         switch ($exportMode) {
             case 'create_table':
                 $dump .= '<h2>'
-                .__('Table structure for table').' '
-                .htmlspecialchars($table_alias)
-                .'</h2>';
+                . __('Table structure for table') . ' '
+                . htmlspecialchars($table_alias)
+                . '</h2>';
                 $dump .= $this->getTableDef($db, $table, $do_relation, $do_comments, $do_mime, false, $aliases);
                 break;
             case 'triggers':
@@ -551,23 +551,23 @@ class ExportHtmlword extends ExportPlugin
                 $triggers = $dbi->getTriggers($db, $table);
                 if ($triggers) {
                     $dump .= '<h2>'
-                    .__('Triggers').' '.htmlspecialchars($table_alias)
-                    .'</h2>';
+                    . __('Triggers') . ' ' . htmlspecialchars($table_alias)
+                    . '</h2>';
                     $dump .= $this->getTriggers($db, $table);
                 }
 
                 break;
             case 'create_view':
                 $dump .= '<h2>'
-                .__('Structure for view').' '.htmlspecialchars($table_alias)
-                .'</h2>';
+                . __('Structure for view') . ' ' . htmlspecialchars($table_alias)
+                . '</h2>';
                 $dump .= $this->getTableDef($db, $table, $do_relation, $do_comments, $do_mime, true, $aliases);
                 break;
             case 'stand_in':
                 $dump .= '<h2>'
-                .__('Stand-in structure for view').' '
-                .htmlspecialchars($table_alias)
-                .'</h2>';
+                . __('Stand-in structure for view') . ' '
+                . htmlspecialchars($table_alias)
+                . '</h2>';
                 // export a stand-in definition to resolve view dependencies
                 $dump .= $this->getTableDefStandIn($db, $table, $crlf, $aliases);
         }
@@ -610,26 +610,26 @@ class ExportHtmlword extends ExportPlugin
         $fmt_pre = '';
         $fmt_post = '';
         if (in_array($column['Field'], $unique_keys)) {
-            $fmt_pre = '<strong>'.$fmt_pre;
+            $fmt_pre = '<strong>' . $fmt_pre;
             $fmt_post .= '</strong>';
         }
 
         if ($column['Key'] === 'PRI') {
-            $fmt_pre = '<em>'.$fmt_pre;
+            $fmt_pre = '<em>' . $fmt_pre;
             $fmt_post .= '</em>';
         }
 
-        $definition .= '<td class="print">'.$fmt_pre
-            .htmlspecialchars($col_alias).$fmt_post.'</td>';
-        $definition .= '<td class="print">'.htmlspecialchars($type).'</td>';
+        $definition .= '<td class="print">' . $fmt_pre
+            . htmlspecialchars($col_alias) . $fmt_post . '</td>';
+        $definition .= '<td class="print">' . htmlspecialchars($type) . '</td>';
         $definition .= '<td class="print">'
-            .($column['Null'] == '' || $column['Null'] === 'NO'
+            . ($column['Null'] == '' || $column['Null'] === 'NO'
                 ? __('No')
                 : __('Yes'))
-            .'</td>';
+            . '</td>';
         $definition .= '<td class="print">'
-            .htmlspecialchars($column['Default'] ?? '')
-            .'</td>';
+            . htmlspecialchars($column['Default'] ?? '')
+            . '</td>';
 
         return $definition;
     }

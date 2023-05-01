@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Hubstaff;
 
-use App\Http\Controllers\Controller;
 use Curl\Curl;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class AttendanceController extends Controller
 {
@@ -28,7 +28,7 @@ class AttendanceController extends Controller
 
     public function show(Request $request)
     {
-        $url = 'https://api.hubstaff.com/v2/organizations/'.$request->organization_id.'/attendance_shifts';
+        $url = 'https://api.hubstaff.com/v2/organizations/' . $request->organization_id . '/attendance_shifts';
 
         $curl = new Curl();
 

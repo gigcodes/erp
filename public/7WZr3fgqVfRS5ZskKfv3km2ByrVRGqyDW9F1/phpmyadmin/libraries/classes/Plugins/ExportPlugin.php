@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins;
 
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Export;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
-use PhpMyAdmin\Properties\Plugins\PluginPropertyItem;
-use PhpMyAdmin\Transformations;
 use function stripos;
+use PhpMyAdmin\Export;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Properties\Plugins\PluginPropertyItem;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
 
 /**
  * Provides a common interface that will have to be implemented by all of the
@@ -361,7 +361,7 @@ abstract class ExportPlugin implements Plugin
                 $ftable = $aliases[$db]['tables'][$ftable]['alias'];
             }
 
-            $relation = $ftable.' ('.$ffield.')';
+            $relation = $ftable . ' (' . $ffield . ')';
         }
 
         return $relation;

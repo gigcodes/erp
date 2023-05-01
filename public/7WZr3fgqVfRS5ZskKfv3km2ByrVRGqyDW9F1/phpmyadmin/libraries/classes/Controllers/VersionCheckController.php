@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use function json_encode;
 use PhpMyAdmin\Core;
+use function json_encode;
 use PhpMyAdmin\VersionInformation;
 
 /**

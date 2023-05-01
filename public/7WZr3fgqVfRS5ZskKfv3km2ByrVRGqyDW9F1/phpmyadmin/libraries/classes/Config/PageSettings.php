@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Config;
 
 use function __;
-use PhpMyAdmin\Config\Forms\Page\PageFormList;
 use PhpMyAdmin\Core;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\UserPreferences;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Config\Forms\Page\PageFormList;
 
 /**
  * Page-related settings
@@ -131,9 +131,9 @@ class PageSettings
         if ($formDisplay->hasErrors()) {
             // form has errors
             $retval .= '<div class="alert alert-danger config-form" role="alert">'
-                .'<b>'.__('Cannot save settings, submitted configuration form contains errors!').'</b>'
-                .$formDisplay->displayErrors()
-                .'</div>';
+                . '<b>' . __('Cannot save settings, submitted configuration form contains errors!') . '</b>'
+                . $formDisplay->displayErrors()
+                . '</div>';
         }
 
         $this->errorHTML = $retval;
@@ -154,7 +154,7 @@ class PageSettings
 
         $this->storeError($formDisplay, $error);
 
-        $retval .= '<div id="'.$this->elemId.'">';
+        $retval .= '<div id="' . $this->elemId . '">';
         $retval .= '<div class="page_settings">';
         $retval .= $formDisplay->getDisplay(
             false,

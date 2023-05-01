@@ -2,39 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Customer;
-use App\Email;
-use App\Helpers;
-use App\Helpers\GithubTrait;
-use App\Helpers\HubstaffTrait;
-use App\Mail\PurchaseEmail;
-use App\ReplyCategory;
+use Auth;
+use Hash;
+use Mail;
 use App\Role;
-use App\Setting;
-use App\Supplier;
 use App\User;
+use App\Email;
 use App\Vendor;
-use App\VendorCategory;
-use App\VendorProduct;
+use App\Helpers;
+use App\Setting;
+use App\Customer;
+use App\Supplier;
+use Carbon\Carbon;
+use App\ChatMessage;
 use App\VendorStatus;
+use App\ReplyCategory;
+use App\VendorProduct;
+use App\VendorCategory;
+use App\Mail\PurchaseEmail;
 use App\VendorStatusDetail;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use App\Helpers\GithubTrait;
+use Illuminate\Http\Request;
+use App\Helpers\HubstaffTrait;
+use GuzzleHttp\RequestOptions;
 use App\VendorStatusDetailHistory;
+use Illuminate\Support\Facades\DB;
+use Webklex\PHPIMAP\ClientManager;
 use App\Meetings\ZoomMeetingDetails;
 use App\VendorStatusHistory as VSHM;
-use Auth;
-use Carbon\Carbon;
 use GuzzleHttp\Client as GuzzleHttpClient;
-use GuzzleHttp\RequestOptions;
-use Hash;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Mail;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Webklex\PHPIMAP\ClientManager;
 
 class VendorController extends Controller
 {
@@ -64,7 +64,7 @@ class VendorController extends Controller
         $vendor->reminder_last_reply = $request->get('reminder_last_reply', 0);
         $vendor->save();
 
-        $message = 'Reminder : '.$request->get('message');
+        $message = 'Reminder : ' . $request->get('message');
         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($vendor->phone, '', $message);
 
         return response()->json([
@@ -115,7 +115,7 @@ class VendorController extends Controller
                 } else {
                     $query = Vendor::query();
                 }
-            }            
+            }
 
             if (request('term') != null) {
                 $query->where('name', 'LIKE', "%{$request->term}%");
@@ -128,26 +128,26 @@ class VendorController extends Controller
 
             //If name is not null
             if (request('name') != null) {
-                $query->where('name', 'LIKE', '%'.request('name').'%');
+                $query->where('name', 'LIKE', '%' . request('name') . '%');
             }
 
             //if addess is not null
             if (request('address') != null) {
-                $query->where('address', 'LIKE', '%'.request('address').'%');
+                $query->where('address', 'LIKE', '%' . request('address') . '%');
             }
 
             //if email is not null
             if (request('email') != null) {
-                $query->where('email', 'LIKE', '%'.request('email').'%');
+                $query->where('email', 'LIKE', '%' . request('email') . '%');
             }
 
             if (request('whatsapp_number') != null) {
-                $query->where('whatsapp_number', 'LIKE', '%'.request('whatsapp_number').'%');
+                $query->where('whatsapp_number', 'LIKE', '%' . request('whatsapp_number') . '%');
             }
 
             //if phone is not null
             if (request('phone') != null) {
-                $query->where('phone', 'LIKE', '%'.request('phone').'%');
+                $query->where('phone', 'LIKE', '%' . request('phone') . '%');
             }
             $status = request('status');
             if ($status != null && ! request('with_archived')) {
@@ -172,15 +172,15 @@ class VendorController extends Controller
             }
             //if email is not nyll
             if (request('email') != null) {
-                $query->where('email', 'like', '%'.request('email').'%');
+                $query->where('email', 'like', '%' . request('email') . '%');
             }
 
             if (request('communication_history') != null && ! request('with_archived')) {
                 $communication_history = request('communication_history');
-                $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%".$communication_history."%')");
+                $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
             }
             if ($request->flt_vendor_status != null) {
-                $query->where('vendor_status', 'LIKE', '%'.$request->flt_vendor_status.'%');
+                $query->where('vendor_status', 'LIKE', '%' . $request->flt_vendor_status . '%');
             }
             if ($request->with_archived != null && $request->with_archived != '') {
                 $pagination = Setting::get('pagination');
@@ -197,7 +197,7 @@ class VendorController extends Controller
                 }
                 $totalVendor = $query->orderby('name', 'asc')->count();
                 $vendors = $query->orderby('name', 'asc')->paginate($pagination);
-            }            
+            }
         } else {
             if ($isAdmin) {
                 $permittedCategories = '';
@@ -209,9 +209,9 @@ class VendorController extends Controller
                 if ($permittedCategories_all == 0) {
                     $permittedCategories = '';
                 } else {
-                    $permittedCategories = 'and vendors.category_id in ('.implode(',', $permittedCategories).')';
+                    $permittedCategories = 'and vendors.category_id in (' . implode(',', $permittedCategories) . ')';
                 }
-            }                       
+            }
             $vendors = DB::select('
                   SELECT *,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -233,20 +233,20 @@ class VendorController extends Controller
                   ON vendors.id = chat_messages.vendor_id
 
                   LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                  ON vendors.category_id = vendor_categories.id WHERE '.$whereArchived.'
+                  ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . '
                   )
 
                   AS vendors
 
-                  WHERE (name LIKE "%'.$term.'%" OR
-                  phone LIKE "%'.$term.'%" OR
-                  email LIKE "%'.$term.'%" OR
-                  address LIKE "%'.$term.'%" OR
-                  social_handle LIKE "%'.$term.'%" OR
-                  category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%'.$term.'%") OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%'.$term.'%" OR phone LIKE "%'.$term.'%" OR email LIKE "%'.$term.'%"))) '.$permittedCategories.'
-                  ORDER BY '.$sortByClause.' message_created_at DESC;
-              ');            
+                  WHERE (name LIKE "%' . $term . '%" OR
+                  phone LIKE "%' . $term . '%" OR
+                  email LIKE "%' . $term . '%" OR
+                  address LIKE "%' . $term . '%" OR
+                  social_handle LIKE "%' . $term . '%" OR
+                  category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' . $permittedCategories . '
+                  ORDER BY ' . $sortByClause . ' message_created_at DESC;
+              ');
 
             $totalVendor = count($vendors);
 
@@ -268,11 +268,11 @@ class VendorController extends Controller
             ]);
         }
 
-        $vendor_categories = VendorCategory::all();            
+        $vendor_categories = VendorCategory::all();
 
         $users = User::all();
 
-        $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();        
+        $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
 
         /* if ($request->ajax()) {
         return response()->json([
@@ -280,7 +280,7 @@ class VendorController extends Controller
         'links' => (string) $vendors->render()
         ], 200);
         } */
-        $statusList = \DB::table('vendor_status')->select('name')->pluck('name', 'name')->toArray();        
+        $statusList = \DB::table('vendor_status')->select('name')->pluck('name', 'name')->toArray();
 
         $updatedProducts = \App\Vendor::join('users as u', 'u.id', 'vendors.updated_by')
             ->groupBy('vendors.updated_by')
@@ -325,7 +325,7 @@ class VendorController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = Vendor::where('name', 'LIKE', '%'.$term.'%')
+        $search = Vendor::where('name', 'LIKE', '%' . $term . '%')
             ->get();
 
         return response()->json($search);
@@ -334,7 +334,7 @@ class VendorController extends Controller
     public function vendorSearchPhone()
     {
         $term = request()->get('q', null);
-        $search = Vendor::where('phone', 'LIKE', '%'.$term.'%')
+        $search = Vendor::where('phone', 'LIKE', '%' . $term . '%')
             ->get();
 
         return response()->json($search);
@@ -403,7 +403,6 @@ class VendorController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -434,13 +433,13 @@ class VendorController extends Controller
 
         $source = $request->get('source', '');
         $data = $request->except(['_token', 'create_user']);
-        
+
         if (empty($data['whatsapp_number'])) {
             //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
-                ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
+                ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
                 ->first();
             if (isset($task_info->number) && $task_info->number != null) {
                 $data['whatsapp_number'] = $task_info->number;
@@ -468,7 +467,7 @@ class VendorController extends Controller
                 $user = new User;
                 $user->name = str_replace(' ', '_', $request->name);
                 if ($request->email == null) {
-                    $email = str_replace(' ', '_', $request->name).'@solo.com';
+                    $email = str_replace(' ', '_', $request->name) . '@solo.com';
                 } else {
                     // $email = explode('@', $request->email);
                     // $email = $email[0] . '@solo.com';
@@ -492,7 +491,7 @@ class VendorController extends Controller
                 $user->save();
                 $role = Role::where('name', 'Developer')->first();
                 $user->roles()->sync($role->id);
-                $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: '.$email.' password:  '.$password.'';
+                $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($request->phone, $user->whatsapp_number, $message);
             } else {
                 if (! empty($source)) {
@@ -546,7 +545,7 @@ class VendorController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                    ->toDirectory('vendorproduct/'.floor($product->id / config('constants.image_per_folder')))
+                    ->toDirectory('vendorproduct/' . floor($product->id / config('constants.image_per_folder')))
                     ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
@@ -594,7 +593,6 @@ class VendorController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -657,7 +655,7 @@ class VendorController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                    ->toDirectory('vendorproduct/'.floor($product->id / config('constants.image_per_folder')))
+                    ->toDirectory('vendorproduct/' . floor($product->id / config('constants.image_per_folder')))
                     ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
@@ -915,7 +913,7 @@ class VendorController extends Controller
 
     public function emailInbox(Request $request)
     {
-        try{
+        try {
             $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
@@ -928,7 +926,7 @@ class VendorController extends Controller
             ]);
 
             $imap->connect();
-            if($request->vendor_id){
+            if ($request->vendor_id) {
                 $vendor = Vendor::find($request->vendor_id);
 
                 if ($request->type == 'inbox') {
@@ -1019,10 +1017,10 @@ class VendorController extends Controller
                 $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
                 return response()->json(['emails' => $view]);
-            }else{
+            } else {
                 return response()->json(['message' => 'Something went wrong! No request data vaialable.'], 422);
             }
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Something went wrong!'], 422);
         }
     }
@@ -1037,8 +1035,8 @@ class VendorController extends Controller
                 $attachments = $email->getAttachments();
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
-                    file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                    $path = 'email-attachments/'.$attachment->name;
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
@@ -1120,7 +1118,7 @@ class VendorController extends Controller
             $user = new User;
             $user->name = str_replace(' ', '_', $vendor->name);
             if ($vendor->email == null) {
-                $email = str_replace(' ', '_', $vendor->name).'@solo.com';
+                $email = str_replace(' ', '_', $vendor->name) . '@solo.com';
             } else {
                 // $email = explode('@', $vendor->email);
                 // $email = $email[0] . '@solo.com';
@@ -1133,7 +1131,7 @@ class VendorController extends Controller
             $user->save();
             $role = Role::where('name', 'Developer')->first();
             $user->roles()->sync($role->id);
-            $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: '.$email.' password:  '.$password.'';
+            $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
             app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($vendor->phone, '', $message);
 
             return response()->json(['code' => 200, 'data' => 'User Created']);
@@ -1150,12 +1148,12 @@ class VendorController extends Controller
         if (!empty($email) && strlen($organizationId) > 0) {
             if ($this->sendGithubInvitaion($email, $organizationId)) {
                 return response()->json(
-                    ['message' => 'Invitation sent to '.$email]
+                    ['message' => 'Invitation sent to ' . $email]
                 );
             }
 
             return response()->json(
-                ['message' => 'Unable to send invitation to '.$email],
+                ['message' => 'Unable to send invitation to ' . $email],
                 500
             );
         }
@@ -1173,7 +1171,7 @@ class VendorController extends Controller
             $response = $this->sendHubstaffInvitation($email);
             if ($response['code'] == 200) {
                 return response()->json(
-                    ['message' => 'Invitation sent to '.$email]
+                    ['message' => 'Invitation sent to ' . $email]
                 );
             }
 
@@ -1224,7 +1222,7 @@ class VendorController extends Controller
         try {
             $tokens = $this->getTokens();
             // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
-            $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/update_members';
+            $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/update_members';
             $client = new GuzzleHttpClient();
             $body = [
                 'members' => [
@@ -1239,7 +1237,7 @@ class VendorController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
                     RequestOptions::BODY => json_encode($body),
@@ -1297,13 +1295,13 @@ class VendorController extends Controller
         try {
             $tokens = $this->getTokens();
             // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-            $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/invites';
+            $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/invites';
             $client = new GuzzleHttpClient();
             $response = $client->post(
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
                     RequestOptions::JSON => [
@@ -1481,21 +1479,25 @@ class VendorController extends Controller
     public function zoomMeetingList(Request $request)
     {
         $meetings = ZoomMeetingDetails::get();
+
         return view('vendors.list-zoom-meetings', [
             'meetings' => $meetings,
         ]);
     }
 
-    public function updateMeetingDescription(Request $request){
+    public function updateMeetingDescription(Request $request)
+    {
         $meetingdata = ZoomMeetingDetails::find($request->id);
         $meetingdata->description = $request->description;
         $meetingdata->save();
+
         return response()->json(['code' => 200, 'message' => 'Successful'], 200);
     }
 
-    public function refreshMeetingList(Request $request){
+    public function refreshMeetingList(Request $request)
+    {
         \Artisan::call('save:zoom-meetings');
+
         return redirect()->back();
     }
-    
 }

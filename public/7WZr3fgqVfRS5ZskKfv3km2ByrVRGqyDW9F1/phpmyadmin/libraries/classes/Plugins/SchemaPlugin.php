@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins;
 
 use function __;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
 use PhpMyAdmin\Properties\Plugins\PluginPropertyItem;
+use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
 use PhpMyAdmin\Properties\Plugins\SchemaPluginProperties;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
 
 /**
  * Provides a common interface that will have to be implemented by all of the

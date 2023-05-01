@@ -9,8 +9,8 @@ namespace PhpMyAdmin\Plugins\Transformations\Output;
 
 use function __;
 use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
 use PhpMyAdmin\Utils\FormatConverter;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Handles the binary to IPv4/IPv6 transformation for text plain
@@ -26,7 +26,7 @@ class Text_Plain_Binarytoip extends TransformationsPlugin
     {
         return __(
             'Converts an Internet network address stored as a binary string'
-            .' into a string in Internet standard (IPv4/IPv6) format.'
+            . ' into a string in Internet standard (IPv4/IPv6) format.'
         );
     }
 

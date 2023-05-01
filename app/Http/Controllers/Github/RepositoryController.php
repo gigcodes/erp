@@ -2,26 +2,25 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\DeveloperTask;
-use App\DeveoperTaskPullRequestMerge;
-use App\Github\GithubBranchState;
-use App\Github\GithubRepository;
-use App\Github\GithubOrganization;
-use App\GitMigrationErrorLog;
-use App\Helpers\GithubTrait;
-use App\Helpers\MessageHelper;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\DeleteBranchRequest;
 use Artisan;
-use Carbon\Carbon;
 use DateTime;
 use Exception;
+use Carbon\Carbon;
+use App\DeveloperTask;
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\Str;
+use App\Helpers\GithubTrait;
+use Illuminate\Http\Request;
+use App\GitMigrationErrorLog;
+use App\Helpers\MessageHelper;
+use GuzzleHttp\RequestOptions;
+use App\Github\GithubRepository;
+use App\Github\GithubOrganization;
+use App\Github\GithubBranchState;
+use App\Http\Controllers\Controller;
+use App\DeveoperTaskPullRequestMerge;
+use App\Http\Requests\DeleteBranchRequest;
 
 class RepositoryController extends Controller
 {
@@ -122,7 +121,7 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        $currentBranch = exec('/usr/bin/sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/get_current_deployment.sh');
+        $currentBranch = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
 
         //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
 
@@ -132,8 +131,6 @@ class RepositoryController extends Controller
             'branches' => $branches,
             'current_branch' => $currentBranch,
         ]);
-
-        //print_r($repository);
     }
 
     public function deployBranch($repoId, Request $request)
@@ -148,7 +145,7 @@ class RepositoryController extends Controller
         $destination = $request->branch;
         $pullOnly = request('pull_only', 0);
 
-        $url = 'https://api.github.com/repositories/'.$repoId.'/merges';
+        $url = 'https://api.github.com/repositories/' . $repoId . '/merges';
 
         try {
             // Merge master into branch
@@ -176,7 +173,7 @@ class RepositoryController extends Controller
             $branch = $request->branch;
             $composerupdate = request('composer', false);
 
-            $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/'.$repository->name.'/deploy_branch.sh '.$branch.' '.$composerupdate.' 2>&1';
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/' . $repository->name . '/deploy_branch.sh ' . $branch . ' ' . $composerupdate . ' 2>&1';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $allOutput = [];
@@ -228,7 +225,7 @@ class RepositoryController extends Controller
             'alert-type' => 'success',
         ]);
     }
-    
+
     /**
      * Undocumented function
      *
@@ -289,7 +286,7 @@ class RepositoryController extends Controller
         if(!empty($pullRequests) && count($pullRequests) > 0){
             $pullRequest = $pullRequests[0];
         }
-        \Log::info("Add entry to GithubBranchState");
+        \Log::info('Add entry to GithubBranchState');
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
@@ -299,7 +296,7 @@ class RepositoryController extends Controller
                 'github_organization_id' => $organization->id,
                 'repository_id' => $repoId,
                 'branch_name' => $branchName,
-                'status' => !empty($pullRequest) ? $pullRequest['state'] : "",
+                'status' => ! empty($pullRequest) ? $pullRequest['state'] : '',
                 'ahead_by' => $comparison['ahead_by'],
                 'behind_by' => $comparison['behind_by'],
                 'last_commit_author_username' => $comparison['last_commit_author_username'],
@@ -329,21 +326,21 @@ class RepositoryController extends Controller
     {
         $devTask = $this->findDeveloperTask($branchName); //DeveloperTask::find($devTaskId);
 
-        \Log::info('updateDevTask call '.$branchName);
+        \Log::info('updateDevTask call ' . $branchName);
 
         if ($devTask) {
-            \Log::info('updateDevTask find success '.$branchName);
+            \Log::info('updateDevTask find success ' . $branchName);
             try {
-                \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
+                \Log::info('updateDevTask :: PR merge msg send .' . json_encode($devTask->user));
 
-                $message = $branchName.':: PR has been merged';
+                $message = $branchName . ':: PR has been merged';
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
-                MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message.'. kindly test task in live if possible and put test result as comment in task.');
+                MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message . '. kindly test task in live if possible and put test result as comment in task.');
                 $devTask->update(['is_pr_merged' => 1]);
 
                 $request = new DeveoperTaskPullRequestMerge;
@@ -354,8 +351,8 @@ class RepositoryController extends Controller
 
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
-                \Log::info('updateDevTask ::'.$e->getMessage());
-                \Log::error('updateDevTask ::'.$e->getMessage());
+                \Log::info('updateDevTask ::' . $e->getMessage());
+                \Log::error('updateDevTask ::' . $e->getMessage());
             }
 
             $devTask->status = 'In Review';
@@ -393,7 +390,7 @@ class RepositoryController extends Controller
                 $this->updateBranchState($id, $source);
             }
 
-            \Log::info('updateDevTask calling...'.$source);
+            \Log::info('updateDevTask calling...' . $source);
             $this->updateDevTask($source, $pull_request_id);
 
             // Deploy branch
@@ -402,7 +399,7 @@ class RepositoryController extends Controller
             $branch = 'master';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-            $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/deploy_branch.sh '.$branch.' 2>&1';
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
@@ -422,7 +419,7 @@ class RepositoryController extends Controller
             if ($sqlIssue) {
                 $devTask = $this->findDeveloperTask($source);
                 if ($devTask) {
-                    $message = $source.':: there is some issue while running migration please check migration or contact administrator';
+                    $message = $source . ':: there is some issue while running migration please check migration or contact administrator';
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
@@ -443,7 +440,7 @@ class RepositoryController extends Controller
             print_r($e->getMessage());
             $devTask = $this->findDeveloperTask($source);
             if ($devTask) {
-                $message = $source.':: Failed to Merge please check branch has not any conflict or contact administrator';
+                $message = $source . ':: Failed to Merge please check branch has not any conflict or contact administrator';
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
@@ -466,11 +463,11 @@ class RepositoryController extends Controller
 
     private function getPullRequests($userName, $token, $repoId, $filters = [])
     {
-        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
+        $addedFilters = ! empty($filters) ? Arr::query($filters) : '';
         $pullRequests = [];
-        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
-        if(!empty($addedFilters)){
-            $url .= "&".$addedFilters;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
+        if (! empty($addedFilters)) {
+            $url .= '&' . $addedFilters;
         }
         try {
             $githubClient = $this->connectGithubClient($userName, $token);
@@ -527,48 +524,55 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function closePullRequestFromRepo($repositoryId, $pullRequestNumber){
+    public function closePullRequestFromRepo($repositoryId, $pullRequestNumber)
+    {
         return $this->closePullRequest($repositoryId, $pullRequestNumber);
     }
 
-    public function deleteBranchFromRepo($repositoryId,DeleteBranchRequest $request){
+    public function deleteBranchFromRepo($repositoryId, DeleteBranchRequest $request)
+    {
         $response = $this->deleteBranch($repositoryId, $request->branch_name);
-        $githubBranchState = GithubBranchState::where('repository_id',$repositoryId)->where('branch_name',$request->branch_name)->first();
-        if(!empty($githubBranchState) && $response['status']){
+        $githubBranchState = GithubBranchState::where('repository_id', $repositoryId)->where('branch_name', $request->branch_name)->first();
+        if (! empty($githubBranchState) && $response['status']) {
             $githubBranchState->delete();
         }
+
         return $response;
     }
 
-    public function actionWorkflows(Request $request, $repositoryId){
-        $githubActionRuns = $this->githubActionResult($repositoryId,$request->page);
+    public function actionWorkflows(Request $request, $repositoryId)
+    {
+        $githubActionRuns = $this->githubActionResult($repositoryId, $request->page);
+
         return view('github.action_workflows', [
             'githubActionRuns' => $githubActionRuns,
-            'repositoryId' => $repositoryId
+            'repositoryId' => $repositoryId,
         ]);
     }
 
-    public function ajaxActionWorkflows(Request $request, $repositoryId){
-        return $this->githubActionResult($repositoryId,$request->page);
+    public function ajaxActionWorkflows(Request $request, $repositoryId)
+    {
+        return $this->githubActionResult($repositoryId, $request->page);
     }
 
     public function githubActionResult($repositoryId, $page, $date = null){
         ini_set('max_execution_time', -1);
 
         $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
-        foreach($githubActionRuns->workflow_runs as $key => $runs){
-            $githubActionRuns->workflow_runs[$key]->failure_reason = "";
-            if($runs->conclusion == "failure"){
-                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId,$runs->id);
-                foreach($githubActionRunJobs->jobs as $job){
-                    foreach($job->steps as $step){
-                        if($step->conclusion == "failure"){
+        foreach ($githubActionRuns->workflow_runs as $key => $runs) {
+            $githubActionRuns->workflow_runs[$key]->failure_reason = '';
+            if ($runs->conclusion == 'failure') {
+                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $runs->id);
+                foreach ($githubActionRunJobs->jobs as $job) {
+                    foreach ($job->steps as $step) {
+                        if ($step->conclusion == 'failure') {
                             $githubActionRuns->workflow_runs[$key]->failure_reason = $step->name;
                         }
                     }
                 }
             }
         }
+
         return $githubActionRuns;
     }
 
@@ -623,11 +627,12 @@ class RepositoryController extends Controller
      */
     public function branchIndex(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $data = $this->getAjaxBranches($request);
+
             return response()->json([
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ]);
         }
         $githubOrganizations = GithubOrganization::with('repos')->get();
@@ -637,11 +642,11 @@ class RepositoryController extends Controller
 
     public function getAjaxBranches(Request $request)
     {
-
-        $branches = GithubBranchState::where('repository_id', $request->repoId)->orderBy('created_at','desc');
-        if($request->status){
-            $branches = $branches->where('status',$request->status);
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->orderBy('created_at', 'desc');
+        if ($request->status) {
+            $branches = $branches->where('status', $request->status);
         }
+
         return $branches->get();
     }
 
@@ -650,11 +655,12 @@ class RepositoryController extends Controller
      */
     public function actionIndex(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $data = $this->getAjaxActions($request);
+
             return response()->json([
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ]);
         }
         
@@ -666,12 +672,14 @@ class RepositoryController extends Controller
     public function getAjaxActions(Request $request)
     {
         $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
+
         return $data;
     }
 
-    public function rerunGithubAction($repoId,$jobId)
+    public function rerunGithubAction($repoId, $jobId)
     {
-        $data = $this->rerunAction($repoId,$jobId);
+        $data = $this->rerunAction($repoId, $jobId);
+
         return $data;
     }
 }

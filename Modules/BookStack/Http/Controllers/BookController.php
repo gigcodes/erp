@@ -2,16 +2,16 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Views;
 use Activity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\BookStack\Auth\UserRepo;
 use Modules\BookStack\Entities\Book;
-use Modules\BookStack\Entities\EntityContextManager;
+use Modules\BookStack\Uploads\ImageRepo;
 use Modules\BookStack\Entities\ExportService;
 use Modules\BookStack\Entities\Repos\EntityRepo;
-use Modules\BookStack\Uploads\ImageRepo;
-use Views;
+use Modules\BookStack\Entities\EntityContextManager;
 
 class BookController extends Controller
 {
@@ -27,12 +27,6 @@ class BookController extends Controller
 
     /**
      * BookController constructor.
-     *
-     * @param  EntityRepo  $entityRepo
-     * @param  UserRepo  $userRepo
-     * @param  ExportService  $exportService
-     * @param  EntityContextManager  $entityContextManager
-     * @param  ImageRepo  $imageRepo
      */
     public function __construct(
         EntityRepo $entityRepo,
@@ -114,7 +108,6 @@ class BookController extends Controller
     /**
      * Store a newly created book in storage.
      *
-     * @param  Request  $request
      * @param  string  $shelfSlug
      * @return Response
      *
@@ -151,8 +144,6 @@ class BookController extends Controller
     /**
      * Display the specified book.
      *
-     * @param $slug
-     * @param  Request  $request
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -214,7 +205,6 @@ class BookController extends Controller
     /**
      * Show the form for editing the specified book.
      *
-     * @param $slug
      * @return Response
      */
     public function edit($slug)
@@ -229,8 +219,6 @@ class BookController extends Controller
     /**
      * Update the specified book in storage.
      *
-     * @param  Request  $request
-     * @param    $slug
      * @return Response
      *
      * @throws \BookStack\Exceptions\ImageUploadException
@@ -257,7 +245,6 @@ class BookController extends Controller
     /**
      * Shows the page to confirm deletion
      *
-     * @param $bookSlug
      * @return \Illuminate\View\View
      */
     public function showDelete($bookSlug)
@@ -293,7 +280,6 @@ class BookController extends Controller
      * Shows the sort box for a single book.
      * Used via AJAX when loading in extra books to a sort.
      *
-     * @param $bookSlug
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getSortItem($bookSlug)
@@ -308,7 +294,6 @@ class BookController extends Controller
      * Saves an array of sort mapping to pages and chapters.
      *
      * @param  string  $bookSlug
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function saveSort($bookSlug, Request $request)
@@ -379,7 +364,6 @@ class BookController extends Controller
     /**
      * Remove the specified book from storage.
      *
-     * @param $bookSlug
      * @return Response
      */
     public function destroy($bookSlug)
@@ -399,7 +383,6 @@ class BookController extends Controller
     /**
      * Show the Restrictions view.
      *
-     * @param $bookSlug
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showPermissions($bookSlug)
@@ -417,8 +400,6 @@ class BookController extends Controller
     /**
      * Set the restrictions for this book.
      *
-     * @param $bookSlug
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -445,7 +426,7 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $pdfContent = $this->exportService->bookToPdf($book);
 
-        return $this->downloadResponse($pdfContent, $bookSlug.'.pdf');
+        return $this->downloadResponse($pdfContent, $bookSlug . '.pdf');
     }
 
     /**
@@ -459,13 +440,12 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $htmlContent = $this->exportService->bookToContainedHtml($book);
 
-        return $this->downloadResponse($htmlContent, $bookSlug.'.html');
+        return $this->downloadResponse($htmlContent, $bookSlug . '.html');
     }
 
     /**
      * Export a book as a plain text file.
      *
-     * @param $bookSlug
      * @return mixed
      */
     public function exportPlainText($bookSlug)
@@ -473,15 +453,13 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $textContent = $this->exportService->bookToPlainText($book);
 
-        return $this->downloadResponse($textContent, $bookSlug.'.txt');
+        return $this->downloadResponse($textContent, $bookSlug . '.txt');
     }
 
     /**
      * Common actions to run on book update.
      * Handles updating the cover image.
      *
-     * @param  Book  $book
-     * @param  Request  $request
      *
      * @throws \BookStack\Exceptions\ImageUploadException
      */

@@ -2,12 +2,12 @@
 
 namespace Modules\LeadQueue\Http\Controllers;
 
-use App\ChatMessage;
-use App\Services\Whatsapp\ChatApi\ChatApi;
 use DB;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class LeadQueueController extends Controller
 {
@@ -75,13 +75,13 @@ class LeadQueueController extends Controller
                                     return $q->where('lead_id', $lead_id);
                                 })
                                 ->when($customer_name != '', function ($q) use ($customer_name) {
-                                    return $q->where('c.name', 'LIKE', '%'.$customer_name.'%');
+                                    return $q->where('c.name', 'LIKE', '%' . $customer_name . '%');
                                 })
                                 ->when($customerId != '', function ($q) use ($customerId) {
                                     return $q->where('c.id', $customerId);
                                 })
                                 ->when($message != '', function ($q) use ($message) {
-                                    return $q->where('message', 'LIKE', '%'.$message.'%');
+                                    return $q->where('message', 'LIKE', '%' . $message . '%');
                                 })
                                 ->groupBy('lead_id')
                                 ->orderBy('lead_id', 'desc')
@@ -95,13 +95,13 @@ class LeadQueueController extends Controller
             return $q->where('lead_id', $lead_id);
         })
         ->when($customer_name != '', function ($q) use ($customer_name) {
-            return $q->where('c.name', 'LIKE', '%'.$customer_name.'%');
+            return $q->where('c.name', 'LIKE', '%' . $customer_name . '%');
         })
         ->when($customerId != '', function ($q) use ($customerId) {
             return $q->where('c.id', $customerId);
         })
           ->when($message != '', function ($q) use ($message) {
-              return $q->where('message', 'LIKE', '%'.$message.'%');
+              return $q->where('message', 'LIKE', '%' . $message . '%');
           })
         // ->groupBy("lead_id")
         ->groupBy('cust_id')
@@ -116,7 +116,7 @@ class LeadQueueController extends Controller
         $lead_group_array = [];
         foreach ($lead_group as $key => $val) {
             if (array_key_exists($val['customer_id'], $lead_group_array)) {
-                $lead_group_array[$val['customer_id']] = $lead_group_array[$val['customer_id']].','.$val['lead_id'];
+                $lead_group_array[$val['customer_id']] = $lead_group_array[$val['customer_id']] . ',' . $val['lead_id'];
             } else {
                 $lead_group_array[$val['customer_id']] = $val['lead_id'];
             }
@@ -127,7 +127,7 @@ class LeadQueueController extends Controller
 
         foreach ($message as $key => $val) {
             if (array_key_exists($val['customer_id'], $message_array)) {
-                $message_array[$val['customer_id']] = $message_array[$val['customer_id']].','.$val['message'];
+                $message_array[$val['customer_id']] = $message_array[$val['customer_id']] . ',' . $val['message'];
             } else {
                 $message_array[$val['customer_id']] = $val['message'];
             }
@@ -138,7 +138,7 @@ class LeadQueueController extends Controller
 
         foreach ($chat as $key => $val) {
             if (array_key_exists($val['customer_id'], $chat_array)) {
-                $chat_array[$val['customer_id']] = $chat_array[$val['customer_id']].','.$val['id'];
+                $chat_array[$val['customer_id']] = $chat_array[$val['customer_id']] . ',' . $val['id'];
             } else {
                 $chat_array[$val['customer_id']] = $val['id'];
             }
@@ -175,11 +175,11 @@ class LeadQueueController extends Controller
             ->where('customer_id', '>', 0);
 
         if (! empty($from)) {
-            $chatMessage = $chatMessage->where('c.whatsapp_number', 'like', '%'.$from.'%');
+            $chatMessage = $chatMessage->where('c.whatsapp_number', 'like', '%' . $from . '%');
         }
 
         if (! empty($to)) {
-            $chatMessage = $chatMessage->where('c.phone', 'like', '%'.$to.'%');
+            $chatMessage = $chatMessage->where('c.phone', 'like', '%' . $to . '%');
         }
 
         if ($leadId > 0) {
@@ -187,7 +187,7 @@ class LeadQueueController extends Controller
         }
 
         if (! empty($customerName)) {
-            $chatMessage = $chatMessage->where('c.name', 'like', '%'.$customerName.'%');
+            $chatMessage = $chatMessage->where('c.name', 'like', '%' . $customerName . '%');
         }
         // $mediaUrl = $chatMessage->select(["chat_messages.*",DB::raw("GROUP_CONCAT(chat_messages.media_url SEPARATOR ',') as `media_url`")])->groupBy('c.id');
         // dd($mediaUrl->get());
@@ -213,7 +213,7 @@ class LeadQueueController extends Controller
             $chat = array_unique(explode('---', $items->message));
             $chat = implode('<br>', $chat);
             if ($chat !== '') {
-                $items->short_message = substr($chat, 0, 20).'...';
+                $items->short_message = substr($chat, 0, 20) . '...';
             }
             $items->long_message = $chat;
 
@@ -254,7 +254,7 @@ class LeadQueueController extends Controller
             case 'change_to_broadcast':
                 if (! empty($ids) && is_array($ids)) {
                     \DB::update('update chat_messages as cm join customers as c on c.id = cm.customer_id join whatsapp_configs as wc
-                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in ('.implode(',', $ids).');');
+                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in (' . implode(',', $ids) . ');');
 
                     return response()->json(['code' => 200, 'message' => 'Updated to broadcast Successfully']);
                 }
@@ -264,7 +264,7 @@ class LeadQueueController extends Controller
                 if (! empty($ids) && is_array($ids)) {
                     $number = $request->get('send_number', '');
                     if (! empty($number)) {
-                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '".$number."' where cm.id in (".implode(',', $ids).');');
+                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '" . $number . "' where cm.id in (" . implode(',', $ids) . ');');
                     }
 
                     return response()->json(['code' => 200, 'message' => 'Updated to broadcast Successfully']);
@@ -386,9 +386,9 @@ class LeadQueueController extends Controller
         // check that if limit overflow then show notification
 
         if (! empty($waitingMessages)) {
-            $msg = 'Following number reached the queue limit : '.'</br>';
+            $msg = 'Following number reached the queue limit : ' . '</br>';
             foreach ($waitingMessages as $k => $wm) {
-                $msg .= $k.' : '.$wm.'</br>';
+                $msg .= $k . ' : ' . $wm . '</br>';
             }
 
             return response()->json(['code' => 500, 'data' => $waitingMessages, 'message' => $msg]);

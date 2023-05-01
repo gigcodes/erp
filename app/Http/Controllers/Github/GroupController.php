@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubGroup;
-use App\Github\GithubGroupMember;
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryGroup;
+use GuzzleHttp\Client;
 use App\Github\GithubUser;
+use App\Github\GithubGroup;
+use Illuminate\Http\Request;
+use GuzzleHttp\RequestOptions;
+use App\Github\GithubRepository;
+use App\Github\GithubGroupMember;
 use App\Github\GithubOrganization;
 use App\Http\Controllers\Controller;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
+use App\Github\GithubRepositoryGroup;
 use Illuminate\Support\Facades\Route;
+use GuzzleHttp\Exception\ClientException;
 
 class GroupController extends Controller
 {

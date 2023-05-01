@@ -8,27 +8,27 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins;
 
 use function __;
-use function array_keys;
-use function defined;
-use function htmlspecialchars;
-use function intval;
 use function max;
 use function min;
-use PhpMyAdmin\Config;
+use function time;
+use PhpMyAdmin\Url;
+use function intval;
 use PhpMyAdmin\Core;
-use PhpMyAdmin\IpAllowDeny;
+use PhpMyAdmin\Util;
+use function defined;
+use function sprintf;
+use PhpMyAdmin\Config;
 use PhpMyAdmin\Logging;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Session;
+use function array_keys;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\TwoFactor;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function session_destroy;
 use function session_unset;
-use function sprintf;
-use function time;
+use PhpMyAdmin\IpAllowDeny;
+use function session_destroy;
+use function htmlspecialchars;
+use PhpMyAdmin\ResponseRenderer;
 
 /**
  * Provides a common interface that will have to be implemented by all of the
@@ -128,7 +128,7 @@ abstract class AuthenticationPlugin
         $server = 0;
         if ($GLOBALS['cfg']['LoginCookieDeleteAll'] === false && $GLOBALS['cfg']['Server']['auth_type'] === 'cookie') {
             foreach (array_keys($GLOBALS['cfg']['Servers']) as $key) {
-                if (! $config->issetCookie('pmaAuth-'.$key)) {
+                if (! $config->issetCookie('pmaAuth-' . $key)) {
                     continue;
                 }
 
@@ -149,7 +149,7 @@ abstract class AuthenticationPlugin
             /* Redirect to other authenticated server */
             $_SESSION['partial_logout'] = true;
             Core::sendHeaderLocation(
-                './index.php?route=/'.Url::getCommonRaw(['server' => $server], '&')
+                './index.php?route=/' . Url::getCommonRaw(['server' => $server], '&')
             );
         }
     }
@@ -185,7 +185,7 @@ abstract class AuthenticationPlugin
         if ($failure === 'no-activity') {
             return sprintf(
                 __('You have been automatically logged out due to inactivity of %s seconds.'
-                .' Once you log in again, you should be able to resume the work where you left off.'),
+                . ' Once you log in again, you should be able to resume the work where you left off.'),
                 intval($GLOBALS['cfg']['LoginCookieValidity'])
             );
         }
@@ -196,8 +196,8 @@ abstract class AuthenticationPlugin
         }
 
         if (isset($GLOBALS['errno'])) {
-            return '#'.$GLOBALS['errno'].' '
-            .__('Cannot log in to the MySQL server');
+            return '#' . $GLOBALS['errno'] . ' '
+            . __('Cannot log in to the MySQL server');
         }
 
         return __('Cannot log in to the MySQL server');

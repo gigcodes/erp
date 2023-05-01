@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AffiliateMarketers extends Model
 {
     protected $table = 'affiliates_marketers';
+
     protected $fillable = [
         'affiliate_account_id',
         'affiliate_id',
@@ -33,15 +34,13 @@ class AffiliateMarketers extends Model
         'source_id',
         'approved',
         'coupon',
-        'affiliate_programme_id'
+        'affiliate_programme_id',
     ];
-
 
     public function account()
     {
         return $this->hasOne(AffiliateProviderAccounts::class, 'id', 'affiliate_account_id');
     }
-
 
     public function group()
     {

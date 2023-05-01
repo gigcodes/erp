@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Agent;
+use App\Leads;
+use App\Order;
+use App\Vendor;
 use App\Contact;
 use App\Customer;
 use App\Dubbizle;
-use App\Leads;
-use App\Order;
 use App\Supplier;
-use App\User;
-use App\Vendor;
 use Carbon\Carbon;
 
 class FindByNumberController extends Controller
@@ -165,7 +165,7 @@ class FindByNumberController extends Controller
 
             if (empty($source[$key]->media_url) && $value->product_id) {
                 $product = \App\Product::find($value->product_id);
-                if($product) {
+                if ($product) {
                     $media = $product->getMedia(config('constants.media_tags'))->first();
                     if ($media) {
                         $source[$key]->media_url = $media->getUrl();

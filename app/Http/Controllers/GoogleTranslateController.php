@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleTranslate;
-use App\Helpers\ProductHelper;
 use App\Language;
-use App\Loggers\LogListMagento;
+use App\Translations;
+use App\GoogleTranslate;
 use App\Product_translation;
 use App\ProductPushErrorLog;
-use App\Translations;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
 
 class GoogleTranslateController extends Controller
 {
@@ -53,7 +53,7 @@ class GoogleTranslateController extends Controller
                                 $requestData['title'] = $productNames;
                                 $responseData['title'] = $title;
                                 if ($title == '' and ! empty($logid)) {
-                                    ProductPushErrorLog::log('', $product->id, 'Product Title transact to '.$language.' is blank', 'error', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
+                                    ProductPushErrorLog::log('', $product->id, 'Product Title transact to ' . $language . ' is blank', 'error', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
                                 }
                                 $product_translation->title = $title;
                             }
@@ -65,7 +65,7 @@ class GoogleTranslateController extends Controller
                                 $responseData['description'] = $description;
                                 //	}
                                 if ($description == '' and ! empty($logid)) {
-                                    ProductPushErrorLog::log('', $product->id, 'Product description transact to '.$language.' is blank', 'error', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
+                                    ProductPushErrorLog::log('', $product->id, 'Product description transact to ' . $language . ' is blank', 'error', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
                                 }
                             }
                             if ($product_translation->composition == '') {
@@ -120,10 +120,10 @@ class GoogleTranslateController extends Controller
                             $product_translation->locale = $language;
                             $product_translation->save();
                             if ($responseData and ! empty($logid)) {
-                                ProductPushErrorLog::log('', $product->id, 'Product Translated to '.$language, 'info', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
+                                ProductPushErrorLog::log('', $product->id, 'Product Translated to ' . $language, 'info', $logModel->store_website_id, $requestData, $responseData, $logModel->id);
                             }
                         } catch (\Exception $e) {
-                            $msg = $language.' => '.$e->getMessage();
+                            $msg = $language . ' => ' . $e->getMessage();
                             if (! empty($logid)) {
                                 if ($logModel) {
                                     ProductPushErrorLog::log('', $product->id, $msg, 'error', $logModel->store_website_id, '', '', $logModel->id);

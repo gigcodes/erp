@@ -6,8 +6,8 @@ use App\Customer;
 use App\Language;
 use App\Mailinglist;
 use App\StoreWebsite;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class CreateMailingListNewsLetters extends Command
 {
@@ -241,7 +241,7 @@ class CreateMailingListNewsLetters extends Command
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                'api-key: '.$api_key,
+                'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
         ]);

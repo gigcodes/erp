@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Activity;
-use App\Helpers\StatusHelper;
-use App\LogScraperVsAi;
-use App\Product;
-use App\ScrapedProducts;
 use App\User;
+use App\Product;
+use App\Activity;
 use Carbon\Carbon;
+use App\LogScraperVsAi;
+use App\ScrapedProducts;
 use Illuminate\Http\Request;
+use App\Helpers\StatusHelper;
 use Illuminate\Support\Facades\DB;
 
 class ActivityConroller extends Controller
@@ -98,7 +98,7 @@ class ActivityConroller extends Controller
         // Get ai activity
         $logScraperVsAi = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->get();
         $aiActivity['ai'] = $logScraperVsAi->count();
-        $logScraperVsAi = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->whereBetween('created_at', [$range_start.' 00:00', $range_end.' 23:59'])->get();
+        $logScraperVsAi = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
         $aiActivity['ai_range'] = $logScraperVsAi->count();
 
         // Free up memory by unsetting unused variables
@@ -188,18 +188,18 @@ class ActivityConroller extends Controller
 
         if ($range_start != '' && $range_end != '') {
             $activity = $activity->where(function ($query) use ($range_end, $range_start) {
-                $query->whereBetween('created_at', [$range_start.' 00:00', $range_end.' 23:59']);
+                $query->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             });
 
-            $allActivity = $allActivity->whereBetween('created_at', [$range_start.' 00:00', $range_end.' 23:59']);
-            $scrapCount = $scrapCount->whereBetween('created_at', [$range_start.' 00:00', $range_end.' 23:59']);
-            $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start.' 00:00', $range_end.' 23:59']);
-            $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start.' 00:00', $range_end.' 23:59']);
+            $allActivity = $allActivity->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $scrapCount = $scrapCount->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start . ' 00:00', $range_end . ' 23:59']);
         }
 
         if (! $range_start || ! $range_end) {
             $inventoryCount = $inventoryCount->whereRaw('TIMESTAMPDIFF(HOUR, last_inventory_at, NOW())<= 48');
-            $scrapCount = $scrapCount->where('created_at', 'LIKE', '%'.date('Y-m-d').'%');
+            $scrapCount = $scrapCount->where('created_at', 'LIKE', '%' . date('Y-m-d') . '%');
 //            $rejectedListingsCount = $rejectedListingsCount->where('listing_rejected_on', 'LIKE', "%".date('Y-m-d')."%");
         }
 
@@ -315,8 +315,8 @@ class ActivityConroller extends Controller
         $data['month_range'] = $request->input('month_range') ?? date('Y-m');
 
         if ($data['date_type'] == 'day') {
-            $start = $data['day_range'].' 00:00:00.000000';
-            $end = $data['day_range'].' 23:59:59.000000';
+            $start = $data['day_range'] . ' 00:00:00.000000';
+            $end = $data['day_range'] . ' 23:59:59.000000';
 
             $workDoneResult = DB::select('
 									SELECT HOUR(created_at) as xaxis,subject_type ,COUNT(*) AS total FROM
@@ -411,9 +411,9 @@ class ActivityConroller extends Controller
 
         $dateTime = new \DateTime();
         $dateTime->setISODate($year, $week);
-        $result['start_date'] = $dateTime->format('Y-m-d').' 00:00:00.000000';
+        $result['start_date'] = $dateTime->format('Y-m-d') . ' 00:00:00.000000';
         $dateTime->modify('+6 days');
-        $result['end_date'] = $dateTime->format('Y-m-d').' 23:59:59.000000';
+        $result['end_date'] = $dateTime->format('Y-m-d') . ' 23:59:59.000000';
 
         return $result;
     }
@@ -427,10 +427,10 @@ class ActivityConroller extends Controller
 
         $dateTime = new \DateTime();
         $dateTime->setDate($year, $month, 1);
-        $result['start_date'] = $dateTime->format('Y-m-d').' 00:00:00.000000';
+        $result['start_date'] = $dateTime->format('Y-m-d') . ' 00:00:00.000000';
         $dateTime->modify('+1 month');
         $dateTime->modify('-1 days');
-        $result['end_date'] = $dateTime->format('Y-m-d').' 23:59:59.000000';
+        $result['end_date'] = $dateTime->format('Y-m-d') . ' 23:59:59.000000';
 
         return $result;
     }

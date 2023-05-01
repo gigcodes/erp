@@ -35,7 +35,6 @@ class GoogleServerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -66,7 +65,6 @@ class GoogleServerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -106,7 +104,7 @@ class GoogleServerController extends Controller
         $response = $request->response;
         $count = $request->count;
 
-        $responseString = 'Link: '.$response[$count]['link'].'\n Display Link: '.$response[$count]['displayLink'].'\n Title : '.$response[$count]['title'].'\n Image Details: '.$response[$count]['image']['contextLink'].' Height:'.$response[$count]['image']['height'].' Width : '.$response[$count]['image']['width'].'\n ThumbnailLink '.$response[$count]['image']['thumbnailLink'];
+        $responseString = 'Link: ' . $response[$count]['link'] . '\n Display Link: ' . $response[$count]['displayLink'] . '\n Title : ' . $response[$count]['title'] . '\n Image Details: ' . $response[$count]['image']['contextLink'] . ' Height:' . $response[$count]['image']['height'] . ' Width : ' . $response[$count]['image']['width'] . '\n ThumbnailLink ' . $response[$count]['image']['thumbnailLink'];
 
         $log = new LogGoogleCse();
         $log->image_url = $url;

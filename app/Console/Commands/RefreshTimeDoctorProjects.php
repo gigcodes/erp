@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 
+use Illuminate\Console\Command;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
 use App\Library\TimeDoctor\Src\Timedoctor;
-use Illuminate\Console\Command;
 
 class RefreshTimeDoctorProjects extends Command
 {
@@ -51,7 +51,7 @@ class RefreshTimeDoctorProjects extends Command
         $time_doctor_account = TimeDoctorAccount::find($this->argument('id'));
         $this->TIME_DOCTOR_USER_ID = $time_doctor_account->id;
         $this->TIME_DOCTOR_AUTH_TOKEN = $time_doctor_account->auth_token;
-        $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;        
+        $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -66,50 +66,50 @@ class RefreshTimeDoctorProjects extends Command
 
     private function refreshProjectList()
     {
-        $timedoctor = Timedoctor::getInstance();        
+        $timedoctor = Timedoctor::getInstance();
         try {
-            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);            
+            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetProject();
         } catch (\Exception $e) {
             $this->timedoctor = $timedoctor->authenticate(true, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetProject();
-        }        
+        }
     }
 
     private function startGetProject()
     {
-        try{
+        try {
             $projects = $this->timedoctor->getProjectList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN);
-            if(!empty( $projects )){
+            if (! empty($projects)) {
                 $record = count($projects->data);
-                foreach( $projects->data as $project){
-                    echo $project->id.' Record started';
+                foreach ($projects->data as $project) {
+                    echo $project->id . ' Record started';
                     echo PHP_EOL;
                     $projectExist = TimeDoctorProject::where('time_doctor_project_id', $project->id)->first();
                     if (! $projectExist) {
                         if (! empty($project->name)) {
                             TimeDoctorProject::create([
                                 'time_doctor_project_id' => $project->id,
-                                'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,  
-                                'time_doctor_company_id' =>$this->TIME_DOCTOR_COMPANY_ID,
+                                'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
+                                'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
                                 'time_doctor_project_name' => $project->name,
-                                'time_doctor_project_description' => (isset( $project->description ) &&  $project->description != '') ? $project->description : '',
+                                'time_doctor_project_description' => (isset($project->description) && $project->description != '') ? $project->description : '',
                             ]);
                         }
-                    } else {   
+                    } else {
                         $projectExist->time_doctor_project_name = $project->name;
-                        $projectExist->time_doctor_project_description = (isset( $project->description ) && $project->description != '') ? $project->description : '';
+                        $projectExist->time_doctor_project_description = (isset($project->description) && $project->description != '') ? $project->description : '';
                         $projectExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
                         $projectExist->save();
                     }
 
-                    echo $project->id.' Record ended';
+                    echo $project->id . ' Record ended';
                     echo PHP_EOL;
-                    echo 'Total Record Left :'.$record--;
+                    echo 'Total Record Left :' . $record--;
                     echo PHP_EOL;
                 }
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
         }
     }

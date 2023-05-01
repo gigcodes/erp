@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ReferralProgram;
 use App\StoreWebsite;
+use App\ReferralProgram;
 use Illuminate\Http\Request;
 
 class ReferralProgramController extends Controller
@@ -21,10 +21,10 @@ class ReferralProgramController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('uri', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('credit', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('currency', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('uri', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('credit', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('currency', 'LIKE', '%' . $request->term . '%');
         }
         $storeWebsite = StoreWebsite::select('id', 'website')->groupBy('website')->get();
 
@@ -53,15 +53,15 @@ class ReferralProgramController extends Controller
         $data = ReferralProgram::where(function ($query) use ($request) {
             if (isset($request->apply_id) && isset($request->term) && $request->term != '' && $request->apply_id != '') {
                 if ($request->apply_id == 1) {
-                    $query = $query->where('name', 'LIKE', '%'.$request->term.'%');
+                    $query = $query->where('name', 'LIKE', '%' . $request->term . '%');
                 } elseif ($request->apply_id == 2) {
-                    $query = $query->where('uri', 'LIKE', '%'.$request->term.'%');
+                    $query = $query->where('uri', 'LIKE', '%' . $request->term . '%');
                 } elseif ($request->apply_id == 3) {
-                    $query = $query->where('credit', 'LIKE', '%'.$request->term.'%');
+                    $query = $query->where('credit', 'LIKE', '%' . $request->term . '%');
                 } elseif ($request->apply_id == 4) {
-                    $query = $query->where('currency', 'LIKE', '%'.$request->term.'%');
+                    $query = $query->where('currency', 'LIKE', '%' . $request->term . '%');
                 } elseif ($request->apply_id == 5) {
-                    $query = $query->where('lifetime_minutes', 'LIKE', '%'.$request->term.'%');
+                    $query = $query->where('lifetime_minutes', 'LIKE', '%' . $request->term . '%');
                 }
             }
         })->orderBy('id', 'asc')->paginate(10);
@@ -88,7 +88,6 @@ class ReferralProgramController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -105,7 +104,7 @@ class ReferralProgramController extends Controller
         $input['store_website_id'] = $StoreWebsiteId;
         $insert = ReferralProgram::create($input);
 
-        return redirect()->to('/referralprograms/'.$insert->id.'/edit')->with('success', 'Program created successfully');
+        return redirect()->to('/referralprograms/' . $insert->id . '/edit')->with('success', 'Program created successfully');
     }
 
     /**
@@ -136,7 +135,6 @@ class ReferralProgramController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

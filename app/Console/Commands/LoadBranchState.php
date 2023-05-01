@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use App\Github\GitHubBranchState;
 use App\Github\GithubOrganization;
-use App\Helpers\GithubTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\Helpers\GithubTrait;
 use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
@@ -169,8 +169,7 @@ class LoadBranchState extends Command
     private function getBranchNamesOfRepository($userName, $token, int $repoId)
     {
         $allBranchNames = [];
-        try{
-            
+        try {
             //https://api.github.com/repositories/:repoId/branches
             $url = 'https://api.github.com/repositories/'.$repoId.'/branches';
             // $headResponse = $this->githubClient->head($url);
@@ -180,7 +179,7 @@ class LoadBranchState extends Command
             $headResponse = $githubClient->head($url);
 
             $linkHeader = $headResponse->getHeader('Link');
-           
+
             /**
              * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
              */
@@ -196,7 +195,7 @@ class LoadBranchState extends Command
                         break;
                     }
                 }
-    
+
                 //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
                 $linkWithAngularBrackets = explode(';', $lastLink)[0];
                 //<https://api.github.com/repositories/231925646/branches?page=4>
@@ -207,35 +206,37 @@ class LoadBranchState extends Command
                 $pageNumberString = explode('?', $linkWithPageNumber)[1];
                 //page=4
                 $totalPages = explode('=', $pageNumberString)[1];
-    
+
                 $totalPages = intval($totalPages);
             }
-            $this->info("totalPages: " .$totalPages);
+            $this->info('totalPages: ' . $totalPages);
             $page = 1;
             while ($page <= $totalPages) {
-                 $this->info("page: " .$page);
+                $this->info('page: ' . $page);
+
+                // $response = $this->githubClient->get($url . '?page=' . $page);
 
                 $response = $githubClient->get($url.'?page='.$page);
     
                 $branches = json_decode($response->getBody()->getContents());
-    
+
                 $branchNames = array_map(
                     function ($branch) {
                         return $branch->name;
                     },
                     $branches
                 );
-    
+
                 $allBranchNames = array_merge(
                     $allBranchNames,
                     array_filter($branchNames, function ($name) {
                         return $name != 'master';
                     })
                 );
-    
+
                 $page++;
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->info($e->getMessage());
         }
         $this->info(json_encode($allBranchNames));

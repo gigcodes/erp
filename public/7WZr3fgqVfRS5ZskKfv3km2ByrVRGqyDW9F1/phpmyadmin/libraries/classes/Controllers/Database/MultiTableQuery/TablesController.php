@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database\MultiTableQuery;
 
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Query\Generator as QueryGenerator;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use function rtrim;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
+use PhpMyAdmin\Query\Generator as QueryGenerator;
 
 final class TablesController extends AbstractController
 {
@@ -31,7 +31,7 @@ final class TablesController extends AbstractController
 
         $tablesListForQuery = '';
         foreach ($params['tables'] as $table) {
-            $tablesListForQuery .= "'".$this->dbi->escapeString($table)."',";
+            $tablesListForQuery .= "'" . $this->dbi->escapeString($table) . "',";
         }
 
         $tablesListForQuery = rtrim($tablesListForQuery, ',');

@@ -7,21 +7,21 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
+use TCPDF;
+use function max;
+use function min;
+use function sqrt;
+use function trim;
+use function count;
+use function round;
+use function hexdec;
+use function explode;
+use function mb_substr;
 use function array_merge;
 use function array_slice;
-use function count;
-use function explode;
-use function hexdec;
 use function json_encode;
-use function max;
-use function mb_substr;
-use function min;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
-use function sqrt;
 use function str_contains;
-use TCPDF;
-use function trim;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS POLYGON objects
@@ -208,7 +208,7 @@ class GisPolygon extends GisGeometry
     {
         $polygon_options = [
             'name' => $label,
-            'id' => $label.$this->getRandomId(),
+            'id' => $label . $this->getRandomId(),
             'class' => 'polygon vector',
             'stroke' => 'black',
             'stroke-width' => 0.5,
@@ -240,7 +240,7 @@ class GisPolygon extends GisGeometry
 
         $row .= '"';
         foreach ($polygon_options as $option => $val) {
-            $row .= ' '.$option.'="'.trim((string) $val).'"';
+            $row .= ' ' . $option . '="' . trim((string) $val) . '"';
         }
 
         $row .= '/>';
@@ -268,11 +268,11 @@ class GisPolygon extends GisGeometry
             'width' => 0.5,
         ];
         $row = 'var style = new ol.style.Style({'
-            .'fill: new ol.style.Fill('.json_encode($fill_style).'),'
-            .'stroke: new ol.style.Stroke('.json_encode($stroke_style).')';
+            . 'fill: new ol.style.Fill(' . json_encode($fill_style) . '),'
+            . 'stroke: new ol.style.Stroke(' . json_encode($stroke_style) . ')';
         if (trim($label) !== '') {
             $text_style = ['text' => trim($label)];
-            $row .= ',text: new ol.style.Text('.json_encode($text_style).')';
+            $row .= ',text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $row .= '});';
@@ -289,10 +289,10 @@ class GisPolygon extends GisGeometry
         // Separate outer and inner polygons
         $parts = explode('),(', $polygon);
 
-        return $row.$this->getPolygonForOpenLayers($parts, $srid)
-            .'var feature = new ol.Feature({geometry: polygon});'
-            .'feature.setStyle(style);'
-            .'vectorLayer.addFeature(feature);';
+        return $row . $this->getPolygonForOpenLayers($parts, $srid)
+            . 'var feature = new ol.Feature({geometry: polygon});'
+            . 'feature.setStyle(style);'
+            . 'vectorLayer.addFeature(feature);';
     }
 
     /**
@@ -306,10 +306,10 @@ class GisPolygon extends GisGeometry
     {
         $points_arr = $this->extractPoints($polygon, $scale_data);
 
-        $row = ' M '.$points_arr[0][0].', '.$points_arr[0][1];
+        $row = ' M ' . $points_arr[0][0] . ', ' . $points_arr[0][1];
         $other_points = array_slice($points_arr, 1, count($points_arr) - 2);
         foreach ($other_points as $point) {
-            $row .= ' L '.$point[0].', '.$point[1];
+            $row .= ' L ' . $point[0] . ', ' . $point[1];
         }
 
         $row .= ' Z ';
@@ -344,9 +344,9 @@ class GisPolygon extends GisGeometry
                 $wkt .= (isset($gis_data[$index]['POLYGON'][$i][$j]['x'])
                         && trim((string) $gis_data[$index]['POLYGON'][$i][$j]['x']) != ''
                         ? $gis_data[$index]['POLYGON'][$i][$j]['x'] : $empty)
-                    .' '.(isset($gis_data[$index]['POLYGON'][$i][$j]['y'])
+                    . ' ' . (isset($gis_data[$index]['POLYGON'][$i][$j]['y'])
                         && trim((string) $gis_data[$index]['POLYGON'][$i][$j]['y']) != ''
-                        ? $gis_data[$index]['POLYGON'][$i][$j]['y'] : $empty).',';
+                        ? $gis_data[$index]['POLYGON'][$i][$j]['y'] : $empty) . ',';
             }
 
             $wkt = mb_substr($wkt, 0, -1);
@@ -355,7 +355,7 @@ class GisPolygon extends GisGeometry
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**

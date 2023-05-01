@@ -7,11 +7,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Config;
 
-use function array_shift;
 use function implode;
 use PhpMyAdmin\Config;
 use PhpMyAdmin\Sanitize;
 use PhpMyAdmin\Template;
+use function array_shift;
 
 /**
  * PhpMyAdmin\Config\FormDisplayTemplate class
@@ -73,11 +73,11 @@ class FormDisplayTemplate
     ): string {
         $isSetupScript = $this->config->get('is_setup');
         $optionIsDisabled = ! $isSetupScript && isset($opts['userprefs_allow']) && ! $opts['userprefs_allow'];
-        $trClass = $this->group > 0 ? 'group-field group-field-'.$this->group : '';
+        $trClass = $this->group > 0 ? 'group-field group-field-' . $this->group : '';
         if (isset($opts['setvalue']) && $opts['setvalue'] === ':group') {
             unset($opts['setvalue']);
             $this->group++;
-            $trClass = 'group-header-field group-header-'.$this->group;
+            $trClass = 'group-header-field group-header-' . $this->group;
         }
 
         return $this->template->render('config/form_display/input', [
@@ -148,8 +148,8 @@ class FormDisplayTemplate
                 $vArgs[] = Sanitize::escapeJsString($arg);
             }
 
-            $vArgs = $vArgs ? ", ['".implode("', '", $vArgs)."']" : '';
-            $jsArray[] = "registerFieldValidator('".$fieldId."', '".$vName."', true".$vArgs.')';
+            $vArgs = $vArgs ? ", ['" . implode("', '", $vArgs) . "']" : '';
+            $jsArray[] = "registerFieldValidator('" . $fieldId . "', '" . $vName . "', true" . $vArgs . ')';
         }
     }
 

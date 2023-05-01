@@ -2,13 +2,13 @@
 
 namespace Modules\BookStack\Http\Controllers\Images;
 
-use Illuminate\Filesystem\Filesystem as File;
 use Illuminate\Http\Request;
-use Modules\BookStack\Entities\Repos\EntityRepo;
-use Modules\BookStack\Exceptions\ImageUploadException;
-use Modules\BookStack\Http\Controllers\Controller;
 use Modules\BookStack\Uploads\Image;
 use Modules\BookStack\Uploads\ImageRepo;
+use Illuminate\Filesystem\Filesystem as File;
+use Modules\BookStack\Entities\Repos\EntityRepo;
+use Modules\BookStack\Http\Controllers\Controller;
+use Modules\BookStack\Exceptions\ImageUploadException;
 
 class ImageController extends Controller
 {
@@ -20,10 +20,6 @@ class ImageController extends Controller
 
     /**
      * ImageController constructor.
-     *
-     * @param  Image  $image
-     * @param  File  $file
-     * @param  ImageRepo  $imageRepo
      */
     public function __construct(Image $image, File $file, ImageRepo $imageRepo)
     {
@@ -36,12 +32,11 @@ class ImageController extends Controller
     /**
      * Provide an image file from storage.
      *
-     * @param  string  $path
      * @return mixed
      */
     public function showImage(string $path)
     {
-        $path = storage_path('/app/uploads/images/'.$path);
+        $path = storage_path('/app/uploads/images/' . $path);
         if (! file_exists($path)) {
             abort(404);
         }
@@ -53,7 +48,6 @@ class ImageController extends Controller
      * Update image details
      *
      * @param  int  $id
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws ImageUploadException
@@ -78,7 +72,6 @@ class ImageController extends Controller
      * Show the usage of an image on pages.
      *
      * @param  \BookStack\Entities\Repos\EntityRepo  $entityRepo
-     * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function usage(EntityRepo $entityRepo, $id)
@@ -111,8 +104,6 @@ class ImageController extends Controller
 
     /**
      * Check related page permission and ensure type is drawio or gallery.
-     *
-     * @param  Image  $image
      */
     protected function checkImagePermission(Image $image)
     {

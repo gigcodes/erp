@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\ChatMessage;
-use App\Http\Controllers\Controller;
-use App\Mails\Manual\TicketCreate;
 use App\Tickets;
 use Carbon\Carbon;
+use App\ChatMessage;
 use Illuminate\Http\Request;
+use App\Mails\Manual\TicketCreate;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class TicketController extends Controller
@@ -54,7 +54,6 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -86,7 +85,7 @@ class TicketController extends Controller
         }
 
         $data = $request->all();
-        $data['ticket_id'] = 'T'.date('YmdHis');
+        $data['ticket_id'] = 'T' . date('YmdHis');
         $data['status_id'] = 1;
         $data['resolution_date'] = Carbon::now()->addDays(2)->format('Y-m-d H:i:s');
         if (isset($request->lang_code) && $request->lang_code != '') {
@@ -119,7 +118,7 @@ class TicketController extends Controller
 
         if (! is_null($success)) {
             $this->checkMessageAndSendReply($ticket->id);
-            $message = $this->generate_erp_response('ticket.success', 0, $default = 'Ticket #'.$data['ticket_id'].' created successfully', request('lang_code'));
+            $message = $this->generate_erp_response('ticket.success', 0, $default = 'Ticket #' . $data['ticket_id'] . ' created successfully', request('lang_code'));
 
             return response()->json(['status' => 'success', 'data' => ['id' => $data['ticket_id']], 'message' => $message], 200);
         }
@@ -153,7 +152,6 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -251,9 +249,10 @@ class TicketController extends Controller
     }
 
     /*Get message reply for ticket from database of Watson */
-    public function checkMessageAndSendReply($ticker_id) {
-        $get_ticket_data = Tickets::where(['id'=>$ticker_id])->first();
-        if(!empty($get_ticket_data)){
+    public function checkMessageAndSendReply($ticker_id)
+    {
+        $get_ticket_data = Tickets::where(['id' => $ticker_id])->first();
+        if (! empty($get_ticket_data)) {
             $customer = \App\Customer::where('email', $get_ticket_data->email)->first();
 
             $params = [
@@ -275,6 +274,7 @@ class TicketController extends Controller
 
             \App\Helpers\MessageHelper::sendwatson($customer, $get_ticket_data->message, null, $messageModel, $params);
         }
+
         return true;
     }
 }

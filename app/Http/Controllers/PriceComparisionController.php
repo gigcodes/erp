@@ -36,7 +36,7 @@ class PriceComparisionController extends Controller
             ]);
         }
 
-        $sites = PriceComparisonScraperSites::where('name', 'LIKE', '%'.$name.'%')->first();
+        $sites = PriceComparisonScraperSites::where('name', 'LIKE', '%' . $name . '%')->first();
         //dd($sites);
         if (! $sites) {
             return response()->json([
@@ -77,7 +77,7 @@ class PriceComparisionController extends Controller
     {
         $name = $request->name;
 
-        $site = PriceComparisonScraperSites::where('name', 'LIKE', '%'.$name.'%')->first();
+        $site = PriceComparisonScraperSites::where('name', 'LIKE', '%' . $name . '%')->first();
 
         if (! $site) {
             return response()->json([
@@ -131,7 +131,7 @@ class PriceComparisionController extends Controller
                 $message = implode(' , ', $empty);
 
                 return response()->json([
-                    'message' => 'Cannot be empty '.$message,
+                    'message' => 'Cannot be empty ' . $message,
                 ]);
             } else {
                 $checkIfExist = PriceComparisonScraper::where('price_comparison_site_id', $site->id)->where('category', $request->category)->where('product_url', $request->product_url)->where('sku', $request->sku)->where('country_code', $request->country_code)->where('currency', $request->currency)->where('price', $request->price)->where('shipping', $request->shipping)->where('checkout_price', $request->checkout_price)->first();

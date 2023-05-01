@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Dia;
 
+use XMLWriter;
+use function strlen;
+use PhpMyAdmin\Core;
 use function ob_end_clean;
 use function ob_get_clean;
-use PhpMyAdmin\Core;
 use PhpMyAdmin\ResponseRenderer;
-use function strlen;
-use XMLWriter;
 
 /**
  * This Class inherits the XMLwriter class and
@@ -90,22 +90,22 @@ class Dia extends XMLWriter
             <dia:attribute name="paper">
               <dia:composite type="paper">
                 <dia:attribute name="name">
-                  <dia:string>#'.$paper.'#</dia:string>
+                  <dia:string>#' . $paper . '#</dia:string>
                 </dia:attribute>
                 <dia:attribute name="tmargin">
-                  <dia:real val="'.$topMargin.'"/>
+                  <dia:real val="' . $topMargin . '"/>
                 </dia:attribute>
                 <dia:attribute name="bmargin">
-                  <dia:real val="'.$bottomMargin.'"/>
+                  <dia:real val="' . $bottomMargin . '"/>
                 </dia:attribute>
                 <dia:attribute name="lmargin">
-                  <dia:real val="'.$leftMargin.'"/>
+                  <dia:real val="' . $leftMargin . '"/>
                 </dia:attribute>
                 <dia:attribute name="rmargin">
-                  <dia:real val="'.$rightMargin.'"/>
+                  <dia:real val="' . $rightMargin . '"/>
                 </dia:attribute>
                 <dia:attribute name="is_portrait">
-                  <dia:boolean val="'.$isPortrait.'"/>
+                  <dia:boolean val="' . $isPortrait . '"/>
                 </dia:attribute>
                 <dia:attribute name="scaling">
                   <dia:real val="1"/>

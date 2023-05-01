@@ -7,10 +7,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
-use function htmlspecialchars;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\IOTransformationsPlugin;
 use function strtolower;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\IOTransformationsPlugin;
 
 /**
  * Provides common methods for all the CodeMirror syntax highlighted editors
@@ -58,14 +58,14 @@ abstract class CodeMirrorEditorTransformationPlugin extends IOTransformationsPlu
     ) {
         $html = '';
         if (! empty($value)) {
-            $html = '<input type="hidden" name="fields_prev'.$column_name_appendix
-                .'" value="'.htmlspecialchars($value).'">';
+            $html = '<input type="hidden" name="fields_prev' . $column_name_appendix
+                . '" value="' . htmlspecialchars($value) . '">';
         }
 
-        $class = 'transform_'.strtolower(static::getName()).'_editor';
+        $class = 'transform_' . strtolower(static::getName()) . '_editor';
 
-        return $html.'<textarea name="fields'.$column_name_appendix.'"'
-            .' dir="'.$text_dir.'" class="'.$class.'">'
-            .htmlspecialchars($value).'</textarea>';
+        return $html . '<textarea name="fields' . $column_name_appendix . '"'
+            . ' dir="' . $text_dir . '" class="' . $class . '">'
+            . htmlspecialchars($value) . '</textarea>';
     }
 }

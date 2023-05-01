@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Tag;
 use Illuminate\Database\Eloquent\Model;
 
 class BlogTag extends Model

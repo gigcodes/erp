@@ -2,58 +2,58 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\AssetsManager;
-use App\BuildProcessHistory;
-use App\ChatMessage;
-use App\Github\GithubRepository;
-use App\Jobs\DuplicateStoreWebsiteJob;
-use App\LogStoreWebsiteUser;
-use App\MagentoDevScripUpdateLog;
-use App\MagentoSettingUpdateResponseLog;
-use App\ProductCancellationPolicie;
+use Auth;
+use App\User;
 use App\Service;
 use App\Setting;
-use App\SiteDevelopment;
-use App\SiteDevelopmentCategory;
-use App\SocialStrategy;
-use App\SocialStrategySubject;
-use App\StoreReIndexHistory;
-use App\StoreViewCodeServerMap;
-use App\StoreWebsite;
-use App\StoreWebsiteAnalytic;
-use App\StoreWebsiteAttributes;
-use App\StoreWebsiteBrand;
-use App\StoreWebsiteCategory;
-use App\StoreWebsiteCategorySeo;
-use App\StoreWebsiteColor;
-use App\StoreWebsiteGoal;
-use App\StoreWebsiteImage;
-use App\StoreWebsitePage;
-use App\StoreWebsiteProduct;
-use App\StoreWebsiteProductAttribute;
-use App\StoreWebsiteProductPrice;
-use App\StoreWebsiteProductScreenshot;
-use App\StoreWebsitesCountryShipping;
-use App\StoreWebsiteSeoFormat;
-use App\StoreWebsiteSize;
-use App\StoreWebsiteTwilioNumber;
-use App\StoreWebsiteUserHistory;
-use App\StoreWebsiteUsers;
-use App\User;
 use App\Website;
-use App\WebsiteStore;
-use App\WebsiteStoreView;
-use Auth;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Validator;
+use App\ChatMessage;
+use App\StoreWebsite;
+use App\WebsiteStore;
+use App\AssetsManager;
+use App\SocialStrategy;
+use App\SiteDevelopment;
+use App\StoreWebsiteGoal;
+use App\StoreWebsitePage;
+use App\StoreWebsiteSize;
+use App\WebsiteStoreView;
+use App\StoreWebsiteBrand;
+use App\StoreWebsiteColor;
+use App\StoreWebsiteImage;
+use App\StoreWebsiteUsers;
 use Illuminate\Support\Str;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\BuildProcessHistory;
+use App\LogStoreWebsiteUser;
+use App\StoreReIndexHistory;
+use App\StoreWebsiteProduct;
+use Illuminate\Http\Request;
+use App\StoreWebsiteAnalytic;
+use App\StoreWebsiteCategory;
+use Illuminate\Http\Response;
+use App\SocialStrategySubject;
+use App\StoreWebsiteSeoFormat;
+use App\Models\WebsiteStoreTag;
+use App\StoreViewCodeServerMap;
+use App\StoreWebsiteAttributes;
+use App\Github\GithubRepository;
+use App\SiteDevelopmentCategory;
+use App\StoreWebsiteCategorySeo;
+use App\StoreWebsiteUserHistory;
+use App\MagentoDevScripUpdateLog;
+use App\StoreWebsiteProductPrice;
+use App\StoreWebsiteTwilioNumber;
+use Illuminate\Routing\Controller;
+use App\ProductCancellationPolicie;
+use App\StoreWebsiteProductAttribute;
+use App\StoreWebsitesCountryShipping;
+use App\Jobs\DuplicateStoreWebsiteJob;
+use App\StoreWebsiteProductScreenshot;
+use App\MagentoSettingUpdateResponseLog;
+use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
-use App\Models\WebsiteStoreTag;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class StoreWebsiteController extends Controller
 {
@@ -62,21 +62,20 @@ class StoreWebsiteController extends Controller
      *
      * @return Response
      */
-    public function index(WebsiteStoreTag   $WebsiteStoreTag)
+    public function index(WebsiteStoreTag $WebsiteStoreTag)
     {
         $title = 'List | Store Website';
         $services = Service::get();
 
-        $tags   =   $WebsiteStoreTag->get();
+        $tags = $WebsiteStoreTag->get();
 
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
-        
+
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes','tags', 'storeWebsiteUsers'));
-
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
     }
 
     public function logWebsiteUsers($id)
@@ -98,7 +97,6 @@ class StoreWebsiteController extends Controller
      * records Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function records(Request $request)
     {
@@ -161,7 +159,6 @@ class StoreWebsiteController extends Controller
      * records Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function save(Request $request)
     {
@@ -177,7 +174,7 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -209,7 +206,7 @@ class StoreWebsiteController extends Controller
                 mkdir($keyPath, 0777, true);
             }
             $file = $request->file('key_file_path1');
-            $keyPathName = uniqid().strtotime(date('YmdHis')).'_'.trim($file->getClientOriginalName());
+            $keyPathName = uniqid() . strtotime(date('YmdHis')) . '_' . trim($file->getClientOriginalName());
             $file->move($keyPath, $keyPathName);
             $post['key_file_path'] = $keyPathName;
         }
@@ -221,24 +218,24 @@ class StoreWebsiteController extends Controller
         $records->save();
 
         if (isset($post['username'])) {
-            $this->savelogwebsiteuser('#1', $post['id'], $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['website_mode'], 'For this Website '.$post['id'].' ,A new user has been created.');
+            $this->savelogwebsiteuser('#1', $post['id'], $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['website_mode'], 'For this Website ' . $post['id'] . ' ,A new user has been created.');
         }
         if ($request->staging_username && $request->staging_password) {
-            $message = 'Staging Username: '.$request->staging_username.', Staging Password is: '.$request->staging_password;
+            $message = 'Staging Username: ' . $request->staging_username . ', Staging Password is: ' . $request->staging_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
             $chat_message = ChatMessage::create($params);
         }
 
         if ($request->mysql_username && $request->mysql_password) {
-            $message = 'Mysql Username: '.$request->mysql_username.', Mysql Password is: '.$request->mysql_password;
+            $message = 'Mysql Username: ' . $request->mysql_username . ', Mysql Password is: ' . $request->mysql_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
             $chat_message = ChatMessage::create($params);
         }
 
         if ($request->mysql_staging_username && $request->mysql_staging_password) {
-            $message = 'Mysql Staging Username: '.$request->mysql_staging_username.', Mysql Staging Password is: '.$request->mysql_staging_password;
+            $message = 'Mysql Staging Username: ' . $request->mysql_staging_username . ', Mysql Staging Password is: ' . $request->mysql_staging_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
             $chat_message = ChatMessage::create($params);
@@ -291,11 +288,11 @@ class StoreWebsiteController extends Controller
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
             unset($copyStoreWebsite->title);
-            $copyStoreWebsite->title = $title.' '.$i;
+            $copyStoreWebsite->title = $title . ' ' . $i;
             $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
-            \Log::info($copyStoreWebsite->title.' step 1 created.');
+            \Log::info($copyStoreWebsite->title . ' step 1 created.');
 
             DuplicateStoreWebsiteJob::dispatch($storeWebsiteId, $copyStoreWebsite, $i)->onQueue('sololuxury');
 
@@ -308,8 +305,6 @@ class StoreWebsiteController extends Controller
     /**
      * Function to update store view server mapping of a store website
      *
-     * @param $storeWebsiteId
-     * @param $serverId
      * @return \Illuminate\Http\JsonResponse
      * @return bool
      */
@@ -321,9 +316,9 @@ class StoreWebsiteController extends Controller
         foreach ($storeViews as $key => $view) {
             $storeView = WebsiteStoreView::find($view->id);
             if (! $storeView->websiteStore) {
-                \Log::error('Website store not found for '.$view->id.'!');
+                \Log::error('Website store not found for ' . $view->id . '!');
             } elseif (! $storeView->websiteStore->website) {
-                \Log::error('Website not found for '.$view->id.'!');
+                \Log::error('Website not found for ' . $view->id . '!');
             } else {
                 $websiteId = $view->websiteStore->website->id;
                 $website = Website::find($websiteId);
@@ -359,7 +354,7 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -369,7 +364,7 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
         $count = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
-            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$storeWebsite->id.' ,A user has been updated.');
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
 
             $checkUserNameExist = '';
             if (! empty($post['store_website_userid'])) {
@@ -431,7 +426,7 @@ class StoreWebsiteController extends Controller
                 $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
                 if ($post['userEmail'] && $post['password']) {
-                    $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
+                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
                     $params['user_id'] = Auth::id();
                     $params['message'] = $message;
                     ChatMessage::create($params);
@@ -467,7 +462,7 @@ class StoreWebsiteController extends Controller
         $getUser->is_deleted = 1;
         $getUser->save();
 
-        $this->savelogwebsiteuser('#3', $getUser['store_website_id'], $getUser['username'], $getUser['email'], $getUser['first_name'], $getUser['last_name'], $getUser['password'], $getUser['website_mode'], 'For this Website '.$getUser['store_website_id'].' ,User has been Deleted.');
+        $this->savelogwebsiteuser('#3', $getUser['store_website_id'], $getUser['username'], $getUser['email'], $getUser['first_name'], $getUser['last_name'], $getUser['password'], $getUser['website_mode'], 'For this Website ' . $getUser['store_website_id'] . ' ,User has been Deleted.');
 
         $storeWebsite = StoreWebsite::find($getUser->store_website_id);
 
@@ -491,7 +486,6 @@ class StoreWebsiteController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -529,7 +523,6 @@ class StoreWebsiteController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -538,43 +531,43 @@ class StoreWebsiteController extends Controller
         if ($storeWebsite) {
             $storeWebsite->delete();
             SiteDevelopment::where('website_id', '=', $id)->delete();
-            \Log::info('Deleted from SiteDevelopment with id '.$id);
+            \Log::info('Deleted from SiteDevelopment with id ' . $id);
             StoreWebsitesCountryShipping::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsitesCountryShipping with id '.$id);
+            \Log::info('Deleted from StoreWebsitesCountryShipping with id ' . $id);
             StoreWebsiteAnalytic::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteAnalytic with id '.$id);
+            \Log::info('Deleted from StoreWebsiteAnalytic with id ' . $id);
             StoreWebsiteAttributes::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteAttributes with id '.$id);
+            \Log::info('Deleted from StoreWebsiteAttributes with id ' . $id);
             StoreWebsiteBrand::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteBrand with id '.$id);
+            \Log::info('Deleted from StoreWebsiteBrand with id ' . $id);
             StoreWebsiteCategory::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteCategory with id '.$id);
+            \Log::info('Deleted from StoreWebsiteCategory with id ' . $id);
             StoreWebsiteCategorySeo::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteCategorySeo with id '.$id);
+            \Log::info('Deleted from StoreWebsiteCategorySeo with id ' . $id);
             StoreWebsiteColor::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteColor with id '.$id);
+            \Log::info('Deleted from StoreWebsiteColor with id ' . $id);
             StoreWebsiteGoal::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteGoal with id '.$id);
+            \Log::info('Deleted from StoreWebsiteGoal with id ' . $id);
             StoreWebsiteImage::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteImage with id '.$id);
+            \Log::info('Deleted from StoreWebsiteImage with id ' . $id);
             StoreWebsiteProduct::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteProduct with id '.$id);
+            \Log::info('Deleted from StoreWebsiteProduct with id ' . $id);
             StoreWebsitePage::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsitePage with id '.$id);
+            \Log::info('Deleted from StoreWebsitePage with id ' . $id);
             StoreWebsiteProductAttribute::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteProductAttribute with id '.$id);
+            \Log::info('Deleted from StoreWebsiteProductAttribute with id ' . $id);
             StoreWebsiteProductPrice::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteProductPrice with id '.$id);
+            \Log::info('Deleted from StoreWebsiteProductPrice with id ' . $id);
             StoreWebsiteProductScreenshot::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteProductScreenshot with id '.$id);
+            \Log::info('Deleted from StoreWebsiteProductScreenshot with id ' . $id);
             StoreWebsiteSeoFormat::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteSeoFormat with id '.$id);
+            \Log::info('Deleted from StoreWebsiteSeoFormat with id ' . $id);
             StoreWebsiteSize::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteSize with id '.$id);
+            \Log::info('Deleted from StoreWebsiteSize with id ' . $id);
             StoreWebsiteTwilioNumber::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteTwilioNumber with id '.$id);
+            \Log::info('Deleted from StoreWebsiteTwilioNumber with id ' . $id);
             StoreWebsiteUsers::where('store_website_id', '=', $id)->delete();
-            \Log::info('Deleted from StoreWebsiteUsers with id '.$id);
+            \Log::info('Deleted from StoreWebsiteUsers with id ' . $id);
 
             return response()->json(['code' => 200]);
         }
@@ -611,7 +604,7 @@ class StoreWebsiteController extends Controller
         $subjects = SocialStrategySubject::orderBy('id', 'desc');
 
         if ($request->k != null) {
-            $subjects = $subjects->where('title', 'like', '%'.$request->k.'%');
+            $subjects = $subjects->where('title', 'like', '%' . $request->k . '%');
         }
 
         $subjects = $subjects->paginate(Setting::get('pagination'));
@@ -685,7 +678,7 @@ class StoreWebsiteController extends Controller
         }
         $file = $request->file('file');
 
-        $name = uniqid().'_'.trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
@@ -713,9 +706,9 @@ class StoreWebsiteController extends Controller
             }
 
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('site-development/'.floor($strategy->id / config('constants.image_per_folder')))
+                    ->toDirectory('site-development/' . floor($strategy->id / config('constants.image_per_folder')))
                     ->upload();
                 $strategy->attachMedia($media, config('constants.media_tags'));
             }
@@ -848,7 +841,7 @@ class StoreWebsiteController extends Controller
     {
         $server = $request->get('for_server');
 
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'pem-generate.sh '.$server.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh ' . $server . ' 2>&1';
 
         $allOutput = [];
         $allOutput[] = $cmd;
@@ -869,10 +862,10 @@ class StoreWebsiteController extends Controller
 
         $content = implode("\n", $string);
 
-        $nameF = $server.'.pem';
+        $nameF = $server . '.pem';
 
         //header download
-        header('Content-Disposition: attachment; filename="'.$nameF.'"');
+        header('Content-Disposition: attachment; filename="' . $nameF . '"');
         header('Content-Type: application/force-download');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
@@ -939,7 +932,6 @@ class StoreWebsiteController extends Controller
      * Build Process Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function buildProcess(Request $request, $id)
     {
@@ -968,7 +960,7 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -995,7 +987,7 @@ class StoreWebsiteController extends Controller
                     if ($jenkins->getJob($jobName)) {
                         $job = $jenkins->getJob($jobName);
                         $builds = $job->getBuilds();
-                        $buildDetail = 'Build Name: '.$jobName.'<br> Build Repository: '.$repository.'<br> Reference: '.$ref;
+                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Reference: ' . $ref;
                         $record = ['store_website_id' => $request->store_website_id, 'created_by' => Auth::id(), 'text' => $buildDetail, 'build_name' => $jobName, 'build_number' => $builds[0]->getNumber()];
                         BuildProcessHistory::create($record);
 
@@ -1013,7 +1005,6 @@ class StoreWebsiteController extends Controller
     /**
      * This function is use to add company website address.
      *
-     * @param  Request  $request
      * @param  int  $store_website_id
      * @return JsonResponce
      */
@@ -1053,10 +1044,10 @@ class StoreWebsiteController extends Controller
                 foreach ($responseLog as $res) {
                     //dd($res->created_at);
                     $html .= '<tr>';
-                    $html .= '<td>'.$res->created_at.'</td>';
-                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 100, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    $html .= '<td>' . $res->created_at . '</td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-response-' . $res->id . '">' . Str::limit($res->response, 100, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . $res->response . '</span>
                     </td>';
                     $html .= '</tr>';
                 }
@@ -1091,18 +1082,18 @@ class StoreWebsiteController extends Controller
                 foreach ($responseLog as $res) {
                     //dd($res->created_at);
                     $html .= '<tr>';
-                    $html .= '<td>'.$res->created_at.'</td>';
-                    $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-website-'.$res->id.'">'.Str::limit($res->website, 15, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
+                    $html .= '<td>' . $res->created_at . '</td>';
+                    $html .= '<td class="expand-row-msg" data-name="website" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-website-' . $res->id . '">' . Str::limit($res->website, 15, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-website-' . $res->id . ' hidden">' . $res->website . '</span>
                     </td>';
-                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-response-' . $res->id . '">' . Str::limit($res->response, 25, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . $res->response . '</span>
                     </td>';
-                    $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
+                    $html .= '<td class="expand-row-msg" data-name="command" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-command-' . $res->id . '">' . Str::limit($res->command_name, 25, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-command-' . $res->id . ' hidden">' . $res->command_name . '</span>
                     </td>';
 
                     $html .= '</tr>';
@@ -1126,7 +1117,6 @@ class StoreWebsiteController extends Controller
     /**
      * This function is use to Update company's website address.
      *
-     * @param  Request  $request
      * @return JsonResponse
      */
     public function updateCompanyWebsiteAddress(Request $request)
@@ -1141,7 +1131,7 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -1167,7 +1157,7 @@ class StoreWebsiteController extends Controller
         if ($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {
             $repo = GithubRepository::where('id', $websiteDetails['repository_id'])->pluck('name')->first();
             if ($repo != null) {
-                $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'sync-staticfiles.sh -r '.$repo.' -s '.$websiteDetails['server_ip'];
+                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r ' . $repo . ' -s ' . $websiteDetails['server_ip'];
                 $allOutput = [];
                 $allOutput[] = $cmd;
                 $result = exec($cmd, $allOutput); //Execute command
@@ -1184,8 +1174,8 @@ class StoreWebsiteController extends Controller
 
     public function enableDBLog($website)
     {
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-debug.sh --server '.$website->server_ip.' --debug '.($website->is_debug_true ? 'true' : 'false').' 2>&1';
-        \Log::info('[SatyamTest] '.$cmd);
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-debug.sh --server ' . $website->server_ip . ' --debug ' . ($website->is_debug_true ? 'true' : 'false') . ' 2>&1';
+        \Log::info('[SatyamTest] ' . $cmd);
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
@@ -1229,7 +1219,7 @@ class StoreWebsiteController extends Controller
         $search = $request->search;
         $storeWebsites = StoreWebsite::whereNull('deleted_at');
         if ($search != null) {
-            $storeWebsites = $storeWebsites->where('title', 'Like', '%'.$search.'%');
+            $storeWebsites = $storeWebsites->where('title', 'Like', '%' . $search . '%');
         }
         $storeWebsites = $storeWebsites->get();
 
@@ -1266,20 +1256,20 @@ class StoreWebsiteController extends Controller
                 ->groupBy('code')->orderBy('id', 'asc')->pluck('id');
             if ($websites->count() == 0) {
                 $noWebsiteIds[] = $storeWebsiteId;
-                \Log::info('No websites found belongs to the store website id '.$storeWebsiteId);
+                \Log::info('No websites found belongs to the store website id ' . $storeWebsiteId);
             }
             $websitesToBeRemoved = Website::whereNotIn('id', $websites)->where('store_website_id', '=', $storeWebsiteId)->pluck('id');
 
             $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
             WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
-            \Log::info('Store views belongs to  the following ids deleted: '.json_encode($websiteStoresToBeRemoved));
+            \Log::info('Store views belongs to  the following ids deleted: ' . json_encode($websiteStoresToBeRemoved));
             WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
-            \Log::info('Website stores belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
+            \Log::info('Website stores belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
             Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
-            \Log::info('Websites belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
+            \Log::info('Websites belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
         }
 
-        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: '.json_encode($noWebsiteIds)]);
+        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: ' . json_encode($noWebsiteIds)]);
     }
 
     public function copyWebsiteStoreViews($storeWebsiteId)
@@ -1299,24 +1289,24 @@ class StoreWebsiteController extends Controller
                 $swIds[] = $row->id;
             }
         }
-        \Log::info('Source store website id: '.$storeWebsiteId);
+        \Log::info('Source store website id: ' . $storeWebsiteId);
 
         foreach ($swIds as $swId) {
-            \Log::info('Target store website id: '.$swId);
+            \Log::info('Target store website id: ' . $swId);
             $websitesToBeRemoved = Website::where('store_website_id', '=', $swId)->pluck('id');
             $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
             WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
-            \Log::info('Deleted the following store views: '.json_encode($websiteStoresToBeRemoved));
+            \Log::info('Deleted the following store views: ' . json_encode($websiteStoresToBeRemoved));
             WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
-            \Log::info('Deleted the following website store: '.json_encode($websitesToBeRemoved));
+            \Log::info('Deleted the following website store: ' . json_encode($websitesToBeRemoved));
             Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
-            \Log::info('Deleted the following websites: '.json_encode($websitesToBeRemoved));
+            \Log::info('Deleted the following websites: ' . json_encode($websitesToBeRemoved));
         }
 
         $websites = Website::where('store_website_id', '=', $storeWebsiteId)->get();
 
         foreach ($websites as $website) {
-            \Log::info('Copying started from website : '.$website->title);
+            \Log::info('Copying started from website : ' . $website->title);
             $websiteStore = WebsiteStore::where('website_id', '=', $website->id)->get();
             foreach ($swIds as $row) {
                 $dataRow['name'] = $website->name;
@@ -1349,113 +1339,110 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
     }
 
-    function    list_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+    public function list_tags(Request $request, WebsiteStoreTag $WebsiteStoreTag)
+    {
         $list = $WebsiteStoreTag->all();
-        if(!empty($list)){
+        if (! empty($list)) {
             return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
-
         }
-            return response()->json(['code' => 400, 'message' => 'Tags Not found']);
+
+        return response()->json(['code' => 400, 'message' => 'Tags Not found']);
     }
 
     /**
-    * Create tags for multiple website and stores
-    */
-    function    create_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
-        $data           =   $request->all();
+     * Create tags for multiple website and stores
+     */
+    public function create_tags(Request $request, WebsiteStoreTag $WebsiteStoreTag)
+    {
+        $data = $request->all();
 
         $validator = Validator::make($data, [
-            'tag'       => 'required'
+            'tag' => 'required',
         ]);
 
         if ($validator->fails()) {
-
             $outputString = '';
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
-            
+
             return response()->json(['code' => 400, 'message' => $outputString]);
         }
 
-        $insertArray    =   [
-            'tags'  =>  \Str::slug($data['tag'])
+        $insertArray = [
+            'tags' => \Str::slug($data['tag']),
         ];
         //check and create the tags
         $WebsiteStoreTag->updateOrCreate($insertArray);
 
         return response()->json(['code' => 200, 'message' => 'Tags Added Successfully']);
-        
     }
 
-    function    attach_tags(Request     $request,   StoreWebsite   $StoreWebsite){
-        $data   =   $request->all();
+    public function attach_tags(Request $request, StoreWebsite $StoreWebsite)
+    {
+        $data = $request->all();
 
-         $validator = Validator::make($data, [
+        $validator = Validator::make($data, [
             'store_id' => 'required',
-            'tag_attached' => 'required'
+            'tag_attached' => 'required',
         ]);
 
         if ($validator->fails()) {
-
             $outputString = '';
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
-
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
             return response()->json(['code' => 400, 'message' => $outputString]);
         }
 
-        //attach the tag 
+        //attach the tag
         $StoreWebsite->where(['id' => $data['store_id']])->update(['tag_id' => $data['tag_attached']]);
 
         return response()->json(['code' => 200, 'message' => 'Tags Attach Successfully']);
     }
 
-
-    function    attach_tags_store(StoreWebsite   $StoreWebsite){
-        $list    =   $StoreWebsite->select('tag_id','website','title')->whereNotNull('tag_id')->with('tags')->get();
-        if(!empty($list)){
+    public function attach_tags_store(StoreWebsite $StoreWebsite)
+    {
+        $list = $StoreWebsite->select('tag_id', 'website', 'title')->whereNotNull('tag_id')->with('tags')->get();
+        if (! empty($list)) {
             return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
-
         }
+
         return response()->json(['code' => 400, 'message' => 'Tags Not found']);
     }
-    
+
     public function generateAdminPassword(Request $request)
     {
         $usernames = $request->username;
 
         if ($request->username) {
-            foreach ($usernames as $key => $username) {                
-
-                if( starts_with($key, 'edit:') ){
-
-                    list($idd, $i) = $id = explode(':', $key);                    
+            foreach ($usernames as $key => $username) {
+                if (starts_with($key, 'edit:')) {
+                    [$idd, $i] = $id = explode(':', $key);
 
                     // update
-                    if($request->store_website_id[$key]){
+                    if ($request->store_website_id[$key]) {
                         StoreWebsiteUsers::where('id', $id[1])->update(
                             ['username' => $username, 'password' => $request->password[$key], 'store_website_id' => $request->store_website_id[$key]]
                         );
                     }
-                }else{
+                } else {
                     // check
-                    if($request->store_website_id[$key]){
-                        $params['username'] = $username;                  
+                    if ($request->store_website_id[$key]) {
+                        $params['username'] = $username;
                         $params['password'] = $request->password[$key];
-                        $params['store_website_id'] = $request->store_website_id[$key];                    
+                        $params['store_website_id'] = $request->store_website_id[$key];
 
                         // new
-                        $StoreWebsiteUsersid = StoreWebsiteUsers::create($params); 
-                    }                   
+                        $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
+                    }
                 }
             }
             session()->flash('msg', 'Admin Password Updated Successfully.');
@@ -1467,19 +1454,14 @@ class StoreWebsiteController extends Controller
             return redirect()->back();
         }
     }
-    
 
-
-    /**
-    *
-    */
     public function getAdminPassword(Request $request)
     {
         $search = $request->search;
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
         if ($search != null) {
-            $storeWebsiteUsers = $storeWebsiteUsers->where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%');
+            $storeWebsiteUsers = $storeWebsiteUsers->where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%');
         }
         $storeWebsiteUsers = $storeWebsiteUsers->get();
 

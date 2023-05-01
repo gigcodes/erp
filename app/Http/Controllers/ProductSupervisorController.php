@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
+use App\Stage;
 use App\Product;
 use App\Setting;
-use App\Stage;
+use App\Category;
 use Illuminate\Http\Request;
 
 class ProductSupervisorController extends Controller
@@ -67,7 +67,7 @@ class ProductSupervisorController extends Controller
         $product->isApproved = -1;
         $product->save();
 
-        NotificaitonContoller::store('has Rejected due to '.$reason, [$role], $product->id);
+        NotificaitonContoller::store('has Rejected due to ' . $reason, [$role], $product->id);
         ActivityConroller::create($product->id, 'supervisor', 'reject');
 
         return back()->with('rejected', 'Product has been rejected');

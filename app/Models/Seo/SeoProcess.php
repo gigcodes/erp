@@ -2,16 +2,16 @@
 
 namespace App\Models\Seo;
 
-use App\StoreWebsite;
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeoProcess extends Model
 {
     use HasFactory;
 
-    protected $table = "seo_process";
+    protected $table = 'seo_process';
 
     protected $fillable = [
         'website_id',
@@ -37,14 +37,14 @@ class SeoProcess extends Model
 
     public function seoChecklist()
     {
-        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function($query) {
+        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function ($query) {
             $query->where('type', 'seo_approval');
         });
     }
 
     public function publishChecklist()
     {
-        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function($query) {
+        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function ($query) {
             $query->where('type', 'publish');
         });
     }
@@ -63,5 +63,4 @@ class SeoProcess extends Model
     {
         return $this->belongsTo(SeoProcessStatus::class, 'seo_process_status_id');
     }
-    
 }

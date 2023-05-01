@@ -55,11 +55,11 @@ class CustomerListToEmailLead extends Command
                 $emailLead->save();
                 $i++;
             }
-            echo PHP_EOL."Total Record Inserted = {$i} ".PHP_EOL;
-            echo PHP_EOL.'===== Done ===='.PHP_EOL;
+            echo PHP_EOL . "Total Record Inserted = {$i} " . PHP_EOL;
+            echo PHP_EOL . '===== Done ====' . PHP_EOL;
         } catch (Exception $e) {
             echo $e->getMessage();
-            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
+            echo PHP_EOL . '=====FAILED====' . PHP_EOL;
         }
     }
 }

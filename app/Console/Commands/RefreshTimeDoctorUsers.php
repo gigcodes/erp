@@ -3,19 +3,19 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
-use App\TimeDoctor\TimeDoctorAccount;
-use App\TimeDoctor\TimeDoctorMember;
-use App\Library\TimeDoctor\Src\Timedoctor;
 use Illuminate\Console\Command;
+use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorAccount;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class RefreshTimeDoctorUsers extends Command
 {
-    
     public $TIME_DOCTOR_USER_ID;
 
     public $TIME_DOCTOR_AUTH_TOKEN;
 
     public $TIME_DOCTOR_COMPANY_ID;
+
     /**
      * The name and signature of the console command.
      *
@@ -65,48 +65,48 @@ class RefreshTimeDoctorUsers extends Command
 
     private function refreshUserList()
     {
-        $timedoctor = Timedoctor::getInstance();        
+        $timedoctor = Timedoctor::getInstance();
         try {
             $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetUser();
         } catch (\Exception $e) {
             $this->timedoctor = $timedoctor->authenticate(true, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetUser();
-        }        
+        }
     }
 
     private function startGetUser()
     {
-        try{
+        try {
             $members = $this->timedoctor->getMemberList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN);
-            if(!empty( $members )){
+            if (! empty($members)) {
                 $record = count($members->data);
-                foreach( $members->data as $member){
-                    echo $member->id.' Record started';
+                foreach ($members->data as $member) {
+                    echo $member->id . ' Record started';
                     echo PHP_EOL;
-                    $memeberExist = TimeDoctorMember::where('time_doctor_user_id', $member->id)->first();                
+                    $memeberExist = TimeDoctorMember::where('time_doctor_user_id', $member->id)->first();
                     if (! $memeberExist) {
                         if (! empty($member->email)) {
                             $userExist = \App\User::where('email', $member->email)->first();
                             TimeDoctorMember::create([
                                 'time_doctor_user_id' => $member->id,
                                 'email' => $member->email,
-                                'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,  
+                                'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
                                 'user_id' => ($userExist) ? $userExist->id : null,
                             ]);
                         }
-                    } else {                        
+                    } else {
                         $memeberExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
                         $memeberExist->save();
                     }
 
-                    echo $member->id.' Record ended';
+                    echo $member->id . ' Record ended';
                     echo PHP_EOL;
-                    echo 'Total Record Left :'.$record--;
+                    echo 'Total Record Left :' . $record--;
                     echo PHP_EOL;
                 }
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
         }
     }

@@ -2,31 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\ContentManageentEmail;
-use App\Helpers;
-use App\PaymentReceipt;
-use App\Role;
-use App\Setting;
-use App\StoreSocialAccount;
-use App\StoreSocialContent;
-use App\StoreSocialContentCategory;
-use App\StoreSocialContentHistory;
-use App\StoreSocialContentMilestone;
-use App\Social\SocialConfig;
-use App\StoreSocialContentReview;
-use App\StoreSocialContentStatus;
-use App\StoreWebsite;
-use App\Task;
-use App\Helpers\SocialHelper;
-use App\Social\SocialPost;
-use App\Social\SocialPostLog;
-use App\User;
-use CURLFile;
+use DB;
 use Auth;
 use Crypt;
-use Illuminate\Support\Facades\Http;
-use DB;
+use App\Role;
+use App\Task;
+use App\User;
+use App\Helpers;
+use App\Setting;
+use App\StoreWebsite;
+use App\PaymentReceipt;
+use App\Social\SocialPost;
+use App\StoreSocialAccount;
+use App\StoreSocialContent;
+use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\Helpers\SocialHelper;
+use App\Social\SocialPostLog;
+use App\ContentManageentEmail;
+use App\StoreSocialContentReview;
+use App\StoreSocialContentStatus;
+use App\StoreSocialContentHistory;
+use App\StoreSocialContentCategory;
+use App\StoreSocialContentMilestone;
 use Illuminate\Support\Facades\Storage;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -81,20 +79,20 @@ class ContentManagementController extends Controller
     public function downloadAttachImages(Request $request)
     {
         $content = file_get_contents($request->image_url);
-        $random = bin2hex(random_bytes(20)).'.png';
-        $path = asset('/uploads/gmail_media/'.$random);
+        $random = bin2hex(random_bytes(20)) . '.png';
+        $path = asset('/uploads/gmail_media/' . $random);
 
-        Storage::disk('uploads')->put('gmail_media/'.$random, $content);
+        Storage::disk('uploads')->put('gmail_media/' . $random, $content);
 
         return response()->json(['random' => $random, 'image_path' => $path, 'status' => true]);
     }
 
-    public function pagePost(Request $request){
-        $imageUrl = $request["imageurl"];
-        $query = SocialConfig::where('store_website_id',$request["websiteId"])->get();
-        
-        return view('content-management.select-page', compact('query','imageUrl'));
+    public function pagePost(Request $request)
+    {
+        $imageUrl = $request['imageurl'];
+        $query = SocialConfig::where('store_website_id', $request['websiteId'])->get();
 
+        return view('content-management.select-page', compact('query', 'imageUrl'));
     }
 
     public function viewAddSocialAccount()
@@ -106,58 +104,53 @@ class ContentManagementController extends Controller
 
     public function postSocialAccount(Request $request)
     {
-        if(isset($request["store_website_id"])){
+        if (isset($request['store_website_id'])) {
             $post = new SocialPost;
-            $post->config_id = $request["store_website_id"];
-            $post->caption = $request["message"];
+            $post->config_id = $request['store_website_id'];
+            $post->caption = $request['message'];
             $post->post_body = '';
             $post->post_by = Auth::user()->id;
             $post->save();
 
-            $config = SocialConfig::find($request["store_website_id"]);
-            
-            $message = $request["message"];
-            try {
+            $config = SocialConfig::find($request['store_website_id']);
 
+            $message = $request['message'];
+            try {
                 $access_token = $config->page_token;
                 $page_id = $config->page_id;
-                $source = $request["imageurl"];
-                $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
-            
-                
-                    $fbImage = [
-                    'access_token' =>$access_token, 
-                    //   'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg', 
-                    'url' => $source, 
-                    'caption' => $message, 
+                $source = $request['imageurl'];
+                $image_upload_url = 'https://graph.facebook.com/' . $page_id . '/photos';
+
+                $fbImage = [
+                    'access_token' => $access_token,
+                    //   'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg',
+                    'url' => $source,
+                    'caption' => $message,
                 ];
 
-                    $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
-                    $response = json_decode($response);
-                    
-                    if (isset($response->error->message)) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
-                    }else{
-                        
-                        $post->posted_on = $request->input('date');
-                        $post->status = 1;
-                        if (isset($response->post_id)) {
-                            $post->ref_post_id = $response->post_id;
-                        }
-                        $post->save();
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                    }
+                $response = SocialHelper::curlPostRequest($image_upload_url, $fbImage);
+                $response = json_decode($response);
 
+                if (isset($response->error->message)) {
+                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                } else {
+                    $post->posted_on = $request->input('date');
+                    $post->status = 1;
+                    if (isset($response->post_id)) {
+                        $post->ref_post_id = $response->post_id;
+                    }
+                    $post->save();
+                    $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                }
             } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                 \Log::info($e); // handle exception
                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
             }
         }
-        
-                                
+
         return redirect()->back();
     }
-    
+
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
         $Log = new SocialPostLog();
@@ -171,7 +164,6 @@ class ContentManagementController extends Controller
 
         return true;
     }
-
 
     public function addSocialAccount(Request $request)
     {
@@ -197,7 +189,7 @@ class ContentManagementController extends Controller
         $categories = StoreSocialContentCategory::orderBy('id', 'desc');
 
         if ($request->k != null) {
-            $categories = $categories->where('title', 'like', '%'.$request->k.'%');
+            $categories = $categories->where('title', 'like', '%' . $request->k . '%');
         }
         $ignoredCategory = [];
         // $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
@@ -300,7 +292,7 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Request date changed from '.$oldValue.' to '.$newValue;
+            $msg = 'Request date changed from ' . $oldValue . ' to ' . $newValue;
             $type = 'request_date';
             $social_content->request_date = $request->request_date;
         }
@@ -311,7 +303,7 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Due date changed from '.$oldValue.' to '.$newValue;
+            $msg = 'Due date changed from ' . $oldValue . ' to ' . $newValue;
             $type = 'due_date';
             $social_content->due_date = $request->due_date;
         }
@@ -322,7 +314,7 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Publish date changed from '.$oldValue.' to '.$newValue;
+            $msg = 'Publish date changed from ' . $oldValue . ' to ' . $newValue;
             $type = 'publish_date';
             $social_content->publish_date = $request->publish_date;
         }
@@ -380,7 +372,7 @@ class ContentManagementController extends Controller
 
         $file = $request->file('file');
 
-        $name = uniqid().'_'.trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
@@ -412,9 +404,9 @@ class ContentManagementController extends Controller
             }
             $count = 0;
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                        ->toDirectory('site-development/'.floor($site->id / config('constants.image_per_folder')))
+                        ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
                         ->upload();
                 $site->attachMedia($media, config('constants.media_tags'));
                 $count++;
@@ -464,7 +456,7 @@ class ContentManagementController extends Controller
                     $fullReviews = '';
                     if (count($reviews) > 0) {
                         foreach ($reviews as $r) {
-                            $fullReviews = $fullReviews.'<p style="margin:0px">*'.$r->review.'</p>';
+                            $fullReviews = $fullReviews . '<p style="margin:0px">*' . $r->review . '</p>';
                         }
                     }
                     $records[] = [
@@ -571,7 +563,6 @@ class ContentManagementController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -604,7 +595,6 @@ class ContentManagementController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

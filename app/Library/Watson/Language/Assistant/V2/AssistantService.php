@@ -2,8 +2,8 @@
 
 namespace App\Library\Watson\Language\Assistant\V2;
 
-use App\Library\Watson\Response;
 use App\Library\Watson\Service;
+use App\Library\Watson\Response;
 
 class AssistantService extends Service
 {
@@ -43,7 +43,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'/tone',
+            $this->getMountedUrl() . '/tone',
             ['query' => ['version' => $version, 'text' => $textToAnalyse]]
         );
     }
@@ -57,7 +57,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions',
+            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions',
             ['query' => ['version' => $version]]
         );
     }
@@ -66,7 +66,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions/'.$sessionId,
+            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions/' . $sessionId,
             ['query' => ['version' => $version]]
         );
     }
@@ -75,7 +75,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions/'.$sessionId.'/message',
+            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions/' . $sessionId . '/message',
             ['query' => ['version' => $version], 'json' => $params]
         );
     }

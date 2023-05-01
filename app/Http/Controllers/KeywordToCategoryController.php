@@ -61,7 +61,6 @@ class KeywordToCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -85,7 +84,6 @@ class KeywordToCategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
      * @return \Illuminate\Http\Response
      */
     public function show(KeywordToCategory $keywordToCategory)
@@ -96,7 +94,6 @@ class KeywordToCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
      * @return \Illuminate\Http\Response
      */
     public function edit(KeywordToCategory $keywordToCategory)
@@ -107,8 +104,6 @@ class KeywordToCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\KeywordToCategory  $keywordToCategory
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, KeywordToCategory $keywordToCategory)
@@ -133,10 +128,6 @@ class KeywordToCategoryController extends Controller
         return redirect()->back()->with('message', 'Keyword deleted successfully!');
     }
 
-    /**
-     * @param $value
-     * @return array
-     */
     private function getCategoryWIthData($value): array
     {
         if (stripos(strtolower($value), 'order_') !== false) {

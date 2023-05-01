@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Account;
-use App\CronJobReport;
-use App\Customer;
-use App\InstagramThread;
 use App\Review;
+use App\Account;
+use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\InstagramThread;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;
@@ -78,7 +78,7 @@ class SyncDMForDummyAccounts extends Command
                         if (count($user) !== 1) {
                             continue;
                         }
-                        echo $user[0]['username']." will be created now.\n";
+                        echo $user[0]['username'] . " will be created now.\n";
                         $customer = $this->createCustomer($user[0]);
 
                         if (! $customer) {
@@ -100,7 +100,6 @@ class SyncDMForDummyAccounts extends Command
     }
 
     /**
-     * @param $user
      * @return Customer|void
      */
     private function createCustomer($user)
@@ -147,10 +146,10 @@ class SyncDMForDummyAccounts extends Command
                 $text = $item['media']['image_versions2']['candidates'][0]['url'];
             }
 
-            return '<strong>'.($item['user_id'] == $currentUserId ? $accUser : $customer->ig_username).'</strong>'.' =>'.$text;
+            return '<strong>' . ($item['user_id'] == $currentUserId ? $accUser : $customer->ig_username) . '</strong>' . ' =>' . $text;
         }, $thread['items']);
 
-        $review->review = '<ul>'.implode('<li>', $threadJson['messages']).'</ul>';
+        $review->review = '<ul>' . implode('<li>', $threadJson['messages']) . '</ul>';
         $review->platform = 'instagram_dm';
         $review->save();
     }

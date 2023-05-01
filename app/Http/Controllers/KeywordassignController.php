@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Keywordassign;
-use App\KeywordAutoGenratedMessageLog;
 use DB;
-use Illuminate\Http\Request; //Purpose : add model - DEVTASK-4233
+use App\Keywordassign;
+use Illuminate\Http\Request;
+use App\KeywordAutoGenratedMessageLog; //Purpose : add model - DEVTASK-4233
 
 class KeywordassignController extends Controller
 {
@@ -45,7 +45,6 @@ class KeywordassignController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -60,7 +59,7 @@ class KeywordassignController extends Controller
         $exp_keyword = explode(',', $request->keyword);
         $new_keywordstr = '';
         for ($i = 0; $i < count($exp_keyword); $i++) {
-            $new_keywordstr .= trim($exp_keyword[$i]).',';
+            $new_keywordstr .= trim($exp_keyword[$i]) . ',';
         }
         $keyword = trim($new_keywordstr, ',');
         $task_category = $request->task_category;
@@ -112,7 +111,6 @@ class KeywordassignController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -179,7 +177,7 @@ class KeywordassignController extends Controller
             $query = KeywordAutoGenratedMessageLog::orderBy('id', 'DESC');
 
             if ($request->get('keyword') != '') {
-                $keywordlogs = $query->where('keyword', 'like', '%'.$request->get('keyword').'%');
+                $keywordlogs = $query->where('keyword', 'like', '%' . $request->get('keyword') . '%');
             }
 
             if ($request->get('keyword_duedate') != '') {

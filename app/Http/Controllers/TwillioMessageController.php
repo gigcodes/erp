@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Customer;
-use App\MarketingMessage;
-use App\MarketingMessageCustomer;
-use App\MessagingGroup;
-use App\MessagingGroupCustomer;
 use App\SmsService;
 use App\StoreWebsite;
+use App\MessagingGroup;
+use App\MarketingMessage;
 use Illuminate\Http\Request;
-use Validator;
+use App\MessagingGroupCustomer;
+use App\MarketingMessageCustomer;
 
 class TwillioMessageController extends Controller
 {
@@ -35,7 +35,7 @@ class TwillioMessageController extends Controller
             $data = $data->where('messaging_groups.store_website_id', $inputs['webiste']);
         }
         if (isset($inputs['title'])) {
-            $data = $data->where('marketing_messages.title', 'like', '%'.$inputs['title'].'%');
+            $data = $data->where('marketing_messages.title', 'like', '%' . $inputs['title'] . '%');
         }
         $data = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = ['' => 'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
@@ -65,7 +65,7 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
@@ -91,7 +91,7 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
@@ -163,7 +163,7 @@ class TwillioMessageController extends Controller
     public function fetchCustomers(Request $request)
     {
         $q = $request->q;
-        $customers = Customer::where('email', 'like', '%'.$q.'%')->select('id', 'email')->get();
+        $customers = Customer::where('email', 'like', '%' . $q . '%')->select('id', 'email')->get();
 
         return json_encode($customers);
     }
@@ -180,7 +180,7 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
@@ -209,7 +209,7 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);

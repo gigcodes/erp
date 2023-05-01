@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\PeopleNames;
 use App\PreAccount;
+use App\PeopleNames;
 use App\TargetLocation;
 use Illuminate\Http\Request;
 
@@ -38,7 +38,6 @@ class PreAccountController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -67,14 +66,14 @@ class PreAccountController extends Controller
 
             $a = new Account();
             $a->email = $account->email;
-            $a->first_name = $account->first_name.' '.$account->last_name;
+            $a->first_name = $account->first_name . ' ' . $account->last_name;
             $a->platform = 'instagram';
             $a->dob = date('Y-m-d');
             $a->save();
 
             $a = new Account();
             $a->email = $account->email;
-            $a->first_name = $account->first_name.' '.$account->last_name;
+            $a->first_name = $account->first_name . ' ' . $account->last_name;
             $a->platform = 'pinterest';
             $a->dob = date('Y-m-d');
             $a->save();
@@ -86,7 +85,6 @@ class PreAccountController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function show(PreAccount $preAccount)
@@ -97,7 +95,6 @@ class PreAccountController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function edit(PreAccount $preAccount)
@@ -108,8 +105,6 @@ class PreAccountController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, PreAccount $preAccount)

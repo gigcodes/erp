@@ -6,18 +6,18 @@ namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
 use function count;
-use function htmlspecialchars;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Tracker;
-use PhpMyAdmin\Tracking;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
 use function sprintf;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Tracker;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Tracking;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
 
 /**
  * Tracking configuration for database.
@@ -147,8 +147,8 @@ class TrackingController extends AbstractController
 
         $log = '';
         foreach ($data['ddlog'] as $entry) {
-            $log .= '# '.$entry['date'].' '.$entry['username']."\n"
-                .$entry['statement']."\n";
+            $log .= '# ' . $entry['date'] . ' ' . $entry['username'] . "\n"
+                . $entry['statement'] . "\n";
         }
 
         echo Generator::getMessage(__('Database Log'), $log);

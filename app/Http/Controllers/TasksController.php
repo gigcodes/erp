@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\CronActivity;
-use App\CronJob;
-use App\CronJobErroLog;
-use App\DeveloperModule;
-use App\ScheduleQuery;
-use App\User;
 use File;
+use App\User;
+use App\CronJob;
+use App\CronActivity;
+use App\ScheduleQuery;
+use Studio\Totem\Task;
+use App\CronJobErroLog;
+use Studio\Totem\Totem;
+use App\DeveloperModule;
+use function storage_path;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use function storage_path;
 use Studio\Totem\Http\Requests\TaskRequest;
-use Studio\Totem\Task;
-use Studio\Totem\Totem;
 
 class TasksController extends Controller
 {
@@ -31,7 +31,7 @@ class TasksController extends Controller
             'tasks' => auth()->user()->isAdmin() || auth()->user()->isCronManager() ? Task::with('frequencies')
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
-                    $query->where('description', 'LIKE', '%'.request('q').'%');
+                    $query->where('description', 'LIKE', '%' . request('q') . '%');
                 })->when(request('developer_module'), function ($query) {
                     $query->where('developer_module_id', '=', request('developer_module'));
                 })->when(request('is_active'), function ($query) {
@@ -40,7 +40,7 @@ class TasksController extends Controller
                 ->paginate(50) : Task::with('frequencies')->whereIn('id', $userCronIds)
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
-                    $query->where('description', 'LIKE', '%'.request('q').'%');
+                    $query->where('description', 'LIKE', '%' . request('q') . '%');
                 })->when(request('developer_module'), function ($query) {
                     $query->where('developer_module_id', '=', request('developer_module'));
                 })->when(request('is_active'), function ($query) {
@@ -76,9 +76,9 @@ class TasksController extends Controller
             'parameters',
             'timezone',
             'developer_module_id',
-//            'type',
+            //            'type',
             'expression',
-//            'frequencies',
+            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',
@@ -86,7 +86,7 @@ class TasksController extends Controller
             'run_in_maintenance',
             'run_on_one_server',
             'auto_cleanup_num',
-            'auto_cleanup_type'
+            'auto_cleanup_type',
         ]));
 
         return response()->json([
@@ -113,8 +113,6 @@ class TasksController extends Controller
         ]);
     }
 
-
-
     public function update(TaskRequest $request, Task $task)
     {
 //        dd($task);
@@ -126,9 +124,9 @@ class TasksController extends Controller
             'parameters',
             'timezone',
             'developer_module_id',
-//            'type',
+            //            'type',
             'expression',
-//            'frequencies',
+            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',
@@ -136,7 +134,7 @@ class TasksController extends Controller
             'run_in_maintenance',
             'run_on_one_server',
             'auto_cleanup_num',
-            'auto_cleanup_type'
+            'auto_cleanup_type',
         ]));
 
         return response()->json([
@@ -200,7 +198,7 @@ class TasksController extends Controller
 
     public function developmentTask(Request $request, $task)
     {
-        $findTasks = \App\DeveloperTask::where('subject', 'like', '%'.strtoupper($task->command).'%')->latest()->get();
+        $findTasks = \App\DeveloperTask::where('subject', 'like', '%' . strtoupper($task->command) . '%')->latest()->get();
 
         return view('totem.tasks.partials.development-task-list', compact('findTasks'));
     }
@@ -218,13 +216,16 @@ class TasksController extends Controller
         return $cronError;
     }
 
-    public function queryCommand(Request $request, $name){
-        $query = ScheduleQuery::where('schedule_name' , '=', $name)->get()->toArray();
+    public function queryCommand(Request $request, $name)
+    {
+        $query = ScheduleQuery::where('schedule_name', '=', $name)->get()->toArray();
 
         return $query;
     }
-    public function cronHistory(Request $request, $name){
-        $query = CronActivity::where('cron_id', '=', $name)->get()->map(function(CronActivity $cronActivity){
+
+    public function cronHistory(Request $request, $name)
+    {
+        $query = CronActivity::where('cron_id', '=', $name)->get()->map(function (CronActivity $cronActivity) {
             return [
                 'assign_by_name' => $cronActivity->assignBy->name,
                 'assign_to_name' => $cronActivity->assignTo->name,
@@ -233,40 +234,47 @@ class TasksController extends Controller
 
         return $query;
     }
-    public function enableDisableCron(Request $request){
+
+    public function enableDisableCron(Request $request)
+    {
         if ($request->get('ids')) {
-                DB::table('crontasks')->whereIn('id', $request->get('ids'))->update([
-                    'is_active' => $request->get('active'),
-                ]);
-               $msg = $request->get('active') ? "Task enabled Successfully" : "Task disabled Successfully";
-                return response()->json([
+            DB::table('crontasks')->whereIn('id', $request->get('ids'))->update([
+                'is_active' => $request->get('active'),
+            ]);
+            $msg = $request->get('active') ? 'Task enabled Successfully' : 'Task disabled Successfully';
+
+            return response()->json([
                 'status' => true,
                 'message' => $msg,
             ]);
         }
     }
-    public function assignUsers(Request $request){
+
+    public function assignUsers(Request $request)
+    {
         foreach ($request->get('users_id') as $userId) {
             $cron = new CronActivity();
             $cron->assign_by_id = \Auth::user()->id;
             $cron->cron_id = $request->get('task-id');
             $cron->assign_to_id = $userId;
             $cron->save();
-                 }
+        }
+
         return response()->json([
             'status' => true,
-            'message' => "Cron assign succesfully",
+            'message' => 'Cron assign succesfully',
         ]);
     }
 
-    public function bulkAssign(Request $request){
+    public function bulkAssign(Request $request)
+    {
         $crons = DB::table('crontasks')->get()->toArray();
         $cron_ids = [];
-        foreach ($crons as $cron){
+        foreach ($crons as $cron) {
             $cron_ids[] = $cron->id;
         }
         foreach ($request->get('users_id') as $userId) {
-            foreach ($cron_ids as $cron_id){
+            foreach ($cron_ids as $cron_id) {
                 $cron = new CronActivity();
                 $cron->assign_by_id = \Auth::user()->id;
                 $cron->cron_id = $cron_id;
@@ -274,10 +282,10 @@ class TasksController extends Controller
                 $cron->save();
             }
         }
+
         return response()->json([
             'status' => true,
-            'message' => "Cron assign succesfully",
+            'message' => 'Cron assign succesfully',
         ]);
-
     }
 }

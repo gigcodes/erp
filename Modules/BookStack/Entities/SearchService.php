@@ -2,13 +2,13 @@
 
 namespace Modules\BookStack\Entities;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Modules\BookStack\Auth\Permissions\PermissionService;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 class SearchService
 {
@@ -41,11 +41,6 @@ class SearchService
 
     /**
      * SearchService constructor.
-     *
-     * @param  SearchTerm  $searchTerm
-     * @param  EntityProvider  $entityProvider
-     * @param  Connection  $db
-     * @param  PermissionService  $permissionService
      */
     public function __construct(SearchTerm $searchTerm, EntityProvider $entityProvider, Connection $db, PermissionService $permissionService)
     {
@@ -57,8 +52,6 @@ class SearchService
 
     /**
      * Set the database connection
-     *
-     * @param  Connection  $connection
      */
     public function setConnection(Connection $connection)
     {
@@ -259,12 +252,12 @@ class SearchService
             $subQuery->where('entity_type', '=', $entity->getMorphClass());
             $subQuery->where(function (Builder $query) use ($terms) {
                 foreach ($terms['search'] as $inputTerm) {
-                    $query->orWhere('term', 'like', $inputTerm.'%');
+                    $query->orWhere('term', 'like', $inputTerm . '%');
                 }
             })->groupBy('entity_type', 'entity_id');
-            $entitySelect->join(\DB::raw('('.$subQuery->toSql().') as s'), function (JoinClause $join) {
+            $entitySelect->join(\DB::raw('(' . $subQuery->toSql() . ') as s'), function (JoinClause $join) {
                 $join->on('id', '=', 'entity_id');
-            })->selectRaw($entity->getTable().'.*, s.score')->orderBy('score', 'desc');
+            })->selectRaw($entity->getTable() . '.*, s.score')->orderBy('score', 'desc');
             $entitySelect->mergeBindings($subQuery);
         }
 
@@ -273,8 +266,8 @@ class SearchService
             $entitySelect->where(function (EloquentBuilder $query) use ($terms, $entity) {
                 foreach ($terms['exact'] as $inputTerm) {
                     $query->where(function (EloquentBuilder $query) use ($inputTerm, $entity) {
-                        $query->where('name', 'like', '%'.$inputTerm.'%')
-                            ->orWhere($entity->textField, 'like', '%'.$inputTerm.'%');
+                        $query->where('name', 'like', '%' . $inputTerm . '%')
+                            ->orWhere($entity->textField, 'like', '%' . $inputTerm . '%');
                     });
                 }
             });
@@ -287,7 +280,7 @@ class SearchService
 
         // Handle filters
         foreach ($terms['filters'] as $filterTerm => $filterValue) {
-            $functionName = Str::camel('filter_'.$filterTerm);
+            $functionName = Str::camel('filter_' . $filterTerm);
             if (method_exists($this, $functionName)) {
                 $this->$functionName($entitySelect, $entity, $filterValue);
             }
@@ -299,7 +292,6 @@ class SearchService
     /**
      * Parse a search string into components.
      *
-     * @param $searchString
      * @return array
      */
     protected function parseSearchString($searchString)
@@ -363,13 +355,12 @@ class SearchService
     /**
      * Apply a tag search term onto a entity query.
      *
-     * @param  EloquentBuilder  $query
      * @param  string  $tagTerm
      * @return mixed
      */
     protected function applyTagSearch(EloquentBuilder $query, $tagTerm)
     {
-        preg_match('/^(.*?)(('.$this->getRegexEscapedOperators().')(.*?))?$/', $tagTerm, $tagSplit);
+        preg_match('/^(.*?)((' . $this->getRegexEscapedOperators() . ')(.*?))?$/', $tagTerm, $tagSplit);
         $query->whereHas('tags', function (EloquentBuilder $query) use ($tagSplit) {
             $tagName = $tagSplit[1];
             $tagOperator = count($tagSplit) > 2 ? $tagSplit[3] : '';
@@ -398,8 +389,6 @@ class SearchService
 
     /**
      * Index the given entity.
-     *
-     * @param  Entity  $entity
      */
     public function indexEntity(Entity $entity)
     {
@@ -455,8 +444,6 @@ class SearchService
 
     /**
      * Delete related Entity search terms.
-     *
-     * @param  Entity  $entity
      */
     public function deleteEntityTerms(Entity $entity)
     {
@@ -466,7 +453,6 @@ class SearchService
     /**
      * Create a scored term array from the given text.
      *
-     * @param $text
      * @param  float|int  $scoreAdjustment
      * @return array
      */
@@ -562,7 +548,7 @@ class SearchService
 
     protected function filterInName(EloquentBuilder $query, Entity $model, $input)
     {
-        $query->where('name', 'like', '%'.$input.'%');
+        $query->where('name', 'like', '%' . $input . '%');
     }
 
     protected function filterInTitle(EloquentBuilder $query, Entity $model, $input)
@@ -572,7 +558,7 @@ class SearchService
 
     protected function filterInBody(EloquentBuilder $query, Entity $model, $input)
     {
-        $query->where($model->textField, 'like', '%'.$input.'%');
+        $query->where($model->textField, 'like', '%' . $input . '%');
     }
 
     protected function filterIsRestricted(EloquentBuilder $query, Entity $model, $input)
@@ -596,7 +582,7 @@ class SearchService
 
     protected function filterSortBy(EloquentBuilder $query, Entity $model, $input)
     {
-        $functionName = Str::camel('sort_by_'.$input);
+        $functionName = Str::camel('sort_by_' . $input);
         if (method_exists($this, $functionName)) {
             $this->$functionName($query, $model);
         }
@@ -607,10 +593,10 @@ class SearchService
      */
     protected function sortByLastCommented(EloquentBuilder $query, Entity $model)
     {
-        $commentsTable = $this->db->getTablePrefix().'comments';
+        $commentsTable = $this->db->getTablePrefix() . 'comments';
         $morphClass = str_replace('\\', '\\\\', $model->getMorphClass());
-        $commentQuery = $this->db->raw('(SELECT c1.entity_id, c1.entity_type, c1.created_at as last_commented FROM '.$commentsTable.' c1 LEFT JOIN '.$commentsTable.' c2 ON (c1.entity_id = c2.entity_id AND c1.entity_type = c2.entity_type AND c1.created_at < c2.created_at) WHERE c1.entity_type = \''.$morphClass.'\' AND c2.created_at IS NULL) as comments');
+        $commentQuery = $this->db->raw('(SELECT c1.entity_id, c1.entity_type, c1.created_at as last_commented FROM ' . $commentsTable . ' c1 LEFT JOIN ' . $commentsTable . ' c2 ON (c1.entity_id = c2.entity_id AND c1.entity_type = c2.entity_type AND c1.created_at < c2.created_at) WHERE c1.entity_type = \'' . $morphClass . '\' AND c2.created_at IS NULL) as comments');
 
-        $query->join($commentQuery, $model->getTable().'.id', '=', 'comments.entity_id')->orderBy('last_commented', 'desc');
+        $query->join($commentQuery, $model->getTable() . '.id', '=', 'comments.entity_id')->orderBy('last_commented', 'desc');
     }
 }

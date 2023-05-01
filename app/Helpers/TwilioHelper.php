@@ -12,11 +12,11 @@ class TwilioHelper
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
-        curl_setopt($ch, CURLOPT_USERPWD, $sid.':'.$token);
+        curl_setopt($ch, CURLOPT_USERPWD, $sid . ':' . $token);
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            echo 'Error:'.curl_error($ch);
+            echo 'Error:' . curl_error($ch);
             exit;
         }
         curl_close($ch);

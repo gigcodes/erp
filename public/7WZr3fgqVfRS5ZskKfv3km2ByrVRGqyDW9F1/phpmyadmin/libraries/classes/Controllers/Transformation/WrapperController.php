@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Transformation;
 
 use function __;
+use function round;
 use function define;
-use function htmlspecialchars;
-use function in_array;
 use function intval;
+use function substr;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use function stripos;
+use function in_array;
+use PhpMyAdmin\Template;
+use function str_replace;
+use PhpMyAdmin\DbTableExists;
+use function htmlspecialchars;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Image\ImageWrapper;
 use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Image\ImageWrapper;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Util;
-use function round;
-use function str_replace;
-use function stripos;
-use function substr;
 
 /**
  * Wrapper script for rendering transformations
@@ -105,13 +105,13 @@ class WrapperController extends AbstractController
             }
 
             $result = $this->dbi->query(
-                'SELECT * FROM '.Util::backquote($table)
-                .' WHERE '.$where_clause.';'
+                'SELECT * FROM ' . Util::backquote($table)
+                . ' WHERE ' . $where_clause . ';'
             );
             $row = $result->fetchAssoc();
         } else {
             $result = $this->dbi->query(
-                'SELECT * FROM '.Util::backquote($table).' LIMIT 1;'
+                'SELECT * FROM ' . Util::backquote($table) . ' LIMIT 1;'
             );
             $row = $result->fetchAssoc();
         }
@@ -151,7 +151,7 @@ class WrapperController extends AbstractController
             $mime_type = (! empty($mime_map[$transform_key]['mimetype'])
                     ? str_replace('_', '/', $mime_map[$transform_key]['mimetype'])
                     : $default_ct)
-                .($mime_options['charset'] ?? '');
+                . ($mime_options['charset'] ?? '');
         }
 
         Core::downloadHeader($cn ?? '', $mime_type ?? '');

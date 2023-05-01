@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperModule;
-use App\DeveloperTask;
-use App\GoogleDoc;
-use App\Models\GoogleDrive;
 use App\User;
+use App\DeveloperTask;
+use App\Models\GoogleDrive;
 use Illuminate\Http\Request;
 
 class GoogleDriveController extends Controller
@@ -22,9 +20,10 @@ class GoogleDriveController extends Controller
         $developer_task = DeveloperTask::select('task')->distinct();
         $developer_task = $developer_task->get();
 
-        return view('googledrive.index', compact('google_drivedata','user_name','developer_task'))
+        return view('googledrive.index', compact('google_drivedata', 'user_name', 'developer_task'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
+
     public function create(Request $request)
     {
         $drive_data = new GoogleDrive();
@@ -35,18 +34,17 @@ class GoogleDriveController extends Controller
 
         $i = 0;
         $image = [];
-        foreach($request->file('upload_file') as $file)
-        {
+        foreach ($request->file('upload_file') as $file) {
             $name = $file->getClientOriginalName();
             $filename = pathinfo($name, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $full_name = 'googledrive/'.$filename.'/'.$filename.'.'.$extension;
+            $full_name = 'googledrive/' . $filename . '/' . $filename . '.' . $extension;
 
-            $file->move(public_path('/googledrive/'. $filename),$name);
+            $file->move(public_path('/googledrive/' . $filename), $name);
             $image[] = $full_name;
         }
-        $string = implode(",",$image);
+        $string = implode(',', $image);
         $drive_data->upload_file = $string;
         $drive_data->save();
 

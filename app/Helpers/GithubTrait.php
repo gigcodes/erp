@@ -2,13 +2,13 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use App\Github\GithubRepository;
 use App\Github\GithubOrganization;
 use Illuminate\Support\Arr;
+use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
 {
@@ -32,11 +32,11 @@ trait GithubTrait
 
     private function pullRequests($userName, $token, $repoId, $filters = [])
     {
-        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
+        $addedFilters = ! empty($filters) ? Arr::query($filters) : '';
         $pullRequests = [];
-        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
-        if(!empty($addedFilters)){
-            $url .= "&".$addedFilters;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
+        if (! empty($addedFilters)) {
+            $url .= '&' . $addedFilters;
         }
         try {
             // $client = $this->getGithubClient();
@@ -71,7 +71,7 @@ trait GithubTrait
         //https://api.github.com/repositories/:repoId/compare/:diff
 
         try {
-            $url = 'https://api.github.com/repositories/'.$repoId.'/compare/'.$base.'...'.$branchName;
+            $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
             $response = $githubClient->get($url);
         } catch (ClientException $e) {
             if ($e->getResponse()->getStatusCode() == 404) {
@@ -141,7 +141,7 @@ trait GithubTrait
 
     private function getPullRequestDetail($userName, $token, string $repoId, string $number)
     {
-        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls/'.$number;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls/' . $number;
 
         try {
             $githubClient = $this->connectGithubClient($userName, $token);
@@ -149,16 +149,17 @@ trait GithubTrait
             $response = $githubClient->get($url);
 
             $pullRequest = json_decode($response->getBody()->getContents());
-                return [
-                    'id' => $pullRequest->number,
-                    'title' => $pullRequest->title,
-                    'number' => $pullRequest->number,
-                    'username' => $pullRequest->user->login,
-                    'userId' => $pullRequest->user->id,
-                    'updated_at' => $pullRequest->updated_at,
-                    'source' => $pullRequest->head->ref,
-                    'mergeable_state' => $pullRequest->mergeable_state,
-                    'destination' => $pullRequest->base->ref,
+
+            return [
+                'id' => $pullRequest->number,
+                'title' => $pullRequest->title,
+                'number' => $pullRequest->number,
+                'username' => $pullRequest->user->login,
+                'userId' => $pullRequest->user->id,
+                'updated_at' => $pullRequest->updated_at,
+                'source' => $pullRequest->head->ref,
+                'mergeable_state' => $pullRequest->mergeable_state,
+                'destination' => $pullRequest->base->ref,
             ];
         } catch (Exception $e) {
         }
@@ -185,8 +186,10 @@ trait GithubTrait
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
+
     private function deleteBranch(string $repositoryId, string $branchName)
     {
         $repository = GithubRepository::find($repositoryId);
@@ -203,6 +206,7 @@ trait GithubTrait
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
 
@@ -221,12 +225,13 @@ trait GithubTrait
         try {
             $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
         }
     }
 
-    private function getGithubActionRunJobs(string $repositoryId,string $runId)
+    private function getGithubActionRunJobs(string $repositoryId, string $runId)
     {
         $repository = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
@@ -238,6 +243,7 @@ trait GithubTrait
         try {
             $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
         }
@@ -258,12 +264,12 @@ trait GithubTrait
         try {
             $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
             //
         }
     }
-
 
     private function rerunAction($repoId, $jobId)
     {
@@ -280,6 +286,7 @@ trait GithubTrait
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
 }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\AutoCommentHistory;
-use App\ErpAccounts;
 use App\User;
+use App\Account;
 use Carbon\Carbon;
+use App\ErpAccounts;
+use App\AutoCommentHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 //use InstagramAPI\Instagram;
 
@@ -62,7 +62,7 @@ class UsersAutoCommentHistoriesController extends Controller
             $productsAttached++;
         }
 
-        return redirect()->back()->with('message', 'Successfully added '.$productsAttached.' posts to comment!');
+        return redirect()->back()->with('message', 'Successfully added ' . $productsAttached . ' posts to comment!');
     }
 
     public function sendMessagesToWhatsappToScrap(Request $request)
@@ -188,7 +188,6 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -221,7 +220,6 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

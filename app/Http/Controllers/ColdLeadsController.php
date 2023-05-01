@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\ColdLeads;
 use App\Customer;
+use App\ColdLeads;
 //use App\InstagramDirectMessages;
 //use App\InstagramThread;
 use Illuminate\Http\Request;
@@ -80,7 +80,6 @@ class ColdLeadsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -91,7 +90,6 @@ class ColdLeadsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ColdLeads  $coldLeads
      * @return \Illuminate\Http\Response
      */
     public function show(ColdLeads $coldLeads)
@@ -102,7 +100,6 @@ class ColdLeadsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ColdLeads  $coldLeads
      * @return \Illuminate\Http\Response
      */
     public function edit(ColdLeads $coldLeads)
@@ -113,8 +110,6 @@ class ColdLeadsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ColdLeads  $coldLeads
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ColdLeads $coldLeads)
@@ -125,7 +120,6 @@ class ColdLeadsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param $id
      * @return void
      */
     public function destroy($id)

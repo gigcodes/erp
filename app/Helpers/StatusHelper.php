@@ -3,8 +3,8 @@
 namespace App\Helpers;
 
 use App\Jobs\ProductAi;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 class StatusHelper extends Model
 {
@@ -208,7 +208,7 @@ class StatusHelper extends Model
         $productStats = DB::table('products')
             ->select('status_id', DB::raw('COUNT(id) as total'))
             ->where('stock', '>=', $inStockOnly)
-            ->whereBetween('created_at', [$startDate.' 00:00', $endDate.' 23:59'])
+            ->whereBetween('created_at', [$startDate . ' 00:00', $endDate . ' 23:59'])
             ->groupBy('status_id')
             ->pluck('total', 'status_id')->all();
 

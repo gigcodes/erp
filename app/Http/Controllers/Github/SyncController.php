@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubGroup;
-use App\Github\GithubGroupMember;
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryGroup;
-use App\Github\GithubRepositoryUser;
-use App\Github\GithubOrganization;
-use App\Github\GithubUser;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use DateTime;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
+use App\Github\GithubUser;
+use App\Github\GithubGroup;
+use App\Github\GithubRepository;
+use App\Github\GithubOrganization;
+use App\Github\GithubGroupMember;
+use App\Github\GithubRepositoryUser;
+use App\Http\Controllers\Controller;
+use App\Github\GithubRepositoryGroup;
 
 class SyncController extends Controller
 {

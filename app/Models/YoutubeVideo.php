@@ -20,6 +20,6 @@ class YoutubeVideo extends Model
         'create_time',
         'created_at',
         'updated_at',
-        'deleted_at'
-       ];
+        'deleted_at',
+    ];
 }

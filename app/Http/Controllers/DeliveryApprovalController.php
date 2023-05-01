@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\DeliveryApproval;
+use Auth;
+use App\User;
 use App\Helpers;
+use App\ChatMessage;
 use App\PrivateView;
 use App\StatusChange;
-use App\User;
-use Auth;
+use App\DeliveryApproval;
 use Illuminate\Http\Request;
 
 class DeliveryApprovalController extends Controller
@@ -47,7 +47,6 @@ class DeliveryApprovalController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -80,7 +79,6 @@ class DeliveryApprovalController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

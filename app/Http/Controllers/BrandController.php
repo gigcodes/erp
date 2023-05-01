@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Activity;
+use Auth;
 use App\Brand;
-use App\BrandLogo;
-use App\BrandWithLogo;
-use App\Category;
-use App\CategorySegment;
+use App\HashTag;
 use App\Product;
-use App\ScrapedProducts;
 use App\Scraper;
 use App\Setting;
+use App\Activity;
+use App\Category;
+use App\BrandLogo;
+use App\BrandWithLogo;
+use App\CategorySegment;
+use App\ScrapedProducts;
 use App\StoreWebsiteBrand;
-use Auth;
+use App\Jobs\CreateHashTags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -38,7 +40,7 @@ class BrandController extends Controller
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
-            $brands = $brands->where('name', 'like', '%'.$keyword.'%');
+            $brands = $brands->where('name', 'like', '%' . $keyword . '%');
         }
 
         $brands = $brands->paginate(Setting::get('pagination'));
@@ -104,7 +106,7 @@ class BrandController extends Controller
         if ($developers) {
             foreach ($developers as $_developer) {
                 if ($_developer->singleBrandTask) {
-                    $alldevs[!empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->id:""] = !empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->name:"";
+                    $alldevs[! empty($_developer->singleBrandTask->assignedUser) ? $_developer->singleBrandTask->assignedUser->id : ''] = ! empty($_developer->singleBrandTask->assignedUser) ? $_developer->singleBrandTask->assignedUser->name : '';
                 }
             }
         }
@@ -213,6 +215,38 @@ class BrandController extends Controller
             ['brand_id' => $brand->id, 'category_segment_id' => $category_segment_id, 'amount' => $amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
+        /* Initialize queue for add hashtags */
+//        $brandList = Brand::where('is_hashtag_generated', 0)->get();
+//        if (! $brandList->isEmpty()) {
+//            ini_set('max_execution_time', '-1');
+//            ini_set('max_execution_time', '0'); // for infinite time of execution
+//
+//            $category_postfix_string_list = Category::getCategoryHierarchyString(4);
+//            $string_arr = [];
+//            foreach ($brandList as $brand) {
+//                foreach($category_postfix_string_list as $string) {
+//                    $string_data['hashtag'] = $brand->name .' '. $string->combined_string;
+//                    $string_data['platforms_id'] = 2;
+//                    $string_data['rating'] = 8;
+//                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
+//                    $string_data['created_by'] = \Auth::user()->id;
+//                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
+//                    if($check_exist <= 0) {
+//                        $string_arr[] = $string_data;
+//                    }
+//                }
+//                CreateHashTags::dispatch($string_arr)->onQueue('insert-hash-tags');
+//                $string_arr = [];
+//            }
+
+        /*$chunks = array_chunk($string_arr, 10);
+
+        foreach ($chunks as $chunk) {
+            CreateHashTags::dispatch($chunk)->onQueue('insert-hash-tags');
+        }*/
+//            Brand::updateStatusIsHashtagsGenerated();
+//        }
+
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
 
@@ -273,6 +307,23 @@ class BrandController extends Controller
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
     */
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * Function for fetch brand list using AJAX request
+     */
+    public function show(Request $request)
+    {
+        if ($request->ajax()) {
+            $search_key = $request->get('search', '');
+            $brand_list = Brand::where('name', 'LIKE', '%' . $search_key . '%')->take(20)->get();
+
+            return response()->json(['success' => true, 'data' => $brand_list]);
+        }
+
+        return redirect()->route('brand.index');
+    }
+
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();
@@ -324,7 +375,7 @@ class BrandController extends Controller
         $proxy = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-        $sku = $product->sku.$product->color;
+        $sku = $product->sku . $product->color;
 //      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
@@ -633,7 +684,7 @@ class BrandController extends Controller
                     ->toDirectory('brands')
                     ->upload();
                     // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
-                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL').'/brands/'.$image_name]);
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL') . '/brands/' . $image_name]);
                 }
             }
 
@@ -654,7 +705,7 @@ class BrandController extends Controller
             ->orderBy('brands.name', 'asc');
 
             if ($request->brand_name) {
-                $search = '%'.$request->brand_name.'%';
+                $search = '%' . $request->brand_name . '%';
                 $brand_data = $brand_data->where('brands.name', 'like', $search);
             }
             $brand_data = $brand_data->paginate(Setting::get('pagination'));
@@ -695,7 +746,7 @@ class BrandController extends Controller
             // $brand_data = BrandLogo::get();
             $brand_data = BrandLogo::leftjoin('brand_with_logos', 'brand_logos.id', 'brand_with_logos.brand_logo_image_id')
             ->select('brand_logos.id as brand_logos_id', 'brand_logos.logo_image_name as brand_logo_image_name', 'brand_with_logos.id as brand_with_logos_id', 'brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id', 'brand_with_logos.brand_id as brand_with_logos_brand_id')
-            ->where('brand_logos.logo_image_name', 'like', '%'.$request->brand_name.'%')
+            ->where('brand_logos.logo_image_name', 'like', '%' . $request->brand_name . '%')
             ->get();
 
             return response()->json(['code' => 200, 'brand_logo_image' => $brand_data]);
@@ -798,7 +849,7 @@ class BrandController extends Controller
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $amount, 'status' => 0]);
-                $note = 'Segment Discount Changed from '.$p->segment_discount.' To '.$amount;
+                $note = 'Segment Discount Changed from ' . $p->segment_discount . ' To ' . $amount;
                 \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
             }
         }

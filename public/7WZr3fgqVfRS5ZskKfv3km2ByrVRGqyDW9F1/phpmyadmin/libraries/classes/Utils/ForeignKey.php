@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Utils;
 
+use function substr;
 use function strtolower;
 use function strtoupper;
-use function substr;
 use function version_compare;
 
 final class ForeignKey

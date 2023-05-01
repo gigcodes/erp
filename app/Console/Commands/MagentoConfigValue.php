@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\LogRequest;
-use App\MagentoSetting;
 use App\StoreWebsite;
+use App\MagentoSetting;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class MagentoConfigValue extends Command
 {
@@ -44,7 +44,7 @@ class MagentoConfigValue extends Command
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $magentoSettings = MagentoSetting::leftJoin('users', 'magento_settings.created_by', 'users.id');
-                            $magentoSettings->select('magento_settings.*', 'users.name as uname');
+        $magentoSettings->select('magento_settings.*', 'users.name as uname');
         $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->get();
 
         $data = $magentoSettings;
@@ -57,9 +57,9 @@ class MagentoConfigValue extends Command
                 if (isset($bits['host'])) {
                     $web = $bits['host'];
                     if (! Str::contains($websiteUrl, 'www')) {
-                        $web = 'www.'.$bits['host'];
+                        $web = 'www.' . $bits['host'];
                     }
-                    $websiteUrl = 'https://'.$web;
+                    $websiteUrl = 'https://' . $web;
                     $conf['data'] = [];
                     foreach ($settings as $setting) {
                         $conf['data'][] = ['path' => $setting['path'], 'scope' => $setting['scope'], 'scope_id' => $setting['scope_id']];
@@ -67,7 +67,7 @@ class MagentoConfigValue extends Command
                     $curl = curl_init();
                     // Set cURL options
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $websiteUrl.'/rest/V1/configvalue/get',
+                        CURLOPT_URL => $websiteUrl . '/rest/V1/configvalue/get',
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -84,10 +84,10 @@ class MagentoConfigValue extends Command
                     $response = curl_exec($curl);
 
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $websiteUrl.'/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
+                    LogRequest::log($startTime, $websiteUrl . '/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
 
                     $response = json_decode($response, true);
-                    
+
                     foreach ($settings as $key => $setting) {
                         $value_on_magento = isset($response[$key]) ? $response[$key]['value'] : null;
                         MagentoSetting::where('id', $setting['id'])
@@ -99,7 +99,7 @@ class MagentoConfigValue extends Command
                 }
             }
         }
-        
+
         $this->info('Command executed successfully!');
     }
 }

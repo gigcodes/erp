@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryUser;
-use App\Github\GithubUser;
-use App\Http\Controllers\Controller;
 use App\User;
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
+use App\Github\GithubUser;
 use Illuminate\Http\Request;
+use GuzzleHttp\RequestOptions;
+use App\Github\GithubRepository;
+use App\Github\GithubRepositoryUser;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 
 class UserController extends Controller
@@ -123,7 +123,7 @@ class UserController extends Controller
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
         // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repoName . "/collaborators/" . $userName;
-        $url = 'https://api.github.com/repos/'.config('env.GITHUB_ORG_ID').'/'.$repoName.'/collaborators/'.$userName;
+        $url = 'https://api.github.com/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repoName . '/collaborators/' . $userName;
 
         // cannot update users access directly and hence need to remove and then add them explicitly
         $this->client->delete($url);

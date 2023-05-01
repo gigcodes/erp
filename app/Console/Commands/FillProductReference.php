@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\ProductReference;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ProductReference;
 use Illuminate\Console\Command;
 
 class FillProductReference extends Command
