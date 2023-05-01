@@ -10,23 +10,23 @@ jobs:
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'
         env:
           COMPOSER_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v3
-        env:
-          COMPOSER_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_TOKEN }}
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Install Composer Dependencies
-        run: composer install --ignore-platform-reqs
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
       - name: Launch Pint inspection
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Apply Laravel Prettier changes
+          commit_message: Apply Laravel Pint Changes
         env:
           token: ${{ secrets.GITHUB_TOKEN }}

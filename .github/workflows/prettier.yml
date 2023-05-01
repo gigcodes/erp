@@ -26,6 +26,6 @@ jobs:
       - name: "Push the changes to Git"
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Apply Laravel Prettier changes
+          commit_message: Apply Laravel Prettier Changes
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
