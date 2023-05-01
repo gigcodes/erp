@@ -68,9 +68,9 @@ class Handler extends ExceptionHandler
             EmailLog::create([
                 'email_id' => $email->id,
                 'email_log' => 'Error in Sending Email',
-                'message' => 'Imap Connection Issue => '.$exception->getMessage(),
-                'is_error'  => 1,
-                'service_type' => 'IMAP'
+                'message' => 'Imap Connection Issue => ' . $exception->getMessage(),
+                'is_error' => 1,
+                'service_type' => 'IMAP',
             ]);
             $email->error_message = 'Imap Connection Issue => ' . $exception->getMessage();
             $email->save();
@@ -85,9 +85,9 @@ class Handler extends ExceptionHandler
             EmailLog::create([
                 'email_id' => $email->id,
                 'email_log' => 'Error in Sending Email',
-                'message' => 'Mail Compliance issue Issue => '.$exception->getMessage(),
-                'is_error'  => 1,
-                'service_type' => 'SMTP'
+                'message' => 'Mail Compliance issue Issue => ' . $exception->getMessage(),
+                'is_error' => 1,
+                'service_type' => 'SMTP',
             ]);
             $email->error_message = 'Mail Compliance issue Issue => ' . $exception->getMessage();
             $email->save();
@@ -106,9 +106,9 @@ class Handler extends ExceptionHandler
             EmailLog::create([
                 'email_id' => $email->id,
                 'email_log' => 'Error in Sending Email',
-                'message' => 'Mail Transport Issue => '.$exception->getMessage(),
-                'is_error'  => 1,
-                'service_type' => 'SMTP'
+                'message' => 'Mail Transport Issue => ' . $exception->getMessage(),
+                'is_error' => 1,
+                'service_type' => 'SMTP',
             ]);
             $email->error_message = 'Mail Compliance Issue => ' . $exception->getMessage();
             $email->save();
@@ -117,22 +117,21 @@ class Handler extends ExceptionHandler
             \Log::error($exception);
         }
 
-        if(str_contains($exception->getMessage(),'Failed to authenticate on SMTP server')){
-
-            try{
+        if (str_contains($exception->getMessage(), 'Failed to authenticate on SMTP server')) {
+            try {
                 EmailLog::create([
                     'email_id' => $request->forward_email_id,
                     'email_log' => 'Error in Sending Email',
-                    'message' => 'Mail Transport Issue => '.$exception->getMessage(),
-                    'is_error'  => 1,
-                    'service_type' => 'SMTP'
+                    'message' => 'Mail Transport Issue => ' . $exception->getMessage(),
+                    'is_error' => 1,
+                    'service_type' => 'SMTP',
                 ]);
-            }catch(Exception $e){
-                return response()->json(['status' => 'failed', 'message' => 'Mail Compliance issue => '.$exception->getMessage()], 405);
+            } catch(Exception $e) {
+                return response()->json(['status' => 'failed', 'message' => 'Mail Compliance issue => ' . $exception->getMessage()], 405);
                 \Log::error($exception);
             }
 
-            return response()->json(['status' => 'failed', 'message' => 'Mail Compliance issue => '.$exception->getMessage()], 405);
+            return response()->json(['status' => 'failed', 'message' => 'Mail Compliance issue => ' . $exception->getMessage()], 405);
             \Log::error($exception);
         }
 

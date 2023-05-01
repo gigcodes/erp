@@ -30,31 +30,31 @@ use App\DeveloperModule;
 use App\HubstaffHistory;
 use App\TaskUserHistory;
 use App\DeveloperComment;
+use App\GoogleScreencast;
 use App\PushNotification;
 use Plank\Mediable\Media;
 use App\MeetingAndOtherTime;
 use Illuminate\Http\Request;
 use App\DeveloperTaskComment;
 use App\DeveloperTaskHistory;
-use App\DeveoperTaskPullRequestMerge;
-use App\Github\GithubRepository;
-use App\GoogleScreencast;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffTask;
-use App\Jobs\UploadGoogleDriveScreencast;
-use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
+use App\Github\GithubRepository;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use Illuminate\Support\Facades\DB;
+use App\DeveoperTaskPullRequestMerge;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
+use App\Jobs\UploadGoogleDriveScreencast;
+use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DevelopmentController extends Controller
 {
@@ -1308,7 +1308,7 @@ class DevelopmentController extends Controller
         $team_members_array_unique_ids = implode(',', $team_members_array_unique);
 
         $task_statuses = TaskStatus::all();
-        $taskStatusArray = $task_statuses->pluck("id", "name")->toArray();
+        $taskStatusArray = $task_statuses->pluck('id', 'name')->toArray();
         $modules = DeveloperModule::orderBy('name')->get();
 
         $type = $request->tasktype ? $request->tasktype : 'all';
@@ -1384,7 +1384,7 @@ class DevelopmentController extends Controller
             foreach ($request->get('task_status') as $key => $status) {
                 $requestStatusArray[] = $taskStatusArray[$status];
             }
-            
+
             $task = $task->whereIn('tasks.status', $requestStatusArray);
             // dd($task->toSql(), $request->get('task_status'));
         }
@@ -1452,7 +1452,7 @@ class DevelopmentController extends Controller
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
             $task = $task->orderBy('tasks.id', 'DESC');
-        } elseif($request->order == 'oldest_first') {
+        } elseif ($request->order == 'oldest_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'ASC');
             $task = $task->orderBy('tasks.id', 'ASC');
         } else {
@@ -4724,7 +4724,7 @@ class DevelopmentController extends Controller
     }
 
     /**
-     * Upload a task file to google drive 
+     * Upload a task file to google drive
      */
     public function uploadFile(Request $request)
     {
@@ -4734,26 +4734,25 @@ class DevelopmentController extends Controller
             'remarks' => 'sometimes',
             'task_id' => 'required',
             'file_read' => 'sometimes',
-            'file_write' => 'sometimes'
+            'file_write' => 'sometimes',
         ]);
 
         $data = $request->all();
-        
+
         try {
-            foreach($data['file'] as $file)
-            {
-                DB::transaction(function () use ($file,$data) {
+            foreach ($data['file'] as $file) {
+                DB::transaction(function () use ($file, $data) {
                     $googleScreencast = new GoogleScreencast();
                     $googleScreencast->file_name = $file->getClientOriginalName();
                     $googleScreencast->extension = $file->extension();
                     $googleScreencast->user_id = Auth::id();
-                    
-                    $googleScreencast->read = "";
-                    $googleScreencast->write = "";
 
-                    if($data["task_type"] == "DEVTASK") {
+                    $googleScreencast->read = '';
+                    $googleScreencast->write = '';
+
+                    if ($data['task_type'] == 'DEVTASK') {
                         $googleScreencast->developer_task_id = $data['task_id'];
-                    } else if ($data["task_type"] == "TASK") {
+                    } elseif ($data['task_type'] == 'TASK') {
                         $googleScreencast->belongable_id = $data['task_id'];
                         $googleScreencast->belongable_type = Task::class;
                     }
@@ -4765,12 +4764,11 @@ class DevelopmentController extends Controller
                     UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
                 });
             }
-            
-            return back()->with('success', "File is Uploaded to Google Drive.");
+
+            return back()->with('success', 'File is Uploaded to Google Drive.');
         } catch (Exception $e) {
-            return back()->with('error', "Something went wrong. Please try again");
+            return back()->with('error', 'Something went wrong. Please try again');
         }
-        
     }
 
     /**
@@ -4780,29 +4778,28 @@ class DevelopmentController extends Controller
     {
         try {
             $result = [];
-            if(isset($request->task_id) && isset($request->task_type)) {
-                if($request->task_type == "DEVTASK") {
+            if (isset($request->task_id) && isset($request->task_type)) {
+                if ($request->task_type == 'DEVTASK') {
                     $result = GoogleScreencast::where('developer_task_id', $request->task_id)->orderBy('id', 'desc')->get();
-                } else if ($request->task_type == "TASK"){
+                } elseif ($request->task_type == 'TASK') {
                     $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->get();
                 } else {
-                    throw new Exception("Something went wrong.");
+                    throw new Exception('Something went wrong.');
                 }
-                
-                if(isset($result) && count($result) > 0) {
-                    $result = $result->toArray();   
+
+                if (isset($result) && count($result) > 0) {
+                    $result = $result->toArray();
                 }
 
                 return response()->json([
-                    "data" => view("development.partials.google-drive-list", compact("result"))->render()
+                    'data' => view('development.partials.google-drive-list', compact('result'))->render(),
                 ]);
             } else {
-                throw new Exception("Task not found");
+                throw new Exception('Task not found');
             }
-            
         } catch (Exception $e) {
             return response()->json([
-                "data" => view("development.partials.google-drive-list", ["result"=> null])->render()
+                'data' => view('development.partials.google-drive-list', ['result' => null])->render(),
             ]);
         }
     }

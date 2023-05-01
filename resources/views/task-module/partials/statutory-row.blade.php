@@ -170,6 +170,12 @@
             <button type="button" title="Recurring history" class="btn recurring-history-btn btn-xs pull-left" data-id="<?php echo $task->id; ?>">
                 <i class="fa fa-history"></i>
             </button>
+            <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
         </div>
     </td>
 </tr>
