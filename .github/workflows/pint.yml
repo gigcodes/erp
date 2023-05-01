@@ -14,14 +14,22 @@ jobs:
           COMPOSER_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v3
+        env:
+          COMPOSER_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Install Composer Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: composer install
       - name: Launch Pint inspection
         run: ./vendor/bin/pint
-      - name: Push to protected branch
-        uses: CasperWA/push-protected@v2
+      # - name: Push to protected branch
+      #   uses: CasperWA/push-protected@v2
+      #   with:
+      #     token: ${{ secrets.PERSONAL_TOKEN }}
+      #     unprotect_reviews: true
+      - name: "Push the changes to Git"
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          unprotect_reviews: true
+          commit_message: Apply Laravel Prettier changes
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}
