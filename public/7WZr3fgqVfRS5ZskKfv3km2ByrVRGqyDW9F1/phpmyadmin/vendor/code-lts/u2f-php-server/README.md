@@ -30,22 +30,22 @@ https://github.com/code-lts/U2F-php-server
 
 1. [Installation](#installation)
 2. [Requirements](#requirements)
-    1. [OpenSSL](#openssl)
-    1. [Clientside Magic](#client-side-the-magic-javascript-bit-of-talking-with-a-usb-device)
-    1. [HTTPS and SSL](#https-and-ssl)
+   1. [OpenSSL](#openssl)
+   1. [Clientside Magic](#client-side-the-magic-javascript-bit-of-talking-with-a-usb-device)
+   1. [HTTPS and SSL](#https-and-ssl)
 3. [Terminology](#terminology)
 4. [Recommended Datastore Structure](#recommended-datastore-structure)
 5. [Process Workflow](#process-workflow)
-    1. [Registration Process Flow](#registration-process-flow)
-    1. [Authentication Process Flow](#authentication-process-flow)
+   1. [Registration Process Flow](#registration-process-flow)
+   1. [Authentication Process Flow](#authentication-process-flow)
 6. [Example Code](#example-code)
-    1. [Compatibility Check](#compatibility-code)
-    1. [Registration Code](#registration-code)
-    1. [Authentication Code](#authentication-code)
+   1. [Compatibility Check](#compatibility-code)
+   1. [Registration Code](#registration-code)
+   1. [Authentication Code](#authentication-code)
 7. [Frameworks](#frameworks)
-    1. [Laravel](#laravel-framework)
-    1. [Yii](#yii-framework)
-    1. [CodeIgniter](#codeigniter-framework)
+   1. [Laravel](#laravel-framework)
+   1. [Yii](#yii-framework)
+   1. [CodeIgniter](#codeigniter-framework)
 8. [Licence](#licence)
 9. [Credits](#credits)
 
@@ -80,7 +80,6 @@ My presumption is that if you are looking to add U2F authentication to a php sys
 For U2F to work your website/service must use a HTTPS URL. Without a HTTPS URL your code won't work, so get one for your localhost, get one for your production. https://letsencrypt.org/
 Basically encrypt everything.
 
-
 ## Terminology
 
 **_HID_** : _Human Interface Device_, like A USB Device [like these things](https://www.google.co.uk/search?q=fido+usb+key&safe=off&tbm=isch)
@@ -89,15 +88,14 @@ Basically encrypt everything.
 
 You don't need to follow this structure exactly, but you will need to associate your Registration data with a user. You'll also need to store the key handle, public key and the certificate, counter isn't 100% essential but it makes your application more secure.
 
-
-|Name|Type|Description|
-|---|---|---|
-|id|integer primary key||
-|user_id|integer||
-|key_handle|varchar(255)||
-|public_key|varchar(255)||
-|certificate|text||
-|counter|integer||
+| Name        | Type                | Description |
+| ----------- | ------------------- | ----------- |
+| id          | integer primary key |             |
+| user_id     | integer             |             |
+| key_handle  | varchar(255)        |             |
+| public_key  | varchar(255)        |             |
+| certificate | text                |             |
+| counter     | integer             |             |
 
 TODO the descriptions
 
@@ -140,16 +138,15 @@ $ cd u2f-php-server-examples
 $ composer install
 ```
 
-
 1. [Compatibility Code](#compatibility-code)
 2. [Registration Code](#registration-code)
-    1. [Step 1: Starting](#registration-step-1)
-    1. [Step 2: Talking to the HID](#registration-step-2)
-    1. [Step 3: Validation & Storage](#registration-step-3)
+   1. [Step 1: Starting](#registration-step-1)
+   1. [Step 2: Talking to the HID](#registration-step-2)
+   1. [Step 3: Validation & Storage](#registration-step-3)
 3. [Authentication Code](#authentication-code)
-    1. [Step 1: Starting](#authentication-step-1)
-    1. [Step 2: Talking to the HID](#authentication-step-2)
-    1. [Step 3: Validation](#authentication-step-3)
+   1. [Step 1: Starting](#authentication-step-1)
+   1. [Step 2: Talking to the HID](#authentication-step-2)
+   1. [Step 3: Validation](#authentication-step-3)
 
 ---
 
@@ -172,6 +169,7 @@ var_dump(U2F::checkOpenSSLVersion());
 ### Registration Code
 
 #### Registration Step 1:
+
 **Starting the registration process:**
 
 We assume that user has successfully authenticated and wishes to register.
@@ -206,58 +204,74 @@ echo View::make('template/location/u2f-registration.html', [
 ```
 
 #### Registration Step 2:
+
 **Client-side, Talking To The USB**
 
 Non-AJAX client-side registration of U2F key token. AJAX can of course be used in your application, but it is easier to demonstrate a linear process without AJAX and callbacks.
 
 ```html
 <html>
-<head>
+  <head>
     <title>U2F Key Registration</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>U2F Registration</h1>
-    <h2>Please enter your FIDO U2F device into your computer's USB port. Then confirm registration on the device.</h2>
+    <h2>
+      Please enter your FIDO U2F device into your computer's USB port. Then
+      confirm registration on the device.
+    </h2>
 
     <div style="display:none;">
-        <form id="u2f_submission" method="post" action="auth/u2f-registration/confirm">
-            <input id="u2f_registration_response" name="registration_response" value="" />
-        </form>
+      <form
+        id="u2f_submission"
+        method="post"
+        action="auth/u2f-registration/confirm"
+      >
+        <input
+          id="u2f_registration_response"
+          name="registration_response"
+          value=""
+        />
+      </form>
     </div>
 
-<script type="javascript" src="https://raw.githubusercontent.com/google/u2f-ref-code/master/u2f-gae-demo/war/js/u2f-api.js"></script>
-<script>
-    setTimeout(function() {
+    <script
+      type="javascript"
+      src="https://raw.githubusercontent.com/google/u2f-ref-code/master/u2f-gae-demo/war/js/u2f-api.js"
+    ></script>
+    <script>
+      setTimeout(function() {
 
-        // A magic JS function that talks to the USB device. This function will keep polling for the USB device until it finds one.
-        u2f.register([<?php echo $jsRequest ?>], <?php echo $jsSignatures ?>], function(data) {
+          // A magic JS function that talks to the USB device. This function will keep polling for the USB device until it finds one.
+          u2f.register([<?php echo $jsRequest ?>], <?php echo $jsSignatures ?>], function(data) {
 
-            // Handle returning error data
-            if(data.errorCode && errorCode != 0) {
-                alert('registration failed with error: ' + data.errorCode);
-                // Or handle the error however you'd like.
+              // Handle returning error data
+              if(data.errorCode && errorCode != 0) {
+                  alert('registration failed with error: ' + data.errorCode);
+                  // Or handle the error however you'd like.
 
-                return;
-            }
+                  return;
+              }
 
-            // On success process the data from USB device to send to the server
-            var registration_response = JSON.stringify(data);
+              // On success process the data from USB device to send to the server
+              var registration_response = JSON.stringify(data);
 
-            // Get the form items so we can send data back to the server
-            var form = document.getElementById('u2f_submission');
-            var response = document.getElementById('u2f_registration_response');
+              // Get the form items so we can send data back to the server
+              var form = document.getElementById('u2f_submission');
+              var response = document.getElementById('u2f_registration_response');
 
-            // Fill and submit form.
-            response.value = JSON.stringify(registration_response);
-            form.submit();
-        });
-    }, 1000);
-</script>
-</body>
+              // Fill and submit form.
+              response.value = JSON.stringify(registration_response);
+              form.submit();
+          });
+      }, 1000);
+    </script>
+  </body>
 </html>
 ```
 
 #### Registration Step 3:
+
 **Validation and Key Storage**
 
 This is the last stage of registration. Validate the registration response data against the original request data.
@@ -302,6 +316,7 @@ echo View::make('template/location/u2f-registration-result.html', [
 ### Authentication Code
 
 #### Authentication Step 1:
+
 **Starting the authentication process:**
 
 We assume that user has successfully authenticated and has previously registered to use FIDO U2F.
@@ -336,58 +351,74 @@ echo View::make('template/location/u2f-authentication.html', [
 ```
 
 #### Authentication Step 2:
+
 **Client-side, Talking To The USB**
 
 Non-AJAX client-side authentication of U2F key token. AJAX can of course be used in your application, but it is easier to demonstrate a linear process without AJAX and callbacks.
 
 ```html
 <html>
-<head>
+  <head>
     <title>U2F Key Authentication</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>U2F Authentication</h1>
-    <h2>Please enter your FIDO U2F device into your computer's USB port. Then confirm authentication on the device.</h2>
+    <h2>
+      Please enter your FIDO U2F device into your computer's USB port. Then
+      confirm authentication on the device.
+    </h2>
 
     <div style="display:none;">
-        <form id="u2f_submission" method="post" action="auth/u2f-authentication/confirm">
-            <input id="u2f_authentication_response" name="authentication_response" value="" />
-        </form>
+      <form
+        id="u2f_submission"
+        method="post"
+        action="auth/u2f-authentication/confirm"
+      >
+        <input
+          id="u2f_authentication_response"
+          name="authentication_response"
+          value=""
+        />
+      </form>
     </div>
 
-    <script type="javascript" src="https://raw.githubusercontent.com/google/u2f-ref-code/master/u2f-gae-demo/war/js/u2f-api.js"></script>
+    <script
+      type="javascript"
+      src="https://raw.githubusercontent.com/google/u2f-ref-code/master/u2f-gae-demo/war/js/u2f-api.js"
+    ></script>
     <script>
-    setTimeout(function() {
+      setTimeout(function() {
 
-        // Magic JavaScript talking to your HID
-        u2f.sign(<?php echo $authenticationRequest; ?>, function(data) {
+          // Magic JavaScript talking to your HID
+          u2f.sign(<?php echo $authenticationRequest; ?>, function(data) {
 
-            // Handle returning error data
-            if(data.errorCode && errorCode != 0) {
-                alert('Authentication failed with error: ' + data.errorCode);
-                // Or handle the error however you'd like.
+              // Handle returning error data
+              if(data.errorCode && errorCode != 0) {
+                  alert('Authentication failed with error: ' + data.errorCode);
+                  // Or handle the error however you'd like.
 
-                return;
-            }
+                  return;
+              }
 
-            // On success process the data from USB device to send to the server
-            var authentication_response = JSON.stringify(data);
+              // On success process the data from USB device to send to the server
+              var authentication_response = JSON.stringify(data);
 
-            // Get the form items so we can send data back to the server
-            var form = document.getElementById('u2f_submission');
-            var response = document.getElementById('u2f_authentication_response');
+              // Get the form items so we can send data back to the server
+              var form = document.getElementById('u2f_submission');
+              var response = document.getElementById('u2f_authentication_response');
 
-            // Fill and submit form.
-            response.value = JSON.stringify(authentication_response);
-            form.submit();
-        });
-    }, 1000);
+              // Fill and submit form.
+              response.value = JSON.stringify(authentication_response);
+              form.submit();
+          });
+      }, 1000);
     </script>
-</body>
+  </body>
 </html>
 ```
 
 #### Authentication Step 3:
+
 **Validation**
 
 This is the last stage of authentication. Validate the authentication response data against the original request data.

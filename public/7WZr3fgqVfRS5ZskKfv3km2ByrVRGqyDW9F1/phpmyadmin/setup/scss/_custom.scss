@@ -188,12 +188,12 @@ div.error h4 {
   border-color: #f00;
 }
 
-div.notice[id^=version_check] {
+div.notice[id^="version_check"] {
   border-color: #002dff;
   background-color: #eef;
 }
 
-div.notice[id^=version_check] h4 {
+div.notice[id^="version_check"] h4 {
   border-color: #002dff;
 }
 
@@ -258,7 +258,8 @@ fieldset {
     border-top: 0;
   }
 
-  .errors { /* form error list */
+  .errors {
+    /* form error list */
     margin: 0 -2px 1em -2px;
     padding: 0.5em 1.5em;
     background: #fbead9;
@@ -270,7 +271,8 @@ fieldset {
     font-size: small;
   }
 
-  .inline_errors { /* field error list */
+  .inline_errors {
+    /* field error list */
     margin: 0.3em 0.3em 0.3em 0;
     padding: 0;
     list-style: none;
@@ -367,9 +369,9 @@ fieldset .lastrow,
   text-align: center;
 }
 
-input[type=text],
-input[type=password],
-input[type=number] {
+input[type="text"],
+input[type="password"],
+input[type="number"] {
   border-radius: 2px;
   box-shadow: 0 1px 2px #ddd;
   background: white;
@@ -379,15 +381,15 @@ input[type=number] {
   margin: 6px;
 }
 
-input[type=submit],
-button[type=submit]:not(.mult_submit) {
+input[type="submit"],
+button[type="submit"]:not(.mult_submit) {
   font-weight: bold !important;
 }
 
-input[type=submit],
-button[type=submit]:not(.mult_submit),
-input[type=reset],
-input[name=submit_reset],
+input[type="submit"],
+button[type="submit"]:not(.mult_submit),
+input[type="reset"],
+input[name="submit_reset"],
 input.button {
   margin-left: 14px;
   border: 1px solid #aaa;
@@ -436,7 +438,8 @@ span.checkbox {
   display: inline-block;
 }
 
-.custom { /* customized field */
+.custom {
+  /* customized field */
   background: #ffc;
 }
 
@@ -464,7 +467,8 @@ span.checkbox {
   color: #a00;
 }
 
-.green { /* default form button */
+.green {
+  /* default form button */
   color: #080 !important;
 }
 
@@ -532,17 +536,17 @@ a.btn {
 }
 
 .ic_b_edit {
-  background-image: url('../themes/pmahomme/img/b_edit.png');
+  background-image: url("../themes/pmahomme/img/b_edit.png");
 }
 
 .ic_b_help {
-  background-image: url('../themes/pmahomme/img/b_help.png');
+  background-image: url("../themes/pmahomme/img/b_help.png");
 }
 
 .ic_b_tblops {
-  background-image: url('../themes/pmahomme/img/b_tblops.png');
+  background-image: url("../themes/pmahomme/img/b_tblops.png");
 }
 
 .ic_s_reload {
-  background-image: url('../themes/pmahomme/img/s_reload.png');
+  background-image: url("../themes/pmahomme/img/s_reload.png");
 }

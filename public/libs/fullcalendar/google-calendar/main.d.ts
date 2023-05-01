@@ -2,19 +2,18 @@
 // Dependencies for this module:
 //   main.d.ts
 
-declare module '@fullcalendar/google-calendar' {
-    module '@fullcalendar/core' {
-        interface OptionsInput {
-            googleCalendarApiKey?: string;
-        }
+declare module "@fullcalendar/google-calendar" {
+  module "@fullcalendar/core" {
+    interface OptionsInput {
+      googleCalendarApiKey?: string;
     }
-    module '@fullcalendar/core/structs/event-source' {
-        interface ExtendedEventSourceInput {
-            googleCalendarApiKey?: string;
-            googleCalendarId?: string;
-        }
+  }
+  module "@fullcalendar/core/structs/event-source" {
+    interface ExtendedEventSourceInput {
+      googleCalendarApiKey?: string;
+      googleCalendarId?: string;
     }
-    const _default: import("@fullcalendar/core").PluginDef;
-    export default _default;
+  }
+  const _default: import("@fullcalendar/core").PluginDef;
+  export default _default;
 }
-
