@@ -1389,7 +1389,17 @@ class EmailController extends Controller
         $emailLogData = '';
 
         foreach ($emailLogs as $emailLog) {
-            $emailLogData .= '<tr><td>' . $emailLog['created_at'] . '</td><td>' . $emailLog['email_log'] . '</td><td>' . $emailLog['message'] . '</td></tr>';
+            $colorCode = "";
+
+            if($emailLog['is_error'] == 1 && $emailLog['service_type'] === 'SMTP'){
+                $colorCode = env('EMAIL_LOG_SMTP_ERROR_COLOR_CODE','#f8eddd');
+            }
+
+            if($emailLog['is_error'] == 1 && $emailLog['service_type'] === 'IMAP'){
+                $colorCode = env('EMAIL_LOG_IMAP_ERROR_COLOR_CODE','#eddddd');
+            }
+
+            $emailLogData .= '<tr style="background:'.$colorCode.'"><td>'.$emailLog['created_at'].'</td><td>'.$emailLog['email_log'].'</td><td>'.$emailLog['message'].'</td></tr>';
         }
         if ($emailLogData == '') {
             $emailLogData = '<tr><td>No data found.</td></tr>';
