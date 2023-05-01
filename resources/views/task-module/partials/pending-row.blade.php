@@ -350,6 +350,13 @@
                 <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
             @endif
                 <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="{{asset('/images/forward.png')}}"></button>
+
+            <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
         </div>
     </td>
 </tr>
