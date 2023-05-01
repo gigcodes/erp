@@ -23,9 +23,8 @@ jobs:
         run: npm install
       - name: Execute prettier
         run: npm run format
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.3
+      - name: Push to protected branch
+        uses: CasperWA/push-protected@v2
         with:
-          prettier_options: --write **/*.{js,css,md}
-          only_changed: True
-          github_token: ${{ secrets.PERSONAL_TOKEN }}
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          unprotect_reviews: true
