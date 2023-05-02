@@ -44,7 +44,7 @@
             <div class="row"> 
                 <div class="col-md-5">
                     <select class="form-control select-multiple" id="website-select">
-                        <option value="">Select Store Websitessss</option>
+                        <option value="">Select Store Website</option>
                         @foreach($store_website as $key => $sw)
                         <option value="{{ $sw->website }}">{{ $sw->website }}</option>
                         @endforeach
