@@ -23,7 +23,7 @@ class GoogleScreencastController extends Controller
     public function index(Request $request)
     {
         //get file list
-        $data = GoogleScreencast::with(["user"=> function($query){
+        $data = GoogleScreencast::with(['user' => function ($query) {
             return $query->select('id', 'name');
         }])->orderBy('id', 'desc');
         //fetch task list
