@@ -1719,6 +1719,17 @@
           }
         })
     }
+  });
+
+
+  $(document).ready(function() {
+    let $emailContents = $(document).find('.emailBodyContent');
+
+    $emailContents.each(function() {
+      let $iframe = $(this).find('iframe');
+      let body = $(this).attr('data-body');
+      $($iframe).contents().find("body").html(body);
+    });
   })
 
   function openEmailCategoryChangeLogModelPopup(ele){
