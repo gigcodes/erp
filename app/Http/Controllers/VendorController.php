@@ -503,9 +503,9 @@ class VendorController extends Controller
         }
 
         $isInvitedOnGithub = false;
-        if ($request->create_user_github == 'on' && isset($request->email)) {
+        if ($request->create_user_github == 'on' && isset($request->email) && isset($request->organization_id)) {
             //has requested for github invitation
-            $isInvitedOnGithub = $this->sendGithubInvitaion($request->email);
+            $isInvitedOnGithub = $this->sendGithubInvitaion($request->email, $request->organization_id);
         }
 
         $isInvitedOnHubstaff = false;
@@ -1143,8 +1143,10 @@ class VendorController extends Controller
     public function inviteGithub(Request $request)
     {
         $email = $request->get('email');
-        if ($email) {
-            if ($this->sendGithubInvitaion($email)) {
+        $organizationId = $request->get('organizationId');
+
+        if (!empty($email) && strlen($organizationId) > 0) {
+            if ($this->sendGithubInvitaion($email, $organizationId)) {
                 return response()->json(
                     ['message' => 'Invitation sent to ' . $email]
                 );
@@ -1185,9 +1187,9 @@ class VendorController extends Controller
         );
     }
 
-    private function sendGithubInvitaion(string $email)
+    private function sendGithubInvitaion(string $email, $organizationId)
     {
-        return $this->inviteUser($email);
+        return $this->inviteUser($email, $organizationId);
     }
 
     public function changeHubstaffUserRole(Request $request)

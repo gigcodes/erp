@@ -15,6 +15,7 @@ class GithubBranchState extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'github_organization_id',
         'repository_id',
         'branch_name',
         'ahead_by',
