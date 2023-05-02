@@ -308,6 +308,17 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <select class="form-control" id="category_type" name="type">
+                <option value="read">Read</option>
+                <option value="unread">Unread</option>
+                <option value="sent">Sent</option>
+                <option value="trash">Trash</option>
+                <option value="draft">Draft</option>
+                <option value="queue">Queue</option>
+            </select>
+          </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Create</button>
@@ -720,6 +731,24 @@
   </div>
 </div>
 {{-- END HERE --}}
+
+{{-- #DEVTASK - 23409 --}}
+
+<div id="categoryLog" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email Category Change Logs</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body emailCategoryLogs">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- END Here --}}
 
 @include('partials.modals.remarks')
 @endsection
@@ -1691,5 +1720,29 @@
         })
     }
   })
+
+  function openEmailCategoryChangeLogModelPopup(ele){
+    var email_id = $(ele).data('id');
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getEmailCategoryChangeLogs') }}",
+          data : {
+              email_id : email_id,
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.emailCategoryLogs').html('');
+                  $('.emailCategoryLogs').append(response.html);
+                  $('#categoryLog').modal();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
 </script>
 @endsection
