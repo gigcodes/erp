@@ -14,15 +14,33 @@ use Illuminate\Support\Facades\Validator;
 
 class MailinglistEmailController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $audience = Mailinglist::all();
         $templates = MailinglistTemplate::all();
         $images = Image::all();
         $images_gmail = GmailDataList::all();
-        $mailings = MailinglistEmail::with('audience', 'template')->orderBy('created_at', 'desc')->get();
+        $query = MailinglistEmail::with('audience', 'template');
+        $term=$request->term;
+        $date=$request->date;
+        if ($request->term != null) {
+            $query = $query->where(function ($q) use ($request) {
+                $q->where('subject', 'like', '%'.$request->term.'%')
+                    ->orWhere('html', 'like', '%'.$request->term.'%');
+            });
+        }
+        
+        if(!empty($request->date))
+        {
+            $query = $query->where(function ($q) use ($request) {
+                $q->where('created_at', 'like', '%'.$request->date.'%')
+                    ->orWhere('scheduled_date', 'like', '%'.$request->date.'%');
+            });
+        }
 
-        return view('marketing.mailinglist.sending-email.index', compact('audience', 'templates', 'images', 'images_gmail', 'mailings'));
+        $mailings = $query->orderBy('created_at', 'desc')->get();
+
+        return view('marketing.mailinglist.sending-email.index', compact('audience', 'templates', 'images', 'images_gmail', 'mailings','term','date'));
     }
 
     public function ajaxIndex(Request $request)
