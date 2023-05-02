@@ -9506,7 +9506,6 @@ CREATE TABLE `migrations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '2016_06_01_000001_create_oauth_auth_codes_table', 1),
 (2, '2016_06_01_000002_create_oauth_access_tokens_table', 1),
