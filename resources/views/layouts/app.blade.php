@@ -3025,6 +3025,10 @@ if (!empty($notifications)) {
                                                 aria-labelledby="githubsubmenu">
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
+                                                        href="{{ url('/github/organizations') }}">Organizations</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
                                                         href="{{ url('/github/repos') }}">Repositories</a>
                                                 </li>
                                                 <li class="nav-item dropdown">

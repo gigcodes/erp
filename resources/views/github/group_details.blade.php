@@ -57,7 +57,8 @@
                     <td>{{$user->id}}</td>
                     <td>{{$user->username}}</td>
                     <td>
-                        <a class="btn btn-secondary btn-sm" href="/github/groups/{{$group->id}}/users/{{$user->id}}/remove">Remove</a>
+                        <button type="button" class="btn btn-primary" data-github-groups-memeber-remove group-id="{{ $group->id }}" user-id="{{ $user->id }}">Remove</button>
+                        <!-- <a class="btn btn-secondary btn-sm" href="/github/groups/{{$group->id}}/users/{{$user->id}}/remove">Remove</a> -->
                     </td>
                 </tr>
                 @endforeach
@@ -65,5 +66,58 @@
         </table>
     </div>
 </div>
+<div class="modal fade" id="viewOrganizationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 999999;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Organization</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <form action="#" method="POST" id="githubOrganizationForm">
+        <input type="hidden" name="github_group_id" id="github_group_id">
+        <input type="hidden" name="github_user_id" id="github_user_id">
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="recipient-name" class="col-form-label">Organization</label>
+                <select class="form-control" id="organization_id" name="organization_id" required>
+                    @foreach($githubOrganizations as $githubOrganization)
+                        <option value="{{ $githubOrganization->id }}">{{ $githubOrganization->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+       <form>
+    </div>
+  </div>
+</div>
+<script>
+    $('#githubOrganizationForm').submit(function(e){
+      e.preventDefault();
+
+      var groupId = $('#github_group_id').val();
+      var userId = $('#github_user_id').val();
+      var organizationId = $('#organization_id').val();
+      
+      window.location.href = '/github/groups/'+groupId+'/users/'+userId+'/organization/'+organizationId+'/remove';
+    });
+
+    $('[data-github-groups-memeber-remove]').click(function (){
+        var groupId = $(this).attr('group-id');
+        var userId = $(this).attr('user-id');
+
+        $('#github_group_id').val(groupId);
+        $('#github_user_id').val(userId);
+        
+        $('#viewOrganizationModal').modal('show');
+    });
+</script>
 
 @endsection

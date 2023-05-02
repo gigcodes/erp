@@ -3995,9 +3995,9 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
-        Route::get('/repos', [Github\RepositoryController::class, 'listRepositories']);
-        Route::get('/repos/{name}/users', [Github\UserController::class, 'listUsersOfRepository']);
-        Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
+        Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
+        Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
+        Route::get('/repos/{id}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
         Route::get('/repos/{id}/branches', [Github\RepositoryController::class, 'getRepositoryDetails']);
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
         Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
@@ -4015,7 +4015,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/groups/repositories/add', [Github\GroupController::class, 'addRepository']);
         Route::get('/groups/{groupId}', [Github\GroupController::class, 'groupDetails']);
         Route::get('/groups/{groupId}/repos/{repoId}/remove', [Github\GroupController::class, 'removeRepositoryFromGroup']);
-        Route::get('/groups/{groupId}/users/{userId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
+        Route::get('/groups/{groupId}/users/{userId}/organization/{organizationId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
         Route::get('/groups/{groupId}/users/add', [Github\GroupController::class, 'addUserForm']);
         Route::get('/groups/{groupId}/repositories/add', [Github\GroupController::class, 'addRepositoryForm']);
         Route::get('/sync', [Github\SyncController::class, 'index']);
