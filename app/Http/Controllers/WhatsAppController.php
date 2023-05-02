@@ -5473,13 +5473,21 @@ class WhatsAppController extends FindByNumberController
                 }
             }
         } else {
-            $whatsappAccount = WhatsappBusinessAccounts::where('id', $whatAppConfig->instance_id)->first();
-            $config[$whatsapp_number] = [
-                'provider' => 'official-whatsapp',
-                'instance_id' => $whatsappAccount->id,
-                'token' => $whatsappAccount->business_access_token,
-                'is_use_own' => $whatAppConfig->is_use_own,
-            ];
+            if ($whatAppConfig->provicer == 'official-whatsapp') {
+                $whatsappAccount = WhatsappBusinessAccounts::where('id', $whatAppConfig->instance_id)->first();
+                $config[$whatsapp_number] = [
+                    'provider' => 'official-whatsapp',
+                    'instance_id' => $whatsappAccount->id,
+                    'token' => $whatsappAccount->business_access_token,
+                    'is_use_own' => $whatAppConfig->is_use_own,
+                ];
+            } else {
+                $config[$whatsapp_number] = [
+                    'instance_id' => $whatAppConfig->instance_id,
+                    'token' => $whatAppConfig->token,
+                    'is_use_own' => $whatAppConfig->is_use_own,
+                ];
+            }
         }
 
         $chatMessage = null;
