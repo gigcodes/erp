@@ -88,9 +88,11 @@ CREATE TABLE `activity_log` (
   `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `subject_id` int(11) DEFAULT NULL,
   `subject_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `event` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `causer_id` int(11) DEFAULT NULL,
   `causer_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `properties` text COLLATE utf8mb4_unicode_ci,
+  `batch_uuid` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -194,6 +196,175 @@ CREATE TABLE `ads_schedules_attachments` (
   `attachment_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_commissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_commissions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `affiliate_commission_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` double(8,2) NOT NULL DEFAULT '0.00',
+  `approved` tinyint(1) NOT NULL,
+  `affiliate_commission_created_at` datetime NOT NULL,
+  `commission_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `conversion_sub_amount` double(8,2) NOT NULL DEFAULT '0.00',
+  `comment` text COLLATE utf8mb4_unicode_ci,
+  `affiliate_conversion_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payout` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_marketer_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kind` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `final` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `finalization_date` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_commissions_affiliate_account_id_foreign` (`affiliate_account_id`),
+  CONSTRAINT `affiliate_commissions_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_conversions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_conversions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `affiliate_conversion_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `external_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` double(8,2) NOT NULL,
+  `click_date` datetime DEFAULT NULL,
+  `click_referrer` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `click_landing_page` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `commission_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_commission_id` bigint(20) unsigned DEFAULT NULL,
+  `affiliate_program_id` bigint(20) unsigned DEFAULT NULL,
+  `affiliate_marketer_id` bigint(20) unsigned DEFAULT NULL,
+  `customer_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_system_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_data` text COLLATE utf8mb4_unicode_ci,
+  `commission_created_at` datetime DEFAULT NULL,
+  `warnings` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_meta_data` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_conversions_affiliate_account_id_foreign` (`affiliate_account_id`),
+  KEY `affiliate_conversions_affiliate_commission_id_foreign` (`affiliate_commission_id`),
+  KEY `affiliate_conversions_affiliate_program_id_foreign` (`affiliate_program_id`),
+  KEY `affiliate_conversions_affiliate_marketer_id_foreign` (`affiliate_marketer_id`),
+  CONSTRAINT `affiliate_conversions_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `affiliate_conversions_affiliate_commission_id_foreign` FOREIGN KEY (`affiliate_commission_id`) REFERENCES `affiliate_commissions` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `affiliate_conversions_affiliate_marketer_id_foreign` FOREIGN KEY (`affiliate_marketer_id`) REFERENCES `affiliates_marketers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `affiliate_conversions_affiliate_program_id_foreign` FOREIGN KEY (`affiliate_program_id`) REFERENCES `affiliate_programs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_groups` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `affiliate_provider_group_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_groups_affiliate_account_id_foreign` (`affiliate_account_id`),
+  CONSTRAINT `affiliate_groups_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_marketing_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_marketing_logs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_payments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `payment_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_created_at` datetime NOT NULL,
+  `affiliate_marketer_id` bigint(20) unsigned NOT NULL,
+  `amount` double(8,2) NOT NULL,
+  `currency` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_payments_affiliate_account_id_foreign` (`affiliate_account_id`),
+  KEY `affiliate_payments_affiliate_marketer_id_foreign` (`affiliate_marketer_id`),
+  CONSTRAINT `affiliate_payments_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `affiliate_payments_affiliate_marketer_id_foreign` FOREIGN KEY (`affiliate_marketer_id`) REFERENCES `affiliates_marketers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_programs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_programs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `affiliate_program_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cookie_time` int(11) NOT NULL,
+  `default_landing_page_url` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `recurring` tinyint(1) NOT NULL,
+  `recurring_cap` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `recurring_period_days` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_category_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_category_identifier` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_category_title` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_category_is_admitad_suitable` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_programs_affiliate_account_id_foreign` (`affiliate_account_id`),
+  CONSTRAINT `affiliate_programs_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_provider_accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_provider_accounts` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliates_provider_id` bigint(20) unsigned NOT NULL,
+  `store_website_id` int(11) NOT NULL,
+  `api_key` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliate_provider_accounts_affiliates_provider_id_foreign` (`affiliates_provider_id`),
+  KEY `affiliate_provider_accounts_store_website_id_foreign` (`store_website_id`),
+  CONSTRAINT `affiliate_provider_accounts_affiliates_provider_id_foreign` FOREIGN KEY (`affiliates_provider_id`) REFERENCES `affiliate_providers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `affiliate_provider_accounts_store_website_id_foreign` FOREIGN KEY (`store_website_id`) REFERENCES `store_websites` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliate_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliate_providers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `provider_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `affiliates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -236,6 +407,79 @@ CREATE TABLE `affiliates` (
   `type` enum('affiliate','influencer') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'affiliate',
   `store_website_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliates_customers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliates_customers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `customer_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `customer_system_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `customer_created_at` datetime NOT NULL,
+  `click_date` datetime DEFAULT NULL,
+  `click_referrer` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `click_landing_page` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `program_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_program_id` bigint(20) unsigned DEFAULT NULL,
+  `affiliate_marketer_id` bigint(20) unsigned DEFAULT NULL,
+  `affiliate_meta_data` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_data` text COLLATE utf8mb4_unicode_ci,
+  `warnings` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliates_customers_affiliate_account_id_foreign` (`affiliate_account_id`),
+  KEY `affiliates_customers_affiliate_program_id_foreign` (`affiliate_program_id`),
+  KEY `affiliates_customers_affiliate_marketer_id_foreign` (`affiliate_marketer_id`),
+  CONSTRAINT `affiliates_customers_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `affiliates_customers_affiliate_marketer_id_foreign` FOREIGN KEY (`affiliate_marketer_id`) REFERENCES `affiliates_marketers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `affiliates_customers_affiliate_program_id_foreign` FOREIGN KEY (`affiliate_program_id`) REFERENCES `affiliate_programs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `affiliates_marketers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `affiliates_marketers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `affiliate_account_id` bigint(20) unsigned NOT NULL,
+  `affiliate_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firstname` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lastname` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `company_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company_description` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_one` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_two` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_postal_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_city` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_state` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_country_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_country_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_data` text COLLATE utf8mb4_unicode_ci,
+  `parent_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_created_at` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_group_id` bigint(20) unsigned DEFAULT NULL,
+  `promoted_at` datetime DEFAULT NULL,
+  `promotion_method` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `referral_link` text COLLATE utf8mb4_unicode_ci,
+  `asset_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `source_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `approved` tinyint(1) NOT NULL DEFAULT '0',
+  `coupon` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `affiliate_programme_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `affiliates_marketers_affiliate_account_id_foreign` (`affiliate_account_id`),
+  KEY `affiliates_marketers_affiliate_group_id_foreign` (`affiliate_group_id`),
+  KEY `affiliates_marketers_affiliate_programme_id_foreign` (`affiliate_programme_id`),
+  CONSTRAINT `affiliates_marketers_affiliate_account_id_foreign` FOREIGN KEY (`affiliate_account_id`) REFERENCES `affiliate_provider_accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `affiliates_marketers_affiliate_group_id_foreign` FOREIGN KEY (`affiliate_group_id`) REFERENCES `affiliate_groups` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `affiliates_marketers_affiliate_programme_id_foreign` FOREIGN KEY (`affiliate_programme_id`) REFERENCES `affiliate_programs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `agent_call_statuses`;
@@ -450,13 +694,27 @@ CREATE TABLE `assets_manager` (
   `ip_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `server_password` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `folder_name` longtext COLLATE utf8mb4_unicode_ci,
+  `created_by` int(11) DEFAULT NULL,
   `website_id` int(11) DEFAULT NULL,
   `asset_plate_form_id` int(11) DEFAULT NULL,
   `email_address_id` int(11) DEFAULT NULL,
   `whatsapp_config_id` int(11) DEFAULT NULL,
+  `link` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_assets_manager_categories` (`category_id`),
   CONSTRAINT `fk_assets_manager_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `assets_manager_link_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `assets_manager_link_user` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `asset_manager_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assigned_user_pages`;
@@ -841,6 +1099,88 @@ CREATE TABLE `benchmarks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `bing_client_account_mails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bing_client_account_mails` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `bing_account` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bing_client_account_id` int(10) unsigned NOT NULL,
+  `bing_client_refresh_token` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bing_client_access_token` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expires_in` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `bing_client_accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bing_client_accounts` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `bing_client_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bing_client_secret` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bing_client_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bing_client_application_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `bing_search_analytics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bing_search_analytics` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `site_id` bigint(20) unsigned NOT NULL,
+  `clicks` double(8,2) DEFAULT NULL,
+  `impression` double(8,2) DEFAULT NULL,
+  `ctr` double(8,2) DEFAULT NULL,
+  `position` double(8,2) DEFAULT NULL,
+  `page` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `query` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `crawl_requests` double(8,2) DEFAULT NULL,
+  `crawl_errors` double(8,2) DEFAULT NULL,
+  `index_pages` double(8,2) DEFAULT NULL,
+  `crawl_information` text COLLATE utf8mb4_unicode_ci,
+  `keywords` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pages` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bing_search_analytics_site_id_foreign` (`site_id`),
+  CONSTRAINT `bing_search_analytics_site_id_foreign` FOREIGN KEY (`site_id`) REFERENCES `bing_sites` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `bing_sites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bing_sites` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `site_url` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `bing_webmaster_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bing_webmaster_logs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `block_web_message_lists`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -848,6 +1188,37 @@ CREATE TABLE `block_web_message_lists` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
   `object_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `blog_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `blog_histories` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `blog_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `plaglarism` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `internal_link` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `external_link` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `no_index` tinyint(4) DEFAULT NULL,
+  `no_follow` tinyint(4) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `blog_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `blog_tags` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `blog_id` bigint(20) unsigned DEFAULT NULL,
+  `tag_id` bigint(20) unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -966,6 +1337,47 @@ CREATE TABLE `bloggers` (
   `whatsapp_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `other` text COLLATE utf8mb4_unicode_ci,
   `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `blogs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `blogs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `store_website_id` bigint(20) unsigned DEFAULT NULL,
+  `idea` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keyword` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci,
+  `plaglarism` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `internal_link` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `header_tag` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `strong_tag` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `italic_tag` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `title_tag` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `canonical_url` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkmobile_friendliness` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `external_link` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_desc` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url_structure` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url_xml` text COLLATE utf8mb4_unicode_ci,
+  `publish_blog_date` datetime DEFAULT NULL,
+  `no_index` tinyint(4) DEFAULT NULL,
+  `no_follow` tinyint(4) DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
+  `facebook` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `facebook_date` datetime DEFAULT NULL,
+  `instagram` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `instagram_date` datetime DEFAULT NULL,
+  `twitter` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `twitter_date` datetime DEFAULT NULL,
+  `google` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `google_date` datetime DEFAULT NULL,
+  `bing` varchar(524) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bing_date` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -1252,6 +1664,7 @@ CREATE TABLE `brands` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   `brand_image` text COLLATE utf8mb4_unicode_ci,
   `status` int(11) DEFAULT NULL,
+  `is_hashtag_generated` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `brands_deleted_at_index` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2099,6 +2512,7 @@ CREATE TABLE `chat_messages` (
   `task_time_reminder` int(11) NOT NULL DEFAULT '0',
   `flow_exit` int(11) NOT NULL,
   `ui_check_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `chat_messages_lead_id` (`lead_id`),
   KEY `chat_messages_order_id` (`order_id`),
@@ -2137,6 +2551,8 @@ CREATE TABLE `chat_messages` (
   KEY `hubstuff_activity_user_id` (`hubstuff_activity_user_id`),
   KEY `test_suites_id` (`test_suites_id`),
   KEY `bug_id` (`bug_id`),
+  KEY `chat_messages_created_at_index` (`created_at`),
+  KEY `chat_messages_issue_id_IDX` (`issue_id`) USING BTREE,
   CONSTRAINT `chat_messages_ticket_id_foreign` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`),
   CONSTRAINT `fk_chat_messages_cases` FOREIGN KEY (`case_id`) REFERENCES `cases` (`id`),
   CONSTRAINT `fk_chat_messages_lawyers` FOREIGN KEY (`lawyer_id`) REFERENCES `lawyers` (`id`),
@@ -2512,6 +2928,23 @@ CREATE TABLE `checklist_subjects` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `cities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cities` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `country_id` bigint(20) unsigned NOT NULL,
+  `state_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cities_country_id_index` (`country_id`),
+  KEY `cities_state_id_index` (`state_id`),
+  KEY `cities_name_index` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cold_lead_broadcasts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -2816,6 +3249,8 @@ CREATE TABLE `countries` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `code` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3032,6 +3467,19 @@ CREATE TABLE `criterias` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `cron_activities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cron_activities` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `assign_by_id` int(11) NOT NULL,
+  `cron_id` int(11) NOT NULL,
+  `assign_to_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cron_job_erro_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -3128,6 +3576,7 @@ DROP TABLE IF EXISTS `crontasks`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `crontasks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `developer_module_id` int(11) DEFAULT NULL,
   `description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `command` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `parameters` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -3689,7 +4138,15 @@ CREATE TABLE `customers` (
   KEY `customers_user_id_index` (`user_id`),
   KEY `phone` (`phone`),
   KEY `store_website_id` (`store_website_id`),
-  KEY `store_website_id_2` (`store_website_id`)
+  KEY `store_website_id_2` (`store_website_id`),
+  KEY `customers_name_index` (`name`),
+  KEY `customers_email_index` (`email`),
+  KEY `customers_phone_index` (`phone`),
+  KEY `customers_whatsapp_number_index` (`whatsapp_number`),
+  KEY `customers_shoe_size_index` (`shoe_size`),
+  KEY `customers_clothing_size_index` (`clothing_size`),
+  KEY `customers_address_index` (`address`),
+  KEY `customers_city_index` (`city`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `daily_activities`;
@@ -3941,6 +4398,32 @@ CREATE TABLE `developer_task_documents` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `developer_task_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `developer_task_status_checklist_remarks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `developer_task_status_checklist_remarks` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `task_id` int(11) DEFAULT NULL,
+  `developer_task_status_checklist_id` int(11) DEFAULT NULL,
+  `remark` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `developer_task_status_checklists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `developer_task_status_checklists` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `task_status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4467,12 +4950,24 @@ CREATE TABLE `email_assignes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `email_boxes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `email_boxes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `box_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `email_category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `email_category` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `category_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `priority` enum('HIGH','MEDIUM','LOW','UNDEFINED') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -4545,6 +5040,8 @@ CREATE TABLE `email_logs` (
   `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `is_error` int(11) DEFAULT '0',
+  `service_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `email_logs_email_id_index` (`email_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -4629,13 +5126,23 @@ CREATE TABLE `emails` (
   `store_website_id` int(11) DEFAULT NULL,
   `error_message` text COLLATE utf8mb4_unicode_ci,
   `email_category_id` int(11) NOT NULL,
+  `email_box_id` int(11) DEFAULT NULL,
   `approve_mail` tinyint(1) NOT NULL DEFAULT '0',
   `digital_platfirm` int(11) DEFAULT NULL,
   `message_en` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `schedule_at` timestamp NULL DEFAULT NULL,
+  `is_unknow_module` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `emails_store_website_id_index` (`store_website_id`),
-  KEY `emails_message_id_index` (`message_id`)
+  KEY `emails_message_id_index` (`message_id`),
+  KEY `emails_from_index` (`from`),
+  KEY `emails_to_index` (`to`),
+  KEY `emails_status_index` (`status`),
+  KEY `emails_type_index` (`type`),
+  KEY `emails_model_type_index` (`model_type`),
+  KEY `emails_subject_index` (`subject`),
+  FULLTEXT KEY `emails_message_fulltext` (`message`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entity_permissions`;
@@ -4651,6 +5158,18 @@ CREATE TABLE `entity_permissions` (
   KEY `restrictions_restrictable_id_restrictable_type_index` (`restrictable_id`,`restrictable_type`),
   KEY `restrictions_role_id_index` (`role_id`),
   KEY `restrictions_action_index` (`action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `env_descriptions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `env_descriptions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `erp_accounts`;
@@ -5215,6 +5734,7 @@ DROP TABLE IF EXISTS `github_branch_states`;
 CREATE TABLE `github_branch_states` (
   `repository_id` int(11) NOT NULL,
   `branch_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ahead_by` int(11) NOT NULL,
   `behind_by` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -5600,6 +6120,40 @@ CREATE TABLE `google_big_query_datas` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `google_campaign_locations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `google_campaign_locations` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `google_customer_id` bigint(20) unsigned DEFAULT NULL,
+  `adgroup_google_campaign_id` bigint(20) unsigned DEFAULT NULL,
+  `google_location_id` bigint(20) unsigned DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_id` bigint(20) unsigned DEFAULT NULL,
+  `state_id` bigint(20) unsigned DEFAULT NULL,
+  `city_id` bigint(20) unsigned DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `distance` int(10) unsigned DEFAULT NULL,
+  `radius_units` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_target` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `google_campaign_target_languages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `google_campaign_target_languages` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `google_customer_id` bigint(20) unsigned DEFAULT NULL,
+  `adgroup_google_campaign_id` bigint(20) unsigned DEFAULT NULL,
+  `google_language_constant_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `google_client_account_mails`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -5679,12 +6233,15 @@ DROP TABLE IF EXISTS `google_docs`;
 CREATE TABLE `google_docs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `docId` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `read` text COLLATE utf8mb4_unicode_ci,
   `write` text COLLATE utf8mb4_unicode_ci,
+  `belongable_id` bigint(20) unsigned DEFAULT NULL,
+  `belongable_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5695,9 +6252,18 @@ CREATE TABLE `google_drive_screencast_upload` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `file_name` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `extension` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `read` text COLLATE utf8mb4_unicode_ci,
+  `write` text COLLATE utf8mb4_unicode_ci,
+  `remarks` text COLLATE utf8mb4_unicode_ci,
+  `file_creation_date` date DEFAULT NULL,
+  `developer_task_id` bigint(20) unsigned DEFAULT NULL,
   `google_drive_file_id` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `bug_id` bigint(20) unsigned DEFAULT NULL,
+  `belongable_id` bigint(20) unsigned DEFAULT NULL,
+  `belongable_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5711,6 +6277,20 @@ CREATE TABLE `google_drives` (
   `upload_file` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `remarks` text COLLATE utf8mb4_unicode_ci,
   `dev_task` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `google_language_constants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `google_language_constants` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `google_language_constant_id` int(10) unsigned NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_targetable` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -5805,6 +6385,11 @@ CREATE TABLE `google_search_analytics` (
   `query` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `search_apperiance` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date` date DEFAULT NULL,
+  `enhancements` text COLLATE utf8mb4_unicode_ci,
+  `mobile_usable` tinyint(1) DEFAULT NULL,
+  `not_indexed_reason` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `not_indexed` tinyint(1) DEFAULT NULL,
+  `indexed` tinyint(1) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -5863,6 +6448,7 @@ CREATE TABLE `google_traslation_settings` (
   `last_error_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `project_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `google_traslation_settings_email_index` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -5927,6 +6513,8 @@ CREATE TABLE `googleadsaccounts` (
   `oauth2_client_id` text COLLATE utf8mb4_unicode_ci,
   `oauth2_client_secret` text COLLATE utf8mb4_unicode_ci,
   `oauth2_refresh_token` text COLLATE utf8mb4_unicode_ci,
+  `google_map_api_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `google_merchant_center_account_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5952,7 +6540,7 @@ DROP TABLE IF EXISTS `googlecampaigns`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `googlecampaigns` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `google_customer_id` int(10) unsigned DEFAULT NULL,
+  `google_customer_id` bigint(20) DEFAULT NULL,
   `account_id` int(10) unsigned DEFAULT NULL,
   `google_campaign_id` bigint(20) unsigned DEFAULT NULL,
   `campaign_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -5974,6 +6562,7 @@ CREATE TABLE `googlecampaigns` (
   `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT '0' COMMENT 'UNKNOWN, ENABLED,PAUSED,REMOVED',
   `app_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `app_store` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ads',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -6062,13 +6651,15 @@ CREATE TABLE `hash_tags` (
   `hashtag` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `priority` tinyint(4) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `rating` int(11) NOT NULL DEFAULT '5',
   `post_count` int(11) NOT NULL DEFAULT '0',
   `is_processed` tinyint(4) NOT NULL DEFAULT '0',
   `instagram_account_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `hash_tags_platforms_id_index` (`platforms_id`)
+  KEY `hash_tags_platforms_id_index` (`platforms_id`),
+  KEY `hash_tags_hashtag_index` (`hashtag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `hashtag_post_comments`;
@@ -6194,7 +6785,8 @@ CREATE TABLE `hosts` (
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `hosts_hostid_index` (`hostid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `hs_code_groups`;
@@ -7041,6 +7633,19 @@ CREATE TABLE `invoices` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `invoices_later`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `invoices_later` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_id` int(11) NOT NULL,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `ios_ads_report`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -7340,6 +7945,17 @@ CREATE TABLE `keyword_reports` (
   `broad_match_keywords` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `phrase_questions` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `keyword_difficulty` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `keyword_search_variants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `keyword_search_variants` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `keyword` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -8816,7 +9432,10 @@ CREATE TABLE `message_queues` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `message_queues_chat_message_id_foreign` (`chat_message_id`),
-  KEY `group_id` (`group_id`)
+  KEY `group_id` (`group_id`),
+  KEY `message_queues_sent_index` (`sent`),
+  KEY `message_queues_group_id_index` (`group_id`),
+  KEY `message_queues_created_at_index` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `messages`;
@@ -8921,6 +9540,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (31, '2020_10_12_000000_add_variants_to_media', 1),
 (32, '2020_12_10_120000_alter_tasks_table_add_run_in_background_support', 1),
 (33, '2018_08_08_100000_create_telescope_entries_table', 1);
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `missing_brands`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8929,6 +9549,18 @@ CREATE TABLE `missing_brands` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `supplier` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `model_colors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `model_colors` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `model_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color_code` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -9074,7 +9706,10 @@ CREATE TABLE `newsletters` (
   `sent_at` timestamp NULL DEFAULT NULL,
   `sent_on` timestamp NULL DEFAULT NULL,
   `mail_list_id` int(11) DEFAULT NULL,
+  `mail_list_temp_id` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,
+  `language` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `translated_from` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -10067,6 +10702,21 @@ CREATE TABLE `positions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `postman_collections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `postman_collections` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `collection_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `workspace_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `collection_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `workspace_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `postman_edit_histories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -10130,6 +10780,7 @@ DROP TABLE IF EXISTS `postman_historys`;
 CREATE TABLE `postman_historys` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `postman_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -10236,6 +10887,19 @@ CREATE TABLE `postman_responses` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `request_url` longtext COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `postman_workspaces`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `postman_workspaces` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `workspace_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `workspace_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -10402,7 +11066,8 @@ CREATE TABLE `problems` (
   `name` varchar(155) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `problems_eventid_index` (`eventid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `product_attributes`;
@@ -12827,6 +13492,70 @@ CREATE TABLE `seo_analytics` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_companies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_companies` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `company_type_id` bigint(20) DEFAULT NULL,
+  `website_id` bigint(20) DEFAULT NULL,
+  `email_address_id` bigint(20) DEFAULT NULL,
+  `da` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pa` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ss` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `live_link` text COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_company_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_company_histories` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `seo_company_id` bigint(20) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `company_type_id` bigint(20) DEFAULT NULL,
+  `website_id` bigint(20) DEFAULT NULL,
+  `email_address_id` bigint(20) DEFAULT NULL,
+  `da` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pa` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ss` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `live_link` text COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_company_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_company_type` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_histories` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `seo_process_id` bigint(20) DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `seo_keyword_ideas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -12834,6 +13563,62 @@ CREATE TABLE `seo_keyword_ideas` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `idea` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `store_website_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_process`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_process` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` bigint(20) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `word_count` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `suggestion` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` double DEFAULT NULL,
+  `is_price_approved` tinyint(1) DEFAULT '0',
+  `google_doc_link` text COLLATE utf8mb4_unicode_ci,
+  `seo_process_status_id` bigint(20) DEFAULT NULL,
+  `live_status_link` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `published_at` datetime DEFAULT NULL,
+  `status` enum('planned','admin_approve') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'planned',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_process_keywords`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_process_keywords` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `seo_process_id` bigint(20) DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `index` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_process_remarks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_process_remarks` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `seo_process_id` bigint(20) DEFAULT NULL,
+  `seo_process_status_id` bigint(20) DEFAULT NULL,
+  `remark` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `index` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `seo_process_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `seo_process_status` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` enum('seo_approval','publish','google_doc_link') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'seo_approval',
+  `label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -13122,6 +13907,7 @@ DROP TABLE IF EXISTS `site_development_statuses`;
 CREATE TABLE `site_development_statuses` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `color` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#000000',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -13579,6 +14365,22 @@ CREATE TABLE `sops_category` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `states`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `states` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `country_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `states_country_id_index` (`country_id`),
+  KEY `states_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `status`;
@@ -14188,12 +14990,15 @@ CREATE TABLE `store_website_pages` (
   `store_website_id` int(11) DEFAULT NULL,
   `language` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `copy_page_id` int(11) DEFAULT NULL,
+  `translated_from` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `meta_keyword_avg_monthly` longtext COLLATE utf8mb4_unicode_ci,
   `is_latest_version_translated` tinyint(1) NOT NULL DEFAULT '0',
   `is_pushed` int(11) NOT NULL DEFAULT '0',
   `is_latest_version_pushed` tinyint(1) NOT NULL DEFAULT '0',
+  `is_flagged_translation` int(11) NOT NULL DEFAULT '0',
+  `approved_by_user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -14761,6 +15566,17 @@ CREATE TABLE `supplier_price_range` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `supplier_priority`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `supplier_priority` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `supplier_size`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -14856,7 +15672,8 @@ CREATE TABLE `suppliers` (
   KEY `suppliers_supplier_category_id_foreign` (`supplier_category_id`),
   KEY `suppliers_supplier_status_id_foreign` (`supplier_status_id`),
   KEY `suppliers_language_index` (`language`),
-  KEY `deleted_at` (`deleted_at`)
+  KEY `deleted_at` (`deleted_at`),
+  KEY `suppliers_email_index` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_size_managers`;
@@ -15695,6 +16512,23 @@ CREATE TABLE `time_doctor_command_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `time_doctor_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `time_doctor_logs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `url` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8mb4_unicode_ci,
+  `response` text COLLATE utf8mb4_unicode_ci,
+  `user_id` int(11) DEFAULT NULL,
+  `response_code` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `dev_task_id` bigint(20) unsigned DEFAULT NULL,
+  `task_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `time_doctor_members`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -16316,6 +17150,7 @@ CREATE TABLE `translate_logs` (
   `reason` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -17233,6 +18068,8 @@ CREATE TABLE `user_avaibilities` (
   `start_time` time DEFAULT NULL,
   `end_time` time DEFAULT NULL,
   `lunch_time` time DEFAULT NULL,
+  `lunch_time_from` time DEFAULT NULL,
+  `lunch_time_to` time DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   KEY `status` (`status`),
@@ -17254,6 +18091,8 @@ CREATE TABLE `user_avaibility_histories` (
   `start_time` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `end_time` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `lunch_time` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lunch_time_from` time DEFAULT NULL,
+  `lunch_time_to` time DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -17535,9 +18374,10 @@ CREATE TABLE `user_system_ip` (
   `index_txt` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `other_user_name` int(11) DEFAULT NULL,
+  `other_user_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `notes` longtext COLLATE utf8mb4_unicode_ci,
+  `source` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -17615,6 +18455,7 @@ CREATE TABLE `users` (
   `payment_frequency` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'fornightly,weekly,biweekly,monthly',
   `billing_frequency_day` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `hourly_rate` decimal(8,2) DEFAULT NULL,
+  `timezone` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Asia/Dubai',
   `approve_login` date DEFAULT NULL,
   `user_timeout` int(11) DEFAULT NULL,
   `mail_notification` tinyint(1) NOT NULL DEFAULT '0',
@@ -17626,7 +18467,9 @@ CREATE TABLE `users` (
   UNIQUE KEY `phone` (`phone`),
   KEY `users_deleted_at_index` (`deleted_at`),
   KEY `is_task_planned` (`is_task_planned`),
-  KEY `users_is_active_index` (`is_active`)
+  KEY `users_is_active_index` (`is_active`),
+  KEY `users_name_index` (`name`),
+  KEY `users_email_index` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `users_auto_comment_histories`;
@@ -17914,7 +18757,9 @@ CREATE TABLE `vendors` (
   `remark` text COLLATE utf8mb4_unicode_ci,
   `chat_session_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `vendors_deleted_at_index` (`deleted_at`)
+  KEY `vendors_deleted_at_index` (`deleted_at`),
+  KEY `vendors_name_index` (`name`),
+  KEY `vendors_email_index` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `views`;
@@ -18503,6 +19348,70 @@ CREATE TABLE `whatsapp_configs` (
   `store_website_id` int(11) DEFAULT NULL,
   `is_use_own` int(11) NOT NULL DEFAULT '0',
   `default_for` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `whatsapp_configs_instance_id_index` (`instance_id`),
+  KEY `whatsapp_configs_token_index` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `youtube_channels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `youtube_channels` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `store_websites` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth2_client_secret` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `access_token` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth2_refresh_token` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chanelId` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chanel_name` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `video_count` int(11) DEFAULT NULL,
+  `subscribe_count` int(11) DEFAULT NULL,
+  `token_expire_time` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `youtube_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `youtube_comments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `youtube_video_id` bigint(20) unsigned NOT NULL,
+  `video_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `comment_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(564) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `like_count` int(11) DEFAULT NULL,
+  `dislike_count` int(11) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `youtube_videos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `youtube_videos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `youtube_channel_id` bigint(20) unsigned NOT NULL,
+  `channel_id` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `link` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `media_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(564) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `like_count` int(11) DEFAULT NULL,
+  `view_count` int(11) DEFAULT NULL,
+  `dislike_count` int(11) DEFAULT NULL,
+  `comment_count` int(11) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

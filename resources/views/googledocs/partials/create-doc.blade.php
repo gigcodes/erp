@@ -35,8 +35,15 @@
 
                     <div class="form-group">
                         <strong>Category:</strong>
-                        <input type="text" name="doc_category" value="{{ old('doc_category') }}" class="form-control input-sm" placeholder="Document Category" required>
-
+                        {{-- <input type="text" name="doc_category" value="{{ old('doc_category') }}" class="form-control input-sm" placeholder="Document Category" required> --}}
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
                         @if ($errors->has('doc_category'))
                             <div class="alert alert-danger">{{$errors->first('doc_category')}}</div>
                         @endif

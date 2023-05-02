@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateModelColorsTable extends Migration
+class CreateGoogleDocsCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class CreateModelColorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('model_colors', function (Blueprint $table) {
+        Schema::create('google_docs_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('model_name');
-            $table->string('color_code');
+            $table->string("name");
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ class CreateModelColorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('model_colors');
+        Schema::dropIfExists('google_docs_categories');
     }
 }
