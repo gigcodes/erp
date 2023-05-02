@@ -2,7 +2,7 @@ name: Laravel-Test
 
 on:
   push:
-    branches: ["master"]
+    branches: ["imp-github-actions"]
 
 jobs:
   laravel-tests:
