@@ -77,10 +77,10 @@ class WhatsappBusinessAccountController extends Controller
      * @param $id
      * @return RedirectResponse
      */
-    public function updateAccount(Request $request, $id): RedirectResponse
+    public function updateAccount(Request $request): RedirectResponse
     {
         try {
-            $whatsappBusinessAccount = WhatsappBusinessAccounts::find($id);
+            $whatsappBusinessAccount = WhatsappBusinessAccounts::find($request->edit_id);
             if (!$whatsappBusinessAccount) {
                 return Redirect::route('whatsapp.business.account.index')
                     ->with('error', 'No account found');

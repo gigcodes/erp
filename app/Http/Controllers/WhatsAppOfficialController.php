@@ -21,6 +21,7 @@ class WhatsAppOfficialController extends Controller
         $response = $this->callApi('POST', 'whatsapp_business_profile', $parameters);
         if ($response['data']['success']) {
             unset($parameters['_token']);
+            unset($parameters['edit_id']);
             foreach ($parameters as $key => $parameter) {
                 $this->account->{$key} = $parameter;
             }

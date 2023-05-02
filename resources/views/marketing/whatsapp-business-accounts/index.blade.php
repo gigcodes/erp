@@ -97,6 +97,7 @@
     {!! $whatsappBusinessAccounts->render() !!}
 
     @include('marketing.whatsapp-business-accounts.partials.create')
+    @include('marketing.whatsapp-business-accounts.partials.edit')
 @endsection
 
 
@@ -125,9 +126,19 @@
                     $("#loading-image").hide();
                     if (!response.status) {
                         toastr["error"](response.message);
-                        $('#whatsapp-business-create').modal('hide');
+                        $('#whatsapp-business-edit').modal('hide');
                     } else {
-                        console.log(response);
+                        $('#whatsapp-business-edit').modal('show');
+                        $('#edit_id').val(response.data.id)
+                        $('#edit_business_phone_number').val(response.data.business_phone_number)
+                        $('#edit_business_account_id').val(response.data.business_account_id)
+                        $('#edit_business_access_token').val(response.data.business_access_token)
+                        $('#edit_business_phone_number_id').val(response.data.business_phone_number_id)
+                        $('#edit_email').val(response.data.email)
+                        $('#edit_about').val(response.data.about)
+                        $('#edit_address').val(response.data.address)
+                        $('#edit_description').val(response.data.description)
+                        $('#edit_websites').val(response.data.websites)
                     }
                 }
             })

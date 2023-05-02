@@ -3665,7 +3665,7 @@ Route::middleware('auth')->prefix('marketing')->group(function () {
     Route::prefix('whatsapp-business-account')->group(function () {
         Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
         Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
-        Route::post('update/{id}', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
+        Route::post('update', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
         Route::post('delete/{id}', [WhatsappBusinessAccountController::class, 'deleteAccount'])->name('whatsapp.business.account.delete');
         Route::get('get/{id}', [WhatsappBusinessAccountController::class, 'getAccount'])->name('whatsapp.business.account.get');
     });
