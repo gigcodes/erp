@@ -2164,22 +2164,21 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
             Route::post('cost', [DevelopmentController::class, 'saveAmount'])->name('development.update.cost');
             Route::post('estimate-minutes', [DevelopmentController::class, 'saveEstimateMinutes'])->name('development.update.estimate-minutes');
             Route::post('lead-estimate-minutes', [DevelopmentController::class, 'saveLeadEstimateTime'])->name('development.update.lead-estimate-minutes');
-            
+
             Route::post('lead-estimate-minutes/approve', [DevelopmentController::class, 'approveLeadTimeHistory'])->name('development.approve.lead-estimate-minutes');
         });
-        
+
         Route::prefix('history')->group(function () {
             Route::get('start-date/index', [DevelopmentController::class, 'historyStartDate'])->name('development.history.start-date.index');
             Route::get('estimate-date/index', [DevelopmentController::class, 'historyEstimateDate'])->name('development.history.estimate-date.index');
             Route::get('cost/index', [DevelopmentController::class, 'historyCost'])->name('development.history.cost.index');
-            
+
             Route::post('approve', [DevelopmentController::class, 'historyApproveSubmit'])->name('development-task.history.approve');
             Route::get('approve/history', [DevelopmentController::class, 'historyApproveList'])->name('development-task.history.approve-history');
         });
-        
+
         Route::post('upload-file', [DevelopmentController::class, 'uploadFile'])->name('development.upload-file');
         Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
-
     });
 
     /*Routes For Social */

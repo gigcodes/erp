@@ -11,42 +11,42 @@ if (top !== self) {
 // Messages
 //
 
-
 $(function () {
-  if (window.location.protocol === 'https:') {
-    $('#no_https').remove();
+  if (window.location.protocol === "https:") {
+    $("#no_https").remove();
   } else {
-    $('#no_https a').on('click', function () {
+    $("#no_https a").on("click", function () {
       var oldLocation = window.location;
-      window.location.href = 'https:' + oldLocation.href.substring(oldLocation.protocol.length);
+      window.location.href =
+        "https:" + oldLocation.href.substring(oldLocation.protocol.length);
       return false;
     });
   }
 
-  var hiddenMessages = $('.hiddenmessage');
+  var hiddenMessages = $(".hiddenmessage");
 
   if (hiddenMessages.length > 0) {
     hiddenMessages.hide();
-    var link = $('#show_hidden_messages');
-    link.on('click', function (e) {
+    var link = $("#show_hidden_messages");
+    link.on("click", function (e) {
       e.preventDefault();
       hiddenMessages.show();
       $(this).remove();
     });
-    link.html(link.html().replace('#MSG_COUNT', hiddenMessages.length));
+    link.html(link.html().replace("#MSG_COUNT", hiddenMessages.length));
     link.show();
   }
 }); // set document width
 
 $(function () {
   var width = 0;
-  $('ul.tabs li').each(function () {
+  $("ul.tabs li").each(function () {
     width += $(this).width() + 10;
   });
   var contentWidth = width;
   width += 250;
-  $('body').css('min-width', width);
-  $('.tabs_contents').css('min-width', contentWidth);
+  $("body").css("min-width", width);
+  $(".tabs_contents").css("min-width", contentWidth);
 }); //
 // END: Messages
 // ------------------------------------------------------------------
@@ -67,59 +67,61 @@ $(function () {
 function ajaxValidate(parent, id, values) {
   var $parent = $(parent); // ensure that parent is a fieldset
 
-  if ($parent.attr('tagName') !== 'FIELDSET') {
-    $parent = $parent.closest('fieldset');
+  if ($parent.attr("tagName") !== "FIELDSET") {
+    $parent = $parent.closest("fieldset");
 
     if ($parent.length === 0) {
       return false;
     }
   }
 
-  if ($parent.data('ajax') !== null) {
-    $parent.data('ajax').abort();
+  if ($parent.data("ajax") !== null) {
+    $parent.data("ajax").abort();
   }
 
-  $parent.data('ajax', $.ajax({
-    url: 'validate.php',
-    cache: false,
-    type: 'POST',
-    data: {
-      token: $parent.closest('form').find('input[name=token]').val(),
-      id: id,
-      values: JSON.stringify(values)
-    },
-    success: function (response) {
-      if (response === null) {
-        return;
-      }
-
-      var error = {};
-
-      if (typeof response !== 'object') {
-        error[$parent.id] = [response];
-      } else if (typeof response.error !== 'undefined') {
-        error[$parent.id] = [response.error];
-      } else {
-        for (var key in response) {
-          var value = response[key];
-          error[key] = Array.isArray(value) ? value : [value];
+  $parent.data(
+    "ajax",
+    $.ajax({
+      url: "validate.php",
+      cache: false,
+      type: "POST",
+      data: {
+        token: $parent.closest("form").find("input[name=token]").val(),
+        id: id,
+        values: JSON.stringify(values),
+      },
+      success: function (response) {
+        if (response === null) {
+          return;
         }
-      }
 
-      displayErrors(error);
-    },
-    complete: function () {
-      $parent.removeData('ajax');
-    }
-  }));
+        var error = {};
+
+        if (typeof response !== "object") {
+          error[$parent.id] = [response];
+        } else if (typeof response.error !== "undefined") {
+          error[$parent.id] = [response.error];
+        } else {
+          for (var key in response) {
+            var value = response[key];
+            error[key] = Array.isArray(value) ? value : [value];
+          }
+        }
+
+        displayErrors(error);
+      },
+      complete: function () {
+        $parent.removeData("ajax");
+      },
+    })
+  );
   return true;
 }
 /**
  * Automatic form submission on change.
  */
 
-
-$(document).on('change', '.autosubmit', function (e) {
+$(document).on("change", ".autosubmit", function (e) {
   e.target.form.submit();
 });
 $.extend(true, validators, {
@@ -134,10 +136,10 @@ $.extend(true, validators, {
      */
     hide_db: function (isKeyUp) {
       // eslint-disable-line camelcase
-      if (!isKeyUp && this.value !== '') {
+      if (!isKeyUp && this.value !== "") {
         var data = {};
         data[this.id] = this.value;
-        ajaxValidate(this, 'Servers/1/hide_db', data);
+        ajaxValidate(this, "Servers/1/hide_db", data);
       }
 
       return true;
@@ -151,14 +153,14 @@ $.extend(true, validators, {
      * @return {true}
      */
     TrustedProxies: function (isKeyUp) {
-      if (!isKeyUp && this.value !== '') {
+      if (!isKeyUp && this.value !== "") {
         var data = {};
         data[this.id] = this.value;
-        ajaxValidate(this, 'TrustedProxies', data);
+        ajaxValidate(this, "TrustedProxies", data);
       }
 
       return true;
-    }
+    },
   },
   // fieldset validators
   fieldset: {
@@ -171,7 +173,7 @@ $.extend(true, validators, {
      */
     Server: function (isKeyUp) {
       if (!isKeyUp) {
-        ajaxValidate(this, 'Server', getAllValues());
+        ajaxValidate(this, "Server", getAllValues());
       }
 
       return true;
@@ -202,15 +204,15 @@ $.extend(true, validators, {
         return true;
       }
 
-      var prefix = getIdPrefix($(this).find('input'));
+      var prefix = getIdPrefix($(this).find("input"));
 
-      if ($('#' + prefix + 'pmadb').val() !== '') {
-        ajaxValidate(this, 'Server_pmadb', getAllValues());
+      if ($("#" + prefix + "pmadb").val() !== "") {
+        ajaxValidate(this, "Server_pmadb", getAllValues());
       }
 
       return true;
-    }
-  }
+    },
+  },
 }); //
 // END: Form validation and field operations
 // ------------------------------------------------------------------
@@ -219,29 +221,29 @@ $.extend(true, validators, {
 //
 
 $(function () {
-  $('.userprefs-allow').on('click', function (e) {
+  $(".userprefs-allow").on("click", function (e) {
     if (this !== e.target) {
       return;
     }
 
-    var el = $(this).find('input');
+    var el = $(this).find("input");
 
-    if (el.prop('disabled')) {
+    if (el.prop("disabled")) {
       return;
     }
 
-    el.prop('checked', !el.prop('checked'));
+    el.prop("checked", !el.prop("checked"));
   });
 }); //
 // END: User preferences allow/disallow UI
 // ------------------------------------------------------------------
 
 $(function () {
-  $('.delete-server').on('click', function (e) {
+  $(".delete-server").on("click", function (e) {
     e.preventDefault();
     var $this = $(this);
-    $.post($this.attr('href'), $this.attr('data-post'), function () {
-      window.location.replace('index.php');
+    $.post($this.attr("href"), $this.attr("data-post"), function () {
+      window.location.replace("index.php");
     });
   });
 });

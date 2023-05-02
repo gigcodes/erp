@@ -59,6 +59,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         .select2-container--open{
             z-index:9999999
         }
+
+        .select-multiple.cs-select-2 + .select2.select2-container{
+            margin-top:-30px;
+        }
         #message-chat-data-box .p1[data-count]:after{
           position:absolute;
           right:10%;
@@ -3215,6 +3219,9 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('google-docs.index') }}">Google
                                                 Docs</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google-drive-screencast.index') }}">Google Drive Screencast</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ url('/google-traslation-settings') }}">Google Translator
@@ -4752,8 +4759,8 @@ if (!empty($notifications)) {
                         @php
                         use App\User;
                         $userlist = [];
-                        $userLists = User::orderBy('name')->where('is_active', 1)->get();
-
+                        $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
+                        
                         $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh
                         -f list');
                         $final_array = [];
@@ -4767,9 +4774,10 @@ if (!empty($notifications)) {
                         }
                         }
                         @endphp
-                        <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                        <div>
-                            <select class="form-control col-md-2 ml-3" name="user_id" id="ipusers">
+                       
+                        <div class="select-user">
+                            <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+                            <select class="form-control col-md-2 ml-3 select-multiple cs-select-2" name="user_id" id="ipusers">
                                 <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -4778,12 +4786,14 @@ if (!empty($notifications)) {
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
                                 class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
-                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3"
+                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3 mr-3""
                             placeholder="Add comment...">
+                            <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+                            <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
                         </div>
-
-                        <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-                        <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
+                       
+                       
+                      
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -4852,6 +4862,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
+   
 {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
@@ -4870,6 +4881,8 @@ if (!empty($notifications)) {
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
+        $('.select-user .select-multiple').select2({width: '20%'});
+        //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
@@ -5905,11 +5918,18 @@ if (!empty($notifications)) {
             },
             dataType: 'json',
             success: function(result) {
-                // console.log(result.data);
+                 
+
+                 const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
+
                 t += '<option value="">Select user</option>';
-                $.each(result.data, function(i, j) {
-                    t += '<option value="' + i + '">' + j + '</option>'
-                });
+                arr.forEach(([key,value]) => {
+                    t+=`<option value="${key}">${value}</option>`
+                })
+                //$.each(arr, function([key, value], j) {
+                 //   console.log('index->', i , 'j index', j );
+                 //   t += '<option value="' + i + '">' + j + '</option>'
+                //});
                 t += '<option value="other">Other</option>';
                 // console.log(t);
                 $("#ipusers").html(t);
