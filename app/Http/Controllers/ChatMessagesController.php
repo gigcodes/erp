@@ -105,6 +105,7 @@ class ChatMessagesController extends Controller
                 //END - DEVTASK-4020
             case 'SOP':
                 $object = User::find($request->object_id);
+                break;
                 // no break
             case 'document' :
                 $object = Document::find($request->object_id);
@@ -155,7 +156,7 @@ class ChatMessagesController extends Controller
             $onlyBroadcast = true;
             $loadType = 'images';
         }
-
+        
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
         if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
