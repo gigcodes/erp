@@ -9,7 +9,17 @@
 <tr>
     <td>{{ ++$i }}</td>
     <td>{{ $file->name }}</td>
-    <td>{{ $file->category }}</td>
+    <td>
+        {{-- $googleDocCategory     --}}
+        <select class="form-control select-multiple0 select-multiple2 update-category" name="type[]" data-docs_id="{{$file->id}}" data-placeholder="Select Category">
+            <option>Select category</option>
+            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                @foreach ($googleDocCategory as $key => $category)
+                    <option value="{{$key}}" {{$key == $file->category ? "selected" : ""}}>{{$category}}</option>
+                @endforeach
+            @endif
+        </select>
+    </td>
     <td>
         @if (isset($file->belongable_type))
             {{$enum[$file->belongable_type] ?? ""}}{{$file->belongable_id}}
