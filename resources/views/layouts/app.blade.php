@@ -5911,7 +5911,7 @@ if (!empty($notifications)) {
             },
             dataType: 'json',
             success: function(result) {
-                 console.log(result.data);
+                 
 
                  const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
 
