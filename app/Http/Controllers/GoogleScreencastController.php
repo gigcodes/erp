@@ -23,7 +23,9 @@ class GoogleScreencastController extends Controller
     public function index(Request $request)
     {
         //get file list
-        $data = GoogleScreencast::orderBy('id', 'desc');
+        $data = GoogleScreencast::with(["user"=> function($query){
+            return $query->select('id', 'name');
+        }])->orderBy('id', 'desc');
         //fetch task list
         $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
         $generalTask = Task::orderBy('id', 'desc');
