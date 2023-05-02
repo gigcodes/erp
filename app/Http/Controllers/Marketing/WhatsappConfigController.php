@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Marketing;
 use App\Customer;
 use App\Http\Controllers\Controller;
 use App\ImQueue;
+use App\Marketing\WhatsappBusinessAccounts;
 use App\Marketing\WhatsappConfig;
 use App\Notification;
 use App\Services\Whatsapp\ChatApi\ChatApi;
@@ -67,12 +68,13 @@ class WhatsappConfigController extends Controller
         } else {
             $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
         }
+        $businessAccounts = WhatsappBusinessAccounts::all();
 
         //Fetch Store Details
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs', 'storeData'))->render(),
+                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs', 'storeData', 'businessAccounts'))->render(),
                 'links' => (string) $whatsAppConfigs->render(),
             ], 200);
         }
@@ -80,6 +82,7 @@ class WhatsappConfigController extends Controller
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
             'storeData' => $storeData,
+            'businessAccounts' => $businessAccounts
         ]);
     }
 

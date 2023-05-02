@@ -168,6 +168,31 @@
             format: 'YYYY-MM-DD',
         });
 
+        $('#whatsAppConfigCreateModal').on('shown.bs.modal', function(e) {
+            $('#whatsapp-instance-id').show();
+            $('#whatsapp-instance-id-dropdown').hide();
+        });
+
+        function updateFields(event) {
+            if ($(event).val() && $(event).val().toLowerCase() === 'official-whatsapp') {
+                $('#whatsapp-instance-id').hide();
+                $('#whatsapp-instance-id-dropdown').show();
+            } else {
+                $('#whatsapp-instance-id').show();
+                $('#whatsapp-instance-id-dropdown').hide();
+            }
+        }
+
+        function editUpdateFields(event) {
+            if ($(event).val() && $(event).val().toLowerCase() === 'official-whatsapp') {
+                $('#edit-whatsapp-instance-id').hide();
+                $('#edit-whatsapp-instance-id-dropdown').show();
+            } else {
+                $('#edit-whatsapp-instance-id').show();
+                $('#edit-whatsapp-instance-id-dropdown').hide();
+            }
+        }
+
 
         // $('.date').change(function(){
         //     alert('date selected');
@@ -177,6 +202,14 @@
         function changewhatsAppConfig(config_id) {
             $("#select-multiple-default_for_" + config_id + "").select2({tags: true, width: 250});
             $("#whatsAppConfigEditModal" + config_id + "").modal('show');
+            let value = $('#edit-whatsapp-provider' + config_id + "");
+            if (value.val().toLowerCase() === 'official-whatsapp') {
+                $('#edit-whatsapp-instance-id').hide();
+                $('#edit-whatsapp-instance-id-dropdown').show();
+            } else {
+                $('#edit-whatsapp-instance-id').show();
+                $('#edit-whatsapp-instance-id-dropdown').hide();
+            }
         }
 
         function deleteConfig(config_id) {
