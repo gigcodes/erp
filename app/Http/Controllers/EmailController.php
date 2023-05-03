@@ -214,7 +214,15 @@ class EmailController extends Controller
             ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
 
         //Get All Status
-        $email_status = DB::table('email_status')->get();
+        $email_status = DB::table('email_status');
+
+        if(!empty($request->type) && $request->type == 'outgoing'){
+            $email_status = $email_status->where('type','sent');
+        }else{
+            $email_status = $email_status->whereNull('type');
+        }
+
+        $email_status = $email_status->get();
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
@@ -658,7 +666,7 @@ class EmailController extends Controller
     public function status(Request $request)
     {
         $email_id = $request->input('status');
-        $values = ['email_status' => $request->input('email_status')];
+        $values = ['email_status' => $request->input('email_status'),'type' => $request->type];
         DB::table('email_status')->insert($values);
 
         session()->flash('success', 'Status added successfully');

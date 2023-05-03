@@ -403,6 +403,18 @@
           <div class="form-group">
             <input type="text" name="email_status" value="{{ old('email_status') }}" class="form-control" placeholder="Status">
           </div>
+
+          <div class="form-group">
+            <select class="form-control" id="status_type" name="type">
+                <option value="read">Read</option>
+                <option value="unread">Unread</option>
+                <option value="sent">Sent</option>
+                <option value="trash">Trash</option>
+                <option value="draft">Draft</option>
+                <option value="queue">Queue</option>
+            </select>
+          </div>
+          
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Create</button>
