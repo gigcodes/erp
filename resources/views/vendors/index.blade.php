@@ -1644,7 +1644,7 @@
 
             $('#viewOrganizationModal').modal('show');
         }else{
-            $('#githubOrganizationForm').unbind().submit();
+            $('#createVendorForm').unbind().submit();
         }
     });
 </script>
