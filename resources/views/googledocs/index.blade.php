@@ -128,8 +128,8 @@
                             </label>
                             <select class="w-100 js-example-basic-multiple js-states"
                                     id="remove_permission_write"  name="remove_permission">
-                                @foreach(App\User::all() as $val)
-                                    <option value="{{$val->email}}" class="form-control">{{$val->name}}</option>
+                                @foreach(App\User::whereNotNull('gmail')->get() as $val)
+                                    <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
                                 @endforeach
                             </select>
                         </div>

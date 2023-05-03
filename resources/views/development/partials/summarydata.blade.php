@@ -146,9 +146,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         <button type="button" class="btn btn-xs show-status-history p-1" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
         </button>
-        {{-- <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+        <button class="btn btn-xs mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
             <i class="fa fa-key" aria-hidden="true"></i>
-        </button> --}}
+        </button>
     </td>
 </tr>
 <script>

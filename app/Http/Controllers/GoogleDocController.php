@@ -266,14 +266,41 @@ class GoogleDocController extends Controller
 
     public function permissionRemove(Request $request)
     {
-        $googledocs = GoogleDoc::get();
+        $googledocs = GoogleDoc::where(function($query) use ($request){
+            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
+            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
+        })->get();
 
         foreach ($googledocs as $googledoc) {
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($googledoc->docId, $parameters);
+            
+            // dd($permissions->getPermissions());
+
+            $is_already_have_permission = false;
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove old Permission
+                if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($googledoc->docId, $permission['id']);
+                }
+            }
+
             $read = explode(',', $googledoc->read);
 
             if (($key = array_search($request->remove_permission, $read)) !== false) {
                 unset($read[$key]);
             }
+
             $new_read_data = implode(',', $read);
             $googledoc->read = $new_read_data;
 
@@ -519,6 +546,12 @@ class GoogleDocController extends Controller
                 'emailAddress' => $user->gmail,
             ]);
 
+            // dd([
+            //     'type' => 'user',
+            //     'role' => 'reader',
+            //     'emailAddress' => $user->gmail,
+            // ], $doc->docId);
+
             $r_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($r_request, 'user' . rand(0, 999));
             // $index++;
@@ -554,7 +587,6 @@ class GoogleDocController extends Controller
             
             
         } catch (Exception $e) {
-            dd($e->getMessage());
             return redirect()->back()->withError($e->getMessage());
         }
     }
