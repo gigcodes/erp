@@ -14,8 +14,8 @@
     .switch {
         position: relative;
         display: inline-block;
-        width: 60px;
-        height: 34px;
+        width: 55px;
+        height: 25px;
     }
 
     /* Hide default HTML checkbox */
@@ -41,8 +41,8 @@
     .slider:before {
         position: absolute;
         content: "";
-        height: 26px;
-        width: 26px;
+        height: 17px;
+        width: 20px;
         left: 4px;
         bottom: 4px;
         background-color: white;
@@ -161,18 +161,15 @@ table tr td {
     <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks {{'('.$total_tasks.')'}}</h2>
-                <div class="margin-tb" style="flex-grow: 1;">
-                    <div class="pull-right ">
-                        <button type="button" class="btn btn-default btn-sm add-remark add-torterm mr-1" data-toggle="modal" data-target="#addEditTaskModal">
-                            <span class="glyphicon glyphicon-th-plus"></span> Add Task
-                        </button>
-                    </div>
-                </div>
         </div>
-        <div class="col-12 pl-2" style="padding-left:0px;">
-            <div >
-
+        <div class="col-7 pl-2" style="padding-left:0px;">
+                <div class="form-group col-md-2 pd-3">
+                    <button type="button" class="btn btn-secondary website-template-btn add-torterm" data-toggle="modal" data-target="#addEditTaskModal">
+                        <span class="glyphicon glyphicon-th-plus"></span> Add Task
+                    </button>
+                </div>
                 <form class="form-inline" action="" method="GET">
+                    
                     <div class="form-group col-md-2 pd-3">
                         <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
                         <datalist id="tasks-lists">
@@ -197,23 +194,23 @@ table tr td {
 
                         </select>
                     </div>
-                    <div class="form-group col-md-1 pd-3">
+                    <div class="form-group col-md-2 pd-3">
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-
-
                 </form>
-                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
-                    <div class="form-group col-md-1 pd-3" style="display: flex">
-                        <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
-                        <button id="disableAllData" class="btn btn-danger m-2 enable-disable" cron-status="0" >Disable</button>
-                    </div>
-                    <div class="form-group" style="display: flex; border: 1px solid; padding: 0 10px; border-radius: 4px; margin-left: 10px; width: fit-content; margin-left: 170px">
+                
+            
+        </div>
+        <div class="col-5 pl-2" style="padding-left:0px;">
+            @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+
+                    <div class="form-group" style="display: flex;">
+                        <h4 class="pt-2">Assign Cron to User</h4>
                         <div>
                             <form class="post-assign-cron" action="" method="POST">
                                 @csrf
-                                <h4 class="modal-title">Assign Cron to User</h4>
+                                
                                 <input type="hidden" id="taskId" name="task-id"/>
                                 <select class="js-select2" multiple="multiple" name="users_id[]" >
                                     @foreach ($users as $key => $userData)
@@ -223,10 +220,9 @@ table tr td {
                                 </select>
                             </form>
                         </div>
-                        <div style="margin-top: 35px"><button class="btn btn-primary grant_button" bulk-assign="1">Grant Access</button></div>
+                        <div style="margin-top: 10px"><button class="btn btn-primary grant_button" bulk-assign="1">Grant Access</button></div>
                     </div>
                 @endif
-            </div>
         </div>
     </div>
 
@@ -234,22 +230,24 @@ table tr td {
 
     <div class="row">
         <div class="infinite-scroll" style="width:100%;padding: 0 8px">
-            {!! $tasks->links() !!}
+            
+            <div class="col-md-12 pl-1" style="display: flex">
+                <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                <button id="disableAllData" class="btn btn-danger m-2 enable-disable" cron-status="0" >Disable</button>
+            </div>
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
-                    @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
-                    <span>Select All</span><input type="checkbox" id="ckbCheckAll"/>
-                    @endif
                     <tr>
                         @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                             <th width="2%">
+                                <input type="checkbox" id="ckbCheckAll"/>
                             </th>
                         @endif
                             <th width="2%" class="tablesorter-header category">#</th>
-                            <th width="5%" class="tablesorter-header category" >Description</th>
+                            <th width="10%" class="tablesorter-header category" >Description</th>
                             <th width="5%" class="tablesorter-header category" >Module</th>
-                            <th width="8%" class="tablesorter-header category">Average Runtime</th>
+                            <th width="5%" class="tablesorter-header category">Average Runtime</th>
                             <th width="5%" class="tablesorter-header category">Last Run</th>
                             <th width="5%" class="tablesorter-header category">Next Run</th>
                             <th width="5%" class="tablesorter-header category">Frequencies</th>
@@ -301,14 +299,14 @@ table tr td {
                                         <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
                                     @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><i class="fa fa-globe" aria-hidden="true"></i></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image show-cron-history" href="#" data-id="{{$task->id}}" title="Show cron assign history"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
-                                    <a style="padding:1px;" class="btn d-inline btn-image assign-user" href="#" assing-id="{{$task->users_ids}}" task-id="{{$task->id}}" title="Assign user"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image assign-user" href="#" assing-id="{{$task->users_ids}}" task-id="{{$task->id}}" title="Assign user"><i class="fa fa-universal-access" aria-hidden="true"></i></a>
                                         @endif
 
                                 </td>
@@ -327,8 +325,10 @@ table tr td {
                 @if(!count($tasks))
                 <h5 class="text-center">No Tasks found</h5>
                 @endif
+                {!! $tasks->links() !!}
 	        </div>
         </div>
+        
     </div>
 
 
@@ -833,6 +833,11 @@ table tr td {
     }
     // $('ul.pagination').hide();
      $(function() {
+        $(document).on("change","#ckbCheckAll",function (e) {
+            var status = $(this).is(":checked") ? true : false;
+            console.log(status);
+            $(".checkBoxClass").prop("checked",status);
+        });
          $(".table").tablesorter();
     //     $('.infinite-scroll').jscroll({
     //         autoTrigger: true,
@@ -854,9 +859,7 @@ table tr td {
     $('#command').select2({
         dropdownParent: $('#addEditTaskModal')
     });
-    $("#ckbCheckAll").click(function () {
-        $(".checkBoxClass").prop('checked', $(this).prop('checked'));
-    });
+    
     $(".enable-disable").click(function () {
         let type = $(this).attr('cron-status')
         var selectedIds = []
@@ -1395,16 +1398,18 @@ table tr td {
             dataType : "json",
             success: function (response) {
                 let task_fields = response.task;
+               
                 for (var key in task_fields) {
+                    console.log(key);
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
                         if($(`input[type="checkbox"]`) && task_fields[key] == 1)
                             $(`input[name="${key}"]`).prop( "checked", true );
                         
 
-                    }else if($(`select[name="${key}"]`).length != 0){
+                    }else if(task_fields[key]  != null && $(`select[name="${key}"]`).length != 0){
                         $(`select[name="${key}"]`).val(task_fields[key]);
-                        $(`select[name="${key}"]`).select2().trigger(task_fields[key]);
+                        $(`select[name="${key}"]`).val(task_fields[key]).trigger("change");
 
                     }
                     if(key == 'frequencies'){
@@ -1443,8 +1448,9 @@ table tr td {
                             freq++;
                         }
                     }
-                    $('#addEditTaskModal').modal('show');  
+                      
                 }
+                $('#addEditTaskModal').modal('show');
             },
             error: function (response) { 
                 if(response.status != 200){      
