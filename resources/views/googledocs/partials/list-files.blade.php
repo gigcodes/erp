@@ -27,6 +27,13 @@
             -
         @endif
     </td>
+    <td>
+        @if (isset($file->created_by))
+            {{$file->user->name}}
+        @else
+            -
+        @endif
+    </td>
     <td>{{ $file->created_at }}</td>
     <td>
         @if($file->type === 'spreadsheet')

@@ -4915,6 +4915,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
     Route::post('category/update', [GoogleDocController::class, 'updateGoogleDocCategory'])->name('.category.update');
     Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
+    Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
+    Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
