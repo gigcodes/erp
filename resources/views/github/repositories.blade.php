@@ -20,10 +20,30 @@
 </style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Github Repositories ({{ sizeof($repositories) }})</h2>
+        <h2 class="page-heading">Github Repositories (<span id="repository_row_html_id">{{ count($repositories) }}</span>)</h2>
     </div>
 </div>
+
 <div class="container">
+    @if(strlen($organizationId) == 0)
+        <form action="" method="GET" id="filterRepositoryForm">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Organization</label>
+                    <select class="form-control" id="organization" name="organization">
+                        @foreach($githubOrganizations as $githubOrganization)
+                            <option value="{{ $githubOrganization->id }}" {{ ($githubOrganization->name == 'MMMagento' ? 'selected' : '') }}>{{ $githubOrganization->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-default" style="margin-top: 25px;"><i class="fa fa-filter"></i> </button>
+                </div>
+            </div>
+        </form>
+        <div class="clearfix"></div><br />
+    @endif
+
     <table id="repository-table" class="table table-bordered">
         <thead>
             <tr>
@@ -34,29 +54,32 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($repositories as $repository)
-            <tr>
-                <td>{{$repository['id']}}</td>
-                <td>{{$repository['name']}}</td>
-                <td>{{$repository['updated_at']}}</td>
-                <td>
-                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['id'].'/branches') }}">
-                        <span title="Branches" class="glyphicon glyphicon-tasks"></span>
-                    </a>
-                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['name'].'/users') }}">
-                        <span title="Users" class="glyphicon glyphicon-user"></span>
-                    </a>
-                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['id'].'/pull-request') }}">
-                        <span title="Pull Request" class="glyphicon glyphicon-import"></span>
-                    </a>
-                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['id'].'/actions') }}">
-                        <span title="Actions" class="glyphicon glyphicon-play"></span>
-                    </a>
-                </td>
-            </tr>
-            @endforeach
+            @include('github.include.repository-list')
         </tbody>
     </table>
-
 </div>
+
+<script>
+    $("#filterRepositoryForm").submit(function(e){
+        e.preventDefault();
+
+        var organizationId = $("#organization").val();
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url : '{{ url('github/repos') }}/'+organizationId,
+            type : 'GET',
+            success : function(result){
+                $('#repository-table').DataTable().clear().destroy();
+
+                $('#repository_row_html_id').html(result.count);;
+                $('#repository-table tbody').empty().html(result.tbody);
+
+                $('#repository-table').DataTable();
+            }
+        });
+    });
+</script>
 @endsection

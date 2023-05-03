@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\MailinglistEmail;
 use Carbon\Carbon;
+use App\MailinglistEmail;
 use Illuminate\Console\Command;
 
 class MailingListSendMail extends Command

@@ -1,12 +1,10 @@
+window.Vue = require("vue");
 
-
-window.Vue = require('vue');
-
-window.axios = require('axios');
+window.axios = require("axios");
 
 window.axios.defaults.headers.common = {
-    'X-CSRF-TOKEN': window.Laravel.csrfToken,
-    'X-Requested-With': 'XMLHttpRequest'
+  "X-CSRF-TOKEN": window.Laravel.csrfToken,
+  "X-Requested-With": "XMLHttpRequest",
 };
 
 /**
@@ -15,9 +13,15 @@ window.axios.defaults.headers.common = {
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('instagram-dm-component', require('./components/InstagramDMComponent.vue'));
-Vue.component('cold-lead-broadcast-component', require('./components/CLBC.vue'));
+Vue.component(
+  "instagram-dm-component",
+  require("./components/InstagramDMComponent.vue")
+);
+Vue.component(
+  "cold-lead-broadcast-component",
+  require("./components/CLBC.vue")
+);
 
 const app = new Vue({
-    el: '#cold_leads_vue'
+  el: "#cold_leads_vue",
 });

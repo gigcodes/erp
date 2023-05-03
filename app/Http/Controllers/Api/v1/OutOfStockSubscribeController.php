@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Customer;
-use App\Http\Controllers\Controller;
-use App\OutOfStockSubscribe;
 use App\Product;
+use App\Customer;
 use App\StoreWebsite;
+use App\OutOfStockSubscribe;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class OutOfStockSubscribeController extends Controller
@@ -31,7 +31,7 @@ class OutOfStockSubscribeController extends Controller
 
         $storeWebsite = StoreWebsite::where(function ($q) use ($website) {
             $q->where('website', 'like', $website)
-                ->orWhere('website', 'like', 'www.'.$website);
+                ->orWhere('website', 'like', 'www.' . $website);
         })->select('id')->first();
 
         if ($storeWebsite) {
@@ -90,7 +90,7 @@ class OutOfStockSubscribeController extends Controller
                         [
                             'type' => 'text',
                             'delay' => 1000,
-                            'message' => 'Thanks for contacting us Your order is right now on '.ucwords($statusMessage),
+                            'message' => 'Thanks for contacting us Your order is right now on ' . ucwords($statusMessage),
                         ],
                     ],
                 ];

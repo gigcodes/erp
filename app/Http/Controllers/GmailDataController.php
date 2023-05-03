@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Setting;
-use Illuminate\Http\Request;
 use App\GmailDataList;
+use Illuminate\Http\Request;
 
 class GmailDataController extends Controller
 {
@@ -32,7 +32,7 @@ class GmailDataController extends Controller
 
     public function show($sender)
     {
-        $datas = GmailDataList::where('sender', 'LIKE', '%'.$sender.'%')->get();
+        $datas = GmailDataList::where('sender', 'LIKE', '%' . $sender . '%')->get();
         $brands = Brand::get()->pluck('name')->toArray();
 
         return view('scrap.show-gmail', compact('brands', 'datas', 'sender'));

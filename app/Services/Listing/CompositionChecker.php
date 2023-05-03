@@ -19,7 +19,7 @@ class CompositionChecker implements CheckerInterface
     {
         $data = $product->composition;
 
-        dump('Real composition: '.$data);
+        dump('Real composition: ' . $data);
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $data, $extractedData);
 
         if ($hasExtracted) {

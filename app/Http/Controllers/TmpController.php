@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Plank\Mediable\Media;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Media;
 
 class TmpController extends Controller
 {
@@ -20,11 +20,11 @@ class TmpController extends Controller
                     if (! empty($mediables->mediable_id) && $mediables->mediable_id > 1) {
                         $key = floor($mediables->mediable_id / 10000);
                     } else {
-                        $key = strtolower(substr($media->basename, 0, 1).'/'.substr($media->basename, 1, 1));
+                        $key = strtolower(substr($media->basename, 0, 1) . '/' . substr($media->basename, 1, 1));
                     }
 
-                    if ($media->getDiskPath() != $table.'/'.$key.'/'.ltrim($media->basename, '/')) {
-                        $media->move($table.'/'.$key);
+                    if ($media->getDiskPath() != $table . '/' . $key . '/' . ltrim($media->basename, '/')) {
+                        $media->move($table . '/' . $key);
                     }
                 }
             }

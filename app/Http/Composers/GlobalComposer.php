@@ -2,12 +2,12 @@
 
 namespace App\Http\Composers;
 
-use App\Helpers\PermissionCheck;
+use Route;
 use App\Permission;
 use App\PermissionRequest;
+use App\Helpers\PermissionCheck;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Route;
 
 class GlobalComposer
 {
@@ -25,9 +25,9 @@ class GlobalComposer
                 $actions = end($url);
                 if ($model != '') {
                     if ($model == $actions) {
-                        $genUrl = $model.'-list';
+                        $genUrl = $model . '-list';
                     } else {
-                        $genUrl = $model.'-'.$actions;
+                        $genUrl = $model . '-' . $actions;
                     }
                 }
                 if (! isset($genUrl)) {
@@ -45,7 +45,7 @@ class GlobalComposer
                             'request_date' => date('Y-m-d H:i:s'),
                             'permission_name' => $permission->route,
                         ]);
-                    echo 'unauthorized permission name '.$permission->route;
+                    echo 'unauthorized permission name ' . $permission->route;
                     exit();
                 }
             }

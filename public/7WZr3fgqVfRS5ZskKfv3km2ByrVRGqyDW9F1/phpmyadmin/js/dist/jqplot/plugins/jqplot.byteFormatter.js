@@ -4,25 +4,33 @@
  * @package phpMyAdmin
  */
 (function ($) {
-  'use strict';
+  "use strict";
 
   var formatByte = function (value, index) {
     var val = value;
     var i = index;
-    var units = [Messages.strB, Messages.strKiB, Messages.strMiB, Messages.strGiB, Messages.strTiB, Messages.strPiB, Messages.strEiB];
+    var units = [
+      Messages.strB,
+      Messages.strKiB,
+      Messages.strMiB,
+      Messages.strGiB,
+      Messages.strTiB,
+      Messages.strPiB,
+      Messages.strEiB,
+    ];
 
     while (val >= 1024 && i <= 6) {
       val /= 1024;
       i++;
     }
 
-    var format = '%.1f';
+    var format = "%.1f";
 
     if (Math.floor(val) === val) {
-      format = '%.0f';
+      format = "%.0f";
     }
 
-    return $.jqplot.sprintf(format + ' ' + units[i], val);
+    return $.jqplot.sprintf(format + " " + units[i], val);
   };
   /**
    * The index indicates what unit the incoming data will be in.
@@ -33,13 +41,12 @@
    * @return {String}
    */
 
-
   $.jqplot.byteFormatter = function (index) {
     var i = index || 0;
     return function (format, value) {
       var val = value;
 
-      if (typeof val === 'number') {
+      if (typeof val === "number") {
         val = parseFloat(val) || 0;
         return formatByte(val, i);
       } else {

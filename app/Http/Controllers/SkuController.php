@@ -18,7 +18,7 @@ class SkuController extends Controller
 
         // Check for filters
         if (! empty($request->get('brand', ''))) {
-            $data = $data->where('brands.name', 'like', '%'.$request->get('brand', '').'%');
+            $data = $data->where('brands.name', 'like', '%' . $request->get('brand', '') . '%');
         }
 
         // Add pagination

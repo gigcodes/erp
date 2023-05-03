@@ -22,7 +22,7 @@ class GoogleImageScraper extends Scraper
 
         // check if google html page has td with id "e3goi"
         $google_div_id = 'td.e3goi';
-        if($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
+        if ($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
             $imageJson = $c->filter('body')->filter($google_div_id)->filter('img');
             $images = [];
             foreach ($imageJson as $key => $image) {
@@ -37,10 +37,10 @@ class GoogleImageScraper extends Scraper
                     break;
                 }
             }
+
             return $images;
         } else {
             return false;
         }
-
     }
 }

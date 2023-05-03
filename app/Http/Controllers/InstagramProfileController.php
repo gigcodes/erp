@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\ColdLeads;
-use App\Customer;
 use App\HashTag;
+use App\Customer;
+use App\ColdLeads;
 use Illuminate\Http\Request;
 
 //use InstagramAPI\Instagram;

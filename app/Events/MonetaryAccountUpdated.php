@@ -3,9 +3,9 @@
 namespace App\Events;
 
 use App\MonetaryAccount;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class MonetaryAccountUpdated
 {

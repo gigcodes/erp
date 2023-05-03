@@ -7,13 +7,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Svg;
 
+use XMLWriter;
 use function intval;
 use function is_int;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\ResponseRenderer;
-use function sprintf;
 use function strlen;
-use XMLWriter;
+use PhpMyAdmin\Core;
+use function sprintf;
+use PhpMyAdmin\ResponseRenderer;
 
 /**
  * This Class inherits the XMLwriter class and
@@ -152,8 +152,8 @@ class Svg extends XMLWriter
             $this->writeAttribute('viewBox', sprintf('%d %d %d %d', $x, $y, $width, $height));
         }
 
-        $this->writeAttribute('width', ($width - $x).'px');
-        $this->writeAttribute('height', ($height - $y).'px');
+        $this->writeAttribute('width', ($width - $x) . 'px');
+        $this->writeAttribute('height', ($height - $y) . 'px');
         $this->writeAttribute('xmlns', 'http://www.w3.org/2000/svg');
         $this->writeAttribute('version', '1.1');
     }
@@ -237,7 +237,7 @@ class Svg extends XMLWriter
         $this->writeAttribute('style', (string) $styles);
         if (isset($text)) {
             $this->writeAttribute('font-family', (string) $this->font);
-            $this->writeAttribute('font-size', $this->fontSize.'px');
+            $this->writeAttribute('font-size', $this->fontSize . 'px');
             $this->text($text);
         }
 

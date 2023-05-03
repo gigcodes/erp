@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Console\Command;
+use App\Library\Watson\Model as WatsonManager;
 
 class WastsonPushIntentsManual extends Command
 {

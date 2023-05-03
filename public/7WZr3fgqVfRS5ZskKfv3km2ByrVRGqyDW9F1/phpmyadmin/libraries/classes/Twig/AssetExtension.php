@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Twig;
 
 use PhpMyAdmin\Theme;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
 
 final class AssetExtension extends AbstractExtension
 {

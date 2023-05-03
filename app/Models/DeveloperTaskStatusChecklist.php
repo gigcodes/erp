@@ -10,5 +10,4 @@ class DeveloperTaskStatusChecklist extends Model
         'task_status',
         'name',
     ];
-
 }

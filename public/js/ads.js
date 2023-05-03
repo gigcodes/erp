@@ -1,42 +1,74 @@
 var campainingType = [
-    {
-        name    : 'Search', 
-        parent  : ['Sales','Leads','Web traffic',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'Display',
-        parent  : ['Sales','Leads','Web traffic','Brand awareness and reach',"Create a campaign without a goal's guidance",'Product and brand consideration']
-    },
-    {
-        name    : 'Shopping',
-        parent  : ['Sales','Leads','Web traffic',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'Video',
-        parent  : ['Sales','Leads','Web traffic','Product and brand consideration','Brand awareness and reach',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'App',
-        parent  : ['App promotion',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'Smart',
-        parent  : ['Sales','Leads',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'Local',
-        parent  : ['Local store visits and promotions',"Create a campaign without a goal's guidance"]
-    },
-    {
-        name    : 'Discovery',
-        parent  : ['Sales','Leads','Web traffic',"Create a campaign without a goal's guidance"]
-    }
+  {
+    name: "Search",
+    parent: [
+      "Sales",
+      "Leads",
+      "Web traffic",
+      "Create a campaign without a goal's guidance",
+    ],
+  },
+  {
+    name: "Display",
+    parent: [
+      "Sales",
+      "Leads",
+      "Web traffic",
+      "Brand awareness and reach",
+      "Create a campaign without a goal's guidance",
+      "Product and brand consideration",
+    ],
+  },
+  {
+    name: "Shopping",
+    parent: [
+      "Sales",
+      "Leads",
+      "Web traffic",
+      "Create a campaign without a goal's guidance",
+    ],
+  },
+  {
+    name: "Video",
+    parent: [
+      "Sales",
+      "Leads",
+      "Web traffic",
+      "Product and brand consideration",
+      "Brand awareness and reach",
+      "Create a campaign without a goal's guidance",
+    ],
+  },
+  {
+    name: "App",
+    parent: ["App promotion", "Create a campaign without a goal's guidance"],
+  },
+  {
+    name: "Smart",
+    parent: ["Sales", "Leads", "Create a campaign without a goal's guidance"],
+  },
+  {
+    name: "Local",
+    parent: [
+      "Local store visits and promotions",
+      "Create a campaign without a goal's guidance",
+    ],
+  },
+  {
+    name: "Discovery",
+    parent: [
+      "Sales",
+      "Leads",
+      "Web traffic",
+      "Create a campaign without a goal's guidance",
+    ],
+  },
 ];
 var thirtChild = [
-                    {
-                        goal    : 'Sales',
-                        parent  : 'Search',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  {
+    goal: "Sales",
+    parent: "Search",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -73,11 +105,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Sales',
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Sales",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype. Keep in mind that this selection can’t be changed later.</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -110,11 +142,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Sales',
-                        parent  : 'Shopping',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Sales",
+    parent: "Shopping",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a linked account with products to advertise in this campaign </label>
                                         <div class="col-sm-12">
                                             <input type="text" name="linkedacc" class="form-control">
@@ -124,11 +156,11 @@ var thirtChild = [
                                             <input type="text" name="country" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Leads',
-                        parent  : 'Search',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Leads",
+    parent: "Search",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -173,11 +205,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Leads',
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Leads",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype. Keep in mind that this selection can’t be changed later.</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -210,11 +242,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Leads',
-                        parent  : 'Shopping',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Leads",
+    parent: "Shopping",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a linked account with products to advertise in this campaign </label>
                                         <div class="col-sm-12">
                                             <input type="text" name="linkedacc" class="form-control">
@@ -224,11 +256,11 @@ var thirtChild = [
                                             <input type="text" name="country" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Leads',
-                        parent  : 'Smart',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Leads",
+    parent: "Smart",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">What action do you most want customers to take?</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -249,21 +281,21 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Web traffic',
-                        parent  : 'Search',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Web traffic",
+    parent: "Search",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-md-12">
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Web traffic',
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Web traffic",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype. Keep in mind that this selection can’t be changed later.</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -296,11 +328,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Web traffic',
-                        parent  : 'Shopping',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Web traffic",
+    parent: "Shopping",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a linked account with products to advertise in this campaign </label>
                                         <div class="col-sm-12">
                                             <input type="text" name="linkedacc" class="form-control">
@@ -310,21 +342,21 @@ var thirtChild = [
                                             <input type="text" name="country" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Product and brand consideration',
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Product and brand consideration",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-md-12">
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Product and brand consideration',
-                        parent  : 'Video',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Product and brand consideration",
+    parent: "Video",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -353,21 +385,21 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Brand awareness and reach',
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Brand awareness and reach",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-md-12">
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Brand awareness and reach',
-                        parent  : 'Video',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Brand awareness and reach",
+    parent: "Video",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -412,11 +444,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'App promotion',
-                        parent  : 'App',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "App promotion",
+    parent: "App",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -460,11 +492,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" placeholder="Enter the app name,package name, or publisher" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : 'Local store visits and promotions',
-                        parent  : 'Local',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Local store visits and promotions",
+    parent: "Local",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the type of locations you want to advertise in this campaign</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -485,11 +517,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Search',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Search",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the ways you'd like to reach your goal</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -518,11 +550,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Display',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Display",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype. Keep in mind that this selection can’t be changed later.</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -555,11 +587,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Shopping',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Shopping",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a linked account with products to advertise in this campaign </label>
                                         <div class="col-sm-12">
                                             <input type="text" name="linkedacc" class="form-control">
@@ -569,11 +601,11 @@ var thirtChild = [
                                             <input type="text" name="country" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Video',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Video",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -618,11 +650,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'App',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "App",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select a campaign subtype</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -666,11 +698,11 @@ var thirtChild = [
                                             <input type="url" name="bussinessurrl" placeholder="Enter the app name,package name, or publisher" class="form-control">
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Smart',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Smart",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">What action do you most want customers to take?</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -699,11 +731,11 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                    {
-                        goal    : "Create a campaign without a goal's guidance",
-                        parent  : 'Local',
-                        html    : `<div class="form-group row campanin-type-child child-campaning-goal">
+  },
+  {
+    goal: "Create a campaign without a goal's guidance",
+    parent: "Local",
+    html: `<div class="form-group row campanin-type-child child-campaning-goal">
                                         <label for="status" class="col-sm-12 col-form-label">Select the type of locations you want to advertise in this campaign</label>
                                         <div class="col-sm-12">
                                             <div class="row">
@@ -724,55 +756,65 @@ var thirtChild = [
                                             </div>
                                         </div>
                                     </div>`,
-                    },
-                ]
-$(document).on('change','#goal',function(){
-    $('.child-campaning-goal').remove();
-    let goal = $(this).val();
-    let html = `<div class="form-group child-campaning-goal row" >
+  },
+];
+$(document).on("change", "#goal", function () {
+  $(".child-campaning-goal").remove();
+  let goal = $(this).val();
+  let html = `<div class="form-group child-campaning-goal row" >
                         <div class="col-sm-12">
                             <span for="campanin-type">Select the type</span>
                             <select class="browser-default custom-select" id="campanin-type" name="type" style="height: auto" required="">
                              <option value="" selected>-----Select type-----</option>
                            `;
-    if (goal != ''){
-        $.each(campainingType,function(key,value){
-            if (value.parent.indexOf(goal) != -1){
-                html += `<option value="${value.name}">${value.name}</option>`;
-            }
-        });
-        html += `   </select>
+  if (goal != "") {
+    $.each(campainingType, function (key, value) {
+      if (value.parent.indexOf(goal) != -1) {
+        html += `<option value="${value.name}">${value.name}</option>`;
+      }
+    });
+    html += `   </select>
                 </div>
             </div>`;
-        $('.create-campaning').append(html);
+    $(".create-campaning").append(html);
+  }
+});
+$(document).on("change", "#campanin-type", function () {
+  $(".campanin-type-child").remove();
+  let goal = $("#goal").val();
+  let type = $(this).val();
+  $.each(thirtChild, function (key, value) {
+    if (value.goal == goal && value.parent == type) {
+      $(".create-campaning").append(value.html);
     }
+  });
 });
-$(document).on('change','#campanin-type',function(){
-    $('.campanin-type-child').remove();
-    let goal = $('#goal').val();
-    let type = $(this).val();
-    $.each(thirtChild,function(key,value){
-        if (value.goal == goal && value.parent == type){
-            $('.create-campaning').append(value.html);
-        }
-    });
+$(document).on("change", "#wbsitevisit", function () {
+  $(".wbsitevisitcheck").remove();
+  if ($(this).is(":checked")) {
+    $(this)
+      .parent()
+      .parent()
+      .append(
+        '<div class="col-md-6 wbsitevisitcheck"> <input type="url" class="form-control " name="data[reach_goal][website][input]" placeholder="Your bussiness url"/> </div>'
+      );
+  }
 });
-$(document).on('change','#wbsitevisit',function(){
-    $('.wbsitevisitcheck').remove();
-    if ($(this).is(':checked')){
-        $(this).parent().parent().append('<div class="col-md-6 wbsitevisitcheck"> <input type="url" class="form-control " name="data[reach_goal][website][input]" placeholder="Your bussiness url"/> </div>');
-    }
+$(document).on("change", "#phonecalls", function () {
+  $(".phonecallscheck").remove();
+  if ($(this).is(":checked")) {
+    $(this)
+      .parent()
+      .parent()
+      .append(
+        '<div class="col-md-3 phonecallscheck"> <select name="countrycode" class="form-control"><option value="IN">IN</option></select> </div><div class="col-md-3 phonecallscheck"><input type="url" class="form-control " name="phonecall" placeholder="Phone number"/> </div>'
+      );
+  }
 });
-$(document).on('change','#phonecalls',function(){
-    $('.phonecallscheck').remove();
-    if ($(this).is(':checked')){
-        $(this).parent().parent().append('<div class="col-md-3 phonecallscheck"> <select name="countrycode" class="form-control"><option value="IN">IN</option></select> </div><div class="col-md-3 phonecallscheck"><input type="url" class="form-control " name="phonecall" placeholder="Phone number"/> </div>');
-    }
-});
-$(document).on('change','#appdownload',function(){
-    $('.appdownloadcheck').remove();
-    if ($(this).is(':checked')){
-        $(this).parent().parent().after(`<div class="row appdownloadcheck">
+$(document).on("change", "#appdownload", function () {
+  $(".appdownloadcheck").remove();
+  if ($(this).is(":checked")) {
+    $(this).parent().parent().after(`<div class="row appdownloadcheck">
                                                         <label for="status" class="col-sm-12 col-form-label">Select your mobile app's platform</label>
                                                         <div class="col-md-3">
                                                             <input type="radio" name="app_platform" value="Android" class="form-control" checked />
@@ -794,11 +836,11 @@ $(document).on('change','#appdownload',function(){
                                                             <input type="text" class="form-control" placeholder="Enter the app name,package name,or publisher"/>
                                                         </div>
                                                     </div>`);
-    }
+  }
 });
 var customParamsCount = 1;
-$(document).on('click','.addurlcustomvalue',function(){
-    $(this).before(`<div class="form-group row">
+$(document).on("click", ".addurlcustomvalue", function () {
+  $(this).before(`<div class="form-group row">
                         <div class="col-md-4">
                             <input type="text"  name="data[campaign_url][custom_param][${customParamsCount}][name]" class="form-control" placeholder="Name">
                         </div>
@@ -809,11 +851,11 @@ $(document).on('click','.addurlcustomvalue',function(){
                             <input type="text"  name="data[campaign_url][custom_param][${customParamsCount}][value]" class="form-control" placeholder="Value">
                         </div>
                     </div>`);
-    customParamsCount++
+  customParamsCount++;
 });
 let scheduleCount = 1;
-$(document).on('click','.addSchedule',function(){
-    $(this).before(`<div class="form-group row">
+$(document).on("click", ".addSchedule", function () {
+  $(this).before(`<div class="form-group row">
                         <div class="col-md-5">
                             <select  class="form-control" name="data[ads_schedule][${scheduleCount}][day]">
                                 <option value="All days">All days</option>
@@ -838,35 +880,34 @@ $(document).on('click','.addSchedule',function(){
                             <input type="text" name="data[ads_schedule][${scheduleCount}][to]" class="form-control" value="00:00">
                         </div>
                     </div>`);
-    scheduleCount++
+  scheduleCount++;
 });
-$(document).on('click','#continue-phase-1',function(){
-    // $('.create-campaning').hide();
-    // $('.create-campaning-phase-2').show();
-    // $('#continue-phase-1').hide();
-    // $('#create-campaign-btn').show();
-    // initPhase2();
+$(document).on("click", "#continue-phase-1", function () {
+  // $('.create-campaning').hide();
+  // $('.create-campaning-phase-2').show();
+  // $('#continue-phase-1').hide();
+  // $('#create-campaign-btn').show();
+  // initPhase2();
 });
 
-$(document).on('submit','#create-ad-campaign-form',function(e){
-    var status = $('#addAccountStatus').val();
-    if(status == 1) {
-        e.preventDefault();
+$(document).on("submit", "#create-ad-campaign-form", function (e) {
+  var status = $("#addAccountStatus").val();
+  if (status == 1) {
+    e.preventDefault();
+  }
+  if ($("#create-ad-campaign-form").valid()) {
+    if (status == 1) {
+      $(".create-campaning").hide();
+      $(".create-campaning-phase-2").show();
+      $("#continue-phase-1").hide();
+      $("#create-campaign-btn").show();
+      initPhase2();
     }
-    if($("#create-ad-campaign-form").valid()) {
-        if(status == 1) {
-            $('.create-campaning').hide();
-            $('.create-campaning-phase-2').show();
-            $('#continue-phase-1').hide();
-            $('#create-campaign-btn').show();
-            initPhase2();
-        }
-    }
+  }
 });
 
-
-function initPhase2(){
-    $html = `<label class="col-sm-6 col-form-label">Type: <span id="phase-1-type"></span></label>
+function initPhase2() {
+  $html = `<label class="col-sm-6 col-form-label">Type: <span id="phase-1-type"></span></label>
                     <label class="col-sm-6 col-form-label">Goal: <span id="phase-1-goal"></span></label>
                     <div class="row">
                         <div class="form-group col-sm-12">
@@ -1377,54 +1418,51 @@ function initPhase2(){
                     </div>
                 </div>
             </div>
-            `
-    $('.create-campaning-phase-2').html($html);
-    $('#phase-1-type').text($('#campanin-type').val());
-    $('#phase-1-goal').text($('#goal').val());
-    $('#dates-field2').multiselect({
-        includeSelectAllOption: true,
-        selectAllText: 'All Languages',
-        buttonWidth:'100%',
-        maxHeight:200,
-        dropUp:true,
-    });
-    $('#create-camp-btn').show()
-    $('#continue-phase-1').hide();
-    $('#addAccountStatus').val(2);
+            `;
+  $(".create-campaning-phase-2").html($html);
+  $("#phase-1-type").text($("#campanin-type").val());
+  $("#phase-1-goal").text($("#goal").val());
+  $("#dates-field2").multiselect({
+    includeSelectAllOption: true,
+    selectAllText: "All Languages",
+    buttonWidth: "100%",
+    maxHeight: 200,
+    dropUp: true,
+  });
+  $("#create-camp-btn").show();
+  $("#continue-phase-1").hide();
+  $("#addAccountStatus").val(2);
 }
-$(document).on('change','#biding_select',function(){
-    $('.bidding-sections').remove();
-    let value = $(this).val();
-    let biddingSelect = '';
-    if (value == 'TARGET_CPA'){
-        biddingSelect = `<div class="row bidding-sections">
+$(document).on("change", "#biding_select", function () {
+  $(".bidding-sections").remove();
+  let value = $(this).val();
+  let biddingSelect = "";
+  if (value == "TARGET_CPA") {
+    biddingSelect = `<div class="row bidding-sections">
                             <div class="col-md-12">
                                 <br>
                                 <span style="font-size: 10px;">Target CPA</span>
                                 <input type="number" step="0.00" name="data[budget_and_bidding][bidding][cpa]" class="form-control">
                             </div>
-                        </div>`;        
-    }
-    else if(value == 'TARGET_ROAS'){
-        biddingSelect = `<div class="row bidding-sections">
+                        </div>`;
+  } else if (value == "TARGET_ROAS") {
+    biddingSelect = `<div class="row bidding-sections">
                             <div class="col-md-12">
                                 <br>
                                 <span style="font-size: 10px;">Target ROAS</span>
                                 <input type="number" step="0.00" name="data[budget_and_bidding][bidding][roas]" class="form-control">
                             </div>
-                        </div>`; 
-    }
-    else if(value == 'TARGET_SPEND'){
-        biddingSelect = `<div class="row bidding-sections">
+                        </div>`;
+  } else if (value == "TARGET_SPEND") {
+    biddingSelect = `<div class="row bidding-sections">
                             <div class="col-md-12">
                                 <br>
                                 <span style="font-size: 10px;">Maximum CPC bid limit</span>
                                 <input type="number" step="0.00" name="data[budget_and_bidding][bidding][cpc]" class="form-control">
                             </div>
-                        </div>`; 
-    }
-    else if(value == 'MANUAL_CPM'){
-        biddingSelect = `<div class="row bidding-sections">
+                        </div>`;
+  } else if (value == "MANUAL_CPM") {
+    biddingSelect = `<div class="row bidding-sections">
                             <div class="col-md-12">
                                 <br>
                                 <span style="font-size: 10px;">Where do you want your ads to appear</span>
@@ -1444,37 +1482,44 @@ $(document).on('change','#biding_select',function(){
                                 <span style="font-size: 10px;">Maximum CPC bid limit</span>
                                 <input type="number" step="0.00" name="data[budget_and_bidding][bidding][max_cpc_bit_limit]" class="form-control">
                             </div>
-                        </div>`; 
-    }
-    $(this).parent().parent().after(biddingSelect);
+                        </div>`;
+  }
+  $(this).parent().parent().after(biddingSelect);
 });
-$(document).on('change','.location_radio',function(){
-    if ($(this).val() == "Enter another location"){
-        $(this).parent().parent().append('<div class="col-md-12"><input type="text" name="customcountry" class="form-control customcountryinput" placeholder="Enter a location to target or exclude" /> </div>')
-    }else{
-        $('.customcountryinput').remove();
-    }
+$(document).on("change", ".location_radio", function () {
+  if ($(this).val() == "Enter another location") {
+    $(this)
+      .parent()
+      .parent()
+      .append(
+        '<div class="col-md-12"><input type="text" name="customcountry" class="form-control customcountryinput" placeholder="Enter a location to target or exclude" /> </div>'
+      );
+  } else {
+    $(".customcountryinput").remove();
+  }
 });
-$(document).on('click','#addSitelink',function(){
-    $(this).before(`<div class="row">
+$(document).on("click", "#addSitelink", function () {
+  $(this).before(`<div class="row">
                         <div class="col-md-12">
                             <input type="url" name="data[ads_extension][url][]" class="form-control location_radio" placeholder="Enter url">
                             <br>
                         </div>
                     </div>`);
-})
-let adgroupCount = 1;
-$(document).on('click','#removeAdGroupSecion',function(){
-    $(this).parent().parent().remove();
 });
-$(document).on('click','#addmoreGroup',function(){
-    $('#addGroupbefore').before(`<div class="form-group row" style="margin:10px 0px 10px 0px;margin-top:10px;margin-bottom:10px; border: 1px solid #f2f2f2; padding: 20px 0px 20px 0px;">
+let adgroupCount = 1;
+$(document).on("click", "#removeAdGroupSecion", function () {
+  $(this).parent().parent().remove();
+});
+$(document).on("click", "#addmoreGroup", function () {
+  $(
+    "#addGroupbefore"
+  ).before(`<div class="form-group row" style="margin:10px 0px 10px 0px;margin-top:10px;margin-bottom:10px; border: 1px solid #f2f2f2; padding: 20px 0px 20px 0px;">
                         <div class="col-md-12" style="text-align: right; margin-top: -20px; margin-left: 28px;">
                             <i class="fa fa-close" id="removeAdGroupSecion"></i>
                         </div>
                         <div class="col-md-6">
                             <span>Ad group name</span>
-                            <input type="text" name="adgroup[${adgroupCount}][name]" class="form-control" placeholder="Enter Ad group name" value="Ad group ${adgroupCount+1}" required="">
+                            <input type="text" name="adgroup[${adgroupCount}][name]" class="form-control" placeholder="Enter Ad group name" value="Ad group ${adgroupCount + 1}" required="">
                         </div>
                         <div class="col-md-6">
                             <div class="row">
@@ -1492,26 +1537,26 @@ $(document).on('click','#addmoreGroup',function(){
                                 </div>
                             </div>
                         </div>
-                    </div>`)
-    adgroupCount++
-    $(".taginput").tagsinput('items')
-    $('.bootstrap-tagsinput').css('width', '100%');
+                    </div>`);
+  adgroupCount++;
+  $(".taginput").tagsinput("items");
+  $(".bootstrap-tagsinput").css("width", "100%");
 });
-$(document).on('click','#addHeadline',function(){
-    $(this).parent().before(`
+$(document).on("click", "#addHeadline", function () {
+  $(this).parent().before(`
                         <div class="col-md-12 mt-2 mb-2">
                             <input type="text" name="headlines[]" class="form-control" placeholder="New headline">
-                        </div>`)
+                        </div>`);
 });
-$(document).on('click','#addDescriptions',function(){
-    $(this).parent().before(`
+$(document).on("click", "#addDescriptions", function () {
+  $(this).parent().before(`
                         <div class="col-md-12 mt-2 mb-2">
                             <input type="text" name="descriptions[]" class="form-control" placeholder="New descriptions">
-                        </div>`)
+                        </div>`);
 });
 let customParamCount = 1;
-$(document).on('click','#addCustomParam',function(){
-    $(this).parent().parent().before(`<div class="row mb-4">
+$(document).on("click", "#addCustomParam", function () {
+  $(this).parent().parent().before(`<div class="row mb-4">
                                             <div class="col-md-6">
                                                 <input type="text" name="customparam[${customParamCount}][name]" class="form-control" placeholder="Name">
                                             </div>
@@ -1519,220 +1564,231 @@ $(document).on('click','#addCustomParam',function(){
                                                 <input type="text" name="customparam[${customParamCount}][value]" class="form-control" placeholder="Value">
                                             </div>
                                         </div>`);
-    customParamCount++
+  customParamCount++;
 });
-$(document).on('change','#different_url_mobile',function(){
-    if ($(this).is(':checked')) {
-        $('.mobile-url-container').show();
-    }else{
-        $('.mobile-url-container').hide();
-    }
+$(document).on("change", "#different_url_mobile", function () {
+  if ($(this).is(":checked")) {
+    $(".mobile-url-container").show();
+  } else {
+    $(".mobile-url-container").hide();
+  }
 });
 var page = {
-    init: function(settings) {
-        
-        page.config = {
-            bodyView: settings.bodyView
-        };
-        
-        $.extend(page.config, settings);
-        
-        this.getResults();
+  init: function (settings) {
+    page.config = {
+      bodyView: settings.bodyView,
+    };
 
-        //initialize pagination
-        page.config.bodyView.on("click",".page-link",function(e) {
-        	e.preventDefault();
-        	page.getResults($(this).attr("href"));
-        });
+    $.extend(page.config, settings);
 
-        page.config.bodyView.on("click",".btn-search-action",function(e) {
-            e.preventDefault();
-            page.getResults();
-        });
+    this.getResults();
 
-        // page.config.bodyView.on("click",".btn-add-action",function(e) {
-        //     e.preventDefault();
-        //     page.createRecord();
-        // });
+    //initialize pagination
+    page.config.bodyView.on("click", ".page-link", function (e) {
+      e.preventDefault();
+      page.getResults($(this).attr("href"));
+    });
 
-        $(".common-modal").on("click",".submit-platform",function() {
-            page.submitPlatform($(this));
-        });
+    page.config.bodyView.on("click", ".btn-search-action", function (e) {
+      e.preventDefault();
+      page.getResults();
+    });
 
-        // delete product templates
-        page.config.bodyView.on("click",".btn-delete-template",function(e) {
-            if(!confirm("Are you sure you want to delete record?")) {
-                return false;
-            }else {
-                page.deleteRecord($(this));
-            }
-        });
+    // page.config.bodyView.on("click",".btn-add-action",function(e) {
+    //     e.preventDefault();
+    //     page.createRecord();
+    // });
 
-        page.config.bodyView.on("click",".btn-edit-template",function(e) {
-            page.editRecord($(this));
-        });
+    $(".common-modal").on("click", ".submit-platform", function () {
+      page.submitPlatform($(this));
+    });
 
-        page.config.bodyView.on("click",".btn-add-components",function(e) {
-            page.addComponents($(this));
-        });
+    // delete product templates
+    page.config.bodyView.on("click", ".btn-delete-template", function (e) {
+      if (!confirm("Are you sure you want to delete record?")) {
+        return false;
+      } else {
+        page.deleteRecord($(this));
+      }
+    });
 
-        $(".common-modal").on("click",".update-components-btn",function(e) {
-            e.preventDefault();
-            page.submitComponents($(this));
-        });
-    },
-    validationRule : function(response) {
-         $(document).find("#product-template-from").validate({
-            rules: {
-                name     : "required",
-            },
-            messages: {
-                name     : "Template name is required",
-            }
-        })
-    },
-    loadFirst: function() {
-        var _z = {
-            url: this.config.baseUrl + "/ads/records",
-            method: "get",
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "showResults");
-    },
-    getResults: function(href) {
-    	var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/ads/records",
-            method: "get",
-            data : $(".message-search-handler").serialize(),
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "showResults");
-    },
-    showResults : function(response) {
-        $("#loading-image").hide();
-    	var addProductTpl = $.templates("#template-result-block");
-        var tplHtml       = addProductTpl.render(response);
+    page.config.bodyView.on("click", ".btn-edit-template", function (e) {
+      page.editRecord($(this));
+    });
 
-        $(".count-text").html("("+response.total+")");
+    page.config.bodyView.on("click", ".btn-add-components", function (e) {
+      page.addComponents($(this));
+    });
 
-    	page.config.bodyView.find("#page-view-result").html(tplHtml);
+    $(".common-modal").on("click", ".update-components-btn", function (e) {
+      e.preventDefault();
+      page.submitComponents($(this));
+    });
+  },
+  validationRule: function (response) {
+    $(document)
+      .find("#product-template-from")
+      .validate({
+        rules: {
+          name: "required",
+        },
+        messages: {
+          name: "Template name is required",
+        },
+      });
+  },
+  loadFirst: function () {
+    var _z = {
+      url: this.config.baseUrl + "/ads/records",
+      method: "get",
+      beforeSend: function () {
+        $("#loading-image").show();
+      },
+    };
+    this.sendAjax(_z, "showResults");
+  },
+  getResults: function (href) {
+    var _z = {
+      url:
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/ads/records",
+      method: "get",
+      data: $(".message-search-handler").serialize(),
+      beforeSend: function () {
+        $("#loading-image").show();
+      },
+    };
+    this.sendAjax(_z, "showResults");
+  },
+  showResults: function (response) {
+    $("#loading-image").hide();
+    var addProductTpl = $.templates("#template-result-block");
+    var tplHtml = addProductTpl.render(response);
 
+    $(".count-text").html("(" + response.total + ")");
+
+    page.config.bodyView.find("#page-view-result").html(tplHtml);
+  },
+  deleteRecord: function (ele) {
+    var _z = {
+      url:
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/ads/" + ele.data("id") + "/delete",
+      method: "get",
+      beforeSend: function () {
+        $("#loading-image").show();
+      },
+    };
+    this.sendAjax(_z, "deleteResults");
+  },
+  deleteResults: function (response) {
+    if (response.code == 200) {
+      this.getResults();
+      toastr["success"]("Message deleted successfully", "success");
+    } else {
+      toastr["error"]("Oops.something went wrong", "error");
     }
-    ,
-    deleteRecord : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/ads/"+ele.data("id")+"/delete",
-            method: "get",
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, 'deleteResults');
-    },
-    deleteResults : function(response) {
-        if(response.code == 200){
-            this.getResults();
-            toastr['success']('Message deleted successfully', 'success');
-        }else{
-            toastr['error']('Oops.something went wrong', 'error');
-        }
+  },
+  createRecord: function (response) {
+    var createWebTemplate = $.templates("#template-create-platform");
+    var tplHtml = createWebTemplate.render({ data: {} });
 
-    },
-    createRecord : function(response) {
-        var createWebTemplate = $.templates("#template-create-platform");
-        var tplHtml = createWebTemplate.render({data:{}});
-        
-        var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
-    },
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
+  },
 
-    editRecord : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/ads/"+ele.data("id")+"/edit",
-            method: "get",
-        }
-        this.sendAjax(_z, 'editResult');
-    },
+  editRecord: function (ele) {
+    var _z = {
+      url:
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/ads/" + ele.data("id") + "/edit",
+      method: "get",
+    };
+    this.sendAjax(_z, "editResult");
+  },
 
-    editResult : function(response) {
-        var createWebTemplate = $.templates("#template-create-platform");
-        var tplHtml = createWebTemplate.render(response);
-        var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
-    },
-    submitPlatform : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/ads/save",
-            method: "post",
-            data : ele.closest("form").serialize(),
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
+  editResult: function (response) {
+    var createWebTemplate = $.templates("#template-create-platform");
+    var tplHtml = createWebTemplate.render(response);
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
+  },
+  submitPlatform: function (ele) {
+    var _z = {
+      url:
+        typeof href != "undefined" ? href : this.config.baseUrl + "/ads/save",
+      method: "post",
+      data: ele.closest("form").serialize(),
+      beforeSend: function () {
+        $("#loading-image").show();
+      },
+    };
+    this.sendAjax(_z, "saveSite");
+  },
+
+  assignSelect2: function () {
+    var selectList = $("select.select-searchable");
+    if (selectList.length > 0) {
+      $.each(selectList, function (k, v) {
+        var element = $(v);
+        if (!element.hasClass("select2-hidden-accessible")) {
+          element.select2({ tags: true, width: "100%" });
         }
-        this.sendAjax(_z, "saveSite");
-    },
-    
-    assignSelect2 : function () {
-        var selectList = $("select.select-searchable");
-            if(selectList.length > 0) {
-                $.each(selectList,function(k,v){
-                    var element = $(v);
-                    if(!element.hasClass("select2-hidden-accessible")){
-                        element.select2({tags:true,width:"100%"});
-                    }
-                });
-            }
-    },
-    saveSite : function(response) {
-        if(response.code  == 200) {
-            page.loadFirst();
-            $(".common-modal").modal("hide");
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"");
-        }
-    },
-    addComponents : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/ads/"+ele.data("id")+"/components",
-            method: "get",
-        }
-        this.sendAjax(_z, 'afterResponsecomponents');
-    },
-    afterResponsecomponents : function(response) {
-        var createWebTemplate = $.templates("#template-create-components");
-        var tplHtml = createWebTemplate.render(response);
-        var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
-        $(".select2-components-tags").select2({tags : true});
-    },
-    submitComponents : function(ele) {
-        var _z = {
-            url: this.config.baseUrl + "/ads/"+ele.data("id")+"/components",
-            method: "post",
-            data : ele.closest("form").serialize(),
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "afterSubmitComponents");
-    },
-    afterSubmitComponents : function(response) {
-        if(response.code  == 200) {
-            page.loadFirst();
-            $(".common-modal").modal("hide");
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"");
-        }
-    },
-}
+      });
+    }
+  },
+  saveSite: function (response) {
+    if (response.code == 200) {
+      page.loadFirst();
+      $(".common-modal").modal("hide");
+    } else {
+      $("#loading-image").hide();
+      toastr["error"](response.error, "");
+    }
+  },
+  addComponents: function (ele) {
+    var _z = {
+      url:
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/ads/" + ele.data("id") + "/components",
+      method: "get",
+    };
+    this.sendAjax(_z, "afterResponsecomponents");
+  },
+  afterResponsecomponents: function (response) {
+    var createWebTemplate = $.templates("#template-create-components");
+    var tplHtml = createWebTemplate.render(response);
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
+    $(".select2-components-tags").select2({ tags: true });
+  },
+  submitComponents: function (ele) {
+    var _z = {
+      url: this.config.baseUrl + "/ads/" + ele.data("id") + "/components",
+      method: "post",
+      data: ele.closest("form").serialize(),
+      beforeSend: function () {
+        $("#loading-image").show();
+      },
+    };
+    this.sendAjax(_z, "afterSubmitComponents");
+  },
+  afterSubmitComponents: function (response) {
+    if (response.code == 200) {
+      page.loadFirst();
+      $(".common-modal").modal("hide");
+    } else {
+      $("#loading-image").hide();
+      toastr["error"](response.error, "");
+    }
+  },
+};
 
 $.extend(page, common);

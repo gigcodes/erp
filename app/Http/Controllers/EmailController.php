@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\CronJobReport;
-use App\DigitalMarketingPlatform;
-use App\Email;
-use App\EmailAddress;
-use App\EmailLog;
-use App\EmailRemark;
-use App\EmailRunHistories;
-use App\Mails\Manual\ForwardEmail;
-use App\Mails\Manual\PurchaseEmail;
-use App\Mails\Manual\ReplyToEmail;
-use App\Wetransfer;
-use Auth;
-use Carbon\Carbon;
 use DB;
-use EmailReplyParser\Parser\EmailParser;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Auth;
 use Mail;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\PHPIMAP\ClientManager;
+use App\Email;
+use App\EmailLog;
+use Carbon\Carbon;
 use App\ModelColor;
+use App\Wetransfer;
+use App\EmailRemark;
+use App\EmailAddress;
+use App\CronJobReport;
+use App\EmailRunHistories;
+use Illuminate\Http\Request;
+use App\DigitalMarketingPlatform;
+use App\Mails\Manual\ForwardEmail;
+use App\Mails\Manual\ReplyToEmail;
+use Webklex\PHPIMAP\ClientManager;
+use App\Mails\Manual\PurchaseEmail;
+use EmailReplyParser\Parser\EmailParser;
+use Illuminate\Support\Facades\Validator;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class EmailController extends Controller
 {
@@ -57,7 +57,7 @@ class EmailController extends Controller
         $status = $request->status ?? '';
         $category = $request->category ?? '';
         $mailbox = $request->mail_box ?? '';
-        $email_model_type = $request->email_model_type?? '';
+        $email_model_type = $request->email_model_type ?? '';
 
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
@@ -68,19 +68,19 @@ class EmailController extends Controller
         if (count($usernames) > 0) {
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('from', 'like', '%'.$_uname.'%');
+                    $query->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $query = $query->orWhere(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('to', 'like', '%'.$_uname.'%');
+                    $query->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
 
-        if(empty($category)){
-            $query = $query->whereHas('category', function($q){
+        if (empty($category)) {
+            $query = $query->whereHas('category', function ($q) {
                 $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
             })
             ->orWhere('email_category_id', '<=', 0);
@@ -103,33 +103,30 @@ class EmailController extends Controller
             $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('status', 'pre-send');
-        }
-        else if(!empty($request->type)){
+        } elseif (! empty($request->type)) {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
             });
-        }
-        else {
+        } else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
             });
         }
-        if ($email_model_type)
-        {
+        if ($email_model_type) {
             $model_type = explode(',', $email_model_type);
-                $query = $query->where(function ($query) use ($model_type) {
-                    $query->whereIn('model_type', $model_type);
-                });
+            $query = $query->where(function ($query) use ($model_type) {
+                $query->whereIn('model_type', $model_type);
+            });
         }
         if ($date) {
             $query = $query->whereDate('created_at', $date);
         }
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from', 'like', '%'.$term.'%')
-                    ->orWhere('to', 'like', '%'.$term.'%')
-                    ->orWhere('subject', 'like', '%'.$term.'%')
-                    ->orWhere('message', 'like', '%'.$term.'%');
+                $query->where('from', 'like', '%' . $term . '%')
+                    ->orWhere('to', 'like', '%' . $term . '%')
+                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('message', 'like', '%' . $term . '%');
             });
         }
 
@@ -177,6 +174,7 @@ class EmailController extends Controller
         if (! $trash_query) {
             $query = $query->where(function ($query) use ($type) {
                 $isDraft = ($type == 'draft') ? 1 : 0;
+
                 return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
             });
         }
@@ -188,13 +186,13 @@ class EmailController extends Controller
             if (count($usernames) > 0) {
                 $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('from', 'like', '%'.$_uname.'%');
+                        $query->orWhere('from', 'like', '%' . $_uname . '%');
                     }
                 });
 
                 $query = $query->orWhere(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('to', 'like', '%'.$_uname.'%');
+                        $query->orWhere('to', 'like', '%' . $_uname . '%');
                     }
                 });
 
@@ -245,9 +243,9 @@ class EmailController extends Controller
         $digita_platfirms = DigitalMarketingPlatform::all();
 
         $totalEmail = Email::count();
-        $modelColors = ModelColor::whereIn('model_name',['customer','vendor','supplier','user'])->limit(10)->get();
+        $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail,'modelColors' => $modelColors])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail, 'modelColors' => $modelColors])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
@@ -276,7 +274,6 @@ class EmailController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -309,7 +306,6 @@ class EmailController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -415,7 +411,7 @@ class EmailController extends Controller
         return view('emails.reply-modal', compact('email'));
     }
 
-     /**
+    /**
      * Provide view for email reply all modal
      *
      * @param [type] $id
@@ -444,7 +440,6 @@ class EmailController extends Controller
     /**
      * Handle the email reply
      *
-     * @param  Request  $request
      * @return json
      */
     public function submitReply(Request $request)
@@ -463,11 +458,11 @@ class EmailController extends Controller
         $replyPrefix = 'Re: ';
         $subject = substr($request->subject, 0, 4) === $replyPrefix
             ? $request->subject
-            : $replyPrefix.$request->subject;
+            : $replyPrefix . $request->subject;
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
-        $message_to_store = $originalEmailInfo.'<br/>'.$request->message.'<br/>'.$email->message;
+        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
@@ -497,7 +492,6 @@ class EmailController extends Controller
     /**
      * Handle the email reply
      *
-     * @param  Request  $request
      * @return json
      */
     public function submitReplyAll(Request $request)
@@ -516,11 +510,11 @@ class EmailController extends Controller
         $replyPrefix = 'Re: ';
         $subject = substr($request->subject, 0, 4) === $replyPrefix
             ? $request->subject
-            : $replyPrefix.$request->subject;
+            : $replyPrefix . $request->subject;
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
-        $message_to_store = $originalEmailInfo.'<br/>'.$request->message.'<br/>'.$email->message;
+        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
@@ -550,7 +544,6 @@ class EmailController extends Controller
     /**
      * Handle the email forward
      *
-     * @param  Request  $request
      * @return json
      */
     public function submitForward(Request $request)
@@ -827,7 +820,7 @@ class EmailController extends Controller
         $data['intent'] = 'entire_transfer';
         $data['security_hash'] = $securityhash;
 
-        $curlURL = $WETRANSFER_API_URL.$transferId.'/download';
+        $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
         $cookie = 'cookie.txt';
         $url = 'https://wetransfer.com/';
@@ -835,8 +828,8 @@ class EmailController extends Controller
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-        curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/' . $cookie);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/' . $cookie);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -856,7 +849,7 @@ class EmailController extends Controller
         }
 
         $headers[] = 'Content-Type: application/json';
-        $headers[] = 'X-CSRF-Token:'.$token;
+        $headers[] = 'X-CSRF-Token:' . $token;
 
         curl_setopt($ch, CURLOPT_URL, $curlURL);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -882,8 +875,8 @@ class EmailController extends Controller
 
             $file = file_get_contents($downloadURL);
 
-            file_put_contents(storage_path('app/files/email-attachments/'.$filename),  $file);
-            $path = 'email-attachments/'.$filename;
+            file_put_contents(storage_path('app/files/email-attachments/' . $filename), $file);
+            $path = 'email-attachments/' . $filename;
 
             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 if (strpos($filename, '.zip') !== false) {
@@ -986,7 +979,7 @@ class EmailController extends Controller
                     } else {
                         $emails = ($inbox) ? $inbox->messages() : '';
                     }
-                    if($emails){
+                    if ($emails) {
                         $emails = $emails->all()->get();
                         foreach ($emails as $email) {
                             $reference_id = $email->references;
@@ -1007,7 +1000,7 @@ class EmailController extends Controller
                             }
 
                             $email_subject = $email->getSubject();
-                            \Log::channel('customer')->info('Subject  => '.$email_subject);
+                            \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
                             //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
@@ -1015,17 +1008,17 @@ class EmailController extends Controller
                             $fromThis = $email->getFrom()[0]->mail;
                             $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                $path = 'email-attachments/'.$attachment->name;
+                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                $path = 'email-attachments/' . $attachment->name;
 
                                 $attachments_array[] = $path;
 
                                 /*start 3215 attachment fetch from DHL mail */
-                                \Log::channel('customer')->info('Match Start  => '.$email_subject);
+                                \Log::channel('customer')->info('Match Start  => ' . $email_subject);
 
                                 $findFromEmail = explode('@', $fromThis);
                                 if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
-                                    \Log::channel('customer')->info('Match Found  => '.$email_subject);
+                                    \Log::channel('customer')->info('Match Found  => ' . $email_subject);
                                     $this->getEmailAttachedFileData($attachment->name);
                                 }
                                 /*end 3215 attachment fetch from DHL mail */
@@ -1044,10 +1037,7 @@ class EmailController extends Controller
                             // Get model id and model type
 
                             extract($this->getModel($model_email, $email_list));
-                            /**
-                             * @var $model_id
-                             * @var $model_type
-                             */
+
                             $subject = explode('#', $email_subject);
                             if (isset($subject[1]) && ! empty($subject[1])) {
                                 $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
@@ -1119,10 +1109,8 @@ class EmailController extends Controller
                                             if ($messages != '' && $customer) {
                                                 $keyword = $reply->question;
                                                 if (($keyword == $messages || strpos(strtolower(trim($messages)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
-
                                                     $lastInsertedEmail = Email::where('id', $emailData->id)->first();
-                                                    if($reply->auto_approve == 0)
-                                                    {
+                                                    if ($reply->auto_approve == 0) {
                                                         $lastInsertedEmail->is_draft = 1;
                                                         $lastInsertedEmail->save();
                                                     } else {
@@ -1132,10 +1120,9 @@ class EmailController extends Controller
                                                         $emaildetails['to'] = $customer->email;
                                                         $emaildetails['subject'] = $lastInsertedEmail->subject;
                                                         $emaildetails['message'] = $reply->suggested_reply;
-                                                        $from_address = "";
+                                                        $from_address = '';
                                                         $from_address = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
-                                                        if(empty($from_address))
-                                                        {
+                                                        if (empty($from_address)) {
                                                             $from_address = config('env.MAIL_FROM_ADDRESS');
                                                         }
                                                         $emaildetails['from'] = $from_address;
@@ -1196,7 +1183,6 @@ class EmailController extends Controller
 
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
-
             } catch (\Exception $e) {
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
@@ -1209,17 +1195,14 @@ class EmailController extends Controller
                 $failedEmailAddresses[] = $emailAddress->username;
             }
         }
-        if(!empty($failedEmailAddresses))
-        {
-            session()->flash('danger', "Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ".implode(", ",$failedEmailAddresses));
+        if (! empty($failedEmailAddresses)) {
+            session()->flash('danger', 'Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ' . implode(', ', $failedEmailAddresses));
 
             return redirect('/email');
-        }
-        else
-        {
+        } else {
             session()->flash('success', 'Emails added successfully');
 
-                return redirect('/email');
+            return redirect('/email');
         }
     }
 
@@ -1243,7 +1226,7 @@ class EmailController extends Controller
 
     public function getEmailAttachedFileData($fileName = '')
     {
-        $file = fopen(storage_path('app/files/email-attachments/'.$fileName), 'r');
+        $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
         $skiprowupto = 1; //skip first line
         $rowincrement = 1;
@@ -1335,7 +1318,7 @@ class EmailController extends Controller
                             ])->save();
                         }
                     } catch (\Exception $e) {
-                        \Log::error('Error from the dhl invoice : '.$e->getMessage());
+                        \Log::error('Error from the dhl invoice : ' . $e->getMessage());
                     }
                 }
             }
@@ -1353,7 +1336,7 @@ class EmailController extends Controller
             $events = \App\SendgridEvent::where('email_id', $emailId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
         }
         foreach ($events as $event) {
-            $eventData .= '<tr><td>'.$event['timestamp'].'</td><td>'.$event['event'].'</td></tr>';
+            $eventData .= '<tr><td>' . $event['timestamp'] . '</td><td>' . $event['event'] . '</td></tr>';
         }
         if ($eventData == '') {
             $eventData = '<tr><td>No data found.</td></tr>';
@@ -1367,17 +1350,18 @@ class EmailController extends Controller
         $events = \App\SendgridEvent::select('*');
 
         if (! empty($request->email)) {
-            $events = $events->where('email', 'like', '%'.$request->email.'%');
+            $events = $events->where('email', 'like', '%' . $request->email . '%');
         }
 
         if (! empty($request->event)) {
-            $events = $events->where('event', 'like', '%'.$request->event.'%');
+            $events = $events->where('event', 'like', '%' . $request->event . '%');
         }
 
         $events = $events->orderBy('id', 'desc')->groupBy('sg_message_id')->paginate(30)->appends(request()->except(['page']));
 
         $event = $request->event ?? '';
-        return view('emails.events', compact('events','event'));
+
+        return view('emails.events', compact('events', 'event'));
     }
 
     public function getAllEmailEventsJourney(Request $request)
@@ -1385,10 +1369,10 @@ class EmailController extends Controller
         $events = \App\SendgridEvent::select('*');
 
         if (! empty($request->email)) {
-            $events = $events->where('email', 'like', '%'.$request->email.'%');
+            $events = $events->where('email', 'like', '%' . $request->email . '%');
         }
         if (! empty($request->event)) {
-            $events = $events->where('event', 'like', '%'.$request->event.'%');
+            $events = $events->where('event', 'like', '%' . $request->event . '%');
         }
         $events = $events->orderBy('id', 'desc')->paginate(30)->appends(request()->except(['page']));
 
@@ -1405,7 +1389,17 @@ class EmailController extends Controller
         $emailLogData = '';
 
         foreach ($emailLogs as $emailLog) {
-            $emailLogData .= '<tr><td>'.$emailLog['created_at'].'</td><td>'.$emailLog['email_log'].'</td><td>'.$emailLog['message'].'</td></tr>';
+            $colorCode = '';
+
+            if ($emailLog['is_error'] == 1 && $emailLog['service_type'] === 'SMTP') {
+                $colorCode = env('EMAIL_LOG_SMTP_ERROR_COLOR_CODE', '#f8eddd');
+            }
+
+            if ($emailLog['is_error'] == 1 && $emailLog['service_type'] === 'IMAP') {
+                $colorCode = env('EMAIL_LOG_IMAP_ERROR_COLOR_CODE', '#eddddd');
+            }
+
+            $emailLogData .= '<tr style="background:' . $colorCode . '"><td>' . $emailLog['created_at'] . '</td><td>' . $emailLog['email_log'] . '</td><td>' . $emailLog['message'] . '</td></tr>';
         }
         if ($emailLogData == '') {
             $emailLogData = '<tr><td>No data found.</td></tr>';
@@ -1424,6 +1418,7 @@ class EmailController extends Controller
 
         return response()->json(['type' => 'success'], 200);
     }
+
     /**
      * To view email in iframe
      */
@@ -1454,31 +1449,30 @@ class EmailController extends Controller
         if (count($usernames) > 0) {
             $senderDropdown = $senderDropdown->where(function ($senderDropdown) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $senderDropdown->orWhere('from', 'like', '%'.$_uname.'%');
+                    $senderDropdown->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $senderDropdown = $senderDropdown->orWhere(function ($senderDropdown) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $senderDropdown->orWhere('to', 'like', '%'.$_uname.'%');
+                    $senderDropdown->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
         $senderDropdown = $senderDropdown->distinct()->get()->toArray();
-
 
         $receiverDropdown = Email::select('to');
 
         if (count($usernames) > 0) {
             $receiverDropdown = $receiverDropdown->where(function ($receiverDropdown) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $receiverDropdown->orWhere('from', 'like', '%'.$_uname.'%');
+                    $receiverDropdown->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $receiverDropdown = $receiverDropdown->orWhere(function ($receiverDropdown) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $receiverDropdown->orWhere('to', 'like', '%'.$_uname.'%');
+                    $receiverDropdown->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
@@ -1489,11 +1483,11 @@ class EmailController extends Controller
 
         $mailboxDropdown = $mailboxDropdown->toArray();
 
-        $response = array(
-                'senderDropdown' => $senderDropdown,
-                'receiverDropdown' => $receiverDropdown,
-                'mailboxDropdown' => $mailboxDropdown
-            );
+        $response = [
+            'senderDropdown' => $senderDropdown,
+            'receiverDropdown' => $receiverDropdown,
+            'mailboxDropdown' => $mailboxDropdown,
+        ];
 
         return $response;
     }
@@ -1502,7 +1496,7 @@ class EmailController extends Controller
     {
         $searchEmail = $request->get('search');
         if (! empty($searchEmail)) {
-            $userEmails = Email::where('type', 'incoming')->where('from', 'like', '%'.$searchEmail.'%')->orderBy('created_at', 'desc')->get();
+            $userEmails = Email::where('type', 'incoming')->where('from', 'like', '%' . $searchEmail . '%')->orderBy('created_at', 'desc')->get();
         } else {
             $userEmails = Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
         }
@@ -1510,12 +1504,12 @@ class EmailController extends Controller
         $html = '';
         foreach ($userEmails as $key => $userEmail) {
             $html .= '<tr>
-                <td>'.Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s').'</td>
-                <td>'.substr($userEmail->from, 0,  20).' '.(strlen($userEmail->from) > 20 ? '...' : '').'</td>
-                <td>'.substr($userEmail->to, 0,  15).' '.(strlen($userEmail->to) > 10 ? '...' : '').'</td>
-                <td>'.substr($userEmail->subject, 0,  15).' '.(strlen($userEmail->subject) > 10 ? '...' : '').'</td>
-                <td>'.substr($userEmail->message, 0,  25).' '.(strlen($userEmail->message) > 20 ? '...' : '').'</td>
-                <td> <a href="javascript:;" data-id="'.$userEmail->id.'" data-content="'.$userEmail->message.'" class="menu_editor_copy btn btn-xs p-2" >
+                <td>' . Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') . '</td>
+                <td>' . substr($userEmail->from, 0, 20) . ' ' . (strlen($userEmail->from) > 20 ? '...' : '') . '</td>
+                <td>' . substr($userEmail->to, 0, 15) . ' ' . (strlen($userEmail->to) > 10 ? '...' : '') . '</td>
+                <td>' . substr($userEmail->subject, 0, 15) . ' ' . (strlen($userEmail->subject) > 10 ? '...' : '') . '</td>
+                <td>' . substr($userEmail->message, 0, 25) . ' ' . (strlen($userEmail->message) > 20 ? '...' : '') . '</td>
+                <td> <a href="javascript:;" data-id="' . $userEmail->id . '" data-content="' . $userEmail->message . '" class="menu_editor_copy btn btn-xs p-2" >
                                     <i class="fa fa-copy"></i>
                     </a></td>
             </tr>';
@@ -1524,70 +1518,72 @@ class EmailController extends Controller
         return $html;
     }
 
-    public function getCategoryMappings(){
+    public function getCategoryMappings()
+    {
         $userEmails = Email::where('type', 'incoming')
             ->where('email_category_id', '>', 0)
             ->orderBy('created_at', 'desc')
             ->groupBy('from')
             ->paginate(10);
 
-         //Get All Category
-         $email_categories = DB::table('email_category')->get();
+        //Get All Category
+        $email_categories = DB::table('email_category')->get();
 
         return view('emails.category.mappings', compact('userEmails', 'email_categories'));
     }
 
     // DEVTASK - 23369
-    public function assignModel(Request $request){
-        $model_type = "";
-        $model = "";
-        if($request->model_name == 'customer'){
+    public function assignModel(Request $request)
+    {
+        $model_type = '';
+        $model = '';
+        if ($request->model_name == 'customer') {
             $model_type = "\App\Customer";
             $model = new \App\Customer;
-            $model_name = "Customer";
-        }elseif($request->model_name == 'vendor'){
+            $model_name = 'Customer';
+        } elseif ($request->model_name == 'vendor') {
             $model_type = "\App\Vendor";
             $model = new \App\Vendor;
-            $model_name = "Vendor";
-        }elseif($request->model_name == 'supplier'){
+            $model_name = 'Vendor';
+        } elseif ($request->model_name == 'supplier') {
             $model_type = "\App\Supplier";
             $model = new \App\Supplier;
-            $model_name = "Supplier";
-        }else {
+            $model_name = 'Supplier';
+        } else {
             $model_type = "\App\User";
             $model = new \App\User;
-            $model_name = "User";
+            $model_name = 'User';
         }
 
-        $email = Email::where('id',$request->email_id)->first();
+        $email = Email::where('id', $request->email_id)->first();
         $email->is_unknow_module = 0;
         $email->model_type = $model_name;
         $email->save();
 
-        \Log::info('Assign Model to email : '.$model_name);
+        \Log::info('Assign Model to email : ' . $model_name);
 
-        $userExist = $model::where('email',$email->from)->first();
+        $userExist = $model::where('email', $email->from)->first();
 
-        if(empty($userExist)){
-            if($request->model_name == 'supplier'){
+        if (empty($userExist)) {
+            if ($request->model_name == 'supplier') {
                 $model::create([
-                    'email' => $email->from
+                    'email' => $email->from,
                 ]);
-            }else{
+            } else {
                 $model::create([
-                    'name'  => explode('@',$email->from)[0],
-                    'email' => $email->from
+                    'name' => explode('@', $email->from)[0],
+                    'email' => $email->from,
                 ]);
             }
 
-            return response()->json(['type' => 'success'],200);
+            return response()->json(['type' => 'success'], 200);
         }
     }
 
-    public function updateModelColor(Request $request){
-
-        foreach($request->color_name as $key => $value){
-            $model = ModelColor::where('id',$key)->first();
+    public function updateModelColor(Request $request)
+    {
+        foreach ($request->color_name as $key => $value) {
+            $model = ModelColor::where('id', $key)->first();
             $model->color_code = $value;
             $model->save();
         }
@@ -1595,10 +1591,11 @@ class EmailController extends Controller
         return redirect('/email');
     }
 
-    public function getModelNames(Request $request){
-        $modelColors = ModelColor::where('model_name','like','%'.$request->model_name.'%')->get();
+    public function getModelNames(Request $request)
+    {
+        $modelColors = ModelColor::where('model_name', 'like', '%' . $request->model_name . '%')->get();
         $returnHTML = view('emails.modelTable')->with('modelColors', $modelColors)->render();
-        return response()->json(['html' => $returnHTML,'type' => 'success'],200);
 
+        return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 }

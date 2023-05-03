@@ -2,15 +2,15 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Views;
 use Activity;
-use GatherContent\Htmldiff\Htmldiff;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use GatherContent\Htmldiff\Htmldiff;
 use Modules\BookStack\Auth\UserRepo;
 use Modules\BookStack\Entities\ExportService;
 use Modules\BookStack\Entities\Repos\PageRepo;
 use Modules\BookStack\Exceptions\NotFoundException;
-use Views;
 
 class PageController extends Controller
 {
@@ -25,7 +25,6 @@ class PageController extends Controller
      *
      * @param  \BookStack\Entities\Repos\PageRepo  $pageRepo
      * @param  \BookStack\Entities\ExportService  $exportService
-     * @param  UserRepo  $userRepo
      */
     public function __construct(PageRepo $pageRepo, ExportService $exportService, UserRepo $userRepo)
     {
@@ -75,7 +74,6 @@ class PageController extends Controller
     /**
      * Create a new page as a guest user.
      *
-     * @param  Request  $request
      * @param  string  $bookSlug
      * @param  string|null  $chapterSlug
      * @return mixed
@@ -136,7 +134,6 @@ class PageController extends Controller
     /**
      * Store a new page by changing a draft into a page.
      *
-     * @param  Request  $request
      * @param  string  $bookSlug
      * @param  int  $pageId
      * @return Response
@@ -278,7 +275,6 @@ class PageController extends Controller
     /**
      * Update the specified page in storage.
      *
-     * @param  Request  $request
      * @param  string  $bookSlug
      * @param  string  $pageSlug
      * @return Response
@@ -299,7 +295,6 @@ class PageController extends Controller
     /**
      * Save a draft update as a revision.
      *
-     * @param  Request  $request
      * @param  int  $pageId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -560,7 +555,7 @@ class PageController extends Controller
         $page->html = $this->pageRepo->renderPage($page);
         $pdfContent = $this->exportService->pageToPdf($page);
 
-        return $this->downloadResponse($pdfContent, $pageSlug.'.pdf');
+        return $this->downloadResponse($pdfContent, $pageSlug . '.pdf');
     }
 
     /**
@@ -576,7 +571,7 @@ class PageController extends Controller
         $page->html = $this->pageRepo->renderPage($page);
         $containedHtml = $this->exportService->pageToContainedHtml($page);
 
-        return $this->downloadResponse($containedHtml, $pageSlug.'.html');
+        return $this->downloadResponse($containedHtml, $pageSlug . '.html');
     }
 
     /**
@@ -591,7 +586,7 @@ class PageController extends Controller
         $page = $this->pageRepo->getPageBySlug($pageSlug, $bookSlug);
         $pageText = $this->exportService->pageToPlainText($page);
 
-        return $this->downloadResponse($pageText, $pageSlug.'.txt');
+        return $this->downloadResponse($pageText, $pageSlug . '.txt');
     }
 
     /**
@@ -636,7 +631,6 @@ class PageController extends Controller
      *
      * @param  string  $bookSlug
      * @param  string  $pageSlug
-     * @param  Request  $request
      * @return mixed
      *
      * @throws NotFoundException
@@ -699,7 +693,6 @@ class PageController extends Controller
      *
      * @param  string  $bookSlug
      * @param  string  $pageSlug
-     * @param  Request  $request
      * @return mixed
      *
      * @throws NotFoundException
@@ -762,7 +755,6 @@ class PageController extends Controller
      *
      * @param  string  $bookSlug
      * @param  string  $pageSlug
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws NotFoundException

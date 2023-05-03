@@ -5,57 +5,57 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_keys;
-use function array_pop;
-use function array_walk_recursive;
 use function chr;
 use function count;
-use const DATE_RFC1123;
-use function defined;
-use const E_USER_ERROR;
-use const E_USER_WARNING;
-use function explode;
-use const FILTER_VALIDATE_IP;
-use function filter_var;
-use function function_exists;
+use function strtr;
 use function getenv;
 use function gmdate;
-use function hash_equals;
-use function hash_hmac;
 use function header;
-use function header_remove;
-use function htmlspecialchars;
-use function http_build_query;
-use function in_array;
 use function intval;
+use function strlen;
+use function strpos;
+use function substr;
+use function defined;
+use function explode;
+use function sprintf;
+use function in_array;
 use function is_array;
+use function vsprintf;
+use const DATE_RFC1123;
+use const E_USER_ERROR;
+use function array_pop;
+use function hash_hmac;
 use function is_string;
-use function json_decode;
-use function json_encode;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
 use function parse_str;
 use function parse_url;
-use PhpMyAdmin\Http\ServerRequest;
+use function urldecode;
+use function array_keys;
+use function filter_var;
 use function preg_match;
-use function preg_replace;
-use function session_write_close;
-use function sprintf;
-use function str_contains;
-use function str_replace;
-use function strlen;
-use function strpos;
 use function strtolower;
-use function strtr;
-use function substr;
+use const E_USER_WARNING;
+use function hash_equals;
+use function json_decode;
+use function json_encode;
+use function str_replace;
+use function unserialize;
+use function preg_replace;
+use function str_contains;
+use function header_remove;
+use function trigger_error;
+use const FILTER_VALIDATE_IP;
+use function function_exists;
+use function htmlspecialchars;
+use function http_build_query;
+use function session_write_close;
+use function array_walk_recursive;
+use PhpMyAdmin\Http\ServerRequest;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use function trigger_error;
-use function unserialize;
-use function urldecode;
-use function vsprintf;
 
 /**
  * Core functions used all over the scripts.
@@ -173,7 +173,7 @@ class Core
             $lang = $GLOBALS['lang'];
         }
 
-        return self::linkURL('https://www.php.net/manual/'.$lang.'/'.$target);
+        return self::linkURL('https://www.php.net/manual/' . $lang . '/' . $target);
     }
 
     /**
@@ -197,10 +197,10 @@ class Core
             $message = __('The %s extension is missing. Please check your PHP configuration.');
         }
 
-        $doclink = self::getPHPDocLink('book.'.$extension.'.php');
-        $message = sprintf($message, '[a@'.$doclink.'@Documentation][em]'.$extension.'[/em][/a]');
+        $doclink = self::getPHPDocLink('book.' . $extension . '.php');
+        $message = sprintf($message, '[a@' . $doclink . '@Documentation][em]' . $extension . '[/em][/a]');
         if ($extra != '') {
-            $message .= ' '.$extra;
+            $message .= ' ' . $extra;
         }
 
         if ($fatal) {
@@ -222,7 +222,7 @@ class Core
     {
         global $dbi;
 
-        $tables = $dbi->tryQuery('SHOW TABLES FROM '.Util::backquote($db).';');
+        $tables = $dbi->tryQuery('SHOW TABLES FROM ' . Util::backquote($db) . ';');
 
         if ($tables) {
             return $tables->numRows();
@@ -292,7 +292,7 @@ class Core
         $_page = mb_substr(
             $page,
             0,
-            (int) mb_strpos($page.'?', '?')
+            (int) mb_strpos($page . '?', '?')
         );
         if (in_array($_page, $allowList)) {
             return true;
@@ -302,7 +302,7 @@ class Core
         $_page = mb_substr(
             $_page,
             0,
-            (int) mb_strpos($_page.'?', '?')
+            (int) mb_strpos($_page . '?', '?')
         );
 
         return in_array($_page, $allowList);
@@ -360,7 +360,7 @@ class Core
          * like /phpmyadmin/index.php/ which some web servers happily accept.
          */
         if ($uri[0] === '.') {
-            $uri = $GLOBALS['config']->getRootPath().substr($uri, 2);
+            $uri = $GLOBALS['config']->getRootPath() . substr($uri, 2);
         }
 
         $response = ResponseRenderer::getInstance();
@@ -374,12 +374,12 @@ class Core
         // results in a blank page
         // but we need it when coming from the cookie login panel)
         if ($GLOBALS['config']->get('PMA_IS_IIS') && $use_refresh) {
-            $response->header('Refresh: 0; '.$uri);
+            $response->header('Refresh: 0; ' . $uri);
 
             return;
         }
 
-        $response->header('Location: '.$uri);
+        $response->header('Location: ' . $uri);
     }
 
     /**
@@ -474,7 +474,7 @@ class Core
         $filename = Sanitize::sanitizeFilename($filename);
         if (! empty($filename)) {
             $headers['Content-Description'] = 'File Transfer';
-            $headers['Content-Disposition'] = 'attachment; filename="'.$filename.'"';
+            $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
         }
 
         $headers['Content-Type'] = $mimetype;
@@ -626,10 +626,10 @@ class Core
         $query = http_build_query(['url' => $vars['url']]);
 
         if ($GLOBALS['config'] !== null && $GLOBALS['config']->get('is_setup')) {
-            return '../url.php?'.$query;
+            return '../url.php?' . $query;
         }
 
-        return './url.php?'.$query;
+        return './url.php?' . $query;
     }
 
     /**
@@ -705,7 +705,7 @@ class Core
         $buffer = htmlspecialchars($buffer);
         $buffer = str_replace('  ', ' &nbsp;', $buffer);
 
-        return (string) preg_replace("@((\015\012)|(\015)|(\012))@", '<br>'."\n", $buffer);
+        return (string) preg_replace("@((\015\012)|(\015)|(\012))@", '<br>' . "\n", $buffer);
     }
 
     /**
@@ -951,7 +951,7 @@ class Core
 
         $secret = $_SESSION[' HMAC_secret '] ?? '';
 
-        return hash_hmac('sha256', $sqlQuery, $secret.$cfg['blowfish_secret']);
+        return hash_hmac('sha256', $sqlQuery, $secret . $cfg['blowfish_secret']);
     }
 
     /**
@@ -965,7 +965,7 @@ class Core
         global $cfg;
 
         $secret = $_SESSION[' HMAC_secret '] ?? '';
-        $hmac = hash_hmac('sha256', $sqlQuery, $secret.$cfg['blowfish_secret']);
+        $hmac = hash_hmac('sha256', $sqlQuery, $secret . $cfg['blowfish_secret']);
 
         return hash_equals($hmac, $signature);
     }
@@ -976,7 +976,7 @@ class Core
     public static function getContainerBuilder(): ContainerBuilder
     {
         $containerBuilder = new ContainerBuilder();
-        $loader = new PhpFileLoader($containerBuilder, new FileLocator(ROOT_PATH.'libraries'));
+        $loader = new PhpFileLoader($containerBuilder, new FileLocator(ROOT_PATH . 'libraries'));
         $loader->load('services_loader.php');
 
         return $containerBuilder;

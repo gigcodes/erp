@@ -108,7 +108,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request' => '',
-                'response' => 'Watson assistant function send message customer function order status => '.json_encode($orderStatus),
+                'response' => 'Watson assistant function send message customer function order status => ' . json_encode($orderStatus),
                 'status' => 'success',
             ]);
         }
@@ -123,7 +123,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request' => '',
-                'response' => 'Watson assistant function send message customer function refund status => '.json_encode($refundStatus),
+                'response' => 'Watson assistant function send message customer function refund status => ' . json_encode($refundStatus),
                 'status' => 'success',
             ]);
         }
@@ -135,7 +135,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request' => '',
-                'response' => 'Watson assistant function send message customer function text => '.$text,
+                'response' => 'Watson assistant function send message customer function text => ' . $text,
                 'status' => 'success',
             ]);
         }

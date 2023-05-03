@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Library\Watson\Language\Assistant\V2\AssistantService;
-use App\Library\Watson\Model;
 use App\WatsonAccount;
+use App\Library\Watson\Model;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Library\Watson\Language\Assistant\V2\AssistantService;
 
 class ManageWatsonAssistant implements ShouldQueue
 {
@@ -80,7 +80,7 @@ class ManageWatsonAssistant implements ShouldQueue
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $this->chat_message_log_id,
                         'request' => '',
-                        'response' => 'Watson asistantant function send message from job started with account'.$account->api_key,
+                        'response' => 'Watson asistantant function send message from job started with account' . $account->api_key,
                         'status' => 'success',
                     ]);
                 }

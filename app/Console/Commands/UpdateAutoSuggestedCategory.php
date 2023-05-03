@@ -43,7 +43,7 @@ class UpdateAutoSuggestedCategory extends Command
         $unKnownCategories = array_unique($unKnownCategories);
 
         $input = preg_quote('', '~');
-        $unKnownCategories = preg_grep('~'.$input.'~', $unKnownCategories);
+        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
         //$unKnownCategories = [];
         //$unKnownCategories[] = "women/clothing/trousers/trousers/alexander mcqueen prince of wales trousers";
@@ -95,7 +95,7 @@ class UpdateAutoSuggestedCategory extends Command
                             $filter->references = implode(',', array_unique($existingRef));
                             $filter->save();
 
-                            echo $unkc.' updated to '.$filter->title;
+                            echo $unkc . ' updated to ' . $filter->title;
                             echo PHP_EOL;
                         }
                     }

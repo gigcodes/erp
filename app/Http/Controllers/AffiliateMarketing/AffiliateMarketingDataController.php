@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers\AffiliateMarketing;
 
-use App\AffiliateCommissions;
-use App\AffiliateConversions;
-use App\AffiliateCustomers;
+use Auth;
+use App\Setting;
+use App\Customer;
 use App\AffiliateGroups;
-use App\AffiliateMarketers;
-use App\AffiliateMarketingLogs;
 use App\AffiliatePayments;
 use App\AffiliatePrograms;
-use App\AffiliateProviderAccounts;
-use App\Customer;
-use App\Http\Controllers\Controller;
-use App\Setting;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\AffiliateCustomers;
+use App\AffiliateMarketers;
 use Illuminate\Http\Request;
-use Auth;
+use App\AffiliateCommissions;
+use App\AffiliateConversions;
+use App\AffiliateMarketingLogs;
+use Illuminate\Http\JsonResponse;
+use App\AffiliateProviderAccounts;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,10 +26,9 @@ use Illuminate\Support\Facades\Validator;
  */
 class AffiliateMarketingDataController extends Controller
 {
-
     /**
      * Get details for provider account
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function index(Request $request)
@@ -42,26 +41,27 @@ class AffiliateMarketingDataController extends Controller
                     $query->where('title', 'like', '%' . $request->group_name . '%');
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
+
             return view('affiliate-marketing.providers.index', compact('providersGroups', 'provider'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
     /**
      * Create new affiliate group on provider and save in the database
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function createAffiliateGroup(Request $request): RedirectResponse
     {
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required',
-                'affiliate_account_id' => 'required'
+                'affiliate_account_id' => 'required',
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create Affiliate Group', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -75,21 +75,25 @@ class AffiliateMarketingDataController extends Controller
                     AffiliateGroups::create([
                         'title' => $request->title,
                         'affiliate_provider_group_id' => $responseData['data']['id'],
-                        'affiliate_account_id' => $request->affiliate_account_id
+                        'affiliate_account_id' => $request->affiliate_account_id,
                     ]);
                     $this->logActivity('Create Affiliate Group', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate group added successfully');
                 }
                 $this->logActivity('Create Affiliate Group', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Create Affiliate Group', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Create Affiliate Group', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Create Affiliate Group', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -97,18 +101,17 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Update affiliate group on provider and save in the database
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function updateAffiliateGroup(Request $request, $id): RedirectResponse
     {
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required',
-                'affiliate_account_id' => 'required'
+                'affiliate_account_id' => 'required',
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Update Affiliate Group', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                     ->withErrors($validator)
                     ->withInput();
@@ -122,18 +125,22 @@ class AffiliateMarketingDataController extends Controller
                     $groupData->title = $request->title;
                     $groupData->save();
                     $this->logActivity('Update Affiliate Group', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate group updated successfully');
                 }
                 $this->logActivity('Update Affiliate Group', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update Affiliate Group', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update Affiliate Group', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Update Affiliate Group', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -141,24 +148,27 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get affiliate group details
-     * @param Request $request
+     *
      * @return RedirectResponse
      */
     public function getAffiliateGroup(Request $request, $id): JsonResponse
     {
         try {
             $group = AffiliateGroups::findOrFail($id);
-            if (!$group) {
+            if (! $group) {
                 $response = ['status' => false, 'message' => 'Group not found'];
                 $this->logActivity('Get Affiliate Group', $response);
+
                 return response()->json($response);
             }
             $response = ['status' => true, 'message' => 'Group found', 'data' => $group->toArray()];
             $this->logActivity('Get Affiliate Group', $response);
+
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ['status' => false, 'message' => $e->getMessage()];
             $this->logActivity('Get Affiliate Group', $response);
+
             return response()->json($response);
         }
     }
@@ -171,21 +181,25 @@ class AffiliateMarketingDataController extends Controller
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getSyncData();
                 _p($responseData);
-                die;
+                exit;
                 if ($responseData['status']) {
                     $this->logActivity('Sync Affiliate Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate group updated successfully');
                 }
                 $this->logActivity('Sync Affiliate Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync Affiliate Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync Affiliate Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync Affiliate Group', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -193,7 +207,7 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get List of all programmes in a provider account
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function programIndex(Request $request)
@@ -206,16 +220,16 @@ class AffiliateMarketingDataController extends Controller
                     $query->where('title', 'like', '%' . $request->group_name . '%');
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
+
             return view('affiliate-marketing.providers.programes', compact('providersProgrammes', 'provider'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
     /**
      * Sync Programmes from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function programSync(Request $request): RedirectResponse
     {
@@ -227,7 +241,7 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     foreach ($responseData['data'] as $programme) {
                         $programmeData = AffiliatePrograms::where('affiliate_program_id', $programme['id'])->first();
-                        if (!$programmeData) {
+                        if (! $programmeData) {
                             AffiliatePrograms::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_program_id' => $programme['id'],
@@ -235,42 +249,46 @@ class AffiliateMarketingDataController extends Controller
                                 'title' => $programme['title'],
                                 'cookie_time' => $programme['cookie_time'],
                                 'default_landing_page_url' => $programme['default_landing_page_url'],
-                                'recurring' => (bool)$programme['recurring'],
+                                'recurring' => (bool) $programme['recurring'],
                                 'recurring_cap' => $programme['recurring_cap'],
                                 'recurring_period_days' => $programme['recurring_period_days'],
                                 'program_category_id' => $programme['program_category'] ? $programme['program_category']['id'] : null,
                                 'program_category_identifier' => $programme['program_category'] ? $programme['program_category']['identifier'] : null,
                                 'program_category_title' => $programme['program_category'] ? $programme['program_category']['title'] : null,
-                                'program_category_is_admitad_suitable' => $programme['program_category'] && (bool)$programme['program_category']['is_admitad_suitable'],
+                                'program_category_is_admitad_suitable' => $programme['program_category'] && (bool) $programme['program_category']['is_admitad_suitable'],
                             ]);
                         } else {
                             $programmeData->currency = $programme['currency'];
                             $programmeData->title = $programme['title'];
                             $programmeData->cookie_time = $programme['cookie_time'];
                             $programmeData->default_landing_page_url = $programme['default_landing_page_url'];
-                            $programmeData->recurring = (bool)$programme['recurring'];
+                            $programmeData->recurring = (bool) $programme['recurring'];
                             $programmeData->recurring_cap = $programme['recurring_cap'];
                             $programmeData->recurring_period_days = $programme['recurring_period_days'];
                             $programmeData->program_category_id = $programme['program_category'] ? $programme['program_category']['id'] : null;
                             $programmeData->program_category_identifier = $programme['program_category'] ? $programme['program_category']['identifier'] : null;
                             $programmeData->program_category_title = $programme['program_category'] ? $programme['program_category']['title'] : null;
-                            $programmeData->program_category_is_admitad_suitable = $programme['program_category'] && (bool)$programme['program_category']['is_admitad_suitable'];
+                            $programmeData->program_category_is_admitad_suitable = $programme['program_category'] && (bool) $programme['program_category']['is_admitad_suitable'];
                             $programmeData->save();
                         }
                     }
                     $this->logActivity('Sync Programme Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.program.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate programmes synced successfully');
                 }
                 $this->logActivity('Sync Programme Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.program.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync Programme Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync Programme Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.program.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync Programme Group', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.program.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -278,7 +296,7 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get List of all commission in a provider account
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function commissionIndex(Request $request)
@@ -300,16 +318,16 @@ class AffiliateMarketingDataController extends Controller
                     $query->where('currency', 'like', '%' . $request->currency . '%');
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
+
             return view('affiliate-marketing.providers.comissions', compact('providersCommissions', 'provider'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
     /**
      * Sync Commissions from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function commissionSync(Request $request): RedirectResponse
     {
@@ -325,12 +343,12 @@ class AffiliateMarketingDataController extends Controller
                         if ($commission['affiliate'] && $commission['affiliate']['id']) {
                             $affiliateMarketerData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
                         }
-                        if (!$commissionData) {
+                        if (! $commissionData) {
                             AffiliateCommissions::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_commission_id' => $commission['id'],
                                 'amount' => $commission['amount'],
-                                'approved' => (bool)$commission['approved'],
+                                'approved' => (bool) $commission['approved'],
                                 'affiliate_commission_created_at' => $commission['created_at'],
                                 'commission_type' => $commission['commission_type'],
                                 'conversion_sub_amount' => $commission['conversion_sub_amount'],
@@ -341,12 +359,12 @@ class AffiliateMarketingDataController extends Controller
                                 'kind' => $commission['kind'],
                                 'currency' => $commission['currency'],
                                 'final' => $commission['final'],
-                                'finalization_date' => isset($commission['finalization_date'])
+                                'finalization_date' => isset($commission['finalization_date']),
                             ]);
                         } else {
                             $commissionData->affiliate_commission_id = $commission['id'];
                             $commissionData->amount = $commission['amount'];
-                            $commissionData->approved = (bool)$commission['approved'];
+                            $commissionData->approved = (bool) $commission['approved'];
                             $commissionData->affiliate_commission_created_at = $commission['created_at'];
                             $commissionData->commission_type = $commission['commission_type'];
                             $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
@@ -362,18 +380,22 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Sync commissions Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate commissions synced successfully');
                 }
                 $this->logActivity('Sync commissions Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync commissions Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync commissions Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync commissions Data', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -381,33 +403,31 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get affiliate commission details
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
      */
     public function commissionGet(Request $request, $id): JsonResponse
     {
         try {
             $commission = AffiliateCommissions::findOrFail($id);
-            if (!$commission) {
+            if (! $commission) {
                 $response = ['status' => false, 'message' => 'Commission not found'];
                 $this->logActivity('Get Affiliate Commission', $response);
+
                 return response()->json($response);
             }
             $response = ['status' => true, 'message' => 'Affiliate Commission found', 'data' => $commission->toArray()];
             $this->logActivity('Get Affiliate Commission', $response);
+
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ['status' => false, 'message' => $e->getMessage()];
             $this->logActivity('Get Affiliate Commission', $response);
+
             return response()->json($response);
         }
     }
 
     /**
      * Update affiliate commission on provider and save in the database
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function commissionUpdate(Request $request): RedirectResponse
     {
@@ -418,6 +438,7 @@ class AffiliateMarketingDataController extends Controller
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                     ->withErrors($validator)
                     ->withInput();
@@ -431,18 +452,22 @@ class AffiliateMarketingDataController extends Controller
                     $commissionData->amount = $request->amount;
                     $commissionData->save();
                     $this->logActivity('Update Affiliate Commission', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate commission updated successfully');
                 }
                 $this->logActivity('Update Affiliate commission', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -450,8 +475,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Update affiliate commission on provider and save in the database
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function commissionApproveDisapprove(Request $request, $id): RedirectResponse
     {
@@ -460,23 +483,27 @@ class AffiliateMarketingDataController extends Controller
             if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
                 $commissionData = AffiliateCommissions::find($id);
                 $tapfiliate = new Tapfiliate($providerAccount);
-                $responseData = $tapfiliate->updateAffiliateApproveDisapprove($commissionData->affiliate_commission_id, !$commissionData->approved);
+                $responseData = $tapfiliate->updateAffiliateApproveDisapprove($commissionData->affiliate_commission_id, ! $commissionData->approved);
                 if ($responseData['status']) {
-                    $commissionData->approved = !$commissionData->approved;
+                    $commissionData->approved = ! $commissionData->approved;
                     $commissionData->save();
                     $this->logActivity('Update Affiliate Commission', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate commission updated successfully');
                 }
                 $this->logActivity('Update Affiliate commission', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Update Affiliate Commission', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.commission.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -484,7 +511,7 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get List of all affiliates in a provider account
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function affiliateIndex(Request $request)
@@ -503,16 +530,16 @@ class AffiliateMarketingDataController extends Controller
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
             $affiliateGroups = AffiliateGroups::where('affiliate_account_id', $provider->id)->get();
             $affiliateProgrammes = AffiliatePrograms::where('affiliate_account_id', $provider->id)->get();
+
             return view('affiliate-marketing.providers.affiliates', compact('providersAffiliates', 'provider', 'affiliateGroups', 'affiliateProgrammes'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
     /**
      * Sync Affiliates from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function affiliateSync(Request $request): RedirectResponse
     {
@@ -525,7 +552,7 @@ class AffiliateMarketingDataController extends Controller
                     foreach ($responseData['data'] as $affiliate) {
                         $affiliateData = AffiliateMarketers::where('affiliate_id', $affiliate['id'])->first();
                         $groupData = AffiliateGroups::where('affiliate_provider_group_id', $affiliate['affiliate_group_id'])->first();
-                        if (!$affiliateData) {
+                        if (! $affiliateData) {
                             AffiliateMarketers::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_id' => $affiliate['id'],
@@ -546,7 +573,7 @@ class AffiliateMarketingDataController extends Controller
                                 'affiliate_created_at' => $affiliate['created_at'],
                                 'affiliate_group_id' => $groupData->id,
                                 'promoted_at' => $affiliate['promoted_at'],
-                                'promotion_method' => $affiliate['promotion_method']
+                                'promotion_method' => $affiliate['promotion_method'],
                             ]);
                         } else {
                             $affiliateData->affiliate_id = $affiliate['id'];
@@ -572,18 +599,22 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Sync affiliate Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate affiliate synced successfully');
                 }
                 $this->logActivity('Sync affiliate Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync affiliate Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync affiliate Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync affiliate Data', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -591,8 +622,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Create new affiliate on provider and save in the database
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function affiliateCreate(Request $request): RedirectResponse
     {
@@ -605,6 +634,7 @@ class AffiliateMarketingDataController extends Controller
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create Affiliate', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -619,8 +649,8 @@ class AffiliateMarketingDataController extends Controller
                     'address' => [
                         'address' => $request->address_one, 'address_two' => $request->address_two, 'postal_code' => $request->address_postal_code,
                         'city' => $request->address_city, 'state' => $request->address_state, 'country' => [
-                            'code' => $request->address_country_code, 'name' => $request->address_country_name
-                        ]
+                            'code' => $request->address_country_code, 'name' => $request->address_country_name,
+                        ],
                     ],
                 ]);
                 if ($responseData['status']) {
@@ -649,18 +679,22 @@ class AffiliateMarketingDataController extends Controller
                         'promotion_method' => null,
                     ]);
                     $this->logActivity('Create Affiliate', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate added successfully');
                 }
                 $this->logActivity('Create Affiliate', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Create Affiliate', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Create Affiliate', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Create Affiliate', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -668,16 +702,14 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Delete affiliate on provider also in DB
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function affiliateDelete(Request $request, $id): RedirectResponse
     {
         try {
             $affiliate = AffiliateMarketers::findOrFail($id);
-            if (!$affiliate) {
-                $this->logActivity('Delete Affiliate', ['status' => false, 'message' => "Affiliate not found"]);
+            if (! $affiliate) {
+                $this->logActivity('Delete Affiliate', ['status' => false, 'message' => 'Affiliate not found']);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index')
                     ->with('error', 'Affiliate not found');
             }
@@ -688,14 +720,17 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     $affiliate->delete();
                     $this->logActivity('Delete Affiliate', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate Deleted successfully');
                 }
                 $this->logActivity('Delete Affiliate', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Delete Affiliate', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Delete Affiliate', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -706,17 +741,15 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Get all payout methods for affiliates
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
      */
     public function affiliatePayoutMethods(Request $request, $id): JsonResponse
     {
         try {
             $affiliate = AffiliateMarketers::findOrFail($id);
-            if (!$affiliate) {
+            if (! $affiliate) {
                 $response = ['status' => false, 'message' => 'Affiliate not found'];
                 $this->logActivity('Get All Affiliate payout methods', $response);
+
                 return response()->json($response);
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
@@ -726,34 +759,36 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     $response = ['status' => true, 'message' => 'Affiliate payout methods found', 'data' => $responseData['data']];
                     $this->logActivity('Get Affiliate payout methods', $response);
+
                     return response()->json($response);
                 }
                 $response = ['status' => false, 'message' => 'Affiliate payout methods not found'];
                 $this->logActivity('Get Affiliate payout methods', $response);
+
                 return response()->json($response);
             }
             $response = ['status' => false, 'message' => 'Account not found'];
             $this->logActivity('Get Affiliate payout methods', $response);
+
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ['status' => false, 'message' => $e->getMessage()];
             $this->logActivity('Get Affiliate payout methods', $response);
+
             return response()->json($response);
         }
     }
 
     /**
      * Update the payout method for affiliate
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function affiliateUpdatePayoutMethod(Request $request, $id): RedirectResponse
     {
         try {
             $affiliate = AffiliateMarketers::findOrFail($id);
-            if (!$affiliate) {
-                $this->logActivity('Update Affiliate Payout method', ['status' => false, 'message' => "Affiliate not found"]);
+            if (! $affiliate) {
+                $this->logActivity('Update Affiliate Payout method', ['status' => false, 'message' => 'Affiliate not found']);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index')
                     ->with('error', 'Affiliate not found');
             }
@@ -765,14 +800,17 @@ class AffiliateMarketingDataController extends Controller
                     $affiliate->payout = $request->payout_id;
                     $affiliate->save();
                     $this->logActivity('Update Affiliate Payout method', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate payout method updated successfully');
                 }
                 $this->logActivity('Update Affiliate Payout method', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update Affiliate Payout method', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update Affiliate Payout method', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -783,16 +821,16 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Update affiliate programme
-     * @param Request $request
+     *
      * @param $id
-     * @return RedirectResponse
      */
     public function affiliateAddToProgramme(Request $request): RedirectResponse
     {
         try {
             $affiliate = AffiliateMarketers::findOrFail($request->affiliate_id);
-            if (!$affiliate) {
-                $this->logActivity('Update Affiliate Programme method', ['status' => false, 'message' => "Affiliate not found"]);
+            if (! $affiliate) {
+                $this->logActivity('Update Affiliate Programme method', ['status' => false, 'message' => 'Affiliate not found']);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index')
                     ->with('error', 'Affiliate not found');
             }
@@ -803,7 +841,7 @@ class AffiliateMarketingDataController extends Controller
                 $responseData = $tapfiliate->addAffiliateToProgramme($programme->affiliate_program_id, [
                     'affiliate' => ['id' => $affiliate->affiliate_id],
                     'approved' => $request->has('approved') && $request->approved ? ($request->approved == 'true') : null,
-                    'coupon' => $request->coupon
+                    'coupon' => $request->coupon,
                 ]);
                 if ($responseData['status']) {
                     $affiliate->referral_link = $responseData['data']['referral_link']['link'];
@@ -814,14 +852,17 @@ class AffiliateMarketingDataController extends Controller
                     $affiliate->affiliate_programme_id = $programme->id;
                     $affiliate->save();
                     $this->logActivity('Update Affiliate programme method', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate payout method updated successfully');
                 }
                 $this->logActivity('Update Affiliate programme method', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update Affiliate programme method', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update Affiliate programme method', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.affiliate.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -831,7 +872,6 @@ class AffiliateMarketingDataController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function paymentsIndex(Request $request)
@@ -849,26 +889,25 @@ class AffiliateMarketingDataController extends Controller
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_payments');
             $affiliates = AffiliateMarketers::where('affiliate_account_id', $provider->id)->get();
+
             return view('affiliate-marketing.providers.payments', compact('providersPayments', 'provider', 'affiliates'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function paymentsCreate(Request $request): RedirectResponse
     {
         try {
             $validator = Validator::make($request->all(), [
                 'affiliate_id' => 'required',
                 'amount' => 'required',
-                'currency' => 'required|max:3'
+                'currency' => 'required|max:3',
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -893,32 +932,32 @@ class AffiliateMarketingDataController extends Controller
                         'currency' => $request->currency,
                     ]);
                     $this->logActivity('Create Affiliate payment', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate payment added successfully');
                 }
                 $this->logActivity('Create Affiliate payment', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function paymentsCancel(Request $request, $id): RedirectResponse
     {
         try {
             $payment = AffiliatePayments::findOrFail($id);
-            if (!$payment) {
+            if (! $payment) {
                 return Redirect::route('affiliate-marketing.provider.payments.index')
                     ->with('error', 'No account found');
             }
@@ -929,14 +968,17 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     $payment->delete();
                     $this->logActivity('Delete Affiliate payment', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate payment deleted successfully');
                 }
                 $this->logActivity('Delete Affiliate payment', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Delete Affiliate payment', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Delete Affiliate payment', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.payments.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -947,8 +989,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Sync Payments from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function paymentsSync(Request $request): RedirectResponse
     {
@@ -961,7 +1001,7 @@ class AffiliateMarketingDataController extends Controller
                     foreach ($responseData['data'] as $payment) {
                         $paymentData = AffiliatePayments::where('payment_id', $payment['id'])->first();
                         $affiliateData = AffiliateMarketers::where('affiliate_id', $payment['affiliate']['id'])->first();
-                        if (!$paymentData) {
+                        if (! $paymentData) {
                             AffiliatePayments::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'payment_id' => $payment['id'],
@@ -980,25 +1020,28 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Sync affiliate Payment Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate affiliate Payment synced successfully');
                 }
                 $this->logActivity('Sync affiliate Payment Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync affiliate Payment Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync affiliate Payment Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync affiliate payments Data', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function conversionIndex(Request $request)
@@ -1016,16 +1059,14 @@ class AffiliateMarketingDataController extends Controller
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_conversions');
             $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+
             return view('affiliate-marketing.providers.conversions', compact('providersConversions', 'provider', 'customers'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function conversionCreate(Request $request): RedirectResponse
     {
         try {
@@ -1046,6 +1087,7 @@ class AffiliateMarketingDataController extends Controller
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create conversion', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -1068,14 +1110,14 @@ class AffiliateMarketingDataController extends Controller
                     'commissions' => $request->commissions,
                     'user_agent' => $request->user_agent,
                     'ip' => $request->ip,
-                    'external_id' => uniqid()
+                    'external_id' => uniqid(),
                 ]);
                 if ($responseData['status']) {
                     if ($responseData['data']['commissions']) {
                         foreach ($responseData['data']['commissions'] as $commission) {
                             $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
                             $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
-                            if (!$commissionData) {
+                            if (! $commissionData) {
                                 AffiliateCommissions::create([
                                     'affiliate_account_id' => $request->provider_account,
                                     'affiliate_commission_id' => $commission['id'],
@@ -1140,35 +1182,36 @@ class AffiliateMarketingDataController extends Controller
                         'affiliate_meta_data' => serialize($responseData['data']['affiliate_meta_data']),
                     ]);
                     $this->logActivity('Create conversion', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Conversion added successfully');
                 }
                 $this->logActivity('Create conversion', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Create conversion', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Create conversion', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Create conversion', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function conversionUpdate(Request $request): RedirectResponse
     {
         try {
             $validator = Validator::make($request->all(), [
-                'amount' => 'sometimes'
+                'amount' => 'sometimes',
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Update conversion', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -1179,14 +1222,14 @@ class AffiliateMarketingDataController extends Controller
             if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->updateConversions($conversionData->affiliate_conversion_id, [
-                    'amount' => $request->amount
+                    'amount' => $request->amount,
                 ]);
                 if ($responseData['status']) {
                     if ($responseData['data']) {
                         foreach ($responseData['data']['commissions'] as $commission) {
                             $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
                             $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
-                            if (!$commissionData) {
+                            if (! $commissionData) {
                                 AffiliateCommissions::create([
                                     'affiliate_account_id' => $request->provider_account,
                                     'affiliate_commission_id' => $commission['id'],
@@ -1225,32 +1268,32 @@ class AffiliateMarketingDataController extends Controller
                     $conversionData->amount = $request->amount;
                     $conversionData->save();
                     $this->logActivity('update conversion', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Conversion updated successfully');
                 }
                 $this->logActivity('Update conversion', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Update conversion', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Update conversion', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Update conversion', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function conversionDelete(Request $request, $id): RedirectResponse
     {
         try {
             $conversions = AffiliateConversions::findOrFail($id);
-            if (!$conversions) {
+            if (! $conversions) {
                 return Redirect::route('affiliate-marketing.provider.conversion.index')
                     ->with('error', 'No account found');
             }
@@ -1261,14 +1304,17 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     $conversions->delete();
                     $this->logActivity('Delete Conversion', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Conversion deleted successfully');
                 }
                 $this->logActivity('Delete Conversion', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Delete Conversion', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Delete Conversion', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -1277,15 +1323,11 @@ class AffiliateMarketingDataController extends Controller
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function conversionAddCommission(Request $request): RedirectResponse
     {
         try {
             $conversions = AffiliateConversions::findOrFail($request->conversion_id);
-            if (!$conversions) {
+            if (! $conversions) {
                 return Redirect::route('affiliate-marketing.provider.conversion.index')
                     ->with('error', 'No account found');
             }
@@ -1301,7 +1343,7 @@ class AffiliateMarketingDataController extends Controller
                     foreach ($responseData['data'] as $commission) {
                         $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
                         $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
-                        if (!$commissionData) {
+                        if (! $commissionData) {
                             AffiliateCommissions::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_commission_id' => $commission['id'],
@@ -1321,7 +1363,7 @@ class AffiliateMarketingDataController extends Controller
                             ]);
                         } else {
                             $commissionData->amount = $commission['amount'];
-                            $commissionData->approved = (bool)$commission['approved'];
+                            $commissionData->approved = (bool) $commission['approved'];
                             $commissionData->affiliate_commission_created_at = $commission['created_at'];
                             $commissionData->commission_type = $commission['commission_type'];
                             $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
@@ -1337,14 +1379,17 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Commission added to Conversion', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Commission added to Conversion successfully');
                 }
                 $this->logActivity('Commission added to Conversion', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Commission added to Conversion', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Commission added to Conversion', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -1355,8 +1400,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Sync Payments from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function conversionSync(Request $request): RedirectResponse
     {
@@ -1371,7 +1414,7 @@ class AffiliateMarketingDataController extends Controller
                             foreach ($conversion['commissions'] as $commission) {
                                 $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
                                 $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
-                                if (!$commissionData) {
+                                if (! $commissionData) {
                                     AffiliateCommissions::create([
                                         'affiliate_account_id' => $request->provider_account,
                                         'affiliate_commission_id' => $commission['id'],
@@ -1415,7 +1458,7 @@ class AffiliateMarketingDataController extends Controller
                         if (isset($conversion['affiliate']) && $conversion['affiliate']['id']) {
                             $affiliateData = AffiliateMarketers::where('affiliate_id', $conversion['affiliate']['id'])->first();
                         }
-                        if (!$conversionData) {
+                        if (! $conversionData) {
                             AffiliateConversions::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_conversion_id' => $conversion['id'],
@@ -1434,7 +1477,7 @@ class AffiliateMarketingDataController extends Controller
                                 'meta_data' => isset($conversion['meta_data']) ? serialize($conversion['meta_data']) : '',
                                 'commission_created_at' => $conversion['created_at'],
                                 'warnings' => serialize($conversion['warnings']),
-                                'affiliate_meta_data' => serialize($conversion['affiliate_meta_data'])
+                                'affiliate_meta_data' => serialize($conversion['affiliate_meta_data']),
                             ]);
                         } else {
                             $conversionData->affiliate_conversion_id = $conversion['id'];
@@ -1458,25 +1501,28 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Sync affiliate conversion Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate affiliate conversion synced successfully');
                 }
                 $this->logActivity('Sync affiliate conversion Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync affiliate conversion Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync affiliate conversion Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync affiliate conversion Data', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function customerIndex(Request $request)
@@ -1494,16 +1540,14 @@ class AffiliateMarketingDataController extends Controller
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_customer');
             $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+
             return view('affiliate-marketing.providers.customers', compact('providersCustomers', 'provider', 'customers'));
         }
+
         return Redirect::route('affiliate-marketing.providerAccounts')
             ->with('error', 'No provider found');
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function customerCreate(Request $request): RedirectResponse
     {
         try {
@@ -1522,6 +1566,7 @@ class AffiliateMarketingDataController extends Controller
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create customer', ['status' => false, 'message' => $validator->errors()->first()]);
+
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                     ->with('create_popup', true)
                     ->withErrors($validator)
@@ -1541,7 +1586,7 @@ class AffiliateMarketingDataController extends Controller
                     'customer_id' => $request->customer_id,
                     'status' => $request->status,
                     'user_agent' => $request->user_agent,
-                    'ip' => $request->ip
+                    'ip' => $request->ip,
                 ]);
                 if ($responseData['status']) {
                     $programmeData = null;
@@ -1567,35 +1612,35 @@ class AffiliateMarketingDataController extends Controller
                         'affiliate_marketer_id' => $affiliateData->id,
                         'affiliate_meta_data' => serialize($responseData['data']['affiliate_meta_data']),
                         'meta_data' => serialize($responseData['data']['meta_data']),
-                        'warnings' => serialize($responseData['data']['warnings'])
+                        'warnings' => serialize($responseData['data']['warnings']),
                     ]);
                     $this->logActivity('Create customer', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Customer added successfully');
                 }
                 $this->logActivity('Create customer', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Create customer', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Create customer', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Create customer', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function customerDelete(Request $request, $id): RedirectResponse
     {
         try {
             $customer = AffiliateCustomers::findOrFail($id);
-            if (!$customer) {
+            if (! $customer) {
                 return Redirect::route('affiliate-marketing.provider.conversion.index')
                     ->with('error', 'No account found');
             }
@@ -1606,14 +1651,17 @@ class AffiliateMarketingDataController extends Controller
                 if ($responseData['status']) {
                     $customer->delete();
                     $this->logActivity('Delete Customer', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Customer deleted successfully');
                 }
                 $this->logActivity('Delete Customer', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Delete Customer', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Delete Customer', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.customer.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -1622,15 +1670,11 @@ class AffiliateMarketingDataController extends Controller
         }
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function customerCancelUnCancel(Request $request, $id): RedirectResponse
     {
         try {
             $customer = AffiliateCustomers::findOrFail($id);
-            if (!$customer) {
+            if (! $customer) {
                 return Redirect::route('affiliate-marketing.provider.conversion.index')
                     ->with('error', 'No account found');
             }
@@ -1642,14 +1686,17 @@ class AffiliateMarketingDataController extends Controller
                     $customer->status = $responseData['data']['status'];
                     $customer->save();
                     $this->logActivity('Cancel Customer', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Customer Cancel successfully');
                 }
                 $this->logActivity('Cancel Customer', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Cancel Customer', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Cancel Customer', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.customer.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
@@ -1660,8 +1707,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Sync Customers from API to DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function customerSync(Request $request): RedirectResponse
     {
@@ -1681,7 +1726,7 @@ class AffiliateMarketingDataController extends Controller
                             $affiliateData = AffiliateMarketers::where('affiliate_id', $customer['affiliate']['id'])->first();
                         }
                         $customerData = AffiliateCustomers::where('customer_id', $customer['id'])->first();
-                        if (!$customerData) {
+                        if (! $customerData) {
                             AffiliateCustomers::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'customer_id' => $customer['id'],
@@ -1697,7 +1742,7 @@ class AffiliateMarketingDataController extends Controller
                                 'affiliate_marketer_id' => $affiliateData->id,
                                 'affiliate_meta_data' => serialize($customer['affiliate_meta_data']),
                                 'meta_data' => serialize($customer['meta_data']),
-                                'warnings' => serialize($customer['warnings'])
+                                'warnings' => serialize($customer['warnings']),
                             ]);
                         } else {
                             $customerData->customer_id = $customer['id'];
@@ -1718,18 +1763,22 @@ class AffiliateMarketingDataController extends Controller
                         }
                     }
                     $this->logActivity('Sync affiliate customer Data', $responseData);
+
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate affiliate customer synced successfully');
                 }
                 $this->logActivity('Sync affiliate customer Data', $responseData);
+
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                     ->with('error', $responseData['message']);
             }
-            $this->logActivity('Sync affiliate customer Data', ['status' => false, 'message' => "Account Not found"]);
+            $this->logActivity('Sync affiliate customer Data', ['status' => false, 'message' => 'Account Not found']);
+
             return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                 ->with('error', 'Affiliate account not found');
         } catch (\Exception $e) {
             $this->logActivity('Sync affiliate customer Data', ['status' => false, 'message' => $e->getMessage()]);
+
             return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
@@ -1737,8 +1786,6 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Logs activity for affiliate marketing
-     * @param $name
-     * @param $data
      */
     private function logActivity($name, $data)
     {
@@ -1752,7 +1799,7 @@ class AffiliateMarketingDataController extends Controller
 
     /**
      * Gets provider account details.
-     * @param $providerId
+     *
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|null
      */
     private function getProviderAccount($providerId)

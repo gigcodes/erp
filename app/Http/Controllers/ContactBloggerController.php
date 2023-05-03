@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\BloggerEmailTemplate;
-use App\ContactBlogger;
 use App\Email;
+use App\ContactBlogger;
 use Illuminate\Http\Request;
+use App\BloggerEmailTemplate;
 
 class ContactBloggerController extends Controller
 {

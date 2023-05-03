@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Eps;
 
 use function __;
-use function count;
 use function max;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Plugins\Schema\TableStats;
+use function count;
 use function sprintf;
+use PhpMyAdmin\Plugins\Schema\TableStats;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * Table preferences/statistics

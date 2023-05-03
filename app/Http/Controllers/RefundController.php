@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\Events\RefundDispatched;
 use App\Order;
 use App\Refund;
 use App\Setting;
+use App\Customer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Events\RefundDispatched;
 
 class RefundController extends Controller
 {
@@ -52,7 +52,6 @@ class RefundController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -110,7 +109,6 @@ class RefundController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

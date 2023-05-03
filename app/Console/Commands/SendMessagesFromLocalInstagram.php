@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
+use Illuminate\Console\Command;
 
 class SendMessagesFromLocalInstagram extends Command
 {
@@ -41,7 +41,7 @@ class SendMessagesFromLocalInstagram extends Command
         $ch = curl_init();
         $username = Config('instagram.admin_account');
 
-        $url = 'https://erp.theluxuryunlimited.com/api/instagram/get-comments-list/'.$username;
+        $url = 'https://erp.theluxuryunlimited.com/api/instagram/get-comments-list/' . $username;
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);

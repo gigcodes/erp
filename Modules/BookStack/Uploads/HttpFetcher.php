@@ -9,7 +9,6 @@ class HttpFetcher
     /**
      * Fetch content from an external URI.
      *
-     * @param  string  $uri
      * @return bool|string
      *
      * @throws HttpFetchException

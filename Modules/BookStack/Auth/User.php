@@ -3,15 +3,15 @@
 namespace Modules\BookStack\Auth;
 
 use Carbon\Carbon;
+use Modules\BookStack\Model;
 use Illuminate\Auth\Authenticatable;
+use Modules\BookStack\Uploads\Image;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Passwords\CanResetPassword;
+use Modules\BookStack\Notifications\ResetPassword;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Notifications\Notifiable;
-use Modules\BookStack\Model;
-use Modules\BookStack\Notifications\ResetPassword;
-use Modules\BookStack\Uploads\Image;
 
 /**
  * Class User
@@ -96,7 +96,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Check if the user has a role.
      *
-     * @param $role
      * @return mixed
      */
     public function hasRole($role)
@@ -107,7 +106,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Check if the user has a role.
      *
-     * @param $role
      * @return mixed
      */
     public function hasSystemRole($role)
@@ -138,7 +136,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Check if the user has a particular permission.
      *
-     * @param $permissionName
      * @return bool
      */
     public function can($permissionName)
@@ -152,8 +149,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Attach a role to this user.
-     *
-     * @param  Role  $role
      */
     public function attachRole(Role $role)
     {
@@ -162,8 +157,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Attach a role id to this user.
-     *
-     * @param $id
      */
     public function attachRoleId($id)
     {
@@ -236,7 +229,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getEditUrl()
     {
-        return url('/kb/settings/users/'.$this->id);
+        return url('/kb/settings/users/' . $this->id);
     }
 
     /**
@@ -246,7 +239,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getProfileUrl()
     {
-        return url('/user/'.$this->id);
+        return url('/user/' . $this->id);
     }
 
     /**

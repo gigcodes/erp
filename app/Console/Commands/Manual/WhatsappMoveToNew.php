@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -68,7 +68,7 @@ class WhatsappMoveToNew extends Command
                         is_blocked=0
                 ) AND
                 number IS NOT NULL AND
-                created_at > DATE_SUB(NOW(), INTERVAL '.$days.' DAY)
+                created_at > DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)
         ';
             // echo $sql;
             $rs = DB::select(DB::raw($sql));
@@ -82,7 +82,7 @@ class WhatsappMoveToNew extends Command
                     $customer->save();
 
                     // Output customer information
-                    echo $customer->id.' '.$customer->phone."\n";
+                    echo $customer->id . ' ' . $customer->phone . "\n";
                 }
             }
 

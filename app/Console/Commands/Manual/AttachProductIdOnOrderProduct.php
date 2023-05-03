@@ -48,7 +48,7 @@ class AttachProductIdOnOrderProduct extends Command
                     $orderProduct->product_id = $product->id;
                 } else {
                     $orderProduct->product_id = 0;
-                    echo $orderProduct->sku.' can not found in list'.PHP_EOL;
+                    echo $orderProduct->sku . ' can not found in list' . PHP_EOL;
                 }
                 $orderProduct->save();
             }

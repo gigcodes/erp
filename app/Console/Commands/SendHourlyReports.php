@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\DailyActivity;
-use App\Exports\HourlyReportsExport;
-use App\Mails\Manual\HourlyReport;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Mails\Manual\HourlyReport;
+use App\Exports\HourlyReportsExport;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -81,7 +81,7 @@ class SendHourlyReports extends Command
                 ->get()->groupBy('user_id');
 
             if (count($daily_activities) > 0) {
-                $path = 'hourly_reports/'.$date.'_hourly_reports.xlsx';
+                $path = 'hourly_reports/' . $date . '_hourly_reports.xlsx';
                 Excel::store(new HourlyReportsExport(), $path, 'files');
 
                 Mail::to('hr@sololuxury.co.in')

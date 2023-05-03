@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Http\Controllers\Controller;
 use App\Service;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {

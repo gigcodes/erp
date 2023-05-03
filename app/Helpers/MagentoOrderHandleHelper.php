@@ -2,21 +2,21 @@
 
 namespace App\Helpers;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\CommunicationHistory;
-use App\Customer;
-use App\Jobs\CallHelperForZeroStockQtyUpdate;
-use App\Mails\Manual\OrderConfirmation;
 use App\Order;
-use App\OrderCustomerAddress;
-use App\OrderProduct;
 use App\Product;
+use App\Customer;
+use App\AutoReply;
+use Carbon\Carbon;
+use App\ChatMessage;
+use App\OrderProduct;
 use App\ProductSizes;
 use App\StoreWebsiteOrder;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
+use App\CommunicationHistory;
+use App\OrderCustomerAddress;
 use Illuminate\Support\Facades\DB;
+use App\Mails\Manual\OrderConfirmation;
+use Illuminate\Database\Eloquent\Model;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
 
 class MagentoOrderHandleHelper extends Model
@@ -37,7 +37,7 @@ class MagentoOrderHandleHelper extends Model
                 foreach ($totalOrders as $order) {
                     //Checking in order table
                     $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $order->increment_id)->where('website_id', $website->id)->first();
-                    \Log::info($checkIfOrderExist.' Order not exist');
+                    \Log::info($checkIfOrderExist . ' Order not exist');
                     //Checkoing in Website Order Table
                     if ($checkIfOrderExist) {
                         //continue;
@@ -47,7 +47,7 @@ class MagentoOrderHandleHelper extends Model
                     $firstName = isset($order->customer_firstname) ? $order->customer_firstname : 'N/A';
                     $lastName = isset($order->customer_lastname) ? $order->customer_lastname : 'N/A';
 
-                    $full_name = $firstName.' '.$lastName;
+                    $full_name = $firstName . ' ' . $lastName;
                     $customer_phone = '';
 
                     $customer = Customer::where('email', $order->customer_email)->where('store_website_id', $website->id)->first();
@@ -109,7 +109,7 @@ class MagentoOrderHandleHelper extends Model
                             'order_status_id' => $order_status,
                             'payment_mode' => $payment_method,
                             'order_date' => $order->created_at,
-                            'client_name' => $order->billing_address->firstname.' '.$order->billing_address->lastname,
+                            'client_name' => $order->billing_address->firstname . ' ' . $order->billing_address->lastname,
                             'city' => $order->billing_address->city,
                             'advance_detail' => $order->base_grand_total,
                             'contact_detail' => $order->billing_address->telephone,
@@ -125,7 +125,7 @@ class MagentoOrderHandleHelper extends Model
 
                     $id = $orderModel->id;
 
-                    \Log::info('Order id : '.$id);
+                    \Log::info('Order id : ' . $id);
 
                     $items = $order->items;
                     foreach ($items as $item) {
@@ -144,7 +144,7 @@ class MagentoOrderHandleHelper extends Model
                             $splitted_sku = explode('-', $item->sku);
 
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
-                            \Log::info('skuAndColor : '.json_encode($skuAndColor));
+                            \Log::info('skuAndColor : ' . json_encode($skuAndColor));
                             $sku = isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'];
 
                             DB::table('order_products')->insert(
@@ -224,9 +224,9 @@ class MagentoOrderHandleHelper extends Model
                         ];
                         try {
                             OrderCustomerAddress::insert($customerAddress);
-                            \Log::info('Order customer address added'.json_encode($customerAddress));
+                            \Log::info('Order customer address added' . json_encode($customerAddress));
                         } catch (\Throwable $th) {
-                            \Log::error('Order customer address '.$th->getMessage());
+                            \Log::error('Order customer address ' . $th->getMessage());
                         }
                     }
 
@@ -250,9 +250,9 @@ class MagentoOrderHandleHelper extends Model
                         ];
                         try {
                             OrderCustomerAddress::insert($customerAddress);
-                            \Log::info('Order customer address added'.json_encode($customerAddress));
+                            \Log::info('Order customer address added' . json_encode($customerAddress));
                         } catch (\Throwable $th) {
-                            \Log::error('Order customer address '.$th->getMessage());
+                            \Log::error('Order customer address ' . $th->getMessage());
                         }
                     }
 
@@ -260,7 +260,7 @@ class MagentoOrderHandleHelper extends Model
                     if ($order->payment->method == 'cashondelivery') {
                         $product_names = '';
                         foreach (OrderProduct::where('order_id', $id)->get() as $order_product) {
-                            $product_names .= $order_product->product ? $order_product->product->name.', ' : '';
+                            $product_names .= $order_product->product ? $order_product->product->name . ', ' : '';
                         }
 
                         $delivery_time = $orderSaved->estimated_delivery_date ? Carbon::parse($orderSaved->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($orderSaved->order_date)->addDays(15)->format('d \of\ F');
@@ -359,10 +359,10 @@ class MagentoOrderHandleHelper extends Model
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
                     } catch (\Exception $e) {
-                        \Log::info('Order email was not send due to template not setup'.$orderSaved->id);
+                        \Log::info('Order email was not send due to template not setup' . $orderSaved->id);
                     }
 
-                    \Log::info('Order is finished'.json_encode($websiteOrder));
+                    \Log::info('Order is finished' . json_encode($websiteOrder));
                 }
                 /**Ajay singh */
                 /*$orders = OrderProduct::with('order')->whereHas('order',function($query){
@@ -392,7 +392,7 @@ class MagentoOrderHandleHelper extends Model
             }
         } catch (\Throwable $th) {
             \Log::error($th);
-            \Log::error('Magento order failed : reason => '.$th->getMessage());
+            \Log::error('Magento order failed : reason => ' . $th->getMessage());
 
             return false;
         }

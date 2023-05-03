@@ -2,20 +2,21 @@
 
 namespace App\Jobs;
 
-use App\GoogleDoc;
 use Exception;
+use App\GoogleDoc;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
 use Google_Service_Sheets_Spreadsheet;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateGoogleSpreadsheet
 {
     use Dispatchable, SerializesModels;
 
     private $googleDoc;
+
     private $permissionForAll;
 
     /**
@@ -49,7 +50,7 @@ class CreateGoogleSpreadsheet
             $this->googleDoc->save();
         } catch (Exception $e) {
             // TODO(developer) - handle error appropriately
-            echo 'Message: '.$e->getMessage();
+            echo 'Message: ' . $e->getMessage();
             dd($e);
         }
     }
@@ -75,7 +76,7 @@ class CreateGoogleSpreadsheet
 
             return $file->parents;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
         }
     }
 
@@ -97,11 +98,11 @@ class CreateGoogleSpreadsheet
             ]);
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
-            if($this->permissionForAll == "anyone") {
+            if ($this->permissionForAll == 'anyone') {
                 $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
-                    'role' => 'reader'
+                    'role' => 'reader',
                 ]);
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'full-access');
@@ -110,7 +111,7 @@ class CreateGoogleSpreadsheet
                 $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
-                    'role' => 'writer'
+                    'role' => 'writer',
                 ]);
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'full-access');
@@ -118,41 +119,40 @@ class CreateGoogleSpreadsheet
             } else {
                 $batch = $driveService->createBatch();
                 $googleDocUsersRead = explode(',', $googleDocUsersRead);
-    
+
                 foreach ($googleDocUsersRead as $email) {
                     $userPermission = new Drive\Permission([
                         'type' => 'user',
                         'role' => 'reader',
                         'emailAddress' => $email,
                     ]);
-    
+
                     $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                    $batch->add($request, 'user'.$index);
+                    $batch->add($request, 'user' . $index);
                     $index++;
                 }
                 $results = $batch->execute();
-    
+
                 $batch = $driveService->createBatch();
                 $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
-    
+
                 foreach ($googleDocUsersWrite as $email) {
                     $userPermission = new Drive\Permission([
                         'type' => 'user',
                         'role' => 'writer',
                         'emailAddress' => $email,
                     ]);
-    
+
                     $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                    $batch->add($request, 'user'.$index);
+                    $batch->add($request, 'user' . $index);
                     $index++;
                 }
                 $results = $batch->execute();
             }
 
-
             return $file;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
             dd($e);
         }
     }

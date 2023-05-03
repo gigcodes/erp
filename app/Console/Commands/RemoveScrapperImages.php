@@ -45,7 +45,7 @@ class RemoveScrapperImages extends Command
                 continue;
             }
 
-            $imagePath = public_path('scrappersImages/'.$image->image_name);
+            $imagePath = public_path('scrappersImages/' . $image->image_name);
 
             if (file_exists($imagePath) && ! is_dir($imagePath)) {
                 unlink($imagePath);

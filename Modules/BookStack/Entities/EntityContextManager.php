@@ -15,9 +15,6 @@ class EntityContextManager
 
     /**
      * EntityContextManager constructor.
-     *
-     * @param  Store  $session
-     * @param  EntityRepo  $entityRepo
      */
     public function __construct(Store $session, EntityRepo $entityRepo)
     {
@@ -28,7 +25,6 @@ class EntityContextManager
     /**
      * Get the current bookshelf context for the given book.
      *
-     * @param  Book  $book
      * @return Bookshelf|null
      */
     public function getContextualShelfForBook(Book $book)
@@ -48,8 +44,6 @@ class EntityContextManager
 
     /**
      * Store the current contextual shelf ID.
-     *
-     * @param  int  $shelfId
      */
     public function setShelfContext(int $shelfId)
     {

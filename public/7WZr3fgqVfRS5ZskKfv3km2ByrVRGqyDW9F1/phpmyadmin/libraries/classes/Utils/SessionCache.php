@@ -10,10 +10,10 @@ final class SessionCache
     {
         global $cfg, $server;
 
-        $key = 'server_'.$server;
+        $key = 'server_' . $server;
 
         if (isset($cfg['Server']['user'])) {
-            return $key.'_'.$cfg['Server']['user'];
+            return $key . '_' . $cfg['Server']['user'];
         }
 
         return $key;

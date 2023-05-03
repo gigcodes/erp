@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function htmlspecialchars;
-use function ini_set;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Mime;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use function sprintf;
 use function strlen;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Mime;
+use PhpMyAdmin\Util;
+use function ini_set;
+use function sprintf;
+use PhpMyAdmin\Template;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 /**
  * Provides download to a given field defined in parameters.
@@ -74,9 +74,9 @@ class GetFieldController extends AbstractController
         }
 
         /* Grab data */
-        $sql = 'SELECT '.Util::backquote($_GET['transform_key'])
-            .' FROM '.Util::backquote($table)
-            .' WHERE '.$_GET['where_clause'].';';
+        $sql = 'SELECT ' . Util::backquote($_GET['transform_key'])
+            . ' FROM ' . Util::backquote($table)
+            . ' WHERE ' . $_GET['where_clause'] . ';';
         $result = $this->dbi->fetchValue($sql);
 
         /* Check return code */
@@ -93,7 +93,7 @@ class GetFieldController extends AbstractController
         ini_set('url_rewriter.tags', '');
 
         Core::downloadHeader(
-            $table.'-'.$_GET['transform_key'].'.bin',
+            $table . '-' . $_GET['transform_key'] . '.bin',
             Mime::detect($result),
             strlen($result)
         );

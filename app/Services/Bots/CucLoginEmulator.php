@@ -4,8 +4,8 @@ namespace App\Services\Bots;
 
 use App\Brand;
 use App\ScrapEntries;
-use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class CucLoginEmulator
 {
@@ -68,7 +68,7 @@ class CucLoginEmulator
                             $brand->name = 'tod%27s';
                         }
                         $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
-                        $productListUrl = $pages['female'].$brandName;
+                        $productListUrl = $pages['female'] . $brandName;
                         $browser->visit($productListUrl);
                         $c = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
                         $paginationFilter = $c->filter('div.bloccopagine .pagine:last-child a');
@@ -97,7 +97,7 @@ class CucLoginEmulator
                             $brand->name = 'tod%27s';
                         }
                         $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
-                        $productListUrl = $pages['male'].$brandName;
+                        $productListUrl = $pages['male'] . $brandName;
                         $browser->visit($productListUrl);
                         $c = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
                         $paginationFilter = $c->filter('div.bloccopagine .pagine:last-child a');
@@ -140,7 +140,7 @@ class CucLoginEmulator
                                 if (! $entry) {
                                     $entry = new ScrapEntries();
                                 }
-                                $entry->url = $pages['base'].$productUrl;
+                                $entry->url = $pages['base'] . $productUrl;
                                 $entry->title = $productUrl;
                                 $entry->is_product_page = 1;
                                 $entry->site_name = 'cuccuini';

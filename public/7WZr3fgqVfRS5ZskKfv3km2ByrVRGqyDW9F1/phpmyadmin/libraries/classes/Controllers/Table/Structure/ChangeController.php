@@ -6,16 +6,16 @@ namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
 use function count;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\ColumnsDefinition;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Url;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Table\ColumnsDefinition;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class ChangeController extends AbstractController
 {

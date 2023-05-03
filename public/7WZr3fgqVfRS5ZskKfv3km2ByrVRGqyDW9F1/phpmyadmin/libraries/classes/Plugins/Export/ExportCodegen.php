@@ -8,19 +8,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Export;
 
 use function __;
-use function implode;
-use PhpMyAdmin\Plugins\Export\Helpers\TableProperty;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\SelectPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
 use PhpMyAdmin\Util;
-use function preg_match;
-use function preg_replace;
+use function implode;
 use function sprintf;
 use function ucfirst;
+use function preg_match;
+use function preg_replace;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\Plugins\Export\Helpers\TableProperty;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
+use PhpMyAdmin\Properties\Options\Items\SelectPropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the export for the CodeGen class
@@ -183,7 +183,7 @@ class ExportCodegen extends ExportPlugin
         $str = (string) preg_replace('/[^\p{L}\p{Nl}_]/u', '', $str);
         // make sure first character is a letter or _
         if (! preg_match('/^\pL/u', $str)) {
-            $str = '_'.$str;
+            $str = '_' . $str;
         }
 
         if ($ucfirst) {
@@ -236,12 +236,12 @@ class ExportCodegen extends ExportPlugin
         $lines[] = 'using System.Collections;';
         $lines[] = 'using System.Collections.Generic;';
         $lines[] = 'using System.Text;';
-        $lines[] = 'namespace '.self::cgMakeIdentifier($db_alias);
+        $lines[] = 'namespace ' . self::cgMakeIdentifier($db_alias);
         $lines[] = '{';
         $lines[] = '    #region '
-            .self::cgMakeIdentifier($table_alias);
+            . self::cgMakeIdentifier($table_alias);
         $lines[] = '    public class '
-            .self::cgMakeIdentifier($table_alias);
+            . self::cgMakeIdentifier($table_alias);
         $lines[] = '    {';
         $lines[] = '        #region Member Variables';
         foreach ($tableProperties as $tableProperty) {
@@ -251,7 +251,7 @@ class ExportCodegen extends ExportPlugin
         $lines[] = '        #endregion';
         $lines[] = '        #region Constructors';
         $lines[] = '        public '
-            .self::cgMakeIdentifier($table_alias).'() { }';
+            . self::cgMakeIdentifier($table_alias) . '() { }';
         $temp = [];
         foreach ($tableProperties as $tableProperty) {
             if ($tableProperty->isPK()) {
@@ -262,10 +262,10 @@ class ExportCodegen extends ExportPlugin
         }
 
         $lines[] = '        public '
-            .self::cgMakeIdentifier($table_alias)
-            .'('
-            .implode(', ', $temp)
-            .')';
+            . self::cgMakeIdentifier($table_alias)
+            . '('
+            . implode(', ', $temp)
+            . ')';
         $lines[] = '        {';
         foreach ($tableProperties as $tableProperty) {
             if ($tableProperty->isPK()) {
@@ -281,11 +281,11 @@ class ExportCodegen extends ExportPlugin
         foreach ($tableProperties as $tableProperty) {
             $lines[] = $tableProperty->formatCs(
                 '        public virtual #dotNetPrimitiveType# #ucfirstName#'
-                ."\n"
-                .'        {'."\n"
-                .'            get {return _#name#;}'."\n"
-                .'            set {_#name#=value;}'."\n"
-                .'        }'
+                . "\n"
+                . '        {' . "\n"
+                . '            get {return _#name#;}' . "\n"
+                . '            set {_#name#=value;}' . "\n"
+                . '        }'
             );
         }
 
@@ -320,11 +320,11 @@ class ExportCodegen extends ExportPlugin
         $lines = [];
         $lines[] = '<?xml version="1.0" encoding="utf-8" ?>';
         $lines[] = '<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" '
-            .'namespace="'.self::cgMakeIdentifier($db_alias).'" '
-            .'assembly="'.self::cgMakeIdentifier($db_alias).'">';
+            . 'namespace="' . self::cgMakeIdentifier($db_alias) . '" '
+            . 'assembly="' . self::cgMakeIdentifier($db_alias) . '">';
         $lines[] = '    <class '
-            .'name="'.self::cgMakeIdentifier($table_alias).'" '
-            .'table="'.self::cgMakeIdentifier($table_alias).'">';
+            . 'name="' . self::cgMakeIdentifier($table_alias) . '" '
+            . 'table="' . self::cgMakeIdentifier($table_alias) . '">';
         $result = $dbi->query(
             sprintf(
                 'DESC %s.%s',
@@ -343,20 +343,20 @@ class ExportCodegen extends ExportPlugin
             if ($tableProperty->isPK()) {
                 $lines[] = $tableProperty->formatXml(
                     '        <id name="#ucfirstName#" type="#dotNetObjectType#"'
-                    .' unsaved-value="0">'."\n"
-                    .'            <column name="#name#" sql-type="#type#"'
-                    .' not-null="#notNull#" unique="#unique#"'
-                    .' index="PRIMARY"/>'."\n"
-                    .'            <generator class="native" />'."\n"
-                    .'        </id>'
+                    . ' unsaved-value="0">' . "\n"
+                    . '            <column name="#name#" sql-type="#type#"'
+                    . ' not-null="#notNull#" unique="#unique#"'
+                    . ' index="PRIMARY"/>' . "\n"
+                    . '            <generator class="native" />' . "\n"
+                    . '        </id>'
                 );
             } else {
                 $lines[] = $tableProperty->formatXml(
                     '        <property name="#ucfirstName#"'
-                    .' type="#dotNetObjectType#">'."\n"
-                    .'            <column name="#name#" sql-type="#type#"'
-                    .' not-null="#notNull#" #indexName#/>'."\n"
-                    .'        </property>'
+                    . ' type="#dotNetObjectType#">' . "\n"
+                    . '            <column name="#name#" sql-type="#type#"'
+                    . ' not-null="#notNull#" #indexName#/>' . "\n"
+                    . '        </property>'
                 );
             }
         }

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\InfluencerKeyword;
+use DB;
 use App\Influencers;
 use App\InfluencersDM;
+use App\InfluencerKeyword;
 use App\InfluencersHistory;
-use DB;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -42,7 +42,6 @@ class InfluencersController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * CReate a new influencer record..
      */
@@ -78,7 +77,6 @@ class InfluencersController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Influencers  $influencers
      * @return \Illuminate\Http\Response
      */
     public function edit(Influencers $influencers)
@@ -89,8 +87,6 @@ class InfluencersController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Influencers  $influencers
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Influencers $influencers)
@@ -101,7 +97,6 @@ class InfluencersController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Influencers  $influencers
      * @return \Illuminate\Http\Response
      */
     public function destroy(Influencers $influencers)
@@ -137,11 +132,11 @@ class InfluencersController extends Controller
     {
         $name = $request->name;
         $extraVars = \App\Helpers::getInstagramVars($name);
-        $name = str_replace(' ', '', $name).$extraVars;
+        $name = str_replace(' ', '', $name) . $extraVars;
 
         $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-image?' . $name;
 
         //echo $url;
         //die();
@@ -180,10 +175,10 @@ class InfluencersController extends Controller
 
             // get keyword name
             $extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(' ', '', $name).$extraVars;
+            $name = str_replace(' ', '', $name) . $extraVars;
 
             $cURLConnection = curl_init();
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status';
+            $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-status';
             $data = json_encode(['name' => $name]);
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
@@ -212,7 +207,7 @@ class InfluencersController extends Controller
             $history = [
                 'influencers_name' => $request->name,
                 'title' => 'Check status',
-                'description' => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+                'description' => $th->getMessage() . env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT'),
             ];
             InfluencersHistory::insert($history);
         }
@@ -236,14 +231,14 @@ class InfluencersController extends Controller
 
             if ($request->platform == 'py_facebook') {
                 $extraVars = \App\Helpers::getFacebookVars($request->name);
-                $url = config('constants.py_facebook_script').'/fb-keyword-start'.$extraVars;
+                $url = config('constants.py_facebook_script') . '/fb-keyword-start' . $extraVars;
                 $params = [
                     'brand' => str_replace(' ', '', $request->name),
                     'wait_time' => $request->get('wait_time', 0),
                     'num_requests' => $request->get('no_of_request', 0),
                 ];
             } else {
-                $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-start';
+                $url = env('INFLUENCER_PY_SCRIPT_URL') . ':' . env('INFLUENCER_PY_SCRIPT_PORT') . '/influencer-keyword-start';
                 $params = [
                     'name' => str_replace(' ', '', $request->name),
                     'wait_time' => $request->get('wait_time', 0),
@@ -269,7 +264,7 @@ class InfluencersController extends Controller
 
             $phoneList = curl_exec($cURLConnection);
 
-            \Log::info('Influencers start scraper : '.$url.' with params : '.json_encode($params).' and response return '.(string) $phoneList);
+            \Log::info('Influencers start scraper : ' . $url . ' with params : ' . json_encode($params) . ' and response return ' . (string) $phoneList);
 
             curl_close($cURLConnection);
 
@@ -289,7 +284,7 @@ class InfluencersController extends Controller
             $history = [
                 'influencers_name' => $request->name,
                 'title' => 'starting script',
-                'description' => $th->getMessage().env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT'),
+                'description' => $th->getMessage() . env('INFLUENCER_PY_SCRIPT_URL') . ':' . env('INFLUENCER_PY_SCRIPT_PORT'),
             ];
             InfluencersHistory::insert($history);
         }
@@ -300,11 +295,11 @@ class InfluencersController extends Controller
         try {
             $name = $request->name;
             $extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(' ', '', $name).$extraVars;
+            $name = str_replace(' ', '', $name) . $extraVars;
 
             $cURLConnection = curl_init();
 
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+            $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/send-log?' . $name;
             // echo $url;
             // die();
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
@@ -336,7 +331,7 @@ class InfluencersController extends Controller
             $history = [
                 'influencers_name' => $request->name,
                 'title' => 'Getting log file',
-                'description' => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+                'description' => $th->getMessage() . env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT'),
             ];
             InfluencersHistory::insert($history);
         }
@@ -351,9 +346,9 @@ class InfluencersController extends Controller
 
             $cURLConnection = curl_init();
 
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart';
+            $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/restart';
             $data = json_encode(['name' => $name]);
-            \Log::info('INFLUENCER_loginstance -->'.$data);
+            \Log::info('INFLUENCER_loginstance -->' . $data);
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURLConnection, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -381,7 +376,7 @@ class InfluencersController extends Controller
             $history = [
                 'influencers_name' => $request->name,
                 'title' => 'Restart script',
-                'description' => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+                'description' => $th->getMessage() . env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT'),
             ];
             InfluencersHistory::insert($history);
         }
@@ -392,17 +387,17 @@ class InfluencersController extends Controller
         try {
             $name = $request->name;
             $extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(' ', '', $name).$extraVars;
+            $name = str_replace(' ', '', $name) . $extraVars;
 
             $cURLConnection = curl_init();
             if ($request->platform == 'py_facebook') {
                 $extraVars = \App\Helpers::getInstagramVars($name);
-                $url = config('constants.py_facebook_script').'/fb-keyword-stop'.$extraVars;
+                $url = config('constants.py_facebook_script') . '/fb-keyword-stop' . $extraVars;
                 $params = [
                     'brand' => str_replace(' ', '', $request->name),
                 ];
             } else {
-                $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-stop';
+                $url = env('INFLUENCER_PY_SCRIPT_URL') . ':' . env('INFLUENCER_PY_SCRIPT_PORT') . '/influencer-keyword-stop';
                 $params = [
                     'name' => str_replace(' ', '', $request->name),
                 ];
@@ -425,7 +420,7 @@ class InfluencersController extends Controller
 
             $phoneList = curl_exec($cURLConnection);
 
-            \Log::info('Influencers stop scraper : '.$url.' with params : '.json_encode($params).' and response return '.(string) $phoneList);
+            \Log::info('Influencers stop scraper : ' . $url . ' with params : ' . json_encode($params) . ' and response return ' . (string) $phoneList);
 
             curl_close($cURLConnection);
 
@@ -446,7 +441,7 @@ class InfluencersController extends Controller
             $history = [
                 'influencers_name' => $request->name,
                 'title' => 'Stop script',
-                'description' => $th->getMessage().env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT'),
+                'description' => $th->getMessage() . env('INFLUENCER_PY_SCRIPT_URL') . ':' . env('INFLUENCER_PY_SCRIPT_PORT'),
             ];
             InfluencersHistory::insert($history);
         }

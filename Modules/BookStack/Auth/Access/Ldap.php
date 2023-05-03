@@ -37,8 +37,6 @@ class Ldap
     /**
      * Set the version number for the given ldap connection.
      *
-     * @param $ldapConnection
-     * @param $version
      * @return bool
      */
     public function setVersion($ldapConnection, $version)
@@ -52,7 +50,6 @@ class Ldap
      * @param  resource  $ldapConnection
      * @param  string  $baseDn
      * @param  string  $filter
-     * @param  array|null  $attributes
      * @return resource
      */
     public function search($ldapConnection, $baseDn, $filter, array $attributes = null)
@@ -78,7 +75,6 @@ class Ldap
      * @param  resource  $ldapConnection
      * @param  string  $baseDn
      * @param  string  $filter
-     * @param  array|null  $attributes
      * @return resource
      */
     public function searchAndGetEntries($ldapConnection, $baseDn, $filter, array $attributes = null)
@@ -104,8 +100,6 @@ class Ldap
     /**
      * Explode a LDAP dn string into an array of components.
      *
-     * @param  string  $dn
-     * @param  int  $withAttrib
      * @return array
      */
     public function explodeDn(string $dn, int $withAttrib)
@@ -116,9 +110,6 @@ class Ldap
     /**
      * Escape a string for use in an LDAP filter.
      *
-     * @param  string  $value
-     * @param  string  $ignore
-     * @param  int  $flags
      * @return string
      */
     public function escape(string $value, string $ignore = '', int $flags = 0)

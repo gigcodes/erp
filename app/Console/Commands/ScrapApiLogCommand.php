@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapApiLog;
 use App\Scraper;
+use App\ScrapApiLog;
 use Illuminate\Console\Command;
 
 class ScrapApiLogCommand extends Command
@@ -71,11 +71,11 @@ class ScrapApiLogCommand extends Command
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
-            $url = 'http://'.$supplier->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/send-position?website='.$name;
+            $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
 

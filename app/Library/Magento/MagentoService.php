@@ -2,23 +2,23 @@
 
 namespace App\Library\Magento;
 
-use App\Category;
-use App\CharityCountry;
-use App\GoogleTranslate;
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use App\LogRequest;
 use App\Product;
-use App\Product_translation;
-use App\ProductPushErrorLog;
-use App\ProductPushJourney;
-use App\ProductReference;
-use App\PushToMagentoCondition;
-use App\StoreWebsite;
-use App\StoreWebsiteAttributes;
-use App\StoreWebsiteSalesPrice;
+use App\Category;
 use App\Supplier;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\StoreWebsite;
+use App\CharityCountry;
+use App\GoogleTranslate;
+use App\ProductReference;
+use App\ProductPushJourney;
+use App\Product_translation;
+use App\ProductPushErrorLog;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\PushToMagentoCondition;
+use App\StoreWebsiteAttributes;
+use App\StoreWebsiteSalesPrice;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -137,7 +137,7 @@ class MagentoService
                 return false;
             }
         } else {
-            ProductPushErrorLog::log('', $this->product->id, $this->topParent.' cond  check_if_website_token_exists', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
+            ProductPushErrorLog::log('', $this->product->id, $this->topParent . ' cond  check_if_website_token_exists', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
         }
 
         // started to check for the category
@@ -182,35 +182,35 @@ class MagentoService
     public function assignOperation()
     {
         //assign all default datas so we can use on calculation
-        \Log::info($this->product->id.' #1 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #1 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_website_ids', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_website_ids', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_ids', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->websiteIds = $this->getWebsiteIds();
         }
 
-        \Log::info($this->product->id.' #2 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #2 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_website_attributes', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_website_attributes', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_attributes', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->websiteAttributes = $this->getWebsiteAttributes();
         }
-        \Log::info($this->product->id.' #3 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #3 => ' . date('Y-m-d H:i:s'));
         // start for translation
         if (($this->topParent == 'NEW' && in_array('google_translation', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('google_translation', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'google_translation', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->startTranslation();
         }
-        \Log::info($this->product->id.' #4 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #4 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('translate_meta', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('translate_meta', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'translate_meta', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->meta = $this->getMeta();
         }
-        \Log::info($this->product->id.' #5 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #5 => ' . date('Y-m-d H:i:s'));
         $this->translations = [];
         if (($this->topParent == 'NEW' && in_array('get_langauages_translation', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_langauages_translation', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_langauages_translation', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->translations = $this->getTranslations();
             if (! $this->translations) {
-                $this->storeLog('translation_not_found', 'No translations found for the product total translation '.count($this->translations), null, null);
+                $this->storeLog('translation_not_found', 'No translations found for the product total translation ' . count($this->translations), null, null);
 
                 return false;
             }
@@ -221,90 +221,90 @@ class MagentoService
                 return false;
             }
 
-            \Log::info($this->product->id.' #6 => '.date('Y-m-d H:i:s'));
+            \Log::info($this->product->id . ' #6 => ' . date('Y-m-d H:i:s'));
 
             $this->totalRequest += count($this->translations);
         }
 
-        \Log::info($this->product->id.' #7 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #7 => ' . date('Y-m-d H:i:s'));
         $this->sizes = $this->getSizes();
-        \Log::info($this->product->id.' #8 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #8 => ' . date('Y-m-d H:i:s'));
         $this->sku = $this->getSku();
-        \Log::info($this->product->id.' #9 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #9 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_description', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_description', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_description', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->description = $this->getDescription();
         }
-        \Log::info($this->product->id.' #10 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #10 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_magento_brand', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_magento_brand', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_magento_brand', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->magentoBrand = $this->getMagentoBrand();
-            $this->storeLog('success', 'brand found'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_magento_brand']]);
+            $this->storeLog('success', 'brand found' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_magento_brand']]);
         }
-        \Log::info($this->product->id.' #11 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #11 => ' . date('Y-m-d H:i:s'));
         $this->images = $this->getImages();
-        \Log::info($this->product->id.' #12 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #12 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_website_size', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_website_size', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_size', 'product_id' => $this->product->id,  'is_checked' => 1]);
             $this->storeWebsiteSize = $this->storeWebsiteSize();
-            $this->storeLog('success', 'get store website size'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_size']]);
+            $this->storeLog('success', 'get store website size' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_size']]);
             if (($this->topParent == 'NEW' && in_array('validate_store_website_size', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('validate_store_website_size', $this->upteamconditions))) {
-                $this->storeLog('success', 'validate store website size'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_store_website_size']]);
+                $this->storeLog('success', 'validate store website size' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_store_website_size']]);
 
                 if (! $this->validateStoreWebsiteSize()) {
                     return false;
                 }
             }
         }
-        \Log::info($this->product->id.' #13 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #13 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_website_color', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_website_color', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_color', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'fetch colors for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
+            $this->storeLog('success', 'fetch colors for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
             $this->storeWebsiteColor = $this->storeWebsiteColor();
         }
-        \Log::info($this->product->id.' #14 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #14 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_measurements', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_measurements', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_measurements', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'fetch measurements for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
+            $this->storeLog('success', 'fetch measurements for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
             $this->measurement = $this->getMeasurements();
         }
-        \Log::info($this->product->id.' #15 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #15 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_estimate_minimum_days', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_estimate_minimum_days', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_estimate_minimum_days', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'estimate minimum for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
+            $this->storeLog('success', 'estimate minimum for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
             $this->estMinimumDays = $this->getEstimateMinimumDays();
         }
-        \Log::info($this->product->id.' #16 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #16 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_size_chart', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_size_chart', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_size_chart', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'get size chart for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
+            $this->storeLog('success', 'get size chart for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
             $this->sizeChart = $this->getSizeChart();
         }
-        \Log::info($this->product->id.' #17 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #17 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_color', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_color', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_color', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'fetch store color'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
+            $this->storeLog('success', 'fetch store color' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
             $this->storeColor = $this->getStoreColor();
         }
-        \Log::info($this->product->id.' #18 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #18 => ' . date('Y-m-d H:i:s'));
 
         // get normal and special prices
 
         if (($this->topParent == 'NEW' && in_array('get_price', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_price', $this->upteamconditions))) {
             ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_price', 'product_id' => $this->product->id,  'is_checked' => 1]);
-            $this->storeLog('success', 'fetch pricing '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
+            $this->storeLog('success', 'fetch pricing ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
             $this->getPricing();
-            $this->storeLog('success', 'fetched pricing '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
+            $this->storeLog('success', 'fetched pricing ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
         }
 
-        \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #19 => ' . date('Y-m-d H:i:s'));
 
         if ($this->mode == 'conditions-check') {
             \Log::info('conditions-check');
@@ -314,7 +314,7 @@ class MagentoService
 
             return true;
         } elseif ($this->mode == 'product-push') {
-            \Log::info('Mode is '.$this->mode);
+            \Log::info('Mode is ' . $this->mode);
 
             return $this->assignProductOperation();
         } else {
@@ -444,7 +444,7 @@ class MagentoService
 
     private function getImages()
     {
-        return $this->product->getImages('gallery_'.$this->storeWebsite->cropper_color);
+        return $this->product->getImages('gallery_' . $this->storeWebsite->cropper_color);
     }
 
     private function getMagentoBrand()
@@ -461,14 +461,14 @@ class MagentoService
         if ($storeWebsiteAttributes) {
             $description = $storeWebsiteAttributes->description;
         }
-        $this->storeLog('success', 'description found'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_description']]);
+        $this->storeLog('success', 'description found' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_description']]);
 
         return $description;
     }
 
     private function getSku()
     {
-        $sku = $this->product->sku.self::SKU_SEPERATOR.$this->product->color;
+        $sku = $this->product->sku . self::SKU_SEPERATOR . $this->product->color;
         $sku = rtrim($sku, self::SKU_SEPERATOR);
 
         return $sku;
@@ -485,29 +485,29 @@ class MagentoService
 
         // start operation for simple or configurable
         $mainCategory = $this->category;
-        Log::info('Main category:'.json_encode($mainCategory));
+        Log::info('Main category:' . json_encode($mainCategory));
 
         $pushSingle = false;
         ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'check_category_pushtype', 'product_id' => $this->product->id,  'is_checked' => 1]);
 
         if ($mainCategory->push_type == 0 && ! is_null($mainCategory->push_type)) {
             \Log::info('Product push type single via category');
-            \Log::info($this->product->id.' #20 => '.date('Y-m-d H:i:s'));
+            \Log::info($this->product->id . ' #20 => ' . date('Y-m-d H:i:s'));
             $pushSingle = true;
         } elseif ($mainCategory->push_type == 1) {
             \Log::info('Product push type configurable via category');
-            \Log::info($this->product->id.' #20 => '.date('Y-m-d H:i:s'));
+            \Log::info($this->product->id . ' #20 => ' . date('Y-m-d H:i:s'));
             $pushSingle = false;
         } else {
             \Log::info('Product push type else condition via category');
             if (! empty($this->sizes) && count($this->sizes) > 1) {
-                \Log::info($this->product->id.' #20 => '.date('Y-m-d H:i:s'));
+                \Log::info($this->product->id . ' #20 => ' . date('Y-m-d H:i:s'));
                 $pushSingle = false;
             } else {
                 if ($this->product->size_eu == 'OS') {
                     $product->size_eu = null;
                 }
-                \Log::info($this->product->id.' #20 => '.date('Y-m-d H:i:s'));
+                \Log::info($this->product->id . ' #20 => ' . date('Y-m-d H:i:s'));
                 $pushSingle = true;
             }
         }
@@ -571,7 +571,7 @@ class MagentoService
             }
         }
 
-        \Log::info($this->product->id.' #21 => '.date('Y-m-d H:i:s'));
+        \Log::info($this->product->id . ' #21 => ' . date('Y-m-d H:i:s'));
     }
 
     private function defaultData($data)
@@ -583,7 +583,7 @@ class MagentoService
                 $brandName = $this->product->brands->name;
                 similar_text($this->product->name, $brandName, $brandProductMatch);
                 if ($brandProductMatch < 70) {
-                    $this->product->name = $brandName.' '.$this->product->name;
+                    $this->product->name = $brandName . ' ' . $this->product->name;
                     $productNamelength = strlen($this->product->name);
                 }
             }
@@ -592,7 +592,7 @@ class MagentoService
                 if ($productNamelength < 50) {
                     similar_text($this->product->name, $catName, $categoryProductMatch);
                     if ($categoryProductMatch < 70) {
-                        $this->product->name = $catName.' '.$this->product->name;
+                        $this->product->name = $catName . ' ' . $this->product->name;
                     }
                 }
             }
@@ -631,7 +631,7 @@ class MagentoService
 
     private function _pushProduct($productType, $sku, $data = [], $size = null)
     {
-        $assku = $sku.(! empty($size) ? '-'.$size : '');
+        $assku = $sku . (! empty($size) ? '-' . $size : '');
         $product = $this->product;
 
         $this->productType = $productType;
@@ -643,7 +643,7 @@ class MagentoService
         $data['product']['sku'] = $assku;
         $data['product']['custom_attributes'][8] = [
             'attribute_code' => 'url_key',
-            'value' => self::createURL($product->name.'-'.$assku),
+            'value' => self::createURL($product->name . '-' . $assku),
         ];
 
         $data['product']['media_gallery_entries'] = [];
@@ -714,7 +714,7 @@ class MagentoService
             ];
         }
 
-        $functionResponse = $this->sendRequest($this->storeWebsite->magento_url.'/rest/V1/products/', $this->token, $data);
+        $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . '/rest/V1/products/', $this->token, $data);
 
         $res = json_decode($functionResponse['res']);
         $returnres = $res;
@@ -738,7 +738,7 @@ class MagentoService
 
                 if (! empty($this->prices['samePrice'])) {
                     foreach ($this->prices['samePrice'] as $kp => $sp) {
-                        $url = $this->storeWebsite->magento_url.'/rest/V1/multistore/productprice/'.$data['product']['sku'];
+                        $url = $this->storeWebsite->magento_url . '/rest/V1/multistore/productprice/' . $data['product']['sku'];
                         $resData = [
                             'countrycode' => implode(',', $sp),
                             'prices' => ['base_price' => number_format($kp, 2, '.', ',')],
@@ -750,7 +750,7 @@ class MagentoService
 
                 if (! empty($this->prices['specialPrice'])) {
                     foreach ($this->prices['specialPrice'] as $kp => $sp) {
-                        $url = $this->storeWebsite->magento_url.'/rest/V1/multistore/productprice/'.$data['product']['sku'];
+                        $url = $this->storeWebsite->magento_url . '/rest/V1/multistore/productprice/' . $data['product']['sku'];
                         $resData = [
                             'countrycode' => implode(',', $sp),
                             'prices' => ['base_price' => number_format($kp, 2, '.', ',')],
@@ -794,7 +794,7 @@ class MagentoService
 
                         $extrarequest['storecode'] = $translation['store_codes'];
 
-                        $url = $this->storeWebsite->magento_url.'/rest/V1/multistore/storeproducts/'.$data['product']['sku'];
+                        $url = $this->storeWebsite->magento_url . '/rest/V1/multistore/storeproducts/' . $data['product']['sku'];
 
                         $functionResponse = $this->sendRequest($url, $this->token, $extrarequest, 'PUT');
 
@@ -822,15 +822,15 @@ class MagentoService
         $data = ['childSku' => $childSku];
         $data = json_encode($data);
         if (empty($storeView)) {
-            $url = $website->magento_url.'/rest/V1/configurable-products/'.$sku.'/child';
+            $url = $website->magento_url . '/rest/V1/configurable-products/' . $sku . '/child';
         } else {
-            $url = $website->magento_url.'/rest/'.$storeView.'/V1/configurable-products/'.$sku.'/child';
+            $url = $website->magento_url . '/rest/' . $storeView . '/V1/configurable-products/' . $sku . '/child';
         }
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer '.$token]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $token]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result = curl_exec($ch);
         $err = curl_error($ch);
@@ -868,9 +868,9 @@ class MagentoService
         $data = json_encode($request);
 
         if ($store) {
-            $url = $this->storeWebsite->magento_url.'/rest/'.trim($store).'/V1/configurable-products/'.$res->sku.'/options';
+            $url = $this->storeWebsite->magento_url . '/rest/' . trim($store) . '/V1/configurable-products/' . $res->sku . '/options';
         } else {
-            $url = $this->storeWebsite->magento_url.'/rest/V1/configurable-products/'.$res->sku.'/options';
+            $url = $this->storeWebsite->magento_url . '/rest/V1/configurable-products/' . $res->sku . '/options';
         }
 
         $result = false;
@@ -879,7 +879,7 @@ class MagentoService
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer '.$this->token]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $this->token]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             $result = curl_exec($ch);
 
@@ -890,17 +890,17 @@ class MagentoService
             \Log::info(print_r([$url, $token, $data, $result], true));
             if ($httpcode != 200) {
                 if ($this->log) {
-                    $this->log->message = 'Product push to magento failed for product ID '.$product->id.' messaage : '.$result;
+                    $this->log->message = 'Product push to magento failed for product ID ' . $product->id . ' messaage : ' . $result;
                     $this->log->sync_status = 'error';
                     $this->log->save();
                 } else {
-                    $this->log = LogListMagento::log($product->id, 'Product push to magento failed for product ID '.$product->id.' messaage : '.$result, 'emergency', $website->id, 'error');
+                    $this->log = LogListMagento::log($product->id, 'Product push to magento failed for product ID ' . $product->id . ' messaage : ' . $result, 'emergency', $website->id, 'error');
                 }
-                ProductPushErrorLog::log($url, $product->id, 'Product push to magento failed for product ID '.$product->id.' messaage : '.$result, 'error', $website->id, $data, $err, $this->log->id);
+                ProductPushErrorLog::log($url, $product->id, 'Product push to magento failed for product ID ' . $product->id . ' messaage : ' . $result, 'error', $website->id, $data, $err, $this->log->id);
             }
         } catch (\SoapFault $e) {
             \Log::error($e);
-            Log::channel('listMagento')->alert('option for product '.$product->id.' with failed while pushing to Magento with message: '.$e->getMessage());
+            Log::channel('listMagento')->alert('option for product ' . $product->id . ' with failed while pushing to Magento with message: ' . $e->getMessage());
         }
 
         return $result;
@@ -914,7 +914,7 @@ class MagentoService
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $type);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer '.$token]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $token]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($productData));
 
         $res = curl_exec($ch);
@@ -933,17 +933,17 @@ class MagentoService
             ProductPushErrorLog::log($url, $this->product->id, $res, 'error', $this->storeWebsite->id, $productData, json_decode($res), $this->log->id);
         } else {
             if ($this->log) {
-                $this->log->message = 'Product ('.$this->productType.') with SKU '.$this->sku.' successfully pushed to Magento';
+                $this->log->message = 'Product (' . $this->productType . ') with SKU ' . $this->sku . ' successfully pushed to Magento';
                 if (! empty($this->sizeChart)) {
                     $this->log->size_chart_url = $this->sizeChart;
                 }
                 $this->log->sync_status = 'success';
                 $this->log->save();
             } else {
-                $this->log = LogListMagento::log($this->product->id, 'Product ('.$this->productType.') with SKU '.$this->sku.' successfully pushed to Magento', 'info', $this->storeWebsite->id, 'success');
+                $this->log = LogListMagento::log($this->product->id, 'Product (' . $this->productType . ') with SKU ' . $this->sku . ' successfully pushed to Magento', 'info', $this->storeWebsite->id, 'success');
             }
             unset($productData['product']['media_gallery_entries']);
-            ProductPushErrorLog::log($url, $this->product->id, 'Product ('.$this->productType.') with SKU '.$this->sku.' successfully pushed to Magento', 'success', $this->storeWebsite->id, $productData, $res, $this->log->id);
+            ProductPushErrorLog::log($url, $this->product->id, 'Product (' . $this->productType . ') with SKU ' . $this->sku . ' successfully pushed to Magento', 'success', $this->storeWebsite->id, $productData, $res, $this->log->id);
         }
 
         return ['res' => $res, 'httpcode' => $httpcode];
@@ -1060,7 +1060,7 @@ class MagentoService
         $website = $this->storeWebsite;
 
         $meta = [];
-        $meta['description'] = 'Shop '.$brand->name.' '.$product->color.' .. '.$product->composition.' ... '.$category->title.' Largest collection of luxury products in the world from '.ucwords($website->title).' at special prices';
+        $meta['description'] = 'Shop ' . $brand->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $category->title . ' Largest collection of luxury products in the world from ' . ucwords($website->title) . ' at special prices';
 
         $categories = $this->categories;
         $catLinks = [];
@@ -1077,9 +1077,9 @@ class MagentoService
         $metakeywords = implode(',', $metakeywordarr);
 
         $seoFormat = \App\StoreWebsiteSeoFormat::where('store_website_id', $this->storeWebsite->id)->first();
-        $seoTitle = $product->name.' | '.$brand->name;
+        $seoTitle = $product->name . ' | ' . $brand->name;
         $seoDescription = $this->description;
-        $seoKeywords = ($metakeywords != '') ? $metakeywords.','.$this->storeWebsite->title : $this->storeWebsite->title;
+        $seoKeywords = ($metakeywords != '') ? $metakeywords . ',' . $this->storeWebsite->title : $this->storeWebsite->title;
         if ($seoFormat) {
             //$metaTitle = $seoFormat->meta_title;
             @eval("\$dbseoTitle = \"$seoFormat->meta_title\";");
@@ -1272,7 +1272,7 @@ class MagentoService
 
         //echo "<pre>"; print_r($translations);  echo "</pre>";die;
 
-        \Log::info('Translation found =>'.json_encode($translations));
+        \Log::info('Translation found =>' . json_encode($translations));
 
         $tdata = [];
         if (! $translations->isEmpty()) {
@@ -1330,7 +1330,7 @@ class MagentoService
 
     private function getWebsiteAttributes()
     {
-        $this->storeLog('success', 'get_website_attributes'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_attributes']]);
+        $this->storeLog('success', 'get_website_attributes' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_attributes']]);
 
         return StoreWebsiteAttributes::where('store_website_id', $this->storeWebsite->id)->pluck('attribute_val', 'attribute_key')->toArray();
     }
@@ -1344,13 +1344,13 @@ class MagentoService
         } else {
             return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
         }
-        $this->storeLog('success', 'get_website_ids'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_ids']]);
+        $this->storeLog('success', 'get_website_ids' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_ids']]);
     }
 
     private function validateTranslation()
     {
         if (count($this->activeLanguages) != count($this->translations)) {
-            $this->storeLog('translation_not_found', 'No translations found for the product total translation '.count($this->activeLanguages).' and total found '.count($this->translations), null, null, [
+            $this->storeLog('translation_not_found', 'No translations found for the product total translation ' . count($this->activeLanguages) . ' and total found ' . count($this->translations), null, null, [
                 'languages' => json_encode($this->aclanguagecode),
             ]);
 
@@ -1365,13 +1365,13 @@ class MagentoService
         $category = $this->product->categories;
 
         if (empty($category)) {
-            $this->storeLog('error', 'Product has no category found'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
+            $this->storeLog('error', 'Product has no category found' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
 
             $this->storeLog('error', 'Product has no category found');
         }
 
         $this->category = $category;
-        $this->storeLog('condition_true', 'Product category found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
+        $this->storeLog('condition_true', 'Product category found ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
 
         return true;
     }
@@ -1413,14 +1413,14 @@ class MagentoService
         $brand = $this->product->brands;
 
         if (empty($brand->name)) {
-            $this->storeLog('error', 'Product has no brand found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
+            $this->storeLog('error', 'Product has no brand found ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
 
             //$this->storeLog("error", "Product has no brand found");
             return false;
         }
 
         $this->brand = $brand;
-        $this->storeLog('condition_true', 'Product brand found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
+        $this->storeLog('condition_true', 'Product brand found ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
 
         return true;
     }
@@ -1438,7 +1438,7 @@ class MagentoService
         $reference->sku = $product->sku;
         $reference->color = $product->color;
         $reference->save();
-        $this->storeLog('condition_true', 'Product references assigned'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['assign_product_references']]);
+        $this->storeLog('condition_true', 'Product references assigned' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['assign_product_references']]);
     }
 
     private function validateReadiness()
@@ -1492,12 +1492,12 @@ class MagentoService
     {
         $token = $this->hasToken();
         if (empty($token)) {
-            $this->storeLog('error', 'Not able to generate token for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
+            $this->storeLog('error', 'Not able to generate token for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
 
             return false;
         } else {
             $this->token = $token;
-            $this->storeLog('condition_true', 'Token generated  for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
+            $this->storeLog('condition_true', 'Token generated  for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
 
             return $token;
         }
@@ -1625,7 +1625,7 @@ class MagentoService
                 $discount = ($this->prices / 100) * $discount;
             }
 
-            $assku = $this->sku.(! empty($this->size) ? '-'.$this->size : '');
+            $assku = $this->sku . (! empty($this->size) ? '-' . $this->size : '');
 
             $data['prices']['sku'] = $assku;
             $data['prices']['price'] = $discount;
@@ -1633,18 +1633,18 @@ class MagentoService
             $data['prices']['price_to'] = $end_date;
             $data['prices']['store_id'] = 0;
 
-            $functionResponse = $this->sendRequest($this->storeWebsite->magento_url.'/rest/V1/products/special-price/', $this->token, $data);
+            $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . '/rest/V1/products/special-price/', $this->token, $data);
             $httpcode = $functionResponse['httpcode'];
 
             if ($httpcode != 200) {
                 if ($this->log) {
-                    $this->log->message = 'Product Discount push to magento failed for product ID '.$product->id;
+                    $this->log->message = 'Product Discount push to magento failed for product ID ' . $product->id;
                     $this->log->sync_status = 'error';
                     $this->log->save();
                 }
             } else {
                 if ($this->log) {
-                    $this->log->message = 'Product Discount push to magento Done for product ID '.$product->id;
+                    $this->log->message = 'Product Discount push to magento Done for product ID ' . $product->id;
                     $this->log->sync_status = 'message';
                     $this->log->save();
                 }

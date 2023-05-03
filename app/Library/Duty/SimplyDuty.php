@@ -52,7 +52,7 @@ class SimplyDuty
         $curl->post($this->urls['calculate_multiple'], $params);
 
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -104,7 +104,7 @@ class SimplyDuty
         $curl->post($this->urls['calculate'], $params);
 
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);

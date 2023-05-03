@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_intersect;
-use function array_map;
-use function explode;
-use function fclose;
 use function feof;
 use function fgets;
 use function fopen;
-use function function_exists;
-use function fwrite;
 use function iconv;
-use function mb_convert_encoding;
-use function mb_convert_kana;
-use function mb_detect_encoding;
-use function mb_list_encodings;
-use function recode_string;
-use function tempnam;
+use function fclose;
+use function fwrite;
 use function unlink;
+use function explode;
+use function tempnam;
+use function array_map;
+use function recode_string;
+use function array_intersect;
+use function function_exists;
+use function mb_convert_kana;
+use function mb_list_encodings;
+use function mb_detect_encoding;
+use function mb_convert_encoding;
 
 /**
  * Encoding conversion helper class
@@ -186,10 +186,10 @@ class Encoding
 
         switch (self::$engine) {
             case self::ENGINE_RECODE:
-                return recode_string($src_charset.'..'.$dest_charset, $what);
+                return recode_string($src_charset . '..' . $dest_charset, $what);
 
             case self::ENGINE_ICONV:
-                return iconv($src_charset, $dest_charset.($GLOBALS['cfg']['IconvExtraParams'] ?? ''), $what);
+                return iconv($src_charset, $dest_charset . ($GLOBALS['cfg']['IconvExtraParams'] ?? ''), $what);
 
             case self::ENGINE_MB:
                 return mb_convert_encoding($what, $dest_charset, $src_charset);
@@ -329,8 +329,6 @@ class Encoding
 
     /**
      * Lists available encodings.
-     *
-     * @return array
      */
     public static function listEncodings(): array
     {

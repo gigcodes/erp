@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Jobs\PushToMagento;
 use App\Product;
 use Carbon\Carbon;
+use App\Jobs\PushToMagento;
 use Illuminate\Console\Command;
 
 class ManualQueueForMagento extends Command
@@ -54,7 +54,7 @@ class ManualQueueForMagento extends Command
             // Loop over products
             foreach ($products as $product) {
                 // Output product ID
-                echo $product->id."\n";
+                echo $product->id . "\n";
 
                 // Queue for AI
                 PushToMagento::dispatch($product)->onQueue('magento');

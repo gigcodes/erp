@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_merge;
+use function sort;
+use function usort;
+use function strlen;
 use function is_array;
 use function is_string;
 use function preg_match;
-use function sort;
-use function strlen;
-use function usort;
+use function array_merge;
 
 /**
  * handles database lists
@@ -45,7 +45,7 @@ class ListDatabase extends ListAbstract
         }
 
         foreach ($this->getArrayCopy() as $key => $db) {
-            if (! preg_match('/'.$GLOBALS['cfg']['Server']['hide_db'].'/', $db)) {
+            if (! preg_match('/' . $GLOBALS['cfg']['Server']['hide_db'] . '/', $db)) {
                 continue;
             }
 
@@ -68,13 +68,13 @@ class ListDatabase extends ListAbstract
         if (! $GLOBALS['cfg']['Server']['DisableIS']) {
             $command .= 'SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`';
             if ($like_db_name !== null) {
-                $command .= " WHERE `SCHEMA_NAME` LIKE '".$like_db_name."'";
+                $command .= " WHERE `SCHEMA_NAME` LIKE '" . $like_db_name . "'";
             }
         } else {
             if ($GLOBALS['dbs_to_test'] === false || $like_db_name !== null) {
                 $command .= 'SHOW DATABASES';
                 if ($like_db_name !== null) {
-                    $command .= " LIKE '".$like_db_name."'";
+                    $command .= " LIKE '" . $like_db_name . "'";
                 }
             } else {
                 foreach ($GLOBALS['dbs_to_test'] as $db) {

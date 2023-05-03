@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
+use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use App\DatabaseTableHistoricalRecord;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
 
 class AddDatabaseTableHistoricalData extends Command
 {
@@ -52,7 +52,7 @@ class AddDatabaseTableHistoricalData extends Command
             ]);
 
             // get the historical data and store into the new table
-            $db = \DB::select('SELECT TABLE_NAME as "db_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="'.env('DB_DATABASE', 'solo').'" GROUP  BY TABLE_NAME'
+            $db = \DB::select('SELECT TABLE_NAME as "db_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="' . env('DB_DATABASE', 'solo') . '" GROUP  BY TABLE_NAME'
             );
 
             $lastDb = DatabaseHistoricalRecord::where('database_name', env('DB_DATABASE', 'solo'))->latest()->first();

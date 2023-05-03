@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Http\Controllers\Controller;
-use App\Setting;
-use App\Social\SocialAdset;
-use App\Social\SocialConfig;
-use App\Social\SocialPostLog;
 use Auth;
 use Crypt;
-use Facebook\Facebook;
-use Illuminate\Http\Request;
-use Response;
 use Session;
+use Response;
+use App\Setting;
+use Facebook\Facebook;
+use App\Social\SocialAdset;
+use App\Social\SocialConfig;
+use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
+use App\Social\SocialPostLog;
+use App\Http\Controllers\Controller;
 
 class SocialAdsetController extends Controller
 {
@@ -49,34 +49,28 @@ class SocialAdsetController extends Controller
             $adsets = SocialAdset::latest();
         }
 
-        if(!empty($request->date))
-        {
-            $adsets->where('created_at', 'LIKE', '%'.$request->date.'%');
+        if (! empty($request->date)) {
+            $adsets->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if(!empty($request->config_name))
-        {
+        if (! empty($request->config_name)) {
             $adsets->whereIn('config_id', $request->config_name);
         }
 
-        if(!empty($request->campaign_name))
-        {
+        if (! empty($request->campaign_name)) {
             $adsets->whereIn('campaign_id', $request->campaign_name);
         }
 
-        if(!empty($request->event))
-        {
+        if (! empty($request->event)) {
             $adsets->whereIn('billing_event', $request->event);
         }
 
-        if(!empty($request->name))
-        {
-            $adsets->where('name', 'LIKE', '%'.$request->name.'%');
+        if (! empty($request->name)) {
+            $adsets->where('name', 'LIKE', '%' . $request->name . '%');
         }
 
-        if(!empty($request->status))
-        {
-            $adsets->where('status', 'LIKE', '%'.$request->status.'%');
+        if (! empty($request->status)) {
+            $adsets->where('status', 'LIKE', '%' . $request->status . '%');
         }
 
         $adsets = $adsets->paginate(Setting::get('pagination'));
@@ -85,12 +79,12 @@ class SocialAdsetController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.adsets.data', compact('campaingns', 'adsets', 'configs','adsets_data'))->render(),
+                'tbody' => view('social.adsets.data', compact('campaingns', 'adsets', 'configs', 'adsets_data'))->render(),
                 'links' => (string) $adsets->render(),
             ], 200);
         }
 
-        return view('social.adsets.index', compact('campaingns','adsets', 'configs','adsets_data'));
+        return view('social.adsets.index', compact('campaingns', 'adsets', 'configs', 'adsets_data'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -123,7 +117,6 @@ class SocialAdsetController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -172,7 +165,6 @@ class SocialAdsetController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    
                     $data['access_token'] = $this->user_access_token;
                     $data['name'] = $request->input('name');
                     //	$data['destination_type']=$request->input('destination_type');
@@ -191,9 +183,9 @@ class SocialAdsetController extends Controller
                     $data['bid_amount'] = $request->input('bid_amount');
                     $data['daily_budget'] = $request->input('daily_budget');
                     $data['status'] = $request->input('status');
-                    $data['promoted_object'] = json_encode(['page_id' => $page_id ]);
-                    
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adsets';
+                    $data['promoted_object'] = json_encode(['page_id' => $page_id]);
+
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/adsets';
                     //$url = 'https://graph.facebook.com/v15.0/act_723851186073937/adsets';
 
                     // Call to Graph api here
@@ -254,7 +246,7 @@ class SocialAdsetController extends Controller
                     //    $data["bid_amount"]=1000;
                     //$data["daily_budget"]=10000;
 
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adsets';
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/adsets';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -346,7 +338,6 @@ class SocialAdsetController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\SocialAdset  $SocialAdset
      * @return \Illuminate\Http\Response
      */
@@ -385,9 +376,9 @@ class SocialAdsetController extends Controller
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -398,7 +389,7 @@ class SocialAdsetController extends Controller
                     }
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
             }
         }
     }
@@ -413,14 +404,14 @@ class SocialAdsetController extends Controller
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             // $response = $fb->get('/me/adaccounts', $token); Old
-            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token); //New using graph API
             $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -429,7 +420,7 @@ class SocialAdsetController extends Controller
                     return $key['id'];
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->' . $e->getMessage());
             }
         }
     }

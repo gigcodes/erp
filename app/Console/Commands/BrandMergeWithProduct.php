@@ -46,7 +46,7 @@ class BrandMergeWithProduct extends Command
             $similarWord = [];
 
             $unlinkId = [];
-            echo $brandKeyword." Started \n";
+            echo $brandKeyword . " Started \n";
             foreach ($brands as $keyId => $word) {
                 if ($brandId == $keyId) {
                     continue;
@@ -79,13 +79,13 @@ class BrandMergeWithProduct extends Command
 
                             continue;
                         }
-                        $reference = $ref->references.','.$reference;
+                        $reference = $ref->references . ',' . $reference;
                     } else {
-                        $reference = ','.$reference;
+                        $reference = ',' . $reference;
                     }
 
                     if (! empty($brandId)) {
-                        \Log::channel('productUpdates')->info("{$brandId} updated with ".$reference);
+                        \Log::channel('productUpdates')->info("{$brandId} updated with " . $reference);
 
                         $success = Brand::where('id', $brandId)->update(['references' => $reference]);
 
@@ -96,7 +96,7 @@ class BrandMergeWithProduct extends Command
                                 $p->brand = $brandId;
                                 $p->last_brand = $lastBrand;
                                 $p->save();
-                                \Log::channel('productUpdates')->info("{$brandId} updated with product".$p->sku);
+                                \Log::channel('productUpdates')->info("{$brandId} updated with product" . $p->sku);
                             }
                         }
                     }

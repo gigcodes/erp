@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function is_array;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
+use function is_array;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 
 final class ExportRowsController extends AbstractController
 {

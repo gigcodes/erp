@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\DailyActivity;
 use App\Task;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\DailyActivity;
 use Illuminate\Console\Command;
 
 class MovePlannedTasks extends Command

@@ -2,14 +2,17 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MemoryUsage extends Model
 {
+    use HasFactory;
     protected $table = 'memory_usage';
 
-    protected static function boot()
+    public static function boot()
     {
+        parent::boot();
         self::creating(function (MemoryUsage $memory) {
             $thresold_limit_for_memory_uses = Setting::where('name', 'thresold_limit_for_memory_uses')->first();
 
@@ -20,7 +23,7 @@ class MemoryUsage extends Model
             if (($updatedData['used'] / $updatedData['total']) * 100 > $thresold_limit_for_memory_uses->val) {
                 foreach ($allUsers as $user) {
                     if ($user->isAdmin() && $user->phone && $user->whatsapp_number) {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Uses of memory is increse from give limit of '.$thresold_limit_for_memory_uses->val);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Uses of memory is increse from give limit of ' . $thresold_limit_for_memory_uses->val);
                     }
                 }
             }

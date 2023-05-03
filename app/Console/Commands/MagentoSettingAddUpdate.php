@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\MagentoSetting;
-use App\MagentoSettingUpdateResponseLog;
 use App\StoreWebsite;
+use App\MagentoSetting;
 use Illuminate\Console\Command;
+use App\MagentoSettingUpdateResponseLog;
 
 class MagentoSettingAddUpdate extends Command
 {
@@ -46,7 +46,7 @@ class MagentoSettingAddUpdate extends Command
                 if ($website->api_token != '' && $website->server_ip != '') {
                     $curl = curl_init();
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $website->magento_url.'/rest/V1/core/config/',
+                        CURLOPT_URL => $website->magento_url . '/rest/V1/core/config/',
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -54,7 +54,7 @@ class MagentoSettingAddUpdate extends Command
                         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                         CURLOPT_CUSTOMREQUEST => 'GET',
                         CURLOPT_HTTPHEADER => [
-                            'authorization:Bearer '.$website->api_token,
+                            'authorization:Bearer ' . $website->api_token,
                         ],
                     ]);
                     $response = curl_exec($curl);
@@ -130,7 +130,7 @@ class MagentoSettingAddUpdate extends Command
                     MagentoSettingUpdateResponseLog::create(
                         [
                             'website_id' => $website->id,
-                            'response' => $token.', ==  '.$server_ip,
+                            'response' => $token . ', ==  ' . $server_ip,
                         ]
                     );
                 }// end if condition if api_tocken not found

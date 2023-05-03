@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\UicheckType;
+use Illuminate\Database\Seeder;
 
 class UicheckTypeSeeder extends Seeder
 {

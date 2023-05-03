@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
 use App\Brand;
-use App\Category;
-use App\HashTag;
-use App\HashtagPostHistory;
 use App\Image;
-use App\ImageSchedule;
-use App\Influencers;
-use App\InfluencersDM;
-use App\InstagramAutomatedMessages;
-use App\Priority;
+use App\Account;
+use App\HashTag;
 use App\Product;
+use App\Category;
+use App\Priority;
+use Carbon\Carbon;
+use App\Influencers;
+use App\ImageSchedule;
+use App\InfluencersDM;
+use App\ScheduleGroup;
 //use App\Services\Instagram\DirectMessage;
 //use App\Services\Instagram\Instagram;
-use App\ScheduleGroup;
-use App\Services\Facebook\Facebook;
 use App\TargetLocation;
-use Carbon\Carbon;
+use App\HashtagPostHistory;
 use Illuminate\Http\Request;
+use App\InstagramAutomatedMessages;
+use App\Services\Facebook\Facebook;
 
 //use App\Library\Instagram\Helper;
 //use App\InstagramUsersList;
@@ -36,7 +36,6 @@ class InstagramController extends Controller
      * InstagramController constructor.
      *
 //     * @param  Instagram  $instagram
-     * @param  Facebook  $facebook
 //     * @param  DirectMessage  $messages
      */
     public function __construct(Facebook $facebook)
@@ -64,7 +63,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * This method gives the list of posts
      * that is in Instagram account
@@ -119,7 +117,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $id
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * SHow account data
      */
@@ -132,7 +129,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $id
      * @return \Illuminate\Http\RedirectResponse
      * Delete an account by ID, this will come from Instagram module
      */
@@ -148,8 +144,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $id
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      * Update the account details and status like first name, email, manual_comment, etc
      */
@@ -176,7 +170,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      * get Instagram acomments for the post ID...
      */
@@ -192,7 +185,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
@@ -216,7 +208,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * This is the list of images to be posted
      */
@@ -256,7 +247,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      * Posts the media to respective platforms, image_id is passed which exists in images table
      */
@@ -345,7 +335,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $schedule
      * @return \Illuminate\Http\JsonResponse
      * Whenever you need to post the media which has been scheduled, we post using this method
      */
@@ -382,7 +371,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * Show the images which are scheduled for posting
      */
@@ -407,12 +395,12 @@ class InstagramController extends Controller
         $imagesWithSchedules = array_map(function ($item) {
             return [
                 'id' => $item['id'],
-                'title' => substr($item['description'], 0, 500).'...',
+                'title' => substr($item['description'], 0, 500) . '...',
                 'start' => $item['scheduled_for'],
                 'image_names' => array_map(function ($img) {
                     return [
                         'id' => $img['id'],
-                        'name' => $img['filename'] ? asset('uploads/social-media').'/'.$img['filename'] : 'http://lorempixel.com/555/300/black',
+                        'name' => $img['filename'] ? asset('uploads/social-media') . '/' . $img['filename'] : 'http://lorempixel.com/555/300/black',
                     ];
                 }, $item['images']->get(['id', 'filename'])->toArray()),
             ];
@@ -422,7 +410,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      * This method will post the schedule
      */
@@ -469,7 +456,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $schedule
      * @return \Illuminate\Http\JsonResponse
      * Cancel the schedule by simply deleting it
      */
@@ -512,7 +498,6 @@ class InstagramController extends Controller
      * )
      */
     /**
-     * @param $thread
      * @return \Illuminate\Http\JsonResponse
      * Get the Instragram message thread..
      */
@@ -567,8 +552,6 @@ class InstagramController extends Controller
      */
 
     /**
-     * @param $thread
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      * Reply to the Instagram thread
      */
@@ -584,7 +567,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $scheduleId
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * Simply view the edit form which can be edited
      */
@@ -596,8 +578,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
-     * @param $scheduleId
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
      * Attach a media to the schedule ID
      */
@@ -647,8 +627,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param $scheduleId
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      * Update the schedule
      */
@@ -676,7 +654,7 @@ class InstagramController extends Controller
                 continue;
             }
 
-            $img->schedule->description = trim($request->get('description_'.$image));
+            $img->schedule->description = trim($request->get('description_' . $image));
             $img->schedule->save();
         }
 
@@ -698,7 +676,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      * delete comment from a post , with a comment key id
      */
@@ -736,7 +713,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * SHoe the hashtag grid , this will show the posts that we have for related hashtag
      */
@@ -762,7 +738,6 @@ class InstagramController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * Show Instagram account
      */

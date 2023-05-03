@@ -3,11 +3,11 @@
 namespace Modules\BookStack\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Modules\BookStack\Entities\Repos\EntityRepo;
-use Modules\BookStack\Exceptions\FileUploadException;
-use Modules\BookStack\Exceptions\NotFoundException;
 use Modules\BookStack\Uploads\Attachment;
+use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Uploads\AttachmentService;
+use Modules\BookStack\Exceptions\NotFoundException;
+use Modules\BookStack\Exceptions\FileUploadException;
 
 class AttachmentController extends Controller
 {
@@ -21,8 +21,6 @@ class AttachmentController extends Controller
      * AttachmentController constructor.
      *
      * @param  \BookStack\Uploads\AttachmentService  $attachmentService
-     * @param  Attachment  $attachment
-     * @param  EntityRepo  $entityRepo
      */
     public function __construct(AttachmentService $attachmentService, Attachment $attachment, EntityRepo $entityRepo)
     {
@@ -35,7 +33,6 @@ class AttachmentController extends Controller
     /**
      * Endpoint at which attachments are uploaded to.
      *
-     * @param  Request  $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function upload(Request $request)
@@ -66,7 +63,6 @@ class AttachmentController extends Controller
      * Update an uploaded attachment.
      *
      * @param  int  $attachmentId
-     * @param  Request  $request
      * @return mixed
      */
     public function uploadUpdate($attachmentId, Request $request)
@@ -101,8 +97,6 @@ class AttachmentController extends Controller
     /**
      * Update the details of an existing file.
      *
-     * @param $attachmentId
-     * @param  Request  $request
      * @return Attachment|mixed
      */
     public function update($attachmentId, Request $request)
@@ -132,7 +126,6 @@ class AttachmentController extends Controller
     /**
      * Attach a link to a page.
      *
-     * @param  Request  $request
      * @return mixed
      */
     public function attachLink(Request $request)
@@ -159,7 +152,6 @@ class AttachmentController extends Controller
     /**
      * Get the attachments for a specific page.
      *
-     * @param $pageId
      * @return mixed
      */
     public function listForPage($pageId)
@@ -173,8 +165,6 @@ class AttachmentController extends Controller
     /**
      * Update the attachment sorting.
      *
-     * @param $pageId
-     * @param  Request  $request
      * @return mixed
      */
     public function sortForPage($pageId, Request $request)
@@ -195,7 +185,6 @@ class AttachmentController extends Controller
     /**
      * Get an attachment from storage.
      *
-     * @param $attachmentId
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -223,7 +212,6 @@ class AttachmentController extends Controller
     /**
      * Delete a specific attachment in the system.
      *
-     * @param $attachmentId
      * @return mixed
      *
      * @throws \Exception

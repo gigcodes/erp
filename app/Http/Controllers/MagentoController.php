@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\Colors;
-use App\CommunicationHistory;
-use App\Customer;
 use App\Order;
-use App\OrderProduct;
-use App\OrderStatus;
+use Validator;
+use App\Colors;
 use App\Product;
 use App\Setting;
+use App\Customer;
+use App\AutoReply;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\OrderStatus;
+use App\OrderProduct;
 use Illuminate\Http\Request;
+use App\CommunicationHistory;
 use Illuminate\Support\Facades\DB;
-use Validator;
 
 class MagentoController extends Controller
 {
@@ -42,7 +42,6 @@ class MagentoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -75,7 +74,6 @@ class MagentoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -141,7 +139,7 @@ class MagentoController extends Controller
 
             $balance_amount = $results['base_grand_total'] - $paid;
 
-            $full_name = $results['billing_address']['firstname'].' '.$results['billing_address']['lastname'];
+            $full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
             $customer_phone = (int) str_replace(' ', '', $results['billing_address']['telephone']);
             $final_phone = '';
@@ -149,7 +147,7 @@ class MagentoController extends Controller
             if ($customer_phone != null) {
                 if ($results['billing_address']['country_id'] == 'IN') {
                     if (strlen($customer_phone) <= 10) {
-                        $customer_phone = '91'.$customer_phone;
+                        $customer_phone = '91' . $customer_phone;
                     }
                 }
 
@@ -247,7 +245,7 @@ class MagentoController extends Controller
                     'order_status_id' => $order_status_id,
                     'payment_mode' => $payment_method,
                     'order_date' => $results['created_at'],
-                    'client_name' => $results['billing_address']['firstname'].' '.$results['billing_address']['lastname'],
+                    'client_name' => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
                     'city' => $results['billing_address']['city'],
                     'advance_detail' => $paid,
                     'contact_detail' => $final_phone,
@@ -287,7 +285,7 @@ class MagentoController extends Controller
             if ($results['payment']['method'] == 'cashondelivery') {
                 $product_names = '';
                 foreach (OrderProduct::where('order_id', $id)->get() as $order_product) {
-                    $product_names .= $order_product->product ? $order_product->product->name.', ' : '';
+                    $product_names .= $order_product->product ? $order_product->product->name . ', ' : '';
                 }
 
                 $delivery_time = $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F');

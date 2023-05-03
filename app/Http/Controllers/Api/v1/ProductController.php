@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Category;
-use App\Http\Controllers\Controller;
 use App\Order;
-use App\OrderProduct;
 use App\Product;
-use App\ProductCancellationPolicie;
+use App\Category;
+use Carbon\Carbon;
+use App\OrderProduct;
 use App\StoreWebsite;
 use App\StoreWebsiteOrder;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\ProductCancellationPolicie;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller

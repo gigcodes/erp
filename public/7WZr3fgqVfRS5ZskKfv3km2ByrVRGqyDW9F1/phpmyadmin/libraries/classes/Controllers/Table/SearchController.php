@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use function in_array;
-use function intval;
-use function mb_strtolower;
 use function md5;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Sql;
-use PhpMyAdmin\Table\Search;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Url;
+use function intval;
+use PhpMyAdmin\Core;
 use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\Gis;
+use function in_array;
 use function preg_match;
-use function preg_replace;
-use function str_ireplace;
+use function strtoupper;
+use PhpMyAdmin\Template;
 use function str_replace;
 use function strncasecmp;
-use function strtoupper;
+use PhpMyAdmin\Utils\Gis;
+use function preg_replace;
+use function str_ireplace;
+use PhpMyAdmin\Operations;
+use function mb_strtolower;
+use PhpMyAdmin\Table\Search;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 /**
  * Handles table search tab.
@@ -222,9 +222,9 @@ class SearchController extends AbstractController
         }
 
         $extra_data = [];
-        $row_info_query = 'SELECT * FROM '.Util::backquote($_POST['db']).'.'
-            .Util::backquote($_POST['table']).' WHERE '.$_POST['where_clause'];
-        $result = $this->dbi->query($row_info_query.';');
+        $row_info_query = 'SELECT * FROM ' . Util::backquote($_POST['db']) . '.'
+            . Util::backquote($_POST['table']) . ' WHERE ' . $_POST['where_clause'];
+        $result = $this->dbi->query($row_info_query . ';');
         $fields_meta = $this->dbi->getFieldsMeta($result);
         while ($row = $result->fetchAssoc()) {
             // for bit fields we need to convert them to printable form
@@ -321,14 +321,13 @@ class SearchController extends AbstractController
      * Finds minimum and maximum value of a given column.
      *
      * @param  string  $column Column name
-     * @return array|null
      */
     public function getColumnMinMax($column): ?array
     {
-        $sql_query = 'SELECT MIN('.Util::backquote($column).') AS `min`, '
-            .'MAX('.Util::backquote($column).') AS `max` '
-            .'FROM '.Util::backquote($this->db).'.'
-            .Util::backquote($this->table);
+        $sql_query = 'SELECT MIN(' . Util::backquote($column) . ') AS `min`, '
+            . 'MAX(' . Util::backquote($column) . ') AS `max` '
+            . 'FROM ' . Util::backquote($this->db) . '.'
+            . Util::backquote($this->table);
 
         return $this->dbi->fetchSingleRow($sql_query);
     }
@@ -372,12 +371,12 @@ class SearchController extends AbstractController
             $extractedColumnspec = Util::extractColumnSpec($this->originalColumnTypes[$column_index]);
             $is_unsigned = $extractedColumnspec['unsigned'];
             $minMaxValues = $this->dbi->types->getIntegerRange($cleanType, ! $is_unsigned);
-            $htmlAttributes = 'data-min="'.$minMaxValues[0].'" '
-                            .'data-max="'.$minMaxValues[1].'"';
+            $htmlAttributes = 'data-min="' . $minMaxValues[0] . '" '
+                            . 'data-max="' . $minMaxValues[1] . '"';
         }
 
         $htmlAttributes .= ' onfocus="return '
-                        .'verifyAfterSearchFieldChange('.$search_index.', \'#tbl_search_form\')"';
+                        . 'verifyAfterSearchFieldChange(' . $search_index . ', \'#tbl_search_form\')"';
 
         $value = $this->template->render('table/search/input_box', [
             'str' => '',

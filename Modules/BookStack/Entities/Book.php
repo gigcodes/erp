@@ -29,10 +29,10 @@ class Book extends Entity
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/kb/books/'.urlencode($this->slug).'/'.trim($path, '/'));
+            return url('/kb/books/' . urlencode($this->slug) . '/' . trim($path, '/'));
         }
 
-        return url('/kb/books/'.urlencode($this->slug));
+        return url('/kb/books/' . urlencode($this->slug));
     }
 
     /**
@@ -111,14 +111,13 @@ class Book extends Entity
     /**
      * Get an excerpt of this book's description to the specified length or less.
      *
-     * @param  int  $length
      * @return string
      */
     public function getExcerpt(int $length = 100)
     {
         $description = $this->description;
 
-        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3).'...' : $description;
+        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3) . '...' : $description;
     }
 
     /**

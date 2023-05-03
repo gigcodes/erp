@@ -165,7 +165,11 @@
 </div>
 <div class="row">
     <div class="col-md-12 p-0">
-        <h2 class="page-heading">Quick Dev Task</h2>
+        @php
+            $totaldevtask = $issues->total() ?? 0;
+            $totaltask = $tasks->total() ?? 0;
+        @endphp
+        <h2 class="page-heading">Quick Dev Task ({{($totaltask ?? 0) + ($totaldevtask ?? 0)}})</h2>
     </div>
 </div>
 <div class="row">
@@ -176,11 +180,13 @@
                 <div class="row mb-5">
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label for="">Issue / Subject </label>
                             <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control mr-2" value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label>Module: </label>
                             <select class="form-control module_select2" name="module_id[]" id="module_id" multiple  aria-placeholder="Select Assigned To">
                                 @foreach ($modules as $module)
                                 <option {{ in_array($module->id, request('module_id', [])) ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
@@ -191,6 +197,7 @@
                     @if (auth()->user()->isReviwerLikeAdmin())
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label>Assign to: </label>
                             <select class="form-control assigned_select2" name="assigned_to[]" id="assigned_to" multiple aria-placeholder="Select Assigned To">
                                 {!! makeDropdown($users, request('assigned_to', [])) !!}
                             </select>
@@ -199,6 +206,7 @@
                     @endif
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label>Order: </label>
                             <select name="order" id="order_query" class="form-control">
                                 <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
                                 <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
@@ -209,6 +217,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label>Status: </label>
                             <?php
                             if (request('task_status')) {
                                 echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control task_status_select2', 'multiple' => true]);
@@ -292,16 +301,16 @@
                 @endif
                 @endforeach
                 @foreach ($tasks as $key => $issue)
-                @if ($isReviwerLikeAdmin || $isTeamLeader)
+                    @if ($isReviwerLikeAdmin || $isTeamLeader)
 
-                    @include("task-module.partials.flagsummarydata")
+                        @include("task-module.partials.flagsummarydata2")
 
-                @elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||
-                $issue->assigned_to == $userID)
+                    @elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||
+                    $issue->assigned_to == $userID)
 
-                    @include("task-module.partials.flagdeveloper-row-view")
+                        @include("task-module.partials.flagdeveloper-row-view")
 
-                @endif
+                    @endif
                 @endforeach
 
             </tbody>
@@ -726,6 +735,247 @@
     </div>
 </div>
 
+<div id="confirmMessageModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Confirm Message</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <form action="http://127.0.0.1:8000/task_category" method="POST" onsubmit="return false;">
+          <input type="hidden" name="_token" value="Q3JrgNSMozWgiwM4zaJKIEwqnzkGu5GFy9wU0nD5">
+          <div class="modal-body">
+  
+  
+            <div class="form-group">
+              <div id="message_confirm_text"></div>
+              <input name="task_id" id="confirm_task_id" type="hidden" />
+              <input name="message" id="confirm_message" type="hidden" />
+              <input name="status" id="confirm_status" type="hidden" />
+            </div>
+            <div class="form-group">
+              <p>Send to Following</p>
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assign_by">Assign By
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assigned_to">Assign To
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="master_user_id">Lead 1
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="second_master_user_id">Lead 2
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="contacts">Contacts
+            </div>
+          </div>
+  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary confirm-messge-button">Send</button>
+          </div>
+        </form>
+      </div>
+  
+    </div>
+</div>   
+
+<div id="date_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Status History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="">
+                <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="duedate_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Old date</th>
+                                    <th>New date</th>
+                                    <th>Updated by</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Upload File --}}
+<div id="uploadeTaskFileModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Upload Screencast/File to Google Drive</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<form action="{{ route('development.upload-file') }}" method="POST" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="task_id" id="upload_task_id">
+				<input type="hidden" name="task_type" id="upload_task_type">
+				<div class="modal-body">						
+					<div class="form-group">
+						<strong>Upload File</strong>
+						<input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+						@if ($errors->has('file'))
+							<div class="alert alert-danger">{{$errors->first('file')}}</div>
+						@endif
+					</div>
+					<div class="form-group">
+						<strong>File Creation Date:</strong>
+						<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
+					</div>
+					<div class="form-group">
+							<label>Remarks:</label>
+							<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>
+
+							@if ($errors->has('remarks'))
+								<div class="alert alert-danger">{{$errors->first('remarks')}}</div>
+							@endif
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default">Upload</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+<div id="displayTaskFileUpload" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-xl">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Google Drive Uploaded files</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Filename</th>
+								<th>File Creation Date</th>
+								<th>URL</th>
+								<th>Remarks</th>
+							</tr>
+						</thead>
+						<tbody id="taskFileUploadedData">
+							
+						</tbody>
+					</table>
+				</div>
+			 </div>
+
+
+		</div>
+
+	</div>
+</div>
+
+<div id="taskGoogleDocModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Google Doc</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+
+            <form action="{{route('google-docs.task')}}" method="POST">
+                {{ csrf_field() }}
+                <input type="hidden" id="task_id">
+				<input type="hidden" name="task_type" id="document_task_type">
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Document type:</strong>
+
+                        <select class="form-control" name="type" required id="doc-type">
+                            <option value="spreadsheet">Spreadsheet</option>
+                            <option value="doc">Doc</option>
+                            <option value="ppt">Ppt</option>
+                            <option value="xps">Xps</option>
+                            <option value="txt">Txt</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Name:</strong>
+                        <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Category:</strong>
+                        {{-- <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category"> --}}
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                   
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="btnCreateTaskDocument">Create</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<div id="taskGoogleDocListModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Google Documents list</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="5%">File Name</th>
+                        <th width="5%">Created Date</th>
+                        <th width="10%">URL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 @endsection
 
@@ -751,6 +1001,7 @@
         }
     }
     function funDevInformationUpdates(type) {
+        
         if (type == 'start_date') {
             if (confirm('Are you sure, do you want to update?')) {
                 // siteLoader(1);
@@ -2219,7 +2470,6 @@
                 type: type
             },
             success: function(data) {
-                console.log(data);
                 if (data != 'error') {
                     $("#developer_task_id").val(issueId);
                     $.each(data, function(i, item) {
@@ -2232,9 +2482,10 @@
                             '<tr>\
                                     <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
                                     <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                    <td>' + item['new_value'] + '</td>\<td>' + item['name'] + '</td><td><input type="radio" name="approve_date" value="' + item['id'] + '" ' + checked + ' class="approve_date"/></td>\
+                                    <td>' + item['new_value'] + '</td>\<td>' + item['name'] + '</td><td>\
                                 </tr>'
                         );
+                        // <input type="radio" name="approve_date" value="' + item['id'] + '" ' + checked + ' class="approve_date"/></td>
                     });
                 }
             }
@@ -2541,6 +2792,9 @@
 
 
 <script type="text/javascript">
+    var currDevInformationTaskId = 0;
+    var currTaskInformationTaskId = 0;
+
     $(document).ready(function() {
         $('#datetimepicker').datetimepicker({
             format: 'YYYY-MM-DD HH:mm:ss'
@@ -2761,6 +3015,251 @@
             toastr['error'](message);
         }
     }
+    if(typeof Quickbtn === "undefined") {
+        function Quickbtn(id){
+            $(".action-quickbtn-tr-"+id).toggleClass('d-none')
+        }
+    }
+
+    $(document).on('click', '.send-message-task', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $(this).data('id');
+        // var message = $(this).siblings('input').val();
+        if ($(this).hasClass("onpriority")) {
+            var message = $('#send_message_' + task_id).val();
+        } else {
+            var message = $('#send_message_' + task_id).val();
+        }
+        if (message != "") {
+            $("#message_confirm_text").html(message);
+            $("#confirm_task_id").val(task_id);
+            $("#confirm_message").val(message);
+            $("#confirm_status").val(1);
+            $("#confirmMessageModal").modal();
+        }
+    });
+    var thiss;
+    $(document).on('click', '.confirm-messge-button', function() {
+        thiss = $(this);
+        var data = new FormData();
+        var task_id = $("#confirm_task_id").val();
+        var message = $("#confirm_message").val();
+        var status = $("#confirm_status").val();
+        //    alert(message)
+        data.append("task_id", task_id);
+        data.append("message", message);
+        data.append("status", status);
+        // var checkedValue = $('.send_message_recepients:checked').val();
+        var checkedValue = [];
+        var i = 0;
+        $('.send_message_recepients:checked').each(function() {
+            checkedValue[i++] = $(this).val();
+        });
+        data.append("send_message_recepients", checkedValue);
+        //  console.log(checkedValue);
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    //  url: '/whatsapp/sendMessage/task',
+                    url: "{{ route('whatsapp.send','task')}}",
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function(response) {
+                    console.log("tthis", thiss);
+                    $(thiss).removeAttr('disabled');
+                    $(thiss).siblings('input').val('');
+                    $('#send_message_' + task_id).val('');
+                    $('#confirmMessageModal').modal('hide');
+                }).fail(function(errObj) {
+                    $('#confirmMessageModal').modal('hide');
+                    $(thiss).attr('disabled', false);
+                    alert("Could not send message");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    function funTaskHistories(type) {
+        alert(currTaskInformationTaskId);
+        if (type == 'start_date' || type == 'due_date' || type == 'cost') {
+            siteLoader(1);
+            let mdl = jQuery('#modalTaskHistories');
+            let url = '';
+
+            mdl.find('.cls-save').removeClass('d-none');
+            mdl.find('input[name="type"]').val(type);
+
+            if (type == 'start_date') {
+                mdl.find('.modal-title').html('Estimated Start Datetime History');
+                url = "{{ route('task.history.start-date.index') }}";
+            } else if (type == 'due_date') {
+                mdl.find('.modal-title').html('Estimated End Datetime History [Due Datetime]');
+                url = "{{ route('task.history.due-date.index') }}";
+            } else if (type == 'cost') {
+                mdl.find('.modal-title').html('Cost History');
+                url = "{{ route('task.history.cost.index') }}";
+                mdl.find('.cls-save').addClass('d-none');
+            }
+
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url,
+                type: 'GET',
+                data: {
+                    id: currTaskInformationTaskId
+                }
+            }).done(function(response) {
+                mdl.find('.modal-body').html(response.data);
+                mdl.modal('show');
+                siteLoader(0);
+            }).fail(function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
+            });
+        }
+    }
+
+    $(document).on("click", ".upload-task-files-button", function (e) {
+        e.preventDefault();
+        let task_id = $(this).data("task_id");
+        let task_type = $(this).data("task_type");
+        $("#uploadeTaskFileModal #upload_task_id").val(task_id || 0);
+        $("#uploadeTaskFileModal #upload_task_type").val(task_type || "");
+        $("#uploadeTaskFileModal").modal("show")
+    });
+    $(document).on("click", ".view-task-files-button", function (e) {
+        e.preventDefault();
+        let task_id = $(this).data("task_id");
+        let task_type = $(this).data("task_type");
+
+        $.ajax({
+            type: "get",
+            url: "{{route('development.files.record')}}",
+            data: {
+                task_id,
+                task_type
+            },
+            success: function (response) {
+                $("#taskFileUploadedData").html(response.data);
+                $("#displayTaskFileUpload").modal("show")
+            },
+            error: function (response) {
+                toastr['error']("Something went wrong!");
+            }
+        });
+    });
+
+    $(document).on('click', ".create-task-document", function () {
+        let task_id = $(this).data('id');
+        if(task_id != "") {
+            $("#task_id").val($(this).data('id'));
+            $("#document_task_type").val($(this).data('task_type'));
+            $("#taskGoogleDocModal").modal('show');
+        } else {
+            toastr["error"]("Task id not found.");
+        }
+    });
+
+    $(document).on('click', "#btnCreateTaskDocument", function () {
+        let doc_type = $("#doc-type").val();
+        let doc_name = $("#doc-name").val();
+        let doc_category = $("#doc-category").val();
+        let task_id = $("#task_id").val();
+        let task_type = $("#document_task_type").val();
+        
+        if(doc_type.trim() == "") {
+            toastr["error"]("Select document type.");
+            return
+        }
+        if(doc_name.trim() == "") {
+            toastr["error"]("Insert document name.");
+            return
+        }
+        if(doc_category.trim() == "") {
+            toastr["error"]("Insert document category.");
+            return
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('google-docs.task')}}",
+            data: {
+                _token: "{{csrf_token()}}",
+                doc_category,
+                doc_type,
+                doc_name,
+                task_id,
+                task_type
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+                $("#btnCreateTaskDocument").attr('disabled', true)
+            },
+            success: function (response) {
+                if(response.status == true) {
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+                $("#btnCreateTaskDocument").removeAttr('disabled')
+                $("#taskGoogleDocModal").modal('hide');
+                $("#doc-type").val(null);
+                $("#doc-name").val(null);
+                $("#doc-category").val(null);
+                $("#task_id").val(null);
+            },
+            error: function(response) {
+                toastr["error"]("Something went wrong!");
+                $("#loading-image").hide();
+                $("#btnCreateTaskDocument").removeAttr('disabled')
+            }
+        });
+
+    });
+
+    $(document).on('click', ".show-created-task-document", function () {
+        let task_id = $(this).data('id');
+        let task_type = $(this).data('task_type');
+        if(task_id != "") {
+            $.ajax({
+                type: "GET",
+                url: "{{route('google-docs.task.show')}}",
+                data: {
+                    task_id,
+                    task_type
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                    // $("#btnCreateTaskDocument").attr('disabled', true)
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#taskGoogleDocListModal tbody").html(response.data);
+                    $("#taskGoogleDocListModal").modal('show');
+                },
+                error: function(response) {
+                    toastr["error"]("Something went wrong!");
+                    $("#loading-image").hide();
+                }
+            });
+        } else {
+            toastr["error"]("Task id not found.");
+        }
+    });
 </script>
 
 

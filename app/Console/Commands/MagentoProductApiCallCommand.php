@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Loggers\LogListMagento;
 use App\LogMagentoApi;
-use App\StoreMagentoApiSearchProduct;
+use App\Loggers\LogListMagento;
 use Illuminate\Console\Command;
+use App\StoreMagentoApiSearchProduct;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class MagentoProductApiCallCommand extends Command
@@ -57,7 +57,7 @@ class MagentoProductApiCallCommand extends Command
 
         if (! $produts->isEmpty()) {
             foreach ($produts as $p) {
-                $sku = $p->sku.'-'.$p->color;
+                $sku = $p->sku . '-' . $p->color;
                 $websiteId = $p->store_website_id;
                 $product_ref_id = uniqid();
                 LogMagentoApi::create([
@@ -133,9 +133,9 @@ class MagentoProductApiCallCommand extends Command
                     LogMagentoApi::create([
                         'magento_api_search_product_id' => $product_ref_id,
                         'api_log' => 'exception',
-                        'message' => $p.' Exception : '.$e->getMessage(),
+                        'message' => $p . ' Exception : ' . $e->getMessage(),
                     ]);
-                    \Log::info('Error from LogListMagentoController 448'.$e->getMessage());
+                    \Log::info('Error from LogListMagentoController 448' . $e->getMessage());
                 }
             }
             if (! empty($products)) {
@@ -316,7 +316,7 @@ class MagentoProductApiCallCommand extends Command
                     'size' => $product_name != null ? $product_name->size : '',
                     'brands' => $brand,
                     'composition' => $product_name != null ? $product_name->composition : '',
-                    'dimensions' => $product_name != null ? $product_name->lmeasurement.','.$product_name->hmeasurement.','.$product_name->dmeasurement : '',
+                    'dimensions' => $product_name != null ? $product_name->lmeasurement . ',' . $product_name->hmeasurement . ',' . $product_name->dmeasurement : '',
                     'english' => 'No',
                     'arabic' => 'No',
                     'german' => 'No',

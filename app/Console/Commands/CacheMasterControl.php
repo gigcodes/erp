@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CroppedImageReference;
-use App\Customer;
-use App\Helpers\StatusHelper;
-use App\Product;
-use App\ReplyCategory;
-use App\Supplier;
-use App\Vendor;
 use Cache;
+use App\Vendor;
+use App\Product;
+use App\Customer;
+use App\Supplier;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\ReplyCategory;
+use App\Helpers\StatusHelper;
+use App\CroppedImageReference;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -205,7 +205,7 @@ class CacheMasterControl extends Command
             });
 
             Cache::remember('todaytaskhistory', 1800, function () {
-                $date = "'%".date('Y-m-d')."%'";
+                $date = "'%" . date('Y-m-d') . "%'";
 
                 return DB::select('SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId,tasks.id as task_id,tasks.task_subject as task_subject,  hubstaff_activities.starts_at, SUM(tracked) as day_tracked 
                   FROM `users` 
@@ -213,7 +213,7 @@ class CacheMasterControl extends Command
                   JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
                   LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
                   LEFT JOIN tasks ON hubstaff_activities.task_id=tasks.hubstaff_task_id 
-                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE '.$date.') AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
+                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE ' . $date . ') AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
                     GROUP by hubstaff_activities.task_id
                     order by day_tracked desc ');
             });

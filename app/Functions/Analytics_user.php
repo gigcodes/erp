@@ -1,7 +1,7 @@
 <?php
 
 // Load the Google API PHP Client Library.
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 $data = [];
 $analytics = initializeAnalytics();
 
@@ -52,7 +52,7 @@ function getReportRequest($analytics, $request)
     if (! empty($request)) {
         $analytics = '';
         if (isset($request['google_service_account_json']) && $request['google_service_account_json'] != '') {
-            $websiteKeyFile = base_path('resources/analytics_files/'.$request['google_service_account_json']);
+            $websiteKeyFile = base_path('resources/analytics_files/' . $request['google_service_account_json']);
         } else {
             $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
         }
@@ -412,7 +412,7 @@ function getGoogleAnalyticData($analytics, $request)
 //    $exDescription->setName('ga:exceptionDescription');
 
     $request->setDimensions([$dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode, $deviceCategory]);
-    
+
     // $request->setDimensions(array( $dimension, $pagePat$exception, $browser, $operatingSystem, $country, $countryIsoCode, $userAge, $userGender));
 
     // Create the Metrics object.
@@ -443,7 +443,7 @@ function getGoogleAnalyticData($analytics, $request)
     $session = new Google_Service_AnalyticsReporting_Metric();
     $session->setExpression('ga:sessions');
     $session->setAlias('session');
-    
+
 //    $exceptions = new Google_Service_AnalyticsReporting_Metric();
 //    $exceptions->setExpression('ga:exceptions');
 //    $exceptions->setAlias('exceptions');
@@ -468,7 +468,7 @@ function printGoogleAnalyticResults($reports, $websiteAnalyticsId)
             $data[$key]['browser'] = $value['dimensions']['2'];
             $data[$key]['os'] = $value['dimensions']['3'];
             $data[$key]['country'] = $value['dimensions']['4'];
-            $data[$key]['iso_code'] = $value['dimensions']['5']; 
+            $data[$key]['iso_code'] = $value['dimensions']['5'];
             $data[$key]['device'] = $value['dimensions']['6'];
             // $data[$key]['age'] = $value['dimensions']['6'];
             // $data[$key]['gender'] = $value['dimensions']['7'];
