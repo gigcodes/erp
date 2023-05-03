@@ -113,6 +113,8 @@
 
     <a style="padding:3px;" type="button" title="Email Category Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailCategoryChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
 
+    <a style="padding:3px;" type="button" title="Email Status Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailStatusChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
+
   </td>
 </tr>
 @endforeach

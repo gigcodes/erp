@@ -1439,6 +1439,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
 
+    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
+
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
