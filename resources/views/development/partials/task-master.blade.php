@@ -74,7 +74,7 @@
                         <strong>Category:</strong>
                         <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
                     </div> --}}
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <strong>Category:</strong>
                         <select name="doc_category" class="form-control" id="doc-category" required>
                             <option>Select Category</option>
@@ -84,7 +84,7 @@
                                 @endforeach
                             @endif
                         </select>
-                    </div>
+                    </div> --}}
                    
                 </div>
 
@@ -126,3 +126,39 @@
     </div>
 </div>
 </div>
+@include("development.partials.add-docs-permission")
+
+<script>
+    $(document).ready(function () {
+        $(".add-document-permission").click(function (e) { 
+            e.preventDefault();
+            let user_id = $(this).data("assigned_to")
+            let task_id = $(this).data("task_id")
+            let task_type = $(this).data("task_type")
+            $("#addGoogleDocPermission").find('input[name=user_id]').val(user_id);
+            $("#addGoogleDocPermission").find('input[name=task_id]').val(task_id);
+            $("#addGoogleDocPermission").find('input[name=task_type]').val(task_type);
+            $.ajax({
+                type: "GET",
+                url: "{{route('google-docs.list')}}",
+                data: "data",
+                success: function (response) {
+                    if(response.status == true) {
+                        $("#assignDocumentList").html('').select2({
+                            width: "100%", 
+                            data: response.docs,
+                            placeholder: "Select"
+                        });
+                        $("#addGoogleDocPermission").modal("show");
+                        $("#assignDocumentList").val(null).trigger('change');
+                    } else {
+                        toastr['error']('Error while fetching the data.', 'Error');
+                    }
+                },
+                error: function(error) {
+                    toastr['error']('Error while fetching the data.', 'Error');
+                }
+            });
+        });
+    });
+</script>
