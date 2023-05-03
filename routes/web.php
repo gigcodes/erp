@@ -387,8 +387,6 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
