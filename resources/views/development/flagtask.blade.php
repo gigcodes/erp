@@ -922,11 +922,20 @@
                         <strong>Name:</strong>
                         <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
                     </div>
-
-                    <div class="form-group">
+                    
+                    {{-- <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category"> --}}
+                    {{-- <div class="form-group">
                         <strong>Category:</strong>
-                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
-                    </div>
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div> --}}
+
                    
                 </div>
 
@@ -3179,17 +3188,17 @@
             toastr["error"]("Insert document name.");
             return
         }
-        if(doc_category.trim() == "") {
-            toastr["error"]("Insert document category.");
-            return
-        }
+        // if(doc_category.trim() == "") {
+        //     toastr["error"]("Insert document category.");
+        //     return
+        // }
 
         $.ajax({
             type: "POST",
             url: "{{route('google-docs.task')}}",
             data: {
                 _token: "{{csrf_token()}}",
-                doc_category,
+                // doc_category,
                 doc_type,
                 doc_name,
                 task_id,

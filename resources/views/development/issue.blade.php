@@ -1699,17 +1699,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 toastr["error"]("Insert document name.");
                 return
             }
-            if(doc_category.trim() == "") {
-                toastr["error"]("Insert document category.");
-                return
-            }
+            // if(doc_category.trim() == "") {
+            //     toastr["error"]("Insert document category.");
+            //     return
+            // }
 
             $.ajax({
                 type: "POST",
                 url: "{{route('google-docs.task')}}",
                 data: {
                     _token: "{{csrf_token()}}",
-                    doc_category,
+                    // doc_category,
                     doc_type,
                     doc_name,
                     task_id,

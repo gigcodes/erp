@@ -2,13 +2,15 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MemoryUsage extends Model
 {
+    use HasFactory;
     protected $table = 'memory_usage';
 
-    protected static function boot()
+    public static function boot()
     {
         parent::boot();
         

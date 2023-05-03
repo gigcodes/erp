@@ -12,6 +12,7 @@ use App\StoreWebsite;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Marketing\WhatsappConfig;
+use App\Marketing\WhatsappBusinessAccounts;
 use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -67,12 +68,13 @@ class WhatsappConfigController extends Controller
         } else {
             $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
         }
+        $businessAccounts = WhatsappBusinessAccounts::all();
 
         //Fetch Store Details
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs', 'storeData'))->render(),
+                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs', 'storeData', 'businessAccounts'))->render(),
                 'links' => (string) $whatsAppConfigs->render(),
             ], 200);
         }
@@ -80,6 +82,7 @@ class WhatsappConfigController extends Controller
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
             'storeData' => $storeData,
+            'businessAccounts' => $businessAccounts
         ]);
     }
 

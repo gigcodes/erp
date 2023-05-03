@@ -24,6 +24,16 @@ class UserController extends Controller
         ]);
     }
 
+    private function connectGithubClient($userName, $token)
+    {
+        $githubClient = new Client([
+                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+                'auth' => [$userName, $token],
+            ]);
+
+        return $githubClient;
+    }
+
     public function listOrganizationUsers()
     {
         $platformUsers = User::all(['id', 'name', 'email']);
@@ -39,17 +49,19 @@ class UserController extends Controller
         );
     }
 
-    public function listUsersOfRepository()
+    public function listUsersOfRepository($repoId)
     {
-        $name = Route::current()->parameter('name');
+        // $name = Route::current()->parameter('name');
         //$users = $this->refreshUsersForRespository($name);
-        $users = GithubRepository::where('name', $name)->first()->users;
+        $githubRepository = GithubRepository::with('users')->where('id', $repoId)->first();
+        $users = $githubRepository->users;
 
         return view(
             'github.repository_users',
             [
                 'users' => $users,
-                'repoName' => $name,
+                'repoId' => $repoId,
+                'githubRepository' => $githubRepository
             ]
         );
     }
@@ -137,11 +149,14 @@ class UserController extends Controller
 
         $user = $repositoryUser->githubUser;
         $repository = $repositoryUser->githubRepository;
+        $organization = $repository->organization;
 
         // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
-        $url = 'https://api.github.com/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repository->name . '/collaborators/' . $user->username;
+        $url = 'https://api.github.com/repos/'.$organization->name.'/'.$repository->name.'/collaborators/'.$user->username;
 
-        $this->client->delete($url);
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
+        $githubClient->delete($url);
 
         $repositoryUser->delete();
 
@@ -157,7 +172,7 @@ class UserController extends Controller
         return view('github.user_details', ['userDetails' => $userDetails]);
     }
 
-    public function addUserToRepositoryForm()
+    public function addUserToRepositoryForm($repoId)
     {
         $repositoryName = Route::current()->parameter('name');
 
@@ -168,20 +183,25 @@ class UserController extends Controller
             $users[$user->username] = $user->username;
         }
 
-        return view('github.add_user_to_repo', ['users' => $users]);
+        return view('github.add_user_to_repo', ['repoId' => $repoId, 'users' => $users]);
     }
 
     public function addUserToRepository(Request $request)
     {
-        $repositoryName = $request->repo_name;
+        $repoId = $request->repoId;
         $username = $request->username;
         $permission = $request->permission;
 
+        $githubRepository = GithubRepository::find($repoId);
+        $organization = $githubRepository->organization;
+
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
         // $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
-        $url = 'https://api.github.com/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
+        $url = 'https://api.github.com/repos/'.$organization->name.'/'.$githubRepository->name.'/collaborators/'.$username;
 
-        $this->client->put(
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
+        $githubClient->put(
             $url,
             [
                 RequestOptions::JSON => [
@@ -192,6 +212,6 @@ class UserController extends Controller
 
         // cannot update the database still as the above will raise and invitation
 
-        return redirect('/github/repos/' . $repositoryName . '/users');
+        return redirect('/github/repos/'.$repoId.'/users');
     }
 }

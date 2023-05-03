@@ -223,6 +223,7 @@
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
         </div>
     </td>
+
     <td>
         <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}" data-task_type="Dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         <div class="dropdown dropleft">
@@ -238,6 +239,9 @@
             </button>
             <button class="btn btn-sm mt-2 show-created-task-document" title="Show created document" data-id="{{$issue->id}}">
                 <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                <i class="fa fa-key" aria-hidden="true"></i>
             </button>
         </div>
     </td>
