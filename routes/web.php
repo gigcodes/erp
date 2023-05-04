@@ -386,6 +386,7 @@ use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
 
@@ -5061,4 +5062,8 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
         Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
     });
+});
+
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
 });
