@@ -4946,6 +4946,14 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
     });
 
+    Route::prefix('content-status')->group(function() {
+        Route::get('', [Seo\ContentStatusController::class, 'index'])->name('seo.content-status.index');
+        Route::get('create', [Seo\ContentStatusController::class, 'create'])->name('seo.content-status.create');
+        Route::post('store', [Seo\ContentStatusController::class, 'store'])->name('seo.content-status.store');
+        Route::get('{id}/edit', [Seo\ContentStatusController::class, 'edit'])->name('seo.content-status.edit');
+        Route::post('{id}/update', [Seo\ContentStatusController::class, 'update'])->name('seo.content-status.update');
+    });
+
     Route::prefix('company')->group(function () {
         Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
         Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
