@@ -21,6 +21,8 @@ use App\Github\GithubBranchState;
 use App\Http\Controllers\Controller;
 use App\DeveoperTaskPullRequestMerge;
 use App\Http\Requests\DeleteBranchRequest;
+use App\Jobs\DeleteBranches;
+use App\Models\DeletedGithubBranchLog;
 
 class RepositoryController extends Controller
 {
@@ -53,7 +55,7 @@ class RepositoryController extends Controller
         }else{
             $organization = GithubOrganization::where('name', 'MMMagento')->first();
         }
-        
+
         $dbRepositories = [];
 
         try{
@@ -77,7 +79,7 @@ class RepositoryController extends Controller
                         'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
                         'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
                     ];
-        
+
                     GithubRepository::updateOrCreate(
                         [
                             'id' => $repository->id,
@@ -238,7 +240,7 @@ class RepositoryController extends Controller
     {
         $repository = GithubRepository::find($repoId);
         $organization = $repository->organization;
-        
+
         $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
         GitMigrationErrorLog::create([
             'github_organization_id' => $organization->id,
@@ -276,7 +278,7 @@ class RepositoryController extends Controller
     {
         $repository = GithubRepository::find($repoId);
         $organization = $repository->organization;
-        
+
         $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
         $filters = [
             'state' => 'all',
@@ -372,7 +374,7 @@ class RepositoryController extends Controller
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
-        
+
         try {
             $githubClient->post(
                 $url,
@@ -473,7 +475,7 @@ class RepositoryController extends Controller
             $githubClient = $this->connectGithubClient($userName, $token);
 
             $response = $githubClient->get($url);
-            
+
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
@@ -534,10 +536,45 @@ class RepositoryController extends Controller
         $response = $this->deleteBranch($repositoryId, $request->branch_name);
         $githubBranchState = GithubBranchState::where('repository_id', $repositoryId)->where('branch_name', $request->branch_name)->first();
         if (! empty($githubBranchState) && $response['status']) {
+
+            DeletedGithubBranchLog::create([
+                'branch_name' => $request->branch_name,
+                'repository_id' => $repositoryId,
+                'deleted_by'    => \Auth::id(),
+                'status'    => 'success'
+            ]);
+
             $githubBranchState->delete();
+
+        }else{
+            DeletedGithubBranchLog::create([
+                'branch_name' => $request->branch_name,
+                'repository_id' => $repositoryId,
+                'deleted_by'    => \Auth::id(),
+                'status'    => 'falied',
+                'error_message' => $response['error']
+            ]);
         }
 
         return $response;
+    }
+
+    // devtask - 23311
+    public function deleteNumberOfBranchesFromRepo($repositoryId,Request $request){
+        $branches = $this->getGithubBranches($repositoryId,[]);
+        $numberOfBranchesToDelete = $request->number_of_branches;
+        $branchArr = [];
+
+        for($i = 0; $i < $numberOfBranchesToDelete; $i++ ){
+            if(isset($branches[$i]->name)){
+                $branchArr[$i] = $branches[$i]->name;
+            }
+        }
+
+        $response = DeleteBranches::dispatch($branchArr,$repositoryId)->onQueue('delete_github_branches');
+
+        return response()->json(['type' => 'success'],200);
+
     }
 
     public function actionWorkflows(Request $request, $repositoryId)
@@ -583,7 +620,7 @@ class RepositoryController extends Controller
 
             $repositories = GithubRepository::where('id',  $request->repoId)->get();
             $allPullRequests = [];
-            
+
             foreach ($repositories as $repository) {
                 $organization = $repository->organization;
                 $pullRequests = $this->getPullRequests($organization->username, $organization->token, $repository->id);
@@ -636,7 +673,7 @@ class RepositoryController extends Controller
             ]);
         }
         $githubOrganizations = GithubOrganization::with('repos')->get();
-        
+
         return view('github.branches', compact('githubOrganizations'));
     }
 
@@ -663,9 +700,9 @@ class RepositoryController extends Controller
                 'data' => $data,
             ]);
         }
-        
+
         $githubOrganizations = GithubOrganization::with('repos')->get();
-        
+
         return view('github.actions', compact('githubOrganizations'));
     }
 
