@@ -551,7 +551,7 @@ class RepositoryController extends Controller
                 'branch_name' => $request->branch_name,
                 'repository_id' => $repositoryId,
                 'deleted_by'    => \Auth::id(),
-                'status'    => 'falied',
+                'status'    => 'failed',
                 'error_message' => $response['error']
             ]);
         }
