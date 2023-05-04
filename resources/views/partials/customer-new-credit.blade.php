@@ -60,12 +60,15 @@ $statuses = \App\ticketStatuses::all();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="show-customer-credits-modal-label">Show credits</h5>
-                <h3 class="modal-title" id="show-customer-current-credits-modal-label"></h5>
+                
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+                <span class="pull-right" id="show-customer-current-credits-modal-label" style="    font-size: 18px;
+    font-weight: bold;"></span>
+
                 <table class="table table-striped-custom" id="show_tickes_table">
                     <thead>
                         <tr>
