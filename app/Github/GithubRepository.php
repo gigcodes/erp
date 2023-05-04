@@ -8,6 +8,7 @@ class GithubRepository extends Model
 {
     protected $fillable = [
         'id',
+        'github_organization_id',
         'name',
         'html',
         'webhook',
@@ -33,5 +34,10 @@ class GithubRepository extends Model
             'repository_id',
             'id'
         )->orderBy('last_commit_time', 'desc');
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(\App\Github\GithubOrganization::class, 'github_organization_id', 'id');
     }
 }

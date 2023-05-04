@@ -354,6 +354,9 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 
 Auth::routes();
 
@@ -384,8 +387,6 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -971,6 +972,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+    Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
+    Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
@@ -1436,6 +1439,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/assign-modal', [EmailController::class, 'assignModel'])->name('assignModel');
     Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
     Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
+
+    Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
+
+    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -2811,6 +2818,8 @@ Route::post('whatsapp/incoming', [WhatsAppController::class, 'incomingMessage'])
 Route::post('whatsapp/incomingNew', [WhatsAppController::class, 'incomingMessageNew']);
 Route::post('whatsapp/outgoingProcessed', [WhatsAppController::class, 'outgoingProcessed']);
 Route::post('whatsapp/webhook', [WhatsAppController::class, 'webhook']);
+Route::post('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficial']);
+Route::get('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficialVerify']);
 
 Route::get('whatsapp/pullApiwha', [WhatsAppController::class, 'pullApiwha']);
 
@@ -3654,6 +3663,15 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
+
+    Route::prefix('whatsapp-business-account')->group(function () {
+        Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
+        Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
+        Route::post('update', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
+        Route::post('delete/{id}', [WhatsappBusinessAccountController::class, 'deleteAccount'])->name('whatsapp.business.account.delete');
+        Route::get('get/{id}', [WhatsappBusinessAccountController::class, 'getAccount'])->name('whatsapp.business.account.get');
+    });
+
     // Whats App Config
     Route::get('whatsapp-config', [Marketing\WhatsappConfigController::class, 'index'])->name('whatsapp.config.index');
     Route::get('whatsapp-history/{id}', [Marketing\WhatsappConfigController::class, 'history'])->name('whatsapp.config.history');
@@ -3995,9 +4013,9 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
-        Route::get('/repos', [Github\RepositoryController::class, 'listRepositories']);
-        Route::get('/repos/{name}/users', [Github\UserController::class, 'listUsersOfRepository']);
-        Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
+        Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
+        Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
+        Route::get('/repos/{id}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
         Route::get('/repos/{id}/branches', [Github\RepositoryController::class, 'getRepositoryDetails']);
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
         Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
@@ -4015,7 +4033,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/groups/repositories/add', [Github\GroupController::class, 'addRepository']);
         Route::get('/groups/{groupId}', [Github\GroupController::class, 'groupDetails']);
         Route::get('/groups/{groupId}/repos/{repoId}/remove', [Github\GroupController::class, 'removeRepositoryFromGroup']);
-        Route::get('/groups/{groupId}/users/{userId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
+        Route::get('/groups/{groupId}/users/{userId}/organization/{organizationId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
         Route::get('/groups/{groupId}/users/add', [Github\GroupController::class, 'addUserForm']);
         Route::get('/groups/{groupId}/repositories/add', [Github\GroupController::class, 'addRepositoryForm']);
         Route::get('/sync', [Github\SyncController::class, 'index']);
@@ -4913,6 +4931,10 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
     Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
     Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
+    Route::post('category/update', [GoogleDocController::class, 'updateGoogleDocCategory'])->name('.category.update');
+    Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
+    Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
+    Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {

@@ -44,13 +44,13 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
 
-      # - name: Execute the migration file
-      #   env:
-      #     DB_DATABASE: erp_live
-      #     DB_USERNAME: erp_user
-      #     DB_PASSWORD: secret
-      #     DB_PORT: ${{ job.services.mysql.ports[3306] }}
-      #   run: php artisan migrate
+      - name: Execute the migration file
+        env:
+          DB_DATABASE: erp_live
+          DB_USERNAME: erp_user
+          DB_PASSWORD: secret
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: php artisan migrate
 
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache

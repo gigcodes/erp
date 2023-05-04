@@ -16,13 +16,16 @@ use App\CronJobReport;
 use App\EmailRunHistories;
 use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
+use App\EmailCategory;
 use App\Mails\Manual\ForwardEmail;
 use App\Mails\Manual\ReplyToEmail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
+use App\Models\EmailCategoryHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\Models\EmailStatusChangeHistory;
 
 class EmailController extends Controller
 {
@@ -212,13 +215,29 @@ class EmailController extends Controller
             ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
 
         //Get All Status
-        $email_status = DB::table('email_status')->get();
+        $email_status = DB::table('email_status');
+
+        if(!empty($request->type) && $request->type == 'outgoing'){
+            $email_status = $email_status->where('type','sent');
+        }else{
+            $email_status = $email_status->where('type','!=','sent');
+        }
+
+        $email_status = $email_status->get();
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
 
         //Get All Category
-        $email_categories = DB::table('email_category')->get();
+        $email_categories = DB::table('email_category');
+
+        if(!empty($request->type) && $request->type == 'outgoing'){
+            $email_categories = $email_categories->where('type','sent');
+        }else{
+            $email_categories = $email_categories->where('type','!=','sent');
+        }
+
+        $email_categories = $email_categories->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -637,7 +656,7 @@ class EmailController extends Controller
 
     public function category(Request $request)
     {
-        $values = ['category_name' => $request->input('category_name'), 'priority' => $request->input('priority')];
+        $values = ['category_name' => $request->input('category_name'), 'priority' => $request->input('priority'),'type' => $request->type];
         DB::table('email_category')->insert($values);
 
         session()->flash('success', 'Category added successfully');
@@ -648,7 +667,7 @@ class EmailController extends Controller
     public function status(Request $request)
     {
         $email_id = $request->input('status');
-        $values = ['email_status' => $request->input('email_status')];
+        $values = ['email_status' => $request->input('email_status'),'type' => $request->type];
         DB::table('email_status')->insert($values);
 
         session()->flash('success', 'Status added successfully');
@@ -913,6 +932,25 @@ class EmailController extends Controller
     public function changeStatus(Request $request)
     {
         Email::where('id', $request->email_id)->update(['status' => $request->status_id]);
+
+        $emailStatusHistory = EmailStatusChangeHistory::where('email_id',$request->email_id)->orderBy('id','desc')->first();
+
+        $old_status_id = '';
+        $old_user_id = '';
+
+        if(!empty($emailStatusHistory)){
+            $old_status_id = $emailStatusHistory->status_id;
+            $old_user_id = $emailStatusHistory->user_id;
+        }
+
+        EmailStatusChangeHistory::create([
+            'status_id' => $request->status_id,
+            'user_id'   => \Auth::id(),
+            'old_status_id' => $old_status_id,
+            'old_user_id'   => $old_user_id,
+            'email_id'  => $request->email_id
+        ]);
+
         session()->flash('success', 'Status has been updated successfully');
 
         return response()->json(['type' => 'success'], 200);
@@ -1414,6 +1452,25 @@ class EmailController extends Controller
     public function changeEmailCategory(Request $request)
     {
         Email::where('id', $request->email_id)->update(['email_category_id' => $request->category_id]);
+
+        $emailCategoryHistory = EmailCategoryHistory::where('email_id',$request->email_id)->orderBy('id','desc')->first();
+
+        $old_category_id = '';
+        $old_user_id = '';
+
+        if(!empty($emailCategoryHistory)){
+            $old_category_id = $emailCategoryHistory->category_id;
+            $old_user_id = $emailCategoryHistory->user_id;
+        }
+
+        EmailCategoryHistory::create([
+            'category_id' => $request->category_id,
+            'user_id'   => \Auth::id(),
+            'old_category_id' => $old_category_id,
+            'old_user_id'   => $old_user_id,
+            'email_id'  => $request->email_id
+        ]);
+
         session()->flash('success', 'Status has been updated successfully');
 
         return response()->json(['type' => 'success'], 200);
@@ -1596,6 +1653,22 @@ class EmailController extends Controller
         $modelColors = ModelColor::where('model_name', 'like', '%' . $request->model_name . '%')->get();
         $returnHTML = view('emails.modelTable')->with('modelColors', $modelColors)->render();
 
+        return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
+    }
+
+    public function getEmailCategoryChangeLogs(Request $request){
+        $emailId = $request->email_id;
+        $emailCagoryLogs = EmailCategoryHistory::with(['category','oldCategory','updatedByUser','user'])->where('email_id',$emailId)->get();
+
+        $returnHTML = view('emails.categoryChangeLogs')->with('data', $emailCagoryLogs)->render();
+        return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
+    }
+
+    public function getEmailStatusChangeLogs(Request $request){
+        $emailId = $request->email_id;
+        $emailCagoryLogs = EmailStatusChangeHistory::with(['status','oldstatus','updatedByUser','user'])->where('email_id',$emailId)->get();
+
+        $returnHTML = view('emails.statusChangeLogs')->with('data', $emailCagoryLogs)->render();
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 }

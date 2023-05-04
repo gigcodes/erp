@@ -17,5 +17,5 @@ class GitMigrationErrorLog extends Model
      * @SWG\Property(property="last_commit_time",type="string")
      * @SWG\Property(property="error",type="string")
      */
-    protected $fillable = ['repository_id', 'branch_name', 'ahead_by', 'behind_by', 'last_commit_author_username', 'last_commit_time', 'error'];
+    protected $fillable = ['github_organization_id', 'repository_id', 'branch_name', 'ahead_by', 'behind_by', 'last_commit_author_username', 'last_commit_time', 'error'];
 }
