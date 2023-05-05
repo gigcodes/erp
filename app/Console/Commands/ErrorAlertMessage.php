@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use App\Helpers\LogHelper;
 
 class ErrorAlertMessage extends Command
 {
@@ -50,12 +51,18 @@ class ErrorAlertMessage extends Command
      */
     public function handle()
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-
-        $path = storage_path('logs');
-        $fullPath = $path . $filename;
-        $errSelection = [];
         try {
+            $error = array();
+            $err = $error['eee'];
+            exit;
+
+
+            $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+
+            $path = storage_path('logs');
+            $fullPath = $path . $filename;
+            $errSelection = [];
+        
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
             $logKeywords = LogKeyword::all();
@@ -87,6 +94,10 @@ class ErrorAlertMessage extends Command
             }
             $this->output->write('Cron Done', true);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
             $this->output->write('Error is caught here! => ' . $e->getMessage(), true);
         }
     }

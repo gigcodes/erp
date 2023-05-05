@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class CheckScraperKilledHistory extends Command
 {
@@ -39,41 +40,47 @@ class CheckScraperKilledHistory extends Command
      */
     public function handle()
     {
-        \Log::info('Command has been started');
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now(),
-        ]);
+        try{
+            \Log::info('Command has been started');
+            $report = CronJobReport::create([
+                'signature' => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $path = getenv('SCRAPER_RESTART_PATH');
+            $path = getenv('SCRAPER_RESTART_PATH');
 
-        $data = file_get_contents($path);
-        $output = explode('.js', $data);
+            $data = file_get_contents($path);
+            $output = explode('.js', $data);
 
-        \Log::info(print_r(['got this out for kill histoyr', $output], true));
+            \Log::info(print_r(['got this out for kill histoyr', $output], true));
 
-        if (count($output) > 0) {
-            foreach ($output as $_data) {
-                $scraper_name = trim($_data);
-                \Log::info('Found this scraper name ' . $scraper_name);
-                if ($scraper_name) {
-                    $scrapers = \App\Scraper::where('scraper_name', $scraper_name)->get();
-                    if ($scrapers) {
-                        \Log::info('record found this scraper name ' . $scraper_name);
-                        foreach ($scrapers as $_scrap) {
-                            $status = \App\ScraperKilledHistory::create([
-                                'scraper_id' => $_scrap->id,
-                                'scraper_name' => $_scrap->scraper_name,
-                                'comment' => 'Scraper killed',
-                            ]);
+            if (count($output) > 0) {
+                foreach ($output as $_data) {
+                    $scraper_name = trim($_data);
+                    \Log::info('Found this scraper name ' . $scraper_name);
+                    if ($scraper_name) {
+                        $scrapers = \App\Scraper::where('scraper_name', $scraper_name)->get();
+                        if ($scrapers) {
+                            \Log::info('record found this scraper name ' . $scraper_name);
+                            foreach ($scrapers as $_scrap) {
+                                $status = \App\ScraperKilledHistory::create([
+                                    'scraper_id' => $_scrap->id,
+                                    'scraper_name' => $_scrap->scraper_name,
+                                    'comment' => 'Scraper killed',
+                                ]);
+                            }
                         }
                     }
                 }
             }
+
+            \Log::info('Job end to finish');
+
+            $report->update(['end_time' => Carbon::now()]);
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        \Log::info('Job end to finish');
-
-        $report->update(['end_time' => Carbon::now()]);
     }
 }

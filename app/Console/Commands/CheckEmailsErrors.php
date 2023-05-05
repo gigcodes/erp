@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
+use App\Helpers\LogHelper;
 
 class CheckEmailsErrors extends Command
 {
@@ -104,6 +105,8 @@ class CheckEmailsErrors extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
