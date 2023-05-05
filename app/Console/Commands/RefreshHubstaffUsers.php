@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffMember;
 use App\Library\Hubstaff\Src\Hubstaff;
+use App\Helpers\LogHelper;
 
 class RefreshHubstaffUsers extends Command
 {
@@ -57,6 +58,8 @@ class RefreshHubstaffUsers extends Command
             $this->refreshUserList();
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

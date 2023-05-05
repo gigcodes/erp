@@ -9,6 +9,7 @@ use App\UserRate;
 use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
+use App\Helpers\LogHelper;
 
 class AccountHubstaffActivities extends Command
 {
@@ -261,6 +262,10 @@ class AccountHubstaffActivities extends Command
             DB::commit();
             echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . '=====FAILED====' . PHP_EOL;

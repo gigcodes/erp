@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Mails\Manual\TicketAck;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class getLiveChatIncTickets extends Command
 {
@@ -139,6 +140,8 @@ class getLiveChatIncTickets extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

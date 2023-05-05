@@ -9,6 +9,7 @@ use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use App\Helpers\LogHelper;
 
 class StoreAdsReportingData extends Command
 {
@@ -43,12 +44,18 @@ class StoreAdsReportingData extends Command
      */
     public function handle()
     {
-        $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
-        foreach ($googleAdsAccounts as $googleAdsAccount) {
-            $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
-            if (! empty($campaignIds)) {
-                $this->getAllCampaignData($googleAdsAccount, $campaignIds);
+        try{
+            $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
+            foreach ($googleAdsAccounts as $googleAdsAccount) {
+                $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
+                if (! empty($campaignIds)) {
+                    $this->getAllCampaignData($googleAdsAccount, $campaignIds);
+                }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
 
         return 0;

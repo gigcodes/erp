@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\WhatsAppController;
+use App\Helpers\LogHelper;
 
 class SendReminderToVendorIfTheyHaventReplied extends Command
 {
@@ -101,6 +102,8 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
