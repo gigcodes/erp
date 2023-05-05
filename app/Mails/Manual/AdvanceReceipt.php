@@ -27,11 +27,11 @@ class AdvanceReceipt extends Mailable
         $count = count($order->order_product);
         foreach ($order->order_product as $key => $order_product) {
             if ((($count - 1) == $key) && $key != 0) {
-                $this->product_names .= ' and '.$order_product->product->name;
+                $this->product_names .= ' and ' . $order_product->product->name;
             } elseif (((($count - 1) == $key) && $key == 0) || ((($count - 1) != $key) && $key == 0)) {
                 $this->product_names .= $order_product->product->name;
             } else {
-                $this->product_names .= ', '.$order_product->product->name;
+                $this->product_names .= ', ' . $order_product->product->name;
             }
         }
     }

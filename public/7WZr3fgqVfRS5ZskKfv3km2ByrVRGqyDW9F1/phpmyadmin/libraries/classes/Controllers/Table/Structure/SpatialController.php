@@ -6,13 +6,13 @@ namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
 use function count;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Controllers\Table\AbstractController;
 use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
 
 final class SpatialController extends AbstractController
 {
@@ -50,7 +50,7 @@ final class SpatialController extends AbstractController
 
         $i = 1;
         $selectedCount = count($selected);
-        $sql_query = 'ALTER TABLE '.Util::backquote($table).' ADD SPATIAL(';
+        $sql_query = 'ALTER TABLE ' . Util::backquote($table) . ' ADD SPATIAL(';
 
         foreach ($selected as $field) {
             $sql_query .= Util::backquote($field);

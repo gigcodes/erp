@@ -55,7 +55,7 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                    <span class="text-danger"></span>
+                                    <span class="text-danger">&nbsp;</span>
                                 </div>
                             </div>
                             <div class="form-group ml-3">
@@ -68,7 +68,7 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                    <span class="text-danger"></span>
+                                    <span class="text-danger">&nbsp;</span>
                                 </div>
                             </div>
                             <!-- end -->
@@ -111,33 +111,33 @@
                             <label>Name</label>
                             <input required type="text" name="name" class="form-control" id="form_name"
                                    aria-describedby="NameHelp" placeholder="Enter Name">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Subject</label>
                             <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>From Email</label>
                             <input required type="text" name="from_email" class="form-control" id="form_from_email" placeholder="Enter From Email">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Salutation</label>
                             <input required type="text" name="salutation" class="form-control" id="form_salutation" placeholder="Enter salutation">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Introduction</label>
                             <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8' style="height: 34px;"></textarea>
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Logo</label>
                             <input type="hidden" name="old_logo" class="py-3" id="form_logo">
                             <input required type="file" name="logo" class="py-3" id="logo">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Template Example</label>
@@ -146,7 +146,7 @@
                         <div class="form-group col-md-6">
                             <label>Static Template</label>
                             <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8' style="height: 34px;"></textarea>
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -158,7 +158,7 @@
                                               "id" => "form_mail_tpl"
                                           ]
                             ); ?>
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -170,7 +170,7 @@
                                               "id" => "template_category"
                                           ]
                             ); ?>
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -182,14 +182,14 @@
                                                    "id" => "store_website"
                                                ]
                             ); ?>
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
 
 
                         <div class="form-group col-md-6">
                             <label for="mail_tpl">Store Website</label>
                             {{ Form::checkbox("store_website", null, null, ["class" => " select2", "required" => true, "id" => "store_website"]) }}
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div>
 
                         <!-- <div class="form-group">
@@ -197,14 +197,14 @@
                             <input required type="text" name="image_count" class="form-control"
                                    id="exampleInputImageCount"
                                    placeholder="Enter Image Count">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div> -->
                         <!-- <div class="form-group">
                             <label for="exampleInputTextCount">Text Count</label>
                             <input required type="text" name="text_count" class="form-control"
                                    id="exampleInputTextCount"
                                    placeholder="Enter Text Count">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div> -->
                         {{-- <div class="form-group col-md-6">
                             <label for="old_image">Template Example</label>
@@ -221,7 +221,7 @@
                         <!-- <div class="form-group d-flex flex-column">
                             <label for="image">File</label>
                             <input required type="file" name="file" class="py-3" id="image">
-                            <span class="text-danger"></span>
+                            <span class="text-danger">&nbsp;</span>
                         </div> -->
                         <button id="store" type="submit" class="btn custom-button">Submit</button>
                     </form>
@@ -498,7 +498,7 @@
             var form = $('#form-store')[0];
             var formData = new FormData(form);
             $.ajax({
-                url: "/mailinglist-templates/store",
+                url: "/marketing/mailinglist-templates/store",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -523,6 +523,8 @@
         // pawan added for calling the function on change for maillistcategory & StoreWebsite filter
         $('#filter_mailinglist_category').on('change',function (e){
             e.preventDefault();
+            var term = $('#term').val();
+            var date = $('#date').val();
             var StoreWebsite = $('#filter_store_website').val();
             var MailingListCategory = $('#filter_mailinglist_category').val();
             // alert(MailingListCategory);
@@ -535,6 +537,8 @@
                 },
                 type: 'GET',
                 data: {
+                    term: term,
+                    date: date,
                     MailingListCategory: MailingListCategory,
                     StoreWebsite: StoreWebsite
                 }
@@ -548,18 +552,22 @@
         });
         $('#filter_store_website').on('change',function (e){
             e.preventDefault();
+            var term = $('#term').val();
+            var date = $('#date').val();
             var StoreWebsite = $('#filter_store_website').val();
             var MailingListCategory = $('#filter_mailinglist_category').val();
             // alert(MailingListCategory);
             // alert(StoreWebsite);
 
             $.ajax({
-                url: "marketing/mailinglist-ajax",
+                url: "/marketing/mailinglist-ajax",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
                 type: 'GET',
                 data: {
+                    term: term,
+                    date: date,
                     MailingListCategory: MailingListCategory,
                     StoreWebsite: StoreWebsite
                 }
@@ -577,6 +585,8 @@
             e.preventDefault();
             var term = $('#term').val();
             var date = $('#date').val();
+            var StoreWebsite = $('#filter_store_website').val();
+            var MailingListCategory = $('#filter_mailinglist_category').val();
             $.ajax({
                 url: "/marketing/mailinglist-ajax",
                 headers: {
@@ -585,7 +595,9 @@
                 type: 'GET',
                 data: {
                     term: term,
-                    date: date
+                    date: date,
+                    MailingListCategory: MailingListCategory,
+                    StoreWebsite: StoreWebsite
                 }
             }).done(function (response) {
                 $('tbody').html('');

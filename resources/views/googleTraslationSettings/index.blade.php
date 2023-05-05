@@ -36,13 +36,15 @@
             <div class="modal-body">
               <table class="table table-bordered table-hover" style="table-layout:fixed;">
                 <thead>
-                    
-                  <th style="width:7%">Error Code</th>
-                  <th style="width:30%">Message </th>
-                  <th style="width:20%">Domain</th>
-                  <th style="width:30%">Reason</th>
-                  <th style="width:10%">Date</th>
-                  <th style="width:10%">Mark as resolve</th>
+                  <th>Error Code</th>
+                  <th>Project Id</th>
+                  <th>Message </th>
+                  <th>Error code</th>
+                  <th>Domain</th>
+                  <th>Reason</th>
+                  <th>Created at</th>
+                  <th>Updated at</th>
+                  <th>Action</th>
                 </thead>
                 <tbody class="error-log-data">
     
@@ -259,12 +261,13 @@
                 url: "{{ route('translation.log') }}" ,
                 data: {
                     "_token": "{{ csrf_token() }}",
-                    "id" : id,
+                    "account_id" : id,
                 },
                 dataType: 'html'
               }).done(function(result) {
                 $('#ErrorLogModal').modal('show');
-              $('.error-log-data').html(result);
+                result = JSON.parse(result);
+                $('.error-log-data').html(result.tbody);
           });
 
       });

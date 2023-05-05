@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Server\Status;
 
 use function __;
-use function array_keys;
 use function count;
-use function mb_strtolower;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Util;
 use function strlen;
+use PhpMyAdmin\Util;
 use function ucfirst;
+use function array_keys;
+use function mb_strtolower;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\DatabaseInterface;
 
 final class Processes
 {
@@ -59,8 +59,8 @@ final class Processes
 
         if (! empty($params['order_by_field']) && ! empty($params['sort_order'])) {
             $sqlQuery .= ' ORDER BY '
-                .Util::backquote($params['order_by_field'])
-                .' '.$params['sort_order'];
+                . Util::backquote($params['order_by_field'])
+                . ' ' . $params['sort_order'];
         }
 
         $result = $this->dbi->query($sqlQuery);

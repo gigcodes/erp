@@ -354,6 +354,9 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 
 Auth::routes();
 
@@ -384,8 +387,6 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -1438,6 +1439,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/assign-modal', [EmailController::class, 'assignModel'])->name('assignModel');
     Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
     Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
+
+    Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
+
+    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -2814,6 +2819,8 @@ Route::post('whatsapp/incoming', [WhatsAppController::class, 'incomingMessage'])
 Route::post('whatsapp/incomingNew', [WhatsAppController::class, 'incomingMessageNew']);
 Route::post('whatsapp/outgoingProcessed', [WhatsAppController::class, 'outgoingProcessed']);
 Route::post('whatsapp/webhook', [WhatsAppController::class, 'webhook']);
+Route::post('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficial']);
+Route::get('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficialVerify']);
 
 Route::get('whatsapp/pullApiwha', [WhatsAppController::class, 'pullApiwha']);
 
@@ -3657,6 +3664,15 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
+
+    Route::prefix('whatsapp-business-account')->group(function () {
+        Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
+        Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
+        Route::post('update', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
+        Route::post('delete/{id}', [WhatsappBusinessAccountController::class, 'deleteAccount'])->name('whatsapp.business.account.delete');
+        Route::get('get/{id}', [WhatsappBusinessAccountController::class, 'getAccount'])->name('whatsapp.business.account.get');
+    });
+
     // Whats App Config
     Route::get('whatsapp-config', [Marketing\WhatsappConfigController::class, 'index'])->name('whatsapp.config.index');
     Route::get('whatsapp-history/{id}', [Marketing\WhatsappConfigController::class, 'history'])->name('whatsapp.config.history');
@@ -4918,6 +4934,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
     Route::post('category/update', [GoogleDocController::class, 'updateGoogleDocCategory'])->name('.category.update');
     Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
+    Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
+    Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {

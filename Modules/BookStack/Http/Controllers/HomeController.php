@@ -2,10 +2,10 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Views;
 use Activity;
 use Illuminate\Http\Response;
 use Modules\BookStack\Entities\Repos\EntityRepo;
-use Views;
 
 class HomeController extends Controller
 {
@@ -13,8 +13,6 @@ class HomeController extends Controller
 
     /**
      * HomeController constructor.
-     *
-     * @param  EntityRepo  $entityRepo
      */
     public function __construct(EntityRepo $entityRepo)
     {
@@ -51,9 +49,9 @@ class HomeController extends Controller
         // Add required list ordering & sorting for books & shelves views.
         if ($homepageOption === 'bookshelves' || $homepageOption === 'books') {
             $key = $homepageOption;
-            $view = setting()->getUser($this->currentUser, $key.'_view_type', config('app.views.'.$key));
-            $sort = setting()->getUser($this->currentUser, $key.'_sort', 'name');
-            $order = setting()->getUser($this->currentUser, $key.'_sort_order', 'asc');
+            $view = setting()->getUser($this->currentUser, $key . '_view_type', config('app.views.' . $key));
+            $sort = setting()->getUser($this->currentUser, $key . '_sort', 'name');
+            $order = setting()->getUser($this->currentUser, $key . '_sort_order', 'asc');
 
             $sortOptions = [
                 'name' => trans('bookstack::common.sort_name'),

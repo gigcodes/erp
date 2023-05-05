@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\TaskCategory;
 use Auth;
+use App\TaskCategory;
 use Illuminate\Http\Request;
 
 class TaskCategoryController extends Controller

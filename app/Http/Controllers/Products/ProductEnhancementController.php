@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Products;
 
+use File;
+use App\Product;
 use App\Helpers\QueryHelper;
+use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\Http\Controllers\Controller;
-use App\Product;
-use File;
-use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductEnhancementController extends Controller
@@ -103,14 +103,14 @@ class ProductEnhancementController extends Controller
 
         // No product found
         if ($product == null) {
-            \Log::channel('productUpdates')->debug('Product '.$product->id.' not found');
+            \Log::channel('productUpdates')->debug('Product ' . $product->id . ' not found');
 
             return response()->json([
                 'error' => 'Product is not found',
             ], 400);
         }
 
-        //sets initial status pending for finalApproval in product status histroy 
+        //sets initial status pending for finalApproval in product status histroy
         $data = [
             'product_id' => $product->id,
             'old_status' => $product->status_id,
@@ -118,11 +118,11 @@ class ProductEnhancementController extends Controller
             'pending_status' => 1,
             'created_at' => date('Y-m-d H:i:s'),
         ];
-        \App\ProductStatusHistory::addStatusToProduct($data); 
+        \App\ProductStatusHistory::addStatusToProduct($data);
 
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {
-            \Log::channel('productUpdates')->debug('Received enhanced files for '.$product->id.' but the status is not '.StatusHelper::$isBeingEnhanced.' but '.$product->status_id);
+            \Log::channel('productUpdates')->debug('Received enhanced files for ' . $product->id . ' but the status is not ' . StatusHelper::$isBeingEnhanced . ' but ' . $product->status_id);
 
             return response()->json([
                 'error' => 'Product is not being enhanced',
@@ -142,7 +142,7 @@ class ProductEnhancementController extends Controller
                 // Upload media
                 $media = MediaUploader::fromSource($file)
                                         ->useFilename(uniqid('cropped_', true))
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
 
                 // Attach media to product

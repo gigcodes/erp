@@ -7,11 +7,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Server\Privileges;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Server\Privileges;
 
 /**
  * Controller for table privileges

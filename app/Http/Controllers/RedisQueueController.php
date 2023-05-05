@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers;
-use App\RedisQueue;
-use App\RedisQueueCommandExecutionLog;
-use App\Setting;
 use Auth;
+use App\Helpers;
+use App\Setting;
+use App\RedisQueue;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
+use App\RedisQueueCommandExecutionLog;
 use Illuminate\Support\Facades\Storage;
 
 class RedisQueueController extends Controller
@@ -20,16 +19,14 @@ class RedisQueueController extends Controller
      */
     public function index(Request $request)
     {
-        $queues = RedisQueue::orderBy('name','desc');
+        $queues = RedisQueue::orderBy('name', 'desc');
 
-        if(!empty($request->name))
-        {
-            $queues->where('name', 'LIKE', '%'.$request->name.'%');
+        if (! empty($request->name)) {
+            $queues->where('name', 'LIKE', '%' . $request->name . '%');
         }
 
-        if(!empty($request->type))
-        {
-            $queues->where('type', 'LIKE', '%'.$request->type.'%');
+        if (! empty($request->type)) {
+            $queues->where('type', 'LIKE', '%' . $request->type . '%');
         }
 
         $queues = $queues->paginate(Setting::get('pagination'));
@@ -42,13 +39,12 @@ class RedisQueueController extends Controller
             ], 200);
         }
 
-        return view('redis_queue.index', compact('queues','types'));
+        return view('redis_queue.index', compact('queues', 'types'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -68,7 +64,6 @@ class RedisQueueController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\RedisQueue  $redisQueue
      * @return \Illuminate\Http\Response
      */
     public function edit(RedisQueue $redisQueue)
@@ -90,7 +85,6 @@ class RedisQueueController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -111,7 +105,6 @@ class RedisQueueController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function delete(Request $request)
@@ -128,7 +121,6 @@ class RedisQueueController extends Controller
     /**
      * Execute queue.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function execute(Request $request)
@@ -142,7 +134,7 @@ class RedisQueueController extends Controller
         }
 
         $queue = RedisQueue::find($request->get('id'));
-        $cmd = 'queue:'.$keyword.' redis --queue='.$queue->name;
+        $cmd = 'queue:' . $keyword . ' redis --queue=' . $queue->name;
 
         try {
             $response = [];
@@ -152,16 +144,16 @@ class RedisQueueController extends Controller
             if ($result == '') {
                 $result = 'Not any response';
             } elseif ($result == 0) {
-                $result = 'Command run success Response '.$result;
+                $result = 'Command run success Response ' . $result;
             } elseif ($result == 1) {
-                $result = 'Command run Fail Response '.$result;
+                $result = 'Command run Fail Response ' . $result;
             } else {
                 $result = is_array($result) ? json_encode($result, true) : $result;
             }
 
             $this->addExecutionLog($cmd, $result, $queue->id);
-            return response()->json(['code' => 200, 'message' => 'Command executed successfully']);
 
+            return response()->json(['code' => 200, 'message' => 'Command executed successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             $this->addExecutionLog($cmd, $result, $queue->id);
@@ -173,15 +165,13 @@ class RedisQueueController extends Controller
     /**
      * Execute queue.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function executeHorizon(Request $request)
     {
-
         try {
             $cmd = $request->get('command_tail');
-            $cmd = 'php ../artisan '. $cmd;
+            $cmd = 'php ../artisan ' . $cmd;
             $response = [];
             $response[] = $cmd;
             $result = exec($cmd, $response);
@@ -189,18 +179,19 @@ class RedisQueueController extends Controller
             if ($result == '') {
                 $result = 'Not any response';
             } elseif ($result == 0) {
-                $result = 'Command run success Response '.$result;
+                $result = 'Command run success Response ' . $result;
             } elseif ($result == 1) {
-                $result = 'Command run Fail Response '.$result;
+                $result = 'Command run Fail Response ' . $result;
             } else {
                 $result = is_array($result) ? json_encode($result, true) : $result;
             }
 
             $this->addExecutionLog($cmd, $result);
-            if($request->get('command_tail') == 'horizon:status')
+            if ($request->get('command_tail') == 'horizon:status') {
                 return response()->json(['code' => 200, 'message' => $result]);
-            else
+            } else {
                 return response()->json(['code' => 200, 'message' => 'Command executed successfully']);
+            }
         } catch (\Exception $e) {
             $result = $e->getMessage();
             $this->addExecutionLog($cmd, $result);
@@ -216,8 +207,9 @@ class RedisQueueController extends Controller
         $command->command = $cmd;
         $command->server_ip = env('SERVER_IP');
         $command->response = $result;
-        if($id)
+        if ($id) {
             $command->redis_queue_id = $id;
+        }
         $command->save();
     }
 
@@ -240,7 +232,7 @@ class RedisQueueController extends Controller
         $queues = RedisQueue::all();
         $queueString = '';
         foreach ($queues as $queue) {
-            $queueString .= $queue->name.',';
+            $queueString .= $queue->name . ',';
         }
         $queueString = rtrim($queueString, ',');
         $response = Storage::disk('public_disk')->put('queues.txt', $queueString);

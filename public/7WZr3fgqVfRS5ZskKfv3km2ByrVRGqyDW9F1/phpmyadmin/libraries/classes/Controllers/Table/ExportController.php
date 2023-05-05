@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function array_merge;
-use function implode;
-use function is_array;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\Export\Options;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Plugins;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\SelectStatement;
-use PhpMyAdmin\SqlParser\Utils\Query;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use function implode;
+use function is_array;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Plugins;
+use PhpMyAdmin\Template;
+use function array_merge;
+use PhpMyAdmin\Export\Options;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\SqlParser\Utils\Query;
+use PhpMyAdmin\SqlParser\Statements\SelectStatement;
 
 class ExportController extends AbstractController
 {
@@ -67,7 +67,7 @@ class ExportController extends AbstractController
                 if (! empty($where_clause) && is_array($where_clause)) {
                     $replaces[] = [
                         'WHERE',
-                        'WHERE ('.implode(') OR (', $where_clause).')',
+                        'WHERE (' . implode(') OR (', $where_clause) . ')',
                     ];
                 }
 

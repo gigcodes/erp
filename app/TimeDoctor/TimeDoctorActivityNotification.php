@@ -19,9 +19,7 @@ class TimeDoctorActivityNotification extends Model
         'actual_percentage',
         'reason',
         'status',
-        'client_remarks'
+        'client_remarks',
 
     ];
-    
-   
 }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ProductHelper;
-use App\Jobs\PushToMagento;
-use App\Library\DHL\GetRateRequest;
-use App\Loggers\LogListMagento;
-use App\Mails\Manual\OrderConfirmation;
 use App\Product;
 use App\StoreWebsite;
+use App\Jobs\PushToMagento;
 use Illuminate\Http\Request;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
+use App\Library\DHL\GetRateRequest;
+use App\Mails\Manual\OrderConfirmation;
 
 class TmpTaskController extends Controller
 {
@@ -122,7 +122,7 @@ class TmpTaskController extends Controller
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
         } catch (\Exception $e) {
             \Log::error($e);
-            \Log::info('Order email was not send due to template not setup'.$orderSaved->id);
+            \Log::info('Order email was not send due to template not setup' . $orderSaved->id);
         }
 
         exit;
@@ -189,8 +189,8 @@ class TmpTaskController extends Controller
                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             }
             if (count($websiteArrays) == 0) {
-                \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
-                $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
+                \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
+                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
             //ProductPushErrorLog::log($product->id, $msg, 'error');
             //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
             } else {
@@ -199,8 +199,8 @@ class TmpTaskController extends Controller
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
                         // testing
-                        \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                        \Log::channel('productUpdates')->info('Product started website found For website' . $website->website);
+                        $log = LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id);
                         //currently we have 3 queues assigned for this task.
                         if ($i > 3) {
                             $i = 1;
@@ -225,14 +225,14 @@ class TmpTaskController extends Controller
                 $isUpdatePrice = false;
                 if (strlen($brand->min_sale_price) > 4) {
                     $isUpdatePrice = true;
-                    echo "{$brand->name} updated from {$brand->min_sale_price} to ".substr($brand->min_sale_price, 0, 4);
+                    echo "{$brand->name} updated from {$brand->min_sale_price} to " . substr($brand->min_sale_price, 0, 4);
                     echo '</br>';
                     $brand->min_sale_price = substr($brand->min_sale_price, 0, 4);
                 }
 
                 if (strlen($brand->max_sale_price) > 4) {
                     $isUpdatePrice = true;
-                    echo "{$brand->name} updated from {$brand->max_sale_price} to ".substr($brand->max_sale_price, 0, 4);
+                    echo "{$brand->name} updated from {$brand->max_sale_price} to " . substr($brand->max_sale_price, 0, 4);
                     echo '</br>';
                     $brand->max_sale_price = substr($brand->max_sale_price, 0, 4);
                 }
@@ -255,7 +255,7 @@ class TmpTaskController extends Controller
                     foreach ($medias as $i => $media) {
                         foreach ($media as $m) {
                             if (strpos($m->directory, 'product') === false) {
-                                echo $m->getAbsolutePath().' started to delete';
+                                echo $m->getAbsolutePath() . ' started to delete';
                                 $m->delete();
                             }
                         }
@@ -284,7 +284,7 @@ class TmpTaskController extends Controller
                 if (! $medias->isEmpty()) {
                     foreach ($medias as $i => $media) {
                         foreach ($media as $m) {
-                            echo $m->getAbsolutePath().' started to delete';
+                            echo $m->getAbsolutePath() . ' started to delete';
                             $m->delete();
                         }
                     }

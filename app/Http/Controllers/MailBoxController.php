@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use DB;
+
 use Auth;
 use App\Email;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\Models\EmailBox;
+use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
 
 class MailBoxController extends Controller
@@ -44,7 +44,7 @@ class MailBoxController extends Controller
         $status = $request->status ?? '';
         $category = $request->category ?? '';
         $mailbox = $request->mail_box ?? '';
-        $email_model_type = $request->email_model_type?? '';
+        $email_model_type = $request->email_model_type ?? '';
         $email_box_id = $request->email_box_id ?? '';
 
         $date = $request->date ?? '';
@@ -56,19 +56,19 @@ class MailBoxController extends Controller
         if (count($usernames) > 0) {
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('from', 'like', '%'.$_uname.'%');
+                    $query->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $query = $query->orWhere(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('to', 'like', '%'.$_uname.'%');
+                    $query->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
 
-        if(empty($category)){
-            $query = $query->whereHas('category', function($q){
+        if (empty($category)) {
+            $query = $query->whereHas('category', function ($q) {
                 $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
             })
             ->orWhere('email_category_id', '<=', 0);
@@ -91,33 +91,30 @@ class MailBoxController extends Controller
             $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('status', 'pre-send');
-        } 
-        else if(!empty($request->type)){
+        } elseif (! empty($request->type)) {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
             });
-        }
-        else {
+        } else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
-            })->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');;
+            })->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
         }
-        if ($email_model_type)
-        {
+        if ($email_model_type) {
             $model_type = explode(',', $email_model_type);
-                $query = $query->where(function ($query) use ($model_type) {
-                    $query->whereIn('model_type', $model_type);
-                });
+            $query = $query->where(function ($query) use ($model_type) {
+                $query->whereIn('model_type', $model_type);
+            });
         }
         if ($date) {
             $query = $query->whereDate('created_at', $date);
         }
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from', 'like', '%'.$term.'%')
-                    ->orWhere('to', 'like', '%'.$term.'%')
-                    ->orWhere('subject', 'like', '%'.$term.'%')
-                    ->orWhere('message', 'like', '%'.$term.'%');
+                $query->where('from', 'like', '%' . $term . '%')
+                    ->orWhere('to', 'like', '%' . $term . '%')
+                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('message', 'like', '%' . $term . '%');
             });
         }
 
@@ -147,7 +144,7 @@ class MailBoxController extends Controller
                 });
             }
         }
-        
+
         if (! empty($mailbox)) {
             $mailbox = explode(',', $request->mail_box);
             $query = $query->where(function ($query) use ($mailbox) {
@@ -165,18 +162,19 @@ class MailBoxController extends Controller
         if (! $trash_query) {
             $query = $query->where(function ($query) use ($type) {
                 $isDraft = ($type == 'draft') ? 1 : 0;
+
                 return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
             });
         }
 
-        if($email_box_id){
+        if ($email_box_id) {
             $emailBoxIds = explode(',', $email_box_id);
 
-            $query =  $query->where(function ($query) use ($emailBoxIds) {
+            $query = $query->where(function ($query) use ($emailBoxIds) {
                 $query->whereIn('email_box_id', $emailBoxIds);
             });
-        }else{
-            $query =  $query->where(function ($query) use ($email_box_id) {
+        } else {
+            $query = $query->where(function ($query) {
                 $query->whereNotNull('email_box_id');
             });
         }
@@ -188,13 +186,13 @@ class MailBoxController extends Controller
             if (count($usernames) > 0) {
                 $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('from', 'like', '%'.$_uname.'%');
+                        $query->orWhere('from', 'like', '%' . $_uname . '%');
                     }
                 });
 
                 $query = $query->orWhere(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('to', 'like', '%'.$_uname.'%');
+                        $query->orWhere('to', 'like', '%' . $_uname . '%');
                     }
                 });
 
@@ -218,7 +216,7 @@ class MailBoxController extends Controller
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
-        
+
         //Get All Category
         $email_categories = DB::table('email_category')->get();
 
@@ -243,7 +241,7 @@ class MailBoxController extends Controller
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
-        
+
         $totalEmail = Email::whereNotNull('email_box_id')->count();
 
         $emailBoxes = EmailBox::select('id', 'box_name')->get();
@@ -264,7 +262,6 @@ class MailBoxController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -297,7 +294,6 @@ class MailBoxController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

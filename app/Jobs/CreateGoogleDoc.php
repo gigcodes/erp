@@ -2,20 +2,22 @@
 
 namespace App\Jobs;
 
-use App\GoogleDoc;
 use Exception;
+use App\GoogleDoc;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateGoogleDoc
 {
     use Dispatchable, SerializesModels;
 
     private $googleDoc;
+
     private $execute;
+
     private $permissionForAll;
 
     /**
@@ -41,15 +43,15 @@ class CreateGoogleDoc
         $client = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
-        $docMimeType =  $this->googleDoc->type == 'ppt'?'application/vnd.google-apps.presentation':'application/vnd.google-apps.document';
+        $docMimeType = $this->googleDoc->type == 'ppt' ? 'application/vnd.google-apps.presentation' : 'application/vnd.google-apps.document';
         try {
-            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write,$docMimeType);
+            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write, $docMimeType);
             $spreadsheetId = $createFile->id;
 
             $this->googleDoc->docId = $spreadsheetId;
             $this->googleDoc->save();
         } catch (Exception $e) {
-            echo 'Message: '.$e->getMessage();
+            echo 'Message: ' . $e->getMessage();
             dd($e);
         }
     }
@@ -75,7 +77,7 @@ class CreateGoogleDoc
 
             return $file->parents;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
         }
     }
 
@@ -97,12 +99,12 @@ class CreateGoogleDoc
             ]);
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
-            
-            if($this->permissionForAll == "anyone") {
+
+            if ($this->permissionForAll == 'anyone') {
                 $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
-                    'role' => 'reader'
+                    'role' => 'reader',
                 ]);
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'full-access');
@@ -111,7 +113,7 @@ class CreateGoogleDoc
                 $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
-                    'role' => 'writer'
+                    'role' => 'writer',
                 ]);
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'full-access');
@@ -119,32 +121,32 @@ class CreateGoogleDoc
             } else {
                 $batch = $driveService->createBatch();
                 $googleDocUsersRead = explode(',', $googleDocUsersRead);
-    
+
                 foreach ($googleDocUsersRead as $email) {
                     $userPermission = new Drive\Permission([
                         'type' => 'user',
                         'role' => 'reader',
                         'emailAddress' => $email,
                     ]);
-    
+
                     $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                    $batch->add($request, 'user'.$index);
+                    $batch->add($request, 'user' . $index);
                     $index++;
                 }
                 $results = $batch->execute();
-    
+
                 $batch = $driveService->createBatch();
                 $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
-    
+
                 foreach ($googleDocUsersWrite as $email) {
                     $userPermission = new Drive\Permission([
                         'type' => 'user',
                         'role' => 'writer',
                         'emailAddress' => $email,
                     ]);
-    
+
                     $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                    $batch->add($request, 'user'.$index);
+                    $batch->add($request, 'user' . $index);
                     $index++;
                 }
                 $results = $batch->execute();
@@ -152,10 +154,11 @@ class CreateGoogleDoc
 
             return $file;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
             dd($e);
         }
     }
+
     public function insertPermission($fileId, $value, $type, $role)
     {
         $service = $this->service;
@@ -166,7 +169,7 @@ class CreateGoogleDoc
         try {
             return $service->permissions->create($fileId, $newPermission);
         } catch (Exception $e) {
-            echo 'An error occurred: '.$e->getMessage();
+            echo 'An error occurred: ' . $e->getMessage();
         }
 
         return null;

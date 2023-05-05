@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\scraperImags;
 use Carbon\Carbon;
+use App\scraperImags;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -43,7 +43,7 @@ class scrappersImagesDelete extends Command
         $filesList = scraperImags::where('created_at', '<', Carbon::now()->subDays(2)->toDateTimeString())->pluck('img_url');
 
         foreach ($filesList as $images) {
-            File::delete(public_path('scrappersImages/'.$images));
+            File::delete(public_path('scrappersImages/' . $images));
         }
 
         $queuesList = scraperImags::where('created_at', '<', Carbon::now()->subDays(2)->toDateTimeString())->delete();

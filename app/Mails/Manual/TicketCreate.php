@@ -33,14 +33,14 @@ class TicketCreate extends Mailable
      */
     public function build()
     {
-        $subject = 'New Ticket # '.$this->ticket->ticket_id;
+        $subject = 'New Ticket # ' . $this->ticket->ticket_id;
         $ticket = $this->ticket;
         $customer = $ticket->customer;
 
         $this->subject = $subject;
-        $emailAddress = \App\EmailAddress::whereHas('website', function($q) use($ticket){
-                            $q->where('website', '=', $ticket->source_of_ticket);
-                        })->first();
+        $emailAddress = \App\EmailAddress::whereHas('website', function ($q) use ($ticket) {
+            $q->where('website', '=', $ticket->source_of_ticket);
+        })->first();
 
         if ($emailAddress) {
             $this->fromMailer = $emailAddress->from_address;

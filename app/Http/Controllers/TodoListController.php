@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Setting;
-use App\TodoCategory;
-use App\TodoList;
-use App\ToDoListRemarkHistoryLog;
-use App\TodoStatus;
 use Auth;
+use App\Setting;
+use App\TodoList;
+use App\TodoStatus;
+use App\TodoCategory;
 use Illuminate\Http\Request;
+use App\ToDoListRemarkHistoryLog;
 
 class TodoListController extends Controller
 {
@@ -27,11 +27,11 @@ class TodoListController extends Controller
             $todolists = TodoList::with('username');
 
             if ($s = $search_title) {
-                $todolists->where('title', 'like', '%'.$s.'%');
+                $todolists->where('title', 'like', '%' . $s . '%');
             }
 
             if ($s = $search_status) {
-                $todolists->where('status', 'like', '%'.$s.'%');
+                $todolists->where('status', 'like', '%' . $s . '%');
             }
 
             if ($s = $search_date) {
@@ -74,7 +74,6 @@ class TodoListController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -84,10 +83,10 @@ class TodoListController extends Controller
             $todolists->user_id = Auth::user()->id ?? '';
             $todolists->title = $request->title;
             $todolists->subject = $request->subject;
-            $todolists->status = $request->status ?? "";
+            $todolists->status = $request->status ?? '';
             $todolists->todo_date = $request->todo_date;
             $todolists->remark = $request->remark;
-            $todolists->todo_category_id = $request->todo_category_id ?? "";
+            $todolists->todo_category_id = $request->todo_category_id ?? '';
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
             //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
@@ -101,7 +100,6 @@ class TodoListController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
     public function show(TodoList $todoList)
@@ -112,7 +110,6 @@ class TodoListController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
     public function edit(TodoList $todoList)
@@ -134,8 +131,6 @@ class TodoListController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, TodoList $todoList)
@@ -163,7 +158,6 @@ class TodoListController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
     public function destroy(TodoList $todoList)

@@ -57,18 +57,18 @@ class UserAvaibilityHistory extends Model
 
         foreach ($dateArr as $date) {
             if ($stTimer < $enTimer) {
-                $stDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$stTimer));
-                $enDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$enTimer));
+                $stDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $stTimer));
+                $enDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $enTimer));
             } else {
-                $stDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$stTimer));
-                $enDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$enTimer.' + 1 day'));
+                $stDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $stTimer));
+                $enDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $enTimer . ' + 1 day'));
             }
 
             $lunchTime = null;
             if ($lunchTimer) {
-                $lunchTime = date('Y-m-d H:i:00', strtotime($date.' '.$lunchTimer));
+                $lunchTime = date('Y-m-d H:i:00', strtotime($date . ' ' . $lunchTimer));
                 if ($lunchTime < date('Y-m-d H:i:00', strtotime($stDatetime))) {
-                    $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime.' + 1 day'));
+                    $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' + 1 day'));
                 } else {
                     $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
                 }
@@ -84,13 +84,13 @@ class UserAvaibilityHistory extends Model
                 $enTime1 = $lunchTime;
                 $slots = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
 
-                $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime.' +1 hour')));
+                $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour')));
                 foreach ($temp as $key => $value) {
                     $temp[$key]['type'] = 'LUNCH';
                 }
                 $slots = array_merge_recursive($slots, $temp);
 
-                $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime.' +1 hour'));
+                $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
                 $enTime2 = $enDatetime;
                 $slots = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
             } else {

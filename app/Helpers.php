@@ -12,10 +12,10 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Helpers
 {
@@ -92,7 +92,7 @@ class Helpers
 
             $diff = round($diff);
 
-            return $diff.' '.$strTime[$i].'(s) ago ';
+            return $diff . ' ' . $strTime[$i] . '(s) ago ';
         }
     }
 
@@ -282,9 +282,9 @@ class Helpers
             //build next url
             if ($location[0] == '/') {
                 $u = parse_url($url);
-                $url = $u['scheme'].'://'.$u['host'];
+                $url = $u['scheme'] . '://' . $u['host'];
                 if (isset($u['port'])) {
-                    $url .= ':'.$u['port'];
+                    $url .= ':' . $u['port'];
                 }
                 $url .= $location;
             } else {

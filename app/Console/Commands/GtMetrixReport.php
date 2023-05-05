@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Repositories\GooglePageSpeedRepository;
-use App\Repositories\GtMatrixRepository;
 use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
+use App\Repositories\GtMatrixRepository;
+use App\Repositories\GooglePageSpeedRepository;
 
 class GtMetrixReport extends Command
 {

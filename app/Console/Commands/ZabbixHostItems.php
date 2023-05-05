@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Host;
 use App\HostItem;
-use App\ZabbixHistory;
 use Carbon\Carbon;
+use App\ZabbixHistory;
 use Illuminate\Console\Command;
 
 class ZabbixHostItems extends Command
@@ -101,7 +101,7 @@ class ZabbixHostItems extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -123,7 +123,7 @@ class ZabbixHostItems extends Command
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
-            \Log::channel('general')->info(Carbon::now().$results[0]->error->data);
+            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
             return 0;
         }
@@ -132,7 +132,7 @@ class ZabbixHostItems extends Command
     public function item_api($auth_key, $hostid, $name)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'item.get',

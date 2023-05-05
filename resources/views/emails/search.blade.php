@@ -5,7 +5,7 @@
     @endif
   </td>
   <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
-  <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
+  <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')">
     {{ substr($email->from, 0,  20) }} {{strlen($email->from) > 20 ? '...' : '' }}
   </td>
   <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
@@ -13,19 +13,19 @@
   </td>
   <td>
     @if(array_key_exists($email->model_type, $emailModelTypes))
-    {{$email->model_type?$emailModelTypes[$email->model_type]:'N/A' }}
+    {{$email->model_type? $emailModelTypes[$email->model_type] : 'N/A' }}
     @else
-    {{$email->model_type}}
+    {{ $email->model_type }}
     @endif
   </td>
   <td>{{ $email->type }}</td>
   <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
   <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
-    <span id="td-mini-container-{{$email->id}}" class="">
-    {{ substr($email->message, 0,  25) }} {{strlen($email->message) > 20 ? '...' : '' }}
+    <span id="td-mini-container-{{$email->id}}" data-body="{{ $email->message }}" class="emailBodyContent">
+      <iframe src="" frameborder="0"></iframe>
     </span>
     <span id ="td-full-container-{{$email->id}}" class="hidden">
-    <iframe src="" id="listFrame-{{$email->id}}" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('listFrame-{{$email->id}}');"></iframe>
+    <iframe src="data:text/html,rawr" id="listFrame-{{$email->id}}" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('listFrame-{{$email->id}}');"></iframe>
     </span>
   </td>
   <td width="1%">
@@ -57,11 +57,7 @@
     <select class="form-control selecte2 email-category">
       <option  value="" >Please select</option>
       @foreach($email_categories as $email_category)
-      @if($email_category->id == (int)$email->email_category_id)
-      <option  value="{{ $email_category->id }}" data-id="{{$email->id}}"   selected>{{ $email_category->category_name }}</option>
-      @else
-      <option  value="{{ $email_category->id }}" data-id="{{$email->id}}" >{{$email_category->category_name }}</option>
-      @endif
+          <option  value="{{ $email_category->id }}" data-id="{{$email->id}}" {{ $email_category->id == $email->email_category_id ? 'selected' : '' }}>{{$email_category->category_name }}</option>
       @endforeach
     </select>
   </td>
@@ -109,6 +105,16 @@
     <a class="btn btn-image btn-ht" title="View Email Log" onclick="fetchEmailLog('{{$email['id']}}')">
     <i class="fa fa-history" aria-hidden="true"></i>
     </a>
+
+    @if(empty($email->module_type) && $email->is_unknow_module == 1)
+      <a style="padding:3px;" type="button" title="Assign Model" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openAssignModelPopup(this);"> <i class="fa fa-envelope" aria-hidden="true"></i> </a>
+    @endif
+
+
+    <a style="padding:3px;" type="button" title="Email Category Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailCategoryChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
+
+    <a style="padding:3px;" type="button" title="Email Status Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailStatusChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
+
   </td>
 </tr>
 @endforeach

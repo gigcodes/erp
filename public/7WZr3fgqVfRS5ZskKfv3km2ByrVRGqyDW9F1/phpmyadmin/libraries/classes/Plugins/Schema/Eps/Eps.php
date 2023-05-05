@@ -7,9 +7,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Eps;
 
+use function strlen;
 use PhpMyAdmin\Core;
 use PhpMyAdmin\ResponseRenderer;
-use function strlen;
 
 /**
  * This Class is EPS Library and
@@ -48,7 +48,7 @@ class Eps
      */
     public function setTitle($value): void
     {
-        $this->stringCommands .= '%%Title: '.$value."\n";
+        $this->stringCommands .= '%%Title: ' . $value . "\n";
     }
 
     /**
@@ -58,7 +58,7 @@ class Eps
      */
     public function setAuthor($value): void
     {
-        $this->stringCommands .= '%%Creator: '.$value."\n";
+        $this->stringCommands .= '%%Creator: ' . $value . "\n";
     }
 
     /**
@@ -68,7 +68,7 @@ class Eps
      */
     public function setDate($value): void
     {
-        $this->stringCommands .= '%%CreationDate: '.$value."\n";
+        $this->stringCommands .= '%%CreationDate: ' . $value . "\n";
     }
 
     /**
@@ -81,10 +81,10 @@ class Eps
         $this->stringCommands .= "%%PageOrder: Ascend \n";
         if ($orientation === 'L') {
             $orientation = 'Landscape';
-            $this->stringCommands .= '%%Orientation: '.$orientation."\n";
+            $this->stringCommands .= '%%Orientation: ' . $orientation . "\n";
         } else {
             $orientation = 'Portrait';
-            $this->stringCommands .= '%%Orientation: '.$orientation."\n";
+            $this->stringCommands .= '%%Orientation: ' . $orientation . "\n";
         }
 
         $this->stringCommands .= "%%EndComments \n";
@@ -104,9 +104,9 @@ class Eps
     {
         $this->font = $value;
         $this->fontSize = $size;
-        $this->stringCommands .= '/'.$value." findfont   % Get the basic font\n";
+        $this->stringCommands .= '/' . $value . " findfont   % Get the basic font\n";
         $this->stringCommands .= ''
-            .$size.' scalefont            % Scale the font to '.$size." points\n";
+            . $size . ' scalefont            % Scale the font to ' . $size . " points\n";
         $this->stringCommands .= "setfont                 % Make it the current font\n";
     }
 
@@ -153,9 +153,9 @@ class Eps
         $y_to = 0,
         $lineWidth = 0
     ): void {
-        $this->stringCommands .= $lineWidth." setlinewidth  \n";
-        $this->stringCommands .= $x_from.' '.$y_from." moveto \n";
-        $this->stringCommands .= $x_to.' '.$y_to." lineto \n";
+        $this->stringCommands .= $lineWidth . " setlinewidth  \n";
+        $this->stringCommands .= $x_from . ' ' . $y_from . " moveto \n";
+        $this->stringCommands .= $x_to . ' ' . $y_to . " lineto \n";
         $this->stringCommands .= "stroke \n";
     }
 
@@ -177,12 +177,12 @@ class Eps
      */
     public function rect($x_from, $y_from, $x_to, $y_to, $lineWidth): void
     {
-        $this->stringCommands .= $lineWidth." setlinewidth  \n";
+        $this->stringCommands .= $lineWidth . " setlinewidth  \n";
         $this->stringCommands .= "newpath \n";
-        $this->stringCommands .= $x_from.' '.$y_from." moveto \n";
-        $this->stringCommands .= '0 '.$y_to." rlineto \n";
-        $this->stringCommands .= $x_to." 0 rlineto \n";
-        $this->stringCommands .= '0 -'.$y_to." rlineto \n";
+        $this->stringCommands .= $x_from . ' ' . $y_from . " moveto \n";
+        $this->stringCommands .= '0 ' . $y_to . " rlineto \n";
+        $this->stringCommands .= $x_to . " 0 rlineto \n";
+        $this->stringCommands .= '0 -' . $y_to . " rlineto \n";
         $this->stringCommands .= "closepath \n";
         $this->stringCommands .= "stroke \n";
     }
@@ -199,7 +199,7 @@ class Eps
      */
     public function moveTo($x, $y): void
     {
-        $this->stringCommands .= $x.' '.$y." moveto \n";
+        $this->stringCommands .= $x . ' ' . $y . " moveto \n";
     }
 
     /**
@@ -209,7 +209,7 @@ class Eps
      */
     public function show($text): void
     {
-        $this->stringCommands .= '('.$text.") show \n";
+        $this->stringCommands .= '(' . $text . ") show \n";
     }
 
     /**

@@ -101,7 +101,7 @@ class LogScraperVsAi extends Model
             // Skip empty keywords
             if (! empty($keyword)) {
                 // Check database for result
-                $dbResult = Category::where('title', $keyword)->orWhere('references', 'like', '%'.$keyword.'%')->first();
+                $dbResult = Category::where('title', $keyword)->orWhere('references', 'like', '%' . $keyword . '%')->first();
 
                 // Result? Add the keyword
                 if ($dbResult !== null) {
@@ -126,7 +126,7 @@ class LogScraperVsAi extends Model
 
         // No result? Try where like
         if ($dbResult->count() == 0) {
-            $dbResult = Category::where('references', 'like', '%'.$keyword.'%')->get();
+            $dbResult = Category::where('references', 'like', '%' . $keyword . '%')->get();
         }
 
         // Still no result

@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperTask;
-use App\Exports\ScrapRemarkExport;
-use App\Scraper;
-use App\ScraperProcess;
-use App\ScrapHistory;
-use App\ScrapRemark;
-use App\ScrapStatistics;
-use App\Supplier;
-use App\User;
 use Auth;
-use Carbon\Carbon;
+use App\User;
 use Exception;
+use App\Scraper;
+use App\Supplier;
+use Carbon\Carbon;
+use App\ScrapRemark;
+use App\ScrapHistory;
+use App\DeveloperTask;
+use App\ScraperProcess;
+use App\ScrapStatistics;
 use Illuminate\Http\Request;
+use App\Exports\ScrapRemarkExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Zend\Diactoros\Response\JsonResponse;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ScrapStatisticsController extends Controller
 {
@@ -111,7 +111,7 @@ class ScrapStatisticsController extends Controller
         }
 
         if ($request->task_assigned_to > 0) {
-            $activeSuppliers->whereRaw('scrapers.id IN (SELECT scraper_id FROM developer_tasks WHERE assigned_to = '.$request->task_assigned_to.' and scraper_id > 0)');
+            $activeSuppliers->whereRaw('scrapers.id IN (SELECT scraper_id FROM developer_tasks WHERE assigned_to = ' . $request->task_assigned_to . ' and scraper_id > 0)');
         }
 
         $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc');
@@ -173,7 +173,7 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(ls.validated=1,1,0)) AS validated,
                 SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                SUM(IF(ls.created_at LIKE "%'.$yesterdayDate.'%",1,0)) AS total_new_product,
+                SUM(IF(ls.created_at LIKE "%' . $yesterdayDate . '%",1,0)) AS total_new_product,
                 MAX(ls.last_inventory_at) AS last_scrape_date,
                 IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
             FROM
@@ -189,8 +189,8 @@ class ScrapStatisticsController extends Controller
             WHERE
                 sc.scraper_name IS NOT NULL AND
 
-                '.($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '').'
-                '.($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '').'
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 sc.id
@@ -306,7 +306,7 @@ class ScrapStatisticsController extends Controller
         }
 
         if (! empty($column) && $column == 'last_started_at') {
-            $activeSuppliers = $activeSuppliers->orderby('scrapers.'.$column.'', $orderby)->get();
+            $activeSuppliers = $activeSuppliers->orderby('scrapers.' . $column . '', $orderby)->get();
         } else {
             $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
         }
@@ -347,7 +347,7 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(ls.validated=1,1,0)) AS validated,
                 SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                SUM(IF(ls.created_at LIKE "%'.$yesterdayDate.'%",1,0)) AS total_new_product,
+                SUM(IF(ls.created_at LIKE "%' . $yesterdayDate . '%",1,0)) AS total_new_product,
                 MAX(ls.last_inventory_at) AS last_scrape_date,
                 IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
             FROM
@@ -363,13 +363,13 @@ class ScrapStatisticsController extends Controller
             WHERE
                 sc.scraper_name IS NOT NULL AND
 
-                '.($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '').'
-                '.($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '').'
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 sc.id
             ORDER BY
-                '.($column == 'least_product' ? 'total_new_product '.$orderby.' ' : 'sc.scraper_priority DESC').'
+                ' . ($column == 'least_product' ? 'total_new_product ' . $orderby . ' ' : 'sc.scraper_priority DESC') . '
             ';
 
         $scrapeData = DB::select($sql);
@@ -402,14 +402,13 @@ class ScrapStatisticsController extends Controller
         try {
             return view('scrap.quick-stats', compact('allStatusCounts', 'allStatus', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization', 'assignedUsers'));
         } catch (Exception $e) {
-            \Log::error('Quick-stats-page :: '.$e->getMessage());
+            \Log::error('Quick-stats-page :: ' . $e->getMessage());
         }
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -435,7 +434,6 @@ class ScrapStatisticsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function show(ScrapStatistics $scrapStatistics)
@@ -446,7 +444,6 @@ class ScrapStatisticsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function edit(ScrapStatistics $scrapStatistics)
@@ -457,8 +454,6 @@ class ScrapStatisticsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ScrapStatistics  $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ScrapStatistics $scrapStatistics)
@@ -469,7 +464,6 @@ class ScrapStatisticsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function destroy(ScrapStatistics $scrapStatistics)
@@ -542,7 +536,7 @@ class ScrapStatisticsController extends Controller
 
                 //START - Purpose : Send message Posted by user - DEVTASK-4219
                 if (Auth::user()->phone != '' && Auth::user()->whatsapp_number != '') {
-                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi(Auth::user()->phone, Auth::user()->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi(Auth::user()->phone, Auth::user()->whatsapp_number, 'SCRAPER-REMARK#' . $name . "\n" . $remark);
                 }
                 //END - DEVTASK-4219
 
@@ -551,7 +545,7 @@ class ScrapStatisticsController extends Controller
                     if ($scraper) {
                         $sendPer = $scraper->scraperMadeBy;
                         if ($sendPer) {
-                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, 'SCRAPER-REMARK#' . $name . "\n" . $remark);
                         }
                     }
                 }
@@ -834,7 +828,7 @@ class ScrapStatisticsController extends Controller
                     }
                 } elseif ($request->type == 'filter_by_text') {
                     if (! empty($request->order)) {
-                        $scrappers->where('scraper_name', 'LIKE', '%'.$request->order.'%');
+                        $scrappers->where('scraper_name', 'LIKE', '%' . $request->order . '%');
                     }
                 } else {
                     $scrappers->orderBy($request->type, $request->order);
@@ -894,25 +888,25 @@ class ScrapStatisticsController extends Controller
 
         $chatFileData = '';
         $chatFileData .= html_entity_decode('Scraper Position History', ENT_QUOTES, 'UTF-8');
-        $chatFileData .= "\n"."\n";
+        $chatFileData .= "\n" . "\n";
 
         if (! $histories->isEmpty()) {
             foreach ($histories as $k => $v) {
-                $chatFileData .= html_entity_decode('Scraper Name : '.$v->scraper_name, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= html_entity_decode('Scraper Name : ' . $v->scraper_name, ENT_QUOTES, 'UTF-8');
                 $chatFileData .= "\n";
-                $chatFileData .= html_entity_decode('Comment : '.$v->comment, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= html_entity_decode('Comment : ' . $v->comment, ENT_QUOTES, 'UTF-8');
                 $chatFileData .= "\n";
-                $chatFileData .= html_entity_decode('Created at : '.$v->created_at, ENT_QUOTES, 'UTF-8');
-                $chatFileData .= "\n"."\n";
+                $chatFileData .= html_entity_decode('Created at : ' . $v->created_at, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n" . "\n";
             }
         }
 
-        $storagelocation = storage_path().'/chatMessageFiles';
+        $storagelocation = storage_path() . '/chatMessageFiles';
         if (! is_dir($storagelocation)) {
             mkdir($storagelocation, 0777, true);
         }
         $filename = 'Scraper_Position_History.txt';
-        $file = $storagelocation.'/'.$filename;
+        $file = $storagelocation . '/' . $filename;
         $txt = fopen($file, 'w') or exit('Unable to open file!');
         fwrite($txt, $chatFileData);
         fclose($txt);
@@ -1008,10 +1002,10 @@ class ScrapStatisticsController extends Controller
             foreach ($scraper as $_brand) {
                 $requestData->request->add([
                     'priority' => 1,
-                    'issue' => 'EXTERNAL SCRAPPER '.$_brand->scraper_name,
+                    'issue' => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
                     'status' => 'In Progress',
                     'module' => 'Scraper',
-                    'subject' => 'EXTERNAL SCRAPPER '.$_brand->scraper_name,
+                    'subject' => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
                     'assigned_to' => $request->get('assigned_to'),
                     'scraper_id' => $_brand->id,
                     'task_type_id' => 1,
@@ -1021,7 +1015,7 @@ class ScrapStatisticsController extends Controller
                     $requestData->request->add([
                         'brand_id' => $_brand->id,
                         'scraper_id' => '',
-                        'subject' => 'EXTERNAL SCRAPPER '.$_brand->name,
+                        'subject' => 'EXTERNAL SCRAPPER ' . $_brand->name,
                     ]);
                 }
 
@@ -1050,7 +1044,7 @@ class ScrapStatisticsController extends Controller
                 'issue' => $request->task_description,
                 'status' => 'In Progress',
                 'module' => 'Scraper',
-                'subject' => $scraper->scraper_name.' - '.$request->task_subject,
+                'subject' => $scraper->scraper_name . ' - ' . $request->task_subject,
                 'assigned_to' => $request->get('assigned_to'),
                 'scraper_id' => $id,
                 'task_type_id' => 1,
@@ -1060,7 +1054,7 @@ class ScrapStatisticsController extends Controller
                 $requestData->request->add([
                     'brand_id' => $id,
                     'scraper_id' => '',
-                    'subject' => 'EXTERNAL SCRAPPER '.$scraper->name.' - '.$request->task_subject,
+                    'subject' => 'EXTERNAL SCRAPPER ' . $scraper->name . ' - ' . $request->task_subject,
                 ]);
             }
 
@@ -1094,25 +1088,25 @@ class ScrapStatisticsController extends Controller
         $histories = \App\ScraperPositionHistory::whereDate('created_at', now()->subDays(7)->format('Y-m-d'))->latest()->get();
         $chatFileData = '';
         $chatFileData .= html_entity_decode('Scraper Position History', ENT_QUOTES, 'UTF-8');
-        $chatFileData .= "\n"."\n";
+        $chatFileData .= "\n" . "\n";
 
         if (! $histories->isEmpty()) {
             foreach ($histories as $k => $v) {
-                $chatFileData .= html_entity_decode('Scraper Name : '.$v->scraper_name, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= html_entity_decode('Scraper Name : ' . $v->scraper_name, ENT_QUOTES, 'UTF-8');
                 $chatFileData .= "\n";
-                $chatFileData .= html_entity_decode('Comment : '.$v->comment, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= html_entity_decode('Comment : ' . $v->comment, ENT_QUOTES, 'UTF-8');
                 $chatFileData .= "\n";
-                $chatFileData .= html_entity_decode('Created at : '.$v->created_at, ENT_QUOTES, 'UTF-8');
-                $chatFileData .= "\n"."\n";
+                $chatFileData .= html_entity_decode('Created at : ' . $v->created_at, ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n" . "\n";
             }
         }
 
-        $storagelocation = storage_path().'/chatMessageFiles';
+        $storagelocation = storage_path() . '/chatMessageFiles';
         if (! is_dir($storagelocation)) {
             mkdir($storagelocation, 0777, true);
         }
         $filename = 'Scraper_Position_History.txt';
-        $file = $storagelocation.'/'.$filename;
+        $file = $storagelocation . '/' . $filename;
         $txt = fopen($file, 'w') or exit('Unable to open file!');
         fwrite($txt, $chatFileData);
         fclose($txt);
@@ -1174,7 +1168,7 @@ class ScrapStatisticsController extends Controller
 
         if ($request->scraper_name) {
             $scrapname = $request->scraper_name;
-            $logDetails->where('scrapers.scraper_name', 'LIKE', '%'.$request->scraper_name.'%');
+            $logDetails->where('scrapers.scraper_name', 'LIKE', '%' . $request->scraper_name . '%');
         }
 
         if ($request->created_at) {
@@ -1197,7 +1191,7 @@ class ScrapStatisticsController extends Controller
         $timeSlots = [];
         $listOfServerUsed = [];
         for ($i = 0; $i < 24; $i++) {
-            $tms = strlen($i) > 1 ? $i : '0'.$i;
+            $tms = strlen($i) > 1 ? $i : '0' . $i;
             $timeSlots["$tms"] = $tms;
             // check the scrapper which run on current time
             $scrapers = \App\ScraperServerStatusHistory::runOnGiveTime($requestedDate, $tms);
@@ -1205,7 +1199,7 @@ class ScrapStatisticsController extends Controller
                 foreach ($scrapers as $s) {
                     $listOfServerUsed["$tms"][$s->server_id][] = [
                         'scraper_name' => $s->scraper_name,
-                        'memory_string' => 'T: '.$s->total_memory.' U:'.$s->used_memory.' P:'.$s->in_percentage,
+                        'memory_string' => 'T: ' . $s->total_memory . ' U:' . $s->used_memory . ' P:' . $s->in_percentage,
                         'pid' => $s->pid,
                     ];
                 }
@@ -1220,7 +1214,7 @@ class ScrapStatisticsController extends Controller
         $pid = $request->get('pid');
         $server = $request->get('server_id');
 
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/scraper-kill.sh '.$server.' '.$pid.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/scraper-kill.sh ' . $server . ' ' . $pid . ' 2>&1';
 
         $allOutput = [];
         $allOutput[] = $cmd;

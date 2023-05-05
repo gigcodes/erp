@@ -2,15 +2,15 @@
 
 namespace Modules\WebMessage\Http\Controllers;
 
-use App\ChatMessage;
+use App\Vendor;
 use App\Customer;
 use App\Supplier;
-use App\Vendor;
 use Carbon\Carbon;
-use GuzzleHttp\Client as GuzzleClient;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use GuzzleHttp\Client as GuzzleClient;
 
 class WebMessageController extends Controller
 {
@@ -174,8 +174,8 @@ class WebMessageController extends Controller
         $jsonCustomer = [];
         if (! empty($customerInfo)) {
             foreach ($customerInfo as $customer) {
-                $id = 'c_'.$customer['id'];
-                $customers['c_'.$id]['customer_info'] = $customer;
+                $id = 'c_' . $customer['id'];
+                $customers['c_' . $id]['customer_info'] = $customer;
 
                 // json customer setup
                 $jsonCustomer[] = [
@@ -194,11 +194,11 @@ class WebMessageController extends Controller
         if (! empty($vendorInfo)) {
             foreach ($vendorInfo as $vendor) {
                 $id = $vendor['id'];
-                $vendors['v_'.$id]['customer_info'] = $vendor;
+                $vendors['v_' . $id]['customer_info'] = $vendor;
 
                 // json customer setup
                 $jsonCustomer[] = [
-                    'id' => 'v_'.$id,
+                    'id' => 'v_' . $id,
                     'name' => $vendor['name'],
                     'number' => $vendor['phone'],
                     'pic' => 'https://via.placeholder.com/400x400',
@@ -213,11 +213,11 @@ class WebMessageController extends Controller
         if (! empty($supplierInfo)) {
             foreach ($supplierInfo as $supplier) {
                 $id = $supplier['id'];
-                $vendors['s_'.$id]['customer_info'] = $supplier;
+                $vendors['s_' . $id]['customer_info'] = $supplier;
 
                 // json customer setup
                 $jsonCustomer[] = [
-                    'id' => 's_'.$id,
+                    'id' => 's_' . $id,
                     'name' => $supplier['supplier'],
                     'number' => $supplier['phone'],
                     'pic' => 'https://via.placeholder.com/400x400',
@@ -234,11 +234,11 @@ class WebMessageController extends Controller
         if (! empty($messageInfo)) {
             foreach ($messageInfo as $message) {
                 if ($message['customer_id'] > 0) {
-                    $id = 'c_'.$message['customer_id'];
+                    $id = 'c_' . $message['customer_id'];
                 } elseif ($message['vendor_id'] > 0) {
-                    $id = 'v_'.$message['vendor_id'];
+                    $id = 'v_' . $message['vendor_id'];
                 } elseif ($message['supplier_id'] > 0) {
-                    $id = 's_'.$message['supplier_id'];
+                    $id = 's_' . $message['supplier_id'];
                 }
 
                 $customers[$id]['last_message_info'] = $message;
@@ -472,11 +472,11 @@ class WebMessageController extends Controller
                     $messageIds[] = $message['id'];
 
                     if ($message['customer_id'] > 0) {
-                        $id = 'c_'.$message['customer_id'];
+                        $id = 'c_' . $message['customer_id'];
                     } elseif ($message['vendor_id'] > 0) {
-                        $id = 'v_'.$message['vendor_id'];
+                        $id = 'v_' . $message['vendor_id'];
                     } elseif ($message['supplier_id'] > 0) {
-                        $id = 's_'.$message['supplier_id'];
+                        $id = 's_' . $message['supplier_id'];
                     }
 
                     $jsonMessage[$message['id']] = [

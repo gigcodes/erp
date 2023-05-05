@@ -1,17 +1,19 @@
 <?php
+
 namespace App\Http\Controllers;
-use App\NotificationToken;
+
 use App\User;
-use Illuminate\Http\Request;
 use App\DeveloperTask;
+use App\NotificationToken;
+use Illuminate\Http\Request;
 
 class WebNotificationController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth');
     }
+
     public function index()
     {
         return view('home');
@@ -22,13 +24,14 @@ class WebNotificationController extends Controller
         $token = $request->token;
         $user_id = auth()->user()->id;
         $isExist = NotificationToken::where('device_token', $token)->where('user_id', $user_id)->exists();
-        if(!$isExist){
+        if (! $isExist) {
             $notificationToken = new NotificationToken();
             $notificationToken->user_id = $user_id;
             $notificationToken->device_token = $token;
             $notificationToken->is_enabled = true;
             $notificationToken->save();
         }
+
         return response()->json(['Token successfully stored.']);
     }
 
@@ -105,68 +108,63 @@ class WebNotificationController extends Controller
         $issue = DeveloperTask::find($issue_id);
         $userId = $issue->assigned_to;
         $users = User::get();
-        \Log::info('User from assign id--->'.json_encode($users));
+        \Log::info('User from assign id--->' . json_encode($users));
         $adminIds = [];
         foreach ($users as $user) {
             if ($user->isAdmin()) {
                 $adminIds[] = $user->id;
-                \Log::info('if user is Admin--->'.json_encode($user));
-
+                \Log::info('if user is Admin--->' . json_encode($user));
             }
         }
-        if($sendTo == 'to_developer'){
+        if ($sendTo == 'to_developer') {
             $userId = $issue->assigned_to;
-            \Log::info('if send to developer--->'.json_encode($userId));
+            \Log::info('if send to developer--->' . json_encode($userId));
         }
         if ($sendTo == 'to_master') {
             if ($issue->master_user_id) {
                 $userId = $issue->master_user_id;
-                \Log::info('if send to master--->'.json_encode($userId));
-
+                \Log::info('if send to master--->' . json_encode($userId));
             }
         }
 
         if ($sendTo == 'to_team_lead') {
             if ($issue->team_lead_id) {
                 $userId = $issue->team_lead_id;
-                \Log::info('if send to team lead--->'.json_encode($userId));
-
+                \Log::info('if send to team lead--->' . json_encode($userId));
             }
         }
 
         if ($sendTo == 'to_tester') {
             if ($issue->tester_id) {
                 $userId = $issue->tester_id;
-                \Log::info('if send to tester--->'.json_encode($userId));
-
+                \Log::info('if send to tester--->' . json_encode($userId));
             }
         }
-        if (isset($userId) && $userId){
-            \Log::info('all user Ids--->'.json_encode($userId));
+        if (isset($userId) && $userId) {
+            \Log::info('all user Ids--->' . json_encode($userId));
             $adminIds[] = $userId;
-            \Log::info('all admin ids after adding userId to it--->'.json_encode($adminIds));
+            \Log::info('all admin ids after adding userId to it--->' . json_encode($adminIds));
             $adminIds = array_unique($adminIds);
             if (($key = array_search(\Auth::User()->id, $adminIds)) !== false) {
                 unset($adminIds[$key]);
             }
-            \Log::info('Distinct Users ids to send notification -->'.json_encode($adminIds));
+            \Log::info('Distinct Users ids to send notification -->' . json_encode($adminIds));
             $FcmToken = NotificationToken::whereNotNull('device_token')->whereIn('user_id', $adminIds)->pluck('device_token')->all();
-        }
-        else {
+        } else {
             \Log::info('No user Id selected in else block  -->');
             $FcmToken = NotificationToken::whereNotNull('device_token')->pluck('device_token')->all();
         }
         $serverKey = env('FCM_SECRET_KEY');
-        \Log::info('if send to developer--->'.json_encode($serverKey));
+        \Log::info('if send to developer--->' . json_encode($serverKey));
         $data = [
-            "registration_ids" => $FcmToken,
-            "notification" => [
-                "title" => $title,
-                "body" => $body,
-            ]
+            'registration_ids' => $FcmToken,
+            'notification' => [
+                'title' => $title,
+                'body' => $body,
+            ],
         ];
         $encodedData = json_encode($data);
-        \Log::info('Data object -->'.$encodedData);
+        \Log::info('Data object -->' . $encodedData);
 
         $headers = [
             'Authorization:key=' . $serverKey,
@@ -185,19 +183,17 @@ class WebNotificationController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
             // Execute post
             $result = curl_exec($ch);
-            if ($result === FALSE) {
-                die('Curl failed: ' . curl_error($ch));
+            if ($result === false) {
+                exit('Curl failed: ' . curl_error($ch));
             }
-            \Log::info('Notification Process success -->'.json_encode($result));
+            \Log::info('Notification Process success -->' . json_encode($result));
             // Close connection
             curl_close($ch);
             // FCM response
             return;
+        } catch (\Exception $e) {
+            \Log::error('Error sending notification -->' . $e->getMessage());
         }
-        catch (\Exception $e){
-            \Log::error('Error sending notification -->'.$e->getMessage());
-        }
-
     }
 
     public static function sendBulkNotification($userId, $title, $body)
@@ -206,11 +202,11 @@ class WebNotificationController extends Controller
         $FcmToken = NotificationToken::whereNotNull('device_token')->where('user_id', $userId)->pluck('device_token')->all();
         $serverKey = env('FCM_SECRET_KEY');
         $data = [
-            "registration_ids" => $FcmToken,
-            "notification" => [
-                "title" => $title,
-                "body" => $body,
-            ]
+            'registration_ids' => $FcmToken,
+            'notification' => [
+                'title' => $title,
+                'body' => $body,
+            ],
         ];
         $encodedData = json_encode($data);
 
@@ -232,13 +228,11 @@ class WebNotificationController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
         // Execute post
         $result = curl_exec($ch);
-        if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
+        if ($result === false) {
+            exit('Curl failed: ' . curl_error($ch));
         }
         // Close connection
         curl_close($ch);
         // FCM response
-        return;
     }
-
 }

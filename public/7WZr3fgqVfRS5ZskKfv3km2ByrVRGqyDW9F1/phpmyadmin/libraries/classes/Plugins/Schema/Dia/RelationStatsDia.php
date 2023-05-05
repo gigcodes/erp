@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Dia;
 
-use function array_search;
 use function shuffle;
+use function array_search;
 
 /**
  * Relation preferences/statistics
@@ -149,14 +149,14 @@ class RelationStatsDia
                 '00FF00',
             ];
             shuffle($listOfColors);
-            $this->referenceColor = '#'.$listOfColors[0].'';
+            $this->referenceColor = '#' . $listOfColors[0] . '';
         } else {
             $this->referenceColor = '#000000';
         }
 
         $this->diagram->writeRaw(
             '<dia:object type="Database - Reference" version="0" id="'
-            .DiaRelationSchema::$objectId.'">
+            . DiaRelationSchema::$objectId . '">
             <dia:attribute name="obj_pos">
                 <dia:point val="3.27,18.9198"/>
             </dia:attribute>
@@ -188,7 +188,7 @@ class RelationStatsDia
                 <dia:color val="#000000"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
-                <dia:color val="'.$this->referenceColor.'"/>
+                <dia:color val="' . $this->referenceColor . '"/>
             </dia:attribute>
             <dia:attribute name="line_width">
                 <dia:real val="0.10000000000000001"/>
@@ -223,11 +223,11 @@ class RelationStatsDia
             </dia:attribute>
             <dia:connections>
                 <dia:connection handle="0" to="'
-            .$this->masterTableId.'" connection="'
-            .$this->srcConnPointsRight.'"/>
+            . $this->masterTableId . '" connection="'
+            . $this->srcConnPointsRight . '"/>
                 <dia:connection handle="1" to="'
-            .$this->foreignTableId.'" connection="'
-            .$this->destConnPointsRight.'"/>
+            . $this->foreignTableId . '" connection="'
+            . $this->destConnPointsRight . '"/>
             </dia:connections>
             </dia:object>'
         );

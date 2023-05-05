@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\StoreGTMetrixAccount;
 use App\StoreViewsGTMetrix;
-use App\StoreViewsGTMetrixUrl;
-use Entrecore\GTMetrixClient\GTMetrixClient;
-use Illuminate\Console\Command;
+use App\StoreGTMetrixAccount;
 use Illuminate\Http\Response;
+use App\StoreViewsGTMetrixUrl;
+use Illuminate\Console\Command;
+use Entrecore\GTMetrixClient\GTMetrixClient;
 
 class GTMetrixManageQueueData extends Command
 {
@@ -64,7 +64,7 @@ class GTMetrixManageQueueData extends Command
                         curl_setopt_array($curl, [
                             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $gtmatrixAccountData->account_id.':'.'',
+                            CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
                             CURLOPT_TIMEOUT => 0,
@@ -101,7 +101,7 @@ class GTMetrixManageQueueData extends Command
                             curl_setopt_array($curl, [
                                 CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_USERPWD => $value['account_id'].':'.'',
+                                CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
                                 CURLOPT_TIMEOUT => 0,
@@ -141,7 +141,7 @@ class GTMetrixManageQueueData extends Command
                         'error' => $e->getMessage(),
                     ];
                     $gtmetrix->update($update);
-                    \Log::info('GTMetrix :: successfully'.$e->getMessage());
+                    \Log::info('GTMetrix :: successfully' . $e->getMessage());
                 }
             }
         }

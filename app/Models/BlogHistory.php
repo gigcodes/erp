@@ -14,7 +14,7 @@ class BlogHistory extends Model
         'user_id',
         'create_time',
         'no_index',
-        'no_follow',    
+        'no_follow',
         'created_at',
         'updated_at',
     ];

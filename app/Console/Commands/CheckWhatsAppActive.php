@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Marketing\WhatsappConfig;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Marketing\WhatsappConfig;
 
 class CheckWhatsAppActive extends Command
 {
@@ -56,7 +56,7 @@ class CheckWhatsAppActive extends Command
                         continue;
                     }
                     $phones = ['+971569119192', '+31629987287'];
-                    $message = $number->number.'Username : '.$number->username.' Phone Number is not working Please Check It';
+                    $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
 
                     foreach ($phones as $phone) {
                         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Sql;
 
 use function __;
+use PhpMyAdmin\Sql;
 use const ENT_COMPAT;
+use PhpMyAdmin\Template;
 use function htmlentities;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\CheckUserPrivileges;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
 
 final class EnumValuesController extends AbstractController
 {

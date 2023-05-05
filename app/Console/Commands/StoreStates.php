@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Country;
-use App\Models\State;
-
 use Http;
+use App\Models\State;
+use App\Models\Country;
+
+use Illuminate\Console\Command;
 
 class StoreStates extends Command
 {
@@ -46,22 +46,20 @@ class StoreStates extends Command
             'X-CSCAPI-KEY' => 'WUZWeG9GbFpXMnhEcmRBNUZzN0JIYXpuN1FlMTd3eG1YR2duRnlwRA==',
         ])->get('https://api.countrystatecity.in/v1/states')->json();
 
-        if(!@$response['error']){
-            
-            foreach($response as $value){
-
+        if (! @$response['error']) {
+            foreach ($response as $value) {
                 $country = Country::whereCode($value['country_code'])->first();
 
-                if(!empty($country)){
-                    $input = array(
-                        "name" => $value['name'],
-                        "code" => $value['iso2'],
-                        "country_id" => $country->id,
-                    );
+                if (! empty($country)) {
+                    $input = [
+                        'name' => $value['name'],
+                        'code' => $value['iso2'],
+                        'country_id' => $country->id,
+                    ];
 
                     State::updateOrCreate($input);
 
-                    $this->info("Stored state: ". $value['name']);
+                    $this->info('Stored state: ' . $value['name']);
                 }
             }
         }

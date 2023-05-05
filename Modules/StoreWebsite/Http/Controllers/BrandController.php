@@ -4,14 +4,14 @@ namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Brand;
 use App\Category;
-use App\PushBrandsLog;
-use App\ReconsileBrandsLog;
 use App\StoreWebsite;
-use App\StoreWebsiteBrand;
-use App\StoreWebsiteBrandHistory;
+use App\PushBrandsLog;
 use GuzzleHttp\Client;
+use App\StoreWebsiteBrand;
+use App\ReconsileBrandsLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreWebsiteBrandHistory;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -59,7 +59,7 @@ class BrandController extends Controller
         $validator = Validator::make($post, [
             'store_website_id' => 'required',
             'markup' => 'required',
-            'brand_id' => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,'.$storeWebsiteId.'|required',
+            'brand_id' => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
         ]);
 
         if ($validator->fails()) {
@@ -67,7 +67,7 @@ class BrandController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -121,7 +121,7 @@ class BrandController extends Controller
             if (! $brands->isEmpty()) {
                 foreach ($brands as $brand) {
                     if (! $storeWebsites->isEmpty()) {
-                        $this->createPushBrandsLog($request, 'Website', 'Website id is  found ID is : '.$request->get('store_website_id'));
+                        $this->createPushBrandsLog($request, 'Website', 'Website id is  found ID is : ' . $request->get('store_website_id'));
                         foreach ($storeWebsites as $storeWeb) {
                             $magentoBrandId = MagentoHelper::addBrand($brand, $storeWeb);
                             if (! empty($magentoBrandId)) {
@@ -134,11 +134,11 @@ class BrandController extends Controller
                                 $brandStore->magento_value = $magentoBrandId;
                                 $brandStore->save();
                             } else {
-                                $this->createPushBrandsLog($request, 'magentoBrand adding Error', "magentoBrandId is not found fir brand : '.$brand.'  website : ".$storeWeb);
+                                $this->createPushBrandsLog($request, 'magentoBrand adding Error', "magentoBrandId is not found fir brand : '.$brand.'  website : " . $storeWeb);
                             }
                         }
                     } else {
-                        $this->createPushBrandsLog($request, 'Website Error', 'Website id is not found ID is : '.$request->get('store_website_id'));
+                        $this->createPushBrandsLog($request, 'Website Error', 'Website id is not found ID is : ' . $request->get('store_website_id'));
                     }
                 }
             } else {
@@ -154,7 +154,7 @@ class BrandController extends Controller
         // $query = $query->whereNull("brands.deleted_at");
 
         if ($request->keyword != null) {
-            $query->where('brands.name', 'like', '%'.$request->keyword.'%');
+            $query->where('brands.name', 'like', '%' . $request->keyword . '%');
         }
 
         if ($request->category_id != null) {
@@ -338,7 +338,7 @@ class BrandController extends Controller
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if ($storeWebsite) {
             $client = new Client();
-            $response = $client->request('GET', $storeWebsite->magento_url.'/rest/V1/brands/list', [
+            $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
 
                 ],
@@ -372,7 +372,7 @@ class BrandController extends Controller
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if ($storeWebsite) {
             $client = new Client();
-            $response = $client->request('GET', $storeWebsite->magento_url.'/rest/V1/brands/list', [
+            $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
 
                 ],
@@ -422,7 +422,7 @@ class BrandController extends Controller
             $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
             if ($storeWebsite) {
                 $client = new Client();
-                $response = $client->request('GET', $storeWebsite->magento_url.'/rest/V1/brands/list', [
+                $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                     'form_params' => [
                     ],
                 ]);
@@ -475,17 +475,17 @@ class BrandController extends Controller
                 $userId = (auth()->user()) ? auth()->user()->id : 6;
                 if (! empty($needDeleteRequest)) {
                     foreach ($needDeleteRequest as $ndr) {
-                        \Log::info('Request started for '.$ndr);
+                        \Log::info('Request started for ' . $ndr);
                         try {
-                            \Log::info('Brand started for delete '.$ndr);
+                            \Log::info('Brand started for delete ' . $ndr);
                             $status = MagentoHelper::deleteBrand($ndr, $storeWebsite);
                         } catch (Exception $e) {
                             $this->reconsileBrandsLog($request, 'Delete brand', $e->getMessage());
-                            \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
+                            \Log::info("Brand delete has error with id $ndr =>" . $e->getMessage());
                         }
-                        \Log::info('Brand check for delete '.$ndr);
+                        \Log::info('Brand check for delete ' . $ndr);
                         if (isset($assingedBrands[$ndr])) {
-                            \Log::info('Brand find for delete '.$ndr);
+                            \Log::info('Brand find for delete ' . $ndr);
                             $brandStore = $assingedBrands[$ndr];
                             $brandStore->delete();
                             StoreWebsiteBrandHistory::create([
@@ -496,7 +496,7 @@ class BrandController extends Controller
                                 'message' => "{$brandStore->name} removed from {$storeWebsite->title} store.",
                             ]);
                         } else {
-                            $this->reconsileBrandsLog($request, 'Delete brand', 'Brand check for delete '.$ndr);
+                            $this->reconsileBrandsLog($request, 'Delete brand', 'Brand check for delete ' . $ndr);
                         }
                     }
                 } else {

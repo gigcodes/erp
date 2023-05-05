@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
+use App\Library\Watson\Model as WatsonManager;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 
 class ChatBotController extends Controller
 {

@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Uploads;
 
 use Images;
-use Modules\BookStack\Entities\Page;
 use Modules\BookStack\Ownable;
+use Modules\BookStack\Entities\Page;
 
 class Image extends Ownable
 {

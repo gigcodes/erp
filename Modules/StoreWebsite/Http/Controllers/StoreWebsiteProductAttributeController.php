@@ -3,10 +3,10 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsite;
-use App\StoreWebsiteProductAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\StoreWebsiteProductAttribute;
 use Illuminate\Support\Facades\Validator;
 
 class StoreWebsiteProductAttributeController extends Controller
@@ -29,7 +29,6 @@ class StoreWebsiteProductAttributeController extends Controller
      * records Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function records(Request $request)
     {
@@ -46,7 +45,7 @@ class StoreWebsiteProductAttributeController extends Controller
 
         $items = [];
         foreach ($records->items() as $k => &$item) {
-            $item->description = strlen($item->description) > 15 ? substr($item->description, 0, 15).'...' : $item->description;
+            $item->description = strlen($item->description) > 15 ? substr($item->description, 0, 15) . '...' : $item->description;
             $items[] = $item;
         }
 
@@ -57,7 +56,6 @@ class StoreWebsiteProductAttributeController extends Controller
      * records Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function store(Request $request)
     {
@@ -75,7 +73,7 @@ class StoreWebsiteProductAttributeController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -100,7 +98,6 @@ class StoreWebsiteProductAttributeController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -117,7 +114,6 @@ class StoreWebsiteProductAttributeController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

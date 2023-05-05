@@ -6,11 +6,11 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use App\Helpers\OrderHelper;
-use App\Http\Controllers\GoogleTranslateController;
-use App\Library\Shopify\Client as ShopifyClient;
 use App\Loggers\LogListMagento;
-use App\Services\Products\GraphqlService;
 use Illuminate\Support\Facades\DB;
+use App\Services\Products\GraphqlService;
+use App\Library\Shopify\Client as ShopifyClient;
+use App\Http\Controllers\GoogleTranslateController;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
 
 class ShopifyHelper
@@ -32,7 +32,7 @@ class ShopifyHelper
         print_r($productData);
         echo '</pre>';
         exit;
-        LogListMagento::log($product->id, 'Product started to push'.$product->id, 'info', $website->store_website_id, 'success');
+        LogListMagento::log($product->id, 'Product started to push' . $product->id, 'info', $website->store_website_id, 'success');
 
         ProductPushErrorLog::log(null, $product->id, 'Product push data not found', 'error', $website->id);
         if ($productData == false) {
@@ -60,9 +60,9 @@ class ShopifyHelper
                 'product_id' => $product->id,
                 'platform_id' => $response->product->id,
             ]);
-            LogListMagento::log($product->id, 'success '.$product->id, 'info', $website->id, 'success');
+            LogListMagento::log($product->id, 'success ' . $product->id, 'info', $website->id, 'success');
         } else {
-            LogListMagento::log($product->id, 'error '.$product->id, 'info', $website->id, 'error');
+            LogListMagento::log($product->id, 'error ' . $product->id, 'info', $website->id, 'error');
         }
 
         $errors = [];
@@ -70,10 +70,10 @@ class ShopifyHelper
             foreach ((array) $response->errors as $key => $message) {
                 if (is_array($message)) {
                     foreach ($message as $msg) {
-                        $errors[] = ucwords($key).' '.$msg;
+                        $errors[] = ucwords($key) . ' ' . $msg;
                     }
                 } else {
-                    $errors[] = ucwords($key).' '.$message;
+                    $errors[] = ucwords($key) . ' ' . $message;
                 }
             }
         }
@@ -125,7 +125,7 @@ class ShopifyHelper
         $firstName = isset($order['customer']) ? (isset($order['customer']['first_name']) ? $order['customer']['first_name'] : 'N/A') : 'N/A';
         $lastName = isset($order['customer']) ? (isset($order['customer']['last_name']) ? $order['customer']['last_name'] : 'N/A') : 'N/A';
 
-        $full_name = $firstName.' '.$lastName;
+        $full_name = $firstName . ' ' . $lastName;
         $customer_phone = isset($order['customer']) ? (isset($order['customer']['phone']) ? $order['customer']['phone'] : '') : '';
 
         $customer = Customer::where('email', $store_customer['email'])->where('store_website_id', $store_id)->first();
@@ -181,7 +181,7 @@ class ShopifyHelper
         \DB::table('cash_flows')->insert(
             [
                 'cash_flow_able_id' => $customer_id,
-                'description' => 'Order recieved full pre payment for orderid '.$order['id'],
+                'description' => 'Order recieved full pre payment for orderid ' . $order['id'],
                 'date' => date('Y-m-d'),
                 'amount' => $balance_amount,
                 'type' => 'received',
@@ -229,7 +229,7 @@ class ShopifyHelper
         $websiteOrder->platform_order_id = $shopify_order_id;
         $websiteOrder->save();
 
-        \Log::channel('productUpdates')->info('Saved order: '.$orderSaved->id);
+        \Log::channel('productUpdates')->info('Saved order: ' . $orderSaved->id);
     }
 
     /**
@@ -250,7 +250,7 @@ class ShopifyHelper
         $firstName = isset($store_customer) ? (isset($store_customer['first_name']) ? $store_customer['first_name'] : 'N/A') : 'N/A';
         $lastName = isset($store_customer) ? (isset($store_customer['last_name']) ? $store_customer['last_name'] : 'N/A') : 'N/A';
 
-        $full_name = $firstName.' '.$lastName;
+        $full_name = $firstName . ' ' . $lastName;
         $customer_phone = isset($store_customer) ? (isset($store_customer['phone']) ? $store_customer['phone'] : '') : '';
         $customer_address = isset($store_customer['addresses']['address1']) ? (isset($store_customer['addresses']['address1']) ? $store_customer['phone'] : '') : '';
         $customer_city = isset($store_customer['address1']) ? (isset($store_customer['address1']['city']) ? $store_customer['address1']['city'] : '') : '';
@@ -275,7 +275,7 @@ class ShopifyHelper
         $customer->store_website_id = $store_id;
         $customer->save();
 
-        \Log::channel('customer')->info('Saved customer: '.$customer->id);
+        \Log::channel('customer')->info('Saved customer: ' . $customer->id);
     }
 
     public static function validateShopifyWebhook($data, $secret, $hmac_header)

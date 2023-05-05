@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\BroadcastImage;
-use App\Category;
 use App\Product;
-use App\ProductTemplate;
-use App\ProductTemplateLog;
 use App\Setting;
-use App\StoreWebsite;
+use App\Category;
 use App\Template;
+use App\StoreWebsite;
+use App\BroadcastImage;
+use App\ProductTemplate;
+use Plank\Mediable\Media;
+use App\ProductTemplateLog;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 
 class ProductTemplatesController extends Controller
 {
@@ -60,7 +60,7 @@ class ProductTemplatesController extends Controller
 
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->orWhere('product_templates.product_title', 'like', '%'.$keyword.'%')->orWhere('product_templates.text', 'like', '%'.$keyword.'%')->orWhere('product_templates.product_id', 'like', '%'.$keyword.'%');
+                $q->orWhere('product_templates.product_title', 'like', '%' . $keyword . '%')->orWhere('product_templates.text', 'like', '%' . $keyword . '%')->orWhere('product_templates.product_id', 'like', '%' . $keyword . '%');
             });
         }
         $records = $records->orderBy('id', 'desc')
@@ -191,7 +191,7 @@ class ProductTemplatesController extends Controller
         } catch (\ErrorException $e) {
             //
         }
-        $productCategory = $parent.' '.$child;
+        $productCategory = $parent . ' ' . $child;
 
         $data = [];
         //check if template exist
@@ -271,21 +271,21 @@ class ProductTemplatesController extends Controller
             if ($template) {
                 if ($request->post('image')) {
                     $image = base64_decode($request->post('image'));
-                    $media = MediaUploader::fromString($image)->toDirectory(date('Y/m/d'))->useFilename('product-template-'.$id)->upload();
+                    $media = MediaUploader::fromString($image)->toDirectory(date('Y/m/d'))->useFilename('product-template-' . $id)->upload();
                     $template->attachMedia($media, 'template-image');
                     $template->is_processed = 1;
                     $template->save();
 
                     // Store as broadcast image
                     $broadcastImage = new BroadcastImage();
-                    $broadcastImage->products = '['.$template->product_id.']';
+                    $broadcastImage->products = '[' . $template->product_id . ']';
                     $broadcastImage->save();
                     $broadcastImage->attachMedia($media, config('constants.media_tags'));
 
                     //Save Product For Image In Mediable
                     if ($template->product_id != null) {
                         $product = Product::find($template->product_id);
-                        $tag = 'template_'.$template->template_no;
+                        $tag = 'template_' . $template->template_no;
                         $product->attachMedia($media, $tag);
                     }
 
@@ -340,10 +340,10 @@ class ProductTemplatesController extends Controller
                     foreach ($product->media as $k => $media) {
                         $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
                                     <div class="imagePreview">
-                                        <img src="'.$media->getUrl().'" width="100%" height="100%">
+                                        <img src="' . $media->getUrl() . '" width="100%" height="100%">
                                     </div>
                                     <label class="btn btn-primary">
-                                        <input type="checkbox" name="product_media_list[]" value="'.$media->id.'" class="product_media_list"> Select
+                                        <input type="checkbox" name="product_media_list[]" value="' . $media->id . '" class="product_media_list"> Select
                                     </label>
                                 </div>';
                     }
@@ -485,7 +485,7 @@ class ProductTemplatesController extends Controller
                 } catch (\ErrorException $e) {
                     //
                 }
-                $productCategory = $parent.' '.$child;
+                $productCategory = $parent . ' ' . $child;
 
                 $data = [];
                 //check if template exist
@@ -526,7 +526,7 @@ class ProductTemplatesController extends Controller
                             $data['image'] = $images;
                         }
                         \Log::info(json_encode($data, true));
-                        $url = env('PYTHON_PRODUCT_TEMPLATES').'/api/product-template';
+                        $url = env('PYTHON_PRODUCT_TEMPLATES') . '/api/product-template';
                         $response = \App\Helpers\GuzzleHelper::post($url, $data, []);
                         $log = new ProductTemplateLog();
                         $log->url = $url;
@@ -534,7 +534,7 @@ class ProductTemplatesController extends Controller
                         $log->response = $response;
                         $log->save();
                     } catch (\Exception $e) {
-                        \Log::info('Product Templates controller : 541 '.$e->getMessage());
+                        \Log::info('Product Templates controller : 541 ' . $e->getMessage());
                     }
                 }
             }
@@ -560,17 +560,17 @@ class ProductTemplatesController extends Controller
                 foreach ($imagesArray as $key => $image_url) {
                     $key = $key + 1;
                     //$row=$image_url;
-                    array_push($modifications, ['name' => 'product_'.$key, 'image_url' => $image_url]);
+                    array_push($modifications, ['name' => 'product_' . $key, 'image_url' => $image_url]);
                 }
             }
 
             $body = ['template' => $template->template->uid, 'modifications' => $modifications, 'webhook_url' => route('api.product.update.webhook'), 'metadata' => $template->id];
 
-            $url = env('BANNER_API_LINK').'/images';
+            $url = env('BANNER_API_LINK') . '/images';
             $api_key = env('BANNER_API_KEY');
 
             $headers = [
-                'Authorization' => 'Bearer '.$api_key,
+                'Authorization' => 'Bearer ' . $api_key,
                 'Content-Type' => 'application/json',
             ];
 
@@ -590,7 +590,7 @@ class ProductTemplatesController extends Controller
     {
         $header = $request->header('Authorization', 'default');
 
-        if ($header == 'Bearer '.env('BANNER_WEBHOOK_KEY')) {
+        if ($header == 'Bearer ' . env('BANNER_WEBHOOK_KEY')) {
             if ($request->metadata) {
                 $template = ProductTemplate::find($request->metadata);
 
@@ -612,11 +612,11 @@ class ProductTemplatesController extends Controller
     public function fetchImage(Request $request)
     {
         try {
-            $url = env('BANNER_API_LINK').'/images/'.$request->uid;
+            $url = env('BANNER_API_LINK') . '/images/' . $request->uid;
             $api_key = env('BANNER_API_KEY');
 
             $headers = [
-                'Authorization' => 'Bearer '.$api_key,
+                'Authorization' => 'Bearer ' . $api_key,
                 'Content-Type' => 'application/json',
             ];
 
@@ -660,10 +660,10 @@ class ProductTemplatesController extends Controller
 
     public function loginstance(Request $request)
     {
-        $url = env('PYTHON_PRODUCT_TEMPLATES').'/api/get-logs';
+        $url = env('PYTHON_PRODUCT_TEMPLATES') . '/api/get-logs';
         $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
         //   echo $url;exit;
-        \Log::info('Payment_Template_loginstance -->'.$url);
+        \Log::info('Payment_Template_loginstance -->' . $url);
         if (! empty($date)) {
             $data = ['date' => $date];
         } else {
@@ -675,7 +675,7 @@ class ProductTemplatesController extends Controller
 
         $data = json_encode($data);
 
-        \Log::info('Payment_Template_loginstance -->'.$data);
+        \Log::info('Payment_Template_loginstance -->' . $data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');

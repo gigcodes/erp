@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapInfluencer;
 use Carbon\Carbon;
+use App\ScrapInfluencer;
 use Illuminate\Console\Command;
 
 class InfluencerDescription extends Command

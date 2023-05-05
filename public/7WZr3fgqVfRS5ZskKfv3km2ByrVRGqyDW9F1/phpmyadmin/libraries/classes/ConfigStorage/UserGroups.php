@@ -8,17 +8,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\ConfigStorage;
 
 use function __;
-use function array_keys;
-use function htmlspecialchars;
+use PhpMyAdmin\Url;
+use function substr;
+use PhpMyAdmin\Util;
 use function implode;
 use function in_array;
 use function mb_substr;
-use PhpMyAdmin\ConfigStorage\Features\ConfigurableMenusFeature;
-use PhpMyAdmin\Html\Generator;
+use function array_keys;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function substr;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ConfigStorage\Features\ConfigurableMenusFeature;
 
 /**
  * PhpMyAdmin\Server\UserGroups class
@@ -42,10 +42,10 @@ class UserGroups
 
         $userGroupSpecialChars = htmlspecialchars($userGroup);
         $usersTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->users);
-        $sql_query = 'SELECT `username` FROM '.$usersTable
-            ." WHERE `usergroup`='".$dbi->escapeString($userGroup)
-            ."'";
+            . '.' . Util::backquote($configurableMenusFeature->users);
+        $sql_query = 'SELECT `username` FROM ' . $usersTable
+            . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
+            . "'";
         $result = $dbi->tryQueryAsControlUser($sql_query);
         if ($result) {
             $i = 0;
@@ -76,8 +76,8 @@ class UserGroups
         global $dbi;
 
         $groupTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->userGroups);
-        $sql_query = 'SELECT * FROM '.$groupTable.' ORDER BY `usergroup` ASC';
+            . '.' . Util::backquote($configurableMenusFeature->userGroups);
+        $sql_query = 'SELECT * FROM ' . $groupTable . ' ORDER BY `usergroup` ASC';
         $result = $dbi->tryQueryAsControlUser($sql_query);
         $userGroups = [];
         $userGroupsValues = [];
@@ -151,7 +151,7 @@ class UserGroups
         $tabNames = [];
         $tabs = Util::getMenuTabList($level);
         foreach ($tabs as $tab => $tabName) {
-            if (isset($row[$level.'_'.$tab]) && $row[$level.'_'.$tab] !== 'Y') {
+            if (isset($row[$level . '_' . $tab]) && $row[$level . '_' . $tab] !== 'Y') {
                 continue;
             }
 
@@ -171,16 +171,16 @@ class UserGroups
         global $dbi;
 
         $userTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->users);
+            . '.' . Util::backquote($configurableMenusFeature->users);
         $groupTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->userGroups);
-        $sql_query = 'DELETE FROM '.$userTable
-            ." WHERE `usergroup`='".$dbi->escapeString($userGroup)
-            ."'";
+            . '.' . Util::backquote($configurableMenusFeature->userGroups);
+        $sql_query = 'DELETE FROM ' . $userTable
+            . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
+            . "'";
         $dbi->queryAsControlUser($sql_query);
-        $sql_query = 'DELETE FROM '.$groupTable
-            ." WHERE `usergroup`='".$dbi->escapeString($userGroup)
-            ."'";
+        $sql_query = 'DELETE FROM ' . $groupTable
+            . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
+            . "'";
         $dbi->queryAsControlUser($sql_query);
     }
 
@@ -217,10 +217,10 @@ class UserGroups
         ];
         if ($userGroup !== null) {
             $groupTable = Util::backquote($configurableMenusFeature->database)
-                .'.'.Util::backquote($configurableMenusFeature->userGroups);
-            $sql_query = 'SELECT * FROM '.$groupTable
-                ." WHERE `usergroup`='".$dbi->escapeString($userGroup)
-                ."'";
+                . '.' . Util::backquote($configurableMenusFeature->userGroups);
+            $sql_query = 'SELECT * FROM ' . $groupTable
+                . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
+                . "'";
             $result = $dbi->tryQueryAsControlUser($sql_query);
             if ($result) {
                 foreach ($result as $row) {
@@ -311,18 +311,18 @@ class UserGroups
 
         $tabs = Util::getMenuTabList();
         $groupTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->userGroups);
+            . '.' . Util::backquote($configurableMenusFeature->userGroups);
 
         if (! $new) {
-            $sql_query = 'DELETE FROM '.$groupTable
-                ." WHERE `usergroup`='".$dbi->escapeString($userGroup)
-                ."';";
+            $sql_query = 'DELETE FROM ' . $groupTable
+                . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
+                . "';";
             $dbi->queryAsControlUser($sql_query);
         }
 
-        $sql_query = 'INSERT INTO '.$groupTable
-            .'(`usergroup`, `tab`, `allowed`)'
-            .' VALUES ';
+        $sql_query = 'INSERT INTO ' . $groupTable
+            . '(`usergroup`, `tab`, `allowed`)'
+            . ' VALUES ';
         $first = true;
         /** @var array<string, string> $tabGroup */
         foreach ($tabs as $tabGroupName => $tabGroup) {
@@ -331,10 +331,10 @@ class UserGroups
                     $sql_query .= ', ';
                 }
 
-                $tabName = $tabGroupName.'_'.$tab;
+                $tabName = $tabGroupName . '_' . $tab;
                 $allowed = isset($_POST[$tabName]) && $_POST[$tabName] === 'Y';
-                $sql_query .= "('".$dbi->escapeString($userGroup)."', '".$tabName."', '"
-                    .($allowed ? 'Y' : 'N')."')";
+                $sql_query .= "('" . $dbi->escapeString($userGroup) . "', '" . $tabName . "', '"
+                    . ($allowed ? 'Y' : 'N') . "')";
                 $first = false;
             }
         }

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\DailyCashFlow;
 use App\Order;
-use App\Purchase;
 use App\Setting;
+use App\Purchase;
 use Carbon\Carbon;
+use App\DailyCashFlow;
 use Illuminate\Http\Request;
 
 class DailyCashFlowController extends Controller
@@ -101,7 +101,6 @@ class DailyCashFlowController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -146,7 +145,6 @@ class DailyCashFlowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

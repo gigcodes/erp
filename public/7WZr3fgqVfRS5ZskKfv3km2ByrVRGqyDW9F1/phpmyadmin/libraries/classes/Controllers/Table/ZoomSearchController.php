@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use function array_search;
-use function array_values;
-use function count;
-use function htmlspecialchars;
-use function in_array;
-use function intval;
-use function is_numeric;
-use function json_encode;
-use function mb_strtolower;
 use function md5;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\Search;
-use PhpMyAdmin\Template;
+use function count;
 use PhpMyAdmin\Url;
+use function intval;
+use PhpMyAdmin\Core;
 use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\Gis;
+use function in_array;
+use function is_numeric;
 use function preg_match;
-use function preg_replace;
-use function str_ireplace;
+use function strtoupper;
+use PhpMyAdmin\Template;
+use function json_encode;
 use function str_replace;
 use function strncasecmp;
-use function strtoupper;
+use PhpMyAdmin\Utils\Gis;
+use function array_search;
+use function array_values;
+use function preg_replace;
+use function str_ireplace;
+use function mb_strtolower;
+use PhpMyAdmin\Table\Search;
+use PhpMyAdmin\DbTableExists;
+use function htmlspecialchars;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Handles table zoom search tab.
@@ -274,9 +274,9 @@ class ZoomSearchController extends AbstractController
         }
 
         $extra_data = [];
-        $row_info_query = 'SELECT * FROM '.Util::backquote($_POST['db']).'.'
-            .Util::backquote($_POST['table']).' WHERE '.$_POST['where_clause'];
-        $result = $this->dbi->query($row_info_query.';');
+        $row_info_query = 'SELECT * FROM ' . Util::backquote($_POST['db']) . '.'
+            . Util::backquote($_POST['table']) . ' WHERE ' . $_POST['where_clause'];
+        $result = $this->dbi->query($row_info_query . ';');
         $fields_meta = $this->dbi->getFieldsMeta($result);
         while ($row = $result->fetchAssoc()) {
             // for bit fields we need to convert them to printable form
@@ -334,10 +334,10 @@ class ZoomSearchController extends AbstractController
     {
         //Query generation part
         $sql_query = $this->search->buildSqlQuery();
-        $sql_query .= ' LIMIT '.$_POST['maxPlotLimit'];
+        $sql_query .= ' LIMIT ' . $_POST['maxPlotLimit'];
 
         //Query execution part
-        $result = $this->dbi->query($sql_query.';');
+        $result = $this->dbi->query($sql_query . ';');
         $fields_meta = $this->dbi->getFieldsMeta($result);
         $data = [];
         while ($row = $result->fetchAssoc()) {
@@ -429,12 +429,12 @@ class ZoomSearchController extends AbstractController
             $extractedColumnspec = Util::extractColumnSpec($this->originalColumnTypes[$column_index]);
             $is_unsigned = $extractedColumnspec['unsigned'];
             $minMaxValues = $this->dbi->types->getIntegerRange($cleanType, ! $is_unsigned);
-            $htmlAttributes = 'data-min="'.$minMaxValues[0].'" '
-                            .'data-max="'.$minMaxValues[1].'"';
+            $htmlAttributes = 'data-min="' . $minMaxValues[0] . '" '
+                            . 'data-max="' . $minMaxValues[1] . '"';
         }
 
         $htmlAttributes .= ' onfocus="return '
-                        .'verifyAfterSearchFieldChange('.$search_index.', \'#zoom_search_form\')"';
+                        . 'verifyAfterSearchFieldChange(' . $search_index . ', \'#zoom_search_form\')"';
 
         $value = $this->template->render('table/search/input_box', [
             'str' => '',

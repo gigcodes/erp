@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\MessageQueueHistory;
 use Carbon\Carbon;
+use App\MessageQueueHistory;
 use Illuminate\Http\Request;
 
 class MessageQueueHistoryController extends Controller

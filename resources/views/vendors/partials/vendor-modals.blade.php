@@ -2,8 +2,10 @@
   <div class="modal-dialog">
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ url('vendors/store') }}" method="POST">
+      <form action="{{ url('vendors/store') }}" method="POST" id="createVendorForm">
         @csrf
+        
+        <input type="hidden" id="vendor_organization_id" name="organization_id">
         <div class="modal-header">
           <h4 class="modal-title">Store a Vendor</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>

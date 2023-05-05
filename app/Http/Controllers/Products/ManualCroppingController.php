@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Products;
 
-use App\Http\Controllers\Controller;
-use App\ListingHistory;
-use App\Product;
-use App\ScrapedProducts;
-use Carbon\Carbon;
 use File;
+use App\Product;
+use Carbon\Carbon;
+use App\ListingHistory;
+use App\ScrapedProducts;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ManualCroppingController extends Controller
@@ -50,7 +50,7 @@ class ManualCroppingController extends Controller
 
         $currentUser->manualCropProducts()->attach($products);
 
-        return redirect()->back()->with('message', $products->count().' new products assigned successfully!');
+        return redirect()->back()->with('message', $products->count() . ' new products assigned successfully!');
     }
 
     /**
@@ -66,7 +66,6 @@ class ManualCroppingController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -116,7 +115,6 @@ class ManualCroppingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -134,7 +132,7 @@ class ManualCroppingController extends Controller
             foreach ($files['images'] as $file) {
                 $media = MediaUploader::fromSource($file)
                                         ->useFilename(uniqid('cropped_', true))
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }

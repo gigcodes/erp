@@ -17,6 +17,6 @@ class UiDevice extends Model
 
     public function lastUpdatedHistory()
     {
-        return $this->hasOne(UiDeviceHistory::class, "ui_devices_id", 'id')->orderBy('updated_at', 'desc');
+        return $this->hasOne(UiDeviceHistory::class, 'ui_devices_id', 'id')->orderBy('updated_at', 'desc');
     }
 }

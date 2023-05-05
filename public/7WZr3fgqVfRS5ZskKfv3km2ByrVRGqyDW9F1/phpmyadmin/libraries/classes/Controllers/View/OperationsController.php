@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\View;
 
 use function __;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * View manipulations

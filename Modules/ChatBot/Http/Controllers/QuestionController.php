@@ -2,26 +2,26 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use DB;
+use Auth;
+use App\Customer;
+use App\WatsonAccount;
 use App\ChatbotCategory;
 use App\ChatbotErrorLog;
-use App\ChatbotKeywordValueTypes;
 use App\ChatbotQuestion;
-use App\ChatbotQuestionErrorLog;
-use App\ChatbotQuestionExample;
-use App\ChatbotQuestionReply;
-use App\Customer;
 use App\DeveloperModule;
-use App\Github\GithubRepository;
-use App\Library\Watson\Model as WatsonManager;
-use App\MailinglistTemplate;
 use App\ScheduledMessage;
-use App\WatsonAccount;
-use Auth;
-use DB;
+use App\MailinglistTemplate;
 use Illuminate\Http\Request;
+use App\ChatbotQuestionReply;
 use Illuminate\Http\Response;
+use App\ChatbotQuestionExample;
+use App\ChatbotQuestionErrorLog;
+use App\Github\GithubRepository;
+use App\ChatbotKeywordValueTypes;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Watson\Model as WatsonManager;
 
 class QuestionController extends Controller
 {
@@ -41,7 +41,7 @@ class QuestionController extends Controller
             ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name');
         if (! empty($q)) {
             $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
-                $query->where('chatbot_questions.value', 'like', '%'.$q.'%')->orWhere('cqe.question', 'like', '%'.$q.'%');
+                $query->where('chatbot_questions.value', 'like', '%' . $q . '%')->orWhere('cqe.question', 'like', '%' . $q . '%');
             });
         }
 
@@ -576,7 +576,7 @@ class QuestionController extends Controller
     public function search(Request $request)
     {
         $keyword = request('term', '');
-        $allquestion = ChatbotQuestion::where('value', 'like', '%'.$keyword.'%')->limit(10)->get();
+        $allquestion = ChatbotQuestion::where('value', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allquestionList = [];
         if (! $allquestion->isEmpty()) {
@@ -658,7 +658,7 @@ class QuestionController extends Controller
     public function searchCategory(Request $request)
     {
         $keyword = request('term', '');
-        $allCategory = ChatbotCategory::where('name', 'like', '%'.$keyword.'%')->limit(10)->get();
+        $allCategory = ChatbotCategory::where('name', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
@@ -688,7 +688,7 @@ class QuestionController extends Controller
     public function searchKeyword(Request $request)
     {
         $keyword = request('term', '');
-        $allKeyword = ChatbotQuestion::where('value', 'like', '%'.$keyword.'%')->limit(10)->get();
+        $allKeyword = ChatbotQuestion::where('value', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allKeywordList = [];
         if (! $allKeyword->isEmpty()) {
@@ -909,7 +909,7 @@ class QuestionController extends Controller
     public function searchSuggestion(Request $request)
     {
         $listOfQuestions = ChatbotQuestionExample::join('chatbot_questions as cq', 'cq.id', 'chatbot_question_examples.chatbot_question_id')
-        ->where('question', 'LIKE', '%'.$request->q.'%')
+        ->where('question', 'LIKE', '%' . $request->q . '%')
         ->where('cq.keyword_or_question', $request->type)
         ->select(['chatbot_question_examples.*', 'cq.value', 'cq.erp_or_watson'])
         ->limit(10)

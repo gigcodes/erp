@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\ConfigStorage\Features;
 
-use PhpMyAdmin\Dbal\DatabaseName;
 use PhpMyAdmin\Dbal\TableName;
+use PhpMyAdmin\Dbal\DatabaseName;
 
 /**
  * @psalm-immutable

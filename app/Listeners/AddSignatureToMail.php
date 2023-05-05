@@ -35,42 +35,42 @@ class AddSignatureToMail
         $email = EmailAddress::where('from_address', $femail)->first();
         if ($email) {
             if ($email->signature_name != '') {
-                $signature .= '<br>'.$email->signature_name;
+                $signature .= '<br>' . $email->signature_name;
             }
 
             if ($email->signature_title != '') {
-                $signature .= '<br>'.$email->signature_title;
+                $signature .= '<br>' . $email->signature_title;
             }
 
             if ($email->signature_email != '') {
-                $signature .= '<br>'.$email->signature_email;
+                $signature .= '<br>' . $email->signature_email;
             }
 
             if ($email->signature_phone != '') {
-                $signature .= '<br>'.$email->signature_phone;
+                $signature .= '<br>' . $email->signature_phone;
             }
 
             if ($email->signature_website != '') {
-                $signature .= '<br>'.$email->signature_website;
+                $signature .= '<br>' . $email->signature_website;
             }
 
             if ($email->signature_address != '') {
-                $signature .= '<br>'.$email->signature_address;
+                $signature .= '<br>' . $email->signature_address;
             }
 
             if ($email->signature_logo != '') {
-                $signature .= "<br><img src='".url('/').'/uploads/'.$email->signature_logo."'>";
+                $signature .= "<br><img src='" . url('/') . '/uploads/' . $email->signature_logo . "'>";
             }
 
             if ($email->signature_image != '') {
-                $signature .= "<br><img src='".url('/').'/uploads/'.$email->signature_image."'>";
+                $signature .= "<br><img src='" . url('/') . '/uploads/' . $email->signature_image . "'>";
             }
 
             if ($email->signature_social != '') {
-                $signature .= '<br>'.$email->signature_social;
+                $signature .= '<br>' . $email->signature_social;
             }
         }
 
-        $event->message->setBody($body.$signature);
+        $event->message->setBody($body . $signature);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Position;
 use App\Setting;
+use App\Position;
 use App\VendorResume;
 use Illuminate\Http\Request;
 
@@ -33,27 +33,27 @@ class VendorResumeController extends Controller
 
         //If first_name is not null
         if ($request->first_name != null) {
-            $resumes->where('first_name', 'LIKE', '%'.$request->first_name.'%');
+            $resumes->where('first_name', 'LIKE', '%' . $request->first_name . '%');
         }
 
         //if second_name is not null
         if ($request->second_name != null) {
-            $resumes->where('second_name', 'LIKE', '%'.$request->second_name.'%');
+            $resumes->where('second_name', 'LIKE', '%' . $request->second_name . '%');
         }
 
         //if email is not null
         if ($request->email != null) {
-            $resumes->where('email', 'LIKE', '%'.$request->email.'%');
+            $resumes->where('email', 'LIKE', '%' . $request->email . '%');
         }
 
         //if mobile is not null
         if ($request->mobile != null) {
-            $resumes->where('mobile', 'LIKE', '%'.$request->mobile.'%');
+            $resumes->where('mobile', 'LIKE', '%' . $request->mobile . '%');
         }
 
         //if expected_salary_in_usd is not null
         if ($request->expected_salary_in_usd != null) {
-            $resumes->where('expected_salary_in_usd', 'LIKE', '%'.$request->expected_salary_in_usd.'%');
+            $resumes->where('expected_salary_in_usd', 'LIKE', '%' . $request->expected_salary_in_usd . '%');
         }
 
         $resumes = $resumes->paginate(Setting::get('pagination'));
@@ -113,40 +113,40 @@ class VendorResumeController extends Controller
                 $work_remark_val = $work_remark[$key] ?? '';
 
                 $html .= '<tr>';
-                $html .= '<td><b>Salary IN USD </b>: '.$salary_in_usd_val.'</td>';
-                $html .= '<td><b>From Date </b>: '.$date_from_val.'</td>';
-                $html .= '<td><b>To Date </b>: '.$date_to_val.'</td>';
-                $html .= '<td><b>Organization </b>: '.$organization_val.'</td>';
+                $html .= '<td><b>Salary IN USD </b>: ' . $salary_in_usd_val . '</td>';
+                $html .= '<td><b>From Date </b>: ' . $date_from_val . '</td>';
+                $html .= '<td><b>To Date </b>: ' . $date_to_val . '</td>';
+                $html .= '<td><b>Organization </b>: ' . $organization_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td><b>Designation </b>: '.$designation_val.'</td>';
-                $html .= '<td><b>Reason for Leaving </b>: '.$reason_for_leaving_val.'</td>';
-                $html .= '<td><b>Part Time </b>: '.$part_time_val.'</td>';
-                $html .= '<td><b>Full Time </b>: '.$full_time_val.'</td>';
+                $html .= '<td><b>Designation </b>: ' . $designation_val . '</td>';
+                $html .= '<td><b>Reason for Leaving </b>: ' . $reason_for_leaving_val . '</td>';
+                $html .= '<td><b>Part Time </b>: ' . $part_time_val . '</td>';
+                $html .= '<td><b>Full Time </b>: ' . $full_time_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Job Responsibilities </b>: '.$job_responsibilities_val.'</td>';
+                $html .= '<td colspan="4"><b>Job Responsibilities </b>: ' . $job_responsibilities_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Projects Worked </b>: '.$projects_worked_val.'</td>';
+                $html .= '<td colspan="4"><b>Projects Worked </b>: ' . $projects_worked_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Tool Used </b>: '.$tool_used_val.'</td>';
+                $html .= '<td colspan="4"><b>Tool Used </b>: ' . $tool_used_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Remark </b>: '.$work_remark_val.'</td>';
+                $html .= '<td colspan="4"><b>Remark </b>: ' . $work_remark_val . '</td>';
                 $html .= '</tr>';
 
                 foreach ($project as $prokey => $pval) {
                     $html .= '<tr>';
-                    $html .= '<td colspan="6"><b>Project '.($prokey + 1).'</b></td>';
+                    $html .= '<td colspan="6"><b>Project ' . ($prokey + 1) . '</b></td>';
                     $html .= '</tr>';
                     foreach ($pval as $prokey1 => $pval1) {
                         //dd($dev_role[$prokey][$prokey][$prokey1]);
                         $html .= '<tr>';
-                        $html .= '<td><b>Project '.($pval1).'</b></td>';
-                        $html .= '<td><b>Role '.($dev_role[$prokey][$prokey][$prokey1]).'</b></td>';
-                        $html .= '<td><b>Project '.($tools[$prokey][$prokey][$prokey1]).'</b></td>';
+                        $html .= '<td><b>Project ' . ($pval1) . '</b></td>';
+                        $html .= '<td><b>Role ' . ($dev_role[$prokey][$prokey][$prokey1]) . '</b></td>';
+                        $html .= '<td><b>Project ' . ($tools[$prokey][$prokey][$prokey1]) . '</b></td>';
                         $html .= '</tr>';
                     }
                 }
@@ -180,14 +180,14 @@ class VendorResumeController extends Controller
                 $edu_remark_val = $edu_remark[$key] ?? '';
 
                 $html .= '<tr>';
-                $html .= '<td><b>From Date </b>: '.$val.'</td>';
-                $html .= '<td><b>To Date </b>: '.$edu_date_to_val.'</td>';
-                $html .= '<td><b>Institute Programme </b>: '.$edu_institute_programme_val.'</td>';
-                $html .= '<td><b>Course Name </b>: '.$edu_course_name_val.'</td>';
-                $html .= '<td><b>Grades </b>: '.$edu_grades_val.'</td>';
+                $html .= '<td><b>From Date </b>: ' . $val . '</td>';
+                $html .= '<td><b>To Date </b>: ' . $edu_date_to_val . '</td>';
+                $html .= '<td><b>Institute Programme </b>: ' . $edu_institute_programme_val . '</td>';
+                $html .= '<td><b>Course Name </b>: ' . $edu_course_name_val . '</td>';
+                $html .= '<td><b>Grades </b>: ' . $edu_grades_val . '</td>';
                 $html .= '</tr>';
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Remark </b>: '.$edu_remark_val.'</td>';
+                $html .= '<td colspan="4"><b>Remark </b>: ' . $edu_remark_val . '</td>';
                 $html .= '</tr>';
             }
 
@@ -213,18 +213,18 @@ class VendorResumeController extends Controller
             $address = unserialize($resumes->address);
 
             $html .= '<tr>';
-            $html .= '<td><b>City </b>: '.$resumes->city.'</td>';
-            $html .= '<td><b>State </b>: '.$resumes->state.'</td>';
-            $html .= '<td><b>Country </b>: '.$resumes->country.'</td>';
+            $html .= '<td><b>City </b>: ' . $resumes->city . '</td>';
+            $html .= '<td><b>State </b>: ' . $resumes->state . '</td>';
+            $html .= '<td><b>Country </b>: ' . $resumes->country . '</td>';
             $html .= '</tr>';
 
             foreach ($address as $key => $val) {
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Address '.($key + 1).'</b>:</td>';
+                $html .= '<td colspan="4"><b>Address ' . ($key + 1) . '</b>:</td>';
                 $html .= '</tr>';
 
                 $html .= '<tr>';
-                $html .= '<td colspan="4">'.$val.'</td>';
+                $html .= '<td colspan="4">' . $val . '</td>';
                 $html .= '</tr>';
             }
 
@@ -237,7 +237,6 @@ class VendorResumeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -249,11 +248,11 @@ class VendorResumeController extends Controller
         $tools = [];
 
         foreach ($requestData['work_experiance'] as $key => $val) {
-            if (isset($requestData['project'.$key])) {
-                foreach ($requestData['project'.$key] as $pKey => $pval) {
+            if (isset($requestData['project' . $key])) {
+                foreach ($requestData['project' . $key] as $pKey => $pval) {
                     $project[$key][$pKey] = $pval;
-                    $dev_role[$key][$pKey] = $request->input('dev_role'.$key);
-                    $tools[$key][$pKey] = $request->input('tools'.$key);
+                    $dev_role[$key][$pKey] = $request->input('dev_role' . $key);
+                    $tools[$key][$pKey] = $request->input('tools' . $key);
                 }
             }
         }
@@ -265,7 +264,7 @@ class VendorResumeController extends Controller
         $vendorResumeName = '';
         if ($request->file('soft_upload_document')) {
             $file = $request->file('soft_upload_document');
-            $vendorResumeName = uniqid().'_'.trim($file->getClientOriginalName());
+            $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
             $file->move($path, $vendorResumeName);
         }
         try {
@@ -345,7 +344,6 @@ class VendorResumeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\VendorResume  $vendorResume
      * @return \Illuminate\Http\Response
      */
     public function show(VendorResume $vendorResume)
@@ -362,7 +360,6 @@ class VendorResumeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\VendorResume  $vendorResume
      * @return \Illuminate\Http\Response
      */
     public function edit(VendorResume $vendorResume)
@@ -373,8 +370,6 @@ class VendorResumeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\VendorResume  $vendorResume
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, VendorResume $vendorResume)
@@ -385,7 +380,6 @@ class VendorResumeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\VendorResume  $vendorResume
      * @return \Illuminate\Http\Response
      */
     public function destroy(VendorResume $vendorResume)

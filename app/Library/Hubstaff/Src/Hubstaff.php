@@ -2,8 +2,8 @@
 
 namespace App\Library\Hubstaff\Src;
 
-use App\Library\Hubstaff\Src\Authentication\Token;
 use Storage;
+use App\Library\Hubstaff\Src\Authentication\Token;
 
 /**
  * Package is using for maintane hubstaff
@@ -54,7 +54,7 @@ class Hubstaff
     public function getRepository($repo)
     {
         $repo = ucwords(strtolower($repo));
-        $repo = '\\App\\Library\\Hubstaff\\Src\\Repositories\\'.$repo;
+        $repo = '\\App\\Library\\Hubstaff\\Src\\Repositories\\' . $repo;
 
         return new $repo($this->accessToken);
     }

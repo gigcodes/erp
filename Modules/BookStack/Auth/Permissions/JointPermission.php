@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Auth\Permissions;
 
+use Modules\BookStack\Model;
 use Modules\BookStack\Auth\Role;
 use Modules\BookStack\Entities\Entity;
-use Modules\BookStack\Model;
 
 class JointPermission extends Model
 {

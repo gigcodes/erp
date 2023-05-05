@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\EmailAddress;
-use App\EmailRunHistories;
-use App\Exports\EmailFailedReport;
-use App\StoreWebsite;
 use App\User;
+use App\Email;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\EmailAddress;
+use App\StoreWebsite;
+use App\VirtualminHelper;
+use App\EmailRunHistories;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Exports\EmailFailedReport;
+use Webklex\PHPIMAP\ClientManager;
 use Maatwebsite\Excel\Facades\Excel;
+use EmailReplyParser\Parser\EmailParser;
 
 class EmailAddressesController extends Controller
 {
@@ -36,15 +40,15 @@ class EmailAddressesController extends Controller
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
-            $query->orWhere('driver', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('port', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('encryption', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('send_grid_token', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('host', 'LIKE', '%'.$request->keyword.'%');
+            $query->orWhere('driver', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('port', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('encryption', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('send_grid_token', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('host', 'LIKE', '%' . $request->keyword . '%');
         }
 
         if ($request->username != '') {
-            $query->where('username', 'LIKE', '%'.$request->username.'%');
+            $query->where('username', 'LIKE', '%' . $request->username . '%');
         }
 
         if ($request->website_id != '') {
@@ -67,7 +71,7 @@ class EmailAddressesController extends Controller
 
         $ops = '';
         foreach ($users as $key => $user) {
-            $ops .= '<option class="form-control" value="'.$user['id'].'">'.$user['name'].'</option>';
+            $ops .= '<option class="form-control" value="' . $user['id'] . '">' . $user['name'] . '</option>';
         }
         //dd($ops);
         if ($request->ajax()) {
@@ -108,7 +112,6 @@ class EmailAddressesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -145,6 +148,8 @@ class EmailAddressesController extends Controller
             EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
         }
 
+        $this->createEmail($id, $data['host'], $data['username'], $data['password']);
+
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
 
@@ -162,7 +167,6 @@ class EmailAddressesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -200,6 +204,8 @@ class EmailAddressesController extends Controller
             EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
         }
 
+        $this->updateEmailPassword($id, $data['host'], $data['username'], $data['password']);
+
         return redirect()->back()->withSuccess('You have successfully updated a Email Address!');
     }
 
@@ -233,11 +239,11 @@ class EmailAddressesController extends Controller
                 $status = ($runHistory->is_success == 0) ? 'Failed' : 'Success';
                 $message = empty($runHistory->message) ? '-' : $runHistory->message;
                 $history .= '<tr>
-                <td>'.$runHistory->id.'</td>
-                <td>'.$runHistory->from_name.'</td>
-                <td>'.$status.'</td>
-                <td>'.$message.'</td>
-                <td>'.$runHistory->created_at->format('Y-m-d H:i:s').'</td>
+                <td>' . $runHistory->id . '</td>
+                <td>' . $runHistory->from_name . '</td>
+                <td>' . $status . '</td>
+                <td>' . $message . '</td>
+                <td>' . $runHistory->created_at->format('Y-m-d H:i:s') . '</td>
                 </tr>';
             }
         } else {
@@ -296,7 +302,7 @@ class EmailAddressesController extends Controller
                     'email' => $analytic->email,
                     'last_error' => $analytic->last_error,
                     'last_error_at' => $analytic->last_error_at,
-                    'credential' => $analytic->account_id.' - '.$analytic->view_id,
+                    'credential' => $analytic->account_id . ' - ' . $analytic->view_id,
                     'store_website' => $analytic->website,
                     'status' => 'N/A',
                     'type' => 'Google Analytics',
@@ -327,11 +333,11 @@ class EmailAddressesController extends Controller
                     $status = ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success';
                     $message = $row->history_last_message->message ?? '-';
                     $history .= '<tr>
-                    <td>'.$row->history_last_message->id.'</td>
-                    <td>'.$row->from_name.'</td>
-                    <td>'.$status.'</td>
-                    <td>'.$message.'</td>
-                    <td>'.$row->history_last_message->created_at->format('Y-m-d H:i:s').'</td>
+                    <td>' . $row->history_last_message->id . '</td>
+                    <td>' . $row->from_name . '</td>
+                    <td>' . $status . '</td>
+                    <td>' . $message . '</td>
+                    <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
                     </tr>';
                 }
             }
@@ -368,7 +374,7 @@ class EmailAddressesController extends Controller
                 ];
             }
         }
-        $filename = 'Report-Email-failed'.'.csv';
+        $filename = 'Report-Email-failed' . '.csv';
 
         return Excel::download(new EmailFailedReport($recordsArr), $filename);
     }
@@ -389,6 +395,9 @@ class EmailAddressesController extends Controller
             $user->password = $newPassword;
             $user->save();
             $data[$key] = $newPassword;
+
+            //update password in virtualmin
+            $this->updateEmailPassword($user->id, $user->host, $user->username, $newPassword);
         }
         \Session::flash('success', 'Password Updated');
 
@@ -403,7 +412,7 @@ class EmailAddressesController extends Controller
         $number = $user->phone;
         $whatsappnumber = '971502609192';
 
-        $message = 'Password For '.$emailDetail->username.'is: '.$emailDetail->password;
+        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
 
         $whatsappmessage = new WhatsAppController();
         $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
@@ -437,7 +446,7 @@ class EmailAddressesController extends Controller
         $search = $request->search;
 
         if ($search != null) {
-            $emailAddress = EmailAddress::where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%')->get();
+            $emailAddress = EmailAddress::where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%')->get();
         } else {
             $emailAddress = EmailAddress::get();
         }
@@ -460,6 +469,313 @@ class EmailAddressesController extends Controller
             session()->flash('msg', 'Please Try Again.');
 
             return redirect()->back();
+        }
+    }
+
+    //create email in virtualmin
+    public function createEmail($id, $smtpHost, $user, $password): string
+    {
+        $mailHelper = new VirtualminHelper();
+        $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
+        $vmHost = $result['host'] ? $result['host'] : '';
+        $status = 'failure';
+        if ($smtpHost == $vmHost) {
+            $response = $mailHelper->createMail($smtpHost, $user, $password);
+            $status = 'failure';
+            if ($response['code'] == 200) {
+                $status = $response['data']['status'];
+                EmailAddress::find($id)->update(['username' => $user . '@' . $smtpHost]);
+            }
+        }
+
+        return $status;
+    }
+
+    //update password in virtualmin
+    public function updateEmailPassword($id, $smtpHost, $user, $password): string
+    {
+        $mailHelper = new VirtualminHelper();
+        $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
+        $vmHost = $result['host'] ? $result['host'] : '';
+        $status = 'failure';
+        if ($smtpHost == $vmHost) {
+            $response = $mailHelper->changeMailPassword($smtpHost, $user, $password);
+            $status = 'failure';
+            if ($response['code'] == 200) {
+                $status = $response['data']['status'];
+                $parts = explode('@', $user);
+                EmailAddress::find($id)->update(['username' => $parts[0] . '@' . $smtpHost]);
+            }
+        }
+
+        return $status;
+    }
+
+    public function singleEmailRunCron(Request $request)
+    {
+        $emailAddresses = EmailAddress::where('id', $request->get('id'))->first();
+
+        $emailAddress = $emailAddresses;
+        try {
+            $cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => $emailAddress->host,
+                'port' => 993,
+                'encryption' => 'ssl',
+                'validate_cert' => false,
+                'username' => $emailAddress->username,
+                'password' => $emailAddress->password,
+                'protocol' => 'imap',
+            ]);
+
+            $imap->connect();
+
+            $types = [
+                'inbox' => [
+                    'inbox_name' => 'INBOX',
+                    'direction' => 'from',
+                    'type' => 'incoming',
+                ],
+                'sent' => [
+                    'inbox_name' => 'INBOX.Sent',
+                    'direction' => 'to',
+                    'type' => 'outgoing',
+                ],
+            ];
+
+            $available_models = [
+                'supplier' => \App\Supplier::class, 'vendor' => \App\Vendor::class,
+                'customer' => \App\Customer::class, 'users' => \App\User::class,
+            ];
+            $email_list = [];
+            foreach ($available_models as $key => $value) {
+                $email_list[$value] = $value::whereNotNull('email')->pluck('id', 'email')->unique()->all();
+            }
+
+            foreach ($types as $type) {
+                $inbox = $imap->getFolder($type['inbox_name']);
+                if ($type['type'] == 'incoming') {
+                    $latest_email = Email::where('to', $emailAddress->from_address)->where('type', $type['type'])->latest()->first();
+                } else {
+                    $latest_email = Email::where('from', $emailAddress->from_address)->where('type', $type['type'])->latest()->first();
+                }
+
+                $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
+                if ($latest_email_date) {
+                    $emails = ($inbox) ? $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y')) : '';
+                } else {
+                    $emails = ($inbox) ? $inbox->messages() : '';
+                }
+                if ($emails) {
+                    $emails = $emails->all()->get();
+                    foreach ($emails as $email) {
+                        try {
+                            $reference_id = $email->references;
+                            $origin_id = $email->message_id;
+
+                            // Skip if message is already stored
+                            if (Email::where('origin_id', $origin_id)->count() > 0) {
+                                continue;
+                            }
+
+                            // check if email has already been received
+
+                            $textContent = $email->getTextBody();
+                            if ($email->hasHTMLBody()) {
+                                $content = $email->getHTMLBody();
+                            } else {
+                                $content = $email->getTextBody();
+                            }
+
+                            $email_subject = $email->getSubject();
+                            \Log::channel('customer')->info('Subject  => ' . $email_subject);
+
+                            //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
+                            $attachments_array = [];
+                            $attachments = $email->getAttachments();
+                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
+                                $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                $path = 'email-attachments/' . $attachment->name;
+
+                                $attachments_array[] = $path;
+
+                                /*start 3215 attachment fetch from DHL mail */
+                                \Log::channel('customer')->info('Match Start  => ' . $email_subject);
+
+                                $findFromEmail = explode('@', $fromThis);
+                                if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
+                                    \Log::channel('customer')->info('Match Found  => ' . $email_subject);
+                                    $this->getEmailAttachedFileData($attachment->name);
+                                }
+                                /*end 3215 attachment fetch from DHL mail */
+                            });
+
+                            $from = $email->getFrom()[0]->mail;
+                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+
+                            // Model is sender if its incoming else its receiver if outgoing
+                            if ($type['type'] == 'incoming') {
+                                $model_email = $from;
+                            } else {
+                                $model_email = $to;
+                            }
+
+                            // Get model id and model type
+
+                            extract($this->getModel($model_email, $email_list));
+
+                            $subject = explode('#', $email_subject);
+                            if (isset($subject[1]) && ! empty($subject[1])) {
+                                $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
+                                if ($findTicket) {
+                                    $model_id = $findTicket->id;
+                                    $model_type = \App\Tickets::class;
+                                }
+                            }
+
+                            $params = [
+                                'model_id' => $model_id,
+                                'model_type' => $model_type,
+                                'origin_id' => $origin_id,
+                                'reference_id' => $reference_id,
+                                'type' => $type['type'],
+                                'seen' => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
+                                'from' => $email->getFrom()[0]->mail,
+                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject' => $email->getSubject(),
+                                'message' => $content,
+                                'template' => 'customer-simple',
+                                'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                'created_at' => $email->getDate(),
+                            ];
+
+                            $email_id = Email::insertGetId($params);
+
+                            if ($type['type'] == 'incoming') {
+                                $message = trim($textContent);
+
+                                $reply = (new EmailParser())->parse($message);
+
+                                $fragment = current($reply->getFragments());
+
+                                $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
+
+                                $reply = strip_tags($fragment);
+
+                                $reply = preg_replace($pattern, ' ', $reply);
+
+                                $mailFound = false;
+                                if ($reply) {
+                                    $customer = \App\Customer::where('email', $from)->first();
+                                    if (! empty($customer)) {
+                                        // store the main message
+                                        $params = [
+                                            'number' => $customer->phone,
+                                            'message' => $reply,
+                                            'media_url' => null,
+                                            'approved' => 0,
+                                            'status' => 0,
+                                            'contact_id' => null,
+                                            'erp_user' => null,
+                                            'supplier_id' => null,
+                                            'task_id' => null,
+                                            'dubizzle_id' => null,
+                                            'vendor_id' => null,
+                                            'customer_id' => $customer->id,
+                                            'is_email' => 1,
+                                            'from_email' => $from,
+                                            'to_email' => $to,
+                                            'email_id' => $email_id,
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                        \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
+                                        $mailFound = true;
+                                    }
+
+                                    if (! $mailFound) {
+                                        $vandor = \App\Vendor::where('email', $from)->first();
+                                        if ($vandor) {
+                                            $params = [
+                                                'number' => $vandor->phone,
+                                                'message' => $reply,
+                                                'media_url' => null,
+                                                'approved' => 0,
+                                                'status' => 0,
+                                                'contact_id' => null,
+                                                'erp_user' => null,
+                                                'supplier_id' => null,
+                                                'task_id' => null,
+                                                'dubizzle_id' => null,
+                                                'vendor_id' => $vandor->id,
+                                                'is_email' => 1,
+                                                'from_email' => $from,
+                                                'to_email' => $to,
+                                                'email_id' => $email_id,
+                                            ];
+                                            $messageModel = \App\ChatMessage::create($params);
+                                            $mailFound = true;
+                                        }
+                                    }
+
+                                    if (! $mailFound) {
+                                        $supplier = \App\Supplier::where('email', $from)->first();
+                                        if ($supplier) {
+                                            $params = [
+                                                'number' => $supplier->phone,
+                                                'message' => $reply,
+                                                'media_url' => null,
+                                                'approved' => 0,
+                                                'status' => 0,
+                                                'contact_id' => null,
+                                                'erp_user' => null,
+                                                'supplier_id' => $supplier->id,
+                                                'task_id' => null,
+                                                'dubizzle_id' => null,
+                                                'is_email' => 1,
+                                                'from_email' => $from,
+                                                'to_email' => $to,
+                                                'email_id' => $email_id,
+                                            ];
+                                            $messageModel = \App\ChatMessage::create($params);
+                                            $mailFound = true;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage());
+                            $historyParam = [
+                                'email_address_id' => $emailAddress->id,
+                                'is_success' => 0,
+                                'message' => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
+                            ];
+                            EmailRunHistories::create($historyParam);
+                        }
+                    }
+                }
+            }
+
+            $historyParam = [
+                'email_address_id' => $emailAddress->id,
+                'is_success' => 1,
+            ];
+
+            EmailRunHistories::create($historyParam);
+
+            return response()->json(['status' => 'success', 'message' => 'Successfully'], 200);
+        } catch (\Exception $e) {
+            \Log::channel('customer')->info($e->getMessage());
+            $historyParam = [
+                'email_address_id' => $emailAddress->id,
+                'is_success' => 0,
+                'message' => $e->getMessage(),
+            ];
+            EmailRunHistories::create($historyParam);
+            \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
+            throw new \Exception($e->getMessage());
         }
     }
 }

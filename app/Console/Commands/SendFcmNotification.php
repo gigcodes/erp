@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use FCM;
+use App\Translations;
 use App\GoogleTranslate;
 use App\PushFcmNotification;
-use App\Translations;
-use FCM;
 use Illuminate\Console\Command;
 use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
@@ -45,9 +45,9 @@ class SendFcmNotification extends Command
     public function handle()
     {
         $fromdate = date('Y-m-d H:i:s');
-        $newtimestamp = strtotime($fromdate.' + 4 minute');
+        $newtimestamp = strtotime($fromdate . ' + 4 minute');
         $todate = date('Y-m-d H:i:s', $newtimestamp);
-        echo $fromdate.' # '.$todate;
+        echo $fromdate . ' # ' . $todate;
         echo PHP_EOL;
         \Log::info('fcm:send was started to run');
         $Notifications = PushFcmNotification::select('sw.push_web_key', 'sw.push_web_id', 'ft.token', 'ft.lang', 'push_fcm_notifications.*')
@@ -67,13 +67,13 @@ class SendFcmNotification extends Command
                 try {
                     config(['fcm.http.sender_id' => $Notification['push_web_id']]);
                     config(['fcm.http.server_key' => $Notification['push_web_key']]);
-                    \Log::info('fcm:send sender_id was '.$Notification['push_web_id'].' found with key '.$Notification['push_web_key']);
+                    \Log::info('fcm:send sender_id was ' . $Notification['push_web_id'] . ' found with key ' . $Notification['push_web_key']);
 
                     $title = $Notification->title;
                     $googleTranslate = new GoogleTranslate();
                     $translationString = $googleTranslate->translate($Notification->lang, $Notification->title);
 
-                    if($translationString != '') {
+                    if ($translationString != '') {
                         Translations::addTranslation($Notification->title, $translationString, 'en', $Notification->lang);
                         $title = htmlspecialchars_decode($translationString, ENT_QUOTES);
                     }
@@ -82,7 +82,7 @@ class SendFcmNotification extends Command
                     $googleTranslate = new GoogleTranslate();
                     $translationString = $googleTranslate->translate($Notification->lang, $Notification->body);
 
-                    if($translationString != '') {
+                    if ($translationString != '') {
                         Translations::addTranslation($Notification->body, $translationString, 'en', $Notification->lang);
                         $body = htmlspecialchars_decode($translationString, ENT_QUOTES);
                     }
@@ -94,13 +94,12 @@ class SendFcmNotification extends Command
                     $notificationBuilder->setBody($body)
                                         ->setSound('default');
 
-
                     $dataBuilder = new PayloadDataBuilder();
                     $dataBuilder->addData([
-                                    'icon' => $Notification->icon, 
-                                    // 'url' => $Notification->url, 
-                                    'expired_day' => $Notification->expired_day
-                                ]);
+                        'icon' => $Notification->icon,
+                        // 'url' => $Notification->url,
+                        'expired_day' => $Notification->expired_day,
+                    ]);
 
                     $option = $optionBuilder->build();
                     $notification = $notificationBuilder->build();
@@ -121,13 +120,13 @@ class SendFcmNotification extends Command
                         $Notification->status = 'Failed';
                         $this->info(json_encode($downstreamResponse->tokensWithError()));
                         $errorMessage = json_encode($downstreamResponse->tokensWithError());
-                        \Log::info('fcm:send Message Error message =>'.$errorMessage);
+                        \Log::info('fcm:send Message Error message =>' . $errorMessage);
                     }
                 } catch (\Exception $e) {
                     $Notification->status = 'Failed';
                     $success = false;
                     $errorMessage = $e->getMessage();
-                    \Log::info('fcm:send Exception Error message =>'.$errorMessage);
+                    \Log::info('fcm:send Exception Error message =>' . $errorMessage);
                 }
 
                 $Notification->sent_on = date('Y-m-d H:i');

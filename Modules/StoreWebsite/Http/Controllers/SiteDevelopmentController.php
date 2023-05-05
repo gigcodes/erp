@@ -2,24 +2,24 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\ChatMessage;
-use App\DeveloperTask;
-use App\Role;
-use App\Setting;
-use App\SiteDevelopment;
-use App\SiteDevelopmentArtowrkHistory;
-use App\SiteDevelopmentCategory;
-use App\SiteDevelopmentMasterCategory;
-use App\StoreWebsite;
-use App\StoreWebsiteImage;
-use App\Task;
-use App\TaskCategory;
-use App\Uicheck;
-use App\User;
-use Auth;
 use DB;
+use Auth;
+use App\Role;
+use App\Task;
+use App\User;
+use App\Setting;
+use App\Uicheck;
+use App\ChatMessage;
+use App\StoreWebsite;
+use App\TaskCategory;
+use App\DeveloperTask;
+use App\SiteDevelopment;
+use App\StoreWebsiteImage;
 use Illuminate\Http\Request;
+use App\SiteDevelopmentCategory;
 use Illuminate\Routing\Controller;
+use App\SiteDevelopmentArtowrkHistory;
+use App\SiteDevelopmentMasterCategory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteDevelopmentController extends Controller
@@ -67,7 +67,7 @@ class SiteDevelopmentController extends Controller
                         from site_developments 
                         where 
                             site_developments.site_development_category_id = site_development_categories.id 
-                            AND `website_id` = '.$id.' 
+                            AND `website_id` = ' . $id . ' 
                         ORDER BY created_at DESC 
                         limit 1
                         ) as site_development_id'
@@ -156,12 +156,12 @@ class SiteDevelopmentController extends Controller
             //$categories->where('site_developments.status' , $request->status);
             if ($id != 'all') {
                 if (is_array($selectedWebsites) and count($selectedWebsites) > 0) {
-                    $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN ('.implode(',', $selectedWebsites).') ORDER BY created_at DESC) = '.$request->status);
+                    $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',', $selectedWebsites) . ') ORDER BY created_at DESC) = ' . $request->status);
                 } else {
-                    $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '.$id.' ORDER BY created_at DESC) = '.$request->status);
+                    $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC) = ' . $request->status);
                 }
             } else {
-                $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id  ORDER BY created_at DESC limit 1) = '.$request->status);
+                $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id  ORDER BY created_at DESC limit 1) = ' . $request->status);
             }
         }
         if ($id != 'all') {
@@ -418,7 +418,7 @@ class SiteDevelopmentController extends Controller
                 $requests = [
                     '_token' => $request->_token,
                     'task_subject' => $request->text,
-                    'task_detail' => 'TEST'.$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_detail' => 'TEST' . $request->websiteId . ' ' . $request->text . ' ' . $request->master_category_id,
                     'task_asssigned_to' => 6,
                     // 'task_asssigned_from' => 10410,
                     'category_id' => 49,
@@ -458,7 +458,7 @@ class SiteDevelopmentController extends Controller
                 $requests = [
                     '_token' => $request->_token,
                     'task_subject' => $request->text,
-                    'task_detail' => 'TEST'.$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_detail' => 'TEST' . $request->websiteId . ' ' . $request->text . ' ' . $request->master_category_id,
                     'task_asssigned_to' => 6,
                     'category_id' => $designCategoryId,
                     'site_id' => $site_id,
@@ -498,7 +498,7 @@ class SiteDevelopmentController extends Controller
             $requests = [
                 '_token' => $request->_token,
                 'task_subject' => $category['title'],
-                'task_detail' => $website.' '.$category['title'].$request->task_category,
+                'task_detail' => $website . ' ' . $category['title'] . $request->task_category,
                 'task_asssigned_to' => 6,
                 'category_id' => 49,
                 'site_id' => $category->site_development_id,
@@ -653,9 +653,9 @@ class SiteDevelopmentController extends Controller
             }
 
             if ($status == 3) {
-                $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=".$siteDev->id.' data-category='.$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
+                $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=" . $siteDev->id . ' data-category=' . $siteDev->site_development_category_id . "  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
             } elseif ($status == 4 || $status == 0) {
-                $html .= "<i class='fa fa-ban save-status' data-text='3' data-site=".$siteDev->id.' data-category='.$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:black;' title='Activate'></i>";
+                $html .= "<i class='fa fa-ban save-status' data-text='3' data-site=" . $siteDev->id . ' data-category=' . $siteDev->site_development_category_id . "  data-type='status' aria-hidden='true' style='color:black;' title='Activate'></i>";
             }
         }
 
@@ -746,7 +746,7 @@ class SiteDevelopmentController extends Controller
 
         $file = $request->file('file');
 
-        $name = uniqid().'_'.trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
@@ -775,9 +775,9 @@ class SiteDevelopmentController extends Controller
             }
 
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('site-development/'.floor($site->id / config('constants.image_per_folder')))
+                    ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
                     ->upload();
                 $site->attachMedia($media, config('constants.media_tags'));
             }
@@ -1022,7 +1022,7 @@ class SiteDevelopmentController extends Controller
             FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id
             left join store_websites as sw on sw.id = site_developments.website_id
             join users on users.id = store_development_remarks.user_id
-            where site_developments.website_id = '.$id.' and status ='.$request->status.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
+            where site_developments.website_id = ' . $id . ' and status =' . $request->status . ' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
         } else {
             // $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
             // store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
@@ -1036,7 +1036,7 @@ class SiteDevelopmentController extends Controller
             FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id
             left join store_websites as sw on sw.id = site_developments.website_id
             join users on users.id = store_development_remarks.user_id
-            where site_developments.website_id = '.$id.' group by category_id) as latest inner join store_development_remarks as SDR on SDR.id = latest.remark_id order by title asc'));
+            where site_developments.website_id = ' . $id . ' group by category_id) as latest inner join store_development_remarks as SDR on SDR.id = latest.remark_id order by title asc'));
         }
         $username = [];
         foreach ($remarks as $remark) {
@@ -1252,12 +1252,12 @@ class SiteDevelopmentController extends Controller
         $page = $request->page;
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-        $categories = SiteDevelopmentCategory::select('site_development_categories.id','site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website',
+        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website',
             DB::raw('count(site_developments.id) as cnt')
-            )
+        )
             ->joinSub($site_dev, 'site_dev', function ($join) {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
-            })->join('site_developments', function ($q) use($show) {
+            })->join('site_developments', function ($q) use ($show) {
                 $q->on('site_developments.id', '=', 'site_dev.site_development_id');
                 if ($show == '1') {
                     $q->where('site_developments.site_development_master_category_id', '>', 0);
@@ -1270,15 +1270,15 @@ class SiteDevelopmentController extends Controller
             // ->orderBy('website', 'asc')
             ->orderBy('site_development_categories.id', 'desc');
         $categories = $categories->paginate(25);
-        
+
         $title = 'Store website Category';
-        
+
         return view('storewebsite::site-development.partials.store-website-category', compact('show', 'masterCategories', 'categories', 'title', 'pagination', 'page'));
     }
 
     public function updateMasterCategory(Request $request)
     {
-        SiteDevelopmentCategory::where(['id' => $request->category])->update(['master_category_id'=> $request->text]);
+        SiteDevelopmentCategory::where(['id' => $request->category])->update(['master_category_id' => $request->text]);
         SiteDevelopment::where(['site_development_category_id' => $request->category])->update(['site_development_master_category_id' => $request->text]);
 
         return response()->json(['code' => 200, 'messages' => 'Master Category Saved Sucessfully']);
@@ -1288,14 +1288,13 @@ class SiteDevelopmentController extends Controller
     {
         $categories = $request->categories;
         $masterCategoryId = $request->master_category_id;
-        if(count($categories)) {
-            foreach($categories as $categoryId) {
-                SiteDevelopmentCategory::where(['id' => $categoryId])->update(['master_category_id'=> $masterCategoryId]);
+        if (count($categories)) {
+            foreach ($categories as $categoryId) {
+                SiteDevelopmentCategory::where(['id' => $categoryId])->update(['master_category_id' => $masterCategoryId]);
                 SiteDevelopment::where(['site_development_category_id' => $categoryId])->update(['site_development_master_category_id' => $masterCategoryId]);
             }
         }
 
         return response()->json(['code' => 200, 'messages' => 'Master Categories Saved Sucessfully']);
     }
-
 }
