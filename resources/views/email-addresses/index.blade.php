@@ -6,7 +6,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Email Addresses List</h2>
+            <h2 class="page-heading">Email Addresses List ({{$emailAddress->total()}})</h2>
         </div>
     </div>
 
@@ -94,7 +94,7 @@
         </div>
     </div>
 
-    <div class="mt-3 col-md-12">
+    <div class="mt-3 col-md-12 mb-5">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
@@ -237,6 +237,7 @@
           @endforeach
         </tbody>
       </table>
+      {{$emailAddress->links()}}
     </div>
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
@@ -1104,11 +1105,11 @@ function sendtoWhatsapp(password_id) {
         var page = 1;
         $(document).ready(function () {
 
-            $(window).scroll(function() {
+            /*$(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
                     loadMore();
                 }
-            });
+            });*/
 
             function loadMore() {
                 if (isLoading)
