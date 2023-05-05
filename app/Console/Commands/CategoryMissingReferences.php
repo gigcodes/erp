@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Category;
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\ScrapedProducts;
 use App\Loggers\LogScraper;
 use Illuminate\Console\Command;
@@ -104,7 +105,9 @@ class CategoryMissingReferences extends Command
 
             // Update cron report
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
