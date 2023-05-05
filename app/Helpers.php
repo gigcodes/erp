@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Customer;
+use App\EmailAddress;
 
 class Helpers
 {
@@ -399,4 +401,17 @@ class Helpers
 
         return $queue;
     }
+    public static function getFromEmail($customer_id=0){
+        if(!empty($customer_id)){
+            $customer = Customer::find($request->customer_id);
+            if($customer){
+                $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
+                if($emailAddressDetails){
+                    return $emailAddressDetails->from_address;
+                }
+            }
+        }
+        return config('env.MAIL_FROM_ADDRESS');
+    }
+    //How to call \App\Helpers::getFromEmail() |  pass custome id if available 
 }
