@@ -47,7 +47,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <script src="{{siteJs('site.js')}}" defer></script>
     <script>var BASE_URL = "{{config('app.url')}}";</script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
