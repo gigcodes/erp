@@ -20,6 +20,8 @@ class SeoProcess extends Model
         'user_id',
         'price',
         'is_price_approved',
+        'seo_status_id',
+        'publish_status_id',
         'google_doc_link',
         'seo_process_status_id',
         'live_status_link',
@@ -37,16 +39,22 @@ class SeoProcess extends Model
 
     public function seoChecklist()
     {
-        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function ($query) {
-            $query->where('type', 'seo_approval');
-        });
+        return $this->hasMany(SeoProcessChecklist::class, 'seo_process_id')->where('type', 'seo');
+    }
+
+    public function seoChecklistHistory()
+    {
+        return $this->hasMany(SeoProcessChecklistHistory::class, 'seo_process_id')->where('type', 'seo');
     }
 
     public function publishChecklist()
     {
-        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function ($query) {
-            $query->where('type', 'publish');
-        });
+        return $this->hasMany(SeoProcessChecklist::class, 'seo_process_id')->where('type', 'publish');
+    }
+
+    public function publishChecklistHistory()
+    {
+        return $this->hasMany(SeoProcessChecklistHistory::class, 'seo_process_id')->where('type', 'publish');
     }
 
     public function website()

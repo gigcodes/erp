@@ -114,8 +114,7 @@ class UserManagementController extends Controller
     public function getUserList(Request $request)
     {
         $userlist = User::where('is_active', 1)->orderBy('name', 'asc')->pluck('name', 'id');
-        
-        
+
         $usersystemips = UserSysyemIp::with('user')->get();
 
         $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');

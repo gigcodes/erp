@@ -12,4 +12,10 @@ class SopCategory extends Model
     protected $table = 'sops_category';
 
     protected $fillable = ['category_name'];
+
+
+    public function sop()
+    {
+        return $this->belongsToMany(Sop::class, "sop_has_categories", "sop_category_id", "sop_id");
+    }
 }

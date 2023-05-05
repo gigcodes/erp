@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Meetings\ZoomMeetings;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class ZoomMeetingDeleteRecordings extends Command
 {
@@ -57,6 +58,8 @@ class ZoomMeetingDeleteRecordings extends Command
             $meetings->deleteRecordings($zoomKey, $zoomSecret, $date);
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+            
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
         exit('Deleted zoom videos which are already downloaded in server.');

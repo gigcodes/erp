@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 use App\Jobs\CallHelperForZeroStockQtyUpdate;
+use App\Helpers\LogHelper;
 
 class UpdateInventory extends Command
 {
@@ -169,6 +170,8 @@ class UpdateInventory extends Command
             // TODO: Update stock in Magento
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+            
             \Log::info('Update Inventory CATCH');
             \Log::error($e->getMessage());
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

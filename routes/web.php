@@ -11,6 +11,7 @@
 |
  */
 
+use App\Email;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Mail;
@@ -354,6 +355,9 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 
 Auth::routes();
 
@@ -384,8 +388,6 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -971,6 +973,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+    Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
+    Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
@@ -1403,6 +1407,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/status/flag', [OrderReportController::class, 'setFlag'])->name('order.status.flag');
 
     //emails
+    Route::post('email/reply-list-by-category',[EmailController::class,'getReplyListByCategory'])->name('getReplyListByCategory');
+    Route::post('email/reply-from-quick-reply',[EmailController::class,'getReplyListFromQuickReply'])->name('getReplyListFromQuickReply');
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
 
@@ -1436,6 +1442,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/assign-modal', [EmailController::class, 'assignModel'])->name('assignModel');
     Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
     Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
+
+    Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
+
+    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -1777,7 +1787,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/priority-points', [CustomerController::class, 'customerPriorityPoints'])->name('customer.priority.points');
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
-
+    Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
+    
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
     Route::get('customer/priority-range-points/{id?}', [CustomerController::class, 'getSelectCustomerPriorityRangePoints'])->name('customer.get.select.priority.range.points');
@@ -2811,6 +2822,8 @@ Route::post('whatsapp/incoming', [WhatsAppController::class, 'incomingMessage'])
 Route::post('whatsapp/incomingNew', [WhatsAppController::class, 'incomingMessageNew']);
 Route::post('whatsapp/outgoingProcessed', [WhatsAppController::class, 'outgoingProcessed']);
 Route::post('whatsapp/webhook', [WhatsAppController::class, 'webhook']);
+Route::post('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficial']);
+Route::get('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficialVerify']);
 
 Route::get('whatsapp/pullApiwha', [WhatsAppController::class, 'pullApiwha']);
 
@@ -3654,6 +3667,15 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
+
+    Route::prefix('whatsapp-business-account')->group(function () {
+        Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
+        Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
+        Route::post('update', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
+        Route::post('delete/{id}', [WhatsappBusinessAccountController::class, 'deleteAccount'])->name('whatsapp.business.account.delete');
+        Route::get('get/{id}', [WhatsappBusinessAccountController::class, 'getAccount'])->name('whatsapp.business.account.get');
+    });
+
     // Whats App Config
     Route::get('whatsapp-config', [Marketing\WhatsappConfigController::class, 'index'])->name('whatsapp.config.index');
     Route::get('whatsapp-history/{id}', [Marketing\WhatsappConfigController::class, 'history'])->name('whatsapp.config.history');
@@ -3995,9 +4017,9 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
-        Route::get('/repos', [Github\RepositoryController::class, 'listRepositories']);
-        Route::get('/repos/{name}/users', [Github\UserController::class, 'listUsersOfRepository']);
-        Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
+        Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
+        Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
+        Route::get('/repos/{id}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
         Route::get('/repos/{id}/branches', [Github\RepositoryController::class, 'getRepositoryDetails']);
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
         Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
@@ -4006,6 +4028,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
         Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
+        Route::post('/repos/{id}', [Github\RepositoryController::class, 'deleteNumberOfBranchesFromRepo']);
         Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
@@ -4015,7 +4038,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/groups/repositories/add', [Github\GroupController::class, 'addRepository']);
         Route::get('/groups/{groupId}', [Github\GroupController::class, 'groupDetails']);
         Route::get('/groups/{groupId}/repos/{repoId}/remove', [Github\GroupController::class, 'removeRepositoryFromGroup']);
-        Route::get('/groups/{groupId}/users/{userId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
+        Route::get('/groups/{groupId}/users/{userId}/organization/{organizationId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
         Route::get('/groups/{groupId}/users/add', [Github\GroupController::class, 'addUserForm']);
         Route::get('/groups/{groupId}/repositories/add', [Github\GroupController::class, 'addRepositoryForm']);
         Route::get('/sync', [Github\SyncController::class, 'index']);
@@ -4913,6 +4936,10 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
     Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
     Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
+    Route::post('category/update', [GoogleDocController::class, 'updateGoogleDocCategory'])->name('.category.update');
+    Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
+    Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
+    Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
@@ -4944,6 +4971,14 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
         Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
+    });
+
+    Route::prefix('content-status')->group(function() {
+        Route::get('', [Seo\ContentStatusController::class, 'index'])->name('seo.content-status.index');
+        Route::get('create', [Seo\ContentStatusController::class, 'create'])->name('seo.content-status.create');
+        Route::post('store', [Seo\ContentStatusController::class, 'store'])->name('seo.content-status.store');
+        Route::get('{id}/edit', [Seo\ContentStatusController::class, 'edit'])->name('seo.content-status.edit');
+        Route::post('{id}/update', [Seo\ContentStatusController::class, 'update'])->name('seo.content-status.update');
     });
 
     Route::prefix('company')->group(function () {

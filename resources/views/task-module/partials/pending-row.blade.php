@@ -218,8 +218,8 @@
 
         <div style="margin-bottom:10px;width: 100%;">
             <?php $text_box = "100"; ?>
+            <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
             <div class="d-flex">
-                <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
                 <div style="max-width: 30px;">
                     <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
                 </div>
@@ -228,6 +228,12 @@
                     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 </div>
                 @endif
+                <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
+                    <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
+                    <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                </button>
             </div>
             @if (isset($task->message))
             <div style="margin-bottom:10px;width: 100%;">

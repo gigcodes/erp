@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\GoogleSearchAnalytics;
 use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
+use App\Helpers\LogHelper;
 
 class GoogleWebMasterFetchAllRecords extends Command
 {
@@ -25,108 +26,110 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function handle()
     {
-        $google_redirect_url = route('googlewebmaster.get-access-token');
+        try{
+            $google_redirect_url = route('googlewebmaster.get-access-token');
 
-        $id = \Cache::get('google_client_account_id');
+            $id = \Cache::get('google_client_account_id');
 
-        $GoogleClientAccounts = GoogleClientAccount::get();
+            $GoogleClientAccounts1 = GoogleClientAccount::get();
 
-        foreach ($GoogleClientAccounts as $GoogleClientAccount) {
-            $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
-            if (isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null) {
-                // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
-                $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
+            foreach ($GoogleClientAccounts as $GoogleClientAccount) {
+                $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
+                if (isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null) {
+                    // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
+                    $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
-                if ($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null) {
-                    continue;
-                }
+                    if ($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null) {
+                        continue;
+                    }
 
-                $this->client = new \Google_Client();
-                $this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
-                $this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
-                $this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
+                    $this->client = new \Google_Client();
+                    $this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+                    $this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+                    $this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
 
-                $token = $this->client->getAccessToken();
-                //$request->session()->put('token',$token);
-                //echo"<pre>";print_r($token);die;
-                if (empty($token)) {
-                    continue;
-                }
-
-                $google_oauthV2 = new \Google_Service_Oauth2($this->client);
-
-                if ($this->client->getAccessToken()) {
-                    //  $details=$this->updateSitesData($request);
-                    $details = $this->updateSitesData($token);
+                    $token = $this->client->getAccessToken();
+                    //$request->session()->put('token',$token);
                     //echo"<pre>";print_r($token);die;
-                    $curl = curl_init();
-                    curl_setopt_array($curl, [
-                        CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 30,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
-                        CURLOPT_HTTPHEADER => [
-                            'authorization:Bearer ' . $this->client->getAccessToken()['access_token'],
-                        ],
-                    ]);
-
-                    $response = curl_exec($curl);
-                    $err = curl_error($curl);
-
-                    if (curl_errno($curl)) {
-                        $error_msg = curl_error($curl);
+                    if (empty($token)) {
+                        continue;
                     }
 
-                    //echo '<pre>';print_r($response);die;
-                    if (isset($error_msg)) {
-                        $this->curl_errors_array[] = ['key' => 'sites', 'error' => $error_msg, 'type' => 'sites'];
-                        activity('v3_sites')->log($error_msg);
-                    }
+                    $google_oauthV2 = new \Google_Service_Oauth2($this->client);
 
-                    $check_error_response = json_decode($response);
+                    if ($this->client->getAccessToken()) {
+                        //  $details=$this->updateSitesData($request);
+                        $details = $this->updateSitesData($token);
+                        //echo"<pre>";print_r($token);die;
+                        $curl = curl_init();
+                        curl_setopt_array($curl, [
+                            CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => '',
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => 'GET',
+                            CURLOPT_HTTPHEADER => [
+                                'authorization:Bearer ' . $this->client->getAccessToken()['access_token'],
+                            ],
+                        ]);
 
-                    curl_close($curl);
+                        $response = curl_exec($curl);
+                        $err = curl_error($curl);
 
-                    if (isset($check_error_response->error->message) || $err) {
-                        $this->curl_errors_array[] = ['key' => 'sites', 'error' => $check_error_response->error->message, 'type' => 'sites'];
-                        activity('v3_sites')->log($check_error_response->error->message);
-                        echo $this->curl_errors_array[0]['error'];
-                    } else {
-                        if (is_array(json_decode($response)->siteEntry)) {
-                            foreach (json_decode($response)->siteEntry as $key => $site) {
-                                // Create ot update site url
-                                GoogleWebMasters::updateOrCreate(['sites' => $site->siteUrl]);
+                        if (curl_errno($curl)) {
+                            $error_msg = curl_error($curl);
+                        }
 
-                                echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
-                                $curl1 = curl_init();
-                                //replace website name with code coming form site list
+                        //echo '<pre>';print_r($response);die;
+                        if (isset($error_msg)) {
+                            $this->curl_errors_array[] = ['key' => 'sites', 'error' => $error_msg, 'type' => 'sites'];
+                            activity('v3_sites')->log($error_msg);
+                        }
 
-                                curl_setopt_array($curl1, [
-                                    CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
-                                    CURLOPT_RETURNTRANSFER => true,
-                                    CURLOPT_ENCODING => '',
-                                    CURLOPT_MAXREDIRS => 10,
-                                    CURLOPT_TIMEOUT => 30,
-                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                    CURLOPT_CUSTOMREQUEST => 'GET',
-                                    CURLOPT_HTTPHEADER => [
-                                        'authorization: Bearer ' . $this->client->getAccessToken()['access_token'],
-                                    ],
-                                ]);
+                        $check_error_response = json_decode($response);
 
-                                $response1 = curl_exec($curl1);
-                                $err = curl_error($curl1);
+                        curl_close($curl);
 
-                                if ($err) {
-                                    activity('v3_sites')->log($err);
-                                    echo 'cURL Error #:' . $err;
-                                } else {
-                                    if (isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap)) {
-                                        foreach (json_decode($response1)->sitemap as $key => $sitemap) {
-                                            GoogleWebMasters::where('sites', $site->siteUrl)->update(['crawls' => $sitemap->errors]);
+                        if (isset($check_error_response->error->message) || $err) {
+                            $this->curl_errors_array[] = ['key' => 'sites', 'error' => $check_error_response->error->message, 'type' => 'sites'];
+                            activity('v3_sites')->log($check_error_response->error->message);
+                            echo $this->curl_errors_array[0]['error'];
+                        } else {
+                            if (is_array(json_decode($response)->siteEntry)) {
+                                foreach (json_decode($response)->siteEntry as $key => $site) {
+                                    // Create ot update site url
+                                    GoogleWebMasters::updateOrCreate(['sites' => $site->siteUrl]);
+
+                                    echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
+                                    $curl1 = curl_init();
+                                    //replace website name with code coming form site list
+
+                                    curl_setopt_array($curl1, [
+                                        CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
+                                        CURLOPT_RETURNTRANSFER => true,
+                                        CURLOPT_ENCODING => '',
+                                        CURLOPT_MAXREDIRS => 10,
+                                        CURLOPT_TIMEOUT => 30,
+                                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                        CURLOPT_CUSTOMREQUEST => 'GET',
+                                        CURLOPT_HTTPHEADER => [
+                                            'authorization: Bearer ' . $this->client->getAccessToken()['access_token'],
+                                        ],
+                                    ]);
+
+                                    $response1 = curl_exec($curl1);
+                                    $err = curl_error($curl1);
+
+                                    if ($err) {
+                                        activity('v3_sites')->log($err);
+                                        echo 'cURL Error #:' . $err;
+                                    } else {
+                                        if (isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap)) {
+                                            foreach (json_decode($response1)->sitemap as $key => $sitemap) {
+                                                GoogleWebMasters::where('sites', $site->siteUrl)->update(['crawls' => $sitemap->errors]);
+                                            }
                                         }
                                     }
                                 }
@@ -135,6 +138,10 @@ class GoogleWebMasterFetchAllRecords extends Command
                     }
                 }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 

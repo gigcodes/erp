@@ -58,7 +58,7 @@ class EmailAddressesController extends Controller
         //$query->where('id', 1);
 
         // dd($query);
-        $emailAddress = $query->paginate();
+        $emailAddress = $query->paginate(setting('pagination',10))->appends(request()->query());
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         $allDriver = EmailAddress::pluck('driver')->unique();
@@ -444,7 +444,7 @@ class EmailAddressesController extends Controller
     public function searchEmailAddress(Request $request)
     {
         $search = $request->search;
-
+        
         if ($search != null) {
             $emailAddress = EmailAddress::where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%')->get();
         } else {

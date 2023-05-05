@@ -1720,9 +1720,9 @@ class LiveChatController extends Controller
                 $post = [
                     'customer-id' => $customer->id,
                 ];
-                CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'host not found', 'status' => 'failure']);
+                CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'allocate store website id and platform id not found', 'status' => 'failure']);
 
-                return response()->json(['msg' => 'host not found', 'code' => 400, 'status' => 'error']);
+                return response()->json(['msg' => 'Allocate store website id and platform id before proceeding', 'code' => 400, 'status' => 'error']);
             }
         } else {
             return response()->json(['msg' => 'customer not found', 'code' => 400, 'status' => 'error']);

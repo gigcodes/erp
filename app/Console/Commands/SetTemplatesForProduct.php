@@ -8,6 +8,7 @@ use App\Template;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class SetTemplatesForProduct extends Command
 {
@@ -96,6 +97,8 @@ class SetTemplatesForProduct extends Command
                 });
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

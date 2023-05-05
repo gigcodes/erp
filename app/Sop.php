@@ -5,6 +5,8 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
+use App\Models\SopHasCategory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sop extends Model
@@ -26,5 +28,15 @@ class Sop extends Model
     public function emails()
     {
         return $this->hasMany(\App\Email::class, 'model_id', 'id');
+    }
+
+    public function sopCategory()
+    {
+        return $this->belongsToMany(SopCategory::class, "sop_has_categories", "sop_id", "sop_category_id");
+    }
+
+    public function hasSopCategory()
+    {
+        return $this->hasMany(SopHasCategory::class, "sop_id", "id");
     }
 }

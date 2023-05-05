@@ -19,11 +19,11 @@
 </style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading"><i>{{ $repoName }}</i> users ({{sizeof($users)}})</h2>
+        <h2 class="page-heading"><i>{{ $githubRepository->name }}</i> users ({{sizeof($users)}})</h2>
     </div>
 </div>
 <div class="text-right">
-    <a href="/github/repos/{{ $repoName }}/users/add" class="btn btn-primary">Add User</a>
+    <a href="/github/repos/{{ $githubRepository->id }}/users/add" class="btn btn-primary">Add User</a>
 </div>
 <div class="container">
     <table id="user-table" class="table table-bordered">
@@ -70,7 +70,7 @@
             var dataObj = {
                 user_name: userId,
                 access: access,
-                repository_name: "{{ $repoName }}",
+                repository_name: "{{ $githubRepository->name }}",
                 _token: "{{csrf_token()}}"
             };
 

@@ -3028,6 +3028,23 @@ class CustomerController extends Controller
         }
     }
 
+    public function getWebsiteCustomers(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+
+        $customerQuery = Customer::query();
+        
+        if($storeWebsiteId == 'Others'){
+            $customerQuery = $customerQuery->whereNull('store_website_id')->orWhere('store_website_id', '');
+        }else{
+            $customerQuery = $customerQuery->where('store_website_id', $storeWebsiteId);
+        }
+
+        $customers = $customerQuery->get();
+
+        return $customers;
+    }
+
     public function creditEmailLog(Request $request)
     {
         $creditEmailLog = \App\CreditEmailLog::where('customer_id', $request->cust_id)->get();

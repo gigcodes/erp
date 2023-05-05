@@ -8,6 +8,7 @@ use App\CronJobReport;
 use App\WebsiteStoreView;
 use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class GTMetrixTestCMD extends Command
 {
@@ -185,6 +186,8 @@ class GTMetrixTestCMD extends Command
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \Log::error('GTMetrix :: ' . $e->getMessage());
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
