@@ -69,38 +69,6 @@ $auth = auth()->user();
                     </div>
                 </div> 
 
-                <div class="row mt-3 border">
-                    <div class="col-md-8 mb-3">
-                        <h4>SEO Team Checklist</h4>
-                        <div class="row">
-                            @foreach ($seoProcessStatus as $item)
-                                @if($item->type == 'seo_approval')
-                                    <div class="col-md-6 mt-3">
-                                        <label class="form-label">{{  $item->label }}</label>
-                                        <input type="text" name="publish_checklist[{{ $item->id }}]" class="form-control" required data-msg-required="Please enter {{ strtolower($item->label) }}.">
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-3 border">
-                    <div class="col-md-8 mb-3">
-                        <h4>Publish Team Checklist</h4>
-                        <div class="row">
-                            @foreach ($seoProcessStatus as $item)
-                                @if($item->type == 'publish')
-                                    <div class="col-md-6 mt-3">
-                                        <label class="form-label">{{  $item->label }}</label>
-                                        <input type="text" name="publish_checklist[{{ $item->id }}]" class="form-control" required data-msg-required="Please enter {{ strtolower($item->label) }}.">
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label class="form-label">User</label>

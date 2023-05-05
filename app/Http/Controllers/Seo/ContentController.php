@@ -9,9 +9,12 @@ use App\Models\Seo\SeoHistory;
 use App\Models\Seo\SeoProcess;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Seo\SeoProcessChecklist;
+use App\Models\Seo\SeoProcessChecklistHistory;
 use App\Models\Seo\SeoProcessRemark;
 use App\Models\Seo\SeoProcessStatus;
 use App\Models\Seo\SeoProcessKeyword;
+use App\Models\Seo\SeoProcessStatusHistory;
 
 class ContentController extends Controller
 {
@@ -37,7 +40,7 @@ class ContentController extends Controller
         return view("{$this->view}/index", $data);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
@@ -70,7 +73,6 @@ class ContentController extends Controller
         $this->addPriceHistory($seoProcess, true);
         $this->addUserHistory($seoProcess, true);
         $this->addKeywordData($seoProcess);
-        $this->addChecklistData($seoProcess);
         DB::commit();
 
         return response()->json([
@@ -85,8 +87,6 @@ class ContentController extends Controller
             if ($request->type == 'GET_HISTORY') {
                 return $this->renderPriceHistory();
             }
-
-            return $this->renderTeamStatus();
         }
         $data['seoProcess'] = SeoProcess::find($id);
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
@@ -99,7 +99,21 @@ class ContentController extends Controller
 
     public function edit(Request $request, int $id)
     {
-        $data['seoProcess'] = SeoProcess::find($id);
+        $seoProcess = SeoProcess::find($id);
+        if($request->ajax()){
+            if($request->type == "CHECKLIST") {
+                return $this->checklistForm($seoProcess);
+            }
+
+            if($request->type == "CHECKLIST_HISTORY") {
+                return $this->checklistHistory($seoProcess);
+            }
+
+            if($request->type == "STATUS_HISTORY") {
+                return $this->statusHistory($seoProcess);
+            }
+        }
+        $data['seoProcess'] = $seoProcess;
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
@@ -114,8 +128,14 @@ class ContentController extends Controller
 
     public function update(Request $request, int $id)
     {
-        DB::beginTransaction();
         $seoProcess = SeoProcess::find($id);
+        if($request->type == "CHECKLIST") {
+            return $this->addChecklistData($seoProcess);
+        } else if($request->type == "STATUS") {
+            return $this->changeStatus($seoProcess);
+        }
+
+        DB::beginTransaction();
         $this->addPriceHistory($seoProcess, false);
         $this->addUserHistory($seoProcess, false);
         $seoProcess->update([
@@ -132,7 +152,6 @@ class ContentController extends Controller
             'status' => $request->status,
         ]);
         $this->addKeywordData($seoProcess);
-        $this->addChecklistData($seoProcess);
         DB::commit();
 
         return response()->json([
@@ -160,41 +179,66 @@ class ContentController extends Controller
     private function addChecklistData(SeoProcess $seoProcess)
     {
         $request = request();
-        if (! empty($request->seo_checklist)) {
-            $checklist = [];
-            $seoProcess->seoChecklist()->delete();
-            $cnt = 1;
-            foreach ($request->seo_checklist as $ky => $item) {
-                $checklist[] = new SeoProcessRemark([
-                    'seo_process_status_id' => $ky,
-                    'remark' => $item,
-                    'index' => $cnt,
+        if($request->checklistType == 'seo') {
+            $checkList = [];
+            $checkListHistory = [];
+            $seoProcess->seoChecklist()->delete();        
+            foreach($request->label as $ky => $item) {
+                $checkList[] = new SeoProcessChecklist([
+                    'field_name' => $item,
+                    'type' => 'seo',
+                    'is_checked' => $request->is_checked[$ky] ?? '',
+                    'value' => $request->value[$ky] ?? '',
+                    'date' => $request->date[$ky] ?? '',
                 ]);
-                $cnt++;
+                $checkListHistory[] = new SeoProcessChecklistHistory([
+                    'user_id' => auth()->id(),
+                    'field_name' => $item,
+                    'type' => 'seo',
+                    'is_checked' => $request->is_checked[$ky] ?? '',
+                    'value' => $request->value[$ky] ?? '',
+                    'date' => $request->date[$ky] ?? '',
+                ]);
             }
-            $seoProcess->seoChecklist()->saveMany($checklist);
+            $seoProcess->seoChecklist()->saveMany($checkList);
+            $seoProcess->seoChecklistHistory()->saveMany($checkListHistory);
+        } 
+
+        if($request->checklistType == 'publish') {
+            $checkList = [];
+            $checkListHistory = [];
+            $seoProcess->publishChecklist()->delete();        
+            foreach($request->label as $ky => $item) {
+                $checkList[] = new SeoProcessChecklist([
+                    'field_name' => $item,
+                    'type' => 'publish',
+                    'is_checked' => $request->is_checked[$ky] ?? '',
+                    'value' => $request->value[$ky] ?? '',
+                    'date' => $request->date[$ky] ?? '',
+                ]);
+                $checkListHistory[] = new SeoProcessChecklistHistory([
+                    'user_id' => auth()->id(),
+                    'field_name' => $item,
+                    'type' => 'publish',
+                    'is_checked' => $request->is_checked[$ky] ?? '',
+                    'value' => $request->value[$ky] ?? '',
+                    'date' => $request->date[$ky] ?? '',
+                ]);
+            }
+            $seoProcess->publishChecklist()->saveMany($checkList);
+            $seoProcess->publishChecklistHistory()->saveMany($checkListHistory);
         }
 
-        if (! empty($request->publish_checklist)) {
-            $checklist = [];
-            $seoProcess->publishChecklist()->delete();
-            $cnt = 1;
-            foreach ($request->publish_checklist as $ky => $item) {
-                $checklist[] = new SeoProcessRemark([
-                    'seo_process_status_id' => $ky,
-                    'remark' => $item,
-                    'index' => $cnt,
-                ]);
-                $cnt++;
-            }
-            $seoProcess->publishChecklist()->saveMany($checklist);
-        }
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     private function getAjaxSeoProcess()
     {
         $auth = auth()->user();
         $request = request();
+        $seoStatus = SeoProcessStatus::all();
         $seoProcess = SeoProcess::with(['website:id,website', 'user:id,name']);
         $filter = (object) $request->filter;
         if (! empty($filter->website_id)) {
@@ -271,22 +315,62 @@ class ContentController extends Controller
 
                 return '-';
             })
-            ->addColumn('seoChecklist', function ($val) {
-                $checkList = "<ul class='list-group'>";
-                foreach ($val->seoChecklist as $item) {
-                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . '<b>' . ($item->processStatus->label ?? '-') . '</b>' . '<br>' . ($item->remark ?? '-') . '</li>';
+            ->addColumn('seoChecklist', function ($val) use ($seoStatus, $auth) {
+                $historyImg = asset('images/history.png');
+                $editUrl = route('seo.content.edit', $val->id);
+                $updateUrl = route('seo.content.update', $val->id);
+                $iconUrl = asset('images/new.png');
+                $checkList = "<select data-id='{$val->id}' data-url='{$updateUrl}' data-type='seo' class='form-control statusSelect'>";
+                $checkList .= "<option value=''>-- SELECT --</opiton>";
+                foreach($seoStatus as $status) {
+                    if($status->type == 'seo_approval') {
+                        $checkList .= "<option value='{$status->id}'". ($val->seo_status_id == $status->id ? 'selected' : '') ." >{$status->label}</option>";
+                    }
                 }
-                $checkList .= '</ul>';
-
+                $checkList .= "</select>";
+                $checkList .= "<div class='d-flex mt-2'>";
+                $checkList .= "<span>";
+                $checkList .= "<button type='button' data-type='seo' data-url='{$editUrl}' class='btn btn-image search ui-autocomplete-input checkListBtn'>";
+                $checkList .= "<img src='$iconUrl' style='width:20px !important' />";
+                $checkList .= "</button>";
+                $checkList .= "</span>";
+                if($auth->hasRole(['Admin'])) {
+                    $checkList .= "<span>";
+                    $checkList .= "<button type='button' data-type='seo' data-url='{$editUrl}' class='btn btn-image search ui-autocomplete-input statusHistoryBtn'>";
+                    $checkList .= "<img src='$historyImg' style='width:30px !important' />";
+                    $checkList .= "</button>";
+                    $checkList .= "</span>";
+                }
+                $checkList .= "</div>";
                 return $checkList;
             })
-            ->addColumn('publishChecklist', function ($val) {
-                $checkList = "<ul class='list-group'>";
-                foreach ($val->publishChecklist as $item) {
-                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . '<b>' . ($item->processStatus->label ?? '-') . '</b>' . '<br>' . ($item->remark ?? '-') . '</li>';
+            ->addColumn('publishChecklist', function ($val) use ($seoStatus, $auth) {
+                $historyImg = asset('images/history.png');
+                $editUrl = route('seo.content.edit', $val->id);
+                $updateUrl = route('seo.content.update', $val->id);
+                $iconUrl = asset('images/new.png');
+                $checkList = "<select data-id='{$val->id}' data-url='{$updateUrl}' data-type='publish' class='form-control statusSelect'>";
+                $checkList .= "<option value=''>-- SELECT --</opiton>";
+                foreach($seoStatus as $status) {
+                    if($status->type == 'publish') {
+                        $checkList .= "<option value='{$status->id}'" . ($val->publish_status_id == $status->id ? 'selected' : '') . " >{$status->label}</option>";
+                    }
                 }
-                $checkList .= '</ul>';
-
+                $checkList .= "</select>";
+                $checkList .= "<div class='d-flex mt-2'>";
+                $checkList .= "<span>";
+                $checkList .= "<button type='button' data-type='publish' data-url='{$editUrl}' class='btn btn-image search ui-autocomplete-input checkListBtn'>";
+                $checkList .= "<img src='$iconUrl' style='width:20px !important' />";
+                $checkList .= "</button>";
+                $checkList .= "</span>";
+                if($auth->hasRole(['Admin'])) {
+                    $checkList .= "<span>";
+                    $checkList .= "<button type='button' data-type='publish' data-url='{$editUrl}' class='btn btn-image search ui-autocomplete-input statusHistoryBtn'>";
+                    $checkList .= "<img src='$historyImg' style='width:30px !important' />";
+                    $checkList .= "</button>";
+                    $checkList .= "</span>";
+                }
+                $checkList .= "</div>";
                 return $checkList;
             })
             ->addColumn('documentLink', function ($val) {
@@ -317,22 +401,6 @@ class ContentController extends Controller
             ->make();
 
         return $datatable;
-    }
-
-    private function renderTeamStatus()
-    {
-        $data['seoKeyword'] = null;
-        if (! empty(request()->keywordId)) {
-            $data['seoKeyword'] = SeoKeyword::find(request()->keywordId);
-        }
-        $data['statusType'] = request()->statusType;
-        $data['seoProcessStatus'] = SeoProcessStatus::all();
-        $html = view("{$this->view}/team-status-ajax", $data)->render();
-
-        return response()->json([
-            'success' => true,
-            'data' => $html,
-        ]);
     }
 
     private function addPriceHistory(SeoProcess $seoProcess, bool $isUpdate)
@@ -373,6 +441,89 @@ class ContentController extends Controller
             'success' => true,
             'data' => $html,
             'title' => ucfirst($request->seoType) . ' History',
+        ]);
+    }
+
+    private function checklistForm(SeoProcess $seoProcess)
+    {
+        $request = request();
+        $data['seoProcess'] = $seoProcess;
+        $data['actionUrl'] = route('seo.content.update', $seoProcess->id);
+        $data['statusType'] = $request->checklistType;
+        $data['checkList'] = [];
+        $data['checkListLabels'] = [];
+        $title = "";
+        if($request->checklistType == 'seo') {
+            $data['checkList'] = $seoProcess->seoChecklist;
+            $data['checkListLabels'] = config('site.seo_content.seo_checklist');
+            $title = "SEO Checklist";
+        } else if($request->checklistType == 'publish') {
+            $data['checkList'] = $seoProcess->publishChecklist;
+            $data['checkListLabels'] = config('site.seo_content.publish_checklist');
+            $title = "Publish Checklist";
+        }
+
+        $html = view("$this->view/ajax/checklist-form", $data)->render();
+        return response()->json([
+            'success' => true,
+            'data' => $html,
+            'title' => $title
+        ]);
+    }
+
+    private function changeStatus(SeoProcess $seoProcess)
+    {
+        $request = request();
+        if($request->statusType == 'seo') {
+            $seoProcess->update([
+                'seo_status_id' => $request->statusId,
+            ]);
+            $this->addStatusHistroy($seoProcess);
+        } else if($request->statusType == 'publish') {
+            $seoProcess->update([
+                'publish_status_id' => $request->statusId,
+            ]);
+            $this->addStatusHistroy($seoProcess);
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    private function checklistHistory(SeoProcess $seoProcess)
+    {
+        $request = request();
+        $data['seoProcess'] = $seoProcess;
+        $data['checklistHistory'] = SeoProcessChecklistHistory::where('seo_process_id', $seoProcess->id)
+            ->where('field_name',$request->field_name)->get();
+        $html = view('seo.content.ajax.checklist-history', $data)->render();
+        return response()->json([
+            'success' => true,
+            'data' => $html,
+        ]);
+    }
+
+    private function addStatusHistroy(SeoProcess $seoProcess)
+    {
+        $request = request();
+        SeoProcessStatusHistory::create([
+            'user_id' => auth()->id(),
+            'seo_process_id' => $seoProcess->id,
+            'type' => $request->statusType,
+            'seo_process_status_id' => $request->statusId,
+        ]);
+    }
+
+    private function statusHistory(SeoProcess $seoProcess)
+    {
+        $request = request();
+        $data['statusHistory'] = SeoProcessStatusHistory::where('seo_process_id', $seoProcess->id)
+            ->where('type', $request->statusType)->get();
+        $html = view("seo.content.ajax.status-history", $data)->render();
+        return response()->json([
+            'success' => true,
+            'data' => $html
         ]);
     }
 }
