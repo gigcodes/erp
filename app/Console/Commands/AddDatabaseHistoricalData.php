@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use Illuminate\Support\Facades\DB;
 use App\DatabaseTableHistoricalRecord;
+use App\Helpers\LogHelper;
 
 class AddDatabaseHistoricalData extends Command
 {
@@ -118,6 +119,8 @@ class AddDatabaseHistoricalData extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

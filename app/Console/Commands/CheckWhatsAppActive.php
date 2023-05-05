@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Marketing\WhatsappConfig;
+use App\Helpers\LogHelper;
 
 class CheckWhatsAppActive extends Command
 {
@@ -66,6 +67,8 @@ class CheckWhatsAppActive extends Command
                 dump('We only check during the day');
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+            
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
