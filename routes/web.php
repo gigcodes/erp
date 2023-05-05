@@ -11,6 +11,7 @@
 |
  */
 
+use App\Email;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Mail;
@@ -1406,6 +1407,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/status/flag', [OrderReportController::class, 'setFlag'])->name('order.status.flag');
 
     //emails
+    Route::post('email/reply-list-by-category',[EmailController::class,'getReplyListByCategory'])->name('getReplyListByCategory');
+    Route::post('email/reply-from-quick-reply',[EmailController::class,'getReplyListFromQuickReply'])->name('getReplyListFromQuickReply');
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
 
