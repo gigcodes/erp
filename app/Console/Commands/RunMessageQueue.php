@@ -10,6 +10,7 @@ use App\Jobs\SendMessageToAll;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendMessageToSelected;
+use App\Helpers\LogHelper;
 
 class RunMessageQueue extends Command
 {
@@ -152,6 +153,8 @@ class RunMessageQueue extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

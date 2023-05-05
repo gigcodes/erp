@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class ReconsileBrand extends Command
 {
@@ -57,6 +58,8 @@ class ReconsileBrand extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

@@ -12,6 +12,7 @@ use App\Compositions;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\LogHelper;
 
 class SendAutoReplyToCustomers extends Command
 {
@@ -153,6 +154,8 @@ class SendAutoReplyToCustomers extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

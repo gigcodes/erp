@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\CronJob;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Helpers\LogHelper;
 
 class ScheduleList extends Command
 {
@@ -61,6 +62,8 @@ class ScheduleList extends Command
                 }
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
