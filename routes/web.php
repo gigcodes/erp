@@ -1787,7 +1787,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/priority-points', [CustomerController::class, 'customerPriorityPoints'])->name('customer.priority.points');
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
-
+    Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
+    
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
     Route::get('customer/priority-range-points/{id?}', [CustomerController::class, 'getSelectCustomerPriorityRangePoints'])->name('customer.get.select.priority.range.points');
@@ -4027,6 +4028,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
         Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
+        Route::post('/repos/{id}', [Github\RepositoryController::class, 'deleteNumberOfBranchesFromRepo']);
         Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
@@ -4969,6 +4971,14 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
         Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
+    });
+
+    Route::prefix('content-status')->group(function() {
+        Route::get('', [Seo\ContentStatusController::class, 'index'])->name('seo.content-status.index');
+        Route::get('create', [Seo\ContentStatusController::class, 'create'])->name('seo.content-status.create');
+        Route::post('store', [Seo\ContentStatusController::class, 'store'])->name('seo.content-status.store');
+        Route::get('{id}/edit', [Seo\ContentStatusController::class, 'edit'])->name('seo.content-status.edit');
+        Route::post('{id}/update', [Seo\ContentStatusController::class, 'update'])->name('seo.content-status.update');
     });
 
     Route::prefix('company')->group(function () {
