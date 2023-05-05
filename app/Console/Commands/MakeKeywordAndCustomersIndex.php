@@ -8,6 +8,7 @@ use App\CronJobReport;
 use Illuminate\Console\Command;
 use App\BulkCustomerRepliesKeyword;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
+use App\Helpers\LogHelper;
 
 class MakeKeywordAndCustomersIndex extends Command
 {
@@ -64,6 +65,8 @@ class MakeKeywordAndCustomersIndex extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

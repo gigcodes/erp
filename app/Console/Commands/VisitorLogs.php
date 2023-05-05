@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\VisitorLog;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class VisitorLogs extends Command
 {
@@ -41,7 +42,7 @@ class VisitorLogs extends Command
     public function handle()
     {
         try {
-            $curl = curl_init();
+            $curl1 = curl_init();
 
             curl_setopt_array($curl, [
                 CURLOPT_URL => 'https://api.livechatinc.com/v2/visitors',
@@ -87,6 +88,8 @@ class VisitorLogs extends Command
                 }
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

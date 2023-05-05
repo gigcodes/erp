@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class AutoInterestMessage extends Command
 {
@@ -159,6 +160,8 @@ class AutoInterestMessage extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
