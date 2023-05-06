@@ -42,7 +42,6 @@ use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffTask;
 use GuzzleHttp\RequestOptions;
 use App\Github\GithubRepository;
-use App\Github\GithubOrganization;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use Illuminate\Support\Facades\DB;
@@ -54,7 +53,6 @@ use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
-use View;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
@@ -78,16 +76,6 @@ class DevelopmentController extends Controller
         ]);
         // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
-    }
-
-    private function connectGithubClient($userName, $token)
-    {
-        $githubClientObj = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
-
-        return $githubClientObj;
     }
 
     /*public function index_bkup(Request $request)
@@ -1942,20 +1930,11 @@ class DevelopmentController extends Controller
     {
         $newBranchName = 'DEVTASK-' . $taskId;
 
-        $githubRepository  = GithubRepository::find($repositoryId);
-        $organization = $githubRepository->organization;
-
-        if(empty($organization)){
-            return false;
-        }
-        
-        $githubClientObj = $this->connectGithubClient($organization->username, $organization->token);
-        
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
         try {
-            $response = $githubClientObj->get($url);
+            $response = $this->githubClient->get($url);
             $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
         } catch (Exception $e) {
             return false;
@@ -1965,7 +1944,7 @@ class DevelopmentController extends Controller
         // https://api.github.com/repositories/:repo/git/refs
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
         try {
-            $githubClientObj->post(
+            $this->githubClient->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([
@@ -3705,10 +3684,7 @@ class DevelopmentController extends Controller
 
         // this is the ID for erp
         $defaultRepositoryId = 231925646;
-        // $respositories = GithubRepository::all();
-
-        $githubOrganizations = GithubOrganization::get();
-
+        $respositories = GithubRepository::all();
         $statusList = \DB::table('task_statuses')
             ->orderBy('name')
             ->select('name')
@@ -3723,7 +3699,7 @@ class DevelopmentController extends Controller
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = View::make('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'githubOrganizations', 'defaultRepositoryId', 'projects', 'statusList'))->render();
+        $html = view('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'respositories', 'defaultRepositoryId', 'projects', 'statusList'))->render();
 
         return json_encode(compact('html', 'status'));
     }
@@ -4825,6 +4801,59 @@ class DevelopmentController extends Controller
             return response()->json([
                 'data' => view('development.partials.google-drive-list', ['result' => null])->render(),
             ]);
+        }
+    }
+
+    /**
+     * Show the hostory for task an dev task
+     */
+    public function showTaskEstimateTime(Request $request)
+    {
+        try {
+            if($request->task) {
+                if($request->task == "DEVTASK") {
+                    $developerTaskID = DeveloperTaskHistory::where([
+                        'model'=> DeveloperTask::class,
+                        'attribute' => "estimation_minute"
+                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                    
+                    $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
+                    ->whereIn("developer_tasks_history.id", $developerTaskID)
+                    ->where(function($query) use ($request) {
+                        if(isset($request->task_id)) {
+                            $query= $query->where('developer_tasks.id', $request->task_id);
+                        }
+                        return $query;
+                    })
+                    ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->get();
+
+                    return view('development.partials.estimate-list', compact('developerTaskHistory'));
+
+                } else {
+                    $developerTaskID = DeveloperTaskHistory::where([
+                        'model'=> Task::class,
+                        'attribute' => "estimation_minute"
+                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                    
+                    $developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
+                    ->whereIn("developer_tasks_history.id", $developerTaskID)
+                    ->where(function($query) use ($request) {
+                        if(isset($request->task_id)) {
+                            $query= $query->where('tasks.id', $request->task_id);
+                        }
+                        return $query;
+                    })
+                    ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->get();
+
+                    return view('task-module.partials.estimate-list', compact('developerTaskHistory'));
+
+                }
+            } else {
+                throw new Exception("Error while getting data.");
+            }
+        } catch (Exception $e) {
+            dd($e);
+            return;
         }
     }
 }

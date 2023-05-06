@@ -2190,6 +2190,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
         Route::post('upload-file', [DevelopmentController::class, 'uploadFile'])->name('development.upload-file');
         Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
+
+        Route::get('task/show-estimate', [DevelopmentController::class, 'showTaskEstimateTime'])->name('task.estimate.list');
     });
 
     /*Routes For Social */
