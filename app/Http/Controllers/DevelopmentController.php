@@ -3723,7 +3723,7 @@ class DevelopmentController extends Controller
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = View::make('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'githubOrganization', 'defaultRepositoryId', 'projects', 'statusList'))->render();
+        $html = View::make('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'githubOrganizations', 'defaultRepositoryId', 'projects', 'statusList'))->render();
 
         return json_encode(compact('html', 'status'));
     }
