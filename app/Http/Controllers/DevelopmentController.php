@@ -4852,8 +4852,7 @@ class DevelopmentController extends Controller
                 throw new Exception("Error while getting data.");
             }
         } catch (Exception $e) {
-            dd($e);
-            return;
+            return '';
         }
     }
 }
