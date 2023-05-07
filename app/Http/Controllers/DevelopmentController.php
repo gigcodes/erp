@@ -42,6 +42,7 @@ use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffTask;
 use GuzzleHttp\RequestOptions;
 use App\Github\GithubRepository;
+use App\Github\GithubOrganization;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,7 @@ use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
+use View;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
@@ -76,6 +78,16 @@ class DevelopmentController extends Controller
         ]);
         // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    }
+
+    private function connectGithubClient($userName, $token)
+    {
+        $githubClientObj = new Client([
+                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+                'auth' => [$userName, $token],
+            ]);
+
+        return $githubClientObj;
     }
 
     /*public function index_bkup(Request $request)
@@ -1930,11 +1942,20 @@ class DevelopmentController extends Controller
     {
         $newBranchName = 'DEVTASK-' . $taskId;
 
+        $githubRepository  = GithubRepository::find($repositoryId);
+        $organization = $githubRepository->organization;
+
+        if(empty($organization)){
+            return false;
+        }
+
+        $githubClientObj = $this->connectGithubClient($organization->username, $organization->token);
+
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
         try {
-            $response = $this->githubClient->get($url);
+            $response = $githubClientObj->get($url);
             $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
         } catch (Exception $e) {
             return false;
@@ -3684,7 +3705,10 @@ class DevelopmentController extends Controller
 
         // this is the ID for erp
         $defaultRepositoryId = 231925646;
-        $respositories = GithubRepository::all();
+        // $respositories = GithubRepository::all();
+
+        $githubOrganizations = GithubOrganization::get();
+
         $statusList = \DB::table('task_statuses')
             ->orderBy('name')
             ->select('name')
@@ -3699,7 +3723,7 @@ class DevelopmentController extends Controller
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = view('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'respositories', 'defaultRepositoryId', 'projects', 'statusList'))->render();
+        $html = View::make('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'githubOrganizations', 'defaultRepositoryId', 'projects', 'statusList'))->render();
 
         return json_encode(compact('html', 'status'));
     }
