@@ -124,6 +124,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     .modal {
         overflow-y: auto !important;
     }
+    .shortcut-estimate-search-container .select2.select2-container{
+        width: 200px!important
+    }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -3705,6 +3708,19 @@ if (!empty($notifications)) {
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
                             </li>
+
+                            @php
+                                $route = request()->route()->getName();
+                            @endphp
+                            @if (in_array($route, ["development.issue.index", "task.index"]))
+                                <li>
+                                    <a title="Time Estimations" type="button" class="quick-icon show-estimate-time" data-task="{{$route == "development.issue.index" ? "DEVTASK" : "TASK"}}">
+                                        <span>
+                                            <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <a title="Task & Activity" type="button" class="quick-icon menu-show-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
@@ -3833,6 +3849,49 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
+        @php
+        $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index"]))
+            @if ($route == "development.issue.index")
+                @php
+                    $taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                @endphp
+            @else
+                @php
+                    $taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                @endphp
+            @endif
+            <div id="showLatestEstimateTime" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Estimation</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body shortcut-estimate-search-container">
+                            <div class="from-group ">
+                                <label>Search</label>
+                                <br>
+                                <select name="task_id" id="shortcut-estimate-search" class="form-control">
+                                    <option disabled>Select task</option>
+                                    @foreach ($taskList as $val)
+                                        <option value="{{$val}}">{{$val}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="modal-table">
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        @endif
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
@@ -6570,6 +6629,116 @@ if (!\Auth::guest()) {
             $('#sidebar').toggleClass('active');
         });
         $(".select2-vendor").select2({});
+
+        @php
+            $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index"]))
+            $(".show-estimate-time").click(function (e) { 
+                e.preventDefault();
+                var tasktype = $(this).data('task');
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    data: {
+                        task: tasktype
+                    },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) { 
+
+                    }
+
+                });
+            });
+            $("#shortcut-estimate-search").select2();
+
+            $("#shortcut-estimate-search").change(function (e) { 
+                e.preventDefault();
+                let task_id = $(this).val();
+                @if ($route == "development.issue.index")
+                    var  tasktype = "DEVTASK";
+                @else
+                    var tasktype = "TASK";
+                @endif
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    data: {
+                        task: tasktype,
+                        task_id
+                    },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) { 
+                        toastr["error"]("Error while fetching data.");
+                    }
+
+                });
+            });
+        @endif
+
+        $('#showLatestEstimateTime').on('hide.bs.modal', function (e) {
+            $("#modalTaskInformationUpdates .modal-body .row").show()
+            $("#modalTaskInformationUpdates .modal-body hr").show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).show()
+        })
+
+
+        $(document).on("click", ".approveEstimateFromshortcutButton", function (event) {
+            event.preventDefault();
+            let type = $(this).data('type');
+            let task_id = $(this).data('task');
+            let history_id = $(this).data('id');
+            // console.log(type,
+            // task_id,
+            // history_id);
+            // return
+            if (type == "TASK") {
+                $.ajax({
+                url: "/task/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            } else {
+                $.ajax({
+                url: "/development/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            }
+        });
     });
 
     $(document).on('click', '.save-meeting-zoom', function() {
@@ -7015,6 +7184,25 @@ if (!\Auth::guest()) {
 		});
 	}
 
+    function estimateFunTaskDetailHandler(elm) { 
+        let tasktype = $(elm).data('task');
+        let taskid = $(elm).data('id');
+        if(tasktype == "DEVTASK") {
+            $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            funTaskInformationModal(elm, taskid)
+        } else {
+            $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            funTaskInformationModal(elm, taskid)
+        }
+    }
 
     </script>
     @if ($message = Session::get('actSuccess'))

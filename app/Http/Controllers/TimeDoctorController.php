@@ -562,6 +562,8 @@ class TimeDoctorController extends Controller
                 }
             });
 
+            // dd($logs->toSql());
+
             $logs = $logs->paginate(20);
 
             return response()->json([
