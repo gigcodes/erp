@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Response;
+use Validator;
 use App\Setting;
 use App\Wetransfer;
 use App\WeTransferLog;
 use Illuminate\Http\Request;
-use Response;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Validator;
 
 class WeTransferController extends Controller
 {
@@ -90,8 +90,8 @@ class WeTransferController extends Controller
         WeTransferLog::create(['link' => '', 'log_description' => 'we transfer item found']);
         if ($request->file) {
             $file = $request->file('file');
-            $fileN = time().$file->getClientOriginalName();
-            $path = public_path().'/wetransfer/'.$request->id;
+            $fileN = time() . $file->getClientOriginalName();
+            $path = public_path() . '/wetransfer/' . $request->id;
             $file->move($path, $fileN);
 
             $wetransfer->is_processed = 2;
@@ -99,7 +99,7 @@ class WeTransferController extends Controller
             if ($wetransfer->files_list == null || $wetransfer->files_list == '') {
                 $wetransfer->files_list = $fileN;
             } else {
-                $wetransfer->files_list = $wetransfer->files_list.','.$fileN;
+                $wetransfer->files_list = $wetransfer->files_list . ',' . $fileN;
             }
             $wetransfer->update();
 
@@ -253,7 +253,7 @@ class WeTransferController extends Controller
             $data['intent'] = 'entire_transfer';
             $data['security_hash'] = $securityhash;
 
-            $curlURL = $WETRANSFER_API_URL.$transferId.'/download';
+            $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
             $cookie = 'cookie.txt';
             $url = 'https://wetransfer.com/';
@@ -262,8 +262,8 @@ class WeTransferController extends Controller
             curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-            curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
-            curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
+            curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/' . $cookie);
+            curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/' . $cookie);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -283,7 +283,7 @@ class WeTransferController extends Controller
             }
 
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'X-CSRF-Token:'.$token;
+            $headers[] = 'X-CSRF-Token:' . $token;
 
             curl_setopt($ch, CURLOPT_URL, $curlURL);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -305,7 +305,7 @@ class WeTransferController extends Controller
             if (! file_exists(public_path('wetransfer'))) {
                 mkdir(public_path('wetransfer'), 0777, true);
             }
-            $file = file_put_contents(public_path('wetransfer/'.$file_name), file_get_contents($url));
+            $file = file_put_contents(public_path('wetransfer/' . $file_name), file_get_contents($url));
 
             return $file_name;
         } catch (\Throwable $th) {

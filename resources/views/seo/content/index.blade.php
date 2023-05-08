@@ -11,6 +11,7 @@ $auth = auth()->user();
     <div class="d-flex justify-content-end">
         <div class="">
             @if($auth->hasRole(['Admin', 'User', 'Seo Head']))
+            <a href="javascript:;" class="btn btn-secondary statusListBtn">Status</a>
             <a href="javascript:;" class="btn btn-secondary addNewBtn">Add new</a>
             @endif
         </div>
@@ -65,28 +66,29 @@ $auth = auth()->user();
                 </button>
             </div>
         </div>
-        <div class="card-body table-responsive">
-            <table class="table table-bordered" id="seoProcessTbl">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Website</th>
-                        <th>Keywords</th>
-                        <th>Word count</th>
-                        <th>Suggestion</th>
-                        <th>SEO Checklist</th>
-                        <th>Publish Checklist</th>
-                        <th>Document Link</th>
-                        <th>Live Status Link</th>
-                        <th>SEO Status</th>
-                        <th>User</th>
-                        <th>Price</th>
-                        <th>Publish Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
+        <div class="card-body">
+            <div class="table-responsive-lg" style="overflow-x:auto;">
+                <table class="table table-bordered" id="seoProcessTbl">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Website</th>
+                            <th>Keywords</th>
+                            <th>User</th>
+                            <th>Price</th>
+                            <th>Document Link</th>
+                            <th>Word count</th>
+                            <th>Suggestion</th>
+                            <th>Status</th>
+                            <th>SEO Checklist</th>
+                            <th>Publish Checklist</th>
+                            <th>Live Status Link</th>
+                            <th>Publish Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -112,130 +114,27 @@ $auth = auth()->user();
         </div>
     </div>
 </div>
+
+<!-- History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@include('seo.content.modal')
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
-<script>
-    $(document).ready(function() {
-        // Datatable 
-        const $datatable = $('#seoProcessTbl').DataTable({
-            serverSide: true,
-            lengthMenu: [ [50, 100, 150, -1], [50, 100, 150, "All"] ],
-            searching:false,
-            responsive:true
-            , ajax: {
-                url: '', 
-                data:{
-                    filter:{
-                        website_id: () => $(document).find('.websiteFilter').val(),
-                        price_status:() => $(document).find('.priceStatusFilter').val(),
-                        user_id:() => $(document).find('.userFilter').val(),
-                        status:() => $(document).find('.statusFilter').val(),
-                    }
-                }
-            , }
-            , columns: [{
-                    data: 'DT_RowIndex'
-                    , 'orderable': false
-                    , 'searchable': false
-                }
-                , {
-                    data: 'website_id'
-                    , name: 'website_id'
-                }
-                , {
-                    data: 'keywords'
-                    , name: 'keywords'
-                },
-                {
-                    data: 'word_count'
-                    , name: 'word_count'
-                },
-                {
-                    data: 'suggestion'
-                    , name: 'suggestion'
-                },
-                {
-                    data:'seoChecklist',
-                    name:'seoChecklist'
-                },
-                {
-                    data:'publishChecklist',
-                    name:'publishChecklist'
-                },
-                {
-                    data:'documentLink',
-                    name:'documentLink'
-                },
-                {
-                    data:'liveStatusLink',
-                    name:'liveStatusLink'
-                },
-                {
-                    data:'seoStatus',
-                    name:'seoStatus'
-                }
-                , {
-                    data: 'user_id'
-                    , name: 'user_id'
-                }
-                , {
-                    data: 'price'
-                    , name: 'price'
-                }
-                , {
-                    data: 'published_at'
-                    , name: 'published_at'
-                }
-                , {
-                    data: 'status'
-                    , name: 'status'
-                }
-                , {
-                    data: 'actions'
-                    , name: 'actions'
-                }
-            , ]
-        });
-
-        $(function() {
-            $(document).on('click', '.addNewBtn', function() {
-                let $formModal = $(document).find('#formModal');
-                $($formModal).modal('show');
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('seo.content.create') }}",
-                    data: {
-                        formType:"CREATE_FORM"
-                    },
-                    dataType: "json",
-                    success: function (response) {
-                        $($formModal).find('.modal-body').html(response.data)
-                    }
-                });
-            });
-
-            $(document).on('click', '.editBtn', function() {
-                let url = $(this).attr('data-url');
-                let $formModal = $(document).find('#formModal');
-                $($formModal).modal('show');
-                $.ajax({
-                    type: "GET",
-                    url: url,
-                    data: {
-                    },
-                    dataType: "json",
-                    success: function (response) {
-                        $($formModal).find('.modal-body').html(response.data)
-                    }
-                });
-            });
-
-            $(document).on('click', '.searchBtn', function() {
-                $datatable.clear().draw();
-            })
-        })
-    });
-
-</script>
-
 @include('seo.content.script')
 @endsection

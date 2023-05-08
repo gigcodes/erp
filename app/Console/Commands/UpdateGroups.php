@@ -78,7 +78,7 @@ class UpdateGroups extends Command
             $existing_themes = ['General', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'ShadesShop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau',  'o-labels.com', 'Luxury Space', 'TheFitEdit', 'Italybrandoutlets', 'Lussolicious'];
             foreach ($response as $g) {
                 if (in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
-                    dump($g->name.' not deleted');
+                    dump($g->name . ' not deleted');
                 } else {
                     $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/delete_group';
 
@@ -95,7 +95,7 @@ class UpdateGroups extends Command
                         if (isset($response->error)) {
                             return response()->json(['status' => 'errors', $response], 403);
                         } else {
-                            dump($g->name.' '.$g->id.' deleted');
+                            dump($g->name . ' ' . $g->id . ' deleted');
                         }
                     }
                 }
@@ -127,10 +127,10 @@ class UpdateGroups extends Command
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
             $code = explode('-', $w->code)[1];
-            $web_name = $store_web->title.'_'.$code;
+            $web_name = $store_web->title . '_' . $code;
 
             if (in_array($web_name, array_keys($group_array))) {
-                dump($web_name.' group already exist');
+                dump($web_name . ' group already exist');
 
                 continue;
             }
@@ -182,7 +182,7 @@ class UpdateGroups extends Command
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
             $code = explode('-', $w->code)[1];
-            $web_name = $store_web->title.'_'.$code;
+            $web_name = $store_web->title . '_' . $code;
             dump($web_name);
             if (in_array($web_name, array_keys($group_array))) {
                 $websiteStoreView = WebsiteStoreView::where('id', $w->id)->update(['store_group_id' => $group_array[$web_name]]);
@@ -210,7 +210,7 @@ class UpdateGroups extends Command
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
             $code = explode('-', $w->code)[1];
-            $web_name = ucwords(strtolower($store_web->title)).'_'.$code;
+            $web_name = ucwords(strtolower($store_web->title)) . '_' . $code;
             if (in_array($web_name, array_keys($group_array))) {
                 $existing_themes_ids = [];
                 $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';

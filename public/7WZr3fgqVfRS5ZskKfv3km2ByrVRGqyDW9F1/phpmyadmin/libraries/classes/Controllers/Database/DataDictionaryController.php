@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database;
 
-use function is_array;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Index;
+use function is_array;
+use PhpMyAdmin\Template;
 use function str_replace;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 class DataDictionaryController extends AbstractController
 {

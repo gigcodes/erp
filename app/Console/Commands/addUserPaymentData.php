@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\DeveloperTask;
-use App\PaymentReceipt;
 use App\Task;
 use App\User;
+use App\DeveloperTask;
+use App\PaymentReceipt;
 use Illuminate\Console\Command;
 
 class addUserPaymentData extends Command
@@ -55,13 +55,13 @@ class addUserPaymentData extends Command
             $dev_task_user = User::find($dev_task->team_lead_id !== null ? $dev_task->team_lead_id : $dev_task->assigned_to);
 
             if (empty($dev_task_user)) {
-                dump('dev_task-id - '.$dev_task->id.' user not exist');
+                dump('dev_task-id - ' . $dev_task->id . ' user not exist');
 
                 continue;
             }
 
             if ($dev_task_user->fixed_price_user_or_job != 1) {
-                dump('dev_task-id - '.$dev_task_user->id.' is fixed price user');
+                dump('dev_task-id - ' . $dev_task_user->id . ' is fixed price user');
 
                 continue;
             }
@@ -77,7 +77,7 @@ class addUserPaymentData extends Command
             ]);
 
             if ($dev_task_payment) {
-                dump('dev_task-id - '.$dev_task->id.' payment-id - '.$dev_task_payment->id.' is done');
+                dump('dev_task-id - ' . $dev_task->id . ' payment-id - ' . $dev_task_payment->id . ' is done');
             }
             $dev_task_payment = 0;
         }
@@ -94,13 +94,13 @@ class addUserPaymentData extends Command
         foreach ($tasks as $task) {
             $task_user = User::find($task->assign_to);
             if (empty($task_user)) {
-                dump('task-id - '.$task->id.' user not exist');
+                dump('task-id - ' . $task->id . ' user not exist');
 
                 continue;
             }
 
             if ($task_user->fixed_price_user_or_job != 1) {
-                dump('dev_task-id - '.$task_user->id.' is fixed price user');
+                dump('dev_task-id - ' . $task_user->id . ' is fixed price user');
 
                 continue;
             }
@@ -115,7 +115,7 @@ class addUserPaymentData extends Command
                 'task_id' => $task->id,
             ]);
             if ($task_payment) {
-                dump('task-id - '.$task->id.' payment-id - '.$task_payment->id.' is done');
+                dump('task-id - ' . $task->id . ' payment-id - ' . $task_payment->id . ' is done');
             }
             $task_payment = 0;
         }

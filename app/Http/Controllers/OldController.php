@@ -2,26 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Mail;
+use App\Old;
+use Session;
+use App\User;
+use Response;
 use App\Email;
 use App\Helpers;
-use App\Mails\Manual\PurchaseEmail;
-use App\Old;
-use App\OldCategory;
-use App\OldPayment;
 use App\OldRemark;
 use App\OldStatus;
-use App\ReplyCategory;
-use App\User;
-use Auth;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\OldPayment;
+use App\OldCategory;
+use App\ReplyCategory;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
-use Mail;
-use Response;
-use Session;
+use Illuminate\Http\Request;
 use Webklex\PHPIMAP\ClientManager;
+use App\Mails\Manual\PurchaseEmail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class OldController extends Controller
 {
@@ -201,7 +201,6 @@ class OldController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -288,7 +287,6 @@ class OldController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -683,8 +681,8 @@ class OldController extends Controller
                 $attachments = $email->getAttachments();
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
-                    file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                    $path = 'email-attachments/'.$attachment->name;
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 

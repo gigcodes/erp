@@ -2,8 +2,8 @@
 
 namespace seo2websites\PriceComparisonScraper;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\View;
 
 class PriceComparisonScraperSitesController extends Controller
@@ -38,7 +38,6 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -67,7 +66,6 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
      * @return \Illuminate\Http\Response
      */

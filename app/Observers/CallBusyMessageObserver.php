@@ -9,7 +9,6 @@ class CallBusyMessageObserver
     /**
      * Handle the call busy message "created" event.
      *
-     * @param  \App\CallBusyMessage  $callBusyMessage
      * @return void
      */
     public function created(CallBusyMessage $callBusyMessage)
@@ -25,7 +24,6 @@ class CallBusyMessageObserver
     /**
      * Handle the call busy message "updated" event.
      *
-     * @param  \App\CallBusyMessage  $callBusyMessage
      * @return void
      */
     public function updated(CallBusyMessage $callBusyMessage)
@@ -41,7 +39,6 @@ class CallBusyMessageObserver
     /**
      * Handle the call busy message "deleted" event.
      *
-     * @param  \App\CallBusyMessage  $callBusyMessage
      * @return void
      */
     public function deleted(CallBusyMessage $callBusyMessage)
@@ -52,7 +49,6 @@ class CallBusyMessageObserver
     /**
      * Handle the call busy message "restored" event.
      *
-     * @param  \App\CallBusyMessage  $callBusyMessage
      * @return void
      */
     public function restored(CallBusyMessage $callBusyMessage)
@@ -63,7 +59,6 @@ class CallBusyMessageObserver
     /**
      * Handle the call busy message "force deleted" event.
      *
-     * @param  \App\CallBusyMessage  $callBusyMessage
      * @return void
      */
     public function forceDeleted(CallBusyMessage $callBusyMessage)

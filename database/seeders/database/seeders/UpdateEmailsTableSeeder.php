@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Email;
+use Illuminate\Database\Seeder;
 
 class UpdateEmailsTableSeeder extends Seeder
 {
@@ -14,11 +14,10 @@ class UpdateEmailsTableSeeder extends Seeder
      */
     public function run()
     {
-
         $emails = Email::all();
 
-        foreach($emails as $email){
-            $data = explode('@',$email->from);
+        foreach ($emails as $email) {
+            $data = explode('@', $email->from);
             $name = $data[0];
             $email->name = $name;
             $email->save();

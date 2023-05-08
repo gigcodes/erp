@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Compositions;
 use App\User;
+use App\Compositions;
 use Illuminate\Http\Request;
 
 class CompositionsController extends Controller
@@ -100,7 +100,6 @@ class CompositionsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -119,7 +118,6 @@ class CompositionsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
     public function show(Compositions $compositions)
@@ -130,7 +128,6 @@ class CompositionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
     public function edit(Compositions $compositions)
@@ -141,8 +138,6 @@ class CompositionsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Compositions $compositions, $id)
@@ -196,7 +191,6 @@ class CompositionsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
     public function destroy(Compositions $compositions, $id)
@@ -213,8 +207,8 @@ class CompositionsController extends Controller
 
         if ($compositions) {
             // check the type and then
-            $name = '"'.$compositions->name.'"';
-            $products = \App\ScrapedProducts::where('properties', 'like', '%'.$name.'%')->latest()->limit(5)->get();
+            $name = '"' . $compositions->name . '"';
+            $products = \App\ScrapedProducts::where('properties', 'like', '%' . $name . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
 
@@ -231,8 +225,8 @@ class CompositionsController extends Controller
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"'.$from.'"';
-            $total = \App\ScrapedProducts::where('properties', 'like', '%'.$q.'%')
+            $q = '"' . $from . '"';
+            $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.composition', '')
                 ->groupBy('p.id')
@@ -358,7 +352,7 @@ class CompositionsController extends Controller
         $to = $request->replace_with;
         if (! empty($from) && ! empty($to)) {
             // remove here the word
-            $compositionList = \App\Compositions::where('replace_with', 'like', '%'.$from.'%')->orWhere('name', 'like', '%'.$from.'%')->get();
+            $compositionList = \App\Compositions::where('replace_with', 'like', '%' . $from . '%')->orWhere('name', 'like', '%' . $from . '%')->get();
             if (! $compositionList->isEmpty()) {
                 foreach ($compositionList as $cl) {
                     $cl->replace_with = str_ireplace($from, $to, $cl->replace_with);
@@ -367,7 +361,7 @@ class CompositionsController extends Controller
                 }
             }
 
-            $products = \App\Product::where('composition', 'LIKE', '%'.$from.'%')->get();
+            $products = \App\Product::where('composition', 'LIKE', '%' . $from . '%')->get();
             $user = \Auth::user();
 
             if ($products) {

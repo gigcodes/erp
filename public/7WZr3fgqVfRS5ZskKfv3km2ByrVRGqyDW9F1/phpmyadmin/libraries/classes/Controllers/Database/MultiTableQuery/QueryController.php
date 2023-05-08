@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database\MultiTableQuery;
 
-use PhpMyAdmin\Controllers\AbstractController;
 use PhpMyAdmin\Database\MultiTableQuery;
+use PhpMyAdmin\Controllers\AbstractController;
 
 final class QueryController extends AbstractController
 {

@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Import;
 
 use function __;
+use function time;
 use function header;
-use function ini_get;
+use function usleep;
 use PhpMyAdmin\Core;
-use PhpMyAdmin\Import\Ajax;
+use function ini_get;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Template;
 use function session_start;
+use PhpMyAdmin\Import\Ajax;
 use function session_write_close;
-use function time;
-use function usleep;
 
 /**
  * Import progress bar backend

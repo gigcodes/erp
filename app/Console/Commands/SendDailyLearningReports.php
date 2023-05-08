@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\DailyActivity;
 use App\Learning;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\DailyActivity;
 use Illuminate\Console\Command;
 
 class SendDailyLearningReports extends Command

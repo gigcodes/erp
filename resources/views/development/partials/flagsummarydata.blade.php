@@ -1,4 +1,4 @@
-<tr style="color:grey;">
+<tr style="background-color:{{$issue->taskStatus->task_color ?? ''}};">
     <td style="display:table-cell;vertical-align: baseline;">
         {{ $issue->id }}
     </td>
@@ -34,7 +34,7 @@
                 @endif
                 @endforeach
             </select>
-            <button style="float:right;padding-right:0px;height: 10px!important;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+            <button style="float:right;padding-right:0px" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
             <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
         </div>
     </td>
@@ -56,7 +56,7 @@
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-info-circle"></i></button>
         @endif
-        <button style="float:right;padding-right:0px;" onclick="funDevInformationModal(this, '{{$issue->id}}')" data-userId="{{$issue->user_id}}" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
+        <button style="float:right;padding-right:0px;" onclick="funDevInformationModal(this, '{{$issue->id}}')" data-userId="{{$issue->user_id}}" type="button" class="btn btn-xs" title="Show time data" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
     <td>
         {{ $issue->estimate_minutes }}
@@ -67,7 +67,7 @@
             <div>
                 {{ $issue->estimate_date }}
             </div>
-            <button style="padding-right:0px;margin-left: auto;height: 10px!important;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+            <button style="padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         </div>
     </td>
     <td>
@@ -140,13 +140,28 @@
         <button type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
         </button>
+
+        <button class="btn upload-task-files-button p-0" type="button" title="Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
+            <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-image view-task-files-button p-0" type="button" title="View Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
+            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+        </button>
+        <button class="btn create-task-document p-0" title="Create document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
+            <i class="fa fa-file-text" aria-hidden="true"></i>
+        </button>
+        <button class="btn show-created-task-document p-0" title="Show created document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
+            <i class="fa fa-list" aria-hidden="true"></i>
+        </button>
     </td>
 </tr>
 
-@section('scripts')
+{{-- @section('scripts') --}}
     <script>
-        function Quickbtn(id){
-            $(".action-quickbtn-tr-"+id).toggleClass('d-none')
+        if(typeof Quickbtn === "undefined") {
+            function Quickbtn(id){
+                $(".action-quickbtn-tr-"+id).toggleClass('d-none')
+            }
         }
     </script>
-@endsection
+{{-- @endsection --}}

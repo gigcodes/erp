@@ -19,7 +19,6 @@ class CreateRefundCashFlow
     /**
      * Handle the event.
      *
-     * @param  RefundCreated  $event
      * @return void
      */
     public function handle(RefundCreated $event)

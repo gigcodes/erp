@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers;
 
 use function __;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use function strlen;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 
 abstract class AbstractController
 {
@@ -94,7 +94,7 @@ abstract class AbstractController
      */
     protected function redirect(string $route, array $params = []): void
     {
-        $uri = './index.php?route='.$route.Url::getCommonRaw($params, '&');
+        $uri = './index.php?route=' . $route . Url::getCommonRaw($params, '&');
         Core::sendHeaderLocation($uri);
     }
 }

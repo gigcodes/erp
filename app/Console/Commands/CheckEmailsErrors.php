@@ -3,17 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Agent;
-use App\CronJobReport;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
+use App\Helpers\LogHelper;
 
 class CheckEmailsErrors extends Command
 {
     /**
      * The name and signature of the console command.
-     * 
+     *
      * @var string
      */
     protected $signature = 'check:emails-errors';
@@ -78,7 +79,7 @@ class CheckEmailsErrors extends Command
                     }
 
                     if (preg_match_all("/failed: ([\a-zA-Z0-9_.-@]+) host/i", preg_replace('/\s+/', ' ', $content), $match)) {
-                        dump('Found address '.$match[1][0]);
+                        dump('Found address ' . $match[1][0]);
 
                         $suppliers = Supplier::where('email', $match[1][0])->get();
                         $agents = Agent::where('email', $match[1][0])->get();
@@ -104,6 +105,8 @@ class CheckEmailsErrors extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

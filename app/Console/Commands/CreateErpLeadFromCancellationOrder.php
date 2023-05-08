@@ -68,7 +68,7 @@ class CreateErpLeadFromCancellationOrder extends Command
                     if ($media) {
                         $erpLeads->attachMedia($media, config('constants.media_tags'));
                     }
-                    $this->info('order id = '.$order->id.' create id = '.$erpLeads->id."\n");
+                    $this->info('order id = ' . $order->id . ' create id = ' . $erpLeads->id . "\n");
                 }
             }
             $message = $this->generate_erp_response('erp.lead.created.for.candellation.order.success', 0, $default = 'Successfully update!!', request('lang_code'));

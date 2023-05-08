@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\ChatMessage;
-use App\Customer;
 use Exception;
+use App\Customer;
+use App\ChatMessage;
+use Twilio\Rest\Client;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Twilio\Rest\Client;
 
 class TwilioSmsJob implements ShouldQueue
 {
@@ -39,7 +39,7 @@ class TwilioSmsJob implements ShouldQueue
      */
     public function __construct($receiverNumber, $message, $store_website_id)
     {
-        $this->receiverNumber = '+'.$receiverNumber;
+        $this->receiverNumber = '+' . $receiverNumber;
         $this->message = $message;
         $this->store_website_id = $store_website_id;
 
@@ -77,7 +77,7 @@ class TwilioSmsJob implements ShouldQueue
                 'body' => $this->message,
             ]);
             $phone = str_replace('+', '', $this->receiverNumber);
-            $custId = Customer::where('phone', 'like', '%'.$phone.'%')->pluck('id')->first();
+            $custId = Customer::where('phone', 'like', '%' . $phone . '%')->pluck('id')->first();
             $chat = [
                 'message_application_id' => 3,
                 'message' => $this->message,
@@ -90,7 +90,7 @@ class TwilioSmsJob implements ShouldQueue
             ];
             ChatMessage::create($chat);
         } catch (Exception $e) {
-            \Log::info('Sending SMS issue #2215 ->'.$e->getMessage());
+            \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }

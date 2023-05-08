@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function chr;
+use function substr;
 use function mb_strlen;
 use function mb_substr;
-use function substr;
 
 /**
  * PhpMyAdmin\Mime class;

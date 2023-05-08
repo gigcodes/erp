@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\BackLinkChecker;
 use DB;
+use Storage;
+use Response;
+use App\BackLinkChecker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Response;
-use Storage;
 
 class BrokenLinkCheckerController extends Controller
 {

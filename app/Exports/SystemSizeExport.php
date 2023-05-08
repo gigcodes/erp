@@ -5,8 +5,8 @@ namespace App\Exports;
 use App\Category;
 use App\SystemSizeManager;
 use App\SystemSizeRelation;
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class SystemSizeExport implements FromCollection, WithHeadings
 {
@@ -38,8 +38,8 @@ class SystemSizeExport implements FromCollection, WithHeadings
             $sizes = '';
 
             foreach ($related as $v) {
-                $string = $v->name.' => '.$v->size;
-                $sizes .= $sizes == '' ? $string : ', '.$string;
+                $string = $v->name . ' => ' . $v->size;
+                $sizes .= $sizes == '' ? $string : ', ' . $string;
             }
             $manager->category_parent_id = Category::where('id', $manager->category_parent_id)->value('title');
             $manager->sizes = $sizes;

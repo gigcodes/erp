@@ -26,7 +26,7 @@ class AffiliateConversions extends Model
         'meta_data',
         'commission_created_at',
         'warnings',
-        'affiliate_meta_data'
+        'affiliate_meta_data',
     ];
 
     public function account()

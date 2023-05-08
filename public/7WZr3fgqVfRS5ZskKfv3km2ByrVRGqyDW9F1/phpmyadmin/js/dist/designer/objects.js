@@ -13,5 +13,5 @@ var DesignerObjects = {
     this.pdfPgNr = pdfPgNr;
     this.x = x;
     this.y = y;
-  }
+  },
 };

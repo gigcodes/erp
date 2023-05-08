@@ -118,9 +118,6 @@ final class Plugin
         );
     }
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         return [

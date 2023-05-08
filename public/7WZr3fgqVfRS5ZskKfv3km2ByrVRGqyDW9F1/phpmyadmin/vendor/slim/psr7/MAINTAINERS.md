@@ -8,7 +8,7 @@ Our code is better if more than one set of eyes looks at it. Therefore we do not
 
 ## PRs tagged `[WIP]` are not ready to be merged
 
-Sometimes it's helpful to collaborate on a patch before it's ready to be merged. We use the `[WIP]` tag (for _Work in Progress_) in the title to mark these PRs. 
+Sometimes it's helpful to collaborate on a patch before it's ready to be merged. We use the `[WIP]` tag (for _Work in Progress_) in the title to mark these PRs.
 
 If a PR has `[WIP]` in its title, then it is not to be merged. The person who raised the PR will remove the `[WIP]` tag when they are ready for a full review and merge.
 

@@ -28,8 +28,8 @@ class GebnegozionlineScraper extends Scraper
             }
             $brand->name = str_replace(' &amp; ', ' ', $brand->name);
             $brand->name = str_replace('&amp;', '', $brand->name);
-            $this->scrapPage(self::URL['woman'].strtolower(str_replace(' ', '-', trim($brand->name))).'.html');
-            $this->scrapPage(self::URL['man'].strtolower(str_replace(' ', '-', trim($brand->name))).'.html');
+            $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
+            $this->scrapPage(self::URL['man'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
         }
     }
 
@@ -63,7 +63,7 @@ class GebnegozionlineScraper extends Scraper
             if ($text === '' || $text === 'designers') {
                 continue;
             }
-            $urls[$text.'_'.$key] = $link->getAttribute('href');
+            $urls[$text . '_' . $key] = $link->getAttribute('href');
         }
 
         foreach ($urls as $itemUrl) {
@@ -97,7 +97,7 @@ class GebnegozionlineScraper extends Scraper
             $pageNumber++;
         }
 
-        $body = $this->getContent($scrapEntriy->url.'?p='.$pageNumber);
+        $body = $this->getContent($scrapEntriy->url . '?p=' . $pageNumber);
         $c = new HtmlPageCrawler($body);
 
         $products = $c->filter('.product-item')->getIterator();

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Github\GithubClient;
-use App\MemoryUsage;
 use App\Scraper;
+use App\MemoryUsage;
 use App\ScraperProcess;
 use Illuminate\Http\Request;
+use App\Library\Github\GithubClient;
 use Laravel\Horizon\Contracts\JobRepository;
 
 class MasterDevTaskController extends Controller
@@ -54,7 +54,7 @@ class MasterDevTaskController extends Controller
         $sizeBefore = null;
         if (! empty($currentSize)) {
             $sizeBefore = \DB::table('database_historical_records')
-                ->whereRaw(\DB::raw("DATE(created_at) = DATE('".$currentSize->created_at."' - INTERVAL 1 DAY)"))
+                ->whereRaw(\DB::raw("DATE(created_at) = DATE('" . $currentSize->created_at . "' - INTERVAL 1 DAY)"))
                 ->first();
         }
 

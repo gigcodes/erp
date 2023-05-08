@@ -25,7 +25,7 @@ class GTMatrixErrorLogController extends Controller
         if ($request->ajax()) {
             $items = GTMatrixErrorLog::select('id', 'store_viewGTM_id', 'error_title', 'error', 'created_at');
             if (isset($request->name) && ! empty($request->name)) {
-                $items->where('error_title', 'Like', '%'.$request->name.'%')->orWhere('error', 'Like', '%'.$request->name.'%')->orWhere('store_viewGTM_id', 'Like', '%'.$request->name.'%');
+                $items->where('error_title', 'Like', '%' . $request->name . '%')->orWhere('error', 'Like', '%' . $request->name . '%')->orWhere('store_viewGTM_id', 'Like', '%' . $request->name . '%');
             }
             //$datas = datatables()->eloquent($items)->toJson();
             //dd($datas);
@@ -48,7 +48,6 @@ class GTMatrixErrorLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -59,7 +58,6 @@ class GTMatrixErrorLogController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\GTMatrixErrorLog  $gTMatrixErrorLog
      * @return \Illuminate\Http\Response
      */
     public function show(GTMatrixErrorLog $gTMatrixErrorLog)
@@ -70,7 +68,6 @@ class GTMatrixErrorLogController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\GTMatrixErrorLog  $gTMatrixErrorLog
      * @return \Illuminate\Http\Response
      */
     public function edit(GTMatrixErrorLog $gTMatrixErrorLog)
@@ -81,8 +78,6 @@ class GTMatrixErrorLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\GTMatrixErrorLog  $gTMatrixErrorLog
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, GTMatrixErrorLog $gTMatrixErrorLog)
@@ -93,7 +88,6 @@ class GTMatrixErrorLogController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\GTMatrixErrorLog  $gTMatrixErrorLog
      * @return \Illuminate\Http\Response
      */
     public function destroy(GTMatrixErrorLog $gTMatrixErrorLog)

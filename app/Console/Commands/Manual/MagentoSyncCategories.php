@@ -3,8 +3,8 @@
 namespace App\Console\Commands\Manual;
 
 use App\Category;
-use App\MagentoSoapHelper;
 use Carbon\Carbon;
+use App\MagentoSoapHelper;
 use Illuminate\Console\Command;
 
 class MagentoSyncCategories extends Command
@@ -62,14 +62,14 @@ class MagentoSyncCategories extends Command
                     $topLevelId = $category->magento_id;
 
                     // Output name
-                    echo $category->title.' > ';
+                    echo $category->title . ' > ';
                     if ((int) $category->magento_id > 0) {
                         $result = $magentoSoapHelper->catalogCategoryInfo($category->magento_id);
 
                         if ($result === false) {
                             echo "\n";
                         } else {
-                            echo $result->name."\n";
+                            echo $result->name . "\n";
                         }
                     } else {
                         echo "Category not exists. Missing Magento ID.\n";
@@ -80,7 +80,7 @@ class MagentoSyncCategories extends Command
 
                     // Loop over level two categories
                     foreach ($levelTwoCategories as $levelTwoCategory) {
-                        echo '|-'.$levelTwoCategory->title.' > ';
+                        echo '|-' . $levelTwoCategory->title . ' > ';
 
                         if ((int) $levelTwoCategory->magento_id > 0) {
                             $result = $magentoSoapHelper->catalogCategoryInfo($levelTwoCategory->magento_id);
@@ -88,7 +88,7 @@ class MagentoSyncCategories extends Command
                             if ($result === false) {
                                 echo "\n";
                             } else {
-                                echo $result->name."\n";
+                                echo $result->name . "\n";
                             }
                         } else {
                             echo "Category not exists. Missing Magento ID.\n";
@@ -99,7 +99,7 @@ class MagentoSyncCategories extends Command
 
                         // Loop over level three categories
                         foreach ($levelThreeCategories as $levelThreeCategory) {
-                            echo '|---'.$levelThreeCategory->title.' > ';
+                            echo '|---' . $levelThreeCategory->title . ' > ';
 
                             if ((int) $levelThreeCategory->magento_id > 0) {
                                 $result = $magentoSoapHelper->catalogCategoryInfo($levelThreeCategory->magento_id);
@@ -122,7 +122,7 @@ class MagentoSyncCategories extends Command
                                     $levelThreeCategory->magento_id;
                                     $levelThreeCategory->save();
                                 } else {
-                                    echo $result->name."\n";
+                                    echo $result->name . "\n";
                                 }
                             } else {
                                 echo "Category not exists. Missing Magento ID.\n";

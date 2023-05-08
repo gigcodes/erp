@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table\Partition;
 
 use function __;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\TableName;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Http\ServerRequest;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\Partitioning\Maintenance;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
 use Webmozart\Assert\Assert;
+use PhpMyAdmin\Dbal\TableName;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Dbal\DatabaseName;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\Partitioning\Maintenance;
 use Webmozart\Assert\InvalidArgumentException;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class AnalyzeController extends AbstractController
 {

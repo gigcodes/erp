@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\MagentoCommand;
-use App\MagentoCommandRunLog;
+use App\User;
 use App\Setting;
 use App\StoreWebsite;
-use App\User;
+use App\MagentoCommand;
 use Illuminate\Http\Request;
+use App\MagentoCommandRunLog;
 
 class MagentoCommandController extends Controller
 {
@@ -19,7 +19,8 @@ class MagentoCommandController extends Controller
     public function index()
     {
         try {
-            $magentoCommand = MagentoCommand::paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
 
             $websites = StoreWebsite::all();
             $users = User::all();
@@ -37,15 +38,16 @@ class MagentoCommandController extends Controller
         $magentoCommand = MagentoCommand::whereNotNull('id');
 
         if (! empty($request->website)) {
-            $magentoCommand->where('website_ids', 'like', '%'.$request->website.'%');
+            $magentoCommand->where('website_ids', 'like', '%' . $request->website . '%');
         }
         if (! empty($request->command_name)) {
-            $magentoCommand->where('command_name', 'like', '%'.$request->command_name.'%');
+            $magentoCommand->where('command_name', 'like', '%' . $request->command_name . '%');
         }
         if (! empty($request->user_id)) {
             $magentoCommand->where('user_id', '=', $request->user_id);
         }
-        $magentoCommand = $magentoCommand->paginate(Setting::get('pagination'));
+        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand = $magentoCommand->paginate($limit);
         $users = User::all();
         $websites = StoreWebsite::all();
 
@@ -55,7 +57,6 @@ class MagentoCommandController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -119,7 +120,7 @@ class MagentoCommandController extends Controller
                 if ($magentoCom->website_ids == $website->id) {
                     $selected = 'selected';
                 }
-                $ops .= '<option value="'.$website->id.'" '.$selected.'>'.$website->name.'</option>';
+                $ops .= '<option value="' . $website->id . '" ' . $selected . '>' . $website->name . '</option>';
             }
 
             return response()->json(['code' => 200, 'data' => $magentoCom, 'ops' => $ops, 'message' => 'Listed successfully!!!']);

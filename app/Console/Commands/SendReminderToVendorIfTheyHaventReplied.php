@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
 use App\Vendor;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
+use App\Helpers\LogHelper;
 
 class SendReminderToVendorIfTheyHaventReplied extends Command
 {
@@ -75,7 +76,7 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                 }
 
                 if ($vendor->reminder_from == '0000-00-00 00:00' || strtotime($vendor->reminder_from) >= strtotime('now')) {
-                    dump('here'.$vendor->name);
+                    dump('here' . $vendor->name);
                     $templateMessage = $vendor->reminder_message;
                     if ($vendor->reminder_last_reply == 0) {
                         //sends messahe
@@ -83,7 +84,7 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                         dump('saving...');
                     } else {
                         // get the message if the interval is greater or equal to time which is set for this customer
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
                             ->where('id', $messagesId->id)
                             ->where('user_id', '>', '0')
                             ->where('approved', '1')
@@ -101,12 +102,13 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 
     /**
-     * @param $vendorId
      * @param $message
      * create chat message entry and then approve the message and send the message...
      */

@@ -37,7 +37,6 @@ class PageNotesCategoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -49,7 +48,8 @@ class PageNotesCategoriesController extends Controller
             'name' => $request->get('name'),
         ]);
 
-        return redirect()->back()->withSuccess('Page Notes Category Successfully stored.');
+        return redirect()->route('pageNotes.viewList')->withSuccess('Page Notes Category Successfully stored.');
+//        return redirect()->back()->withSuccess('Page Notes Category Successfully stored.');
     }
 
     /**
@@ -77,7 +77,6 @@ class PageNotesCategoriesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

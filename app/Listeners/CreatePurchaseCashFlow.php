@@ -44,7 +44,7 @@ class CreatePurchaseCashFlow
             'updated_by' => $user_id,
             'cash_flow_able_id' => $purchase->id,
             'cash_flow_able_type' => \App\Purchase::class,
-            'description' => 'Purchase proforma confirmed. Proforma id '.$purchase->proforma_id,
+            'description' => 'Purchase proforma confirmed. Proforma id ' . $purchase->proforma_id,
         ])->save();
     }
 }

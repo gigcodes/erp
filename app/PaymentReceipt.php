@@ -5,11 +5,11 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Plank\Mediable\Mediable;
 use App\Events\PaymentReceiptCreated;
 use App\Events\PaymentReceiptUpdated;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PaymentReceipt extends Model
 {

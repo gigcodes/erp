@@ -2,8 +2,8 @@
 
 namespace App\Services\Bots;
 
-use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class CucProductExistsEmulator
 {
@@ -62,7 +62,7 @@ class CucProductExistsEmulator
 
                     $price = $detailsHTML->filter('.prezzidettaglio span')->getInnerHtml();
                     $price = explode(',', $price);
-                    $price = str_replace('.', ',', $price[0]).'.'.$price[1];
+                    $price = str_replace('.', ',', $price[0]) . '.' . $price[1];
 
                     $brand = $detailsHTML->filter('h1 a span')->getInnerHtml();
                     $category = $detailsHTML->filter('h2 a span')->getInnerHtml();

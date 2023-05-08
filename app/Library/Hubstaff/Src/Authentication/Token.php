@@ -2,9 +2,9 @@
 
 namespace App\Library\Hubstaff\Src\Authentication;
 
+use Storage;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Storage;
 
 class Token
 {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Session;
 use App\ConversionRate;
 use Illuminate\Http\Request;
-use Session;
 
 class ConversionRateController extends Controller
 {

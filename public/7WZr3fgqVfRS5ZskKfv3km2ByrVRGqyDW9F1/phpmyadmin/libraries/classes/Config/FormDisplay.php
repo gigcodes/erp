@@ -15,29 +15,29 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Config;
 
 use function __;
-use function array_flip;
-use function array_keys;
-use function array_search;
+use function trim;
 use function count;
-use const E_USER_WARNING;
+use PhpMyAdmin\Util;
 use function explode;
-use function function_exists;
 use function gettype;
 use function implode;
-use function is_array;
 use function is_bool;
-use function is_numeric;
-use function mb_substr;
-use PhpMyAdmin\Config\Forms\User\UserFormList;
-use PhpMyAdmin\Html\MySQLDocumentation;
-use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\Util;
-use function preg_match;
 use function settype;
 use function sprintf;
+use function is_array;
+use function mb_substr;
+use function array_flip;
+use function array_keys;
+use function is_numeric;
+use function preg_match;
+use PhpMyAdmin\Sanitize;
+use const E_USER_WARNING;
 use function str_replace;
+use function array_search;
 use function trigger_error;
-use function trim;
+use function function_exists;
+use PhpMyAdmin\Html\MySQLDocumentation;
+use PhpMyAdmin\Config\Forms\User\UserFormList;
 
 /**
  * Form management class, displays and processes forms
@@ -141,7 +141,7 @@ class FormDisplay
         foreach ($this->forms[$formName]->fields as $path) {
             $workPath = $serverId === null
                 ? $path
-                : str_replace('Servers/1/', 'Servers/'.$serverId.'/', $path);
+                : str_replace('Servers/1/', 'Servers/' . $serverId . '/', $path);
             $this->systemPaths[$workPath] = $path;
             $this->translatedPaths[$workPath] = str_replace('/', '-', $workPath);
         }
@@ -238,7 +238,7 @@ class FormDisplay
 
         $tabs = [];
         foreach ($this->forms as $form) {
-            $tabs[$form->name] = Descriptions::get('Form_'.$form->name);
+            $tabs[$form->name] = Descriptions::get('Form_' . $form->name);
         }
 
         // validate only when we aren't displaying a "new server" form
@@ -265,8 +265,8 @@ class FormDisplay
             $forms[$key] = [
                 'name' => $form->name,
                 'descriptions' => [
-                    'name' => Descriptions::get('Form_'.$form->name, 'name'),
-                    'desc' => Descriptions::get('Form_'.$form->name, 'desc'),
+                    'name' => Descriptions::get('Form_' . $form->name, 'name'),
+                    'desc' => Descriptions::get('Form_' . $form->name, 'desc'),
                 ],
                 'errors' => $this->errors[$form->name] ?? null,
                 'fields_html' => '',
@@ -403,7 +403,7 @@ class FormDisplay
                 return $htmlOutput;
 
             case 'NULL':
-                trigger_error('Field '.$systemPath.' has no type', E_USER_WARNING);
+                trigger_error('Field ' . $systemPath . ' has no type', E_USER_WARNING);
 
                 return null;
         }
@@ -425,20 +425,20 @@ class FormDisplay
                     continue;
                 }
 
-                $v = $ip.': '.$v;
+                $v = $ip . ': ' . $v;
             }
         }
 
         $this->setComments($systemPath, $opts);
 
         // send default value to form's JS
-        $jsLine = '\''.$translatedPath.'\': ';
+        $jsLine = '\'' . $translatedPath . '\': ';
         switch ($type) {
             case 'text':
             case 'short_text':
             case 'number_text':
             case 'password':
-                $jsLine .= '\''.Sanitize::escapeJsString($valueDefault).'\'';
+                $jsLine .= '\'' . Sanitize::escapeJsString($valueDefault) . '\'';
                 break;
             case 'checkbox':
                 $jsLine .= $valueDefault ? 'true' : 'false';
@@ -447,7 +447,7 @@ class FormDisplay
                 $valueDefaultJs = is_bool($valueDefault)
                 ? (int) $valueDefault
                 : $valueDefault;
-                $jsLine .= '[\''.Sanitize::escapeJsString($valueDefaultJs).'\']';
+                $jsLine .= '[\'' . Sanitize::escapeJsString($valueDefaultJs) . '\']';
                 break;
             case 'list':
                 $val = $valueDefault;
@@ -455,8 +455,8 @@ class FormDisplay
                     unset($val['wrapper_params']);
                 }
 
-                $jsLine .= '\''.Sanitize::escapeJsString(implode("\n", $val))
-                .'\'';
+                $jsLine .= '\'' . Sanitize::escapeJsString(implode("\n", $val))
+                . '\'';
                 break;
         }
 
@@ -491,7 +491,7 @@ class FormDisplay
             if (isset($this->systemPaths[$systemPath])) {
                 $name = Descriptions::get($this->systemPaths[$systemPath]);
             } else {
-                $name = Descriptions::get('Form_'.$systemPath);
+                $name = Descriptions::get('Form_' . $systemPath);
             }
 
             $htmlOutput .= $this->formDisplayTemplate->displayErrors($name, $errorList);
@@ -599,7 +599,7 @@ class FormDisplay
                     if ($type !== 'boolean') {
                         $this->errors[$form->name][] = sprintf(
                             __('Missing data for %s'),
-                            '<i>'.Descriptions::get($systemPath).'</i>'
+                            '<i>' . Descriptions::get($systemPath) . '</i>'
                         );
                         $result = false;
 
@@ -611,9 +611,9 @@ class FormDisplay
 
                 // user preferences allow/disallow
                 if ($isSetupScript && isset($this->userprefsKeys[$systemPath])) {
-                    if (isset($this->userprefsDisallow[$systemPath], $_POST[$key.'-userprefs-allow'])) {
+                    if (isset($this->userprefsDisallow[$systemPath], $_POST[$key . '-userprefs-allow'])) {
                         unset($this->userprefsDisallow[$systemPath]);
-                    } elseif (! isset($_POST[$key.'-userprefs-allow'])) {
+                    } elseif (! isset($_POST[$key . '-userprefs-allow'])) {
                         $this->userprefsDisallow[$systemPath] = true;
                     }
                 }
@@ -665,8 +665,8 @@ class FormDisplay
                 $values[$systemPath] = $_POST[$key];
                 if ($changeIndex !== false) {
                     $workPath = str_replace(
-                        'Servers/'.$form->index.'/',
-                        'Servers/'.$changeIndex.'/',
+                        'Servers/' . $form->index . '/',
+                        'Servers/' . $changeIndex . '/',
                         $workPath
                     );
                 }
@@ -697,7 +697,7 @@ class FormDisplay
                         $proxies[$ip] = trim($matches[2]);
                     } else {
                         // save also incorrect values
-                        $proxies['-'.$i] = $value;
+                        $proxies['-' . $i] = $value;
                         $i++;
                     }
                 }
@@ -744,7 +744,7 @@ class FormDisplay
 
         return MySQLDocumentation::getDocumentationLink(
             'config',
-            'cfg_'.$this->getOptName($path),
+            'cfg_' . $this->getOptName($path),
             Sanitize::isSetup() ? '../' : './'
         );
     }
@@ -789,7 +789,7 @@ class FormDisplay
         if ($systemPath === 'RecodingEngine') {
             $comment = '';
             if (! function_exists('iconv')) {
-                $opts['values']['iconv'] .= ' ('.__('unavailable').')';
+                $opts['values']['iconv'] .= ' (' . __('unavailable') . ')';
                 $comment = sprintf(
                     __('"%s" requires %s extension'),
                     'iconv',
@@ -798,8 +798,8 @@ class FormDisplay
             }
 
             if (! function_exists('recode_string')) {
-                $opts['values']['recode'] .= ' ('.__('unavailable').')';
-                $comment .= ($comment ? ', ' : '').sprintf(
+                $opts['values']['recode'] .= ' (' . __('unavailable') . ')';
+                $comment .= ($comment ? ', ' : '') . sprintf(
                     __('"%s" requires %s extension'),
                     'recode',
                     'recode'
@@ -838,7 +838,7 @@ class FormDisplay
             }
 
             if (! function_exists($funcs[$systemPath][1])) {
-                $comment .= ($comment ? '; ' : '').sprintf(
+                $comment .= ($comment ? '; ' : '') . sprintf(
                     __(
                         'Compressed export will not work due to missing function %s.'
                     ),

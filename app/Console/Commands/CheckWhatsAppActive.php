@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Marketing\WhatsappConfig;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Marketing\WhatsappConfig;
+use App\Helpers\LogHelper;
 
 class CheckWhatsAppActive extends Command
 {
@@ -56,7 +57,7 @@ class CheckWhatsAppActive extends Command
                         continue;
                     }
                     $phones = ['+971569119192', '+31629987287'];
-                    $message = $number->number.'Username : '.$number->username.' Phone Number is not working Please Check It';
+                    $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
 
                     foreach ($phones as $phone) {
                         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
@@ -66,6 +67,8 @@ class CheckWhatsAppActive extends Command
                 dump('We only check during the day');
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+            
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

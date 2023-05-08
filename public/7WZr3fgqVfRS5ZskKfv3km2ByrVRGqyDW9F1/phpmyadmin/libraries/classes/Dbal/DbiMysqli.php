@@ -7,30 +7,30 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Dbal;
 
+use mysqli;
 use function __;
+use mysqli_stmt;
 use function defined;
+use function sprintf;
+use function stripos;
 use const E_USER_ERROR;
 use const E_USER_WARNING;
-use mysqli;
-use const MYSQLI_CLIENT_COMPRESS;
+use function mysqli_init;
+use function mysqli_report;
+use function trigger_error;
 use const MYSQLI_CLIENT_SSL;
-use const MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+use const MYSQLI_REPORT_OFF;
+use const MYSQLI_USE_RESULT;
+use const MYSQLI_STORE_RESULT;
+use PhpMyAdmin\Query\Utilities;
+use const MYSQLI_CLIENT_COMPRESS;
+use PhpMyAdmin\DatabaseInterface;
+use const MYSQLI_OPT_LOCAL_INFILE;
 use function mysqli_connect_errno;
 use function mysqli_connect_error;
 use function mysqli_get_client_info;
-use function mysqli_init;
-use const MYSQLI_OPT_LOCAL_INFILE;
 use const MYSQLI_OPT_SSL_VERIFY_SERVER_CERT;
-use function mysqli_report;
-use const MYSQLI_REPORT_OFF;
-use mysqli_stmt;
-use const MYSQLI_STORE_RESULT;
-use const MYSQLI_USE_RESULT;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Query\Utilities;
-use function sprintf;
-use function stripos;
-use function trigger_error;
+use const MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
 
 /**
  * Interface to the MySQL Improved extension (MySQLi)
@@ -99,7 +99,7 @@ class DbiMysqli implements DbiExtension
         }
 
         if ($GLOBALS['cfg']['PersistentConnections']) {
-            $host = 'p:'.$server['host'];
+            $host = 'p:' . $server['host'];
         } else {
             $host = $server['host'];
         }
@@ -159,10 +159,10 @@ class DbiMysqli implements DbiExtension
                     sprintf(
                         __(
                             'Error 1045: Access denied for user. Additional error information'
-                            .' may be available, but is being hidden by the %s configuration directive.'
+                            . ' may be available, but is being hidden by the %s configuration directive.'
                         ),
                         '[code][doc@cfg_Servers_hide_connection_errors]'
-                        .'$cfg[\'Servers\'][$i][\'hide_connection_errors\'][/doc][/code]'
+                        . '$cfg[\'Servers\'][$i][\'hide_connection_errors\'][/doc][/code]'
                     ),
                     E_USER_ERROR
                 );

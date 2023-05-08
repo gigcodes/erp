@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Hubstaff\HubstaffMember;
-use App\Library\Hubstaff\Src\Hubstaff;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Hubstaff\HubstaffMember;
+use App\Library\Hubstaff\Src\Hubstaff;
+use App\Helpers\LogHelper;
 
 class RefreshHubstaffUsers extends Command
 {
@@ -57,6 +58,8 @@ class RefreshHubstaffUsers extends Command
             $this->refreshUserList();
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
@@ -85,9 +88,9 @@ class RefreshHubstaffUsers extends Command
 
         if (! empty($organizationUsers->members)) {
             $record = count($organizationUsers->members);
-            echo 'Total Record :'.$record;
+            echo 'Total Record :' . $record;
             foreach ($organizationUsers->members as $member) {
-                echo $member->user_id.' Record started';
+                echo $member->user_id . ' Record started';
                 echo PHP_EOL;
                 $memeberExist = HubstaffMember::where('hubstaff_user_id', $member->user_id)->first();
                 if (! $memeberExist) {
@@ -106,9 +109,9 @@ class RefreshHubstaffUsers extends Command
                     }
                 }
 
-                echo $member->user_id.' Record eneded';
+                echo $member->user_id . ' Record eneded';
                 echo PHP_EOL;
-                echo 'Total Record Left :'.$record--;
+                echo 'Total Record Left :' . $record--;
                 echo PHP_EOL;
             }
 

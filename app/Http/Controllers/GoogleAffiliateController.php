@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Affiliates;
 use App\HashTag;
-use App\Mails\Manual\AffiliateEmail;
 use App\Setting;
+use App\Affiliates;
 use Illuminate\Http\Request;
+use App\Mails\Manual\AffiliateEmail;
 
 class GoogleAffiliateController extends Controller
 {
@@ -43,11 +43,11 @@ class GoogleAffiliateController extends Controller
                                 ->orderBy($sortBy, $orderBy)
                                 ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term='.$request->term.'&priority='.$request->priority.'&';
+                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
                 $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 
-                $queryString = 'priority='.$request->priority.'&';
+                $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->term != null) {
                 $keywords = HashTag::query()
                                 ->where('hashtag', 'LIKE', "%{$request->term}%")
@@ -55,7 +55,7 @@ class GoogleAffiliateController extends Controller
                                 ->orderBy($sortBy, $orderBy)
                                 ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term='.$request->term.'&';
+                $queryString = 'term=' . $request->term . '&';
             }
         } else {
             $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
@@ -67,7 +67,6 @@ class GoogleAffiliateController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      *
      * Create a new hashtag entry
@@ -119,7 +118,6 @@ class GoogleAffiliateController extends Controller
     /**
      * function to set priority for keywords
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response with status
      */
     public function markPriority(Request $request)
@@ -196,7 +194,6 @@ class GoogleAffiliateController extends Controller
     /**
      * function to store google search results sent from scrapper
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response status
      */
     public function apiPost(Request $request)
@@ -257,7 +254,6 @@ class GoogleAffiliateController extends Controller
     /**
      * function to get google affiliate search results
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return data to view
      */
     public function searchResults(Request $request)
@@ -265,16 +261,16 @@ class GoogleAffiliateController extends Controller
         $queryString = '';
         $orderBy = 'DESC';
         if (! empty($request->hashtag)) {
-            $queryString .= 'hashtag='.$request->hashtag.'&';
+            $queryString .= 'hashtag=' . $request->hashtag . '&';
         }
         if (! empty($request->title)) {
-            $queryString .= 'title='.$request->title.'&';
+            $queryString .= 'title=' . $request->title . '&';
         }
         if (! empty($request->post)) {
-            $queryString .= 'post='.$request->post.'&';
+            $queryString .= 'post=' . $request->post . '&';
         }
         if (! empty($request->date)) {
-            $queryString .= 'date='.$request->date.'&';
+            $queryString .= 'date=' . $request->date . '&';
         }
         if (! empty($request->orderby)) {
             $orderBy = $request->orderby;
@@ -301,7 +297,6 @@ class GoogleAffiliateController extends Controller
     /**
      * function to get google affiliate search results
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array of search results
      */
     private function getFilteredGoogleSearchResults(Request $request)
@@ -324,12 +319,12 @@ class GoogleAffiliateController extends Controller
 
         // Apply location filter
         if (! empty($request->title)) {
-            $affiliateResults->where('title', 'LIKE', '%'.$request->title.'%');
+            $affiliateResults->where('title', 'LIKE', '%' . $request->title . '%');
         }
 
         // Apply post filter
         if (! empty($request->post)) {
-            $affiliateResults->where('caption', 'LIKE', '%'.$request->post.'%');
+            $affiliateResults->where('caption', 'LIKE', '%' . $request->post . '%');
         }
 
         // Apply posted at filter
@@ -420,7 +415,7 @@ class GoogleAffiliateController extends Controller
 
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER').'api/googleSearchDetails',
+                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

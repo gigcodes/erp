@@ -5,17 +5,17 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Hubstaff\HubstaffActivity;
-use App\Hubstaff\HubstaffPaymentAccount;
 use Cache;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
 use Plank\Mediable\Mediable;
+use App\Hubstaff\HubstaffActivity;
+use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Hubstaff\HubstaffPaymentAccount;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -116,7 +116,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function isOnline()
     {
-        return Cache::has('user-is-online-'.$this->id);
+        return Cache::has('user-is-online-' . $this->id);
     }
 
     public function contacts()
@@ -223,6 +223,7 @@ class User extends Authenticatable implements JWTSubject
 
         return false;
     }
+
     public function isEnvManager()
     {
         $roles = $this->roles->pluck('name')->toArray();
@@ -291,9 +292,9 @@ class User extends Authenticatable implements JWTSubject
             $actions = end($url);
             if ($model != '') {
                 if ($model == $actions) {
-                    $genUrl = $model.'-list';
+                    $genUrl = $model . '-list';
                 } else {
-                    $genUrl = $model.'-'.$actions;
+                    $genUrl = $model . '-' . $actions;
                 }
             } else {
                 return true;
@@ -309,7 +310,7 @@ class User extends Authenticatable implements JWTSubject
         }
 
         if (empty($permission)) {
-            echo 'unauthorized route doesnt not exist - new permission save'.$genUrl;
+            echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
             $per = new Permission;
             $per->name = $genUrl;
             $per->route = $genUrl;
@@ -422,7 +423,6 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Check if the user has a particular permission.
      *
-     * @param $permissionName
      * @return bool
      */
     public function can($permissionName, $arguements = [])

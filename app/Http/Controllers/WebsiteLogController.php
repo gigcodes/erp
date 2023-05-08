@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreWebsite;
-use App\WebsiteLog;
 use File;
+use App\WebsiteLog;
+use App\StoreWebsite;
 //use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
 
@@ -175,7 +175,7 @@ class WebsiteLogController extends Controller
      */
     public function get_string_between($string, $start, $end)
     {
-        $string = ' '.$string;
+        $string = ' ' . $string;
         $ini = strpos($string, $start);
         if ($ini == 0) {
             return '';
@@ -298,10 +298,10 @@ class WebsiteLogController extends Controller
         try {
             $dataArr = new WebsiteLog();
             if ($request->sql_query) {
-                $dataArr = $dataArr->where('sql_query', 'LIKE', '%'.$request->sql_query.'%');
+                $dataArr = $dataArr->where('sql_query', 'LIKE', '%' . $request->sql_query . '%');
             }
             if ($request->time) {
-                $dataArr = $dataArr->where('time', 'LIKE', '%'.$request->time.'%');
+                $dataArr = $dataArr->where('time', 'LIKE', '%' . $request->time . '%');
             }
             $dataArr = $dataArr->get();
             $sqlQuery = $request->sql_query;

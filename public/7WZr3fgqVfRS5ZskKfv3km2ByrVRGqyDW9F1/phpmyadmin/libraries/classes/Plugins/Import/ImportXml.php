@@ -11,21 +11,21 @@ namespace PhpMyAdmin\Plugins\Import;
 
 use function __;
 use function count;
-use function in_array;
-use const LIBXML_COMPACT;
-use function libxml_disable_entity_loader;
-use const PHP_VERSION_ID;
-use PhpMyAdmin\File;
-use PhpMyAdmin\Import;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Plugins\ImportPlugin;
-use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
-use PhpMyAdmin\Util;
-use function simplexml_load_string;
-use SimpleXMLElement;
-use function str_replace;
 use function strcmp;
 use function strlen;
+use PhpMyAdmin\File;
+use PhpMyAdmin\Util;
+use SimpleXMLElement;
+use function in_array;
+use PhpMyAdmin\Import;
+use PhpMyAdmin\Message;
+use const LIBXML_COMPACT;
+use const PHP_VERSION_ID;
+use function str_replace;
+use function simplexml_load_string;
+use PhpMyAdmin\Plugins\ImportPlugin;
+use function libxml_disable_entity_loader;
+use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
 
 /**
  * Handles the import for the XML format
@@ -201,7 +201,7 @@ class ImportXml extends ImportPlugin
                      *          into another database.
                      */
                     $attrs = $val2->attributes();
-                    $create[] = 'USE '.Util::backquote((string) $attrs['name']);
+                    $create[] = 'USE ' . Util::backquote((string) $attrs['name']);
 
                     foreach ($val2 as $val3) {
                         /**

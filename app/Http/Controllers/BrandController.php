@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Activity;
+use Auth;
 use App\Brand;
-use App\BrandLogo;
-use App\BrandWithLogo;
-use App\Category;
-use App\CategorySegment;
 use App\HashTag;
-use App\Jobs\CreateHashTags;
 use App\Product;
-use App\ScrapedProducts;
 use App\Scraper;
 use App\Setting;
+use App\Activity;
+use App\Category;
+use App\BrandLogo;
+use App\BrandWithLogo;
+use App\CategorySegment;
+use App\ScrapedProducts;
 use App\StoreWebsiteBrand;
-use Auth;
+use App\Jobs\CreateHashTags;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +41,7 @@ class BrandController extends Controller
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
-            $brands = $brands->where('name', 'like', '%'.$keyword.'%');
+            $brands = $brands->where('name', 'like', '%' . $keyword . '%');
         }
 
         $brands = $brands->paginate(Setting::get('pagination'));
@@ -107,7 +107,7 @@ class BrandController extends Controller
         if ($developers) {
             foreach ($developers as $_developer) {
                 if ($_developer->singleBrandTask) {
-                    $alldevs[!empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->id:""] = !empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->name:"";
+                    $alldevs[! empty($_developer->singleBrandTask->assignedUser) ? $_developer->singleBrandTask->assignedUser->id : ''] = ! empty($_developer->singleBrandTask->assignedUser) ? $_developer->singleBrandTask->assignedUser->name : '';
                 }
             }
         }
@@ -731,7 +731,7 @@ class BrandController extends Controller
             // $brand_data = BrandLogo::get();
             $brand_data = BrandLogo::leftjoin('brand_with_logos', 'brand_logos.id', 'brand_with_logos.brand_logo_image_id')
             ->select('brand_logos.id as brand_logos_id', 'brand_logos.logo_image_name as brand_logo_image_name', 'brand_with_logos.id as brand_with_logos_id', 'brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id', 'brand_with_logos.brand_id as brand_with_logos_brand_id')
-            ->where('brand_logos.logo_image_name', 'like', '%'.$request->brand_name.'%')
+            ->where('brand_logos.logo_image_name', 'like', '%' . $request->brand_name . '%')
             ->get();
 
             return response()->json(['code' => 200, 'brand_logo_image' => $brand_data]);
@@ -834,7 +834,7 @@ class BrandController extends Controller
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $amount, 'status' => 0]);
-                $note = 'Segment Discount Changed from '.$p->segment_discount.' To '.$amount;
+                $note = 'Segment Discount Changed from ' . $p->segment_discount . ' To ' . $amount;
                 \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
             }
         }

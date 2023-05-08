@@ -46,8 +46,8 @@
 
 	.btn-secondary {
 		border: 1px solid #ddd;
-		color: #757575;
-		background-color: #fff !important;
+		/* color: #757575; */
+		/* background-color: #fff !important; */
 	}
 
 	.modal {
@@ -70,6 +70,12 @@
 
 	select.globalSelect2+span.select2 {
 		width: calc(100% - 26px) !important;
+	}
+	#uicheck_table1 td .div-message-language img, #uicheck_table1 td .view-uploaded-files-button img{
+		width: 12px!important;
+	}
+	#uicheck_table1 td .upload-ui-responsive-button, #uicheck_table1 td .devHistorty{
+		font-size: 14px!important;
 	}
 </style>
 @endsection
@@ -168,38 +174,38 @@
 						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
 					}
 				@endphp
-				<button class="btn btn-xs btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
-				<button class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
+				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
+				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 			@endif
 		</div>
 	</div>
 </div>
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
-		<div class="">
-			<table class="table table-bordered" id="uicheck_table1">
+		<div class="table-responsive" style="overflow-x: auto!important">
+			<table class="table table-bordered" style="width: 135%;max-width:unset" id="uicheck_table1">
 				<thead>
 					<tr>
 						{{-- <th width="10%">ID</th> --}}
-						<th width="5%">Ui Check ID</th>
-						<th width="8%">Categories</th>
-						<th width="8%">Website</th>
+						<th >#</th>
+						<th style="width: auto">Categories</th>
+						<th style="width: auto">Website</th>
 						{{-- <th>Upload file</th> --}}
 						@if (Auth::user()->isAdmin())
-							<th width="8%">User Name</th>
+							<th style="width: auto">User Name</th>
 						@endif
-						<th>Type</th>
-						<th width="6%">Device1</th>
-						<th width="6%">Device2</th>
-						<th width="6%">Device3</th>
-						<th width="6%">Device4</th>
-						<th width="6%">Device5</th>
-						<th width="6%">Device6</th>
-						<th width="6%">Device7</th>
-						<th width="6%">Device8</th>
-						<th width="6%">Device9</th>
-						<th width="6%">Device10</th>
-						<th width="8%">Status</th>
+						<th style="width: 5%">Type</th>
+						<th style="width: auto">Device1</th>
+						<th style="width: auto">Device2</th>
+						<th style="width: auto">Device3</th>
+						<th style="width: auto">Device4</th>
+						<th style="width: auto">Device5</th>
+						<th style="width: auto">Device6</th>
+						<th style="width: auto">Device7</th>
+						<th style="width: auto">Device8</th>
+						<th style="width: auto">Device9</th>
+						<th style="width: auto">Device10</th>
+						<th style="width: 150px">Status</th>
 						
 					</tr>
 				</thead>
@@ -223,11 +229,11 @@
 								{{-- <td>{{$uiDevData->id}}</td> --}}
 								<td>{{$uiDevData->uicheck_id}}</td>
 								<td class="expand-row-msg" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 5, '..')}} @else   @endif</span>
+									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 30, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
 								</td>
 								<td class="expand-row-msg" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->website, 5, '..')}} @else   @endif</span>
+									<span style="word-break:break-all;" class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->website, 30, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
 								</td>
 								{{-- <td>
@@ -240,7 +246,7 @@
 								</td> --}}
 								@if (Auth::user()->isAdmin())
 									<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
+										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 30, '..')}} @else   @endif</span>
 										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
 										<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
 									</td>
@@ -248,62 +254,62 @@
 
 								<td>{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
 							
-								<td style="background-color: {{$deviceBgColors['1']}} !important">
-									<input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['2']}} !important">
-									<input type="text" name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['3']}} !important">
-									<input type="text" name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['3']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['4']}} !important">
-									<input type="text" name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['5']}} !important">
-									<input type="text" name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['5']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['6']}} !important">
-									<input type="text" name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('6', '{{$uiDevData->uicheck_id}}', '6');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('6', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['7']}} !important">
-									<input type="text" name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('7', '{{$uiDevData->uicheck_id}}', '7');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('7', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['8']}} !important">
-									<input type="text" name="uidevmessage8{{$uiDevData->uicheck_id}}" class="uidevmessage8{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage8{{$uiDevData->uicheck_id}}" class="uidevmessage8{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['8']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="8" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('8', '{{$uiDevData->uicheck_id}}', '8');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('8', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['9']}} !important">
-									<input type="text" name="uidevmessage9{{$uiDevData->uicheck_id}}" class="uidevmessage9{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage9{{$uiDevData->uicheck_id}}" class="uidevmessage9{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['9']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="9" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('9', '{{$uiDevData->uicheck_id}}', '9');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('9', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
-								<td style="background-color: {{$deviceBgColors['10']}} !important">
-									<input type="text" name="uidevmessage10{{$uiDevData->uicheck_id}}" class="uidevmessage10{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
+								<td>
+									<input type="text"  name="uidevmessage10{{$uiDevData->uicheck_id}}" class="uidevmessage10{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['10']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="10" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('10', '{{$uiDevData->uicheck_id}}', '10');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('10', '{{$uiDevData->uicheck_id}}');"></i>
 									@include('uicheck.partials.device-google-screencast-button')
@@ -890,7 +896,8 @@
 
 			//update respective td background
 			var dynamicClass = '.uidevmessage' + deviceno + uicheckid;
-			$(dynamicClass).parent('td').css("background-color",response.data);
+			// $(dynamicClass).parent('td').css("background-color",response.data);
+			$(dynamicClass).css("background-color",response.data);
 
 			let mdl = jQuery('#modalGetDevMessageHistory');
 			mdl.modal("hide");

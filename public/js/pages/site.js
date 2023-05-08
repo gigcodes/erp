@@ -1,26 +1,23 @@
 function siteLoader(status) {
-  if (jQuery('#loading-image').length) {
+  if (jQuery("#loading-image").length) {
     if (status) {
-      jQuery('#loading-image').show();
-    }
-    else {
-      jQuery('#loading-image').hide();
+      jQuery("#loading-image").show();
+    } else {
+      jQuery("#loading-image").hide();
     }
   }
 }
 function siteAlert(status, message) {
   if (status && message) {
-    toastr['success'](message);
-  }
-  else if (message) {
-    toastr['error'](message);
+    toastr["success"](message);
+  } else if (message) {
+    toastr["error"](message);
   }
 }
 function siteSuccessAlert(res) {
   if (res.message != undefined) {
     siteAlert(1, res.message);
-  }
-  else if (message) {
+  } else if (message) {
     siteAlert(1, message);
   }
 }
@@ -34,40 +31,42 @@ function siteErrorAlert(err) {
   } else if (err) {
     siteAlert(0, err);
   } else {
-    siteAlert(0, 'Unknown error occured.');
+    siteAlert(0, "Unknown error occured.");
   }
 }
 
 function applySelect2(eles) {
   if (eles.length) {
     eles.each(function () {
-      if (jQuery(this).hasClass('select2-hidden-accessible')) {
-        jQuery(this).select2('destroy');
+      if (jQuery(this).hasClass("select2-hidden-accessible")) {
+        jQuery(this).select2("destroy");
       }
 
-      jQuery(this).select2({
-        width: '100%',
-        placeholder: 'Please Select',
-        allowClear: true,
-        // dropdownAutoWidth: true,
-        // dropdownParent: jQuery(this).parent()
-      }).change(function () {
-        // jQuery(this).valid();
-      });
+      jQuery(this)
+        .select2({
+          width: "100%",
+          placeholder: "Please Select",
+          allowClear: true,
+          // dropdownAutoWidth: true,
+          // dropdownParent: jQuery(this).parent()
+        })
+        .change(function () {
+          // jQuery(this).valid();
+        });
     });
   }
 }
 function applyDatePicker(eles) {
   if (eles.length) {
     eles.datetimepicker({
-      format: 'YYYY-MM-DD'
+      format: "YYYY-MM-DD",
     });
   }
 }
 function applyDateTimePicker(eles) {
   if (eles.length) {
     eles.datetimepicker({
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: "YYYY-MM-DD HH:mm:ss",
       sideBySide: true,
     });
   }
@@ -75,12 +74,10 @@ function applyDateTimePicker(eles) {
 function applyTimePicker(eles) {
   if (eles.length) {
     eles.datetimepicker({
-      format: 'HH:mm:ss',
+      format: "HH:mm:ss",
     });
   }
 }
-
-
 
 // DATATABLE
 function siteDatatableRefresh(tableId) {
@@ -98,8 +95,8 @@ function siteDatatableSearch(obj) {
   siteDatatableRefresh(obj);
 }
 function siteDatatableClearSearch(tableId, formId) {
-  jQuery(formId + ' input:text').val('');
-  jQuery(formId + ' select').val('');
-  applySelect2(jQuery(formId + ' select'));
+  jQuery(formId + " input:text").val("");
+  jQuery(formId + " select").val("");
+  applySelect2(jQuery(formId + " select"));
   siteDatatableRefresh(tableId);
 }

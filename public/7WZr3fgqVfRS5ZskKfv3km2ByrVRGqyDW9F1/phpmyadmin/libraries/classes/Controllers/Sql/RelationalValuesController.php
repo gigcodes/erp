@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Sql;
 
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Sql;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\Controllers\AbstractController;
 
 final class RelationalValuesController extends AbstractController
 {

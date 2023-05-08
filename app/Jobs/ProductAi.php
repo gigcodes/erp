@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Helpers\StatusHelper;
 use App\LogScraperVsAi;
+use App\Helpers\StatusHelper;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
 class ProductAi implements ShouldQueue
@@ -82,7 +82,7 @@ class ProductAi implements ShouldQueue
             // Log alert if there are no images
             if (count($arrImages) == 0) {
                 // Log alert
-                Log::channel('productUpdates')->alert('[Queued job result] Failed to handle AI - images are not set for product ID '.$product->id);
+                Log::channel('productUpdates')->alert('[Queued job result] Failed to handle AI - images are not set for product ID ' . $product->id);
 
                 // Return
                 return;

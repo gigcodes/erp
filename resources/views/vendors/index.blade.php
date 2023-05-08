@@ -336,6 +336,7 @@
 {{-- @include('vendors.partials.create-cv') --}}
 @include('vendors.partials.add-status')
 @include('vendors.partials.add-position')
+@include('github.include.organization-list')
 
 <div id="reminderModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -452,6 +453,8 @@
 
 <div class="modal fade" id="createUser" role="dialog">
     <div class="modal-dialog">
+
+        <input type="hidden" id="user_organization_id" name="user_organization_id">
 
         <!-- Modal content-->
         <div class="modal-content">
@@ -1411,25 +1414,31 @@
     });
 
     function inviteGithub() {
-        $('#createUser').modal('hide');
-        const email = $('#createUser').attr('data-email');
+        $('#submit_form_input_id').val('inviteGithub');
+        $('#submit_organization_input_id').val('user_organization_id');
+        $('#submit_organization_action_type').val('function');
 
-        $.ajax({
-                type: "POST",
-                url: "/vendors/inviteGithub",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    email
-                }
-            })
-            .done(function(data) {
-                alert(data.message);
-            })
-            .fail(function(error) {
-                alert(error.responseJSON.message);
-            });
+        $('#viewOrganizationModal').modal('show');
 
-        console.log(email);
+        // $('#createUser').modal('hide');
+        // const email = $('#createUser').attr('data-email');
+
+        // $.ajax({
+        //         type: "POST",
+        //         url: "/vendors/inviteGithub",
+        //         data: {
+        //             _token: "{{ csrf_token() }}",
+        //             email
+        //         }
+        //     })
+        //     .done(function(data) {
+        //         alert(data.message);
+        //     })
+        //     .fail(function(error) {
+        //         alert(error.responseJSON.message);
+        //     });
+
+        // console.log(email);
     }
 
     function inviteHubstaff() {
@@ -1621,6 +1630,22 @@
                 $("#loading-image").hide();
             }
         });
+    });
+
+    $('#createVendorForm').submit(function(e){
+        e.preventDefault();
+
+        var checkedUserGithub = $("input[name='create_user_github']").prop('checked');
+
+        if(checkedUserGithub){
+            $('#submit_form_input_id').val('createVendorForm');
+            $('#submit_organization_input_id').val('vendor_organization_id');
+            $('#submit_organization_action_type').val('');
+
+            $('#viewOrganizationModal').modal('show');
+        }else{
+            $('#createVendorForm').unbind().submit();
+        }
     });
 </script>
 @endsection

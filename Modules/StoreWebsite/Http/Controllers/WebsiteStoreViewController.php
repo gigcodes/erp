@@ -2,14 +2,14 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\StoreViewCodeServerMap;
-use App\StoreWebsite;
 use App\Website;
+use App\StoreWebsite;
 use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
+use App\StoreViewCodeServerMap;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteStoreViewController extends Controller
@@ -44,7 +44,7 @@ class WebsiteStoreViewController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $websiteStoreViews = $websiteStoreViews->where(function ($q) use ($request) {
-                $q->where('website_store_views.name', 'like', '%'.$request->keyword.'%');
+                $q->where('website_store_views.name', 'like', '%' . $request->keyword . '%');
             });
         }
         if ($request->website_store != null) {
@@ -79,7 +79,7 @@ class WebsiteStoreViewController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -108,7 +108,6 @@ class WebsiteStoreViewController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -125,7 +124,6 @@ class WebsiteStoreViewController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -216,7 +214,7 @@ class WebsiteStoreViewController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -262,9 +260,9 @@ class WebsiteStoreViewController extends Controller
                 }
                 $group_id = $request->group;
                 if ($group_id) {
-                    $postURL1 = 'https://api.livechatinc.com/v2/properties/group/'.$group_id;
+                    $postURL1 = 'https://api.livechatinc.com/v2/properties/group/' . $group_id;
                     $result1 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
-                    $postURL2 = 'https://api.livechatinc.com/v2/properties/group/'.$store_group_id;
+                    $postURL2 = 'https://api.livechatinc.com/v2/properties/group/' . $store_group_id;
                     $result2 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
                     $response->group_details1 = json_decode($result1['response']);
                     $response->group_details2 = json_decode($result2['response']);

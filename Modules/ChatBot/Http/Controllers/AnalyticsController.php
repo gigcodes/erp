@@ -2,10 +2,10 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Library\Watson\Model as WatsonManager;
 
 class AnalyticsController extends Controller
 {
@@ -22,7 +22,7 @@ class AnalyticsController extends Controller
         $params['page_limit'] = $request->get('page_limit', 10);
         $search = $request->get('search');
         if (! empty($search)) {
-            $params['filter'] = 'request.input.text:'.$search;
+            $params['filter'] = 'request.input.text:' . $search;
         }
 
         $responseLog = WatsonManager::getLog($params);
@@ -47,7 +47,7 @@ class AnalyticsController extends Controller
 
                 if (! empty($log->response->entities)) {
                     foreach ($log->response->entities as $entities) {
-                        $reEntities[] = $entities->entity.':'.$entities->value;
+                        $reEntities[] = $entities->entity . ':' . $entities->value;
                     }
                 }
 

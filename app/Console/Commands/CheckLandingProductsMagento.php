@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\LandingPageProduct;
 use App\Product;
 use App\StoreWebsite;
+use App\LandingPageProduct;
 use Illuminate\Console\Command;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
 

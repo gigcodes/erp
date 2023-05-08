@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Scrap\ToryDetailsScraper;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Scrap\ToryDetailsScraper;
 
 class ToryDetailScraper extends Command
 {
@@ -27,8 +27,6 @@ class ToryDetailScraper extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @param  ToryDetailsScraper  $scraper
      */
     public function __construct(ToryDetailsScraper $scraper)
     {

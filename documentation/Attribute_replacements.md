@@ -1,9 +1,11 @@
 # Attribute Replacement
+
 Attribute replement is used to replace value of field_identifier(name, composition and short_description columns) of `products` table if it's added with this grid. .
 The Attribute Replacement page is listing data from `index` function in the `AttributeReplacementController` controller.
+
 1. ### Fetch Attribute Replacement from DB:
-    - Data for grid will fetch from the `attribute_replacements` table
-    - Default order by set as `field_identifier` to fetch oldest record first
+   - Data for grid will fetch from the `attribute_replacements` table
+   - Default order by set as `field_identifier` to fetch oldest record first
 2. ### Response:
    - Fetch records need to add in response to load data in datatable grid.
    - `replacements` assign value to `$replacements`
@@ -17,8 +19,7 @@ The Attribute Replacement page is listing data from `index` function in the `Att
    - `Date` column set from `$replacement->created_at`
    - `Action` column set delete button and it show only if logger user is admin.
 4. ### Attribute Replacement Creation:
-    A new replacement attribute can be add from first row of table.
-    - There are four input controls use to add new attribute replacement.
-    - Input field are `field_identifier`(Select attribute), `term`, `replacement_term` and `remark`
-    - Fifth column contain `Add` button to save emntered attribute replacement.
-    
+   A new replacement attribute can be add from first row of table.
+   - There are four input controls use to add new attribute replacement.
+   - Input field are `field_identifier`(Select attribute), `term`, `replacement_term` and `remark`
+   - Fifth column contain `Add` button to save emntered attribute replacement.

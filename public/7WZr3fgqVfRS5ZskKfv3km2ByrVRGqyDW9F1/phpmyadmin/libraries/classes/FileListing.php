@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function asort;
-use function closedir;
-use function file_exists;
-use function function_exists;
+use function substr;
 use function is_file;
 use function is_link;
 use function opendir;
-use function preg_match;
 use function readdir;
-use function substr;
+use function closedir;
+use function preg_match;
+use function file_exists;
+use function function_exists;
 
 /**
  * Functions for listing directories
@@ -46,8 +46,8 @@ class FileListing
 
         while ($file = @readdir($handle)) {
             if (
-                ! @is_file($dir.$file)
-                || @is_link($dir.$file)
+                ! @is_file($dir . $file)
+                || @is_link($dir . $file)
                 || ($expression != '' && ! preg_match($expression, $file))
             ) {
                 continue;

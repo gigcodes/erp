@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function bin2hex;
+use PhpMyAdmin\Url;
 use function intval;
+use function bin2hex;
 use PhpMyAdmin\FieldMetadata;
 use PhpMyAdmin\Plugins\IOTransformationsPlugin;
-use PhpMyAdmin\Url;
 
 /**
  * Provides common methods for all of the image upload transformations plugins.
@@ -28,8 +28,8 @@ abstract class ImageUploadTransformationsPlugin extends IOTransformationsPlugin
     {
         return __(
             'Image upload functionality which also displays a thumbnail.'
-            .' The options are the width and height of the thumbnail'
-            .' in pixels. Defaults to 100 X 100.'
+            . ' The options are the width and height of the thumbnail'
+            . ' in pixels. Defaults to 100 X 100.'
         );
     }
 
@@ -75,19 +75,19 @@ abstract class ImageUploadTransformationsPlugin extends IOTransformationsPlugin
         $html = '';
         $src = '';
         if (! empty($value)) {
-            $html = '<input type="hidden" name="fields_prev'.$column_name_appendix
-                .'" value="'.bin2hex($value).'">';
-            $html .= '<input type="hidden" name="fields'.$column_name_appendix
-                .'" value="'.bin2hex($value).'">';
+            $html = '<input type="hidden" name="fields_prev' . $column_name_appendix
+                . '" value="' . bin2hex($value) . '">';
+            $html .= '<input type="hidden" name="fields' . $column_name_appendix
+                . '" value="' . bin2hex($value) . '">';
             $src = Url::getFromRoute('/transformation/wrapper', $options['wrapper_params']);
         }
 
-        $html .= '<img src="'.$src.'" width="'
-            .(isset($options[0]) ? intval($options[0]) : '100').'" height="'
-            .(isset($options[1]) ? intval($options[1]) : '100').'" alt="'
-            .__('Image preview here').'">';
+        $html .= '<img src="' . $src . '" width="'
+            . (isset($options[0]) ? intval($options[0]) : '100') . '" height="'
+            . (isset($options[1]) ? intval($options[1]) : '100') . '" alt="'
+            . __('Image preview here') . '">';
         $html .= '<br><input type="file" name="fields_upload'
-            .$column_name_appendix.'" accept="image/*" class="image-upload">';
+            . $column_name_appendix . '" accept="image/*" class="image-upload">';
 
         return $html;
     }

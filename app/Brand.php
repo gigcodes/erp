@@ -8,9 +8,9 @@
 
 namespace App;
 
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -186,7 +186,7 @@ class Brand extends Model
     public static function searchBrand1($keyWord)
     {
         // Get all Brands
-        $brands = self::where('name', 'LIKE', '%'.strtolower($keyWord).'%');
+        $brands = self::where('name', 'LIKE', '%' . strtolower($keyWord) . '%');
 
         // Create empty array to store brands
         $brandsArray = [];

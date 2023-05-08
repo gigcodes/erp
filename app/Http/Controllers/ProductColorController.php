@@ -44,7 +44,7 @@ class ProductColorController extends Controller
 
         if ($request->keyword != null) {
             $productCategory = $productCategory->where(function ($q) use ($request) {
-                $q->orWhere('p.id', 'like', '%'.$request->keyword.'%')->orWhere('p.name', 'like', '%'.$request->keyword.'%');
+                $q->orWhere('p.id', 'like', '%' . $request->keyword . '%')->orWhere('p.name', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -79,7 +79,7 @@ class ProductColorController extends Controller
             }
 
             if ($request->comment != '') {
-                $message = "WORK ON {$categoryUpdate->supplier->supplier}: ".$request->comment;
+                $message = "WORK ON {$categoryUpdate->supplier->supplier}: " . $request->comment;
                 \App\ChatMessage::sendWithChatApi($categoryUpdate->user->phone, null, $message);
             }
 

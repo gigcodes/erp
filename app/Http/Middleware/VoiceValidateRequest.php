@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\TwilioCallBlock;
 use Closure;
 use Exception;
+use App\TwilioCallBlock;
 use Illuminate\Http\Request;
 use Twilio\TwiML\VoiceResponse;
 
@@ -13,8 +13,6 @@ class VoiceValidateRequest
     /**
      * Handle an incoming request.
      *
-     * @param  Request  $request
-     * @param  Closure  $next
      * @return mixed
      *
      * @throws Exception

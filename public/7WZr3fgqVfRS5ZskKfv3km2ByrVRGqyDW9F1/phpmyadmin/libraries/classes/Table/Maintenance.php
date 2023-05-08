@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Table;
 
 use function __;
+use PhpMyAdmin\Util;
 use function implode;
+use function sprintf;
+use PhpMyAdmin\Index;
+use PhpMyAdmin\Dbal\Warning;
+use PhpMyAdmin\Dbal\TableName;
 use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\TableName;
-use PhpMyAdmin\Dbal\Warning;
-use PhpMyAdmin\Index;
 use PhpMyAdmin\Table\Maintenance\Message;
-use PhpMyAdmin\Util;
-use function sprintf;
 
 final class Maintenance
 {
@@ -38,7 +38,7 @@ final class Maintenance
             $backQuotedTables[] = Util::backquote($table->getName());
         }
 
-        $query = 'ANALYZE TABLE '.implode(', ', $backQuotedTables).';';
+        $query = 'ANALYZE TABLE ' . implode(', ', $backQuotedTables) . ';';
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string>> $result */
@@ -66,7 +66,7 @@ final class Maintenance
             $backQuotedTables[] = Util::backquote($table->getName());
         }
 
-        $query = 'CHECK TABLE '.implode(', ', $backQuotedTables).';';
+        $query = 'CHECK TABLE ' . implode(', ', $backQuotedTables) . ';';
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string>> $result */
@@ -94,7 +94,7 @@ final class Maintenance
             $backQuotedTables[] = Util::backquote($table->getName());
         }
 
-        $query = 'CHECKSUM TABLE '.implode(', ', $backQuotedTables).';';
+        $query = 'CHECKSUM TABLE ' . implode(', ', $backQuotedTables) . ';';
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string|null>> $rows */
@@ -138,7 +138,7 @@ final class Maintenance
             $backQuotedTables[] = Util::backquote($table->getName());
         }
 
-        $query = 'OPTIMIZE TABLE '.implode(', ', $backQuotedTables).';';
+        $query = 'OPTIMIZE TABLE ' . implode(', ', $backQuotedTables) . ';';
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string>> $result */
@@ -166,7 +166,7 @@ final class Maintenance
             $backQuotedTables[] = Util::backquote($table->getName());
         }
 
-        $query = 'REPAIR TABLE '.implode(', ', $backQuotedTables).';';
+        $query = 'REPAIR TABLE ' . implode(', ', $backQuotedTables) . ';';
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string>> $result */

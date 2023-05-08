@@ -7,17 +7,16 @@ use App\Category;
 use App\HashTag;
 use App\KeywordSearchVariants;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class CreateHashTags implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $data;
-
 
     /**
      * Create a new job instance.
@@ -32,7 +31,6 @@ class CreateHashTags implements ShouldQueue
     }
 
     /**
-     * @return bool
      * @throws \Exception
      */
     public function handle(): bool

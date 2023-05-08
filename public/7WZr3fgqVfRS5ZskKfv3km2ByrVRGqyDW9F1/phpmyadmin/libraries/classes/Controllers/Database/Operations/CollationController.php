@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Operations;
 
 use function __;
-use PhpMyAdmin\Controllers\Database\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\Database\AbstractController;
 
 final class CollationController extends AbstractController
 {
@@ -58,8 +58,8 @@ final class CollationController extends AbstractController
             return;
         }
 
-        $sql_query = 'ALTER DATABASE '.Util::backquote($db)
-            .' DEFAULT'.Util::getCharsetQueryPart($_POST['db_collation'] ?? '');
+        $sql_query = 'ALTER DATABASE ' . Util::backquote($db)
+            . ' DEFAULT' . Util::getCharsetQueryPart($_POST['db_collation'] ?? '');
         $this->dbi->query($sql_query);
         $message = Message::success();
 
@@ -76,11 +76,11 @@ final class CollationController extends AbstractController
                 }
 
                 $sql_query = 'ALTER TABLE '
-                    .Util::backquote($db)
-                    .'.'
-                    .Util::backquote($tableName)
-                    .' DEFAULT '
-                    .Util::getCharsetQueryPart($_POST['db_collation'] ?? '');
+                    . Util::backquote($db)
+                    . '.'
+                    . Util::backquote($tableName)
+                    . ' DEFAULT '
+                    . Util::getCharsetQueryPart($_POST['db_collation'] ?? '');
                 $this->dbi->query($sql_query);
 
                 /**

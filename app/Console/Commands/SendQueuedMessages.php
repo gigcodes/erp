@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
 use Twilio\Rest\Client;
+use Illuminate\Console\Command;
 
 class SendQueuedMessages extends Command
 {
@@ -46,7 +46,7 @@ class SendQueuedMessages extends Command
                            ->where('chat_messages.message_application_id', 3)
                           ->where(function ($q) {
                               $q->whereNull('chat_messages.scheduled_at')
-                              ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d').'%');
+                              ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
                           })
                            ->select('chat_messages.*', 'c.store_website_id', 'c.phone')
                            ->get();
@@ -60,7 +60,7 @@ class SendQueuedMessages extends Command
                        ->where('chat_messages.message_application_id', 3)
                       ->where(function ($q) {
                           $q->whereNull('chat_messages.scheduled_at')
-                          ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d').'%');
+                          ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
                       })
                        ->select('chat_messages.*', 'c.phone')
                        ->get();
@@ -91,7 +91,7 @@ class SendQueuedMessages extends Command
                 $twilio_number = '+18318880662';
             }
             try {
-                $receiverNumber = '+'.$value['phone'];
+                $receiverNumber = '+' . $value['phone'];
 
                 $message = $value['message'];
                 $client = new Client($account_sid, $auth_token);
@@ -107,7 +107,7 @@ class SendQueuedMessages extends Command
                     'is_queue' => 0,
                 ]);
             } catch (Exception $e) {
-                \Log::info('Sending SMS issue #2215 ->'.$e->getMessage());
+                \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());
             }
         }
     }

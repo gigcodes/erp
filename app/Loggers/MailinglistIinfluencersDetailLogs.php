@@ -10,7 +10,7 @@ class MailinglistIinfluencersDetailLogs extends Model
 
     protected $table = 'mailinglist_iInfluencers_detail_logs';
 
-    protected $fillable = ['mailinglist_iInfluencers_log_id','service','maillist_id','email','name','url','request_data','response_data','message'];
+    protected $fillable = ['mailinglist_iInfluencers_log_id', 'service', 'maillist_id', 'email', 'name', 'url', 'request_data', 'response_data', 'message'];
 
     public static function log($result)
     {

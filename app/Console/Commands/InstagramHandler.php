@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\Http\Controllers\InstagramPostsController;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Http\Controllers\InstagramPostsController;
 
 class InstagramHandler extends Command
 {

@@ -2,29 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\CropAmends;
-use App\CroppedImageReference;
-use App\Helpers\QueryHelper;
-use App\Helpers\StatusHelper;
+use File;
+use App\User;
 use App\Image;
-use App\ListingHistory;
-use App\Product;
-use App\ProductStatus;
-use App\Setting;
 use App\Sizes;
 use App\Stage;
-use App\User;
-use App\UserProductFeedback;
+use App\Product;
+use App\Setting;
+use App\Category;
 use Carbon\Carbon;
-use File;
-use Illuminate\Contracts\Auth\Guard;
+use App\CropAmends;
+use App\ProductStatus;
+use App\ListingHistory;
+use Plank\Mediable\Media;
+use App\Helpers\QueryHelper;
+use App\UserProductFeedback;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Helpers\StatusHelper;
+use App\CroppedImageReference;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 
 class ProductCropperController extends Controller
 {
@@ -139,10 +139,10 @@ class ProductCropperController extends Controller
         $images_no = count($images);
 
         for ($i = 0; $i < 5; $i++) {
-            if ($request->input('oldImage'.$i) != 0) {
-                $validations['image.'.$i] = 'mimes:jpeg,bmp,png,jpg';
+            if ($request->input('oldImage' . $i) != 0) {
+                $validations['image.' . $i] = 'mimes:jpeg,bmp,png,jpg';
 
-                if (empty($request->file('image.'.$i))) {
+                if (empty($request->file('image.' . $i))) {
                     $check_image++;
                 }
             }
@@ -173,13 +173,13 @@ class ProductCropperController extends Controller
     {
         $delete_array = [];
         for ($i = 0; $i < 5; $i++) {
-            if ($request->input('oldImage'.$i) != 0) {
-                $delete_array[] = $request->input('oldImage'.$i);
+            if ($request->input('oldImage' . $i) != 0) {
+                $delete_array[] = $request->input('oldImage' . $i);
             }
 
-            if (! empty($request->file('image.'.$i))) {
-                $media = MediaUploader::fromSource($request->file('image.'.$i))
-                                        ->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+            if (! empty($request->file('image.' . $i))) {
+                $media = MediaUploader::fromSource($request->file('image.' . $i))
+                                        ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
                                         ->upload();
                 $productattribute->attachMedia($media, config('constants.media_tags'));
             }
@@ -420,7 +420,7 @@ class ProductCropperController extends Controller
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                     ->upload();
             $product->attachMedia($media, config('constants.media_tags'));
         }
@@ -499,16 +499,16 @@ class ProductCropperController extends Controller
         // Add new status
         ProductStatus::updateStatus($product->id, 'CROP_APPROVAL_CONFIRMATION', 1);
 
-        if($product){
-        //sets initial status pending for finalApproval in product status histroy 
-         $data = [
-            'product_id' => $product->id,
-            'old_status' => $product->status_id,
-            'new_status' => StatusHelper::$finalApproval,
-            'pending_status' => 1,
-            'created_at' => date('Y-m-d H:i:s'),
-        ];
-        \App\ProductStatusHistory::addStatusToProduct($data); 
+        if ($product) {
+            //sets initial status pending for finalApproval in product status histroy
+            $data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$finalApproval,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($data);
         }
 
         // Set new status
@@ -585,7 +585,7 @@ class ProductCropperController extends Controller
             $s->senior_user_id = Auth::user()->id;
             $s->action = 'CROP_APPROVAL_REJECTED';
             $s->content = ['action' => 'CROP_APPROVAL_REJECTED', 'previous_action' => 'CROP_APPROVAL', 'current_action' => 'CROP_REJECTED', 'message' => 'Your cropping approval has been rejected.'];
-            $s->message = 'Your cropping approval has been rejected. The reason was: '.$request->get('remark');
+            $s->message = 'Your cropping approval has been rejected. The reason was: ' . $request->get('remark');
             $s->product_id = $product->id;
             $s->save();
         }
@@ -746,16 +746,16 @@ class ProductCropperController extends Controller
         $product = Product::findOrFail($id);
 
         $medias = $product->getMedia(config('constants.media_tags'));
-        $zip_file = md5(time()).'.zip';
+        $zip_file = md5(time()) . '.zip';
         $zip = new \ZipArchive();
         $zip->open($zip_file, \ZipArchive::CREATE);
         foreach ($medias as $key => $media) {
             $fileName = $media->getAbsolutePath();
             if ($type === 'cropped' && stripos(strtoupper($media->filename), 'CROPPED') !== false) {
-                $zip->addFile($fileName, $media->filename.'.'.$media->extension);
+                $zip->addFile($fileName, $media->filename . '.' . $media->extension);
             }
             if ($type === 'original' && stripos(strtoupper($media->filename), 'CROPPED') === false) {
-                $zip->addFile($fileName, $media->filename.'.'.$media->extension);
+                $zip->addFile($fileName, $media->filename . '.' . $media->extension);
             }
         }
 

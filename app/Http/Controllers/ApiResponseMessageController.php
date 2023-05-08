@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiResponseMessage;
-use App\ApiResponseMessageValueHistory;
 use App\Setting;
 use App\StoreWebsite;
+use App\ApiResponseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\ApiResponseMessageValueHistory;
 
 class ApiResponseMessageController extends Controller
 {
@@ -18,10 +18,10 @@ class ApiResponseMessageController extends Controller
             $api->where('store_website_id', $request->store_website_id);
         }
         if ($request->api_key != '') {
-            $api->where('key', 'LIKE', '%'.$request->api_key.'%');
+            $api->where('key', 'LIKE', '%' . $request->api_key . '%');
         }
         if ($request->api_value != '') {
-            $api->where('value', 'LIKE', '%'.$request->api_value.'%');
+            $api->where('value', 'LIKE', '%' . $request->api_value . '%');
         }
         $api_response = $api->orderBy('created_at', 'desc')->paginate(Setting::get('pagination'));
         $store_websites = StoreWebsite::orderBy('created_at', 'desc')->get();

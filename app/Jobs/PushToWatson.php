@@ -2,19 +2,19 @@
 
 namespace App\Jobs;
 
+use App\WatsonAccount;
 use App\ChatbotErrorLog;
 use App\ChatbotQuestion;
-use App\ChatbotQuestionExample;
 use App\ChatbotQuestionReply;
-use App\Library\Watson\Language\Workspaces\V1\DialogService;
-use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use App\WatsonAccount;
 use Illuminate\Bus\Queueable;
+use App\ChatbotQuestionExample;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Library\Watson\Language\Workspaces\V1\DialogService;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 
 class PushToWatson implements ShouldQueue
 {
