@@ -46,8 +46,8 @@
                                     </div>
                                     <div class="form-group px-2 googleDocCategory-container">
                                         <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
-                                            @foreach ($googleDocCategory as $key => $category)
-                                                <option value="{{$key}}">{{$category}}</option>
+                                            @foreach ($googleDocCategory as $key => $c)
+                                                <option value="{{$key}}">{{$c}}</option>
                                             @endforeach
                                         </select>
                                     </div>
