@@ -219,57 +219,6 @@ class BlogController extends Controller
     }
 
 
-    public function sitemapXmlFile($id)
-    {
-        $storeWebsite = StoreWebsite::where('id', $id)->first();
-        if (! empty($storeWebsite)) {
-            $blogData = Blog::where('store_website_id', $id)->whereNotNull('url_xml')->get();
-
-
-            return response()->view('Sitemap.blog', [
-                'blogData' => $blogData,
-            ])->header('Content-Type', 'text/xml');
-
-        }
-        return abort(404);
-    }
-
-    public function sitemapXmlDownload($id)
-    {
-        $storeWebsite = StoreWebsite::where('id', $id)->first();
-        if (! empty($storeWebsite)) {
-        $blogData = Blog::where('store_website_id', $id)->whereNotNull('url_xml')->get();
-        $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
-        File::put(public_path().'/blogFile.xml', $output);
-        return Response::make($output, 200)->header('Content-Type', 'application/xml');   
-    }
-        return abort(404);
-    }
-
-
-    public function sitemapWebsiteList(Request $request)
-    {
-        $q = \App\StoreWebsite::query();
-        $q->whereHas('blogs', function($query) {
-            $query->whereNotNull('url_xml');
-        });
-       
-        $totalCount = $q->count();
-        
-        if (! empty($request->date)) {
-            $q->whereDate('created_at', $request->date);
-           
-        }
-        if ($request->search && $request->search != null) {
-            $q->where('website', 'LIKE', "%$request->search%");
-            
-        }
-       
-        $store_website = $q->orderBy('id', 'desc')->paginate(20);
-      
-        return view('Sitemap.index', compact('store_website','totalCount'));
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -393,15 +342,18 @@ class BlogController extends Controller
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
         if (! empty($storeWebsite)) {
             $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->orderBy('id','desc')->get();
-            $FilePath = public_path('sitemap/web_' . $websiteId);
+            if(!empty($blogData)){
+                $FilePath = public_path('sitemap/web_' . $websiteId);
 
-            if (! file_exists($FilePath)) {
-                mkdir($FilePath, 0777, true);
+                if (! file_exists($FilePath)) {
+                    mkdir($FilePath, 0777, true);
+                }
+                $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
+                File::put($FilePath.'/blog.xml', $output);
+                Response::make($output, 200)->header('Content-Type', 'application/xml');
+                return true;
             }
-            $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
-            File::put($FilePath.'/blog.xml', $output);
-            Response::make($output, 200)->header('Content-Type', 'application/xml');
-            return true;
+          
         }
         return true;
     }
