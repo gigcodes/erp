@@ -46,9 +46,6 @@ class CreateHashTags implements ShouldQueue
                     $user_id = $this->data['user_id'];
                     $category_postfix_string_list = $this->data['category_postfix_string_list'];
                     if (count($brand_list) > 0) {
-
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
                         $processed_brand_id_array = [];
 
                         foreach ($brand_list as $id=>$name) {
@@ -87,13 +84,11 @@ class CreateHashTags implements ShouldQueue
                     $user_id = $this->data['user_id'];
 
                     if (!empty($brandList)) {
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
                         $processed_category_id_array = [];
                         foreach ($categoryList as  $category) {
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
-                                    $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
+                                    $generated_string = $brand . ' ' . $category . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
@@ -125,7 +120,6 @@ class CreateHashTags implements ShouldQueue
                     $brands = $this->data['brand_list'];
                     $categories = $this->data['category_list'];
                     $user_id = $this->data['user_id'];
-
                     if (!empty($brands)) {
                         $processed_variant_id_array = [];
                         foreach ($keywordVariants as $keywordVariant) {
