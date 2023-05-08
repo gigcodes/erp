@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
+use App\Brand;
+use App\BrandCategoryPriceRange;
 use App\Category;
 use App\CategorySegment;
-use Illuminate\Http\Request;
-use App\BrandCategoryPriceRange;
+use App\HashTag;
+use App\Jobs\CreateHashTags;
+use App\KeywordSearchVariants;
 use App\ScrappedCategoryMapping;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
@@ -111,7 +115,22 @@ class CategoryController extends Controller
 
         Category::create($input);
 
+        $this->generateHashTagKeywords();
+
         return back()->with('success', 'New Category added successfully.');
+    }
+
+    public function generateHashTagKeywords() {
+        $brandList = Brand::getAll();
+        $keywordVariants = KeywordSearchVariants::list();
+
+        /* Initialize queue for add hashtags */
+        $categoryList = Category::where('is_hashtag_generated', 0)->pluck('title', 'id')->chunk(1000)->toArray();
+
+
+        foreach ($categoryList as $chunk) {
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
+        }
     }
 
     public function edit(Category $category, Request $request)

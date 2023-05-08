@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTitleColumnInPageNotes extends Migration
+class AddIsHashtagGeneratedToCategory extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddTitleColumnInPageNotes extends Migration
      */
     public function up()
     {
-        Schema::table('page_notes', function (Blueprint $table) {
-            $table->string('title')->nullable()->after('note');
-
+        Schema::table('categories', function (Blueprint $table) {
+            $table->boolean('is_hashtag_generated')->default(0)->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ class AddTitleColumnInPageNotes extends Migration
      */
     public function down()
     {
-        Schema::table('page_notes', function (Blueprint $table) {
-            //
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropColumn('is_table_generated');
         });
     }
 }

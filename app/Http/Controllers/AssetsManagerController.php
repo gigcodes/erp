@@ -33,7 +33,7 @@ class AssetsManagerController extends Controller
             $archived = 1;
         }
 
-        $category = DB::table('assets_category')->get();
+        $assets_category = DB::table('assets_category')->get();
 
         $search = request('search', '');
         $paymentCycle = request('payment_cycle', '');
@@ -102,7 +102,7 @@ class AssetsManagerController extends Controller
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
         //dd($users);
-        return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
+        return view('assets-manager.index', compact('assets', 'assets_category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
