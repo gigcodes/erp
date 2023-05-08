@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Category;
-use App\HashTag;
 use App\Jobs\CreateHashTags;
 use Illuminate\Http\Request;
 use App\KeywordSearchVariants;
@@ -50,11 +49,11 @@ class KeywordVariantController extends Controller
         $categoryList = Category::getCategoryHierarchyString(4);
 
         /* Initialize queue for add hashtags */
-        $keywordVariantList = KeywordSearchVariants::where('is_hashtag_generated', 0)->pluck('title', 'id')->chunk(100)->toArray();
+        $keywordVariantList = KeywordSearchVariants::where('is_hashtag_generated', 0)->pluck('keyword', 'id')->chunk(100)->toArray();
 
 
         foreach ($keywordVariantList as $chunk) {
-            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>Auth::user()->id, 'category_List' =>$categoryList, 'brand_list' => $brandList, 'type' => 'keyword_variant'])->onQueue('generategooglescraperkeywords');
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'category_List' =>$categoryList, 'brand_list' => $brandList, 'type' => 'keyword_variant'])->onQueue('generategooglescraperkeywords');
         }
     }
 

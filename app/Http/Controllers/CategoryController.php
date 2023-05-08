@@ -11,10 +11,7 @@ use App\HashTag;
 use App\Jobs\CreateHashTags;
 use App\KeywordSearchVariants;
 use App\ScrappedCategoryMapping;
-use App\Setting;
 use Illuminate\Http\Request;
-use App\BrandCategoryPriceRange;
-use App\ScrappedCategoryMapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
@@ -132,7 +129,7 @@ class CategoryController extends Controller
 
 
         foreach ($categoryList as $chunk) {
-            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
         }
     }
 
