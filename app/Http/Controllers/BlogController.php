@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use View;
+use File;
 use App\Tag;
 use App\User;
+use Response;
 use DataTables;
 use App\Models\Blog;
 use App\StoreWebsite;
 use App\Models\BlogTag;
 use App\Models\BlogHistory;
-use Spatie\Sitemap\Sitemap;
 use Illuminate\Http\Request;
-use Spatie\Sitemap\Tags\Url;
 use Illuminate\Support\Carbon;
 
 class BlogController extends Controller
@@ -217,6 +218,58 @@ class BlogController extends Controller
         return view('blogs.index', compact('users', 'store_website'));
     }
 
+
+    public function sitemapXmlFile($id)
+    {
+        $storeWebsite = StoreWebsite::where('id', $id)->first();
+        if (! empty($storeWebsite)) {
+            $blogData = Blog::where('store_website_id', $id)->whereNotNull('url_xml')->get();
+
+
+            return response()->view('Sitemap.blog', [
+                'blogData' => $blogData,
+            ])->header('Content-Type', 'text/xml');
+
+        }
+        return abort(404);
+    }
+
+    public function sitemapXmlDownload($id)
+    {
+        $storeWebsite = StoreWebsite::where('id', $id)->first();
+        if (! empty($storeWebsite)) {
+        $blogData = Blog::where('store_website_id', $id)->whereNotNull('url_xml')->get();
+        $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
+        File::put(public_path().'/blogFile.xml', $output);
+        return Response::make($output, 200)->header('Content-Type', 'application/xml');   
+    }
+        return abort(404);
+    }
+
+
+    public function sitemapWebsiteList(Request $request)
+    {
+        $q = \App\StoreWebsite::query();
+        $q->whereHas('blogs', function($query) {
+            $query->whereNotNull('url_xml');
+        });
+       
+        $totalCount = $q->count();
+        
+        if (! empty($request->date)) {
+            $q->whereDate('created_at', $request->date);
+           
+        }
+        if ($request->search && $request->search != null) {
+            $q->where('website', 'LIKE', "%$request->search%");
+            
+        }
+       
+        $store_website = $q->orderBy('id', 'desc')->paginate(20);
+      
+        return view('Sitemap.index', compact('store_website','totalCount'));
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -339,31 +392,17 @@ class BlogController extends Controller
     {
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
         if (! empty($storeWebsite)) {
-            $sitemapUrl = "sitemap/web_$websiteId";
+            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->orderBy('id','desc')->get();
+            $FilePath = public_path('sitemap/web_' . $websiteId);
 
-            $baseUrl = url('/');
-
-            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->get();
-
-            $pollsPath = public_path('sitemap/web_' . $websiteId);
-            // $indexPath = public_path('sitemap');
-
-            if (! file_exists($pollsPath)) {
-                mkdir($pollsPath, 0777, true);
+            if (! file_exists($FilePath)) {
+                mkdir($FilePath, 0777, true);
             }
-
-            $pollChildIndex = Sitemap::create();
-            foreach ($blogData as $keys => $poll) {
-                $pollChildIndex->add(
-                    Url::create($poll->url_xml)
-                );
-            }
-
-            $pollChildIndex->writeToFile($pollsPath . '/blog.xml');
-
+            $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
+            File::put($FilePath.'/blog.xml', $output);
+            Response::make($output, 200)->header('Content-Type', 'application/xml');
             return true;
         }
-
         return true;
     }
 
