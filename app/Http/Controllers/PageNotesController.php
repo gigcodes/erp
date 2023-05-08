@@ -2,15 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleAnalyticData;
-use App\PageNotes;
 use App\Setting;
-use App\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-
-//Purpose : Add Setting - DEVTASK-4289
+use Illuminate\Http\Request; //Purpose : Add Setting - DEVTASK-4289
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -68,7 +62,7 @@ class PageNotesController extends Controller
         ->orderBy('page_notes.id', 'desc')
         ->get()
         ->toArray();
-        
+
         return response()->json(['code' => 1, 'notes' => $pageNotes]);
     }
 
@@ -129,45 +123,16 @@ class PageNotesController extends Controller
         ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name']);
 
         //START - Purpose : Add search - DEVTASK-4289
-
-//        dump($request->all());
-        $note_title = $request->note_title;
-        $noteData = $request->note;
-        $records->where(function ($q) use (
-            $note_title,
-            $noteData
-        ) {
-            if ($note_title && count($note_title) > 0) {
-                $q->orWhere(function ($nestedQuery) use ($note_title) {
-                    foreach ($note_title as $value) {
-                        $nestedQuery->orWhere('page_notes.title', 'LIKE', '%'.$value.'%');
-                    }
-                });
-            }
-            if ($noteData && count($noteData) > 0) {
-                $q->orWhere(function ($nestedQuery) use ($noteData) {
-                    foreach ($noteData as $value) {
-                        $nestedQuery->orWhere('page_notes.note', 'LIKE', '%'.$value.'%');
-                    }
-                });
-            }
-        });
-
         if ($request->search) {
             $search = '%' . $request->search . '%';
             $records = $records->where('page_notes.note', 'like', $search);
         }
-
         //END - DEVTASK-4289
 
         $records = $records->paginate(Setting::get('pagination'));
 
-        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
-        $title =  \App\PageNotes::select('title')->distinct()->pluck('title')->toArray();
-        $note =  \App\PageNotes::select('note')->pluck('note')->toArray();
-        
         // return view("pagenotes.index");
-        return view('pagenotes.index', compact('records','category','title','note'));
+        return view('pagenotes.index', compact('records'));
         //END - DEVTASK-4289
     }
 
@@ -198,68 +163,13 @@ class PageNotesController extends Controller
 
     public function notesCreate(Request $request)
     {
-        $this->validate($request, [
-            "url" => "required",
-            "category_id" => "required",
-            "note" => "required",
-            "title" => "required"
+        \App\PageNotes::create([
+            'url' => $request->url,
+            'category_id' => '',
+            'note' => $request->data,
+            'user_id' => \Auth::user()->id,
         ]);
-        try {
-    
-            \App\PageNotes::create([
-                'url' => $request->url,
-                'category_id' => $request->category_id,
-                'note' => $request->note,
-                'title' => $request->title,
-                'user_id' => \Auth::user()->id,
-            ]);
-            // return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
-            return redirect()->back()->withSuccess('Notes Added Successfully.');
-            
-        } catch (\Exception $e) {
-            // return response()->json(['code' => 200, 'message' => $e->getMessage()]);
-            return redirect()->back()->withError($e->getMessage());
-        }
 
-    }
-
-    public function getValue(Request $request)
-    {
-        // dd($request->all());
-        if(isset($request->url) && isset($request->category_id)){
-            $pageNote = PageNotes::where([
-                "url" => $request->url ?? null,
-                "category_id" => $request->category_id ?? null
-            ])->orderBy('id', 'desc')->first();
-            
-            if($pageNote) {
-                return response()->json(['code' => 200, 'data' => $pageNote->note, 'title' => $pageNote->title]);
-            } else {
-                return response()->json(['code' => 200, 'data' => "", 'title' => '']);
-            }
-        } else {
-            return response()->json(['code' => 200, 'data' => "", 'title' => '']);
-        }
-
-    }
-
-    public function createNote(Request $request)
-    {
-        $pageNote = PageNotes::where([
-            "url" => $request->url ?? null,
-            "category_id" => $request->category_id ?? null
-        ])->orderBy('id', 'desc')->first();
-        if (! $pageNote) {
-            $pageNote = new PageNotes;
-            $pageNote->category_id = $request->category_id;
-        }
-
-        $pageNote->url = $request->url ?? "";
-        $pageNote->title = $request->title ?? "";
-        $pageNote->note = $request->note ?? "";
-        $pageNote->user_id = \Auth::user()->id;
-        $pageNote->save();
-
-        return response()->json(['code' => 200, 'data' => []]);
+        return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
     }
 }
