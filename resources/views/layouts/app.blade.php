@@ -1378,7 +1378,7 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="" href="{{ route('store-website.all.status') }}" role="button"
-                                                aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                                aria-haspopup="true" aria-expanded="false">Magento order status<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1540,6 +1540,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}"
                                         role="button">Purchase</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('status-mapping.index') }}"
+                                        role="button">Status Mappings</a>
                                 </li>
                             </ul>
                         </li>

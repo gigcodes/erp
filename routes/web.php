@@ -383,6 +383,7 @@ use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
 use App\Http\Controllers\BingWebMasterController;
 use App\Http\Controllers\GoogleAdsRemarketingController;
+use App\Http\Controllers\StatusMappingController;
 
 Auth::routes();
 
@@ -1375,6 +1376,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('order', OrderController::class);
 
+    Route::resource('status-mapping', StatusMappingController::class);
+
     Route::post('order/payment-history', [OrderController::class, 'paymentHistory'])->name('order.paymentHistory');
     Route::post('order/magento-log-list', [OrderController::class, 'getOrderMagentoErrorLogList'])->name('order.magento.log.list');
 
@@ -1911,6 +1914,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('purchaseproductorders/list', [PurchaseProductController::class, 'purchaseproductorders'])->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', [PurchaseProductController::class, 'purchaseproductorders_update'])->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/purchase-status-change', [PurchaseProductController::class, 'purchaseStatusChange'])->name('purchaseproductorders.purchase-status-change'); //Purpose : Add Route - DEVTASK-23362
     Route::get('purchaseproductorders/logs', [PurchaseProductController::class, 'purchaseproductorders_logs'])->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/flows', [PurchaseProductController::class, 'purchaseproductorders_flows'])->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
