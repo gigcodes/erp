@@ -48,8 +48,7 @@ class PageNotesCategoriesController extends Controller
             'name' => $request->get('name'),
         ]);
 
-        return redirect()->route('pageNotes.viewList')->withSuccess('Page Notes Category Successfully stored.');
-//        return redirect()->back()->withSuccess('Page Notes Category Successfully stored.');
+        return redirect()->back()->withSuccess('Page Notes Category Successfully stored.');
     }
 
     /**

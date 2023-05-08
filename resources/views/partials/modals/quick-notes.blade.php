@@ -9,28 +9,7 @@
             </div>
             <div class="modal-body">
             <!-- data-url="{{ route('notesCreate') }}" -->
-                <div class="form-group">
-                    <strong>Title:</strong>
-                    <input type="text" name="page_note_title" id="page_note_title" value="{{ old('page_note_title') }}" class="form-control input-sm" placeholder="PageNote Title">
-                    @if ($errors->has('page_note_title'))
-                        <div class="alert alert-danger">{{$errors->first('page_note_title')}}</div>
-                    @endif
-                </div>
-                <div class="form-group">
-                    <strong>Category list:</strong>
-
-                    <select class="form-control" name="category_name" id="category_name" required>
-                        @if(!empty($category))
-                            @foreach($category as $key => $val)
-                                <option value="{{$key}}" class="form-control">{{$val}}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-                <div class="form-group">
-                    <strong>Note:</strong>
-                    <textarea id="editor-notes-content"  class="editor-notes-content" name="instruction"></textarea>
-                </div>
+                <textarea id="editor-notes-content"  class="editor-notes-content" name="instruction"></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn_save_notes btn btn-secondary">Save</button>

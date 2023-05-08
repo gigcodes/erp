@@ -18,7 +18,7 @@ class PageNotes extends Model
      * @SWG\Property(property="user_id",type="integer")
      */
     protected $fillable = [
-        'url', 'category_id', 'note', 'user_id', 'title'
+        'url', 'category_id', 'note', 'user_id',
     ];
 
     public function user()
