@@ -21,4 +21,8 @@ class KeywordSearchVariants extends Model
     {
         return self::pluck('keyword', 'id')->toArray();
     }
+
+    public static function updateStatusIsHashtagsGeneratedKeywordVariants($variant_id_array) {
+        \DB::table('keywordSearchVariants')->whereIn('id', $variant_id_array)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+    }
 }
