@@ -3,23 +3,23 @@
 namespace App\Services\Products;
 
 use App\Brand;
-use App\Category;
-use App\ColorNamesReference;
-use App\Compositions;
-use App\DescriptionChange;
-use App\GoogleTranslate;
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use App\Product;
-use App\ProductStatus;
-use App\ScrappedCategoryMapping;
-use App\Setting;
-use App\SkuColorReferences;
-use App\Supplier;
-use App\SupplierBrandCount;
-use App\SupplierCategoryCount;
-use Illuminate\Support\Facades\Log;
 use Validator;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Supplier;
+use App\Compositions;
+use App\ProductStatus;
+use App\GoogleTranslate;
+use App\DescriptionChange;
+use App\SkuColorReferences;
+use App\SupplierBrandCount;
+use App\ColorNamesReference;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\SupplierCategoryCount;
+use App\ScrappedCategoryMapping;
+use Illuminate\Support\Facades\Log;
 
 class ProductsCreator
 {
@@ -36,10 +36,10 @@ class ProductsCreator
         // Do we have a supplier?
         if ($supplierModel == null) {
             // Debug
-            Log::channel('productUpdates')->debug('[Error] Supplier is null '.$image->website);
+            Log::channel('productUpdates')->debug('[Error] Supplier is null ' . $image->website);
             // check if the object is related to scraped product then we will add the error over there
             $image->validated = 0;
-            $image->validation_result = '[Error] Supplier is null '.$image->website.' while adding sku '.$image->sku;
+            $image->validation_result = '[Error] Supplier is null ' . $image->website . ' while adding sku ' . $image->sku;
             $image->save();
             // Return false
             return false;
@@ -61,7 +61,7 @@ class ProductsCreator
             $description_details = splitTextIntoSentences($image->description);
             $image->description = \App\Http\Controllers\GoogleTranslateController::translateProducts($tr, 'en', $description_details);
         }
-      
+
         // Get formatted data
         $formattedPrices = $this->formatPrices($image);
         $formattedDetails = $this->getGeneralDetails($image->properties, $image);
@@ -107,7 +107,7 @@ class ProductsCreator
         // Product validated
         if ($validator->fails()) {
             // Debug
-            Log::channel('productUpdates')->debug('[validator] fails - sku exists '.ProductHelper::getSku($image->sku));
+            Log::channel('productUpdates')->debug('[validator] fails - sku exists ' . ProductHelper::getSku($image->sku));
 
             // Try to get the product from the database
             if ($image->product_id > 0) {
@@ -120,7 +120,7 @@ class ProductsCreator
                 // Debug
                 Log::channel('productUpdates')->debug('[Error] No product!');
                 $image->validated = 0;
-                $image->validation_result = '[Error] No product! '.$image->website.' while adding sku '.$image->sku;
+                $image->validation_result = '[Error] No product! ' . $image->website . ' while adding sku ' . $image->sku;
                 $image->save();
                 // Return false
                 return false;
@@ -143,6 +143,15 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for autoCrop
+            $auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autoCrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($auto_crop_status);
 
             // Is the product not approved yet?
             if (! StatusHelper::isApproved($image->status_id)) {
@@ -270,7 +279,7 @@ class ProductsCreator
             $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
-            \Log::channel('productUpdates')->info('Saved product id :'.$product->id);
+            \Log::channel('productUpdates')->info('Saved product id :' . $product->id);
 
             // check for the auto crop
             $needToCheckStatus = [
@@ -284,49 +293,32 @@ class ProductsCreator
 
             if (! in_array($product->status_id, $needToCheckStatus)) {
                 $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
-            } 
+            }
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
 
                 $product->save();
             }
 
-            // sets initial status pending for scrape
-            $scrap_status_data = [
-                'product_id' => $product->id,
-                'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$scrape,
-                'pending_status' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            // sets initial status pending for isBeingScrape
-            $scrap_status_data = [
-                'product_id' => $product->id,
-                'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$isBeingScraped,
-                'pending_status' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            
             // Initially save status scrape in Product_status_history
             $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            
-             // If status is scrape then change status to isBeingScrape in Product_status_history
-                $scrap_status_data = [
-                    'product_id' => $product->id,
-                    'old_status' => StatusHelper::$scrape,
-                    'new_status' => StatusHelper::$isBeingScraped,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ];
-                \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+            // If status is scrape then change status to isBeingScrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
@@ -413,14 +405,14 @@ class ProductsCreator
 
             return;
         } else {
-            Log::channel('productUpdates')->debug('[validator] success - new sku '.ProductHelper::getSku($image->sku));
+            Log::channel('productUpdates')->debug('[validator] success - new sku ' . ProductHelper::getSku($image->sku));
             $product = new Product;
         }
 
         if ($product === null) {
             Log::channel('productUpdates')->debug('[Skipped] Product is null');
             $image->validated = 0;
-            $image->validation_result = '[Skipped] Product is null '.$image->website.' while adding sku '.$image->sku;
+            $image->validation_result = '[Skipped] Product is null ' . $image->website . ' while adding sku ' . $image->sku;
             $image->save();
 
             return;
@@ -510,8 +502,8 @@ class ProductsCreator
 
         try {
             $product->save();
-             // sets initial status pending for scrape
-             $scrap_status_data = [
+            // sets initial status pending for scrape
+            $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
@@ -528,21 +520,32 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            
+            // sets initial status pending for autoCrop
+            $pending_auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autocrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($pending_auto_crop_status);
+
             // Initially save status scrape in Product_status_history when validator failed
             $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
-              // If status is scrape then change status to isBeingScrape in Product_status_history
-              $scrap_status_data = [
+            // If status is scrape then change status to isBeingScrape in Product_status_history
+            $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => StatusHelper::$scrape,
                 'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
@@ -556,13 +559,13 @@ class ProductsCreator
             $product->checkExternalScraperNeed();
             $product->isNeedToIgnore();
 
-            Log::channel('productUpdates')->debug('[New] Product created with ID '.$product->id);
+            Log::channel('productUpdates')->debug('[New] Product created with ID ' . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");
             Log::channel('productUpdates')->alert($exception->getMessage());
 
             $image->validated = 0;
-            $image->validation_result = "[Exception] Couldn't create product ".$exception->getMessage().' while adding sku '.$image->sku;
+            $image->validation_result = "[Exception] Couldn't create product " . $exception->getMessage() . ' while adding sku ' . $image->sku;
             $image->save();
 
             return;
@@ -687,7 +690,7 @@ class ProductsCreator
                         $newSize[] = $size;
                     } else {
                         //check in reference
-                        $ifSizeExist = \App\Size::where('references', 'LIKE', '%'.$size.'%')->first();
+                        $ifSizeExist = \App\Size::where('references', 'LIKE', '%' . $size . '%')->first();
                         if ($ifSizeExist) {
                             $references = $ifSizeExist->references;
                             $referenceArray = explode(',', $references);
@@ -700,7 +703,7 @@ class ProductsCreator
                             }
                             if ($found == 0) {
                                 //check if it exist in unknown
-                                $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%'.$size.'%')->first();
+                                $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%' . $size . '%')->first();
                                 if ($ifExistInUnknown) {
                                 } else {
                                     //save unknown size
@@ -711,7 +714,7 @@ class ProductsCreator
                             }
                         } else {
                             //check if it exist in unknown
-                            $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%'.$size.'%')->first();
+                            $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%' . $size . '%')->first();
                             if ($ifExistInUnknown) {
                             } else {
                                 //save unknown size

@@ -44,8 +44,8 @@ class SendEmailNewsletter extends Command
         //$newsletters = Newsletter::where("id",2)->get();
 
         foreach ($newsletters as $newsletter) {
-            $template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
-
+            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            $template = $newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
 
@@ -68,7 +68,7 @@ class SendEmailNewsletter extends Command
 
                             curl_setopt_array($curl, [
                                 //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                                CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/'.$mailinglist->remote_id.'?api_token='.config('env.ACELLE_MAIL_API_TOKEN'),
+                                CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/' . $mailinglist->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,

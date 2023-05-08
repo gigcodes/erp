@@ -137,6 +137,11 @@ class Supplier extends Model
         return $this->hasMany(\App\SupplierCategory::class);
     }
 
+    public function supplier_category()
+    {
+        return $this->belongsTo(\App\SupplierCategory::class, 'supplier_category_id', 'id');
+    }
+
     public function status()
     {
         return $this->belongsToMany(\App\SupplierStatus::class, 'supplier_status', 'supplier_status_id', 'id');
@@ -192,7 +197,7 @@ class Supplier extends Model
             $supp = str_replace('_excel', '', $supp);
             if (strpos($this->email, $supp) !== false) {
                 if ($supp != 'master') {
-                    return $supplier = $supp.'_excel';
+                    return $supplier = $supp . '_excel';
                 } else {
                     return $supplier = $supp;
                 }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use PhpMyAdmin\DbTableExists;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\DbTableExists;
 
 final class DropColumnConfirmationController extends AbstractController
 {

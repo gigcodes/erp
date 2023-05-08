@@ -7,13 +7,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function hexdec;
-use function json_encode;
-use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
 use TCPDF;
 use function trim;
+use function round;
+use function hexdec;
+use function mb_substr;
+use function json_encode;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS POINT objects
@@ -175,7 +175,7 @@ class GisPoint extends GisGeometry
     {
         $point_options = [
             'name' => $label,
-            'id' => $label.$this->getRandomId(),
+            'id' => $label . $this->getRandomId(),
             'class' => 'point vector',
             'fill' => 'white',
             'stroke' => $point_color,
@@ -188,10 +188,10 @@ class GisPoint extends GisGeometry
 
         $row = '';
         if (((float) $points_arr[0][0]) !== 0.0 && ((float) $points_arr[0][1]) !== 0.0) {
-            $row .= '<circle cx="'.$points_arr[0][0]
-                .'" cy="'.$points_arr[0][1].'" r="3"';
+            $row .= '<circle cx="' . $points_arr[0][0]
+                . '" cy="' . $points_arr[0][1] . '" r="3"';
             foreach ($point_options as $option => $val) {
-                $row .= ' '.$option.'="'.trim((string) $val).'"';
+                $row .= ' ' . $option . '="' . trim((string) $val) . '"';
             }
 
             $row .= '/>';
@@ -223,23 +223,23 @@ class GisPoint extends GisGeometry
             'color' => $point_color,
             'width' => 2,
         ];
-        $result = 'var fill = new ol.style.Fill('.json_encode($fill_style).');'
-            .'var stroke = new ol.style.Stroke('.json_encode($stroke_style).');'
-            .'var style = new ol.style.Style({'
-            .'image: new ol.style.Circle({'
-            .'fill: fill,'
-            .'stroke: stroke,'
-            .'radius: 3'
-            .'}),'
-            .'fill: fill,'
-            .'stroke: stroke';
+        $result = 'var fill = new ol.style.Fill(' . json_encode($fill_style) . ');'
+            . 'var stroke = new ol.style.Stroke(' . json_encode($stroke_style) . ');'
+            . 'var style = new ol.style.Style({'
+            . 'image: new ol.style.Circle({'
+            . 'fill: fill,'
+            . 'stroke: stroke,'
+            . 'radius: 3'
+            . '}),'
+            . 'fill: fill,'
+            . 'stroke: stroke';
 
         if (trim($label) !== '') {
             $text_style = [
                 'text' => trim($label),
                 'offsetY' => -9,
             ];
-            $result .= ',text: new ol.style.Text('.json_encode($text_style).')';
+            $result .= ',text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $result .= '});';
@@ -256,9 +256,9 @@ class GisPoint extends GisGeometry
 
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
             $result .= 'var point = new ol.Feature({geometry: '
-                .$this->getPointForOpenLayers($points_arr[0], $srid).'});'
-                .'point.setStyle(style);'
-                .'vectorLayer.addFeature(point);';
+                . $this->getPointForOpenLayers($points_arr[0], $srid) . '});'
+                . 'point.setStyle(style);'
+                . 'vectorLayer.addFeature(point);';
         }
 
         return $result;
@@ -275,13 +275,13 @@ class GisPoint extends GisGeometry
     public function generateWkt(array $gis_data, $index, $empty = '')
     {
         return 'POINT('
-        .(isset($gis_data[$index]['POINT']['x'])
+        . (isset($gis_data[$index]['POINT']['x'])
             && trim((string) $gis_data[$index]['POINT']['x']) != ''
             ? $gis_data[$index]['POINT']['x'] : '')
-        .' '
-        .(isset($gis_data[$index]['POINT']['y'])
+        . ' '
+        . (isset($gis_data[$index]['POINT']['y'])
             && trim((string) $gis_data[$index]['POINT']['y']) != ''
-            ? $gis_data[$index]['POINT']['y'] : '').')';
+            ? $gis_data[$index]['POINT']['y'] : '') . ')';
     }
 
     /**
@@ -292,8 +292,8 @@ class GisPoint extends GisGeometry
      */
     public function getShape(array $row_data)
     {
-        return 'POINT('.($row_data['x'] ?? '')
-        .' '.($row_data['y'] ?? '').')';
+        return 'POINT(' . ($row_data['x'] ?? '')
+        . ' ' . ($row_data['y'] ?? '') . ')';
     }
 
     /**

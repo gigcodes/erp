@@ -32,7 +32,7 @@ class OrderCancellationMail extends Mailable
      */
     public function build()
     {
-        $subject = 'Order # '.$this->order->order_id.' has been cancelled';
+        $subject = 'Order # ' . $this->order->order_id . ' has been cancelled';
         $order = $this->order;
 
         $customer = $order->customer;

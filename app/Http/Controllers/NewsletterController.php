@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Newsletter;
-use App\NewsletterProduct;
 use App\StoreWebsite;
+use App\GoogleTranslate;
+use App\NewsletterProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -53,7 +54,7 @@ class NewsletterController extends Controller
             $records = $records->whereDate('newsletters.sent_at', '=', $sent_at);
         }
 
-        $records = $records->groupBy('newsletters.id')->select(['newsletters.*', 'u.name as updated_by', 'm.name as mailinglist_name'])->latest()->paginate();
+        $records = $records->groupBy('newsletters.id')->select(['newsletters.*', 'u.name as updated_by_name', 'm.name as mailinglist_name'])->latest()->paginate();
 
         $store_websites = StoreWebsite::where('website_source', '=', 'shopify')->get();
 
@@ -77,6 +78,7 @@ class NewsletterController extends Controller
             }
             $rec->product_images = $images;
             $rec->store_websiteName = ($rec->storeWebsite) ? $rec->storeWebsite->website : '';
+            $rec->mailinglist_template_name = ($rec->mailinglistTemplate) ? $rec->mailinglistTemplate->name : '';
             $items[] = $rec;
         }
 
@@ -105,6 +107,7 @@ class NewsletterController extends Controller
         if (count($needToSave) > 0) {
             $newsletter = new Newsletter;
             $newsletter->subject = 'DRAFT';
+            $newsletter->language = 'English';
             $newsletter->updated_by = auth()->user()->id;
             if ($newsletter->save()) {
                 foreach ($needToSave as $ns) {
@@ -117,7 +120,7 @@ class NewsletterController extends Controller
         }
 
         if (count($errorMessage) > 0) {
-            return redirect()->route('newsletters.index')->withError('There was some issue for given products : '.implode('<br>', $errorMessage));
+            return redirect()->route('newsletters.index')->withError('There was some issue for given products : ' . implode('<br>', $errorMessage));
         }
 
         return redirect()->route('newsletters.index')->withSuccess('You have successfully added newsletter products!');
@@ -137,7 +140,7 @@ class NewsletterController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -162,7 +165,6 @@ class NewsletterController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -181,7 +183,6 @@ class NewsletterController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -213,7 +214,8 @@ class NewsletterController extends Controller
         $newsletter = Newsletter::find($id);
 
         if ($newsletter) {
-            $template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            $template = $newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
                 if (! $products->isEmpty()) {
@@ -232,5 +234,61 @@ class NewsletterController extends Controller
 
         echo 'No Preview found';
         exit;
+    }
+
+    public function translate($id, Request $request)
+    {
+        $newsletter = Newsletter::find($id);
+
+        if ($newsletter) {
+            if (is_null($newsletter->translated_from)) {
+                if (is_null($newsletter->language)) {
+                    $newsletter->language = 'English';
+                    $newsletter->save();
+                }
+                $products = [];
+                if (! $newsletter->products->isEmpty()) {
+                    $products = $newsletter->products->pluck('id')->toArray();
+                }
+
+                $languages = \App\Language::where('status', 1)->get();
+                foreach ($languages as $l) {
+                    if (strtolower($newsletter->language) != strtolower($l->name)) {
+                        $newsletterExist = Newsletter::where('translated_from', $newsletter->id)->where('store_website_id', $newsletter->store_website_id)->where('language', $l->name)->first();
+                        if (! $newsletterExist) {
+                            $newNewsletter = new \App\Newsletter;
+                        } else {
+                            $newNewsletter = \App\Newsletter::find($newsletterExist->id);
+                        }
+
+                        $subject = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$newsletter->subject]
+                        );
+                        $newNewsletter->subject = ! empty($subject) ? $subject : $newsletter->subject;
+                        $newNewsletter->language = $l->name;
+                        $newNewsletter->translated_from = $newsletter->id;
+                        $newNewsletter->store_website_id = $newsletter->store_website_id;
+                        $newNewsletter->sent_at = $newsletter->sent_at;
+                        $newNewsletter->sent_on = $newsletter->sent_on;
+                        $newNewsletter->mail_list_id = $newsletter->mail_list_id;
+                        $newNewsletter->mail_list_temp_id = $newsletter->mail_list_temp_id;
+                        $newNewsletter->updated_by = auth()->user()->id;
+                        $newNewsletter->save();
+                        activity()->causedBy(auth()->user())->performedOn($newsletter)->log('newsletter ' . $newsletter->id . ' translated to ' . $l->name);
+                        if (! empty($products)) {
+                            $newNewsletter->products()->sync($products);
+                        }
+                    }
+                }
+
+                return response()->json(['code' => 200, 'message' => 'Newsletter translated successfully']);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'This Newsletter is already translated from other']);
+            }
+        }
+
+        return response()->json(['code' => 500, 'message' => 'Newsletter Not found!']);
     }
 }

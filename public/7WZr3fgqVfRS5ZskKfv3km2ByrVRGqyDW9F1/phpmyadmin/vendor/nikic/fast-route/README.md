@@ -1,11 +1,9 @@
-FastRoute - Fast request router for PHP
-=======================================
+# FastRoute - Fast request router for PHP
 
 This library provides a fast implementation of a regular expression based router. [Blog post explaining how the
 implementation works and why it is fast.][blog_post]
 
-Install
--------
+## Install
 
 To install with composer:
 
@@ -15,8 +13,7 @@ composer require nikic/fast-route
 
 Requires PHP 5.4 or newer.
 
-Usage
------
+## Usage
 
 Here's a basic usage example:
 
@@ -154,11 +151,11 @@ $r->addGroup('/admin', function (RouteCollector $r) {
 
 Will have the same result as:
 
- ```php
+```php
 $r->addRoute('GET', '/admin/do-something', 'handler');
 $r->addRoute('GET', '/admin/do-another-thing', 'handler');
 $r->addRoute('GET', '/admin/do-something-else', 'handler');
- ```
+```
 
 Nested groups are also supported, in which case the prefixes of all the nested groups are combined.
 
@@ -198,8 +195,8 @@ the supplied URI. For example:
     [FastRoute\Dispatcher::METHOD_NOT_ALLOWED, ['GET', 'POST']]
 
 > **NOTE:** The HTTP specification requires that a `405 Method Not Allowed` response include the
-`Allow:` header to detail available methods for the requested resource. Applications using FastRoute
-should use the second array element to add this header when relaying a 405 response.
+> `Allow:` header to detail available methods for the requested resource. Applications using FastRoute
+> should use the second array element to add this header when relaying a 405 response.
 
 For the found status the second array element is the handler that was associated with the route
 and the third array element is a dictionary of placeholder names to their values. For example:
@@ -295,7 +292,7 @@ from HEAD responses so this behavior has no effect on the vast majority of users
 
 However, implementers using FastRoute outside the web SAPI environment (e.g. a custom server) MUST
 NOT send entity bodies generated in response to HEAD requests. If you are a non-SAPI user this is
-*your responsibility*; FastRoute has no purview to prevent you from breaking HTTP in such cases.
+_your responsibility_; FastRoute has no purview to prevent you from breaking HTTP in such cases.
 
 Finally, note that applications MAY always specify their own HEAD method route for a given
 resource to bypass this behavior entirely.
@@ -305,7 +302,6 @@ resource to bypass this behavior entirely.
 This library is based on a router that [Levi Morrison][levi] implemented for the Aerys server.
 
 A large number of tests, as well as HTTP compliance considerations, were provided by [Daniel Lowrey][rdlowrey].
-
 
 [2616-511]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1.1 "RFC 2616 Section 5.1.1"
 [blog_post]: http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html

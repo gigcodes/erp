@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\BugEnvironment;
-use App\BugSeverity;
-use App\BugStatus;
-use App\BugType;
-use App\ChatMessage;
-use App\SiteDevelopmentCategory;
-use App\StoreWebsite;
-use App\TestSuites;
-use App\TestSuitesHistory;
 use App\User;
+use App\BugType;
+use App\BugStatus;
+use App\TestSuites;
+use App\BugSeverity;
+use App\ChatMessage;
+use App\StoreWebsite;
+use App\BugEnvironment;
+use App\TestSuitesHistory;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\SiteDevelopmentCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class TestSuitesController extends Controller
 {
@@ -240,7 +240,7 @@ class TestSuitesController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -287,7 +287,7 @@ class TestSuitesController extends Controller
             return response()->json(['code' => 200, 'data' => $bug, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
-            \Log::error('Test Suites Request Delete Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            \Log::error('Test Suites Request Delete Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
             $this->BugErrorLog($request->id ?? '', 'Test Suites Request Delete Error', $msg, 'bug_tracker');
 
             return response()->json(['code' => 500, 'message' => $msg]);
@@ -339,7 +339,7 @@ class TestSuitesController extends Controller
     {
         $bugHistory = TestSuitesHistory::where('test_suites_id', $id)->get();
         $bugHistory = $bugHistory->map(function ($bug) {
-            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name').' '.$bug->bug_environment_ver;
+            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name') . ' ' . $bug->bug_environment_ver;
             $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
             $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
             $bug->bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
@@ -463,7 +463,7 @@ class TestSuitesController extends Controller
     {
         $messages = ChatMessage::where('test_suites_id', $id)->orderBy('id', 'desc')->get();
         $messages = $messages->map(function ($message) {
-            $message->user_name = 'From '.User::where('id', $message->user_id)->value('name').' to '.User::where('id', $message->send_to_user_id)->value('name').' '.\Carbon\Carbon::parse($message->created_at)->format('Y-m-d H:i A');
+            $message->user_name = 'From ' . User::where('id', $message->user_id)->value('name') . ' to ' . User::where('id', $message->send_to_user_id)->value('name') . ' ' . \Carbon\Carbon::parse($message->created_at)->format('Y-m-d H:i A');
 
             return $message;
         });

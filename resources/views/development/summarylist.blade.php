@@ -188,14 +188,13 @@
                     </div>
 
                     @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm">
-                            <select class="form-control globalSelect2" data-ajax="{{ route('development.userslist') }}" multiple name="assigned_to[]" id="assigned_to" data-placeholder="Search Users By Name">
-                                <option value="">Assigned To</option>
-                                @if($userslist)
-                                    @foreach ($userslist as $id => $user)
-                                        <option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
-                                    @endforeach
-                                @endif
+                        <div class="col-md-2 pd-sm custom-select2">
+                            <select class="w-100 js-example-basic-multiple js-states"
+                                id="assigned_to" multiple="multiple" name="assigned_to[]" data-placeholder="Search Users By Name">
+                                @foreach ($users as $id => $user)
+                                    <option @if($request->get('assigned_to')){{ (in_array($id, $request->get('assigned_to'))) ? 'selected' : '' }}@endif
+                                            value="{{ $id }}">{{ $user }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-2 pd-sm">
@@ -404,6 +403,7 @@
             </div>
         </div>
     </div>
+    @include("development.partials.add-docs-permission")
 
 @endsection
 
@@ -419,6 +419,38 @@
     <script type="text/javascript">
         jQuery(document).ready(function() {
             applyDateTimePicker(jQuery('.cls-start-due-date'));
+            
+            $(".add-document-permission").click(function (e) { 
+                e.preventDefault();
+                let user_id = $(this).data("assigned_to")
+                let task_id = $(this).data("task_id")
+                let task_type = $(this).data("task_type")
+                $("#addGoogleDocPermission").find('input[name=user_id]').val(user_id);
+                $("#addGoogleDocPermission").find('input[name=task_id]').val(task_id);
+                $("#addGoogleDocPermission").find('input[name=task_type]').val(task_type);
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('google-docs.list')}}",
+                    data: "data",
+                    success: function (response) {
+                        if(response.status == true) {
+                            $("#assignDocumentList").html('').select2({
+                                width: "100%", 
+                                data: response.docs,
+                                placeholder: "Select"
+                            });
+                            $("#addGoogleDocPermission").modal("show");
+                            $("#assignDocumentList").val(null).trigger('change');
+                        } else {
+                            toastr['error']('Error while fetching the data.', 'Error');
+                        }
+                    },
+                    error: function(error) {
+                        toastr['error']('Error while fetching the data.', 'Error');
+                    }
+                });
+            });
+
         });
         function applyDateTimePicker(eles) {
             if (eles.length) {
@@ -1918,6 +1950,6 @@
                 });
         }
 
-
+    $("#assigned_to").select2();
     </script>
 @endsection

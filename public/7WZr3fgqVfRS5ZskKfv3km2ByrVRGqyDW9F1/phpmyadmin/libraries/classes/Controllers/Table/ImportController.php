@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
+use PhpMyAdmin\Url;
 use function intval;
-use function is_numeric;
-use PhpMyAdmin\Charsets;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Encoding;
+use PhpMyAdmin\Util;
 use PhpMyAdmin\Import;
-use PhpMyAdmin\Import\Ajax;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Plugins;
-use PhpMyAdmin\ResponseRenderer;
+use function is_numeric;
+use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Encoding;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
+use PhpMyAdmin\Import\Ajax;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Config\PageSettings;
 
 final class ImportController extends AbstractController
 {

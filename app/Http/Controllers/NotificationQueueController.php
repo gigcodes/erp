@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers;
-use App\Instruction;
-use App\Leads;
-use App\NotificationQueue;
-use App\Order;
-use App\PushNotification;
 use App\Sale;
 use App\Task;
 use App\User;
+use App\Leads;
+use App\Order;
+use App\Helpers;
+use App\Instruction;
+use App\PushNotification;
+use App\NotificationQueue;
 use Illuminate\Support\Facades\DB;
 
 class NotificationQueueController extends Controller
@@ -162,11 +162,11 @@ class NotificationQueueController extends Controller
         if ($is_correct_hr >= 10 && $is_correct_hr <= 19) {
             $user_ids = Helpers::getAllUserIdsWithoutRole();
 
-            $hrs = date('h a', strtotime('-1 hours', time())).' - '.date('h a', time());
+            $hrs = date('h a', strtotime('-1 hours', time())) . ' - ' . date('h a', time());
 
             foreach ($user_ids as $id) {
                 PushNotification::create([
-                    'message' => 'Input Activity for '.$hrs,
+                    'message' => 'Input Activity for ' . $hrs,
                     'role' => '',
                     'user_id' => $id,
                     'sent_to' => $id,

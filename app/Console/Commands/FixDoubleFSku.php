@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class FixDoubleFSku extends Command
@@ -71,7 +71,7 @@ class FixDoubleFSku extends Command
                 }
 
                 $colorCode = $colorCode[1];
-                $sku2 = $sku.$colorCode;
+                $sku2 = $sku . $colorCode;
 
                 Product::where('sku', $sku)->update([
                     'sku' => $sku2,

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\SysInfo;
 
-use function in_array;
 use const PHP_OS;
 use function ucfirst;
+use function in_array;
 
 /**
  * Library for extracting information about system memory and cpu.

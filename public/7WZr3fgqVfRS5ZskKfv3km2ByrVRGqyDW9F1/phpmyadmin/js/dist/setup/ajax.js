@@ -7,5 +7,5 @@ var AJAX = {
   registerOnload: function (idx, func) {
     $(func);
   },
-  registerTeardown: function (idx, func) {}
+  registerTeardown: function (idx, func) {},
 };

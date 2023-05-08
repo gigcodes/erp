@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\ChatMessagesQuickData;
+use App\Task;
+use App\User;
+use App\Remark;
 use App\Contact;
-use App\DeveloperTask;
-use App\DeveloperTaskHistory;
-use App\DocumentRemark;
 use App\Helpers;
-use App\Helpers\HubstaffTrait;
-use App\Hubstaff\HubstaffMember;
-use App\Hubstaff\HubstaffTask;
+use App\Setting;
 use App\Learning;
-use App\LearningDueDateHistory;
+use App\TaskStatus;
+use App\ChatMessage;
+use App\SatutoryTask;
+use App\DeveloperTask;
+use App\WhatsAppGroup;
+use GuzzleHttp\Client;
+use App\DocumentRemark;
 use App\LearningModule;
-use App\LearningStatusHistory;
-use App\NotificationQueue;
 use App\PaymentReceipt;
 use App\PushNotification;
-use App\Remark;
-use App\SatutoryTask;
 use App\ScheduledMessage;
-use App\Setting;
-use App\Task;
-use App\TaskStatus;
-use App\User;
-use App\WhatsAppGroup;
+use App\NotificationQueue;
 use App\WhatsAppGroupNumber;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\DeveloperTaskHistory;
+use App\ChatMessagesQuickData;
+use App\Helpers\HubstaffTrait;
+use App\Hubstaff\HubstaffTask;
+use App\LearningStatusHistory;
+use GuzzleHttp\RequestOptions;
+use App\LearningDueDateHistory;
+use App\Hubstaff\HubstaffMember;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use GuzzleHttp\Exception\ClientException;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class LearningModuleController extends Controller
@@ -50,10 +50,10 @@ class LearningModuleController extends Controller
     {
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = '.$userid.' OR  master_user_id = '.$userid.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = '.$userid.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
+            $userquery = ' AND (master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -73,8 +73,8 @@ class LearningModuleController extends Controller
             } else {
                 $category_condition = implode(',', $activeCategories);
                 if ($category_condition != '' || $category_condition != null) {
-                    $category_condition = '( '.$category_condition.' )';
-                    $categoryWhereClause = 'AND category in '.$category_condition;
+                    $category_condition = '( ' . $category_condition . ' )';
+                    $categoryWhereClause = 'AND category in ' . $category_condition;
                 } else {
                     $categoryWhereClause = '';
                 }
@@ -85,7 +85,7 @@ class LearningModuleController extends Controller
         $searchWhereClause = '';
 
         if ($request->term != '') {
-            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%")))';
+            $searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
         }
         // if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
         //     $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
@@ -145,7 +145,7 @@ class LearningModuleController extends Controller
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = learnings.id
 			) AS learnings
-			WHERE (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (id IS NOT NULL) AND is_statutory != 1 ' . $isCompleteWhereClose . $userquery . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . '; ');
 
             foreach ($data['task']['pending'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -157,7 +157,7 @@ class LearningModuleController extends Controller
             $user_ids_to = array_unique($assign_to_arr);
 
             foreach ($data['task']['pending'] as $task) {
-                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
                 $from_exist = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
@@ -204,7 +204,7 @@ class LearningModuleController extends Controller
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = learnings.id
                 ) AS learnings
-                WHERE (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL ' . $userquery . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';');
 
             foreach ($data['task']['completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -216,7 +216,7 @@ class LearningModuleController extends Controller
             $user_ids_to = array_unique($assign_to_arr);
 
             foreach ($data['task']['completed'] as $task) {
-                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
                 $from_exist = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
@@ -265,7 +265,7 @@ class LearningModuleController extends Controller
 	                 ) AS chat_messages ON chat_messages.task_id = learnings.id
 
 	               ) AS learnings
-				   WHERE (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery.$categoryWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL ' . $userquery . $categoryWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';');
 
             foreach ($data['task']['statutory_not_completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -277,7 +277,7 @@ class LearningModuleController extends Controller
             $user_ids_to = array_unique($assign_to_arr);
 
             foreach ($data['task']['statutory_not_completed'] as $task) {
-                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
                 $from_exist = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
@@ -586,7 +586,7 @@ class LearningModuleController extends Controller
             $i = 1;
 
             foreach ($developerTask as $value) {
-                $message .= $i.' : #Task-'.$value->id.'-'.$value->task_subject."\n";
+                $message .= $i . ' : #Task-' . $value->id . '-' . $value->task_subject . "\n";
                 $i++;
             }
 
@@ -599,10 +599,10 @@ class LearningModuleController extends Controller
                 $string = '';
 
                 if (! empty($request->get('global_remarkes', null))) {
-                    $string .= $request->get('global_remarkes')."\n";
+                    $string .= $request->get('global_remarkes') . "\n";
                 }
 
-                $string .= "Task Priority is : \n".$message;
+                $string .= "Task Priority is : \n" . $message;
 
                 $params['message'] = $string;
                 $params['status'] = 2;
@@ -674,9 +674,9 @@ class LearningModuleController extends Controller
         }
 
         if ($task->is_statutory != 1) {
-            $message = '#'.$task->id.'. '.$task->task_subject.'. '.$task->task_details;
+            $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
         } else {
-            $message = $task->task_subject.'. '.$task->task_details;
+            $message = $task->task_subject . '. ' . $task->task_details;
         }
 
         $params = [
@@ -803,7 +803,7 @@ class LearningModuleController extends Controller
         $tokens = $this->getTokens();
         // echo '<pre>';print_r($tokens);
 
-        $url = 'https://api.hubstaff.com/v2/projects/'.$projectId.'/learnings';
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/learnings';
 
         $httpClient = new Client();
         try {
@@ -822,7 +822,7 @@ class LearningModuleController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -938,7 +938,7 @@ class LearningModuleController extends Controller
 
         $params = [
             'user_id' => Auth::id(),
-            'message' => 'Reminder - '.$message->message,
+            'message' => 'Reminder - ' . $message->message,
             'type' => 'task',
             'data' => json_encode($additional_params),
             'sending_time' => $request->reminder_date,
@@ -1016,7 +1016,7 @@ class LearningModuleController extends Controller
                                                 ->renderAsDropdown();
 
         if (request()->has('keyword')) {
-            $taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->where('remark', 'like', '%'.request()->keyword.'%')->paginate(20);
+            $taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->where('remark', 'like', '%' . request()->keyword . '%')->paginate(20);
         } else {
             $taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->paginate(20);
         }
@@ -1228,7 +1228,7 @@ class LearningModuleController extends Controller
             $task->save();
         }
 
-        $message = 'Statutory Task Completed: '.$task->task_details;
+        $message = 'Statutory Task Completed: ' . $task->task_details;
 
         // $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\StatutoryTask')->delete();
 
@@ -1443,8 +1443,8 @@ class LearningModuleController extends Controller
     public function exportTask(Request $request)
     {
         $users = $request->input('selected_user');
-        $from = $request->input('range_start').' 00:00:00.000000';
-        $to = $request->input('range_end').' 23:59:59.000000';
+        $from = $request->input('range_start') . ' 00:00:00.000000';
+        $to = $request->input('range_end') . ' 23:59:59.000000';
 
         $tasks = (new Task())->newQuery()->withTrashed()->whereBetween('created_at', [$from, $to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
 
@@ -1484,7 +1484,7 @@ class LearningModuleController extends Controller
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment;filename='.$fileName);
+        header('Content-Disposition: attachment;filename=' . $fileName);
         if (isset($assocDataArray['0'])) {
             $fp = fopen('php://output', 'w');
             fputcsv($fp, array_keys($assocDataArray['0']));
@@ -1499,8 +1499,8 @@ class LearningModuleController extends Controller
     {
         $classes = ' ';
         // dump($task);
-        $classes .= ' '.((empty($task) && $task->assign_from == Auth::user()->id) ? 'mytask' : '').' ';
-        $classes .= ' '.((empty($task) && time() > strtotime($task->completion_date.' 23:59:59')) ? 'isOverdue' : '').' ';
+        $classes .= ' ' . ((empty($task) && $task->assign_from == Auth::user()->id) ? 'mytask' : '') . ' ';
+        $classes .= ' ' . ((empty($task) && time() > strtotime($task->completion_date . ' 23:59:59')) ? 'isOverdue' : '') . ' ';
 
         $task_status = empty($task) ? Helpers::statusClass($task->assign_status) : '';
 
@@ -1886,7 +1886,7 @@ class LearningModuleController extends Controller
         if ($assignedUser) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
-        $message = '#'.$issue->id.'. '.$issue->task_subject.'. '.$issue->task_details;
+        $message = '#' . $issue->id . '. ' . $issue->task_subject . '. ' . $issue->task_details;
         $summary = substr($message, 0, 200);
 
         $hubstaffTaskId = $this->createHubstaffTask(
@@ -1922,7 +1922,7 @@ class LearningModuleController extends Controller
 
         $file = $request->file('file');
 
-        $name = uniqid().'_'.trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
@@ -1942,9 +1942,9 @@ class LearningModuleController extends Controller
         if (! empty($documents)) {
             $count = 0;
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('learning-files/'.floor($learning->id / config('constants.image_per_folder')))
+                    ->toDirectory('learning-files/' . floor($learning->id / config('constants.image_per_folder')))
                     ->upload();
                 $learning->attachMedia($media, config('constants.media_tags'));
                 $count++;
@@ -2023,9 +2023,9 @@ class LearningModuleController extends Controller
         $id = $request->id;
         $type = $request->type;
         if ($type == 'lead') {
-            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,learnings.master_user_id,users.name FROM `hubstaff_activities`  join learnings on learnings.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = learnings.master_user_id where learnings.id = '.$id.' group by starts_at_date'));
+            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,learnings.master_user_id,users.name FROM `hubstaff_activities`  join learnings on learnings.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = learnings.master_user_id where learnings.id = ' . $id . ' group by starts_at_date'));
         } else {
-            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,learnings.assign_to,users.name FROM `hubstaff_activities`  join learnings on learnings.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = learnings.assign_to where learnings.id = '.$id.' group by starts_at_date'));
+            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,learnings.assign_to,users.name FROM `hubstaff_activities`  join learnings on learnings.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = learnings.assign_to where learnings.id = ' . $id . ' group by starts_at_date'));
         }
 
         return response()->json(['histories' => $task_histories]);
@@ -2068,7 +2068,7 @@ class LearningModuleController extends Controller
             if ($assignedUser) {
                 $hubstaffUserId = $assignedUser->hubstaff_user_id;
             }
-            $taskSummery = '#'.$task->id.'. '.$task->task_subject;
+            $taskSummery = '#' . $task->id . '. ' . $task->task_subject;
             // $hubstaffUserId = 901839;
             if ($hubstaffUserId) {
                 $hubstaffTaskId = $this->createHubstaffTask(

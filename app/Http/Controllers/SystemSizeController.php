@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\Exports\SystemSizeExport;
+use Excel;
 use App\Setting;
+use App\Category;
 use App\SystemSize;
 use App\SystemSizeManager;
 use App\SystemSizeRelation;
-use Excel;
 use Illuminate\Http\Request;
+use App\Exports\SystemSizeExport;
 
 class SystemSizeController extends Controller
 {
@@ -21,7 +21,7 @@ class SystemSizeController extends Controller
             $systemSizesManagers = $systemSizesManagers->whereIn('category_id', $request->main_category_id);
         }
         if ($request->size) {
-            $systemSizesManagers = $systemSizesManagers->where('erp_size', 'Like', '%'.$request->size.'%');
+            $systemSizesManagers = $systemSizesManagers->where('erp_size', 'Like', '%' . $request->size . '%');
         }
 
         $systemSizesManagers = $systemSizesManagers->select(
@@ -42,8 +42,8 @@ class SystemSizeController extends Controller
                                             ->where('system_size_manager_id', $value->id)->get();
             $value->sizes = '';
             foreach ($related as $v) {
-                $string = $v->name.' => '.$v->size;
-                $value->sizes .= $value->sizes == '' ? $string : ', '.$string;
+                $string = $v->name . ' => ' . $v->size;
+                $value->sizes .= $value->sizes == '' ? $string : ', ' . $string;
             }
             $managers[] = $value;
         }
@@ -140,12 +140,12 @@ class SystemSizeController extends Controller
         $systemSizeRelated = $systemSizeRelated->get();
         $html = '<div class="col-md-12 mt-3 sizevarintinput1">
                     <div class="row">
-                        <input type="hidden" name="manager_id" value="'.$sm->id.'">
+                        <input type="hidden" name="manager_id" value="' . $sm->id . '">
                         <div class="col-md-4">
                             <span>ERP Size (IT)</span>
                         </div>
                         <div class="col-md-8">
-                            <input type="text" class="form-control" placeholder="Enter ERP size" name="erp_size" value="'.$sm->erp_size.'">
+                            <input type="text" class="form-control" placeholder="Enter ERP size" name="erp_size" value="' . $sm->erp_size . '">
                         </div>
                     </div>
                 </div>';
@@ -154,11 +154,11 @@ class SystemSizeController extends Controller
             $html .= '<div class="col-md-12 mt-3 sizevarintinput1">
                         <div class="row">
                             <div class="col-md-4">
-                                <span>'.$value->name.'</span>
+                                <span>' . $value->name . '</span>
                             </div>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" placeholder="Enter size" name="sizes['.$key.'][size]" required="" value="'.$value->size.'">
-                                <input type="hidden" name="sizes['.$key.'][id]" value="'.$value->id.'">
+                                <input type="text" class="form-control" placeholder="Enter size" name="sizes[' . $key . '][size]" required="" value="' . $value->size . '">
+                                <input type="hidden" name="sizes[' . $key . '][id]" value="' . $value->id . '">
                             </div>
                         </div>
                     </div>';
@@ -172,11 +172,11 @@ class SystemSizeController extends Controller
                 $html .= '<div class="col-md-12 mt-3 sizevarintinput1">
                         <div class="row">
                             <div class="col-md-4">
-                                <span>'.$value->name.'</span>
+                                <span>' . $value->name . '</span>
                             </div>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" placeholder="Enter size" name="sizes['.$index.'][size]" required="">
-                                <input type="hidden" class="form-control" placeholder="Enter size" name="sizes['.$index.'][system_size_id]" value="'.$value->id.'">
+                                <input type="text" class="form-control" placeholder="Enter size" name="sizes[' . $index . '][size]" required="">
+                                <input type="hidden" class="form-control" placeholder="Enter size" name="sizes[' . $index . '][system_size_id]" value="' . $value->id . '">
                             </div>
                         </div>
                     </div>';
@@ -232,7 +232,7 @@ class SystemSizeController extends Controller
 
         foreach ($sm as $s) {
             if ($s->system_size_id == 0) {
-                $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>ERP Size (IT)</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[0][size]" value="'.$s->size.'"><input type="hidden" name="sizes[0][system_size_id]" value="0"><input type="hidden" name="sizes[0][id]" value="0"></div></div></div>';
+                $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>ERP Size (IT)</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[0][size]" value="' . $s->size . '"><input type="hidden" name="sizes[0][system_size_id]" value="0"><input type="hidden" name="sizes[0][id]" value="0"></div></div></div>';
             }
         }
         if ($html == '') {
@@ -245,10 +245,10 @@ class SystemSizeController extends Controller
             foreach ($sm as $s) {
                 if ($systemSize->id == $s->system_size_id) {
                     $sizeValue = $s->size;
-                    $id = '<input type="hidden" name="sizes['.$systemSize->id.'][id]" value="'.$s->id.'">';
+                    $id = '<input type="hidden" name="sizes[' . $systemSize->id . '][id]" value="' . $s->id . '">';
                 }
             }
-            $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>'.$systemSize->name.'</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes['.$systemSize->id.'][size]" value="'.$sizeValue.'"><input type="hidden" name="sizes['.$systemSize->id.'][system_size_id]" value="'.$systemSize->id.'">'.$id.'</div></div></div>';
+            $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>' . $systemSize->name . '</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[' . $systemSize->id . '][size]" value="' . $sizeValue . '"><input type="hidden" name="sizes[' . $systemSize->id . '][system_size_id]" value="' . $systemSize->id . '">' . $id . '</div></div></div>';
         }
 
         return response()->json(['success' => true, 'message' => 'successful!', 'data' => $html]);

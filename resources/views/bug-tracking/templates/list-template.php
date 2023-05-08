@@ -36,7 +36,7 @@
 							<option value="">Select BugType</option>											
 							<?php
                                 foreach ($bugTypes as $bugtype) {
-                                    echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
+                                    echo "<option {{if prop.bug_type_id_val == '" . $bugtype->id . "'}} selected {{/if}} value='" . $bugtype->id . "'>" . $bugtype->name . '</option>';
                                 }
 					    ?>
 
@@ -53,13 +53,12 @@
 			        <td class='break'>{{:prop.expected_result}}</td>
 
 			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
-			            <a href="{{:prop.url}}" target="_blank">
-			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>
-                            <span href="" class="show-full-url-{{:prop.id}} hidden" >{{:prop.url}}</span>
-                        </a>
-
-                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" >
-                            <i class="fa fa-clone" aria-hidden="true"></i></button>
+						<button class="btn btn-sm upload-bugs-files-button" type="button" title="Uploaded Files" data-bug_id="{{:prop.id}}">
+							<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+						</button>
+						<button class="btn btn-sm view-bugs-files-button" type="button" title="View Uploaded Files" data-bug_id="{{:prop.id}}">
+							<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
+						</button>
                      </td>
                      <td class='break'>{{:prop.created_by}}</td>
 
@@ -68,7 +67,7 @@
 							<select class='form-control assign_to'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 								<?php
 					                foreach ($users as $user) {
-					                    echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
+					                    echo "<option {{if prop.assign_to == '" . $user->id . "'}} selected {{/if}} value='" . $user->id . "'>" . $user->name . '</option>';
 					                }
 					?>
 							</select>
@@ -81,7 +80,7 @@
 						   <option value="">-Select-</option>
 							<?php
 					foreach ($bugSeveritys as $bugSeverity) {
-					    echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+					    echo "<option {{if prop.bug_severity_id == '" . $bugSeverity->id . "'}} selected {{/if}} value='" . $bugSeverity->id . "'>" . $bugSeverity->name . '</option>';
 					}
 					?>
 							</select>
@@ -93,7 +92,7 @@
 							<select class='form-control bug_status_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 								<?php
 					    foreach ($bugStatuses as $bugStatus) {
-					        echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+					        echo "<option {{if prop.bug_status_id == '" . $bugStatus->id . "'}} selected {{/if}} value='" . $bugStatus->id . "'>" . $bugStatus->name . '</option>';
 					    }
 					?>
 							</select>
@@ -110,7 +109,7 @@
 					        ?>
 
 									<?php
-					        echo "<option data-val='".str_replace("'", '', $filterCategory)."'  {{if prop.module_id == '".str_replace("'", '', $filterCategory)."'}} selected {{/if}} value='".htmlentities($filterCategory)."'>".$filterCategory.'</option>';
+					        echo "<option data-val='" . str_replace("'", '', $filterCategory) . "'  {{if prop.module_id == '" . str_replace("'", '', $filterCategory) . "'}} selected {{/if}} value='" . htmlentities($filterCategory) . "'>" . $filterCategory . '</option>';
 					    }
 					    ?>
 						</select>

@@ -16,7 +16,7 @@ class TimeDoctorMember extends Model
         'user_id',
         'pay_rate',
         'bill_rate',
-        'currency'
+        'currency',
     ];
 
     public static function linkUser($timeDoctorId, $userId)
@@ -29,12 +29,11 @@ class TimeDoctorMember extends Model
 
     public function account()
     {
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class,'time_doctor_account_id');
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class, 'time_doctor_account_id');
     }
 
     public function account_detail()
     {
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class,'time_doctor_account_id');
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class, 'time_doctor_account_id');
     }
-   
 }

@@ -8,13 +8,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function count;
-use PhpMyAdmin\ConfigStorage\Features\BookmarkFeature;
-use PhpMyAdmin\ConfigStorage\Relation;
-use function preg_match_all;
-use function preg_replace;
+use function strlen;
 use const PREG_SET_ORDER;
 use function str_replace;
-use function strlen;
+use function preg_replace;
+use function preg_match_all;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\Features\BookmarkFeature;
 
 /**
  * Handles bookmarking SQL queries
@@ -118,13 +118,13 @@ class Bookmark
             return false;
         }
 
-        $query = 'INSERT INTO '.Util::backquote($bookmarkFeature->database)
-            .'.'.Util::backquote($bookmarkFeature->bookmark)
-            .' (id, dbase, user, query, label) VALUES (NULL, '
-            ."'".$this->dbi->escapeString($this->database)."', "
-            ."'".$this->dbi->escapeString($this->currentUser)."', "
-            ."'".$this->dbi->escapeString($this->query)."', "
-            ."'".$this->dbi->escapeString($this->label)."')";
+        $query = 'INSERT INTO ' . Util::backquote($bookmarkFeature->database)
+            . '.' . Util::backquote($bookmarkFeature->bookmark)
+            . ' (id, dbase, user, query, label) VALUES (NULL, '
+            . "'" . $this->dbi->escapeString($this->database) . "', "
+            . "'" . $this->dbi->escapeString($this->currentUser) . "', "
+            . "'" . $this->dbi->escapeString($this->query) . "', "
+            . "'" . $this->dbi->escapeString($this->label) . "')";
 
         return (bool) $this->dbi->query($query, DatabaseInterface::CONNECT_CONTROL);
     }
@@ -139,9 +139,9 @@ class Bookmark
             return false;
         }
 
-        $query = 'DELETE FROM '.Util::backquote($bookmarkFeature->database)
-            .'.'.Util::backquote($bookmarkFeature->bookmark)
-            .' WHERE id = '.$this->id;
+        $query = 'DELETE FROM ' . Util::backquote($bookmarkFeature->database)
+            . '.' . Util::backquote($bookmarkFeature->bookmark)
+            . ' WHERE id = ' . $this->id;
 
         return (bool) $this->dbi->tryQuery($query, DatabaseInterface::CONNECT_CONTROL);
     }
@@ -177,7 +177,7 @@ class Bookmark
                 $var = $this->dbi->escapeString($variables[$i]);
             }
 
-            $query = str_replace('[VARIABLE'.$i.']', $var, $query);
+            $query = str_replace('[VARIABLE' . $i . ']', $var, $query);
             // backward compatibility
             if ($i != 1) {
                 continue;
@@ -244,12 +244,12 @@ class Bookmark
         string $user,
         $db = false
     ): array {
-        $query = 'SELECT * FROM '.Util::backquote($bookmarkFeature->database)
-            .'.'.Util::backquote($bookmarkFeature->bookmark)
-            ." WHERE ( `user` = ''"
-            ." OR `user` = '".$dbi->escapeString($user)."' )";
+        $query = 'SELECT * FROM ' . Util::backquote($bookmarkFeature->database)
+            . '.' . Util::backquote($bookmarkFeature->bookmark)
+            . " WHERE ( `user` = ''"
+            . " OR `user` = '" . $dbi->escapeString($user) . "' )";
         if ($db !== false) {
-            $query .= " AND dbase = '".$dbi->escapeString($db)."'";
+            $query .= " AND dbase = '" . $dbi->escapeString($db) . "'";
         }
 
         $query .= ' ORDER BY label ASC';
@@ -301,12 +301,12 @@ class Bookmark
             return null;
         }
 
-        $query = 'SELECT * FROM '.Util::backquote($bookmarkFeature->database)
-            .'.'.Util::backquote($bookmarkFeature->bookmark)
-            ." WHERE dbase = '".$dbi->escapeString($db)."'";
+        $query = 'SELECT * FROM ' . Util::backquote($bookmarkFeature->database)
+            . '.' . Util::backquote($bookmarkFeature->bookmark)
+            . " WHERE dbase = '" . $dbi->escapeString($db) . "'";
         if (! $action_bookmark_all) {
             $query .= " AND (user = '"
-                .$dbi->escapeString($user)."'";
+                . $dbi->escapeString($user) . "'";
             if (! $exact_user_match) {
                 $query .= " OR user = ''";
             }
@@ -314,8 +314,8 @@ class Bookmark
             $query .= ')';
         }
 
-        $query .= ' AND '.Util::backquote($id_field)
-            ." = '".$dbi->escapeString((string) $id)."' LIMIT 1";
+        $query .= ' AND ' . Util::backquote($id_field)
+            . " = '" . $dbi->escapeString((string) $id) . "' LIMIT 1";
 
         $result = $dbi->fetchSingleRow($query, DatabaseInterface::FETCH_ASSOC, DatabaseInterface::CONNECT_CONTROL);
         if (! empty($result)) {

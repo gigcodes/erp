@@ -3,13 +3,13 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Category;
-use App\GoogleTranslate;
 use App\Language;
 use App\StoreWebsite;
-use App\StoreWebsiteCategory;
-use App\StoreWebsiteCategorySeo;
+use App\GoogleTranslate;
 use Illuminate\Http\Request;
+use App\StoreWebsiteCategory;
 use Illuminate\Http\Response;
+use App\StoreWebsiteCategorySeo;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -64,7 +64,7 @@ class CategorySeoController extends Controller
         // Check for keyword search
         if ($request->has('keyword')) {
             $storewebsite_category_seos = $storewebsite_category_seos->where(function ($q) use ($request) {
-                $q->where('cat.title', 'like', '%'.$request->keyword.'%')->orWhere('store_website_category_seos.meta_title', 'like', '%'.$request->keyword.'%');
+                $q->where('cat.title', 'like', '%' . $request->keyword . '%')->orWhere('store_website_category_seos.meta_title', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -78,10 +78,10 @@ class CategorySeoController extends Controller
             $attributes['store_small'] = strlen($attributes['name']) > 15 ? substr($attributes['name'], 0, 15) : $attributes['name'];
             $attributes['category'] = $attributes['title'];
             if (! empty($attributes['sub_category'])) {
-                $attributes['category'] = $attributes['sub_category'].' > '.$attributes['category'];
+                $attributes['category'] = $attributes['sub_category'] . ' > ' . $attributes['category'];
             }
             if (! empty($attributes['main_category'])) {
-                $attributes['category'] = $attributes['main_category'].' > '.$attributes['category'];
+                $attributes['category'] = $attributes['main_category'] . ' > ' . $attributes['category'];
             }
             $recItems[] = $attributes;
         }
@@ -104,7 +104,6 @@ class CategorySeoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function store(Request $request)
@@ -126,7 +125,7 @@ class CategorySeoController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -169,7 +168,7 @@ class CategorySeoController extends Controller
                 if ($request->category) {
                     $category = explode('>', $request->category);
                     end($category);
-                    $storewebsite_category_seo->meta_title = prev($category).end($category);
+                    $storewebsite_category_seo->meta_title = prev($category) . end($category);
                 }
             }
 
@@ -182,7 +181,6 @@ class CategorySeoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return Response
      */

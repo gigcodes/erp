@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Response;
 use App\Setting;
 use App\SimplyDutyCurrency;
 use Illuminate\Http\Request;
-use Response;
 
 class SimplyDutyCurrencyController extends Controller
 {
@@ -51,7 +51,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -62,7 +61,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function show(SimplyDutyCurrency $simplyDutyCurrency)
@@ -73,7 +71,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function edit(SimplyDutyCurrency $simplyDutyCurrency)
@@ -84,8 +81,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SimplyDutyCurrency $simplyDutyCurrency)
@@ -96,7 +91,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function destroy(SimplyDutyCurrency $simplyDutyCurrency)

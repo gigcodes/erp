@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Blogger;
-use App\BloggerProduct;
-use App\Brand;
-use App\ContactBlogger;
-use App\Helpers;
-use App\Http\Requests\CreateBloggerRequest;
-use App\ReplyCategory;
 use App\User;
+use App\Brand;
+use App\Blogger;
+use App\Helpers;
+use App\ReplyCategory;
+use App\BloggerProduct;
+use App\ContactBlogger;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateBloggerRequest;
 
 class BloggerController extends Controller
 {

@@ -7,24 +7,22 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema;
 
+use PhpMyAdmin\Font;
+use PhpMyAdmin\Util;
+use function sprintf;
+use PhpMyAdmin\Index;
+use function is_array;
 use function array_flip;
 use function array_keys;
 use function array_merge;
-use function is_array;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Font;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\Util;
 use function rawurldecode;
-use function sprintf;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Table preferences/statistics
  *
  * This class preserves the table co-ordinates,fields
  * and helps in drawing/generating the tables.
- *
- * @abstract
  */
 abstract class TableStats
 {
@@ -128,7 +126,7 @@ abstract class TableStats
     {
         global $dbi;
 
-        $sql = 'DESCRIBE '.Util::backquote($this->tableName);
+        $sql = 'DESCRIBE ' . Util::backquote($this->tableName);
         $result = $dbi->tryQuery($sql);
         if (! $result || ! $result->numRows()) {
             $this->showMissingTableError();
@@ -153,8 +151,6 @@ abstract class TableStats
 
     /**
      * Displays an error when the table cannot be found.
-     *
-     * @abstract
      */
     abstract protected function showMissingTableError(): void;
 
@@ -170,7 +166,7 @@ abstract class TableStats
         foreach (array_keys($_POST['t_h']) as $key) {
             $db = rawurldecode($_POST['t_db'][$key]);
             $tbl = rawurldecode($_POST['t_tbl'][$key]);
-            if ($this->db.'.'.$this->tableName === $db.'.'.$tbl) {
+            if ($this->db . '.' . $this->tableName === $db . '.' . $tbl) {
                 $this->x = (float) $_POST['t_x'][$key];
                 $this->y = (float) $_POST['t_y'][$key];
                 break;
@@ -193,7 +189,7 @@ abstract class TableStats
     {
         global $dbi;
 
-        $result = $dbi->query('SHOW INDEX FROM '.Util::backquote($this->tableName).';');
+        $result = $dbi->query('SHOW INDEX FROM ' . Util::backquote($this->tableName) . ';');
         if ($result->numRows() <= 0) {
             return;
         }
@@ -219,6 +215,6 @@ abstract class TableStats
             ? sprintf('%.0fx%0.f', $this->width, $this->heightCell)
             : ''
         )
-        .' '.$this->tableName;
+        . ' ' . $this->tableName;
     }
 }

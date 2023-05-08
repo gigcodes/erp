@@ -21,7 +21,7 @@
 	            	<option value="">-- N/A --</option>
 		            <?php
                         foreach ($languages as $k => $l) {
-                            echo "<option {{if data.name == '".strtolower($k)."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+                            echo "<option {{if data.name == '" . strtolower($k) . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
                         }
 		?>
 		         </select>
@@ -37,7 +37,7 @@
 		            <?php
 		$statuses = ['In active', 'Active'];
 		foreach ($statuses as $k => $l) {
-		    echo "<option {{if data.status == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+		    echo "<option {{if data.status == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
 		}
 		?>
 		         </select>
@@ -52,7 +52,7 @@
 	            	<option value="">-- N/A --</option>
 		            <?php
 		    foreach ($websiteStores as $k => $l) {
-		        echo "<option {{if data.website_store_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+		        echo "<option {{if data.website_store_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
 		    }
 		?>
 		         </select>

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SimplyDutyCountryWise extends Command
@@ -71,9 +71,9 @@ class SimplyDutyCountryWise extends Command
                 // start to add report
                 $hubsaffReport = [];
                 if ($act->min_activity_percentage > 0 && ($act->min_activity_percentage > $actualPercentage)) {
-                    $userMessage = 'Your Daily activity for date '.$checkDate.' is lower then '.$act->min_activity_percentage;
+                    $userMessage = 'Your Daily activity for date ' . $checkDate . ' is lower then ' . $act->min_activity_percentage;
                     \App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
-                    $hubsaffReport[] = $act->user_name.' : Daily activity for date '.$checkDate.' is lower then '.$act->min_activity_percentage;
+                    $hubsaffReport[] = $act->user_name . ' : Daily activity for date ' . $checkDate . ' is lower then ' . $act->min_activity_percentage;
                 }
 
                 $hsn = new \App\Hubstaff\HubstaffActivityNotification;

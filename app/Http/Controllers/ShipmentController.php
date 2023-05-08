@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Mail;
+use App\Email;
+use App\Order;
+use Exception;
+use Validator;
+use App\Waybill;
 use App\CashFlow;
 use App\Customer;
-use App\Email;
+use App\MailinglistTemplate;
+use Illuminate\Http\Request;
+use App\waybillTrackHistories;
+use App\Mail\InvoicePaymentMail;
+use Illuminate\Http\JsonResponse;
+use App\Mails\Manual\ShipmentEmail;
+use Illuminate\Support\Facades\Storage;
 use App\Library\DHL\CreatePickupRequest;
 use App\Library\DHL\CreateShipmentRequest;
-use App\Mail\InvoicePaymentMail;
-use App\MailinglistTemplate;
-use App\Mails\Manual\ShipmentEmail;
-use App\Order;
-use App\Waybill;
-use App\waybillTrackHistories;
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Mail;
-use Validator;
 
 class ShipmentController extends Controller
 {
@@ -47,19 +47,19 @@ class ShipmentController extends Controller
         }
 
         if ($request->get('destination')) {
-            $waybills->where('waybills.to_customer_address_1', 'like', '%'.$request->get('destination').'%');
+            $waybills->where('waybills.to_customer_address_1', 'like', '%' . $request->get('destination') . '%');
         }
 
         if ($request->get('order_id')) {
             $waybills->where('o.id', $request->get('order_id'));
         }
         if ($request->get('consignee')) {
-            $waybills->where('waybills.to_customer_name', 'like', '%'.$request->get('consignee').'%');
+            $waybills->where('waybills.to_customer_name', 'like', '%' . $request->get('consignee') . '%');
         }
 
 //        if ($request->get('consignee')) {
 //            $customer_name = Customer::where('name', 'like', '%'.$request->get('consignee').'%')->select('id')->get()->toArray();
-////            dd($customer_name);
+        ////            dd($customer_name);
 //            $ids = [];
 //            foreach ($customer_name as $cus) {
 //                array_push($ids, $cus['id']);
@@ -125,7 +125,7 @@ class ShipmentController extends Controller
         $file_paths = [];
 
         if ($request->hasFile('file')) {
-            $path = 'shipment/'.$request->order_id;
+            $path = 'shipment/' . $request->order_id;
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
@@ -284,7 +284,7 @@ class ShipmentController extends Controller
                 'email' => $request->get('customer_email'),
             ]);
 
-            $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)).' GMT+05:30');
+            $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)) . ' GMT+05:30');
 
             if (isset($request->duty_mode) && $request->duty_mode != null) {
                 $rateReq->setPaymentInfo($request->duty_mode);
@@ -311,7 +311,7 @@ class ShipmentController extends Controller
                 $receipt = $response->getReceipt();
                 if (! empty($receipt['label_format'])) {
                     if (strtolower($receipt['label_format']) == 'pdf') {
-                        Storage::disk('files')->put('waybills/'.$receipt['tracking_number'].'_package_slip.pdf', $bin = base64_decode($receipt['label_image'], true));
+                        Storage::disk('files')->put('waybills/' . $receipt['tracking_number'] . '_package_slip.pdf', $bin = base64_decode($receipt['label_image'], true));
                         $waybill = new Waybill;
                         $waybill->order_id = null;
                         $waybill->customer_id = $request->customer_id;
@@ -322,9 +322,9 @@ class ShipmentController extends Controller
                         $waybill->actual_weight = (float) $request->get('actual_weight');
                         $volume_weight = $request->box_width * $request->box_height * $request->box_length / 5000;
                         $waybill->volume_weight = (float) $volume_weight;
-                        $waybill->cost_of_shipment = $request->amount.' '.$request->currency;
+                        $waybill->cost_of_shipment = $request->amount . ' ' . $request->currency;
                         $waybill->duty_cost = null; //TODO after discussing
-                        $waybill->package_slip = $receipt['tracking_number'].'_package_slip.pdf';
+                        $waybill->package_slip = $receipt['tracking_number'] . '_package_slip.pdf';
                         $waybill->pickup_date = $request->pickup_time;
                         //newly added
                         $waybill->from_customer_id = $from_customer_id;
@@ -410,7 +410,7 @@ class ShipmentController extends Controller
                 'mobile' => $waybill->order->customer->phone,
             ]);
 
-            $rateReq->setPickupTimestamp(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)).' GMT+05:30');
+            $rateReq->setPickupTimestamp(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)) . ' GMT+05:30');
             $rateReq->setPickupLocationCloseTime(gmdate('H:i', strtotime($request->location_close_time)));
             $rateReq->setPickupLocation($request->pickup_location);
             $rateReq->setSpecialPickupInstruction($request->special_pickup_instruction);

@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ColdLeads;
-use App\CronJobReport;
 use App\Customer;
+use App\ColdLeads;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -111,6 +112,8 @@ class MoveColdLeadsToCustomers extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

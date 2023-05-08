@@ -5,14 +5,15 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Mediable;
 use Validator;
+use Plank\Mediable\Mediable;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class Product extends Model
 {
@@ -184,7 +185,6 @@ class Product extends Model
      * Create new or update existing (scraped) product by JSON
      * This is only for Excel imports at the moment
      *
-     * @param $json
      * @return bool|\Illuminate\Http\JsonResponse
      */
     public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
@@ -292,13 +292,13 @@ class Product extends Model
                                     } catch (\Exception $e) {
                                         $array = explode('/', $image);
                                         $filename_path = end($array);
-                                        $jpg = \Image::make(public_path().'/uploads/excel-import/'.$filename_path)->encode('jpg');
+                                        $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                     }
                                     $filename = substr($image, strrpos($image, '/'));
                                     // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
                                     $filename = uniqid();
                                     // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
-                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/'.floor($product->id / 10000))->useFilename($filename)->upload();
+                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
                                     // $product->attachMedia($media, config('constants.excelimporter'));
                                     $product->attachMedia($media, config('constants.media_tags'));
                                 }
@@ -447,13 +447,13 @@ class Product extends Model
                                     } catch (\Exception $e) {
                                         $array = explode('/', $image);
                                         $filename_path = end($array);
-                                        $jpg = \Image::make(public_path().'/uploads/excel-import/'.$filename_path)->encode('jpg');
+                                        $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                     }
                                     $filename = substr($image, strrpos($image, '/'));
                                     // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
                                     $filename = uniqid();
                                     // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
-                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/'.floor($product->id / 10000))->useFilename($filename)->upload();
+                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
                                     // $product->attachMedia($media, config('constants.excelimporter'));
                                     $product->attachMedia($media, config('constants.media_tags'));
                                 }
@@ -542,7 +542,7 @@ class Product extends Model
         }
 
         // Set price to rounded finalPrice
-        $priceEur = round($priceEur);
+        $priceEur = (strlen($priceEur) > 0 ? round($priceEur) : 1);
 
         // Check if the euro to rupee rate is set
         if (! empty($brand->euro_to_inr)) {
@@ -625,7 +625,7 @@ class Product extends Model
 
     public function attribute_histories()
     {
-        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class,'product_id','id')->groupBy('attribute_name');
+        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class, 'product_id', 'id')->groupBy('attribute_name');
     }
 
     public function private_views()
@@ -812,7 +812,7 @@ class Product extends Model
                         if ($scrapedProduct && is_object($scrapedProduct)) {
                             $lastScraper = ScrapedProducts::where('sku', $this->sku)->latest()->first();
                             if ($lastScraper) {
-                                $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL.'[error] '.$e->getMessage().' One or more images has an invalid URL : '.$image.PHP_EOL;
+                                $lastScraper->validation_result = $lastScraper->validation_result . PHP_EOL . '[error] ' . $e->getMessage() . ' One or more images has an invalid URL : ' . $image . PHP_EOL;
                                 $lastScraper->save();
                             }
                         }
@@ -822,7 +822,7 @@ class Product extends Model
                         $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/'.floor($this->id / 10000).'/'.$this->id)->useFilename($filename)->onDuplicateIncrement()->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateIncrement()->upload();
                         $this->attachMedia($media, config('constants.media_original_tag'));
                         $countImageUpdated++;
                     }
@@ -918,7 +918,7 @@ class Product extends Model
         $composition = strip_tags($composition);
         $composition = str_replace(['&nbsp;', '/span>'], ' ', $composition);
 
-        $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition', 'LIKE', '%'.$composition.'%')->first();
+        $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition', 'LIKE', '%' . $composition . '%')->first();
 
         if ($hscodeList != null && $hscodeList != '') {
             return false;
@@ -988,7 +988,7 @@ class Product extends Model
         $productPrice = $default_price != null ? $default_price : $this->price;
         $default_price = $default_price != null ? $default_price : $this->price;
         if (($productPrice || $default_price)) {
-            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : '.$productPrice.'<br/> default_price : '.$default_price, $default_price, $website->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : ' . $productPrice . '<br/> default_price : ' . $default_price, $default_price, $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'Product price not found', '', '', '', 'Product price not found', $default_price, $websiteId->id, $customer_id);
         }
@@ -999,7 +999,7 @@ class Product extends Model
         }
         $brandID = empty($brandID) ? $this->brand_id : $brandID;
         if (($brandID)) {
-            $this->createProductPriceLog($order_id, $product_id, 'BrandID', '', $productPrice, '0', 'brandID : '.$brandID.'<br/> Default Price : '.$default_price, $default_price, $website->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'BrandID', '', $productPrice, '0', 'brandID : ' . $brandID . '<br/> Default Price : ' . $default_price, $default_price, $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'BrandID not found', '', '', '', 'BrandID not found', $default_price, $websiteId->id, $customer_id);
         }
@@ -1017,14 +1017,14 @@ class Product extends Model
             if ($catdiscount) {
                 if ($updated_seg_discount) {
                     if (($updated_seg_discount)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: updated_seg_discount', '', $productPrice, $updated_seg_discount, 'updated_seg_discount : '.$updated_seg_discount.'<br> ==>'.json_encode($catdiscount), $default_price, $website->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: updated_seg_discount', '', $productPrice, $updated_seg_discount, 'updated_seg_discount : ' . $updated_seg_discount . '<br> ==>' . json_encode($catdiscount), $default_price, $website->id, $customer_id);
                     }
 
                     $category_segment_discounts_row = \DB::table('category_segment_discounts')->where('id', $catdiscount->id)->update(['amount' => $updated_seg_discount]);
                     if ($category_segment_discounts_row) {
                         $catdiscount->amount = $updated_seg_discount;
                         if (($category_segment_discounts_row)) {
-                            $this->createProductPriceLog($order_id, $product_id, 'category discount id : '.$catdiscount->id.'category_segment_discounts_row', '', $productPrice, $updated_seg_discount, json_encode($category_segment_discounts_row), $default_price, $website->id, $customer_id);
+                            $this->createProductPriceLog($order_id, $product_id, 'category discount id : ' . $catdiscount->id . 'category_segment_discounts_row', '', $productPrice, $updated_seg_discount, json_encode($category_segment_discounts_row), $default_price, $website->id, $customer_id);
                         }
                     }
                 }
@@ -1034,13 +1034,13 @@ class Product extends Model
                     $segmentDiscount = $percentageA;
                     $productPrice = $productPrice - $percentageA;
                     if (($catdiscount->amount_type)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type is percentage', 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ', $productPrice, $segmentDiscount, 'Product price Discount', $default_price, $website->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type is percentage', 'Product price: ' . $productPrice . ' * percentage : ' . $percentage . ' /100 ', $productPrice, $segmentDiscount, 'Product price Discount', $default_price, $website->id, $customer_id);
                     }
                 } else {
                     $segmentDiscount = $catdiscount->amount;
                     $productPrice = $productPrice - $catdiscount->amount;
                     if (($catdiscount->amount_type)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type not percentage', 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount, $productPrice, $segmentDiscount, 'Product price - categoryDiscount', $default_price, $website->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type not percentage', 'Product price: ' . $productPrice . ' - categoryDiscount : ' . $catdiscount->amount, $productPrice, $segmentDiscount, 'Product price - categoryDiscount', $default_price, $website->id, $customer_id);
                     }
                 }
             }
@@ -1070,7 +1070,7 @@ class Product extends Model
         if ($dutyPrice > 0) {
             $totalAmount = $productPrice * $dutyPrice / 100;
             $productPrice = $productPrice + $totalAmount;
-            $this->createProductPriceLog($order_id, $product_id, 'Add a product price duty', '(Product price: '.$productPrice.' * dutyPrice: '.$dutyPrice.' / 100) + Priduct total Amount : '.$totalAmount, $productPrice, $totalAmount, 'Product price + product price duty', $default_price, $website->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Add a product price duty', '(Product price: ' . $productPrice . ' * dutyPrice: ' . $dutyPrice . ' / 100) + Priduct total Amount : ' . $totalAmount, $productPrice, $totalAmount, 'Product price + product price duty', $default_price, $website->id, $customer_id);
         }
 
         if ($website) {
@@ -1144,12 +1144,12 @@ class Product extends Model
                 if ($priceRecords->calculated == '+') {
                     if ($priceRecords->type == 'PERCENTAGE') {
                         $price = ($productPrice * $priceRecords->value) / 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', '(Product Price : '.$productPrice.' * Price Records: '.$priceRecords->value.') / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', '(Product Price : ' . $productPrice . ' * Price Records: ' . $priceRecords->value . ') / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
 
                         return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $priceRecords->value, 'promotion' => $price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     } else {
                         $percentage = ($priceRecords->value / $productPrice) * 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', 'product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.' * 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', 'product Price: ' . $productPrice . ' / Price Records: ' . $priceRecords->value . ' * 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
 
                         return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $percentage, 'promotion' => $priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     }
@@ -1157,29 +1157,29 @@ class Product extends Model
                 if ($priceRecords->calculated == '-') {
                     if ($priceRecords->type == 'PERCENTAGE') {
                         $price = ($productPrice * $priceRecords->value) / 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - is PERCENTAGE', 'Product Price: '.$productPrice.' * Price Records: '.$priceRecords->value.' / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - is PERCENTAGE', 'Product Price: ' . $productPrice . ' * Price Records: ' . $priceRecords->value . ' / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
 
                         return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$priceRecords->value, 'promotion' => -$price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     } else {
                         $percentage = ($priceRecords->value / $productPrice) * 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - not in PERCENTAGE ', 'Product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.'* 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - not in PERCENTAGE ', 'Product Price: ' . $productPrice . ' / Price Records: ' . $priceRecords->value . '* 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
 
                         return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$percentage, 'promotion' => -$priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     }
                 }
             } elseif ($updated_add_profit || ! empty($checked_add_profit)) {
                 if (empty($brand)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : ' . $segmentDiscount, $default_price, $website->id, $customer_id);
 
                     return ['status' => false, 'field' => 'brand', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
                 if (empty($category)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Category is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Category is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : ' . $segmentDiscount, $default_price, $website->id, $customer_id);
 
                     return ['status' => false, 'field' => 'category', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
                 if (empty($country)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'country is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'country is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : ' . $segmentDiscount, $default_price, $website->id, $customer_id);
 
                     return ['status' => false, 'field' => 'country', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
@@ -1194,13 +1194,13 @@ class Product extends Model
                         'country_code' => $country,
                     ]);
                     $catDis = isset($catdiscount) ? $catdiscount->amount : 0;
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : '.$newPriceRecords->value.(' <br/> total = '.($productPrice - $newPriceRecords->value)).'<br/> Category Discount'.$catDis, $default_price, $website->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : ' . $newPriceRecords->value . (' <br/> total = ' . ($productPrice - $newPriceRecords->value)) . '<br/> Category Discount' . $catDis, $default_price, $website->id, $customer_id);
 
                     return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $newPriceRecords->value, 'promotion' => $newPriceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $newPriceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
             }
         }
-        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'original_price', '', $productPrice, $segmentDiscount, ' product original price '.$default_price);
+        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'original_price', '', $productPrice, $segmentDiscount, ' product original price ' . $default_price);
 
         return ['status' => true, 'original_price' => $default_price, 'promotion_per' => '0.00', 'promotion' => '0.00', 'segment_discount' => $segmentDiscount, 'total' => $productPrice, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total,
             'before_iva_product_price' => 0, //  $beforeIVAProductPrice
@@ -1251,7 +1251,7 @@ class Product extends Model
     {
         $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id : null;
 
-         // sets initial status pending for requestForExternalScraper in product status histroy
+        // sets initial status pending for requestForExternalScraper in product status histroy
         $request_external_scraper_status_data = [
             'product_id' => $this->id,
             'old_status' => $this->status_id,
@@ -1261,8 +1261,8 @@ class Product extends Model
         ];
         \App\ProductStatusHistory::addStatusToProduct($request_external_scraper_status_data);
 
-         // sets initial status pending for unknownColor in product status histroy
-         $unknown_color_status = [
+        // sets initial status pending for unknownColor in product status histroy
+        $unknown_color_status = [
             'product_id' => $this->id,
             'old_status' => $this->status_id,
             'new_status' => StatusHelper::$unknownColor,
@@ -1281,8 +1281,8 @@ class Product extends Model
         ];
         \App\ProductStatusHistory::addStatusToProduct($unknown_composition_status);
 
-         // sets initial status pending for unknownMeasurement in product status histroy
-         $unknown_measurement_status = [
+        // sets initial status pending for unknownMeasurement in product status histroy
+        $unknown_measurement_status = [
             'product_id' => $this->id,
             'old_status' => $this->status_id,
             'new_status' => StatusHelper::$unknownMeasurement,
@@ -1291,8 +1291,8 @@ class Product extends Model
         ];
         \App\ProductStatusHistory::addStatusToProduct($unknown_measurement_status);
 
-         // sets initial status pending for unknownMeasurement in product status histroy
-         $unknown_size_status = [
+        // sets initial status pending for unknownMeasurement in product status histroy
+        $unknown_size_status = [
             'product_id' => $this->id,
             'old_status' => $this->status_id,
             'new_status' => StatusHelper::$unknownSize,
@@ -1519,7 +1519,7 @@ class Product extends Model
         }
 
         if (isset($filter_data['supplier_count'])) {
-            $query = $query->havingRaw('count(products.id) = '.$filter_data['supplier_count']);
+            $query = $query->havingRaw('count(products.id) = ' . $filter_data['supplier_count']);
         }
 
         if ($skip !== null) {
@@ -1784,7 +1784,7 @@ class Product extends Model
 
     public function getWebsiteSku()
     {
-        return $this->sku.'-'.$this->color;
+        return $this->sku . '-' . $this->color;
     }
 
     public function fetchMultipleSkuRecord()
@@ -1800,5 +1800,10 @@ class Product extends Model
     public function isCharity()
     {
         return CustomerCharity::where('product_id', $this->id)->first() ? true : false;
+    }
+
+    public function scopeStatus(Builder $query, int $status): void
+    {
+        $query->where('status_id', $status);
     }
 }

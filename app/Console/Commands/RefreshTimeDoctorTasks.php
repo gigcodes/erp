@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use App\TimeDoctor\TimeDoctorTask;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
-use App\TimeDoctor\TimeDoctorTask;
 use App\Library\TimeDoctor\Src\Timedoctor;
-use Illuminate\Console\Command;
 
 class RefreshTimeDoctorTasks extends Command
 {
@@ -16,6 +16,7 @@ class RefreshTimeDoctorTasks extends Command
     public $TIME_DOCTOR_AUTH_TOKEN;
 
     public $TIME_DOCTOR_COMPANY_ID;
+
     /**
      * The name and signature of the console command.
      *
@@ -50,7 +51,7 @@ class RefreshTimeDoctorTasks extends Command
         $time_doctor_account = TimeDoctorAccount::find($this->argument('id'));
         $this->TIME_DOCTOR_USER_ID = $time_doctor_account->id;
         $this->TIME_DOCTOR_AUTH_TOKEN = $time_doctor_account->auth_token;
-        $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;        
+        $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -65,33 +66,35 @@ class RefreshTimeDoctorTasks extends Command
 
     private function refreshTaskList()
     {
-        $timedoctor = Timedoctor::getInstance();        
+        $timedoctor = Timedoctor::getInstance();
         try {
-            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);            
+            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetTaskList();
         } catch (\Exception $e) {
             $this->timedoctor = $timedoctor->authenticate(true, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->startGetTaskList();
-        }        
+        }
     }
 
     private function startGetTaskList()
     {
-        try{
+        try {
             $tasks = $this->timedoctor->getTaskList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN);
-            if(!empty( $tasks )){
+            // dd($tasks);
+            if (! empty($tasks)) {
                 $record = count($tasks->data);
-                foreach( $tasks->data as $task){
-                    echo $task->id.' Record started';
+                foreach ($tasks->data as $task) {
+                    echo $task->id . ' Record started';
                     echo PHP_EOL;
                     $taskExist = TimeDoctorTask::where('time_doctor_task_id', $task->id)->first();
                     if (! $taskExist) {
                         if (! empty($task->name)) {
-                            if(isset( $task->project )){
-                                $project = TimeDoctorProject::where('time_doctor_project_id',$task->project->id)->first();
+                            if (isset($task->project) && isset($task->project->id)) {
+                                $project = TimeDoctorProject::where('time_doctor_project_id', $task->project->id)->first();
+                                // dd($project, $task);
                                 TimeDoctorTask::create([
                                     'time_doctor_task_id' => $task->id,
-                                    'project_id' => $project->id,
+                                    'project_id' => $project ? $project->id : 1,
                                     'time_doctor_project_id' => $task->project->id,
                                     'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
                                     'summery' => $task->name,
@@ -102,18 +105,18 @@ class RefreshTimeDoctorTasks extends Command
                         }
                     } else {
                         $taskExist->summery = $task->name;
-                        $taskExist->description = (isset($task->description) && $task->description != '') ? $task->description: '';
+                        $taskExist->description = (isset($task->description) && $task->description != '') ? $task->description : '';
                         $taskExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
                         $taskExist->save();
                     }
 
-                    echo $task->id.' Record ended';
+                    echo $task->id . ' Record ended';
                     echo PHP_EOL;
-                    echo 'Total Record Left :'.$record--;
+                    echo 'Total Record Left :' . $record--;
                     echo PHP_EOL;
                 }
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
         }
     }

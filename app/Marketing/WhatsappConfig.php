@@ -2,10 +2,10 @@
 
 namespace App\Marketing;
 
-use App\Customer;
 use App\ImQueue;
-use App\MarketingMessageType;
+use App\Customer;
 use Carbon\Carbon;
+use App\MarketingMessageType;
 use Illuminate\Database\Eloquent\Model;
 
 class WhatsappConfig extends Model

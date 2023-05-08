@@ -6,30 +6,30 @@ namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
 use function count;
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
 use function implode;
+use PhpMyAdmin\Index;
 use function mb_strstr;
+use function urldecode;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
+use function preg_replace;
+use PhpMyAdmin\Operations;
 use function mb_strtolower;
 use function mb_strtoupper;
-use PhpMyAdmin\Charsets;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\StorageEngine;
 use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\Partitioning\Partition;
-use PhpMyAdmin\Query\Generator as QueryGenerator;
 use PhpMyAdmin\Query\Utilities;
 use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function preg_replace;
-use function strlen;
-use function urldecode;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Partitioning\Partition;
+use PhpMyAdmin\Query\Generator as QueryGenerator;
 
 class OperationsController extends AbstractController
 {
@@ -236,8 +236,8 @@ class OperationsController extends AbstractController
 
             if (count($table_alters) > 0) {
                 $sql_query = 'ALTER TABLE '
-                    .Util::backquote($table);
-                $sql_query .= "\r\n".implode("\r\n", $table_alters);
+                    . Util::backquote($table);
+                $sql_query .= "\r\n" . implode("\r\n", $table_alters);
                 $sql_query .= ';';
                 $result = (bool) $this->dbi->query($sql_query);
                 $reread_info = true;

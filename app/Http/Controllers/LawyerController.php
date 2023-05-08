@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers;
-use App\Http\Requests\CreateLawyerRequest;
-use App\Lawyer;
-use App\LawyerSpeciality;
-use App\ReplyCategory;
 use App\User;
+use App\Lawyer;
+use App\Helpers;
+use App\ReplyCategory;
+use App\LawyerSpeciality;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateLawyerRequest;
 
 class LawyerController extends Controller
 {
@@ -34,10 +34,10 @@ class LawyerController extends Controller
             $term = $request->get('term');
             $this->data['term'] = $term;
             $this->data['lawyers'] = $this->data['lawyers']->where(function ($query) use ($term) {
-                $query->where('name', 'like', '%'.$term.'%')
-                    ->orWhere('email', 'like', '%'.$term.'%')
+                $query->where('name', 'like', '%' . $term . '%')
+                    ->orWhere('email', 'like', '%' . $term . '%')
                     ->orWhereHas('lawyerSpeciality', function ($speciality) use ($term) {
-                        $speciality->where('title', 'like', '%'.$term.'%');
+                        $speciality->where('title', 'like', '%' . $term . '%');
                     });
             });
         }

@@ -4,11 +4,13 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 
-use App\TimeDoctor\TimeDoctorAccount;
-use App\TimeDoctor\TimeDoctorActivity;
-use App\TimeDoctor\TimeDoctorProject;
-use App\Library\TimeDoctor\Src\Timedoctor;
 use Illuminate\Console\Command;
+use App\TimeDoctor\TimeDoctorTask;
+use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorAccount;
+use App\TimeDoctor\TimeDoctorProject;
+use App\TimeDoctor\TimeDoctorActivity;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class LoadTimeDoctorActivities extends Command
 {
@@ -23,7 +25,8 @@ class LoadTimeDoctorActivities extends Command
      *
      * @var string
      */
-    protected $signature = 'timedoctor:load_time_doctor_activity {id}';
+    /*protected $signature = 'timedoctor:load_time_doctor_activity {id}';*/
+    protected $signature = 'timedoctor:load_time_doctor_activity';
 
     /**
      * The console command description.
@@ -49,50 +52,31 @@ class LoadTimeDoctorActivities extends Command
      */
     public function handle()
     {
-        $time_doctor_account = TimeDoctorAccount::find($this->argument('id'));
-        $this->TIME_DOCTOR_USER_ID = $time_doctor_account->id;
-        $this->TIME_DOCTOR_AUTH_TOKEN = $time_doctor_account->auth_token;
-        $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;        
+        ini_set('max_execution_time', 0);
+        $time_doctor_members = TimeDoctorMember::groupBy('user_id')->get();
+        $time_doctor_accounts = TimeDoctorAccount::where('auth_token', '!=', '')->get();
+        $timedoctor = Timedoctor::getInstance();
 
-        $timedoctor = Timedoctor::getInstance();        
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            /*$time = strtotime(date('c'));
-            $time = $time - ((60 * 60)); //one hour
-            $startTime = date('c', strtotime(gmdate('Y-m-d H:i:s', $time)));
-            $time = strtotime($startTime);
-            $time = $time + (10 * 60); //10 mins
-            $stopTime = date('c', $time);*/
-
-            /*$activities = $this->getActivitiesBetween($startTime, $stopTime);*/
-            $this->refreshActivityList();            
-
-            /*if ($activities === false) {
-                echo 'Error in activities'.PHP_EOL;
-
-                return;
+            foreach ($time_doctor_accounts as $account) {
+                $this->TIME_DOCTOR_AUTH_TOKEN = $account->auth_token;
+                $this->TIME_DOCTOR_COMPANY_ID = $account->company_id;
+                $this->refreshActivityList();
+                $this->startGetTaskList();
             }
-            echo 'Got activities(count): '.count($activities).PHP_EOL;
-            foreach ($activities as $id => $data) {
-                HubstaffActivity::updateOrCreate(
-                    [
-                        'id' => $id,
-                    ],
-                    [
-                        'user_id' => $data['user_id'],
-                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
-                        'starts_at' => $data['starts_at'],
-                        'tracked' => $data['tracked'],
-                        'keyboard' => $data['keyboard'],
-                        'mouse' => $data['mouse'],
-                        'overall' => $data['overall'],
-                    ]
-                );
-            }*/
+
+            foreach ($time_doctor_members as $member) {
+                if (($member->account_detail) && $member->account_detail->auth_token != '') {
+                    $this->TIME_DOCTOR_USER_ID = $member->user_id;
+                    $this->TIME_DOCTOR_AUTH_TOKEN = $member->account_detail->auth_token;
+                    $this->TIME_DOCTOR_COMPANY_ID = $member->account_detail->company_id;
+                    $this->refreshActivityList();
+                }
+            }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
@@ -101,22 +85,21 @@ class LoadTimeDoctorActivities extends Command
 
     private function refreshActivityList()
     {
-        $timedoctor = Timedoctor::getInstance();        
+        $timedoctor = Timedoctor::getInstance();
         try {
-            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);            
+            $this->timedoctor = $timedoctor->authenticate(false, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->getActivitiesBetween();
         } catch (\Exception $e) {
             $this->timedoctor = $timedoctor->authenticate(true, $this->TIME_DOCTOR_AUTH_TOKEN);
             $this->getActivitiesBetween();
-        }        
+        }
     }
-    
 
     private function getActivitiesBetween()
     {
         try {
-            $activities = $this->timedoctor->getActivityList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN, $this->TIME_DOCTOR_USER_ID);            
-            foreach( $activities as $activity){                
+            $activities = $this->timedoctor->getActivityListCommand($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN, $this->TIME_DOCTOR_USER_ID);
+            foreach ($activities as $activity) {
                 TimeDoctorActivity::create([
                     'user_id' => $activity['user_id'],
                     'task_id' => is_null($activity['task_id']) ? 0 : $activity['task_id'],
@@ -125,9 +108,42 @@ class LoadTimeDoctorActivities extends Command
                     'project_id' => $activity['project'],
                 ]);
             }
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
             return false;
+        }
+    }
+
+    private function startGetTaskList()
+    {
+        $tasks = $this->timedoctor->getTaskList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN);
+        if (! empty($tasks)) {
+            $record = count($tasks->data);
+            foreach ($tasks->data as $task) {
+                $taskExist = TimeDoctorTask::where('time_doctor_task_id', $task->id)->first();
+                if (! $taskExist) {
+                    if (! empty($task->name)) {
+                        if (isset($task->project)) {
+                            $project = TimeDoctorProject::where('time_doctor_project_id', $task->project->id)->first();
+                            TimeDoctorTask::create([
+                                'time_doctor_task_id' => $task->id,
+                                'project_id' => $project->id,
+                                'time_doctor_project_id' => $task->project->id,
+                                'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
+                                'summery' => $task->name,
+                                'description' => (isset($task->description) && $task->description != '') ? $task->description : '',
+                                'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
+                            ]);
+                        }
+                    }
+                } else {
+                    $taskExist->summery = $task->name;
+                    $taskExist->description = (isset($task->description) && $task->description != '') ? $task->description : '';
+                    $taskExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
+                    $taskExist->save();
+                }
+            }
         }
     }
 }

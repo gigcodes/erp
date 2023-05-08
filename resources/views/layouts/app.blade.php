@@ -59,6 +59,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         .select2-container--open{
             z-index:9999999
         }
+
+        .select-multiple.cs-select-2 + .select2.select2-container{
+            margin-top:-30px;
+        }
         #message-chat-data-box .p1[data-count]:after{
           position:absolute;
           right:10%;
@@ -119,6 +123,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     .modal {
         overflow-y: auto !important;
+    }
+    .shortcut-estimate-search-container .select2.select2-container{
+        width: 200px!important
     }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -225,7 +232,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
-
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: '{{env('FCM_API_KEY')}}',
+            authDomain: '{{env('FCM_AUTH_DOMAIN')}}',
+            projectId: '{{env('FCM_PROJECT_ID')}}',
+            storageBucket: '{{env('FCM_STORAGE_BUCKET')}}',
+            messagingSenderId: '{{env('FCM_MESSAGING_SENDER_ID')}}',
+            appId: '{{env('FCM_APP_ID')}}',
+            measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }).catch(function (error) {
+            alert(error);
+        });
+        messaging.onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
+    </script>
     <script>
     window.Laravel = '{{!!json_encode(['
     csrfToken '=>csrf_token(),'
@@ -390,6 +445,65 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             </td>
                                         </tr>
                                     @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- email-search Modal-->
+    <div id="menu-email-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_email_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Email Search" type="button" class="email_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="emailNameTable">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Sender</th>
+                                        <th>Receiver</th>
+                                        <th>Subject</th>
+                                        <th>Body</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="email_search_result">
+                                        @php
+                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                        @endphp
+                                        @foreach ($userEmails as $key => $userEmail)
+                                            <tr>
+                                                <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
+                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td> 
+                                                    <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
+                                                        <i class="fa fa-copy"></i>
+                                                </a></td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -729,6 +843,8 @@ if (!empty($notifications)) {
                                                     Replacement</a>
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\CropRejectedController@index') }}">Crop Rejected<br>Final Approval Images</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -779,6 +895,7 @@ if (!empty($notifications)) {
                                                     Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New
                                                     Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>
                                                 <a class="dropdown-item"
                                                     href="{{ route('listing.history.index') }}">Product Listing
                                                     history</a>
@@ -1106,6 +1223,7 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
+                                    <a class="dropdown-item" href="{{route('translation.log')}}">Translations Logs</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM
                                         Notifications</a>
                                 </li>
@@ -1524,7 +1642,7 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
                                         Meeting List</a>
-                                </li>                                
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1972,6 +2090,10 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
                                                 <li class="nav-item dropdown dropdown-submenu">
+                                                    @if(auth()->user()->hasRole(['Admin', 'user', 'Seo Head']))
+                                                        <a class="dropdown-item" href="{{ route('seo.content.index') }}">Content</a>
+                                                    @endif
+                                                    <a class="dropdown-item" href="{{ route('seo.company.index') }}">Company</a>
                                                     <a class="dropdown-item"
                                                         href="{{ action('\App\Http\Controllers\BackLinkController@displayBackLinkDetails') }}">Back
                                                         Link Details</a>
@@ -2048,7 +2170,7 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
 
-                               
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
@@ -2070,7 +2192,7 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
-                              
+
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2091,7 +2213,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
-                                               
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2131,7 +2253,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.developer-api.logs')}}">Logs</a>
                                                 </li>
-                                            
+
                                             </ul>
                                         </li>
                                     </ul>
@@ -2152,10 +2274,22 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Bing Web Master<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('bingwebmaster.index')}}">Sites</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
                                     <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
                                         <li  class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.index')}}">Google AdWords Account</a>
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
@@ -2171,6 +2305,12 @@ if (!empty($notifications)) {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2192,6 +2332,19 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
                                     </a>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false" v-pre>Affiliate Marketing<span
+                                                class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('affiliate-marketing.providers')}}">Providers</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('affiliate-marketing.providerAccounts')}}">Providers Accounts</a>
+                                        </li>
+                                    </ul>
                                 </li>
                             </ul>
                         </li>
@@ -2217,6 +2370,33 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
                                             <a class="dropdown-item" href="/instagram/direct-message">Media</a>
                                             <a class="dropdown-item" href="/instagram/direct">Direct</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                 <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Blog<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+
+                                            <a class="dropdown-item" href="/blog/list">Blog</a>
+                                             <a class="dropdown-item" href="/blog/history/list">View History</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Youtube<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
+
+
                                         </li>
                                     </ul>
                                 </li>
@@ -2370,6 +2550,51 @@ if (!empty($notifications)) {
                                                 href="{{ route('store-website.page.histories') }}">Website Page
                                                 History</a>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre="">Website Page Review Translate<span
+                                                class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="twilioDropdown">
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Arabic') }}">Arabic Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','English') }}">English Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Chinese') }}">Chinese Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Japanese') }}">Japanese Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Korean') }}">Korean Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Urdu') }}">Urdu Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Russian') }}">Russian Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Italian') }}">Italian Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','French') }}">French Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Spanish') }}">Spanish Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Dutch') }}">Dutch Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
+                                                    </li>
+
+                                                </ul>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ route('store-website.product-attribute.index') }}">Product
@@ -2449,6 +2674,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
                                                 Languages</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('site-development.store-website-category') }}">Store Website Category</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2586,7 +2814,7 @@ if (!empty($notifications)) {
                                                         href="{{ route('bug-tracking.website') }}">Bug Tracking Summary</a>
                                                 </li>
                                             </ul>
-                                        </li>                                       
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                         </li>
@@ -2859,7 +3087,19 @@ if (!empty($notifications)) {
                                                 aria-labelledby="githubsubmenu">
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
+                                                        href="{{ url('/github/organizations') }}">Organizations</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
                                                         href="{{ url('/github/repos') }}">Repositories</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/branches') }}">Branches</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/actions') }}">Actions</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
@@ -2939,34 +3179,38 @@ if (!empty($notifications)) {
                                                 aria-labelledby="navbarDropdown">
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                        href="{{ route('time-doctor.members') }}">Time Doctor Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                        href="{{ url('time-doctor/projects') }}">Time Doctor Projects</a>
                                                 </li>
 
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                        href="{{ url('time-doctor/tasks') }}">Time Doctor Tasks</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
-                                                        Notofication</a>
+                                                        href="{{ url('time-doctor-activities/notification') }}">Time Doctor Activity
+                                                        Notification</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                        href="{{ url('time-doctor-activities/activities') }}">Time Doctor Activities</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">Time Doctor User
                                                         Track Time</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.task_creation_logs') }}">Time Doctor Task Creation Logs</a>
                                                 </li>
                                             </ul>
                                         </li>
-                                        
+
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -2979,7 +3223,7 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('database.states') }}">States</a>
+                                                        href="{{ route('database.states') }}">Query Process List</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -3037,6 +3281,9 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('google-docs.index') }}">Google
                                                 Docs</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google-drive-screencast.index') }}">Google Drive Screencast</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ url('/google-traslation-settings') }}">Google Translator
@@ -3092,6 +3339,9 @@ if (!empty($notifications)) {
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
                             </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -3106,6 +3356,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('development/change-user') }}">Change
                                             User</a>
+                                    </li>
+                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('development/document/list') }}">Document Upload List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"
@@ -3153,7 +3406,7 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('database.states') }}">Database
-                                            States</a>
+                                        Query Process List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
@@ -3182,6 +3435,12 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
                                     </li>
                                 </ul>
                             </li>
@@ -3220,7 +3479,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif 
+                                    @endif
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -3229,7 +3488,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
-                                           
+
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -3345,6 +3604,16 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge
                                             Base</a>
                                     </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Time Doctor<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('time-doctor-acitivties.pending-payments')}}">Time Doctor Approved Timings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -3421,6 +3690,17 @@ if (!empty($notifications)) {
                                                 class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
                                 <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -3432,6 +3712,19 @@ if (!empty($notifications)) {
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
                             </li>
+
+                            @php
+                                $route = request()->route()->getName();
+                            @endphp
+                            @if (in_array($route, ["development.issue.index", "task.index"]))
+                                <li>
+                                    <a title="Time Estimations" type="button" class="quick-icon show-estimate-time" data-task="{{$route == "development.issue.index" ? "DEVTASK" : "TASK"}}">
+                                        <span>
+                                            <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <a title="Task & Activity" type="button" class="quick-icon menu-show-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
@@ -3443,6 +3736,10 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Email Search" type="button" class="quick-icon menu-email-search" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
@@ -3559,6 +3856,49 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
+        @php
+        $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index"]))
+            @if ($route == "development.issue.index")
+                @php
+                    $taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                @endphp
+            @else
+                @php
+                    $taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                @endphp
+            @endif
+            <div id="showLatestEstimateTime" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Estimation</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body shortcut-estimate-search-container">
+                            <div class="from-group ">
+                                <label>Search</label>
+                                <br>
+                                <select name="task_id" id="shortcut-estimate-search" class="form-control">
+                                    <option disabled>Select task</option>
+                                    @foreach ($taskList as $val)
+                                        <option value="{{$val}}">{{$val}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="modal-table">
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        @endif
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
@@ -3972,6 +4312,8 @@ if (!empty($notifications)) {
         </div>
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
+        @include('passwords.search-password')
+        @include('user-management.search-user-schedule')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -4534,7 +4876,7 @@ if (!empty($notifications)) {
 
     @endif
     <div id="system-request" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 1000px; max-width: 1000px;">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -4546,8 +4888,8 @@ if (!empty($notifications)) {
                         @php
                         use App\User;
                         $userlist = [];
-                        $userLists = User::orderBy('name')->where('is_active', 1)->get();
-
+                        $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
+                        
                         $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh
                         -f list');
                         $final_array = [];
@@ -4561,29 +4903,39 @@ if (!empty($notifications)) {
                         }
                         }
                         @endphp
-                        <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                        <div>
-                            <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                                <option>Select user</option>
+                       
+                        <div class="select-user">
+                            <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+                            <select class="form-control col-md-2 ml-3 select-multiple cs-select-2" name="user_id" id="ipusers">
+                                <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                                 <option value="other">Other</option>
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
-                                class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                        </div>
-                        <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
+                                class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
+                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3 mr-3""
                             placeholder="Add comment...">
-                        <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-                        <table class="table table-bordered" id="userAllIps">
+                            <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+                            <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
+                        </div>
+                       
+                       
+                      
+                        <table class="table table-bordered">
+                            <thead>
                             <tr>
                                 <th>Index</th>
                                 <th>IP</th>
                                 <th>User</th>
+                                <th>Source</th>
                                 <th>Comment</th>
                                 <th>Action</th>
                             </tr>
+                            </thead>
+                            <tbody id="userAllIps">
+                            </tbody>
                             <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
                                     <tr>
                                         <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
@@ -4639,6 +4991,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
+   
 {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
@@ -4654,9 +5007,11 @@ if (!empty($notifications)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
 
-    
+
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
+        $('.select-user .select-multiple').select2({width: '20%'});
+        //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
@@ -4829,6 +5184,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
+    $(document).on("click", ".menu-email-search", function(e) {
+        e.preventDefault();
+        $("#menu-email-search-model").modal("show");
+    });
+
     $(document).on("click", ".sop_search_menu", function(e) {
         let $this = $('#menu_sop_search').val();
         var q = $this;
@@ -4849,6 +5209,35 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".email_search_menu", function(e) {
+        let $this = $('#menu_email_search').val();
+        var q = $this;
+        $.ajax({
+            url: '{{route('menu.email.search')}}',
+            type: 'GET',
+            data: {
+                search: q,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                $('.email_search_result').empty();
+                $('.email_search_result').append(response);
                 toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
@@ -5438,7 +5827,15 @@ if (!empty($notifications)) {
     $(document).on("click", ".addIp", function(e) {
         e.preventDefault();
         if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
+            if ($('#ipusers').val() === '') {
+                alert('Please select User OR Other from list.');
+            }
+            else if($('#ipusers').val() === 'other' && $('input[name="other_user_name"]').val()==='')
+            {
+                alert('Please enter other name.');
+            }
+            else{
+                $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
                 data: {
@@ -5462,6 +5859,8 @@ if (!empty($notifications)) {
                     toastr["Error"]("An error occured!");
                 }
             });
+            }
+
         } else {
             alert('please enter IP');
         }
@@ -5643,7 +6042,34 @@ if (!empty($notifications)) {
             }
         });
     });
-
+    $(document).on("click", ".bulkDeleteIp", function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        if(confirm('Are you sure you want to perform this Action?') == false)
+        {
+            return false;
+        }
+        $.ajax({
+            url: '/users/bulk-delete-system-ip',
+            type: 'GET',
+            data: {
+                _token: "{{ csrf_token() }}",
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(result) {
+                $("#userAllIps").empty();
+                $("#loading-image").hide();
+                toastr["success"]("IPs Deteted successfully");
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
     function loadUsersList() {
         var t = "";
         var ip = "";
@@ -5655,11 +6081,18 @@ if (!empty($notifications)) {
             },
             dataType: 'json',
             success: function(result) {
-                // console.log(result.data);
-                t += '<option>Select user</option>';
-                $.each(result.data, function(i, j) {
-                    t += '<option value="' + i + '">' + j + '</option>'
-                });
+                 
+
+                 const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
+
+                t += '<option value="">Select user</option>';
+                arr.forEach(([key,value]) => {
+                    t+=`<option value="${key}">${value}</option>`
+                })
+                //$.each(arr, function([key, value], j) {
+                 //   console.log('index->', i , 'j index', j );
+                 //   t += '<option value="' + i + '">' + j + '</option>'
+                //});
                 t += '<option value="other">Other</option>';
                 // console.log(t);
                 $("#ipusers").html(t);
@@ -5668,7 +6101,8 @@ if (!empty($notifications)) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
-                    // ip += '<td>' + v.user.name ? v.user.name : v.other_user_name + '</td>';
+                    ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
+                    ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
@@ -6215,6 +6649,116 @@ if (!\Auth::guest()) {
             $('#sidebar').toggleClass('active');
         });
         $(".select2-vendor").select2({});
+
+        @php
+            $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index"]))
+            $(".show-estimate-time").click(function (e) { 
+                e.preventDefault();
+                var tasktype = $(this).data('task');
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    data: {
+                        task: tasktype
+                    },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) { 
+
+                    }
+
+                });
+            });
+            $("#shortcut-estimate-search").select2();
+
+            $("#shortcut-estimate-search").change(function (e) { 
+                e.preventDefault();
+                let task_id = $(this).val();
+                @if ($route == "development.issue.index")
+                    var  tasktype = "DEVTASK";
+                @else
+                    var tasktype = "TASK";
+                @endif
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    data: {
+                        task: tasktype,
+                        task_id
+                    },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) { 
+                        toastr["error"]("Error while fetching data.");
+                    }
+
+                });
+            });
+        @endif
+
+        $('#showLatestEstimateTime').on('hide.bs.modal', function (e) {
+            $("#modalTaskInformationUpdates .modal-body .row").show()
+            $("#modalTaskInformationUpdates .modal-body hr").show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).show()
+        })
+
+
+        $(document).on("click", ".approveEstimateFromshortcutButton", function (event) {
+            event.preventDefault();
+            let type = $(this).data('type');
+            let task_id = $(this).data('task');
+            let history_id = $(this).data('id');
+            // console.log(type,
+            // task_id,
+            // history_id);
+            // return
+            if (type == "TASK") {
+                $.ajax({
+                url: "/task/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            } else {
+                $.ajax({
+                url: "/development/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            }
+        });
     });
 
     $(document).on('click', '.save-meeting-zoom', function() {
@@ -6660,6 +7204,25 @@ if (!\Auth::guest()) {
 		});
 	}
 
+    function estimateFunTaskDetailHandler(elm) { 
+        let tasktype = $(elm).data('task');
+        let taskid = $(elm).data('id');
+        if(tasktype == "DEVTASK") {
+            $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            funTaskInformationModal(elm, taskid)
+        } else {
+            $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
+            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            funTaskInformationModal(elm, taskid)
+        }
+    }
 
     </script>
     @if ($message = Session::get('actSuccess'))

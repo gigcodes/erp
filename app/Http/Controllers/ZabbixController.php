@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Host;
 use App\Problem;
-use App\ZabbixHistory;
 use Carbon\Carbon;
+use App\ZabbixHistory;
 use Illuminate\Http\Request;
 
 class ZabbixController extends Controller
@@ -23,13 +23,27 @@ class ZabbixController extends Controller
 
     public function problems(Request $request)
     {
-        if ($request->ajax()) {
-            $query = Problem::select('id', 'eventid', 'objectid', 'name', 'hostname');
+        $search_data = Problem::orderBy('id', 'asc')->get();
 
-            return datatables()->eloquent($query)->toJson();
+        $problems = Problem::orderBy('id', 'asc');
+
+        if (! empty($request->host_name)) {
+            $problems->where('hostname', $request->host_name);
         }
+        if (! empty($request->problem)) {
+            $problems->where('name', $request->problem);
+        }
+        if (! empty($request->event_id)) {
+            $problems->where('eventid', $request->event_id);
+        }
+        if (! empty($request->object_id)) {
+            $problems->where('objectid', $request->object_id);
+        }
+        $problems = $problems->paginate(25)->appends(request()->except(['page']));
 
-        return view('zabbix.problem');
+        $totalentries = count($problems);
+
+        return view('zabbix.problem', compact('problems', 'totalentries', 'search_data'));
     }
 
     public function history(Request $request)

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\InstagramPosts;
 use App\InstagramPostsComments;
-use Carbon\Carbon;
 //use InstagramAPI\Instagram;
 //use App\InstagramUsersList;
 use Illuminate\Console\Command;

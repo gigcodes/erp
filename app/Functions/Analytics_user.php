@@ -1,7 +1,7 @@
 <?php
 
 // Load the Google API PHP Client Library.
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 $data = [];
 $analytics = initializeAnalytics();
 
@@ -52,7 +52,7 @@ function getReportRequest($analytics, $request)
     if (! empty($request)) {
         $analytics = '';
         if (isset($request['google_service_account_json']) && $request['google_service_account_json'] != '') {
-            $websiteKeyFile = base_path('resources/analytics_files/'.$request['google_service_account_json']);
+            $websiteKeyFile = base_path('resources/analytics_files/' . $request['google_service_account_json']);
         } else {
             $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
         }
@@ -405,8 +405,15 @@ function getGoogleAnalyticData($analytics, $request)
     $userGender = new Google_Service_AnalyticsReporting_Dimension();
     $userGender->setName('ga:userGender');
 
-    $request->setDimensions([$dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode]);
-    // $request->setDimensions(array( $dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode, $userAge, $userGender));
+    $deviceCategory = new Google_Service_AnalyticsReporting_Dimension();
+    $deviceCategory->setName('ga:deviceCategory');
+
+//    $exDescription = new Google_Service_AnalyticsReporting_Dimension();
+//    $exDescription->setName('ga:exceptionDescription');
+
+    $request->setDimensions([$dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode, $deviceCategory]);
+
+    // $request->setDimensions(array( $dimension, $pagePat$exception, $browser, $operatingSystem, $country, $countryIsoCode, $userAge, $userGender));
 
     // Create the Metrics object.
     $metric = new Google_Service_AnalyticsReporting_Metric();
@@ -437,6 +444,10 @@ function getGoogleAnalyticData($analytics, $request)
     $session->setExpression('ga:sessions');
     $session->setAlias('session');
 
+//    $exceptions = new Google_Service_AnalyticsReporting_Metric();
+//    $exceptions->setExpression('ga:exceptions');
+//    $exceptions->setAlias('exceptions');
+
     $request->setMetrics([$metric, $uniquePageviews, $pageviews, $exitRate, $entrances, $entranceRate, $session]);
 
     $body = new Google_Service_AnalyticsReporting_GetReportsRequest();
@@ -458,6 +469,7 @@ function printGoogleAnalyticResults($reports, $websiteAnalyticsId)
             $data[$key]['os'] = $value['dimensions']['3'];
             $data[$key]['country'] = $value['dimensions']['4'];
             $data[$key]['iso_code'] = $value['dimensions']['5'];
+            $data[$key]['device'] = $value['dimensions']['6'];
             // $data[$key]['age'] = $value['dimensions']['6'];
             // $data[$key]['gender'] = $value['dimensions']['7'];
             $data[$key]['created_at'] = now();

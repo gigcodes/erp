@@ -8,14 +8,14 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_keys;
 use function count;
-use function explode;
-use function is_string;
 use function ksort;
+use function explode;
+use const SORT_STRING;
+use function is_string;
+use function array_keys;
 use PhpMyAdmin\Charsets\Charset;
 use PhpMyAdmin\Charsets\Collation;
-use const SORT_STRING;
 
 /**
  * Class used to manage MySQL charsets
@@ -80,10 +80,10 @@ class Charsets
         }
 
         $sql = 'SELECT `CHARACTER_SET_NAME` AS `Charset`,'
-            .' `DEFAULT_COLLATE_NAME` AS `Default collation`,'
-            .' `DESCRIPTION` AS `Description`,'
-            .' `MAXLEN` AS `Maxlen`'
-            .' FROM `information_schema`.`CHARACTER_SETS`';
+            . ' `DEFAULT_COLLATE_NAME` AS `Default collation`,'
+            . ' `DESCRIPTION` AS `Description`,'
+            . ' `MAXLEN` AS `Maxlen`'
+            . ' FROM `information_schema`.`CHARACTER_SETS`';
 
         if ($disableIs) {
             $sql = 'SHOW CHARACTER SET';
@@ -113,12 +113,12 @@ class Charsets
         }
 
         $sql = 'SELECT `COLLATION_NAME` AS `Collation`,'
-            .' `CHARACTER_SET_NAME` AS `Charset`,'
-            .' `ID` AS `Id`,'
-            .' `IS_DEFAULT` AS `Default`,'
-            .' `IS_COMPILED` AS `Compiled`,'
-            .' `SORTLEN` AS `Sortlen`'
-            .' FROM `information_schema`.`COLLATIONS`';
+            . ' `CHARACTER_SET_NAME` AS `Charset`,'
+            . ' `ID` AS `Id`,'
+            . ' `IS_DEFAULT` AS `Default`,'
+            . ' `IS_COMPILED` AS `Compiled`,'
+            . ' `SORTLEN` AS `Sortlen`'
+            . ' FROM `information_schema`.`COLLATIONS`';
 
         if ($disableIs) {
             $sql = 'SHOW COLLATION';

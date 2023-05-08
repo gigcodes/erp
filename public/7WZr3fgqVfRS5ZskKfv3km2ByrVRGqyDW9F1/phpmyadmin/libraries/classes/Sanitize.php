@@ -8,25 +8,25 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_keys;
-use function array_merge;
 use function count;
-use function htmlspecialchars;
+use function strtr;
+use function is_int;
+use function strlen;
+use function substr;
+use function is_bool;
 use function in_array;
 use function is_array;
-use function is_bool;
-use function is_int;
 use function is_string;
-use PhpMyAdmin\Html\MySQLDocumentation;
+use function array_keys;
 use function preg_match;
-use function preg_replace;
-use function preg_replace_callback;
-use function str_replace;
-use function str_starts_with;
-use function strlen;
 use function strtolower;
-use function strtr;
-use function substr;
+use function array_merge;
+use function str_replace;
+use function preg_replace;
+use function str_starts_with;
+use function htmlspecialchars;
+use function preg_replace_callback;
+use PhpMyAdmin\Html\MySQLDocumentation;
 
 /**
  * This class includes various sanitization methods that can be called statically
@@ -57,7 +57,7 @@ class Sanitize
                     continue;
                 }
 
-                $valid_starts[$key] = '.'.$value;
+                $valid_starts[$key] = '.' . $value;
             }
         }
 
@@ -113,7 +113,7 @@ class Sanitize
         /* Construct target */
         $target = '';
         if (! empty($found[3])) {
-            $target = ' target="'.$found[3].'"';
+            $target = ' target="' . $found[3] . '"';
             if ($found[3] === '_blank') {
                 $target .= ' rel="noopener noreferrer"';
             }
@@ -126,7 +126,7 @@ class Sanitize
             $url = $found[1];
         }
 
-        return '<a href="'.$url.'"'.$target.'>';
+        return '<a href="' . $url . '"' . $target . '>';
     }
 
     /**
@@ -155,7 +155,7 @@ class Sanitize
 
         $link = MySQLDocumentation::getDocumentationLink($page, $anchor, self::isSetup() ? '../' : './');
 
-        return '<a href="'.$link.'" target="documentation">';
+        return '<a href="' . $link . '" target="documentation">';
     }
 
     /**
@@ -196,7 +196,7 @@ class Sanitize
             '[sup]' => '<sup>',
             '[/sup]' => '</sup>',
             '[conferr]' => '<iframe src="show_config_errors.php"><a href='
-                .'"show_config_errors.php">show_config_errors.php</a></iframe>',
+                . '"show_config_errors.php">show_config_errors.php</a></iframe>',
             // used in libraries/Util.php
             '[dochelpicon]' => Html\Generator::getImage('b_help', __('Documentation')),
         ];
@@ -330,7 +330,7 @@ class Sanitize
             return $value;
         }
 
-        return '"'.self::escapeJsString($value).'"';
+        return '"' . self::escapeJsString($value) . '"';
     }
 
     /**
@@ -345,18 +345,18 @@ class Sanitize
      */
     public static function getJsValue($key, $value, $escape = true)
     {
-        $result = $key.' = ';
+        $result = $key . ' = ';
         if (! $escape) {
             $result .= $value;
         } elseif (is_array($value)) {
             $result .= '[';
             foreach ($value as $val) {
-                $result .= self::formatJsVal($val).',';
+                $result .= self::formatJsVal($val) . ',';
             }
 
             $result .= "];\n";
         } else {
-            $result .= self::formatJsVal($value).";\n";
+            $result .= self::formatJsVal($value) . ";\n";
         }
 
         return $result;

@@ -2,17 +2,16 @@
 
 namespace App\Observers;
 
-use App\Activity;
-use App\Brand;
-use App\User;
 use Auth;
+use App\User;
+use App\Brand;
+use App\Activity;
 
 class BrandObserver
 {
     /**
      * Handle the brand "created" event.
      *
-     * @param  \App\Brand  $brand
      * @return void
      */
     public function created(Brand $brand)
@@ -33,7 +32,6 @@ class BrandObserver
     /**
      * Handle the brand "updated" event.
      *
-     * @param  \App\Brand  $brand
      * @return void
      */
     public function updated(Brand $brand)
@@ -54,7 +52,6 @@ class BrandObserver
     /**
      * Handle the brand "deleted" event.
      *
-     * @param  \App\Brand  $brand
      * @return void
      */
     public function deleted(Brand $brand)
@@ -75,7 +72,6 @@ class BrandObserver
     /**
      * Handle the brand "restored" event.
      *
-     * @param  \App\Brand  $brand
      * @return void
      */
     public function restored(Brand $brand)
@@ -86,7 +82,6 @@ class BrandObserver
     /**
      * Handle the brand "force deleted" event.
      *
-     * @param  \App\Brand  $brand
      * @return void
      */
     public function forceDeleted(Brand $brand)

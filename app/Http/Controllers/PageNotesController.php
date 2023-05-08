@@ -129,6 +129,7 @@ class PageNotesController extends Controller
         ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name']);
 
         //START - Purpose : Add search - DEVTASK-4289
+
 //        dump($request->all());
         $note_title = $request->note_title;
         $noteData = $request->note;
@@ -151,7 +152,12 @@ class PageNotesController extends Controller
                 });
             }
         });
-        
+
+        if ($request->search) {
+            $search = '%' . $request->search . '%';
+            $records = $records->where('page_notes.note', 'like', $search);
+        }
+
         //END - DEVTASK-4289
 
         $records = $records->paginate(Setting::get('pagination'));

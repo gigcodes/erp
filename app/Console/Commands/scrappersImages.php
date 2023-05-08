@@ -74,7 +74,7 @@ class scrappersImages extends Command
                     foreach ($output->response->images as $key => $image) {
                         if (! empty($image)) {
                             $img_name = basename($image->link);
-                            $file_name = uniqid().trim($img_name);
+                            $file_name = uniqid() . trim($img_name);
 
                             if ($this->saveBase64Image($file_name, $image->link)) {
                                 $newImage = [
@@ -107,7 +107,7 @@ class scrappersImages extends Command
         try {
             $curl = curl_init();
             // set our url with curl_setopt()
-            curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL_BASE64').$base64Image);
+            curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL_BASE64') . $base64Image);
 
             // return the transfer as a string, also with setopt()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -130,7 +130,7 @@ class scrappersImages extends Command
                 $imageData = base64_decode($base64Image);
 
                 // //Set image whole path here
-                $filePath = public_path('scrappersImages').'/'.$file_name;
+                $filePath = public_path('scrappersImages') . '/' . $file_name;
                 file_put_contents($filePath, $imageData);
 
                 return true;

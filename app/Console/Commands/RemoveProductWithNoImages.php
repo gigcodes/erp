@@ -49,7 +49,7 @@ class RemoveProductWithNoImages extends Command
                                 $path = $med->getAbsolutePath();
                                 if (! file_exists($path)) {
                                     $med->delete();
-                                    echo $product->id." > $t > $path deleted";
+                                    echo $product->id . " > $t > $path deleted";
                                     echo PHP_EOL;
                                 }
                             }

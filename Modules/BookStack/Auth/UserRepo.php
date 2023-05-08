@@ -2,14 +2,14 @@
 
 namespace Modules\BookStack\Auth;
 
+use Images;
 use Activity;
 use Exception;
+use Modules\BookStack\Uploads\Image;
 use Illuminate\Database\Eloquent\Builder;
-use Images;
 use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Exceptions\NotFoundException;
 use Modules\BookStack\Exceptions\UserUpdateException;
-use Modules\BookStack\Uploads\Image;
 
 class UserRepo
 {
@@ -21,10 +21,6 @@ class UserRepo
 
     /**
      * UserRepo constructor.
-     *
-     * @param  User  $user
-     * @param  Role  $role
-     * @param  EntityRepo  $entityRepo
      */
     public function __construct(User $user, Role $role, EntityRepo $entityRepo)
     {
@@ -65,7 +61,6 @@ class UserRepo
      * Get all the users with their permissions in a paginated format.
      *
      * @param  int  $count
-     * @param $sortData
      * @return Builder|static
      */
     public function getAllUsersPaginatedAndSorted($count, $sortData)
@@ -73,7 +68,7 @@ class UserRepo
         $query = $this->user->with('roles', 'avatar')->orderBy($sortData['sort'], $sortData['order']);
 
         if ($sortData['search']) {
-            $term = '%'.$sortData['search'].'%';
+            $term = '%' . $sortData['search'] . '%';
             $query->where(function ($query) use ($term) {
                 $query->where('name', 'like', $term)
                     ->orWhere('email', 'like', $term);
@@ -86,7 +81,6 @@ class UserRepo
     /**
      * Creates a new user and attaches a role to them.
      *
-     * @param  array  $data
      * @param  bool  $verifyEmail
      * @return \BookStack\Auth\User
      */
@@ -101,8 +95,6 @@ class UserRepo
 
     /**
      * Give a user the default role. Used when creating a new user.
-     *
-     * @param  User  $user
      */
     public function attachDefaultRole(User $user)
     {
@@ -115,8 +107,6 @@ class UserRepo
     /**
      * Assign a user to a system-level role.
      *
-     * @param  User  $user
-     * @param $systemRoleName
      *
      * @throws NotFoundException
      */
@@ -152,8 +142,6 @@ class UserRepo
     /**
      * Set the assigned user roles via an array of role IDs.
      *
-     * @param  User  $user
-     * @param  array  $roles
      *
      * @throws UserUpdateException
      */
@@ -169,10 +157,6 @@ class UserRepo
     /**
      * Check if the given user is the last admin and their new roles no longer
      * contains the admin role.
-     *
-     * @param  User  $user
-     * @param  array  $newRoles
-     * @return bool
      */
     protected function demotingLastAdmin(User $user, array $newRoles): bool
     {
@@ -189,7 +173,6 @@ class UserRepo
     /**
      * Create a new basic instance of user.
      *
-     * @param  array  $data
      * @param  bool  $verifyEmail
      * @return \BookStack\Auth\User
      */
@@ -297,7 +280,6 @@ class UserRepo
      * Get an avatar image for a user and set it as their avatar.
      * Returns early if avatars disabled or not set in config.
      *
-     * @param  User  $user
      * @return bool
      */
     public function downloadAndAssignUserAvatar(User $user)

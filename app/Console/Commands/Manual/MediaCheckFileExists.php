@@ -58,13 +58,13 @@ class MediaCheckFileExists extends Command
 
                     if ($medias != null) {
                         foreach ($medias as $media) {
-                            $file = public_path().'/'.$media->disk.(! empty($media->directory) ? '/'.$media->directory : '').'/'.$media->filename.'.'.$media->extension;
+                            $file = public_path() . '/' . $media->disk . (! empty($media->directory) ? '/' . $media->directory : '') . '/' . $media->filename . '.' . $media->extension;
                             if (! file_exists($file)) {
                                 // Delete media and mediables
                                 $product->detachMedia($media);
                                 $media->delete();
 
-                                echo 'REMOVED '.$file.' WITH ID '.$media->id.' FROM DATABASE FOR PRODUCT '.$product->id."\n";
+                                echo 'REMOVED ' . $file . ' WITH ID ' . $media->id . ' FROM DATABASE FOR PRODUCT ' . $product->id . "\n";
                                 $cnt++;
                             }
                         }
@@ -73,7 +73,7 @@ class MediaCheckFileExists extends Command
             }
 
             // Output result
-            echo "\n".$cnt." file(s) deleted\n";
+            echo "\n" . $cnt . " file(s) deleted\n";
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -6,8 +6,8 @@ namespace App\Social;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 class SocialPost extends Model
 {
@@ -26,8 +26,10 @@ class SocialPost extends Model
     protected $fillable = [
         'config_id',
         'caption',
+        'hashtag',
         'post_body',
         'post_by',
+        'translation_approved_by',
         'posted_on',
         'status',
     ];

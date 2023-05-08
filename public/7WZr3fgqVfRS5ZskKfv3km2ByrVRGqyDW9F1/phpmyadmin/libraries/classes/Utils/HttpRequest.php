@@ -4,41 +4,41 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Utils;
 
-use function base64_encode;
-use Composer\CaBundle\CaBundle;
+use const PHP_SAPI;
+use function getenv;
+use function intval;
+use function is_dir;
+use function strlen;
+use function ini_get;
+use function is_array;
 use function curl_exec;
-use function curl_getinfo;
 use function curl_init;
-use const CURL_IPRESOLVE_V4;
-use function curl_setopt;
-use const CURLINFO_HTTP_CODE;
+use function parse_url;
+use const CURLOPT_PROXY;
+use function preg_match;
 use const CURLOPT_CAINFO;
 use const CURLOPT_CAPATH;
-use const CURLOPT_CONNECTTIMEOUT;
-use const CURLOPT_CUSTOMREQUEST;
-use const CURLOPT_FOLLOWLOCATION;
-use const CURLOPT_HTTPHEADER;
+use function curl_setopt;
+use const CURLOPT_TIMEOUT;
+use function curl_getinfo;
+use function base64_encode;
+use const CURL_IPRESOLVE_V4;
 use const CURLOPT_IPRESOLVE;
+use const CURLOPT_USERAGENT;
+use const CURLINFO_HTTP_CODE;
+use const CURLOPT_HTTPHEADER;
 use const CURLOPT_POSTFIELDS;
-use const CURLOPT_PROXY;
+use function function_exists;
+use Composer\CaBundle\CaBundle;
 use const CURLOPT_PROXYUSERPWD;
+use function file_get_contents;
+use const CURLOPT_CUSTOMREQUEST;
+use const CURLOPT_CONNECTTIMEOUT;
+use const CURLOPT_FOLLOWLOCATION;
 use const CURLOPT_RETURNTRANSFER;
 use const CURLOPT_SSL_VERIFYHOST;
 use const CURLOPT_SSL_VERIFYPEER;
-use const CURLOPT_TIMEOUT;
-use const CURLOPT_USERAGENT;
-use function file_get_contents;
-use function function_exists;
-use function getenv;
-use function ini_get;
-use function intval;
-use function is_array;
-use function is_dir;
-use function parse_url;
-use const PHP_SAPI;
-use function preg_match;
 use function stream_context_create;
-use function strlen;
 
 /**
  * Handles HTTP requests
@@ -74,7 +74,7 @@ class HttpRequest
         }
 
         $cfg['ProxyUrl'] = ($urlInfo['host'] ?? '')
-            .(isset($urlInfo['port']) ? ':'.$urlInfo['port'] : '');
+            . (isset($urlInfo['port']) ? ':' . $urlInfo['port'] : '');
         $cfg['ProxyUser'] = $urlInfo['user'] ?? '';
         $cfg['ProxyPass'] = $urlInfo['pass'] ?? '';
     }
@@ -94,9 +94,9 @@ class HttpRequest
                 'request_fulluri' => true,
             ];
             if (strlen($this->proxyUser) > 0) {
-                $auth = base64_encode($this->proxyUser.':'.$this->proxyPass);
+                $auth = base64_encode($this->proxyUser . ':' . $this->proxyPass);
                 $context['http']['header'] = 'Proxy-Authorization: Basic '
-                    .$auth."\r\n";
+                    . $auth . "\r\n";
             }
         }
 
@@ -160,7 +160,7 @@ class HttpRequest
                 $curlStatus &= (int) curl_setopt(
                     $curlHandle,
                     CURLOPT_PROXYUSERPWD,
-                    $this->proxyUser.':'.$this->proxyPass
+                    $this->proxyUser . ':' . $this->proxyPass
                 );
             }
         }
@@ -240,7 +240,7 @@ class HttpRequest
             ],
         ];
         if ($header) {
-            $context['http']['header'] .= "\n".$header;
+            $context['http']['header'] .= "\n" . $header;
         }
 
         if ($method === 'POST') {

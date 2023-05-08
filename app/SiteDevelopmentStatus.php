@@ -17,6 +17,6 @@ class SiteDevelopmentStatus extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
-        'name', 'created_at', 'updated_at',
+        'name', 'created_at', 'updated_at', 'color',
     ];
 }

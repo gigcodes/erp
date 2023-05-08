@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Google\Client;
-use Illuminate\Support\Facades\Auth;
 use App\GoogleDeveloper;
 use App\GoogleDeveloperLogs;
+use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use App\Helpers\LogHelper;
 
-session_start();  
+session_start();
 
 class DevAPIReport extends Command
 {
@@ -44,258 +44,230 @@ class DevAPIReport extends Command
      * @return int
      */
     public function handle()
-    {    
-     if(env("GOOGLE_PLAY_STORE_DELETE_LOGS")=="1"){
-        GoogleDeveloperLogs::truncate();
-     }
-     
-
-        $log = new GoogleDeveloperLogs();    
-        $log->api='crash/anr';
-        $redirect_uri = 'https://erpstage.theluxuryunlimited.com/google/developer-api/crash';
-
-        // print($redirect_uri);
-        $client = new Client();
-        $client->setApplicationName(env("GOOGLE_PLAY_STORE_APP_ID"));
-        $client->setDeveloperKey(env("GOOGLE_PLAY_STORE_DEV_KEY"));
-        $client->setClientId(env("GOOGLE_PLAY_STORE_CLIENT_ID"));
-        $client->setClientSecret(env("GOOGLE_PLAY_STORE_CLIENT_SECRET"));
-        $SERVICE_ACCOUNT_NAME = env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT"); 
-        $KEY_FILE = storage_path().env("GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS");
-        $client->setRedirectUri($redirect_uri);
-        // $log->log_name='key_file_path';
-        // $log->result=$KEY_FILE;
-        // $log->save();
-        $client->setAuthConfig($KEY_FILE);
-        $user_to_impersonate= env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT");
-        $client->setSubject($user_to_impersonate);
-        $client->setScopes(array(env("GOOGLE_PLAY_STORE_SCOPES")));
-
-        $token=null;
-        if ($client->isAccessTokenExpired()) 
-        {   
-            $token = $client->fetchAccessTokenWithAssertion();
-             
-        }
-        else 
-        {
-            $token = $client->getAccessToken();
-             
-        }
-        $_SESSION['token']=$token;
-     
-        if (!$token && !isset($_SESSION['token'])) 
-        {
-            $authUrl = $client->createAuthUrl();
-              
-            $output="connect";
-            $output2=$authUrl;
-        } 
-        else
-        {
-            $array_app=explode(",",env("GOOGLE_PLAY_STORE_APP"));
-            foreach ($array_app as $app_value) {
-               
-            $at=$_SESSION['token']["access_token"];
-            //crash report
-
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet?access_token='.$at);
-
-   
-
-            if(gettype($res)!="string")
-            {
-
-                if(isset($res["error"]))
-                {
-
-                    if($res["error"]["code"]==401)
-                    {
-                        session_unset();
-                        // $log = new GoogleDeveloperLogs();    
-                        // $log->api='crash'; 
-                        //         $log->log_name='error_code';
-                        //         $log->result="401 error";
-                        //         $log->save();
-                        echo "401 error";
-                        // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-                        // $client->setRedirectUri($redirect_uri);
-
-                    }
-                }
-                if(isset($res["name"]))
-                {
-                    // print($res["name"]);
-                    // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
-                    // // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
-                    $year=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["year"];
-                    $day=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["day"];
-                    $month=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["month"];
-                    $date = $year.'-'.$month.'-'.$day;
-                    // print($date);
-                    //  print($res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"]);
-                    $r = new GoogleDeveloper();
-                    $r->name = $res["name"];
-                    $r->aggregation_period = $res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"];
-                    $r->latestEndTime = $date;
-                    $r->timezone = $res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"];
-                    $r->report ="crash";
-                    $r->save();
-
-                    // $log = new GoogleDeveloperLogs();    
-            
-                    // $log->api='crash';
-                    // $log->log_name='result';
-                    // $log->result="success";
-                    // $log->save();
-                    $postData = array(
-                    'timeline_spec' => array('aggregation_period' => "DAILY","start_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-2),"end_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-1)),
-
-                    'dimensions' => array('apiLevel'),
-                    'metrics' => array('crashRate','distinctUsers','crashRate28dUserWeighted')
-                    );
-
-                    // Setup cURL
-
-                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
-                    curl_setopt_array($ch, array(
-                    CURLOPT_POST => TRUE,
-                    CURLOPT_RETURNTRANSFER => TRUE,
-                    CURLOPT_HTTPHEADER => array(
-                    'Authorization: OAuth '.$at,
-
-                    'Content-Type: application/json'
-                    ),
-                    CURLOPT_POSTFIELDS => json_encode($postData)
-                    ));
-
-                    // Send the request
-                    $response = curl_exec($ch);
-                    // print($response);
-
-                    $log = new GoogleDeveloperLogs();    
-                    $log->api='crash report';   
-                    $log->log_name='CRASH REPORT';
-                    $log->result=$response;
-                    $log->save();
-                    echo "crash report of ".$app_value." added";
-                }
-
-            }
-            else{
-                    $log = new GoogleDeveloperLogs();    
-
-                    $log->api='crash error';
-                    $log->log_name='ERROR';
-                    $log->result=$res;
-                    $log->save();
-                    echo "crash report of ".$app_value." failed";
+    {
+        try{
+            if (env('GOOGLE_PLAY_STORE_DELETE_LOGS') == '1') {
+                GoogleDeveloperLogs::truncate();
             }
 
-            //ANR Report
+            $log = new GoogleDeveloperLogs();
+            $log->api = 'crash/anr';
+            $redirect_uri = 'https://erpstage.theluxuryunlimited.com/google/developer-api/crash';
 
-
-
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/anrRateMetricSet?access_token='.$at);
-            $log = new GoogleDeveloperLogs();    
-            
-            //         $log->api='anr';
-            //  $log->log_name='result';
-            // $log->result=$res;
+            // print($redirect_uri);
+            $client = new Client();
+            $client->setApplicationName(env('GOOGLE_PLAY_STORE_APP_ID'));
+            $client->setDeveloperKey(env('GOOGLE_PLAY_STORE_DEV_KEY'));
+            $client->setClientId(env('GOOGLE_PLAY_STORE_CLIENT_ID'));
+            $client->setClientSecret(env('GOOGLE_PLAY_STORE_CLIENT_SECRET'));
+            $SERVICE_ACCOUNT_NAME = env('GOOGLE_PLAY_STORE_SERVICE_ACCOUNT');
+            $KEY_FILE = storage_path() . env('GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS');
+            $client->setRedirectUri($redirect_uri);
+            // $log->log_name='key_file_path';
+            // $log->result=$KEY_FILE;
             // $log->save();
+            $client->setAuthConfig($KEY_FILE);
+            $user_to_impersonate = env('GOOGLE_PLAY_STORE_SERVICE_ACCOUNT');
+            $client->setSubject($user_to_impersonate);
+            $client->setScopes([env('GOOGLE_PLAY_STORE_SCOPES')]);
 
-            if(gettype($res)!="string")
-            {
+            $token = null;
+            if ($client->isAccessTokenExpired()) {
+                $token = $client->fetchAccessTokenWithAssertion();
+            } else {
+                $token = $client->getAccessToken();
+            }
+            $_SESSION['token'] = $token;
 
-                if(isset($res["error"]))
-                {
+            if (! $token && ! isset($_SESSION['token'])) {
+                $authUrl = $client->createAuthUrl();
 
-                    if($res["error"]["code"]==401)
-                    {
-                    session_unset();
-                    // $log = new GoogleDeveloperLogs();    
-            
-                    // $log->api='anr';
-                    // $log->log_name='error_code';
-                    // $log->result="401 error";
+                $output = 'connect';
+                $output2 = $authUrl;
+            } else {
+                $array_app = explode(',', env('GOOGLE_PLAY_STORE_APP'));
+                foreach ($array_app as $app_value) {
+                    $at = $_SESSION['token']['access_token'];
+                    //crash report
+
+                    $res = Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/crashRateMetricSet?access_token=' . $at);
+
+                    if (gettype($res) != 'string') {
+                        if (isset($res['error'])) {
+                            if ($res['error']['code'] == 401) {
+                                session_unset();
+                                // $log = new GoogleDeveloperLogs();
+                                // $log->api='crash';
+                            //         $log->log_name='error_code';
+                            //         $log->result="401 error";
+                            //         $log->save();
+                                echo '401 error';
+                                // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+                                // $client->setRedirectUri($redirect_uri);
+                            }
+                        }
+                        if (isset($res['name'])) {
+                            // print($res["name"]);
+                            // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
+                            // // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
+                            $year = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
+                            $day = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
+                            $month = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
+                            $date = $year . '-' . $month . '-' . $day;
+                            // print($date);
+                            //  print($res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"]);
+                            $r = new GoogleDeveloper();
+                            $r->name = $res['name'];
+                            $r->aggregation_period = $res['freshnessInfo']['freshnesses'][0]['aggregationPeriod'];
+                            $r->latestEndTime = $date;
+                            $r->timezone = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
+                            $r->report = 'crash';
+                            $r->save();
+
+                            // $log = new GoogleDeveloperLogs();
+
+                            // $log->api='crash';
+                            // $log->log_name='result';
+                            // $log->result="success";
+                            // $log->save();
+                            $postData = [
+                                'timeline_spec' => ['aggregation_period' => 'DAILY', 'start_time' => ['year' => $year, 'month' => $month, 'day' => $day - 2], 'end_time' => ['year' => $year, 'month' => $month, 'day' => $day - 1]],
+
+                                'dimensions' => ['apiLevel'],
+                                'metrics' => ['crashRate', 'distinctUsers', 'crashRate28dUserWeighted'],
+                            ];
+
+                            // Setup cURL
+
+                            $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/crashRateMetricSet:query');
+                            curl_setopt_array($ch, [
+                                CURLOPT_POST => true,
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_HTTPHEADER => [
+                                    'Authorization: OAuth ' . $at,
+
+                                    'Content-Type: application/json',
+                                ],
+                                CURLOPT_POSTFIELDS => json_encode($postData),
+                            ]);
+
+                            // Send the request
+                            $response = curl_exec($ch);
+                            // print($response);
+
+                            $log = new GoogleDeveloperLogs();
+                            $log->api = 'crash report';
+                            $log->log_name = 'CRASH REPORT';
+                            $log->result = $response;
+                            $log->save();
+                            echo 'crash report of ' . $app_value . ' added';
+                        }
+                    } else {
+                        $log = new GoogleDeveloperLogs();
+
+                        $log->api = 'crash error';
+                        $log->log_name = 'ERROR';
+                        $log->result = $res;
+                        $log->save();
+                        echo 'crash report of ' . $app_value . ' failed';
+                    }
+
+                    //ANR Report
+
+                    $res = Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/anrRateMetricSet?access_token=' . $at);
+                    $log = new GoogleDeveloperLogs();
+
+                //         $log->api='anr';
+                    //  $log->log_name='result';
+                    // $log->result=$res;
                     // $log->save();
-                    echo "401 error";
-                    // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-                    // $client->setRedirectUri($redirect_uri);
+
+                    if (gettype($res) != 'string') {
+                        if (isset($res['error'])) {
+                            if ($res['error']['code'] == 401) {
+                                session_unset();
+                                // $log = new GoogleDeveloperLogs();
+
+                                // $log->api='anr';
+                                // $log->log_name='error_code';
+                                // $log->result="401 error";
+                                // $log->save();
+                                echo '401 error';
+                                // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+                                // $client->setRedirectUri($redirect_uri);
+                            }
+                        }
+                        if (isset($res['name'])) {
+                            // print($res["name"]);
+                            // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
+                            // // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
+                            $year = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
+                            $day = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
+                            $month = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
+                            $date = $year . '-' . $month . '-' . $day;
+                            // print($date);
+                            //  print($res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"]);
+                            $r = new GoogleDeveloper();
+                            $r->name = $res['name'];
+                            $r->aggregation_period = $res['freshnessInfo']['freshnesses'][0]['aggregationPeriod'];
+                            $r->latestEndTime = $date;
+                            $r->timezone = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
+                            $r->report = 'anr';
+                            $r->save();
+                            // $log = new GoogleDeveloperLogs();
+
+                            // $log->api='anr';
+
+                            // $log->log_name='result';
+                            // $log->result="success";
+                            // $log->save();
+                            $postData = [
+                                'timeline_spec' => ['aggregation_period' => 'DAILY', 'start_time' => ['year' => $year, 'month' => $month, 'day' => $day - 2], 'end_time' => ['year' => $year, 'month' => $month, 'day' => $day - 1]],
+
+                                'dimensions' => ['apiLevel'],
+                                'metrics' => ['distinctUsers'],
+                            ];
+
+                            // Setup cURL
+
+                            $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/crashRateMetricSet:query');
+                            curl_setopt_array($ch, [
+                                CURLOPT_POST => true,
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_HTTPHEADER => [
+                                    'Authorization: OAuth ' . $at,
+
+                                    'Content-Type: application/json',
+                                ],
+                                CURLOPT_POSTFIELDS => json_encode($postData),
+                            ]);
+
+                            // Send the request
+                            $response = curl_exec($ch);
+                            // print($response);
+
+                            $log = new GoogleDeveloperLogs();
+                            $log->api = 'anr report';
+                            $log->log_name = 'ANR REPORT';
+                            $log->result = $response;
+                            $log->save();
+                            echo 'anr report of ' . $app_value . ' added';
+                        }
+                    } else {
+                        $log = new GoogleDeveloperLogs();
+
+                        $log->api = 'anr error';
+                        $log->log_name = 'ANR ERROR';
+                        $log->result = $res;
+                        $log->save();
+                        echo 'anr report of ' . $app_value . ' failed';
                     }
                 }
-                if(isset($res["name"]))
-                {
-                    // print($res["name"]);
-                    // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
-                    // // print($res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"]);
-                    $year=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["year"];
-                    $day=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["day"];
-                    $month=$res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["month"];
-                    $date = $year.'-'.$month.'-'.$day;
-                    // print($date);
-                    //  print($res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"]);
-                    $r = new GoogleDeveloper();
-                    $r->name = $res["name"];
-                    $r->aggregation_period = $res["freshnessInfo"]["freshnesses"][0]["aggregationPeriod"];
-                    $r->latestEndTime = $date;
-                    $r->timezone = $res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"];
-                    $r->report ="anr";
-                    $r->save();
-                     // $log = new GoogleDeveloperLogs();    
-            
-                    // $log->api='anr';
-                 
-                    // $log->log_name='result';
-                    // $log->result="success";
-                    // $log->save();
-                    $postData = array(
-                    'timeline_spec' => array('aggregation_period' => "DAILY","start_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-2),"end_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-1)),
-
-                    'dimensions' => array('apiLevel'),
-                    'metrics' => array('distinctUsers')
-                    );
-
-                    // Setup cURL
-
-                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
-                    curl_setopt_array($ch, array(
-                    CURLOPT_POST => TRUE,
-                    CURLOPT_RETURNTRANSFER => TRUE,
-                    CURLOPT_HTTPHEADER => array(
-                    'Authorization: OAuth '.$at,
-
-                    'Content-Type: application/json'
-                    ),
-                    CURLOPT_POSTFIELDS => json_encode($postData)
-                    ));
-
-                    // Send the request
-                    $response = curl_exec($ch);
-                    // print($response);
-
-                    $log = new GoogleDeveloperLogs();    
-                    $log->api='anr report';   
-                    $log->log_name='ANR REPORT';
-                    $log->result=$response;
-                    $log->save();
-                    echo "anr report of ".$app_value." added";
-                }
-
             }
-            else{
-                    $log = new GoogleDeveloperLogs();    
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
-                    $log->api='anr error';
-                    $log->log_name='ANR ERROR';
-                    $log->result=$res;
-                    $log->save();
-                    echo "anr report of ".$app_value." failed";
-            }
-
-
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-    }
-       
     }
 }

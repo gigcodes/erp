@@ -13,29 +13,29 @@ class domainreportController extends Controller
         $data = [];
         $final_data = [];
         $apis = [
-            'domain_organic_search_keywords' => 'https://api.semrush.com/?type=domain_organic&key='.$key.'&display_filter=%2B%7CPh%7CCo%7Cseo&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=tr_desc&database='.$db,
+            'domain_organic_search_keywords' => 'https://api.semrush.com/?type=domain_organic&key=' . $key . '&display_filter=%2B%7CPh%7CCo%7Cseo&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
 
-            'domain_paid_search_keywords' => 'https://api.semrush.com/?type=domain_adwords&key='.$key.'&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=po_asc&database='.$db,
+            'domain_paid_search_keywords' => 'https://api.semrush.com/?type=domain_adwords&key=' . $key . '&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=po_asc&database=' . $db,
 
-            'ads_copies' => 'https://api.semrush.com/?type=domain_adwords_unique&key='.$key.'&display_limit=3&export_columns=Tt,Ds,Vu,Ur,Pc&domain='.$domain.'&database='.$db,
+            'ads_copies' => 'https://api.semrush.com/?type=domain_adwords_unique&key=' . $key . '&display_limit=3&export_columns=Tt,Ds,Vu,Ur,Pc&domain=' . $domain . '&database=' . $db,
 
-            'competitors_in_organic_search' => 'https://api.semrush.com/?type=domain_organic_organic&key='.$key.'&display_limit=10&export_columns=Dn,Cr,Np,Or,Ot,Oc,Ad&domain='.$domain.'&database='.$db,
+            'competitors_in_organic_search' => 'https://api.semrush.com/?type=domain_organic_organic&key=' . $key . '&display_limit=10&export_columns=Dn,Cr,Np,Or,Ot,Oc,Ad&domain=' . $domain . '&database=' . $db,
 
-            'competitors_in_paid_search' => 'https://api.semrush.com/?type=domain_adwords_adwords&key='.$key.'&display_limit=10&export_columns=Dn,Cr,Np,Ad,At,Ac,Or&domain='.$domain.'&database='.$db,
+            'competitors_in_paid_search' => 'https://api.semrush.com/?type=domain_adwords_adwords&key=' . $key . '&display_limit=10&export_columns=Dn,Cr,Np,Ad,At,Ac,Or&domain=' . $domain . '&database=' . $db,
 
-            'domain_ad_history' => 'https://api.semrush.com/?type=domain_adwords_historical&key='.$key.'&display_limit=1&export_columns=Ph,Dt,Po,Cp,Nq,Tr,Ur,Tt,Ds,Vu&domain='.$domain.'&database='.$db,
+            'domain_ad_history' => 'https://api.semrush.com/?type=domain_adwords_historical&key=' . $key . '&display_limit=1&export_columns=Ph,Dt,Po,Cp,Nq,Tr,Ur,Tt,Ds,Vu&domain=' . $domain . '&database=' . $db,
             //doubt
-            'domain_vs_domain' => 'https://api.semrush.com/?type=domain_domains&key='.$key.'&database='.$db.'&display_limit=10&domains=*|or|nike.com|*|or|adidas.com|*|or|reebok.com&export_columns=Ph,P0,P1,P2,Co,Nq,Cp',
+            'domain_vs_domain' => 'https://api.semrush.com/?type=domain_domains&key=' . $key . '&database=' . $db . '&display_limit=10&domains=*|or|nike.com|*|or|adidas.com|*|or|reebok.com&export_columns=Ph,P0,P1,P2,Co,Nq,Cp',
 
-            'domain_pla_search_keywords' => 'https://api.semrush.com/?type=domain_shopping&key='.$key.'&domain='.$domain.'&database='.$db.'&display_limit=3&display_sort=nq_desc&export_columns=Ph,Po,Pp,Pd,Nq,Sn,Ur,Tt,Pr,Ts',
+            'domain_pla_search_keywords' => 'https://api.semrush.com/?type=domain_shopping&key=' . $key . '&domain=' . $domain . '&database=' . $db . '&display_limit=3&display_sort=nq_desc&export_columns=Ph,Po,Pp,Pd,Nq,Sn,Ur,Tt,Pr,Ts',
 
-            'pla_copies' => 'https://api.semrush.com/?type=domain_shopping_unique&key='.$key.'&domain='.$domain.'&database='.$db.'&display_limit=3&export_columns=Tt,Pr,Ur,Pc',
+            'pla_copies' => 'https://api.semrush.com/?type=domain_shopping_unique&key=' . $key . '&domain=' . $domain . '&database=' . $db . '&display_limit=3&export_columns=Tt,Pr,Ur,Pc',
 
-            'pla_competitors' => 'https://api.semrush.com/?type=domain_shopping_shopping&key='.$key.'&domain='.$domain.'&database='.$db.'&display_limit=10&display_sort=np_desc&export_columns=Dn,Cr,Np,Ad,At,Ac,Or',
+            'pla_competitors' => 'https://api.semrush.com/?type=domain_shopping_shopping&key=' . $key . '&domain=' . $domain . '&database=' . $db . '&display_limit=10&display_sort=np_desc&export_columns=Dn,Cr,Np,Ad,At,Ac,Or',
 
-            'domain_organic_pages' => 'https://api.semrush.com/?type=domain_organic_unique&key='.$key.'&display_filter=%2B%7CPc%7CGt%7C100&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain='.$domain.'&display_sort=tr_desc&database='.$db,
+            'domain_organic_pages' => 'https://api.semrush.com/?type=domain_organic_unique&key=' . $key . '&display_filter=%2B%7CPc%7CGt%7C100&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
 
-            'domain_organic_subdomains' => 'https://api.semrush.com/?type=domain_organic_subdomains&key='.$key.'&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain='.$domain.'&database='.$db,
+            'domain_organic_subdomains' => 'https://api.semrush.com/?type=domain_organic_subdomains&key=' . $key . '&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain=' . $domain . '&database=' . $db,
         ];
         $apisResponse = [
             'domain_organic_search_keywords' => 'Keyword;Position;Previous Position;Position Difference;Search Volume;CPC;Url;Traffic (%);Traffic Cost (%);Competition;Number of Results;Trends

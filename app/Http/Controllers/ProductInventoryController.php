@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
-use App\ColorReference;
-use App\Helpers;
-use App\Imports\InventoryImport;
-use App\Jobs\UpdateFromSizeManager;
-use App\Product;
-use App\ProductDiscountExcelFile;
-use App\ProductSupplier;
-use App\Setting;
-use App\Stage;
-use App\Supplier;
-use App\SupplierBrandDiscount;
-use App\SupplierDiscountLogHistory;
-use App\User;
-use Carbon\Carbon;
 use DB;
+use App\User;
+use App\Brand;
+use App\Stage;
+use DataTables;
+use App\Helpers;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Supplier;
+use Carbon\Carbon;
 use Dompdf\Dompdf;
+use App\ColorReference;
+use App\ProductSupplier;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\SupplierBrandDiscount;
+use App\Imports\InventoryImport;
+use App\ProductDiscountExcelFile;
+use App\Jobs\UpdateFromSizeManager;
+use App\SupplierDiscountLogHistory;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -57,11 +58,11 @@ class ProductInventoryController extends Controller
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
             $childs = Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
-                $categoryArray[] = ['id' => $child->id, 'value' => $category->title.' '.$child->title];
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' ' . $child->title];
                 $grandChilds = Category::where('parent_id', $child->id)->get();
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
-                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title.' '.$child->title.' '.$grandChild->title];
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title];
                     }
                 }
             }
@@ -256,7 +257,7 @@ class ProductInventoryController extends Controller
         }
 
         if ($request->get('shoe_size', false)) {
-            $productQuery->where('products.size', 'like', '%'.$request->get('shoe_size').'%');
+            $productQuery->where('products.size', 'like', '%' . $request->get('shoe_size') . '%');
         }
 
         $productQuery->where(function ($query) {
@@ -412,7 +413,7 @@ class ProductInventoryController extends Controller
         //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
 
         if ($request->get('shoe_size', false)) {
-            $productQuery = $productQuery->where('products.size', 'like', '%'.$request->get('shoe_size').'%');
+            $productQuery = $productQuery->where('products.size', 'like', '%' . $request->get('shoe_size') . '%');
         }
 
         $data['products'] = $productQuery->where('products.purchase_status', '=', 'Delivered')->paginate(Setting::get('pagination'));
@@ -431,7 +432,7 @@ class ProductInventoryController extends Controller
         $sessionId = $proxy->login(config('
 		api.user'), config('magentoapi.password'));
 
-        $sku = $product->sku.$product->color;
+        $sku = $product->sku . $product->color;
         $result = false;
 
         //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
@@ -443,7 +444,7 @@ class ProductInventoryController extends Controller
                 $error_message = '';
 
                 try {
-                    $result = $proxy->catalogInventoryStockItemUpdate($sessionId, $sku.'-'.$size, [
+                    $result = $proxy->catalogInventoryStockItemUpdate($sessionId, $sku . '-' . $size, [
                         'qty' => $stockQty,
                         'is_in_stock' => $stockQty ? 1 : 0,
                     ]);
@@ -527,7 +528,7 @@ class ProductInventoryController extends Controller
                             if ($key == 0) {
                                 $sizes .= $size;
                             } else {
-                                $sizes .= ','.$size;
+                                $sizes .= ',' . $size;
                             }
                         }
 
@@ -570,7 +571,7 @@ class ProductInventoryController extends Controller
                             if ($key == 0) {
                                 $sizes .= $size;
                             } else {
-                                $sizes .= ','.$size;
+                                $sizes .= ',' . $size;
                             }
                         }
 
@@ -681,12 +682,12 @@ class ProductInventoryController extends Controller
 
                 // check if any date time set
                 if (! empty($params['date_time'])) {
-                    $extraString = ' on '.$params['date_time'];
+                    $extraString = ' on ' . $params['date_time'];
                 }
 
                 // set for pending amount
                 if (! empty($params['pending_amount'])) {
-                    $extraString .= ' and '.$params['pending_amount'].' to be collected';
+                    $extraString .= ' and ' . $params['pending_amount'] . ' to be collected';
                 }
                 // send message
                 $messageData = implode("\n", [
@@ -714,14 +715,14 @@ class ProductInventoryController extends Controller
                 $product->location = 'In-Transit'; //$params["location_name"];
                 $product->save();
 
-                $params['location_name'] = 'In-Transit - '.$params['location_name'];
+                $params['location_name'] = 'In-Transit - ' . $params['location_name'];
 
                 $user = \App\User::where('id', $params['assign_to'])->first();
                 if ($user) {
                     // send location message
-                    $pendingAmount = (! empty($params['pending_amount'])) ? ' and Pending amount : '.$params['pending_amount'] : '';
+                    $pendingAmount = (! empty($params['pending_amount'])) ? ' and Pending amount : ' . $params['pending_amount'] : '';
                     $messageData = implode("\n", [
-                        "Pls. Despatch {$product->name} to ".$params['location_name'].$pendingAmount,
+                        "Pls. Despatch {$product->name} to " . $params['location_name'] . $pendingAmount,
                         $params['instruction_message'],
                         $params['courier_name'],
                         $params['courier_details'],
@@ -893,7 +894,7 @@ class ProductInventoryController extends Controller
                 $product->$fieldName = $fieldValue;
                 $product->save();
 
-                return response()->json(['code' => 200, 'message' => $fieldName.' updated successfully']);
+                return response()->json(['code' => 200, 'message' => $fieldName . ' updated successfully']);
             }
         }
 
@@ -1353,8 +1354,8 @@ class ProductInventoryController extends Controller
         $inventory = \App\InventoryStatusHistory::whereDate('created_at', '>', Carbon::now()->subDays(7))->where('supplier_id', $supplier_id)->orderBy('in_stock', 'desc');
 
         if ($request->search) {
-            $inventory->where('product_id', 'like', '%'.$request->search)->orWhereHas('product', function ($query) use ($request) {
-                $query->where('name', 'like', '%'.$request->search.'%');
+            $inventory->where('product_id', 'like', '%' . $request->search)->orWhereHas('product', function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -1424,7 +1425,7 @@ class ProductInventoryController extends Controller
         $selectedDate = Carbon::now()->subDays(7);
         $dataToInsert = [];
         for ($date = $selectedDate; $date < Carbon::now(); Carbon::parse($date)->addDays(1)) {
-            $inventoryHistoryView = \App\InventoryStatusHistory::where('inventory_status_histories.created_at', 'like', $date.'%')->first();
+            $inventoryHistoryView = \App\InventoryStatusHistory::where('inventory_status_histories.created_at', 'like', $date . '%')->first();
             if ($inventoryHistoryView == null) {
                 $inventory = \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at', 'inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct product_id) as product_count_count'))
                 ->whereDate('inventory_status_histories.created_at', '=', $selectedDate)
@@ -1438,12 +1439,12 @@ class ProductInventoryController extends Controller
                 $inventory = $inventory->orderBy('product_count_count', 'desc')->paginate(2); //dd($inventory);
                 $total_rows = $inventory->total();
                 $allHistory = [];
-                $date = date('Y-m-d', strtotime(date('Y-m-d').' -6 day'));
+                $date = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
                 $extraDates = $date;
                 $columnData = [];
                 for ($i = 1; $i < 8; $i++) {
                     $columnData[] = $extraDates;
-                    $extraDates = date('Y-m-d', strtotime($extraDates.' +1 day'));
+                    $extraDates = date('Y-m-d', strtotime($extraDates . ' +1 day'));
                 }
 
                 foreach ($inventory as $key => $row) {
@@ -1516,12 +1517,12 @@ class ProductInventoryController extends Controller
         $inventory = $inventory->orderBy('product_count_count', 'desc')->paginate(1); //dd($inventory);
         $total_rows = $inventory->total();
         $allHistory = [];
-        $date = date('Y-m-d', strtotime(date('Y-m-d').' -6 day'));
+        $date = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
         $extraDates = $date;
         $columnData = [];
         for ($i = 1; $i < 8; $i++) {
             $columnData[] = $extraDates;
-            $extraDates = date('Y-m-d', strtotime($extraDates.' +1 day'));
+            $extraDates = date('Y-m-d', strtotime($extraDates . ' +1 day'));
         }
 
         foreach ($inventory as $key => $row) {
@@ -1620,7 +1621,7 @@ class ProductInventoryController extends Controller
     {
         $file = $request->filename;
 
-        return response()->download(public_path('/product_discount_file/'.$file));
+        return response()->download(public_path('/product_discount_file/' . $file));
     }
 
     public function discountlogHistory(Request $request)
@@ -1669,7 +1670,7 @@ class ProductInventoryController extends Controller
 
             $fileName_array = rtrim($ogfilename, '.xlsx');
             // $filename_array = explode("." ,$ogfilename);
-            $fileName = ($fileName_array).'_'.time().'.'.$file->extension();
+            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
 
             $params_file['excel_name'] = $fileName;
             $params_file['user_id'] = \Auth::user()->id;
@@ -1688,7 +1689,7 @@ class ProductInventoryController extends Controller
                     }
                     $brand_name = trim($row[0]);
 
-                    $brand = Brand::where('name', 'like', '%'.$brand_name.'%')->first();
+                    $brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
 
                     if (! $brand) {
                         $params_brand = [
@@ -1926,7 +1927,7 @@ class ProductInventoryController extends Controller
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
-                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : '0%'));
+                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : '0%'));
 
                                 if ($exist_row->generic_price != $generic_price_data) {
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price_data]);
@@ -1954,7 +1955,7 @@ class ProductInventoryController extends Controller
                             } else {
                                 // $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : $brand->deduction_percentage.'%');
 
-                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
+                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
                                 $discount->supplier_id = $request->supplier;
                                 $discount->brand_id = $brand->id;
@@ -2140,7 +2141,7 @@ class ProductInventoryController extends Controller
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
-                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
+                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
                                 if ($exist_row->generic_price != $generic_price_data) {
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price_data]);
@@ -2166,7 +2167,7 @@ class ProductInventoryController extends Controller
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             } else {
-                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
+                                $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
                                 $discount->supplier_id = $request->supplier;
                                 $discount->brand_id = $brand->id;
@@ -2293,7 +2294,7 @@ class ProductInventoryController extends Controller
                             $brand_name = trim($cat[0]);
                             $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
 
-                            $brand = Brand::where('name', 'like', '%'.$brand_name.'%')->first();
+                            $brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
 
                             if (! $brand) {
                                 $params_brand = [
@@ -2411,7 +2412,7 @@ class ProductInventoryController extends Controller
         try {
             $ogfilename = $file->getClientOriginalName();
             $fileName_array = rtrim($ogfilename, '.xlsx');
-            $fileName = ($fileName_array).'_'.time().'.'.$file->extension();
+            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
             $params_file['excel_name'] = $fileName;
             $params_file['user_id'] = \Auth::user()->id;
 
@@ -2463,7 +2464,7 @@ class ProductInventoryController extends Controller
             $ogfilename = $file->getClientOriginalName();
 
             $fileName_array = rtrim($ogfilename, '.xlsx');
-            $fileName = ($fileName_array).'_'.time().'.'.$file->extension();
+            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
 
             $params_file['excel_name'] = $fileName;
             $params_file['user_id'] = \Auth::user()->id;
@@ -2480,7 +2481,7 @@ class ProductInventoryController extends Controller
                 $brand_name = trim($row[$brand_index]);
 
                 if ($brand_name != '') {
-                    $brand = Brand::where('name', 'like', '%'.$brand_name.'%')->first();
+                    $brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
                 } else {
                     $brand = '';
                 }
@@ -2691,4 +2692,68 @@ class ProductInventoryController extends Controller
             return view('products.scrape_log', compact('logs', 'total_count'));
         }
     }
+
+     // Inventory sold out products list
+     public function getStockwithZeroQuantity(Request $request)
+     {
+         if ($request->ajax()) {
+             $products = \App\InventoryStatusHistory::query();
+             $products->with('product', 'supplier');
+
+             if (isset($request->id) && ! empty($request->id)) {
+                 $products = $products->where('product_id', $request->id);
+             }
+             if (isset($request->name) && ! empty($request->name)) {
+                 $products->select('inventory_status_histories.*')->leftjoin('products as p1', 'p1.id', 'inventory_status_histories.product_id')->
+                 where('p1.name', $request->name);
+             }
+
+             if (isset($request->sku) && ! empty($request->sku)) {
+                 $products->select('inventory_status_histories.*')->leftjoin('products as p2', 'p2.id', 'inventory_status_histories.product_id')->
+                 where('p2.sku', $request->sku);
+             }
+
+             $products->where('in_stock', 1)
+                          ->groupBy('product_id')
+                          ->orderBy('created_at', 'desc');
+
+             return Datatables::of($products)
+             ->addIndexColumn()
+             ->addColumn('product_name', function ($row) {
+                 $product = $row->product ? $row->product->name : 'N/A';
+
+                 return $product;
+             })
+             ->addColumn('sku', function ($row) {
+                 $product = $row->product ? $row->product->sku : 'N/A';
+
+                 return $product;
+             })
+             ->addColumn('action', function ($row) {
+                 $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-product-id="' . $row->product_id . '" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
+
+                 return $actionBtn;
+             })
+             ->rawColumns(['action', 'product_name', 'sku'])
+             ->make(true);
+         }
+
+         return view('product-inventory.out-of-stock');
+     }
+
+     // Inventory sold out product history list
+     public function outOfStockProductLog(Request $request)
+     {
+         $product = $request->product;
+         if ($product) {
+             $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
+             $productName = $productsLog[0]->product ? $productsLog[0]->product->name : 'N/A';
+             $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : 'N/A';
+             $response = (string) view('product-inventory.out-of-stock-product-log', compact('productsLog'));
+
+             return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
+         } else {
+             return response()->json(['success' => false, 'msg' => 'No product history found']);
+         }
+     }
 }

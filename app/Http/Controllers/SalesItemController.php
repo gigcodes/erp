@@ -32,7 +32,6 @@ class SalesItemController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -57,7 +56,6 @@ class SalesItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SalesItem  $salesItem
      * @return \Illuminate\Http\Response
      */
     public function edit(SalesItem $salesItem)
@@ -68,8 +66,6 @@ class SalesItemController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SalesItem  $salesItem
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SalesItem $salesItem)
@@ -80,7 +76,6 @@ class SalesItemController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SalesItem  $salesItem
      * @return \Illuminate\Http\Response
      */
     public function destroy(SalesItem $salesItem)

@@ -34,7 +34,7 @@ class CreateCaseCashFlow
             'type' => 'paid',
             'currency' => '',
             'status' => ($bill->paid_date && $bill->amount_paid) ? 1 : 0,
-            'order_status' => 'bill_id:'.$bill->id, //to know which of the payment's record while updating later
+            'order_status' => 'bill_id:' . $bill->id, //to know which of the payment's record while updating later
             'user_id' => $user_id,
             'updated_by' => $user_id,
             'description' => 'Case Cost Billed',

@@ -33,6 +33,22 @@
                         @endif
                     </div>
 
+                    {{-- <input type="text" name="doc_category" value="{{ old('doc_category') }}" class="form-control input-sm" placeholder="Document Category" required> --}}
+                    {{-- <div class="form-group">
+                        <strong>Category:</strong>
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        @if ($errors->has('doc_category'))
+                            <div class="alert alert-danger">{{$errors->first('doc_category')}}</div>
+                        @endif
+                    </div> --}}
+
                     <div class="form-group">
                         <strong>Existing Doc Id:</strong>
                         <input type="text" name="existing_doc_id" value="{{ old('existing_doc_id') }}" class="form-control input-sm" placeholder="Existing Document ID">

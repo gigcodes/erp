@@ -35,7 +35,7 @@ class LogService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/logs/',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/logs/',
             ['query' => ['version' => $version] + $params]
         );
     }

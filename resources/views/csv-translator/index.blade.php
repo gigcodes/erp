@@ -163,7 +163,6 @@
 <div class="table-responsive mt-3 table-horizontal-scroll" style="margin-top:20px;">
     <table class="table table-bordered text-wrap csvData-table w-100" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
-            
             <tr>
             @if(auth()->user()->hasRole('Lead Translator'))
                 <th>Id</th>
@@ -415,7 +414,7 @@
         var actionId = $("#actionId").val();
         $(".alert-class").text('');
         $.ajax({
-            url:'http://localhost/erp/public/index.php/csv-translator/permissions',
+            url:'/csv-translator/permissions',
             method:'POST',
             data:{'user_id':userId,'lang_id':langId,'action':actionId,'_token':"{{csrf_token()}}"},
             success:function(response){

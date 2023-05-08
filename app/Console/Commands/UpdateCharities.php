@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\Category;
-use App\CustomerCharity;
-use App\Product;
 use App\Vendor;
+use App\Product;
+use App\Category;
 use App\VendorCategory;
+use App\CustomerCharity;
 use Illuminate\Console\Command;
 
 class UpdateCharities extends Command
@@ -64,7 +64,7 @@ class UpdateCharities extends Command
                 $product->price = 1;
                 $product->save();
                 CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
-                Product::where('id', $product->id)->update(['sku' => 'charity_'.$product->id]);
+                Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
             }
         } else {
             dump('charity category not exist!');

@@ -2,43 +2,43 @@
 
 namespace Modules\UserManagement\Http\Controllers;
 
-use App\ApiKey;
-use App\AssetsManager;
-use App\ColdLeads;
-use App\Customer;
-use App\DeveloperTask;
-use App\Helpers;
-use App\Http\Controllers\Controller;
-use App\Hubstaff\HubstaffActivity;
-use App\Hubstaff\HubstaffPaymentAccount;
-use App\Payment;
-use App\PaymentMethod;
-use App\Permission;
-use App\PermissionRequest;
+use DB;
+use Auth;
+use Hash;
 use App\Role;
 use App\Task;
 use App\Team;
-use App\TeamUser;
 use App\User;
-use App\UserAvaibility;
-use App\UserAvaibilityHistory;
-use App\UserFeedbackCategory;
-use App\UserFeedbackCategorySopHistory;
-use App\UserFeedbackCategorySopHistoryComment;
-use App\UserFeedbackStatus;
-use App\UserFeedbackStatusUpdate;
-use App\UserPemfileHistory;
-use App\UserRate;
-use App\UserSysyemIp;
-use Auth;
-use Carbon\Carbon;
 use DateTime;
-use DB;
-use function GuzzleHttp\json_encode;
-use Hash;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\ApiKey;
+use App\Helpers;
+use App\Payment;
+use App\Customer;
+use App\TeamUser;
+use App\UserRate;
+use App\ColdLeads;
+use Carbon\Carbon;
+use App\Permission;
+use App\UserSysyemIp;
+use App\AssetsManager;
+use App\DeveloperTask;
+use App\PaymentMethod;
+use App\UserAvaibility;
+use App\PermissionRequest;
+use App\UserFeedbackStatus;
+use App\UserPemfileHistory;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\UserFeedbackCategory;
+use Illuminate\Http\Response;
+use App\UserAvaibilityHistory;
+use App\UserFeedbackStatusUpdate;
+use App\Hubstaff\HubstaffActivity;
+use App\Http\Controllers\Controller;
+use function GuzzleHttp\json_encode;
+use App\UserFeedbackCategorySopHistory;
+use App\Hubstaff\HubstaffPaymentAccount;
+use App\UserFeedbackCategorySopHistoryComment;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller
@@ -113,10 +113,11 @@ class UserManagementController extends Controller
 
     public function getUserList(Request $request)
     {
-        $userlist = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
+        $userlist = User::where('is_active', 1)->orderBy('name', 'asc')->pluck('name', 'id');
+
         $usersystemips = UserSysyemIp::with('user')->get();
 
-        $shell_list = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f list');
+        $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
         $final_array = [];
         if ($shell_list != '') {
             $lines = explode(PHP_EOL, $shell_list);
@@ -185,7 +186,7 @@ class UserManagementController extends Controller
 
     public function todayTaskHistory(Request $request)
     {
-        $date = "'%".date('Y-m-d')."%'";
+        $date = "'%" . date('Y-m-d') . "%'";
         // $history = HubstaffActivity::select('users.name','developer_tasks.subject','developer_tasks.id as devtaskId','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
         //           ->join('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
         //           ->join('users','hubstaff_members.user_id','users.id')
@@ -202,7 +203,7 @@ class UserManagementController extends Controller
                   JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
                   LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
                   LEFT JOIN tasks ON hubstaff_activities.task_id=tasks.hubstaff_task_id 
-                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE '.$date.') AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
+                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE ' . $date . ') AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
                     GROUP by hubstaff_activities.task_id
                     order by day_tracked desc ');
         // WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL ) group by users.id order by day_tracked desc ");
@@ -264,7 +265,7 @@ class UserManagementController extends Controller
 
             $params = [];
             $params['user_id'] = $user->id;
-            $params['message'] = 'Your permission request has been approved for the permission :'.$permissionName;
+            $params['message'] = 'Your permission request has been approved for the permission :' . $permissionName;
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
@@ -284,6 +285,7 @@ class UserManagementController extends Controller
     public function records(Request $request)
     {
         $user = new User;
+        $isWhitelist = $request->is_whitelisted == 1 ? 1 : 0;
         if (! Auth::user()->isAdmin()) {
             $user = $user->where('users.id', Auth::user()->id);
         }
@@ -296,10 +298,13 @@ class UserManagementController extends Controller
         }
         if ($request->keyword != null) {
             $user = $user->where(function ($q) use ($request) {
-                $q->where('users.email', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('users.name', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('users.phone', 'like', '%'.$request->keyword.'%');
+                $q->where('users.email', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('users.name', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('users.phone', 'like', '%' . $request->keyword . '%');
             });
+        }
+        if ($request->is_whitelisted) {
+            $user = $user->where('users.is_whitelisted', $isWhitelist);
         }
 
         $user = $user->select(['users.*', 'hubstaff_activities.starts_at'])
@@ -339,12 +344,12 @@ class UserManagementController extends Controller
                                 GROUP BY task_id) m_max ON m_max.task_id = tasks.id
                             LEFT JOIN task_statuses ON task_statuses.id = tasks.status
                              LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
-                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$u->id.') 
+                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = ' . $u->id . ') 
                     
                     union  
                     
                     (
-                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$u->id.'
+                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = ' . $u->id . '
                         
                         ) 
                     ) as c order by priority_no desc
@@ -405,7 +410,7 @@ class UserManagementController extends Controller
                     if (! $query) {
                         $lastPaidOn = date('Y-m-d');
                     } else {
-                        $lastPaidOn = date('Y-m-d', strtotime($query->billing_start.'-1 days'));
+                        $lastPaidOn = date('Y-m-d', strtotime($query->billing_start . '-1 days'));
                     }
                 }
                 if ($lastPaidOn) {
@@ -417,16 +422,16 @@ class UserManagementController extends Controller
                 $u['lastPaidOn'] = $lastPaidOn;
 
                 if ($u->payment_frequency == 'fornightly') {
-                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn.'+1 days'));
+                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn . '+1 days'));
                 }
                 if ($u->payment_frequency == 'weekly') {
-                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn.'+7 days'));
+                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn . '+7 days'));
                 }
                 if ($u->payment_frequency == 'biweekly') {
-                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn.'+14 days'));
+                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn . '+14 days'));
                 }
                 if ($u->payment_frequency == 'monthly') {
-                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn.'+30 days'));
+                    $u['nextDue'] = date('Y-m-d', strtotime($lastPaidOn . '+30 days'));
                 }
                 $items[] = $u;
             }
@@ -468,7 +473,7 @@ class UserManagementController extends Controller
         foreach ($task_times as $key => $task_time) {
             $pending_tasks += $task_time['approximate_time'];
         }
-        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'.($pending_tasks % 60);
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60) . ':' . ($pending_tasks % 60);
         $today = date('Y-m-d');
 
         /** get total availablity hours */
@@ -503,9 +508,9 @@ class UserManagementController extends Controller
     {
         $time = explode('.', $time);
         if (strlen($time[0]) <= 1) {
-            $from_time = '0'.$time[0].':00:00';
+            $from_time = '0' . $time[0] . ':00:00';
         } else {
-            $from_time = $time[0].':00:00';
+            $from_time = $time[0] . ':00:00';
         }
 
         return $from_time;
@@ -543,8 +548,8 @@ class UserManagementController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'phone' => 'sometimes|nullable|integer|unique:users,phone,'.$id,
+            'email' => 'required|email|unique:users,email,' . $id,
+            'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
             'password' => 'same:confirm-password',
         ]);
         $input = $request->all();
@@ -938,7 +943,7 @@ class UserManagementController extends Controller
                     'message' => 'No data found',
                 ]);
             }
-            $lastPaidOn = date('Y-m-d', strtotime($query->billing_start.'-1 days'));
+            $lastPaidOn = date('Y-m-d', strtotime($query->billing_start . '-1 days'));
         }
         $pendingPyments = HubstaffPaymentAccount::where('user_id', $id)->where('billing_start', '>', $lastPaidOn)->get();
         if (! count($pendingPyments)) {
@@ -1021,7 +1026,7 @@ class UserManagementController extends Controller
             $lastPaidOn = $lastPaid->paid_upto;
         } else {
             $query = HubstaffPaymentAccount::where('user_id', $id)->first();
-            $lastPaidOn = date('Y-m-d', strtotime($query->billing_start.'-1 days'));
+            $lastPaidOn = date('Y-m-d', strtotime($query->billing_start . '-1 days'));
         }
         $pendingPyments = HubstaffPaymentAccount::where('user_id', $id)->where('billing_start', '>', $lastPaidOn)->get();
         $pendingTerms = [];
@@ -1112,12 +1117,12 @@ class UserManagementController extends Controller
                                 GROUP BY task_id) m_max ON m_max.task_id = tasks.id
                             LEFT JOIN task_statuses ON task_statuses.id = tasks.status
                              LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
-                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
+                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = ' . $id . ') 
                     
                     union  
                     
                     (
-                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = ' . $id . '
                         
                         ) 
                     ) as c order by has_flag desc
@@ -1139,7 +1144,7 @@ class UserManagementController extends Controller
         foreach ($task_times as $key => $task_time) {
             $pending_tasks += $task_time['approximate_time'];
         }
-        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'.($pending_tasks % 60);
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60) . ':' . ($pending_tasks % 60);
 
         //$priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
         $p_tasks_time = Task::where('assign_to', $id)->where('is_verified', null)->where('is_flagged', 1)->select(DB::raw('SUM(approximate) as approximate_time'));
@@ -1159,7 +1164,7 @@ class UserManagementController extends Controller
             $available_minute = $available_minute % 60;
         }
 
-        $u['total_priority_hours'] = intdiv($totalPriority, 60).':'.($totalPriority % 60);
+        $u['total_priority_hours'] = intdiv($totalPriority, 60) . ':' . ($totalPriority % 60);
         $u['total_available_time'] = sprintf('%d:%02d', $hours, $available_minute);
         $today = date('Y-m-d');
 
@@ -1211,7 +1216,7 @@ class UserManagementController extends Controller
     public function submitTeam($id, Request $request)
     {
         $user = User::find($id);
-        $isLeader = Team::where('user_id', $id)->orWhere('second_lead_id',$request->second_lead)->first();
+        $isLeader = Team::where('user_id', $id)->orWhere('second_lead_id', $request->second_lead)->first();
         if ($isLeader) {
             return response()->json([
                 'code' => 500,
@@ -1232,9 +1237,8 @@ class UserManagementController extends Controller
         $team->second_lead_id = $request->second_lead;
         $team->save();
 
-        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$team->second_lead)->first();
-        if(!empty($team_user))
-        {
+        $team_user = TeamUser::where('team_id', $team->id)->where('user_id', $team->second_lead)->first();
+        if (! empty($team_user)) {
             $team_user->delete();
         }
 
@@ -1248,13 +1252,13 @@ class UserManagementController extends Controller
                         $isLeader = Team::where('user_id', $mem)->first();
                         if (! $isMember && ! $isLeader) {
                             $team->users()->attach($mem);
-                            $response[$key]['msg'] = $u->name.' added in team successfully';
+                            $response[$key]['msg'] = $u->name . ' added in team successfully';
                             $response[$key]['status'] = 'success';
                         } elseif ($isMember) {
-                            $response[$key]['msg'] = $u->name.' is already team member';
+                            $response[$key]['msg'] = $u->name . ' is already team member';
                             $response[$key]['status'] = 'error';
                         } else {
-                            $response[$key]['msg'] = $u->name.' is already team leader';
+                            $response[$key]['msg'] = $u->name . ' is already team leader';
                             $response[$key]['status'] = 'error';
                         }
                     }
@@ -1282,16 +1286,15 @@ class UserManagementController extends Controller
 
         $users = User::where('id', '!=', $id)->where('id', '!=', $team->second_lead_id)->where('is_active', 1)->get()->pluck('name', 'id');
 
-        if(!empty($team->second_lead_id))
-        {
-            $second_users = User::where('id',$team->second_lead_id)->first();
+        if (! empty($team->second_lead_id)) {
+            $second_users = User::where('id', $team->second_lead_id)->first();
         }
 
         return response()->json([
             'code' => 200,
             'team' => $team,
             'users' => $users,
-            'second_users' => !empty($second_users->name)?$second_users->name:'',
+            'second_users' => ! empty($second_users->name) ? $second_users->name : '',
             'totalMembers' => $totalMembers,
         ]);
     }
@@ -1319,15 +1322,14 @@ class UserManagementController extends Controller
     {
         $team = Team::find($id);
 
-        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$request->second_lead)->first();
+        $team_user = TeamUser::where('team_id', $team->id)->where('user_id', $request->second_lead)->first();
 
-        if(!empty($team_user))
-        {
+        if (! empty($team_user)) {
             $team_user->delete();
         }
 
         if (Auth::user()->hasRole('Admin')) {
-            $team->update(['name' => $request->name , 'second_lead_id' => $request->second_lead]);
+            $team->update(['name' => $request->name, 'second_lead_id' => $request->second_lead]);
             $members = $request->input('members');
             if ($members) {
                 $team->users()->detach();
@@ -1338,13 +1340,13 @@ class UserManagementController extends Controller
                         $isLeader = Team::where('user_id', $mem)->first();
                         if (! $isMember && ! $isLeader) {
                             $team->users()->attach($mem);
-                            $response[$key]['msg'] = $u->name.' added in team successfully';
+                            $response[$key]['msg'] = $u->name . ' added in team successfully';
                             $response[$key]['status'] = 'success';
                         } elseif ($isMember) {
-                            $response[$key]['msg'] = $u->name.' is already team member';
+                            $response[$key]['msg'] = $u->name . ' is already team member';
                             $response[$key]['status'] = 'error';
                         } else {
-                            $response[$key]['msg'] = $u->name.' is already team leader';
+                            $response[$key]['msg'] = $u->name . ' is already team leader';
                             $response[$key]['status'] = 'error';
                         }
                     }
@@ -1365,7 +1367,7 @@ class UserManagementController extends Controller
 
     public function saveUserAvaibility(Request $request)
     {
-        \Log::info('Request:'.json_encode($request->all()));
+        \Log::info('Request:' . json_encode($request->all()));
         $rules = [
             'user_id' => 'required',
             'to' => 'required',
@@ -1488,8 +1490,8 @@ class UserManagementController extends Controller
             }
             // $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
             $avaibility['weekday'] = explode(',', $avaibility['date']);
-            \Log::info('array:'.json_encode($avaibility['weekday']));
-            \Log::info('array:'.json_encode($avaibility));
+            \Log::info('array:' . json_encode($avaibility['weekday']));
+            \Log::info('array:' . json_encode($avaibility));
         }
 
         $avaibility['user_id'] = $id;
@@ -1532,7 +1534,7 @@ class UserManagementController extends Controller
 
             $params = [];
             $params['user_id'] = $user->id;
-            $params['message'] = "Your activity has been approved for today's date ".date('Y-m-d');
+            $params['message'] = "Your activity has been approved for today's date " . date('Y-m-d');
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
@@ -1603,7 +1605,7 @@ class UserManagementController extends Controller
         if ($user) {
             $database = \App\UserDatabase::where('user_id', $user->id)->where('database', $connection)->first();
             if (! $database) {
-                $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql_user.sh -f create -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].' -u '.$connectionInformation['username']." -p '".$connectionInformation['password']."' -n '".$username."' -s '".$password."' 2>&1";
+                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create -h ' . $connectionInformation['host'] . ' -d ' . $connectionInformation['database'] . ' -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -n '" . $username . "' -s '" . $password . "' 2>&1";
                 $allOutput = [];
                 $allOutput[] = $cmd;
                 $result = exec($cmd, $allOutput);
@@ -1617,7 +1619,7 @@ class UserManagementController extends Controller
 
                 $params = [];
                 $params['user_id'] = $user->id;
-                $params['message'] = 'We have created user with username : '.$username.' and password : '.$password.' , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.';
+                $params['message'] = 'We have created user with username : ' . $username . ' and password : ' . $password . ' , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.';
                 // send chat message
                 $chat_message = \App\ChatMessage::create($params);
                 // send
@@ -1660,7 +1662,7 @@ class UserManagementController extends Controller
                     }
                 }
                 if (! empty($deleteTables)) {
-                    $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql_user.sh -f revoke -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']." -n '".$database->username."' -t ".implode(',', $deleteTables).' 2>&1';
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $deleteTables) . ' 2>&1';
                     $allOutput = [];
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput);
@@ -1679,7 +1681,7 @@ class UserManagementController extends Controller
                 }
             }
 
-            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql_user.sh -f update  -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']." -n '".$database->username."' -t ".implode(',', $tables)." -m '".$permissionType."' 2>&1";
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $tables) . " -m '" . $permissionType . "' 2>&1";
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
@@ -1687,7 +1689,7 @@ class UserManagementController extends Controller
 
             $params = [];
             $params['user_id'] = $user->id;
-            $params['message'] = 'Your request for given table ('.implode(',', $tables).')  has been approved , please verify at your end.';
+            $params['message'] = 'Your request for given table (' . implode(',', $tables) . ')  has been approved , please verify at your end.';
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
@@ -1714,7 +1716,7 @@ class UserManagementController extends Controller
 
         $database = \App\UserDatabase::where('user_id', $id)->where('database', $connection)->first();
         if ($database) {
-            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql_user.sh -f delete -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']."  -n '".$database->username."' 2>&1";
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . "  -n '" . $database->username . "' 2>&1";
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
@@ -1788,7 +1790,7 @@ class UserManagementController extends Controller
 
     public function systemIps(Requests $request)
     {
-        $shell_list = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f list');
+        $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
 
         return response()->json(['code' => 200, 'data' => $shell_list]);
     }
@@ -1803,7 +1805,7 @@ class UserManagementController extends Controller
 
         $username = str_replace(' ', '_', $user->name);
 
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'pem-generate.sh -u '.$username.' -f add -s '.$server.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server . ' 2>&1';
 
         $allOutput = [];
         $allOutput[] = $cmd;
@@ -1823,8 +1825,8 @@ class UserManagementController extends Controller
         }
 
         $content = implode("\n", $string);
-        $content = $content."\n";
-        $nameF = $server.'.pem';
+        $content = $content . "\n";
+        $nameF = $server . '.pem';
 
         UserPemfileHistory::create([
             'user_id' => $request->userid,
@@ -1835,7 +1837,7 @@ class UserManagementController extends Controller
         ]);
 
         //header download
-        header('Content-Disposition: attachment; filename="'.$nameF.'"');
+        header('Content-Disposition: attachment; filename="' . $nameF . '"');
         header('Content-Type: application/force-download');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
@@ -1857,7 +1859,7 @@ class UserManagementController extends Controller
     {
         $pemHistory = UserPemfileHistory::find($id);
         if ($pemHistory) {
-            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'pem-generate.sh -u '.$pemHistory->username.' -f delete -s '.$pemHistory->server_name.' 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f delete -s ' . $pemHistory->server_name . ' 2>&1';
 
             $allOutput = [];
             $allOutput[] = $cmd;
@@ -2000,6 +2002,8 @@ class UserManagementController extends Controller
                     \DB::raw('ua.start_time AS uaStTime'),
                     \DB::raw('ua.end_time AS uaEnTime'),
                     \DB::raw('ua.lunch_time AS uaLunchTime'),
+                    \DB::raw('ua.lunch_time_from AS lunch_time_from'),
+                    \DB::raw('ua.lunch_time_to AS lunch_time_to'),
                 ]);
                 $users = $q->get();
                 $count = $users->count();
@@ -2025,7 +2029,7 @@ class UserManagementController extends Controller
 
                             $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
                             $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
-                            $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
+                            $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime, $single);
 
                             $userArr[] = [
                                 'id' => $single->id,
@@ -2064,17 +2068,20 @@ class UserManagementController extends Controller
                         if ($tasksInProgress) {
                             foreach ($tasksInProgress as $task) {
                                 $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date.' + '.$task->est_minutes.'minutes'));
-                                if ($task->en_date <= date('Y-m-d H:i:s')) {
-                                    $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
-                                    $task->est_minutes = 60;
-                                } else {
-                                    // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+
+                                if (! isset($task->en_date)) {
+                                    $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
                                 }
+                                // if ($task->en_date <= date('Y-m-d H:i:s')) {
+                                //     $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
+                                //     $task->est_minutes = 60;
+                                // } else {
+                                //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+                                // }
 
                                 $tasksArr[$task->assigned_to][$task->status2][] = [
                                     'id' => $task->id,
-                                    'typeId' => $task->type.'-'.$task->id,
+                                    'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
                                     'enDate' => $task->en_date,
                                     'status' => $task->status,
@@ -2087,10 +2094,10 @@ class UserManagementController extends Controller
                             foreach ($tasksPlanned as $task) {
                                 $task->est_minutes = 20;
                                 $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date.' + '.$task->est_minutes.'minutes'));
+                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
                                 $tasksArr[$task->assigned_to][$task->status2][] = [
                                     'id' => $task->id,
-                                    'typeId' => $task->type.'-'.$task->id,
+                                    'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
                                     'enDate' => $task->en_date,
                                     'status' => $task->status,
@@ -2103,15 +2110,17 @@ class UserManagementController extends Controller
                     if ($isPrint) {
                         _p($tasksArr);
                     }
+                    // dd($tasksArr);
 
                     // Arrange tasks on users slots
                     foreach ($userArr as $k1 => $user) {
-                        $userTasks = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
+                        $userTasksArr = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
                         if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
                             foreach ($user['availableSlots'] as $date => $slots) {
                                 foreach ($slots as $k2 => $slot) {
-                                    if ($slot['type'] == 'AVL') {
-                                        $res = $this->slotIncreaseAndShift($slot, $userTasks);
+                                    if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                        $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
+                                        // dd($res, $userTasks);
 
                                         $userTasks = $res['userTasks'] ?? [];
                                         $slot['taskIds'] = $res['taskIds'] ?? [];
@@ -2138,6 +2147,7 @@ class UserManagementController extends Controller
                         if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
                             foreach ($user['availableSlots'] as $date => $slots) {
                                 $divSlots = [];
+                                // dd($slots);
                                 foreach ($slots as $slot) {
                                     $title = '';
                                     $class = '';
@@ -2146,29 +2156,75 @@ class UserManagementController extends Controller
                                         ' - ',
                                         date('H:i', strtotime($slot['en'])),
                                     ];
-                                    if ($slot['type'] == 'AVL') {
-                                        if ($slot['taskIds'] ?? []) {
-                                            $display[] = ' ('.implode(', ', array_keys($slot['taskIds'])).')';
+                                    if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
+                                        $ut_array = [];
+                                        if (isset($slot['userTasks'])) {
+                                            foreach ($slot['userTasks'] as $ut) {
+                                                array_push($ut_array, $ut['typeId']);
+                                                // foreach ($ut as $t) {
+                                                //     dd($ut);
+                                                // }
+                                            }
+                                        }
+                                        // $generalTaskID = [];
+                                        // if (isset($slot['taskIds'])) {
+                                        //     $generalTaskID = array_keys($slot['taskIds']);
+                                        // }
+                                        $developerTaskID = $ut_array;
+                                        if (! empty($developerTaskID)) {
+                                            $display[] = ' (' . implode(', ', $developerTaskID) . ')';
 
                                             $title = [];
                                             foreach ($slot['taskIds'] as $taskId => $taskRow) {
-                                                $title[] = $taskId.' - ('.$taskRow['status2'].')';
+                                                $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
                                             }
                                             $title = implode(PHP_EOL, $title);
                                         } else {
                                             $class = 'text-secondary';
-                                            $display[] = ' <a href="javascript:void(0);" data-user_id="'.$user['id'].'" data-date="'.$date.'" data-slot="'.date('H:i', strtotime($slot['st'])).'" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+                                            $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+                                        }
+                                        if ($slot['type'] == 'SMALL-LUNCH') {
+                                            $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
+                                        } elseif ($slot['type'] == 'LUNCH-START') {
+                                            $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
+                                        } elseif ($slot['type'] == 'LUNCH-END') {
+                                            $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
                                         }
                                         // $title
                                         $display = implode('', $display);
-                                    } elseif (in_array($slot['type'], ['PAST', 'LUNCH'])) {
+                                    } elseif (in_array($slot['slot_type'], ['PAST', 'LUNCH'])) {
                                         $title = 'Not Available';
                                         $class = 'text-secondary';
-                                        $display[] = ' ('.$slot['type'].')';
-                                        $display = '<s>'.implode('', $display).'</s>';
+                                        $display[] = ' (' . $slot['slot_type'] . ')';
+                                        $display = '<s>' . implode('', $display) . '</s>';
                                     }
+                                    // elseif ($slot['type'] == "SMALL-LUNCH") {
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
+                                    elseif ($slot['type'] == 'FULL-LUNCH') {
+                                        $title = 'LUNCH';
+                                        $class = 'text-secondary';
+                                        $display[] = ' (LUNCH)';
+                                        $display = '<s>' . implode('', $display) . '</s>';
+                                    }
+                                    // elseif ($slot['type'] == "LUNCH-START") {
+                                    //     dd($slot);
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
+                                    // elseif ($slot['type'] == "LUNCH-END") {
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
 
-                                    $divSlots[] = '<div class="div-slot '.$class.'" title="'.$title.'" >'.$display.'</div>';
+                                    $divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div>';
                                 }
                                 /*
                                 $data[] = [
@@ -2181,7 +2237,7 @@ class UserManagementController extends Controller
                                 $data[$usertemp]['name'] = $user['name'];
                                 $data[$usertemp]['date'] = $date;
                                 for ($p = 0; $p < 13; $p++) {
-                                    $varid = 'slots'.$p;
+                                    $varid = 'slots' . $p;
                                     if (isset($divSlots[$p])) {
                                         $str = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
                                         $str = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
@@ -2244,34 +2300,49 @@ class UserManagementController extends Controller
         $checkDates = 0;
 
         $taskIds = [];
+        $userTasks = [];
 
         if ($tasks) {
             if ($list = ($tasks['IN_PROGRESS'] ?? [])) {
                 foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
 
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
-
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
+                    if (
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
                     }
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
                 }
                 $list = array_values($list);
                 $tasks['IN_PROGRESS'] = $list;
@@ -2279,39 +2350,53 @@ class UserManagementController extends Controller
 
             if ($list = ($tasks['PLANNED'] ?? [])) {
                 foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
 
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
-
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
+                    if (
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
                     }
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
                 }
                 $list = array_values($list);
                 $tasks['PLANNED'] = $list;
             }
         }
-
+        // print_r($userTasks);
         return [
             'taskIds' => $taskIds ?? [],
-            'userTasks' => $tasks ?? [],
+            'userTasks' => $userTasks ?? [],
         ];
     }
 
@@ -2350,12 +2435,13 @@ class UserManagementController extends Controller
                     assign_to AS assigned_to, 
                     task_subject AS title, 
                     start_date AS st_date, 
+                    due_date AS en_date, 
                     COALESCE(approximate, 0) AS est_minutes, 
                     status,
                     (
                         CASE
-                            WHEN status = '".Task::TASK_STATUS_IN_PROGRESS."' THEN 'IN_PROGRESS'
-                            WHEN status = '".Task::TASK_STATUS_PLANNED."' THEN 'PLANNED'
+                            WHEN status = '" . Task::TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
+                            WHEN status = '" . Task::TASK_STATUS_PLANNED . "' THEN 'PLANNED'
                         END
                     ) AS status2
                 FROM 
@@ -2363,13 +2449,13 @@ class UserManagementController extends Controller
                 WHERE 
                 1
                 AND (
-                    ( status = '".Task::TASK_STATUS_IN_PROGRESS."' AND start_date IS NOT NULL )
+                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
                     OR 
-                    ( status != '".Task::TASK_STATUS_IN_PROGRESS."' )
+                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
                 )
                 AND deleted_at IS NULL
-                AND assign_to IN (".implode(',', $userIds).") 
-                AND status IN ('".implode("','", $taskStatuses)."') 
+                AND assign_to IN (" . implode(',', $userIds) . ") 
+                AND status IN ('" . implode("','", $taskStatuses) . "') 
             )
             UNION
             (
@@ -2379,24 +2465,25 @@ class UserManagementController extends Controller
                     assigned_to AS assigned_to, 
                     subject AS title, 
                     start_date AS st_date, 
+                    estimate_date AS en_date, 
                     COALESCE(estimate_minutes, 0) AS est_minutes, 
                     status,
                     (
                         CASE
-                            WHEN status = '".DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS."' THEN 'IN_PROGRESS'
-                            WHEN status = '".DeveloperTask::DEV_TASK_STATUS_PLANNED."' THEN 'PLANNED'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_PLANNED . "' THEN 'PLANNED'
                         END
                     ) AS status2
                 FROM developer_tasks
                 WHERE 1
                 AND (
-                    ( status = '".DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS."' AND start_date IS NOT NULL )
+                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
                     OR 
-                    ( status != '".DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS."' )
+                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
                 )
                 AND deleted_at IS NULL
-                AND assigned_to IN (".implode(',', $userIds).")
-                AND status IN ('".implode("','", $devTaskStatuses)."')
+                AND assigned_to IN (" . implode(',', $userIds) . ")
+                AND status IN ('" . implode("','", $devTaskStatuses) . "')
             )
         ) AS listdata
         ORDER BY listdata.st_date ASC";
@@ -2445,12 +2532,12 @@ class UserManagementController extends Controller
             if ($list->count()) {
                 foreach ($list as $single) {
                     $html[] = '<tr>
-                            <td>'.$single->name.'</td>
-                            <td>'.$single->from.' - '.$single->to.'</td>
-                            <td>'.$single->start_time.' - '.$single->end_time.'</td>
-                            <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                            <td>'.($single->lunch_time ?: '-').'</td>
-                            <td>'.($single->latest_updated ?: '-').'</td>
+                            <td>' . $single->name . '</td>
+                            <td>' . $single->from . ' - ' . $single->to . '</td>
+                            <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                            <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                            <td>' . ($single->lunch_time ?: '-') . '</td>
+                            <td>' . ($single->latest_updated ?: '-') . '</td>
                         </tr>';
                 }
             } else {
@@ -2493,23 +2580,24 @@ class UserManagementController extends Controller
             <tr>
                 <th width="5%">ID</th>
                 <th width="5%" style="word-break: break-all;">User</th>
-                <th width="20%" style="word-break: break-all;">From/To Date</th>
-                <th width="15%" style="word-break: break-all;">Start/End Time</th>
-                <th width="30%" style="word-break: break-all;">Available Days</th>
-                <th width="10%" style="word-break: break-all;">Lunch Time</th>
-                <th width="15%">Created at</th>
+                <th width="15%" style="word-break: break-all;">From/To Date</th>
+                <th width="13%" style="word-break: break-all;">Start/End Time</th>
+                <th width="25%" style="word-break: break-all;">Available Days</th>
+                <th width="13%" style="word-break: break-all;">Lunch Time</th>
+                <th width="13%">Created at</th>
             </tr>
         </thead>';
         if ($list->count()) {
             foreach ($list as $single) {
+                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
                 $html[] = '<tr>
-                    <td>'.$single->id.'</td>
-                    <td>'.$single->username.'</td>
-                    <td>'.$single->from.' - '.$single->to.'</td>
-                    <td>'.$single->start_time.' - '.$single->end_time.'</td>
-                    <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                    <td>'.($single->lunch_time ?: '-').'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td>' . $single->id . '</td>
+                    <td>' . $single->username . '</td>
+                    <td>' . $single->from . ' - ' . $single->to . '</td>
+                    <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                    <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                    <td>' . $lunch_time . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -2540,6 +2628,19 @@ class UserManagementController extends Controller
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function whitelistBulkUpdate(Request $request)
+    {
+        //remove all users from whitelist
+        if ($request->action == 2) {
+            User::where('is_whitelisted', 1)->update(['is_whitelisted' => 0]);
+        }
+        //add or remove selected users from whitelist
+        else {
+            $whitelistValue = $request->action == 1 ? 1 : 0;
+            User::whereIn('id', $request->users)->update(['is_whitelisted' => $whitelistValue]);
         }
     }
 }

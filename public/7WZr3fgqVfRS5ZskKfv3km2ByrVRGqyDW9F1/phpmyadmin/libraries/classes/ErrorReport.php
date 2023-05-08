@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function count;
-use const E_USER_WARNING;
-use function http_build_query;
+use const PHP_VERSION;
 use function is_array;
-use function json_encode;
 use function mb_strlen;
 use function mb_substr;
 use function parse_str;
 use function parse_url;
-use const PHP_VERSION;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Utils\HttpRequest;
 use function preg_match;
+use const E_USER_WARNING;
+use function json_encode;
 use function str_replace;
+use function http_build_query;
+use PhpMyAdmin\Utils\HttpRequest;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Error reporting functions used to generate and submit error reports
@@ -179,7 +179,7 @@ class ErrorReport
 
         if (isset($components['fragment']) && preg_match('<PMAURL-\d+:>', $components['fragment'], $matches)) {
             $uri = str_replace($matches[0], '', $components['fragment']);
-            $url = 'https://example.com/'.$uri;
+            $url = 'https://example.com/' . $uri;
             $components = parse_url($url);
 
             if (! is_array($components)) {
@@ -205,7 +205,7 @@ class ErrorReport
             $query = '';
         }
 
-        $uri = $scriptName.'?'.$query;
+        $uri = $scriptName . '?' . $query;
 
         return [
             $uri,
@@ -245,7 +245,7 @@ class ErrorReport
                     continue;
                 }
 
-                $line = mb_substr($line, 0, 75).'//...';
+                $line = mb_substr($line, 0, 75) . '//...';
             }
 
             [$uri, $scriptName] = $this->sanitizeUrl($level['url']);

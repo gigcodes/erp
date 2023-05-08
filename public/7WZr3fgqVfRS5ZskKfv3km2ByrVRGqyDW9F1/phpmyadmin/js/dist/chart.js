@@ -2,24 +2,24 @@
  * Chart type enumerations
  */
 var ChartType = {
-  LINE: 'line',
-  SPLINE: 'spline',
-  AREA: 'area',
-  BAR: 'bar',
-  COLUMN: 'column',
-  PIE: 'pie',
-  TIMELINE: 'timeline',
-  SCATTER: 'scatter'
+  LINE: "line",
+  SPLINE: "spline",
+  AREA: "area",
+  BAR: "bar",
+  COLUMN: "column",
+  PIE: "pie",
+  TIMELINE: "timeline",
+  SCATTER: "scatter",
 };
 /**
  * Column type enumeration
  */
 
 var ColumnType = {
-  STRING: 'string',
-  NUMBER: 'number',
-  BOOLEAN: 'boolean',
-  DATE: 'date'
+  STRING: "string",
+  NUMBER: "number",
+  BOOLEAN: "boolean",
+  DATE: "date",
 };
 /**
  * Abstract chart factory which defines the contract for chart factories
@@ -29,8 +29,8 @@ var ChartFactory = function () {};
 
 ChartFactory.prototype = {
   createChart: function () {
-    throw new Error('createChart must be implemented by a subclass');
-  }
+    throw new Error("createChart must be implemented by a subclass");
+  },
 };
 /**
  * Abstract chart which defines the contract for charts
@@ -45,17 +45,17 @@ var Chart = function (elementId) {
 
 Chart.prototype = {
   draw: function () {
-    throw new Error('draw must be implemented by a subclass');
+    throw new Error("draw must be implemented by a subclass");
   },
   redraw: function () {
-    throw new Error('redraw must be implemented by a subclass');
+    throw new Error("redraw must be implemented by a subclass");
   },
   destroy: function () {
-    throw new Error('destroy must be implemented by a subclass');
+    throw new Error("destroy must be implemented by a subclass");
   },
   toImageString: function () {
-    throw new Error('toImageString must be implemented by a subclass');
-  }
+    throw new Error("toImageString must be implemented by a subclass");
+  },
 };
 /**
  * Abstract representation of charts that operates on DataTable where,<br>
@@ -81,12 +81,12 @@ BaseChart.prototype.validateColumns = function (dataTable) {
   var columns = dataTable.getColumns();
 
   if (columns.length < 2) {
-    throw new Error('Minimum of two columns are required for this chart');
+    throw new Error("Minimum of two columns are required for this chart");
   }
 
   for (var i = 1; i < columns.length; i++) {
     if (columns[i].type !== ColumnType.NUMBER) {
-      throw new Error('Column ' + (i + 1) + ' should be of type \'Number\'');
+      throw new Error("Column " + (i + 1) + " should be of type 'Number'");
     }
   }
 
@@ -99,7 +99,6 @@ BaseChart.prototype.validateColumns = function (dataTable) {
  *            id of the div element the chart is drawn in
  */
 
-
 var PieChart = function (elementId) {
   BaseChart.call(this, elementId);
 };
@@ -111,7 +110,7 @@ PieChart.prototype.validateColumns = function (dataTable) {
   var columns = dataTable.getColumns();
 
   if (columns.length > 2) {
-    throw new Error('Pie charts can draw only one series');
+    throw new Error("Pie charts can draw only one series");
   }
 
   return BaseChart.prototype.validateColumns.call(this, dataTable);
@@ -122,7 +121,6 @@ PieChart.prototype.validateColumns = function (dataTable) {
  * @param elementId
  *            id of the div element the chart is drawn in
  */
-
 
 var TimelineChart = function (elementId) {
   BaseChart.call(this, elementId);
@@ -138,7 +136,9 @@ TimelineChart.prototype.validateColumns = function (dataTable) {
     var columns = dataTable.getColumns();
 
     if (columns[0].type !== ColumnType.DATE) {
-      throw new Error('First column of timeline chart need to be a date column');
+      throw new Error(
+        "First column of timeline chart need to be a date column"
+      );
     }
   }
 
@@ -150,7 +150,6 @@ TimelineChart.prototype.validateColumns = function (dataTable) {
  * @param elementId
  *            id of the div element the chart is drawn in
  */
-
 
 var ScatterChart = function (elementId) {
   BaseChart.call(this, elementId);
@@ -166,7 +165,9 @@ ScatterChart.prototype.validateColumns = function (dataTable) {
     var columns = dataTable.getColumns();
 
     if (columns[0].type !== ColumnType.NUMBER) {
-      throw new Error('First column of scatter chart need to be a numeric column');
+      throw new Error(
+        "First column of scatter chart need to be a numeric column"
+      );
     }
   }
 
@@ -177,15 +178,14 @@ ScatterChart.prototype.validateColumns = function (dataTable) {
  */
 // eslint-disable-next-line no-unused-vars
 
-
 var DataTable = function () {
   var columns = [];
   var data = null;
 
   this.addColumn = function (type, name) {
     columns.push({
-      'type': type,
-      'name': name
+      type: type,
+      name: name,
     });
   };
 
@@ -204,7 +204,7 @@ var DataTable = function () {
 
   var fillMissingValues = function () {
     if (columns.length === 0) {
-      throw new Error('Set columns first');
+      throw new Error("Set columns first");
     }
 
     var row;
@@ -233,7 +233,6 @@ var DataTable = function () {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotChart = function (elementId) {
   Chart.call(this, elementId);
   this.plot = null;
@@ -245,7 +244,11 @@ JQPlotChart.prototype.constructor = JQPlotChart;
 
 JQPlotChart.prototype.draw = function (data, options) {
   if (this.validator.validateColumns(data)) {
-    this.plot = $.jqplot(this.elementId, this.prepareData(data), this.populateOptions(data, options));
+    this.plot = $.jqplot(
+      this.elementId,
+      this.prepareData(data),
+      this.populateOptions(data, options)
+    );
   }
 };
 
@@ -263,16 +266,16 @@ JQPlotChart.prototype.redraw = function (options) {
 
 JQPlotChart.prototype.toImageString = function () {
   if (this.plot !== null) {
-    return $('#' + this.elementId).jqplotToImageStr({});
+    return $("#" + this.elementId).jqplotToImageStr({});
   }
 };
 
 JQPlotChart.prototype.populateOptions = function () {
-  throw new Error('populateOptions must be implemented by a subclass');
+  throw new Error("populateOptions must be implemented by a subclass");
 };
 
 JQPlotChart.prototype.prepareData = function () {
-  throw new Error('prepareData must be implemented by a subclass');
+  throw new Error("prepareData must be implemented by a subclass");
 };
 /**
  * JQPlot line chart
@@ -280,7 +283,6 @@ JQPlotChart.prototype.prepareData = function () {
  * @param elementId
  *            id of the div element the chart is drawn in
  */
-
 
 var JQPlotLineChart = function (elementId) {
   JQPlotChart.call(this, elementId);
@@ -297,26 +299,26 @@ JQPlotLineChart.prototype.populateOptions = function (dataTable, options) {
       xaxis: {
         label: columns[0].name,
         renderer: $.jqplot.CategoryAxisRenderer,
-        ticks: []
+        ticks: [],
       },
       yaxis: {
-        label: columns.length === 2 ? columns[1].name : 'Values',
-        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-      }
+        label: columns.length === 2 ? columns[1].name : "Values",
+        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+      },
     },
     highlighter: {
       show: true,
-      tooltipAxes: 'y',
-      formatString: '%d'
+      tooltipAxes: "y",
+      formatString: "%d",
     },
-    series: []
+    series: [],
   };
   $.extend(true, optional, options);
 
   if (optional.series.length === 0) {
     for (var i = 1; i < columns.length; i++) {
       optional.series.push({
-        label: columns[i].name.toString()
+        label: columns[i].name.toString(),
       });
     }
   }
@@ -362,7 +364,6 @@ JQPlotLineChart.prototype.prepareData = function (dataTable) {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotSplineChart = function (elementId) {
   JQPlotLineChart.call(this, elementId);
 };
@@ -372,13 +373,17 @@ JQPlotSplineChart.prototype.constructor = JQPlotSplineChart;
 
 JQPlotSplineChart.prototype.populateOptions = function (dataTable, options) {
   var optional = {};
-  var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable, options);
+  var opt = JQPlotLineChart.prototype.populateOptions.call(
+    this,
+    dataTable,
+    options
+  );
   var compulsory = {
     seriesDefaults: {
       rendererOptions: {
-        smooth: true
-      }
-    }
+        smooth: true,
+      },
+    },
   };
   $.extend(true, optional, opt, compulsory);
   return optional;
@@ -389,7 +394,6 @@ JQPlotSplineChart.prototype.populateOptions = function (dataTable, options) {
  * @param elementId
  *            id of the div element the chart is drawn in
  */
-
 
 var JQPlotScatterChart = function (elementId) {
   JQPlotChart.call(this, elementId);
@@ -404,24 +408,24 @@ JQPlotScatterChart.prototype.populateOptions = function (dataTable, options) {
   var optional = {
     axes: {
       xaxis: {
-        label: columns[0].name
+        label: columns[0].name,
       },
       yaxis: {
-        label: columns.length === 2 ? columns[1].name : 'Values',
-        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-      }
+        label: columns.length === 2 ? columns[1].name : "Values",
+        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+      },
     },
     highlighter: {
       show: true,
-      tooltipAxes: 'xy',
-      formatString: '%d, %d'
+      tooltipAxes: "xy",
+      formatString: "%d, %d",
     },
-    series: []
+    series: [],
   };
 
   for (var i = 1; i < columns.length; i++) {
     optional.series.push({
-      label: columns[i].name.toString()
+      label: columns[i].name.toString(),
     });
   }
 
@@ -430,9 +434,9 @@ JQPlotScatterChart.prototype.populateOptions = function (dataTable, options) {
       showLine: false,
       markerOptions: {
         size: 7,
-        style: 'x'
-      }
-    }
+        style: "x",
+      },
+    },
   };
   $.extend(true, optional, options, compulsory);
   return optional;
@@ -470,7 +474,6 @@ JQPlotScatterChart.prototype.prepareData = function (dataTable) {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotTimelineChart = function (elementId) {
   JQPlotLineChart.call(this, elementId);
   this.validator = TimelineChart.prototype;
@@ -484,18 +487,22 @@ JQPlotTimelineChart.prototype.populateOptions = function (dataTable, options) {
     axes: {
       xaxis: {
         tickOptions: {
-          formatString: '%b %#d, %y'
-        }
-      }
-    }
+          formatString: "%b %#d, %y",
+        },
+      },
+    },
   };
-  var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable, options);
+  var opt = JQPlotLineChart.prototype.populateOptions.call(
+    this,
+    dataTable,
+    options
+  );
   var compulsory = {
     axes: {
       xaxis: {
-        renderer: $.jqplot.DateAxisRenderer
-      }
-    }
+        renderer: $.jqplot.DateAxisRenderer,
+      },
+    },
   };
   $.extend(true, optional, opt, compulsory);
   return optional;
@@ -520,10 +527,9 @@ JQPlotTimelineChart.prototype.prepareData = function (dataTable) {
         retData[j - 1] = retRow;
       } // See https://github.com/phpmyadmin/phpmyadmin/issues/14395 for the block
 
-
-      if (d !== null && typeof d === 'object') {
+      if (d !== null && typeof d === "object") {
         retRow.push([d.getTime(), row[j]]);
-      } else if (typeof d === 'string') {
+      } else if (typeof d === "string") {
         d = new Date(d);
         retRow.push([d.getTime(), row[j]]);
       }
@@ -539,7 +545,6 @@ JQPlotTimelineChart.prototype.prepareData = function (dataTable) {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotAreaChart = function (elementId) {
   JQPlotLineChart.call(this, elementId);
 };
@@ -550,14 +555,18 @@ JQPlotAreaChart.prototype.constructor = JQPlotAreaChart;
 JQPlotAreaChart.prototype.populateOptions = function (dataTable, options) {
   var optional = {
     seriesDefaults: {
-      fillToZero: true
-    }
+      fillToZero: true,
+    },
   };
-  var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable, options);
+  var opt = JQPlotLineChart.prototype.populateOptions.call(
+    this,
+    dataTable,
+    options
+  );
   var compulsory = {
     seriesDefaults: {
-      fill: true
-    }
+      fill: true,
+    },
   };
   $.extend(true, optional, opt, compulsory);
   return optional;
@@ -569,7 +578,6 @@ JQPlotAreaChart.prototype.populateOptions = function (dataTable, options) {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotColumnChart = function (elementId) {
   JQPlotLineChart.call(this, elementId);
 };
@@ -580,14 +588,18 @@ JQPlotColumnChart.prototype.constructor = JQPlotColumnChart;
 JQPlotColumnChart.prototype.populateOptions = function (dataTable, options) {
   var optional = {
     seriesDefaults: {
-      fillToZero: true
-    }
+      fillToZero: true,
+    },
   };
-  var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable, options);
+  var opt = JQPlotLineChart.prototype.populateOptions.call(
+    this,
+    dataTable,
+    options
+  );
   var compulsory = {
     seriesDefaults: {
-      renderer: $.jqplot.BarRenderer
-    }
+      renderer: $.jqplot.BarRenderer,
+    },
   };
   $.extend(true, optional, opt, compulsory);
   return optional;
@@ -598,7 +610,6 @@ JQPlotColumnChart.prototype.populateOptions = function (dataTable, options) {
  * @param elementId
  *            id of the div element the chart is drawn in
  */
-
 
 var JQPlotBarChart = function (elementId) {
   JQPlotLineChart.call(this, elementId);
@@ -615,30 +626,30 @@ JQPlotBarChart.prototype.populateOptions = function (dataTable, options) {
         label: columns[0].name,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         renderer: $.jqplot.CategoryAxisRenderer,
-        ticks: []
+        ticks: [],
       },
       xaxis: {
-        label: columns.length === 2 ? columns[1].name : 'Values',
-        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-      }
+        label: columns.length === 2 ? columns[1].name : "Values",
+        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+      },
     },
     highlighter: {
       show: true,
-      tooltipAxes: 'x',
-      formatString: '%d'
+      tooltipAxes: "x",
+      formatString: "%d",
     },
     series: [],
     seriesDefaults: {
-      fillToZero: true
-    }
+      fillToZero: true,
+    },
   };
   var compulsory = {
     seriesDefaults: {
       renderer: $.jqplot.BarRenderer,
       rendererOptions: {
-        barDirection: 'horizontal'
-      }
-    }
+        barDirection: "horizontal",
+      },
+    },
   };
   $.extend(true, optional, options, compulsory);
 
@@ -653,7 +664,7 @@ JQPlotBarChart.prototype.populateOptions = function (dataTable, options) {
   if (optional.series.length === 0) {
     for (var j = 1; j < columns.length; j++) {
       optional.series.push({
-        label: columns[j].name.toString()
+        label: columns[j].name.toString(),
       });
     }
   }
@@ -667,7 +678,6 @@ JQPlotBarChart.prototype.populateOptions = function (dataTable, options) {
  *            id of the div element the chart is drawn in
  */
 
-
 var JQPlotPieChart = function (elementId) {
   JQPlotChart.call(this, elementId);
   this.validator = PieChart.prototype;
@@ -680,13 +690,13 @@ JQPlotPieChart.prototype.populateOptions = function (dataTable, options) {
   var optional = {
     highlighter: {
       show: true,
-      tooltipAxes: 'xy',
-      formatString: '%s, %d',
-      useAxesFormatters: false
+      tooltipAxes: "xy",
+      formatString: "%s, %d",
+      useAxesFormatters: false,
     },
     legend: {
-      renderer: $.jqplot.EnhancedPieLegendRenderer
-    }
+      renderer: $.jqplot.EnhancedPieLegendRenderer,
+    },
   };
   var compulsory = {
     seriesDefaults: {
@@ -694,9 +704,9 @@ JQPlotPieChart.prototype.populateOptions = function (dataTable, options) {
       renderer: $.jqplot.PieRenderer,
       rendererOptions: {
         sliceMargin: 1,
-        showDataLabels: true
-      }
-    }
+        showDataLabels: true,
+      },
+    },
   };
   $.extend(true, optional, options, compulsory);
   return optional;
@@ -717,7 +727,6 @@ JQPlotPieChart.prototype.prepareData = function (dataTable) {
 /**
  * Chart factory that returns JQPlotCharts
  */
-
 
 var JQPlotChartFactory = function () {};
 

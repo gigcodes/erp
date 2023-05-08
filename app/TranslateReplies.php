@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TranslateReplies extends Model
 {
-        /**
+    /**
      * Fillables for the database
      *
      *
@@ -22,9 +22,10 @@ class TranslateReplies extends Model
         'translate_from',
         'translate_to',
         'translate_text',
-		'translate_text',
-		'created_by'
+        'status',
+        'updated_by_user_id',
+        'approved_by_user_id',
+        'created_by',
+        'updated_by',
     ];
-
-    
 }

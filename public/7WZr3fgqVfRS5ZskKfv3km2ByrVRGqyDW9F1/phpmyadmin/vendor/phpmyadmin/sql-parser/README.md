@@ -24,7 +24,7 @@ composer require phpmyadmin/sql-parser
 
 ## Documentation
 
-The API documentation is available at 
+The API documentation is available at
 <https://develdocs.phpmyadmin.net/sql-parser/>.
 
 ## Usage
@@ -134,4 +134,4 @@ $parser = new PhpMyAdmin\SqlParser\Parser($query1);
 
 This library was originally created during the Google Summer of Code 2015 and has been used by phpMyAdmin since version 4.5.
 
-[1]:https://getcomposer.org/
+[1]: https://getcomposer.org/

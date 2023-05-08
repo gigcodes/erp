@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\BusinessComment;
-use App\BusinessPost;
-use App\Social\SocialConfig;
-use App\SocialContact;
-use App\SocialContactThread;
-use App\SocialWebhookLog;
 use Carbon\Carbon;
+use App\BusinessPost;
+use App\SocialContact;
+use App\BusinessComment;
+use App\SocialWebhookLog;
+use App\Social\SocialConfig;
+use App\SocialContactThread;
 use Illuminate\Http\Request;
 
 class SocialWebhookController extends Controller
@@ -17,8 +17,6 @@ class SocialWebhookController extends Controller
      * Verify Facebook and Instagram Webhook URL
      *
      * @method GET
-     *
-     * @param  Request  $request
      */
     public function verifyWebhook(Request $request)
     {
@@ -46,6 +44,7 @@ class SocialWebhookController extends Controller
     {
         $data = json_decode($request->getContent(), true);
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => FB Token', ['data' => $data]);
+
         return true;
     }
 
@@ -53,8 +52,6 @@ class SocialWebhookController extends Controller
      * When Subscirbe Event fire on Facebook and Instagram
      *
      * @method POST
-     *
-     * @param  Request  $request
      */
     public function webhook(Request $request)
     {
@@ -209,7 +206,6 @@ class SocialWebhookController extends Controller
             );
 
             SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Status Upload) => Status upload Successfully', ['data' => $data, 'post' => $post->toArray()]);
-            
         } catch (\Exception $e) {
             SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Status Upload) => {$e->getMessage()}", ['data' => $data]);
         }

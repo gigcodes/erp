@@ -12,10 +12,10 @@
 
 namespace App\Voip;
 
-use App\CallBusyMessage;
 use App\Customer;
-use Illuminate\Database\Eloquent\Model;
 use Twilio\Rest\Client;
+use App\CallBusyMessage;
+use Illuminate\Database\Eloquent\Model;
 
 class Twilio extends Model
 {
@@ -60,7 +60,7 @@ class Twilio extends Model
                 if (! empty($recordings)) {
                     foreach ($recordings as $recording) {
                         $recordingId = $recording->sid;
-                        $recordingLink = 'https://api.twilio.com/'.$apiVersion.'/Accounts/'.$sid.'/Recordings/'.$recordingId.'.mp3';
+                        $recordingLink = 'https://api.twilio.com/' . $apiVersion . '/Accounts/' . $sid . '/Recordings/' . $recordingId . '.mp3';
                         $data[$i]['recording_url'] = $recordingLink;
                     }
                 } else {

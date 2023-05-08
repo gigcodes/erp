@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Account;
 use App\FacebookPost;
-use Auth;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -20,8 +20,8 @@ class FacebookPostController extends Controller
         }
         if ($term) {
             $posts = $posts->where(function ($q) use ($term) {
-                $q->where('caption', 'like', '%'.$term.'%')
-                ->orWhere('post_body', 'like', '%'.$term.'%');
+                $q->where('caption', 'like', '%' . $term . '%')
+                ->orWhere('post_body', 'like', '%' . $term . '%');
             });
         }
         $posts = $posts->paginate(30);
@@ -55,7 +55,7 @@ class FacebookPostController extends Controller
 
         if (! empty($request->file('image'))) {
             $media = MediaUploader::fromSource($request->file('image'))
-                                    ->toDirectory('facebook/'.floor($post->id / config('constants.image_per_folder')))
+                                    ->toDirectory('facebook/' . floor($post->id / config('constants.image_per_folder')))
                                     ->upload();
             $post->attachMedia($media, config('constants.media_tags'));
         }

@@ -38,7 +38,7 @@
     <td class="expand-row">
         <!-- class="expand-row" -->
         <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
-        <input type="text" class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px" />
+        <textarea class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px" rows="3" cols="20"></textarea>
         <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
         <?php echo Form::select("send_message_" . $issue->id, [
             "to_developer" => "Send To Developer",
@@ -50,7 +50,11 @@
 
         <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{$issue->id}}"><img src="/images/filled-sent.png" /></button>
 
-        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}"><img src="/images/chat.png" alt=""></button>
+        
+        <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
+        <img width="2px;" src="/images/google-drive.png"/>
+        </a>
         <br>
         <div class="td-full-container hidden">
             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
@@ -219,6 +223,7 @@
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
         </div>
     </td>
+
     <td>
         <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}" data-task_type="Dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         <div class="dropdown dropleft">
@@ -228,6 +233,16 @@
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$issue->id}}">
                 <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{ $issue->id }}')">Task Information: Update</a>
             </div>
+
+            <button class="btn btn-sm mt-2 create-task-document" title="Create document" data-id="{{$issue->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm mt-2 show-created-task-document" title="Show created document" data-id="{{$issue->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                <i class="fa fa-key" aria-hidden="true"></i>
+            </button>
         </div>
     </td>
 </tr>

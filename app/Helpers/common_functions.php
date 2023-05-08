@@ -36,21 +36,21 @@ function createProductTextImage($path, $uploadPath = '', $text = '', $color = '5
     $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
         $font->file(public_path('/fonts/HelveticaNeue.ttf'));
         $font->size($fontSize);
-        $font->color('#'.$color);
+        $font->color('#' . $color);
         $font->align('top');
     });
 
-    $name = round(microtime(true) * 1000).'_watermarked';
+    $name = round(microtime(true) * 1000) . '_watermarked';
 
-    if (! file_exists(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR))) {
-        mkdir(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR), 0777, true);
+    if (! file_exists(public_path('uploads' . DIRECTORY_SEPARATOR . $uploadPath . DIRECTORY_SEPARATOR))) {
+        mkdir(public_path('uploads' . DIRECTORY_SEPARATOR . $uploadPath . DIRECTORY_SEPARATOR), 0777, true);
     }
 
-    $path = 'uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR.$name.'.jpg';
+    $path = 'uploads' . DIRECTORY_SEPARATOR . $uploadPath . DIRECTORY_SEPARATOR . $name . '.jpg';
 
     $img->save(public_path($path));
 
-    return ($needAbs) ? public_path($path) : url('/').'/'.$path;
+    return ($needAbs) ? public_path($path) : url('/') . '/' . $path;
 }
 
 function get_folder_number($id)
@@ -83,7 +83,7 @@ function show_short_message($message, $size = 50, $postfix = '...')
         $dot = $postfix;
     }
 
-    return substr($message, 0, $size).$dot;
+    return substr($message, 0, $size) . $dot;
 }
 
 /**
@@ -91,7 +91,7 @@ function show_short_message($message, $size = 50, $postfix = '...')
  */
 function attach_customer_key()
 {
-    return 'customer_list_'.time().'_'.auth()->user()->id;
+    return 'customer_list_' . time() . '_' . auth()->user()->id;
 }
 
 /**
@@ -101,7 +101,7 @@ function get_server_last_log_file($screaperName = '', $serverId = '')
 {
     $d = date('j', strtotime('-1 days'));
 
-    return '/scrap-logs/file-view/'.$screaperName.'-'.$d.'.log/'.$serverId;
+    return '/scrap-logs/file-view/' . $screaperName . '-' . $d . '.log/' . $serverId;
 }
 
 function getStartAndEndDate($week, $year)
@@ -135,7 +135,7 @@ function human_error_array($errors)
     if (! empty($errors)) {
         foreach ($errors as $key => $berror) {
             foreach ($berror as $serror) {
-                $list[] = "{$key} : ".$serror;
+                $list[] = "{$key} : " . $serror;
             }
         }
     }
@@ -222,17 +222,17 @@ function get_field_by_number($no, $field = 'name')
     if (! empty($no[0])) {
         $customer = \App\Customer::where('phone', $no[0])->first();
         if ($customer) {
-            return $customer->{$field}.' (Customer)';
+            return $customer->{$field} . ' (Customer)';
         }
 
         $vendor = \App\Vendor::where('phone', $no[0])->first();
         if ($vendor) {
-            return $vendor->{$field}.' (Vendor)';
+            return $vendor->{$field} . ' (Vendor)';
         }
 
         $supplier = \App\Supplier::where('phone', $no[0])->first();
         if ($supplier) {
-            return $supplier->{$field}.'(Supplier)';
+            return $supplier->{$field} . '(Supplier)';
         }
     }
 
@@ -318,11 +318,11 @@ function string_convert($msg2)
 function convertToThumbUrl($url, $extension)
 {
     $arr = explode('/', $url);
-    $arr[count($arr) - 1] = 'thumbnail/'.$arr[count($arr) - 1];
+    $arr[count($arr) - 1] = 'thumbnail/' . $arr[count($arr) - 1];
 
     $converted_str = implode('/', $arr);
 
-    return str_replace('.'.$extension, '_thumb.'.$extension, $converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
+    return str_replace('.' . $extension, '_thumb.' . $extension, $converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
 }
 
 function resizeCropImage($max_width, $max_height, $source_file, $dst_dir = null, $quality = 80)
@@ -428,14 +428,14 @@ function dateRangeArr($stDate, $enDate)
             'date' => $stDate,
             'day' => strtolower(date('l', strtotime($stDate))),
         ];
-        $stDate = date('Y-m-d', strtotime($stDate.'+1 day'));
+        $stDate = date('Y-m-d', strtotime($stDate . '+1 day'));
     }
 
     return $data;
 }
 function pad0($curr)
 {
-    return $curr < 10 ? '0'.$curr : $curr;
+    return $curr < 10 ? '0' . $curr : $curr;
 }
 function nextHour($curr)
 {
@@ -444,7 +444,7 @@ function nextHour($curr)
         $curr = '0';
     }
 
-    return $curr < 10 ? '0'.$curr : $curr;
+    return $curr < 10 ? '0' . $curr : $curr;
 }
 function hourlySlots($stTime, $enTime, $lunchTime = null)
 {
@@ -454,12 +454,12 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
         $enTime = date('Y-m-d H:i:00', strtotime($enTime));
     } else {
         $stTime = date('Y-m-d H:i:00', strtotime($stTime));
-        $enTime = date('Y-m-d H:i:00', strtotime($enTime.' + 1 day'));
+        $enTime = date('Y-m-d H:i:00', strtotime($enTime . ' + 1 day'));
     }
 
     if ($stTime >= $lunchTime && $lunchTime <= $enTime) {
         if ($lunchTime < date('H:i:00', strtotime($stTime))) {
-            $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime.' + 1 day'));
+            $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' + 1 day'));
         } else {
             $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
         }
@@ -479,7 +479,7 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
         $slots = array_merge_recursive($slots, hourlySlots($stTime1, $enTime1));
         // _p(hourlySlots($stTime1, $enTime1));
 
-        $stTime = date('Y-m-d H:i:00', strtotime($lunchTime.' +1 hour'));
+        $stTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
 
         $temp = hourlySlots($lunchTime, $stTime);
         foreach ($temp as $key => $value) {
@@ -492,7 +492,7 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
     } else {
         while ($stTime < $enTime) {
             $stSlot = $stTime;
-            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot.' +1 hour'));
+            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot . ' +1 hour'));
             if ($enSlot > $enTime) {
                 $enSlot = $enTime;
             }
@@ -504,7 +504,7 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
                 'type' => 'AVL',
             ];
             // hourlySlots
-            $stTime = date('Y-m-d H:i:00', strtotime($stTime.' +1 hour'));
+            $stTime = date('Y-m-d H:i:00', strtotime($stTime . ' +1 hour'));
         }
     }
 
@@ -525,16 +525,17 @@ function getHourlySlots($stTime, $enTime)
     } else {
         while ($stTime < $enTime) {
             $stSlot = $stTime;
-            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot.' +1 hour'));
+            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot . ' +1 hour'));
             if ($enSlot > $enTime) {
                 $enSlot = $enTime;
             }
+            $enSlot = date('Y-m-d H:i:00', strtotime($enSlot . ' -1 minute'));
             $return[] = [
                 'st' => $stSlot,
                 'en' => $enSlot,
                 'mins' => round((strtotime($enSlot) - strtotime($stSlot)) / 60),
             ];
-            $stTime = date('Y-m-d H:i:00', strtotime($stTime.' +1 hour'));
+            $stTime = date('Y-m-d H:i:00', strtotime($stTime . ' +1 hour'));
         }
     }
 
@@ -543,7 +544,7 @@ function getHourlySlots($stTime, $enTime)
 
 function siteJs($path)
 {
-    return env('APP_URL').'/js/pages/'.$path.'?v='.date('YmdH');
+    return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }
 function makeDropdown($options = [], $selected = [], $keyValue = 1)
 {
@@ -554,7 +555,7 @@ function makeDropdown($options = [], $selected = [], $keyValue = 1)
     if (count($options)) {
         foreach ($options as $k => $v) {
             if (is_array($v)) {
-                $return[] = '<optgroup label="'.$k.'">';
+                $return[] = '<optgroup label="' . $k . '">';
                 $return[] = makeDropdown($v, $selected);
                 $return[] = '</optgroup>';
             } else {
@@ -567,7 +568,7 @@ function makeDropdown($options = [], $selected = [], $keyValue = 1)
                 } elseif ($selected === $value) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="'.$value.'" '.$sel.'>'.trim(strip_tags($v)).'</option>';
+                $return[] = '<option value="' . $value . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }
@@ -576,7 +577,7 @@ function makeDropdown($options = [], $selected = [], $keyValue = 1)
 }
 function exMessage($e)
 {
-    return 'Error on line '.$e->getLine().' in '.$e->getFile().': '.$e->getMessage();
+    return 'Error on line ' . $e->getLine() . ' in ' . $e->getFile() . ': ' . $e->getMessage();
 }
 function respException($e, $data = [])
 {
@@ -599,7 +600,7 @@ function dailyHours($type = null)
 {
     $data = [];
     for ($i = 0; $i < 24; $i++) {
-        $temp = pad0($i).':00:00';
+        $temp = pad0($i) . ':00:00';
         $data[$temp] = $temp;
     }
 
@@ -629,7 +630,7 @@ function readFullFolders($dir, &$results = [])
 {
     $files = scandir($dir);
     foreach ($files as $key => $value) {
-        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
         if (! is_dir($path)) {
             $results[] = $path;
         } elseif ($value != '.' && $value != '..') {
@@ -666,8 +667,9 @@ function getCommunicationData($sdc, $sw)
     return $merged;
 }
 
-function insertGoogleAdsLog($input){
-    if(is_array($input)){
+function insertGoogleAdsLog($input)
+{
+    if (is_array($input)) {
         $input['user_id'] = auth()->id();
         $input['user_ip_address'] = request()->ip();
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreGTMetrixAccount;
 use Illuminate\Http\Request;
+use App\StoreGTMetrixAccount;
 
 class StoreGTMetrixAccountController extends Controller
 {

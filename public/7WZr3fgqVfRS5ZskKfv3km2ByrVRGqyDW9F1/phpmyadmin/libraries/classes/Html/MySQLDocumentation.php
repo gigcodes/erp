@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Html;
 
 use function __;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
 use function defined;
 use function file_exists;
 use function htmlspecialchars;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Util;
 
 /**
  * Generate HTML for MySQL Documentation
@@ -40,15 +40,15 @@ class MySQLDocumentation
             $url = Util::getMySQLDocuURL($link, $anchor);
         }
 
-        $openLink = '<a href="'.htmlspecialchars($url).'" target="mysql_doc">';
+        $openLink = '<a href="' . htmlspecialchars($url) . '" target="mysql_doc">';
         $closeLink = '</a>';
 
         if ($bigIcon) {
-            $html = $openLink.
+            $html = $openLink .
                 Generator::getImage('b_sqlhelp', __('Documentation'))
-                .$closeLink;
+                . $closeLink;
         } elseif ($text !== null) {
-            $html = $openLink.$text.$closeLink;
+            $html = $openLink . $text . $closeLink;
         } else {
             $html = Generator::showDocumentationLink($url, 'mysql_doc');
         }
@@ -80,19 +80,19 @@ class MySQLDocumentation
     public static function getDocumentationLink($page, $anchor = '', string $pathPrefix = './'): string
     {
         /* Construct base URL */
-        $url = $page.'.html';
+        $url = $page . '.html';
         if (! empty($anchor)) {
-            $url .= '#'.$anchor;
+            $url .= '#' . $anchor;
         }
 
         /**
          * Check if we have built local documentation, however
          * provide consistent URL for testsuite
          */
-        if (! defined('TESTSUITE') && @file_exists(ROOT_PATH.'doc/html/index.html')) {
-            return $pathPrefix.'doc/html/'.$url;
+        if (! defined('TESTSUITE') && @file_exists(ROOT_PATH . 'doc/html/index.html')) {
+            return $pathPrefix . 'doc/html/' . $url;
         }
 
-        return Core::linkURL('https://docs.phpmyadmin.net/en/latest/'.$url);
+        return Core::linkURL('https://docs.phpmyadmin.net/en/latest/' . $url);
     }
 }

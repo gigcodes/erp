@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\CompetitorFollowers;
 use App\CompetitorPage;
+use App\CompetitorFollowers;
 use Illuminate\Http\Request;
 
 //use InstagramAPI\Instagram;
@@ -38,7 +38,6 @@ class CompetitorPageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -61,7 +60,6 @@ class CompetitorPageController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\CompetitorPage  $competitorPage
      * @return \Illuminate\Http\Response
      */
     public function show(CompetitorPage $competitorPage)
@@ -196,8 +194,6 @@ class CompetitorPageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\CompetitorPage  $competitorPage
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, CompetitorPage $competitorPage)
@@ -208,7 +204,6 @@ class CompetitorPageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\CompetitorPage  $competitorPage
      * @return \Illuminate\Http\Response
      */
     public function destroy(CompetitorPage $competitorPage)

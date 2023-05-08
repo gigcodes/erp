@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Password;
-use App\PasswordHistory;
-use App\PasswordRemark;
-use App\Setting;
-use App\User;
+use Auth;
 use Crypt;
+use App\User;
+use App\Email;
+use App\Setting;
+use App\Password;
+use App\ChatMessage;
+use App\PasswordRemark;
+use App\PasswordHistory;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
@@ -39,22 +41,22 @@ class PasswordController extends Controller
 
             //if website is not null
             if (request('website') != null) {
-                $query->where('website', 'LIKE', '%'.request('website').'%');
+                $query->where('website', 'LIKE', '%' . request('website') . '%');
             }
 
             //If username is not null
             if (request('username') != null) {
-                $query->where('username', 'LIKE', '%'.request('username').'%');
+                $query->where('username', 'LIKE', '%' . request('username') . '%');
             }
 
             //if password is not null
             if (request('password') != null) {
-                $query->where('password', 'LIKE', '%'.Crypt::encrypt(request('password')).'%');
+                $query->where('password', 'LIKE', '%' . Crypt::encrypt(request('password')) . '%');
             }
 
             //if registered with is not null
             if (request('registered_with') != null) {
-                $query->where('registered_with', 'LIKE', '%'.request('registered_with').'%');
+                $query->where('registered_with', 'LIKE', '%' . request('registered_with') . '%');
             }
 
             $passwords = $query->orderby('website', 'asc')->paginate(Setting::get('pagination'));
@@ -112,7 +114,6 @@ class PasswordController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -157,7 +158,6 @@ class PasswordController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -193,17 +193,17 @@ class PasswordController extends Controller
             $whatsappnumber = '971502609192';
             if (isset($request->send_on_whatsapp)) {
                 $password = Password::findorfail($request->id);
-                $message = 'Username for '.$password->website.' is: '.$password['username'].' Password For '.$password->website.' is: '.Crypt::decrypt($password->password);
+                $message = 'Username for ' . $password->website . ' is: ' . $password['username'] . ' Password For ' . $password->website . ' is: ' . Crypt::decrypt($password->password);
                 $successMessage = 'You have successfully sent password';
             } else {
-                $message = 'Password Change For '.$request->website.'is, Old Password  : '.Crypt::decrypt($old_password).' New Password is : '.$request->password;
+                $message = 'Password Change For ' . $request->website . 'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
                 $successMessage = 'You have successfully changed password';
             }
             $whatsappmessage = new WhatsAppController();
             $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
         }
 
-        return redirect()->route('password.index')->withSuccess($successMessage);
+        return redirect()->back()->withSuccess($successMessage);
     }
 
     /**
@@ -220,8 +220,9 @@ class PasswordController extends Controller
     public function manage()
     {
         $users = User::where('is_active', 1)->orderBy('id', 'desc')->get();
+        $emailAddressArr = \App\EmailAddress::orderBy('from_address', 'asc')->get();
 
-        return view('passwords.change-password', compact('users'));
+        return view('passwords.change-password', compact('users', 'emailAddressArr'));
     }
 
     public function changePassword(Request $request)
@@ -258,7 +259,7 @@ class PasswordController extends Controller
             $password = $request->password;
             $user = User::findorfail($user_id);
             $number = $user->phone;
-            $message = 'Your New Password For ERP desk is Username : '.$user->email.' Password : '.$password;
+            $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password;
 
             $whatsappmessage = new WhatsAppController();
             $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
@@ -278,7 +279,7 @@ class PasswordController extends Controller
             for ($i = 0; $i < count($user_id); $i++) {
                 $user = User::findorfail($user_id[$i]);
                 $number = $user->phone;
-                $message = 'Your New Password For ERP desk is Username : '.$user->email.' Password : '.$password[$i];
+                $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password[$i];
 
                 $whatsappmessage = new WhatsAppController();
                 $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
@@ -333,23 +334,119 @@ class PasswordController extends Controller
             $html = '';
             foreach ($taskRemarkData as $taskRemark) {
                 $html .= '<tr>';
-                $html .= '<td>'.$taskRemark->id.'</td>';
-                $html .= '<td>'.$taskRemark->users->name.'</td>';
-                $html .= '<td>'.$taskRemark->remark.'</td>';
-                $html .= '<td>'.$taskRemark->created_at.'</td>';
-                $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='".$taskRemark->remark."'></i></td>";
+                $html .= '<td>' . $taskRemark->id . '</td>';
+                $html .= '<td>' . $taskRemark->users->name . '</td>';
+                $html .= '<td>' . $taskRemark->remark . '</td>';
+                $html .= '<td>' . $taskRemark->created_at . '</td>';
+                $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remark . "'></i></td>";
             }
 
             $input_html = '';
             $i = 1;
             foreach ($taskRemarkData as $taskRemark) {
-                $input_html .= '<span class="td-password-remark" style="margin:0px;"> '.$i.'.'.$taskRemark->remark.'</span>';
+                $input_html .= '<span class="td-password-remark" style="margin:0px;"> ' . $i . '.' . $taskRemark->remark . '</span>';
                 $i++;
             }
 
-            return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark '.$msg.' listed Successfully']);
+            return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark ' . $msg . ' listed Successfully']);
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => '', 'remark_data' => '', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Search data of passwords.
+     *
+     * @param  string  $subject
+     * @return \Illuminate\Http\Response
+     */
+    public function passwordsSearch(Request $request)
+    {
+        $subject = $request->subject;
+        $data = Password::where('website', 'LIKE', '%' . $subject . '%')->orderby('website', 'asc')->get();
+        $users = User::orderBy('name', 'asc')->get();
+        $password_remark = PasswordRemark::get();
+
+        return view('passwords.data', [
+            'passwords' => $data,
+            'users' => $users,
+            'password_remark' => $password_remark,
+        ]);
+    }
+
+    public function passwordsShowEditdata(Request $request)
+    {
+        $data = Password::where('id', $request->password_id)->first();
+        $pass = Crypt::decrypt($data->password);
+
+        return response()->json(['code' => 200, 'data' => $data, 'pass' => $pass]);
+    }
+
+    /**
+     * Send email to given emailId
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function passwordSendEmail(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'email' => 'required|email',
+                'from_email' => 'required',
+            ]);
+
+            $newPassword = Str::random(12);
+            $message = '';
+            $message .= 'Email id = ' . $request->email . '<br>';
+            $message .= 'Password = ' . $newPassword;
+
+            //Store data in chat_message table.
+            $params = [
+                'number' => null,
+                'user_id' => Auth::user()->id,
+                'message' => $message,
+            ];
+
+            ChatMessage::create($params);
+
+            // Store data in email table
+            $from_address = isset($request->from_email) && $request->from_email != '' ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
+
+            $email = Email::create([
+                'model_id' => '',
+                'model_type' => \App\Password::class,
+                'from' => $from_address,
+                'to' => $request->email,
+                'subject' => 'Password Manager',
+                'message' => $message,
+                'template' => 'reset-password',
+                'status' => 'pre-send',
+                'store_website_id' => null,
+                'is_draft' => 1,
+            ]);
+
+            // Send email
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+            \Session::flash('success', 'Password manager email send successfully');
+        } catch (\Throwable $th) {
+            $emails = Email::latest('created_at')->first();
+            $emails->error_message = $th->getMessage();
+            $emails->save();
+            \Session::flash('error', $th->getMessage());
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Show email password history
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function passwordSendEmailHistory(Request $request)
+    {
+        $passwordEmails = Email::where('model_type', 'App\Password')->where('to', $request->email)->get();
+
+        return view('emails.password-email-history', compact('passwordEmails'));
     }
 }
