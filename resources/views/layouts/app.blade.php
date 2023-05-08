@@ -47,7 +47,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <script src="{{siteJs('site.js')}}" defer></script>
     <script>var BASE_URL = "{{config('app.url')}}";</script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -60,9 +59,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             z-index:9999999
         }
 
-        .select-multiple.cs-select-2 + .select2.select2-container{
+        .ipusersSelect{
             margin-top:-30px;
+            font-size: 14px;
         }
+        #select-user .select2-container--default {
+            display: inline-block;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
         #message-chat-data-box .p1[data-count]:after{
           position:absolute;
           right:10%;
@@ -4901,9 +4907,9 @@ if (!empty($notifications)) {
                         }
                         @endphp
                        
-                        <div class="select-user">
+                        <div id="select-user">
                             <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                            <select class="form-control col-md-2 ml-3 select-multiple cs-select-2" name="user_id" id="ipusers">
+                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="user_id" id="ipusers">
                                 <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -5007,7 +5013,7 @@ if (!empty($notifications)) {
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
-        $('.select-user .select-multiple').select2({width: '20%'});
+        $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
