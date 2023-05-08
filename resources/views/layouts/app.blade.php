@@ -3712,7 +3712,7 @@ if (!empty($notifications)) {
                             @php
                                 $route = request()->route()->getName();
                             @endphp
-                            @if (in_array($route, ["development.issue.index", "task.index"]))
+                            @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
                                 <li>
                                     <a title="Time Estimations" type="button" class="quick-icon show-estimate-time" data-task="{{$route == "development.issue.index" ? "DEVTASK" : "TASK"}}">
                                         <span>
@@ -3853,16 +3853,16 @@ if (!empty($notifications)) {
         @php
         $route = request()->route()->getName();
         @endphp
-        @if (in_array($route, ["development.issue.index", "task.index"]))
-            @if ($route == "development.issue.index")
-                @php
-                    $taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
-                @endphp
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
+            @php
+                $d_taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                $g_taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+            @endphp
+            {{-- @if ($route == "development.issue.index")
             @else
-                @php
-                    $taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+            @php
                 @endphp
-            @endif
+            @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
                 <div class="modal-dialog modal-lg">
 
@@ -3877,9 +3877,12 @@ if (!empty($notifications)) {
                                 <label>Search</label>
                                 <br>
                                 <select name="task_id" id="shortcut-estimate-search" class="form-control">
-                                    <option disabled>Select task</option>
-                                    @foreach ($taskList as $val)
-                                        <option value="{{$val}}">{{$val}}</option>
+                                    <option selected value>Select task</option>
+                                    @foreach ($d_taskList as $val)
+                                        <option value="DEVTASK-{{$val}}">DEVTASK-{{$val}}</option>
+                                    @endforeach
+                                    @foreach ($g_taskList as $val)
+                                        <option value="TASK-{{$val}}">TASK-{{$val}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -3891,6 +3894,7 @@ if (!empty($notifications)) {
 
                 </div>
             </div>
+            @include('development.partials.estimate-shortcut')
         @endif
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
@@ -6633,16 +6637,16 @@ if (!\Auth::guest()) {
         @php
             $route = request()->route()->getName();
         @endphp
-        @if (in_array($route, ["development.issue.index", "task.index"]))
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
             $(".show-estimate-time").click(function (e) { 
                 e.preventDefault();
                 var tasktype = $(this).data('task');
                 $.ajax({
                     type: "GET",
                     url: "{{route('task.estimate.list')}}",
-                    data: {
-                        task: tasktype
-                    },
+                    // data: {
+                    //     task: tasktype
+                    // },
                     success: function (response) {
                         $("#showLatestEstimateTime").modal('show');
                         $("#showLatestEstimateTime .modal-table").html(response);
@@ -7188,19 +7192,19 @@ if (!\Auth::guest()) {
         let tasktype = $(elm).data('task');
         let taskid = $(elm).data('id');
         if(tasktype == "DEVTASK") {
-            $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
-            funTaskInformationModal(elm, taskid)
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
         } else {
-            $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
-            funTaskInformationModal(elm, taskid)
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
         }
     }
 
