@@ -1390,6 +1390,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
