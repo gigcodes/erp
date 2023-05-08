@@ -8,9 +8,9 @@
     <td class="Website-task">{{$pullRequest['username']}}</td>
     <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($pullRequest['updated_at']))}}</td>
     <td >
-       <button style="margin-right:40px;"><a class="deploye"  href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}"><img src="/Svglogo/deploy.svg" alt="Deploy"></a> </button>
+       <button data-toggle="tooltip" data-placement="top" title="Deploy" style="margin-right:40px;"><a class="deploye"  href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}"><img src="/Svglogo/deploy.svg" alt="Deploy"></a> </button>
         @if($pullRequest['repository']['name'] == "erp")
-           <button> <a style="margin-top: 5px;" class="deployepluscomposer" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}&composer=true"><img src="/Svglogo/deploy.svg" alt="Deploy"> <img src="/Svglogo/add.svg" alt=""> <img src="/Svglogo/compooser1.svg" alt="Composer"></a></button>
+           <button data-toggle="tooltip" data-placement="top" title="Deploy + Composer"> <a style="margin-top: 5px;" class="deployepluscomposer" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}&composer=true"><img src="/Svglogo/deploy.svg" alt="Deploy"> <img src="/Svglogo/add.svg" alt=""> <img src="/Svglogo/compooser1.svg" alt="Composer"></a></button>
         @endif
     </td>
     <td style="width:10%;">
@@ -20,10 +20,10 @@
             </a>
         </div> --}}
         <div style="margin-top: 5px;">
-            <button class="mergeintomaster" style="margin-top: 5px;" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']).'&task_id='.urlencode($pullRequest['id']))}}')">
+            <button data-toggle="tooltip" data-placement="top" title="Merge Into Master"  class="mergeintomaster" style="margin-top: 5px;" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']).'&task_id='.urlencode($pullRequest['id']))}}')">
                 <img src="/Svglogo/merge.svg" alt="Merge into master">
             </button>
-            <button class="closepr" style="margin-top: 5px;" onclick="confirmClosePR({!! $pullRequest['repository']['id'] !!}, {!! $pullRequest['id'] !!})">
+            <button data-toggle="tooltip" data-placement="top" title="Close" class="closepr" style="margin-top: 5px;" onclick="confirmClosePR({!! $pullRequest['repository']['id'] !!}, {!! $pullRequest['id'] !!})">
                 <img src="/Svglogo/close.svg" alt="Close">
             </button>
            
