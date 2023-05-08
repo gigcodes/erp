@@ -6,6 +6,7 @@ use App\ScrapRemark;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use App\Services\Whatsapp\ChatApi\ChatApi;
+use App\Helpers\LogHelper;
 
 class CheckScrapersLog extends Command
 {
@@ -80,6 +81,8 @@ class CheckScrapersLog extends Command
                 }
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

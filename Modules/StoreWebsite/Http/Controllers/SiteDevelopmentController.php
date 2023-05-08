@@ -1252,7 +1252,7 @@ class SiteDevelopmentController extends Controller
         $page = $request->page;
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website',
+        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
             DB::raw('count(site_developments.id) as cnt')
         )
             ->joinSub($site_dev, 'site_dev', function ($join) {
@@ -1266,6 +1266,12 @@ class SiteDevelopmentController extends Controller
                     $q->where('site_developments.site_development_master_category_id', null);
                 }
             })->join('store_websites', 'store_websites.id', '=', 'site_developments.website_id')
+            ->where(function($query) use ($request) {
+                if(isset($request->search_master_category_id) && $request->search_master_category_id != "") {
+                    $query->where("site_development_categories.master_category_id", $request->search_master_category_id);
+                }
+                return $query;
+            })
             ->groupBy('site_development_categories.id')
             // ->orderBy('website', 'asc')
             ->orderBy('site_development_categories.id', 'desc');

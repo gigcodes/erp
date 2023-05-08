@@ -26,6 +26,8 @@ use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailStatusChangeHistory;
+use App\ReplyCategory;
+use App\Reply;
 
 class EmailController extends Controller
 {
@@ -426,8 +428,23 @@ class EmailController extends Controller
     public function replyMail($id)
     {
         $email = Email::find($id);
+        $replyCategories = DB::table('reply_categories')->orderBy('name','asc')->get();
+        $storeWebsites = \App\StoreWebsite::get();
 
-        return view('emails.reply-modal', compact('email'));
+        $parentCategory = ReplyCategory::where('parent_id', 0)->get();
+        $allSubCategory = ReplyCategory::where('parent_id', '!=', 0)->get();
+        $category = $subCategory = [];
+        foreach ($allSubCategory as $key => $value) {
+            $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
+            if ($categoryList->parent_id == 0) {
+                $category[$value->id] = $value->name;
+            } else {
+                $subCategory[$value->id] = $value->name;
+            }
+        }
+
+        $categories = $category;
+        return view('emails.reply-modal', compact('email','replyCategories','storeWebsites','parentCategory','subCategory','categories'));
     }
 
     /**
@@ -1669,6 +1686,69 @@ class EmailController extends Controller
         $emailCagoryLogs = EmailStatusChangeHistory::with(['status','oldstatus','updatedByUser','user'])->where('email_id',$emailId)->get();
 
         $returnHTML = view('emails.statusChangeLogs')->with('data', $emailCagoryLogs)->render();
+        return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
+    }
+
+    public function getReplyListByCategory(Request $request){
+        $replies = Reply::where('category_id',$request->category_id)->get();
+        $returnHTML = view('emails.replyList')->with('data', $replies)->render();
+        return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
+    }
+
+    public function getReplyListFromQuickReply(Request $request){
+        $storeWebsite = $request->get('storeWebsiteId');
+        $parent_category = $request->get('parentCategoryId');
+        $category_ids = $request->get('categoryId');
+        $sub_category_ids = $request->get('subCategoryId');
+
+        $categoryChildNode = [];
+
+        if ($parent_category) {
+            $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->where('id', $parent_category)->where('parent_id', '=', 0)->first();
+            if ($parentNode) {
+                $subCatChild = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
+                $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
+            }
+        }
+
+        $replies = \App\ReplyCategory::join('replies', 'reply_categories.id', 'replies.category_id')
+        ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+        ->where('model', 'Store Website')
+        ->select(['replies.*', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id']);
+
+        if ($storeWebsite > 0) {
+            $replies = $replies->where('replies.store_website_id', $storeWebsite);
+        }
+
+
+
+        if (! empty($parent_category)) {
+            if ($categoryChildNode) {
+                $replies = $replies->where(function ($q) use ($categoryChildNode) {
+                    $q->orWhereIn('reply_categories.id', $categoryChildNode);
+                });
+            } else {
+                $replies = $replies->where(function ($q) use ($parent_category) {
+                    $q->orWhere('reply_categories.id', $parent_category)->where('reply_categories.parent_id', '=', 0);
+                });
+            }
+        }
+
+        if (! empty($category_ids)) {
+            $replies = $replies->where(function ($q) use ($category_ids) {
+                $q->orWhere('reply_categories.parent_id', $category_ids)->where('reply_categories.parent_id', '!=', 0);
+            });
+        }
+
+        if (! empty($sub_category_ids)) {
+            $replies = $replies->where(function ($q) use ($sub_category_ids) {
+                $q->orWhere('reply_categories.id', $sub_category_ids)->where('reply_categories.parent_id', '!=', 0);
+            });
+        }
+
+        $replies = $replies->get();
+
+        $returnHTML = view('emails.replyList')->with('data', $replies)->render();
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 }

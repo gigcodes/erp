@@ -8,6 +8,7 @@ use App\CronJobReport;
 use App\DailyActivity;
 use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class MovePlannedTasks extends Command
 {

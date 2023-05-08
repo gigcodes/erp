@@ -701,8 +701,11 @@
                             //$task->lead_hubstaff_task_id=0;
                             //$task->status=1;
                                     $status_color = \App\TaskStatus::where('id',$task->status)->first();
+                                    if ($status_color == null) {
+                                        $status_color = new stdClass();
+                                    }
                                     @endphp
-                                    <tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
+                                    <tr style="background-color: {{$status_color->task_color ?? ""}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                         <td class="p-2">
                                             @if(auth()->user()->isAdmin())
                                                 <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>

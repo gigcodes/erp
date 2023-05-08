@@ -9,6 +9,7 @@ use App\CronJobReport;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\Helpers\LogHelper;
 
 class FetchEmails extends Command
 {
@@ -374,6 +375,8 @@ class FetchEmails extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

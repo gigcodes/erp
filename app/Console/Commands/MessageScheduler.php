@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScheduledMessage;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class MessageScheduler extends Command
 {
@@ -117,6 +118,8 @@ class MessageScheduler extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

@@ -1805,5 +1805,86 @@
           }
     })
   }
+
+  function displayReplyCategory(ele){
+    let replyType = $(ele).val();
+    if(replyType == 'reply'){
+      $('#reply-category-div').show();
+      $('#store-website-div').hide();
+      $('#parent-category-div').hide();
+      $('#category-div').hide();
+      $('#sub-category-div').hide();
+      $('#reply-list-reply-div').hide();
+    }else{
+      $('#reply-category-div').hide();
+      $('#store-website-div').show();
+      $('#parent-category-div').show();
+      $('#category-div').show();
+      $('#sub-category-div').show();
+      $('#reply-list-reply-div').show();
+    }
+  }
+
+  function displayReplayList(ele){
+    let categoryId = $(ele).val();
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getReplyListByCategory') }}",
+          data : {
+              category_id : categoryId,
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.reply-div').html('');
+                  $('.reply-div').append(response.html);
+                  $('.reply-div').show();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function displayReplayListFromQuickReply(ele){
+    let storeWebsiteId = $('#storeWebsite').val();
+    let parentCategoryId = $('#parentCategory').val();
+    let categoryId = $('#categoryDrpDwn').val();
+    let subCategoryId = $(ele).val();
+
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getReplyListFromQuickReply') }}",
+          data : {
+            storeWebsiteId : storeWebsiteId,
+            parentCategoryId : parentCategoryId,
+            categoryId : categoryId,
+            subCategoryId : subCategoryId
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.reply-div').html('');
+                  $('.reply-div').append(response.html);
+                  $('.reply-div').show();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function setAsReply(ele){
+    var reply = $(ele).val();
+    $('.reply-message-textarea').text('')
+    $('.reply-message-textarea').text(reply);
+  }
+
 </script>
 @endsection
