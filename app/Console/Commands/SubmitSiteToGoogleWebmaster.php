@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\WebsiteStoreView;
 use Illuminate\Console\Command;
 use App\WebsiteStoreViewsWebmasterHistory;
@@ -111,8 +112,9 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
-            \Log::error($this->signature . ' Error Msg::' . $e->getMessage());
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

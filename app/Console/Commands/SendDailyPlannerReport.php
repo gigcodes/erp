@@ -7,6 +7,7 @@ use App\User;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\DailyActivity;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use App\Mails\Manual\SendDailyActivityReport;
@@ -119,7 +120,9 @@ class SendDailyPlannerReport extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
