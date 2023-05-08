@@ -3686,10 +3686,6 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
-                                <a title="Create PageNote" class="create_notes_btn quick-icon" href="#"><span><i
-                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
-                            </li>
-                            <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -3767,9 +3763,6 @@ if (!empty($notifications)) {
                             <li>
                                 <a class="instruction-button quick-icon" href="#"><span><i
                                             class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
-                            </li>
-                            <li>
-                                <a class="takenote-button quick-icon" href="#" title="Add note"><span><i class="fa fa-sticky-note-o fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <a class="daily-planner-button quick-icon" target="__blank"
@@ -6210,10 +6203,6 @@ if (!empty($notifications)) {
         //$('.help-button-wrapper').toggleClass('expanded');
         //$('.instruction-notes-list-rt').toggleClass('dis-none');
     });
-    
-    $('.takenote-button').on('click', function() {
-        $("#takenote-modal").modal("show");
-    });
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
@@ -6222,15 +6211,8 @@ if (!empty($notifications)) {
 
     $('.btn_save_notes').on('click', function(e) {
         e.preventDefault();
-        var title = $('#page_note_title').val();
-        var category = $('#category_name').val();
         var data = $('#editor-notes-content').val();
 
-        if (title == '') {
-            toastr['error']('Title Is Required');
-            return false;
-        }
-        
         if ($(data).text() == '') {
             toastr['error']('Note Is Required');
             return false;
@@ -6244,8 +6226,6 @@ if (!empty($notifications)) {
             data: {
                 data: data,
                 url: url,
-                title: title,
-                category: category,
                 _token: "{{ csrf_token() }}",
             },
             dataType: "json",
