@@ -6,6 +6,7 @@ use App\Brand;
 use App\Category;
 use App\HashTag;
 use App\KeywordSearchVariants;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -38,7 +39,6 @@ class CreateHashTags implements ShouldQueue
 
         try {
             self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : '.date('Y-m-d H:i:s'));
-
             switch($this->data['type']) {
                 case('brand'):
 
@@ -68,6 +68,7 @@ class CreateHashTags implements ShouldQueue
                                 $insert_data = $hashtag->toArray();
                                 if(isset($insert_data['hashtag'])) {
                                     \DB::table('hash_tags')->insert($insert_data);
+                                    CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                 }
                             }
 
@@ -92,7 +93,7 @@ class CreateHashTags implements ShouldQueue
                         foreach ($categoryList as  $category) {
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
-                                    $generated_string = $brand . ' ' . $category->title . ' ' . $keywordVariant;
+                                    $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
@@ -107,6 +108,7 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
@@ -119,19 +121,17 @@ class CreateHashTags implements ShouldQueue
                     break;
 
                 case ('keyword_variant'):
+                    $keywordVariants = $this->data['data'];
+                    $brands = $this->data['brand_list'];
+                    $categories = $this->data['category_list'];
+                    $user_id = $this->data['user_id'];
 
-                    if (!empty($brandList)) {
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
-                        $keywordVariants = $this->data['data'];
-                        $brands = $this->data['brand_list'];
-                        $categories = $this->data['category_list'];
-                        $user_id = $this->data['user_id'];
+                    if (!empty($brands)) {
                         $processed_variant_id_array = [];
                         foreach ($keywordVariants as $keywordVariant) {
                             foreach ($brands as $brand) {
                                 foreach($categories as $category) {
-                                    $generated_string = $brand . ' ' . $category->title . ' ' . $keywordVariant;
+                                    $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
@@ -146,6 +146,7 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
