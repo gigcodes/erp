@@ -3,7 +3,7 @@
     {{ csrf_field() }}
     <div class="form-group">
         <label for="note">Notes:</label>
-        <textarea class="form-control" name="note" id="note">{{ $pageNotes->note }}</textarea>
+        <textarea class="form-control" name="note" id="edit_note">{{ $pageNotes->note }}</textarea>
     </div>
     <div class="form-group">
         <label for="category_id">Category:</label>
