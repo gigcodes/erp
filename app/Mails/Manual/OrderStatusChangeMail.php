@@ -14,6 +14,7 @@ class OrderStatusChangeMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $order;
+    public $fromMailer;
 
     /**
      * Create a new message instance.
@@ -23,7 +24,7 @@ class OrderStatusChangeMail extends Mailable
     public function __construct($data)
     {
         $this->order = $data;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
     public function getDataFromHTML($order, $htmlData)
@@ -55,10 +56,7 @@ class OrderStatusChangeMail extends Mailable
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
-
-        //$email          = "customercare@sololuxury.co.in";
-
+        
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         $order_status = $order->order_status;
