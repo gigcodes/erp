@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\OrderStatus;
 use App\PurchaseStatus;
 use App\ReadOnly\ShippingStatus;
+use App\ReturnExchangeStatus;
 use App\StatusMapping;
 use App\StatusMappingHistory;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class StatusMappingController extends Controller
         $data['orderStatuses'] = OrderStatus::pluck('status', 'id')->all();
         $data['purchaseStatuses'] = PurchaseStatus::pluck('name', 'id')->all();
         $data['shippingStatuses'] = (new ShippingStatus)->all();
+        $data['returnExchangeStatuses'] = ReturnExchangeStatus::pluck('status_name', 'id')->all();
 
         $data['statusMappings'] = StatusMapping::latest()->get();
 
@@ -104,6 +106,19 @@ class StatusMappingController extends Controller
                 $oldStatusId = $statusMapping->shipping_status_id;
                 $newStatusId = $input['shippingStatusId'];
                 $statusMapping->shipping_status_id = $newStatusId;
+            } elseif ($input['statusType'] == StatusMappingHistory::STATUS_TYPE_RETURN_EXCHANGE) {
+                $returnExchangeStatusMapping = StatusMapping::where('return_exchange_status_id', $input['returnExchangeStatusId'])->first();
+                if ($returnExchangeStatusMapping) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This return exchange status already mapped with other Order status, Please choose different one',
+                        'status_name' => 'error',
+                    ], 500);
+                }
+
+                $oldStatusId = $statusMapping->return_exchange_status_id;
+                $newStatusId = $input['returnExchangeStatusId'];
+                $statusMapping->return_exchange_status_id = $newStatusId;
             }
             
             $statusMapping->save();
@@ -142,13 +157,16 @@ class StatusMappingController extends Controller
         if ($statusMapping) {
             $oldPurchaseStatusId = $statusMapping->purchase_status_id;
             $oldShippingStatusId = $statusMapping->shipping_status_id;
+            $oldReturnExchangeStatusId = $statusMapping->return_exchange_status_id;
 
             $statusMapping->purchase_status_id = '';
             $statusMapping->shipping_status_id = '';
+            $statusMapping->return_exchange_status_id = '';
             $statusMapping->save();
 
             $this->saveStatusMappingHistory($statusMapping, $oldPurchaseStatusId, '', StatusMappingHistory::STATUS_TYPE_PURCHASE);
-            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldShippingStatusId, '', StatusMappingHistory::STATUS_TYPE_SHIPPING);
+            $this->saveStatusMappingHistory($statusMapping, $oldShippingStatusId, '', StatusMappingHistory::STATUS_TYPE_SHIPPING);
+            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldReturnExchangeStatusId, '', StatusMappingHistory::STATUS_TYPE_RETURN_EXCHANGE);
 
             return response()->json([
                 'status' => true,
