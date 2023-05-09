@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class OverDueTasks extends Command
 {
@@ -45,11 +45,11 @@ class OverDueTasks extends Command
                 $user = \App\User::find($task->assign_to);
                 if ($user && $user->phone) {
                     if ($task->is_statutory != 1) {
-                        $message = '#'.$task->id.'. '.$task->task_subject.'. '.$task->task_details;
+                        $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
                     } else {
-                        $message = $task->task_subject.'. '.$task->task_details;
+                        $message = $task->task_subject . '. ' . $task->task_details;
                     }
-                    $message = $message.' This task is supposed to be completed on '.$task->due_date;
+                    $message = $message . ' This task is supposed to be completed on ' . $task->due_date;
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);

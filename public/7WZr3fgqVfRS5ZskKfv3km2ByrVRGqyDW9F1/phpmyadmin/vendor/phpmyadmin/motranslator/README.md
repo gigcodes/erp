@@ -9,16 +9,16 @@ Translation API for PHP using Gettext MO files.
 
 ## Features
 
-* All strings are stored in memory for fast lookup
-* Fast loading of MO files
-* Low level API for reading MO files
-* Emulation of Gettext API
-* No use of `eval()` for plural equation
+- All strings are stored in memory for fast lookup
+- Fast loading of MO files
+- Low level API for reading MO files
+- Emulation of Gettext API
+- No use of `eval()` for plural equation
 
 ## Limitations
 
-* Default `InMemoryCache` not suitable for huge MO files which you don't want to store in memory
-* Input and output encoding has to match (preferably UTF-8)
+- Default `InMemoryCache` not suitable for huge MO files which you don't want to store in memory
+- Input and output encoding has to match (preferably UTF-8)
 
 ## Installation
 
@@ -138,7 +138,7 @@ PhpMyAdmin\MoTranslator\Loader::setCacheFactory(
 );
 $loader = new PhpMyAdmin\MoTranslator\Loader();
 
-// Proceed as before 
+// Proceed as before
 ```
 
 If you are using the low level API, instantiate the `ApcuCache` directly:
@@ -189,13 +189,13 @@ $cache = new PhpMyAdmin\MoTranslator\Cache\ApcuCache($parser, 'de_DE', 'phpmyadm
 $parser->parseIntoCache($cache);
 ```
 
-You should ensure APCu has enough memory to store all your translations, along with any other entries you use it 
-for. If an entry is evicted from cache, the `.mo` file will be re-parsed, impacting performance. See the 
+You should ensure APCu has enough memory to store all your translations, along with any other entries you use it
+for. If an entry is evicted from cache, the `.mo` file will be re-parsed, impacting performance. See the
 `apc.shm_size` and `apc.shm_segments` [documentation][6] and monitor cache usage when first rolling out.
 
-If your `.mo` files are missing lots of translations, the first time a missing entry is requested the `.mo` file 
+If your `.mo` files are missing lots of translations, the first time a missing entry is requested the `.mo` file
 will be re-parsed. Again, this will impact performance until all the missing entries are hit once. You can turn off this
-behaviour by setting the `$reloadOnMiss` argument to `false`. If you do this it is _critical_ that APCu has enough 
+behaviour by setting the `$reloadOnMiss` argument to `false`. If you do this it is _critical_ that APCu has enough
 memory, or users will see untranslated text when entries are evicted.
 
 ## History
@@ -207,20 +207,20 @@ improvements and ability to install using [Composer][1].
 
 Motivation for this library includes:
 
-* The [php-gettext][2] library is not maintained anymore
-* It doesn't work with recent PHP version (phpMyAdmin has patched version)
-* It relies on `eval()` function for plural equations what can have severe security implications, see [CVE-2016-6175][4]
-* It's not possible to install it using [Composer][1]
-* There was place for performance improvements in the library
+- The [php-gettext][2] library is not maintained anymore
+- It doesn't work with recent PHP version (phpMyAdmin has patched version)
+- It relies on `eval()` function for plural equations what can have severe security implications, see [CVE-2016-6175][4]
+- It's not possible to install it using [Composer][1]
+- There was place for performance improvements in the library
 
 ### Why not to use native gettext in PHP?
 
 We've tried that, but it's not a viable solution:
 
-* You can not use locales not known to system, what is something you can not
+- You can not use locales not known to system, what is something you can not
   control from web application. This gets even more tricky with minimalist
   virtualisation containers.
-* Changing the MO file usually leads to PHP segmentation fault. It (or rather
+- Changing the MO file usually leads to PHP segmentation fault. It (or rather
   Gettext library) caches headers of MO file and if it's content is changed
   (for example new version is uploaded to server) it tries to access new data
   with old references. This is bug known for ages:
@@ -229,14 +229,14 @@ We've tried that, but it's not a viable solution:
 ### Why use Gettext and not JSON, YAML or whatever?
 
 We want translators to be able to use their favorite tools and we want us to be
-able to use wide range of tools available with Gettext as well such as 
+able to use wide range of tools available with Gettext as well such as
 [web based translation using Weblate][3]. Using custom format usually adds
 another barrier for translators and we want to make it easy for them to
 contribute.
 
-[1]:https://getcomposer.org/
-[2]:https://launchpad.net/php-gettext
-[3]:https://weblate.org/
+[1]: https://getcomposer.org/
+[2]: https://launchpad.net/php-gettext
+[3]: https://weblate.org/
 [4]: https://www.cve.org/CVERecord?id=CVE-2016-6175
-[5]:https://www.php.net/manual/en/book.apcu.php
-[6]:https://www.php.net/manual/en/apcu.configuration.php
+[5]: https://www.php.net/manual/en/book.apcu.php
+[6]: https://www.php.net/manual/en/apcu.configuration.php

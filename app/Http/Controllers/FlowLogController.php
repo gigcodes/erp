@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
 use App\Flow;
-use App\Loggers\FlowLog;
-use App\Loggers\FlowLogMessages;
+use App\Customer;
 use App\StoreWebsite;
-use App\User;
+use App\Loggers\FlowLog;
 use Illuminate\Http\Request;
+use App\Loggers\FlowLogMessages;
 
 class FlowLogController extends Controller
 {
@@ -17,9 +16,9 @@ class FlowLogController extends Controller
     public function index(Request $request)
     {
         $page = isset($request->page) ? $request->page : 1;
-        $flow_logs = Flow::pluck('flow_name','id');
-        $websites = StoreWebsite::pluck('website','id');
-        $leads = Customer::pluck('name','id');
+        $flow_logs = Flow::pluck('flow_name', 'id');
+        $websites = StoreWebsite::pluck('website', 'id');
+        $leads = Customer::pluck('name', 'id');
 
         $logs = FlowLog::orderby('updated_at', 'desc')->select(
             [
@@ -40,12 +39,12 @@ class FlowLogController extends Controller
         if ($request->term || $request->created_at) {
             if (request('term') != null) {
                 $logs = $logs->where(function ($query) use ($request) {
-                    $query->where('flows.flow_name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('flow_logs.messages', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('flows.flow_description', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('flow_log_messages.modalType', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('customers.name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('store_websites.website', 'LIKE', '%'.$request->term.'%');
+                    $query->where('flows.flow_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('flow_logs.messages', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('flows.flow_description', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('flow_log_messages.modalType', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('customers.name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('store_websites.website', 'LIKE', '%' . $request->term . '%');
                 });
             }
 
@@ -73,7 +72,7 @@ class FlowLogController extends Controller
             $page_count = $page > 1 ? ($request->input('page', 1) - 1) * 50 : $request->input('page', 1) * 50;
 
             return response()->json([
-                'tbody' => view('logging.partials.flowlogdata', compact('logs', 'page','flow_logs','websites','leads'))->with('i', $page_count)->render(),
+                'tbody' => view('logging.partials.flowlogdata', compact('logs', 'page', 'flow_logs', 'websites', 'leads'))->with('i', $page_count)->render(),
                 'links' => (string) $logs->render(),
                 'count' => $logs->total(),
             ], 200);
@@ -81,7 +80,7 @@ class FlowLogController extends Controller
 
         $title = 'Flow Log List';
 
-        return view('logging.flowlog', compact('logs', 'title', 'page','flow_logs','websites','leads'));
+        return view('logging.flowlog', compact('logs', 'title', 'page', 'flow_logs', 'websites', 'leads'));
     }
 
     public function details(Request $request)

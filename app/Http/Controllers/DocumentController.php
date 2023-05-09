@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Contact;
-use App\Document;
-use App\DocumentCategory;
-use App\DocumentHistory;
-use App\DocumentRemark;
-use App\DocumentSendHistory;
-use App\Email;
-use App\EmailAddress;
-use App\Mails\Manual\DocumentEmail;
-use App\Setting;
-use App\User;
-use App\Vendor;
 use Auth;
-use finfo;
-use Illuminate\Http\Request;
 use Mail;
+use finfo;
 use Storage;
+use App\Task;
+use App\User;
+use App\Email;
+use App\ApiKey;
+use App\Vendor;
+use App\Contact;
+use App\Setting;
+use App\Document;
+use App\EmailAddress;
+use App\DocumentRemark;
+use App\DocumentHistory;
+use App\DocumentCategory;
+use App\DocumentSendHistory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Mails\Manual\DocumentEmail;
 
 class DocumentController extends Controller
 {
@@ -47,23 +49,23 @@ class DocumentController extends Controller
 
             //if name is not null
             if (request('document_type') != null) {
-                $query->where('name', 'LIKE', '%'.request('document_type').'%');
+                $query->where('name', 'LIKE', '%' . request('document_type') . '%');
             }
 
             //If username is not null
             if (request('filename') != null) {
-                $query->where('filename', 'LIKE', '%'.request('filename').'%');
+                $query->where('filename', 'LIKE', '%' . request('filename') . '%');
             }
 
             if (request('category') != null) {
                 $query->whereHas('documentCategory', function ($qu) {
-                    $qu->where('name', 'LIKE', '%'.request('category').'%');
+                    $qu->where('name', 'LIKE', '%' . request('category') . '%');
                 });
             }
 
             if (request('user') != null) {
                 $query->whereHas('user', function ($qu) {
-                    $qu->where('name', 'LIKE', '%'.request('user').'%');
+                    $qu->where('name', 'LIKE', '%' . request('user') . '%');
                 });
             }
 
@@ -93,6 +95,70 @@ class DocumentController extends Controller
         ]);
     }
 
+    public function documentList(Request $request)
+    {
+        $developertask = DB::table('developer_task_documents')
+         ->select('subject', 'description', 'developer_task_id', 'developer_task_documents.created_at',
+             'mediables.tag as tag', 'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
+             'media.extension as extension', 'users.name as username', DB::raw("'Devtask' as type"), 'media.id as media_id')
+         ->join('mediables', 'mediables.mediable_id', '=', 'developer_task_documents.id')
+         ->join('users', 'users.id', '=', 'developer_task_documents.created_by')
+         ->join('media', 'media.id', '=', 'mediables.media_id')
+         ->where('mediables.mediable_type', 'App\DeveloperTaskDocument')
+         ->where('mediables.tag', config('constants.media_tags'));
+
+        if ($request->task_subject && $request->task_subject != null) {
+            $developertask = $developertask->where('subject', 'LIKE', "%$request->task_subject%");
+            
+        }
+        if (! empty($request->user_id)) {
+            $developertask = $developertask->where('developer_task_documents.created_by', $request->user_id);
+           
+        }
+        if (! empty($request->term_id)) {
+            $developertask = $developertask->where('developer_task_documents.developer_task_id', $request->term_id);
+        }
+        if (! empty($request->date)) {
+            $developertask = $developertask->whereDate('developer_task_documents.created_at', $request->date);
+        }
+        // $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
+
+        $uploadDocData = DB::table('tasks')
+                ->select('task_subject as subject','task_details as description',
+                    'tasks.id as developer_task_id', 'tasks.created_at', 'mediables.tag as tag',
+                    'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
+                    'media.extension as extension', 'users.name as username', DB::raw("'Task' as type"), 'media.id as media_id')
+                ->join('mediables', 'mediables.mediable_id', '=', 'tasks.id')
+                ->join('users', 'users.id', '=', 'tasks.assign_from')
+                ->join('media', 'media.id', '=', 'mediables.media_id')
+                ->where('mediables.mediable_type', 'App\Task')
+                ->where('mediables.tag', config('constants.media_tags'));
+
+        if ($request->task_subject && $request->task_subject != null) {
+            $uplodDocData = $uploadDocData->where('tasks.task_subject', 'LIKE', "%$request->task_subject%");
+        }
+        if (! empty($request->user_id)) {
+            $uploadDocData = $uploadDocData->where('tasks.assign_from', $request->user_id);
+        }
+        if (! empty($request->term_id)) {
+            $uploadDocData = $uploadDocData->where('tasks.id', $request->term_id);
+        }
+        if (! empty($request->date)) {
+            $uploadDocData = $uploadDocData->whereDate('tasks.created_at', $request->date);
+        }
+        // $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');
+        $uploadDocData = $uploadDocData->union($developertask);
+        $uploadDocData = $uploadDocData->orderBy('media_id', 'desc');
+        $DataCount = $uploadDocData->count();
+        $uploadDocData = $uploadDocData->paginate(50);
+        
+        $users = User::get();
+
+        $totalCount = $DataCount;
+
+        return view('development.documentList', compact('uploadDocData', 'users', 'totalCount'));
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -106,7 +172,6 @@ class DocumentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -147,7 +212,7 @@ class DocumentController extends Controller
         ->header('Content-Description', 'File Transfer')
         ->header('Content-Type', $mime)
         ->header('Content-length', strlen($document->file_contents))
-        ->header('Content-Disposition', 'attachment; filename='.$document->filename)
+        ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
         ->header('Content-Transfer-Encoding', 'binary');
 
             /*return response()->make($document->file_contents, 200, array(
@@ -155,7 +220,7 @@ class DocumentController extends Controller
             ));*/
         }
 
-        return Storage::disk('files')->download('documents/'.$document->filename);
+        return Storage::disk('files')->download('documents/' . $document->filename);
     }
 
     /**
@@ -183,7 +248,6 @@ class DocumentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -270,7 +334,7 @@ class DocumentController extends Controller
                  dd($request->all());
                  dd($request[$user->email]);
                  dd($request[$user_email]);*/
-                $reqKey = 'selected_email_'.$key;
+                $reqKey = 'selected_email_' . $key;
                 $email = (isset($request[$reqKey])) ? $request[$reqKey] : $user->email;
 
                 /*$mail = Mail::to($user->email);
@@ -341,7 +405,7 @@ class DocumentController extends Controller
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
-                $reqKey = 'selected_email_'.$key;
+                $reqKey = 'selected_email_' . $key;
                 $email = (isset($request[$reqKey])) ? $request[$reqKey] : $vendor->email;
 
                 $email = \App\Email::create([
@@ -513,7 +577,7 @@ class DocumentController extends Controller
             $output = '';
 
             foreach ($user as $users) {
-                $output .= '<option  rel="'.$users['email'].'" value="'.$users['id'].'" >'.$users['name'].'</option>';
+                $output .= '<option  rel="' . $users['email'] . '" value="' . $users['id'] . '" >' . $users['name'] . '</option>';
             }
             echo $output;
         } elseif ($request->selected == 2) {
@@ -522,7 +586,7 @@ class DocumentController extends Controller
             $output = '';
 
             foreach ($vendors as $vendor) {
-                $output .= '<option rel="'.$vendor['email'].'"  value="'.$vendor['id'].'">'.$vendor['name'].'</option>';
+                $output .= '<option rel="' . $vendor['email'] . '"  value="' . $vendor['id'] . '">' . $vendor['name'] . '</option>';
             }
             echo $output;
         } elseif ($request->selected == 3) {
@@ -531,7 +595,7 @@ class DocumentController extends Controller
             $output = '';
 
             foreach ($contact as $contacts) {
-                $output .= '<option   rel= "" value="'.$contacts['id'].'">'.$contacts['name'].'</option>';
+                $output .= '<option   rel= "" value="' . $contacts['id'] . '">' . $contacts['name'] . '</option>';
             }
             echo $output;
         } else {

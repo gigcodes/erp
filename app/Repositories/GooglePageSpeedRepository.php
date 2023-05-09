@@ -13,11 +13,11 @@ class GooglePageSpeedRepository
         $url = $gtmatrix->website_url;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
-            $url = 'https://'.ltrim(strtolower($url), '/');
+            $url = 'https://' . ltrim(strtolower($url), '/');
         }
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$url.'&key='.$Api_key,
+            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $url . '&key=' . $Api_key,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -33,13 +33,13 @@ class GooglePageSpeedRepository
         $response = curl_exec($curl);
         $err = curl_error($curl);
         if ($err) {
-            $this->GTMatrixError($gtmatrix->account_id, 'Google page speed report', 'Generating Report', 'Generating Report Error '.$url.' Error'.$err);
+            $this->GTMatrixError($gtmatrix->account_id, 'Google page speed report', 'Generating Report', 'Generating Report Error ' . $url . ' Error' . $err);
         }
 
         curl_close($curl);
 
-        $JsonfileName = '/uploads/speed-insight/'.$gtmatrix->test_id.'_pagespeedInsight.json';
-        $Jsonfile = public_path().$JsonfileName;
+        $JsonfileName = '/uploads/speed-insight/' . $gtmatrix->test_id . '_pagespeedInsight.json';
+        $Jsonfile = public_path() . $JsonfileName;
         file_put_contents($Jsonfile, $response);
         $gtmatrix->pagespeed_insight_json = $JsonfileName;
         $gtmatrix->save();

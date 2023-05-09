@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Bots\CucLoginEmulator;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Bots\CucLoginEmulator;
 
 class GetCuccuiniWithEmulator extends Command
 {
@@ -89,6 +89,6 @@ class GetCuccuiniWithEmulator extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70  '.':'.'8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

@@ -1,7 +1,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+  value: true,
 });
 exports.default = void 0;
 
@@ -27,13 +27,13 @@ const ol = {
   control: {
     Attribution: _control.Attribution,
     MousePosition: _control.MousePosition,
-    Zoom: _control.Zoom
+    Zoom: _control.Zoom,
   },
   coordinate: {
-    createStringXY: _coordinate.createStringXY
+    createStringXY: _coordinate.createStringXY,
   },
   extent: {
-    boundingExtent: _extent.boundingExtent
+    boundingExtent: _extent.boundingExtent,
   },
   geom: {
     LineString: _geom.LineString,
@@ -42,31 +42,31 @@ const ol = {
     MultiPoint: _geom.MultiPoint,
     MultiPolygon: _geom.MultiPolygon,
     Point: _geom.Point,
-    Polygon: _geom.Polygon
+    Polygon: _geom.Polygon,
   },
   layer: {
     Tile: _layer.Tile,
-    Vector: _layer.Vector
+    Vector: _layer.Vector,
   },
   proj: {
     fromLonLat: _proj.fromLonLat,
     get: _proj.get,
-    transformExtent: _proj.transformExtent
+    transformExtent: _proj.transformExtent,
   },
   source: {
     OSM: _source.OSM,
-    Vector: _source.Vector
+    Vector: _source.Vector,
   },
   style: {
     Circle: _style.Circle,
     Fill: _style.Fill,
     Stroke: _style.Stroke,
     Style: _style.Style,
-    Text: _style.Text
+    Text: _style.Text,
   },
   Feature: _ol.Feature,
   Map: _ol.Map,
-  View: _ol.View
+  View: _ol.View,
 };
 var _default = ol;
 exports.default = _default;

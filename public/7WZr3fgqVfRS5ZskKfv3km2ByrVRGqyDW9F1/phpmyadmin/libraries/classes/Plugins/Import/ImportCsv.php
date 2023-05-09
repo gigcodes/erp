@@ -10,30 +10,30 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Import;
 
 use function __;
+use function trim;
+use function count;
+use function rtrim;
+use function strtr;
+use function strlen;
+use PhpMyAdmin\File;
+use PhpMyAdmin\Util;
+use function basename;
+use function mb_strlen;
+use function mb_substr;
+use function preg_grep;
+use PhpMyAdmin\Message;
+use function preg_split;
 use function array_shift;
 use function array_splice;
-use function basename;
-use function count;
-use function mb_strlen;
+use function preg_replace;
+use function str_contains;
 use function mb_strtolower;
-use function mb_substr;
-use PhpMyAdmin\File;
 use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\NumberPropertyItem;
 use PhpMyAdmin\Properties\Options\Items\TextPropertyItem;
 use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
-use PhpMyAdmin\Util;
-use function preg_grep;
-use function preg_replace;
-use function preg_split;
-use function rtrim;
-use function str_contains;
-use function strlen;
-use function strtr;
-use function trim;
+use PhpMyAdmin\Properties\Options\Items\NumberPropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the import for the CSV format
@@ -106,8 +106,8 @@ class ImportCsv extends AbstractImportCsv
                 'col_names',
                 __(
                     'The first line of the file contains the table column names'
-                    .' <i>(if this is unchecked, the first line will become part'
-                    .' of the data)</i>'
+                    . ' <i>(if this is unchecked, the first line will become part'
+                    . ' of the data)</i>'
                 )
             );
             $generalOptions->addProperty($leaf);
@@ -123,14 +123,14 @@ class ImportCsv extends AbstractImportCsv
             $hint = new Message(
                 __(
                     'If the data in each row of the file is not'
-                    .' in the same order as in the database, list the corresponding'
-                    .' column names here. Column names must be separated by commas'
-                    .' and not enclosed in quotations.'
+                    . ' in the same order as in the database, list the corresponding'
+                    . ' column names here. Column names must be separated by commas'
+                    . ' and not enclosed in quotations.'
                 )
             );
             $leaf = new TextPropertyItem(
                 'columns',
-                __('Column names:').' '.Generator::showHint($hint->getMessage())
+                __('Column names:') . ' ' . Generator::showHint($hint->getMessage())
             );
             $generalOptions->addProperty($leaf);
         }
@@ -508,8 +508,8 @@ class ImportCsv extends AbstractImportCsv
                             $sql .= 'NULL';
                         } else {
                             $sql .= '\''
-                                .$dbi->escapeString($val)
-                                .'\'';
+                                . $dbi->escapeString($val)
+                                . '\'';
                         }
 
                         $first = false;
@@ -520,8 +520,8 @@ class ImportCsv extends AbstractImportCsv
                         $sql .= ' ON DUPLICATE KEY UPDATE ';
                         foreach ($fields as $field) {
                             $fieldName = Util::backquote($field['Field']);
-                            $sql .= $fieldName.' = VALUES('.$fieldName
-                                .'), ';
+                            $sql .= $fieldName . ' = VALUES(' . $fieldName
+                                . '), ';
                         }
 
                         $sql = rtrim($sql, ', ');
@@ -605,7 +605,7 @@ class ImportCsv extends AbstractImportCsv
             } else {
                 $result = $dbi->fetchResult('SHOW DATABASES');
 
-                $newDb = 'CSV_DB '.(count($result) + 1);
+                $newDb = 'CSV_DB ' . (count($result) + 1);
             }
 
             [$db_name, $options] = $this->getDbnameAndOptions($db, $newDb);
@@ -722,19 +722,19 @@ class ImportCsv extends AbstractImportCsv
             }
 
             // check to see if {filename} as table exist
-            $nameArray = preg_grep('/'.$importFileName.'/isU', $result);
+            $nameArray = preg_grep('/' . $importFileName . '/isU', $result);
             // if no use filename as table name
             if ($nameArray === false || count($nameArray) === 0) {
                 return $importFileName;
             }
 
             // check if {filename}_ as table exist
-            $nameArray = preg_grep('/'.$importFileName.'_/isU', $result);
+            $nameArray = preg_grep('/' . $importFileName . '_/isU', $result);
             if ($nameArray === false) {
                 return $importFileName;
             }
 
-            return $importFileName.'_'.(count($nameArray) + 1);
+            return $importFileName . '_' . (count($nameArray) + 1);
         }
 
         return $importFileName;
@@ -754,7 +754,7 @@ class ImportCsv extends AbstractImportCsv
         if ((isset($columnNames) && count($columnNames) != $maxCols) || ! isset($columnNames)) {
             // Fill out column names
             for ($i = 0; $i < $maxCols; $i++) {
-                $columnNames[] = 'COL '.($i + 1);
+                $columnNames[] = 'COL ' . ($i + 1);
             }
         }
 
@@ -777,7 +777,7 @@ class ImportCsv extends AbstractImportCsv
                 $sqlTemplate .= ' IGNORE';
             }
 
-            $sqlTemplate .= ' INTO '.Util::backquote($table);
+            $sqlTemplate .= ' INTO ' . Util::backquote($table);
 
             $tmp_fields = $dbi->getColumns($db, $table);
 
@@ -810,8 +810,8 @@ class ImportCsv extends AbstractImportCsv
                         $message = Message::error(
                             __(
                                 'Invalid column (%s) specified! Ensure that columns'
-                                .' names are spelled correctly, separated by commas'
-                                .', and not enclosed in quotes.'
+                                . ' names are spelled correctly, separated by commas'
+                                . ', and not enclosed in quotes.'
                             )
                         );
                         $message->addParam($val);

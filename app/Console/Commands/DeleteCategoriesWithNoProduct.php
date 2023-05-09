@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Category;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class DeleteCategoriesWithNoProduct extends Command
 {
@@ -38,36 +39,42 @@ class DeleteCategoriesWithNoProduct extends Command
      */
     public function handle()
     {
-        set_time_limit(0);
+        try{
+            set_time_limit(0);
 
-        ini_set('memory_limit', '-1');
+            ini_set('memory_limit', '-1');
 
-        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        if ($unKnownCategory) {
-            $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
-            $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
-            $deltaCategories = $fixedCategories;
-            if (! empty($unKnownCatArr)) {
-                $storeUnUserCategory = [];
-                foreach ($unKnownCatArr as $key => $unKnownC) {
-                    $this->info('Started for category :'.$unKnownC);
-                    $deltaCategories[] = $unKnownC;
-                    $unKnownCategory->ignore_category = implode(',', array_filter($deltaCategories));
-                    $unKnownCategory->save();
-                    if (! in_array($unKnownC, $fixedCategories)) {
-                        $count = \App\Category::ScrapedProducts($unKnownC);
-                        $this->info("Product count match ({$count}) :".$unKnownC);
-                        if ($count <= 0) {
-                            $storeUnUserCategory[] = $unKnownC;
-                            unset($unKnownCatArr[$key]);
-                            $unKnownCategory->references = implode(',', array_filter($unKnownCatArr));
-                            $unKnownCategory->save();
+            $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+            if ($unKnownCategory) {
+                $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
+                $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
+                $deltaCategories = $fixedCategories;
+                if (! empty($unKnownCatArr)) {
+                    $storeUnUserCategory = [];
+                    foreach ($unKnownCatArr as $key => $unKnownC) {
+                        $this->info('Started for category :' . $unKnownC);
+                        $deltaCategories[] = $unKnownC;
+                        $unKnownCategory->ignore_category = implode(',', array_filter($deltaCategories));
+                        $unKnownCategory->save();
+                        if (! in_array($unKnownC, $fixedCategories)) {
+                            $count = \App\Category::ScrapedProducts($unKnownC);
+                            $this->info("Product count match ({$count}) :" . $unKnownC);
+                            if ($count <= 0) {
+                                $storeUnUserCategory[] = $unKnownC;
+                                unset($unKnownCatArr[$key]);
+                                $unKnownCategory->references = implode(',', array_filter($unKnownCatArr));
+                                $unKnownCategory->save();
+                            }
+                        } else {
+                            $this->info('Already fetched record :' . $unKnownC);
                         }
-                    } else {
-                        $this->info('Already fetched record :'.$unKnownC);
                     }
                 }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

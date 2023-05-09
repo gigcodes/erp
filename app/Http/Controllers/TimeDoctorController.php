@@ -2,27 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\TimeDoctor\TimeDoctorAccount;
-use App\TimeDoctor\TimeDoctorMember;
-use App\TimeDoctor\TimeDoctorProject;
-use App\TimeDoctor\TimeDoctorTask;
-
 use App\User;
-use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use App\Library\TimeDoctor\Src\Timedoctor;
 use stdClass;
+use Exception;
+use Illuminate\Http\Request;
+
 use App\TimeDoctor\TimeDoctorLog;
-use Storage;
+use App\TimeDoctor\TimeDoctorTask;
+use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorAccount;
+use App\TimeDoctor\TimeDoctorProject;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class TimeDoctorController extends Controller
 {
     public $timedoctor;
+
     public function __construct()
     {
         $this->timedoctor = Timedoctor::getInstance();
@@ -37,38 +32,37 @@ class TimeDoctorController extends Controller
     {
         $members = TimeDoctorMember::query();
         $users = User::all('id', 'name');
-        
-        if(isset($request->time_doctor_user_id) && $request->time_doctor_user_id != ""){  
-            $members->where("time_doctor_user_id", "like", "%$request->time_doctor_user_id%");
-        }
-        if(isset($request->time_doctor_email) && $request->time_doctor_email != ""){
-            $members->where("email", "like", "%$request->time_doctor_email%");
-        }
-        if(isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0){
-            $members->whereIn("time_doctor_account_id", $request->time_doctor_account_id);
-        }
-        if(isset($request->time_doctor_user) && count($request->time_doctor_user) > 0){
-            $members->whereIn("user_id", $request->time_doctor_user);
-        }
 
+        if (isset($request->time_doctor_user_id) && $request->time_doctor_user_id != '') {
+            $members->where('time_doctor_user_id', 'like', "%$request->time_doctor_user_id%");
+        }
+        if (isset($request->time_doctor_email) && $request->time_doctor_email != '') {
+            $members->where('email', 'like', "%$request->time_doctor_email%");
+        }
+        if (isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0) {
+            $members->whereIn('time_doctor_account_id', $request->time_doctor_account_id);
+        }
+        if (isset($request->time_doctor_user) && count($request->time_doctor_user) > 0) {
+            $members->whereIn('user_id', $request->time_doctor_user);
+        }
 
         $members = $members->get();
-        if($request->ajax()){
+        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('time-doctor.users-list', ['members' => $members, 'users' => $users])->render()
+                'tbody' => view('time-doctor.users-list', ['members' => $members, 'users' => $users])->render(),
             ], 200);
         }
 
-        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token', '!=', '')->get();
 
         return view(
             'time-doctor.users',
             [
                 'members' => $members,
                 'users' => $users,
-                'accountList' => $accountList
+                'accountList' => $accountList,
             ]
-        );        
+        );
     }
 
     public function getProjects(Request $request)
@@ -76,33 +70,34 @@ class TimeDoctorController extends Controller
         $projects = TimeDoctorProject::query();
         // dd($request->all());
 
-        if(isset($request->time_doctor_project_id) && $request->time_doctor_project_id != ""){  
-            $projects->where("time_doctor_project_id", "like", "%$request->time_doctor_project_id%");
+        if (isset($request->time_doctor_project_id) && $request->time_doctor_project_id != '') {
+            $projects->where('time_doctor_project_id', 'like', "%$request->time_doctor_project_id%");
         }
-        if(isset($request->time_doctor_company_id) && $request->time_doctor_company_id != ""){
-            $projects->where("time_doctor_company_id", "like", "%$request->time_doctor_company_id%");
+        if (isset($request->time_doctor_company_id) && $request->time_doctor_company_id != '') {
+            $projects->where('time_doctor_company_id', 'like', "%$request->time_doctor_company_id%");
         }
-        if(isset($request->time_doctor_project_name) && $request->time_doctor_project_name != ""){
-            $projects->where("time_doctor_project_name", "like", "%$request->time_doctor_project_name%");
+        if (isset($request->time_doctor_project_name) && $request->time_doctor_project_name != '') {
+            $projects->where('time_doctor_project_name', 'like', "%$request->time_doctor_project_name%");
         }
 
-        if(isset($request->time_doctor_account) && count($request->time_doctor_account) > 0){
-            $projects->whereIn("time_doctor_account_id", $request->time_doctor_account);
+        if (isset($request->time_doctor_account) && count($request->time_doctor_account) > 0) {
+            $projects->whereIn('time_doctor_account_id', $request->time_doctor_account);
         }
 
         $projects = $projects->get();
-        if($request->ajax()){
+        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('time-doctor.list', ['projects' => $projects])->render()
+                'tbody' => view('time-doctor.list', ['projects' => $projects])->render(),
             ], 200);
         }
 
-        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token', '!=', '')->get();
+
         return view(
-            'time-doctor.projects', 
+            'time-doctor.projects',
             [
                 'projects' => $projects,
-                'accountList' => $accountList
+                'accountList' => $accountList,
             ]
         );
     }
@@ -111,37 +106,38 @@ class TimeDoctorController extends Controller
     {
         $tasks = TimeDoctorTask::query();
 
-        if(isset($request->time_doctor_task_id) && $request->time_doctor_task_id != "") {
-            $tasks->where("time_doctor_task_id", "like", "%$request->time_doctor_task_id%");
+        if (isset($request->time_doctor_task_id) && $request->time_doctor_task_id != '') {
+            $tasks->where('time_doctor_task_id', 'like', "%$request->time_doctor_task_id%");
         }
 
-        if(isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0) {
-            $tasks->whereIn("time_doctor_account_id", $request->time_doctor_account_id);
+        if (isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0) {
+            $tasks->whereIn('time_doctor_account_id', $request->time_doctor_account_id);
         }
 
-        if(isset($request->summery) && $request->summery != "") {
-            $tasks->where("summery", "like", "%$request->summery%");
+        if (isset($request->summery) && $request->summery != '') {
+            $tasks->where('summery', 'like', "%$request->summery%");
         }
 
         $tasks = $tasks->get();
 
-        if($request->ajax()) {
+        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('time-doctor.tasks-list', [ 'tasks' => $tasks])->render()
+                'tbody' => view('time-doctor.tasks-list', ['tasks' => $tasks])->render(),
             ], 200);
         }
-        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token', '!=', '')->get();
 
         return view(
-            'time-doctor.tasks', 
+            'time-doctor.tasks',
             [
                 'tasks' => $tasks,
-                'accountList' => $accountList
+                'accountList' => $accountList,
             ]
         );
     }
 
-    public function saveUserAccount(Request $request){
+    public function saveUserAccount(Request $request)
+    {
         try {
             $time_doctor_acount = new TimeDoctorAccount();
             $time_doctor_acount->time_doctor_email = $request->email;
@@ -156,36 +152,39 @@ class TimeDoctorController extends Controller
         }
     }
 
-    public function getAuthTokens(Request $request){
+    public function getAuthTokens(Request $request)
+    {
         try {
-            $getToken = $this->timedoctor->generateAuthToken( $request->id );
-            if( $getToken ){
+            $getToken = $this->timedoctor->generateAuthToken($request->id);
+            if ($getToken) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Auth token generated successfully']);
             } else {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
             }
-        } catch (Exception $e) { 
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
         }
     }
 
-    public function displayUserAccountList(Request $request){
+    public function displayUserAccountList(Request $request)
+    {
         $timeDoctorAccounts = TimeDoctorAccount::all();
-        $html = "";
+        $html = '';
         $i = 1;
-        foreach($timeDoctorAccounts as $account){
-            $html .= "<tr>";
-            $html .= "<td>".$i++."</td>";
-            $html .= "<td>".$account->time_doctor_email."</td>";
-            $html .= "<td>".$account->time_doctor_password."</td>";
-            $html .= "<td>".$account->created_at."</td>";
-            if($account->auth_token == ""){
-                $html .= "<td><button type='button' class='btn btn-secondary get_token' data-id=".$account->id.">Get Token</button></td>";
+        foreach ($timeDoctorAccounts as $account) {
+            $html .= '<tr>';
+            $html .= '<td>' . $i++ . '</td>';
+            $html .= '<td>' . $account->time_doctor_email . '</td>';
+            $html .= '<td>' . $account->time_doctor_password . '</td>';
+            $html .= '<td>' . $account->created_at . '</td>';
+            if ($account->auth_token == '') {
+                $html .= "<td><button type='button' class='btn btn-secondary get_token' data-id=" . $account->id . '>Get Token</button></td>';
             } else {
-                $html .= "<td style='vertical-align:middle;'>".$account->auth_token."</td>";
+                $html .= "<td style='vertical-align:middle;'>" . $account->auth_token . '</td>';
             }
-            $html .= "</tr>";
+            $html .= '</tr>';
         }
+
         return $html;
     }
 
@@ -208,14 +207,14 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->time_doctor_account);
             $companyId = $time_doctor_acount->company_id;
-            $accessToken = $time_doctor_acount->auth_token;        
-            $createProject = $this->timedoctor->createProject( $companyId, $accessToken, $request->all() );
-            if( $createProject ){
+            $accessToken = $time_doctor_acount->auth_token;
+            $createProject = $this->timedoctor->createProject($companyId, $accessToken, $request->all());
+            if ($createProject) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
             } else {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
             }
-        } catch (Exception $e) { 
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
         }
     }
@@ -232,92 +231,53 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->time_doctor_account);
             $companyId = $time_doctor_acount->company_id;
-            $accessToken = $time_doctor_acount->auth_token;        
-            $createTask = $this->timedoctor->createTask( $companyId, $accessToken, $request->all() );
-            if( $createTask ){
+            $accessToken = $time_doctor_acount->auth_token;
+            $createTask = $this->timedoctor->createTask($companyId, $accessToken, $request->all());
+            if ($createTask) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
             } else {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
             }
-        } catch (Exception $e) { 
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
         }
     }
 
-    public function getTasksById(Request $request){
-        try{
+    public function getTasksById(Request $request)
+    {
+        try {
             $time_doctortask = TimeDoctorTask::find($request->taskId);
-            if($time_doctortask){
+            if ($time_doctortask) {
                 $res['name'] = $time_doctortask->summery;
                 $res['description'] = $time_doctortask->description;
                 $res['project_id'] = $time_doctortask->time_doctor_project_id;
+
                 return response()->json(['code' => 200, 'data' => $res, 'message' => 'Time doctor task data fetched successfully']);
             } else {
-                return response()->json(['code' => 500, 'data' => [], 'message' => 'Task not found']);   
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Task not found']);
             }
-        } catch (Exception $e) { 
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
         }
     }
-    
+
     public function updateTasksById(Request $request)
     {
         try {
             $time_doctor_task = TimeDoctorTask::find($request->time_doctor_task_id);
-            if( $time_doctor_task ){
+            if ($time_doctor_task) {
                 $res['taskId'] = $time_doctor_task->time_doctor_task_id;
                 $res['taskName'] = $request->edit_time_doctor_task_name;
                 $res['taskDescription'] = $request->edit_time_doctor_task_description;
                 $res['taskProject'] = $time_doctor_task->time_doctor_project_id;
                 $companyId = $time_doctor_task->account->company_id;
                 $accessToken = $time_doctor_task->account->auth_token;
-                $updateTask = $this->timedoctor->updateTask( $companyId, $accessToken, $res );
-                if( $updateTask ){
+                $updateTask = $this->timedoctor->updateTask($companyId, $accessToken, $res);
+                if ($updateTask) {
                     $time_doctor_task->summery = $request->edit_time_doctor_task_name;
                     $time_doctor_task->description = $request->edit_time_doctor_task_description;
                     $time_doctor_task->save();
-                    return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
-                } else {
-                    return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
-                }
-            } else {
-                return response()->json(['code' => 500, 'data' => [], 'message' => 'Task not found']);
-            }
-        } catch (Exception $e) { 
-            return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
-        }
-    }
-    
-    public function getProjectsById(Request $request){
-        try{
-            $time_doctor_project = TimeDoctorProject::find($request->projectId);
-            if($time_doctor_project){
-                $res['name'] = $time_doctor_project->time_doctor_project_name;
-                $res['description'] = $time_doctor_project->time_doctor_project_description;
-                return response()->json(['code' => 200, 'data' => $res, 'message' => 'Time doctor project data fetched successfully']);
-            } else {
-                return response()->json(['code' => 500, 'data' => [], 'message' => 'Program not found']);   
-            }
-        } catch (Exception $e) { 
-            return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
-        }
-    }
 
-    public function updateProjectById(Request $request)
-    {
-        try {
-            $time_doctor_project = TimeDoctorProject::find($request->time_doctor_program_id);
-            if( $time_doctor_project ){
-                $res['projectId'] = $time_doctor_project->time_doctor_project_id;
-                $res['projectName'] = $request->edit_time_doctor_project_name;
-                $res['projectDescription'] = $request->edit_time_doctor_project_description;
-                $companyId = $time_doctor_project->account_detail->company_id;
-                $accessToken = $time_doctor_project->account_detail->auth_token;
-                $updateProject = $this->timedoctor->updateProject( $companyId, $accessToken, $res );
-                if( $updateProject ){
-                    $time_doctor_project->time_doctor_project_name = $request->edit_time_doctor_project_name;
-                    $time_doctor_project->time_doctor_project_description = $request->edit_time_doctor_project_description;
-                    $time_doctor_project->save();
                     return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
                 } else {
                     return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
@@ -330,16 +290,61 @@ class TimeDoctorController extends Controller
         }
     }
 
-    public function userTreckTime(Request $request){
+    public function getProjectsById(Request $request)
+    {
+        try {
+            $time_doctor_project = TimeDoctorProject::find($request->projectId);
+            if ($time_doctor_project) {
+                $res['name'] = $time_doctor_project->time_doctor_project_name;
+                $res['description'] = $time_doctor_project->time_doctor_project_description;
+
+                return response()->json(['code' => 200, 'data' => $res, 'message' => 'Time doctor project data fetched successfully']);
+            } else {
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Program not found']);
+            }
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+        }
+    }
+
+    public function updateProjectById(Request $request)
+    {
+        try {
+            $time_doctor_project = TimeDoctorProject::find($request->time_doctor_program_id);
+            if ($time_doctor_project) {
+                $res['projectId'] = $time_doctor_project->time_doctor_project_id;
+                $res['projectName'] = $request->edit_time_doctor_project_name;
+                $res['projectDescription'] = $request->edit_time_doctor_project_description;
+                $companyId = $time_doctor_project->account_detail->company_id;
+                $accessToken = $time_doctor_project->account_detail->auth_token;
+                $updateProject = $this->timedoctor->updateProject($companyId, $accessToken, $res);
+                if ($updateProject) {
+                    $time_doctor_project->time_doctor_project_name = $request->edit_time_doctor_project_name;
+                    $time_doctor_project->time_doctor_project_description = $request->edit_time_doctor_project_description;
+                    $time_doctor_project->save();
+
+                    return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
+                } else {
+                    return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+                }
+            } else {
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Task not found']);
+            }
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+        }
+    }
+
+    public function userTreckTime(Request $request)
+    {
         return view('time-doctor.track-users');
     }
 
     public function linkUser(Request $request)
     {
-
         $bodyContent = $request->getContent();
         $jsonDecodedBody = json_decode($bodyContent);
-        
+
         $userId = $jsonDecodedBody->user_id;
         $timeDoctorUserId = $jsonDecodedBody->time_doctor_user_id;
 
@@ -363,6 +368,7 @@ class TimeDoctorController extends Controller
     {
         $members = TimeDoctorAccount::where('auth_token', '!=', '')->whereNotNull('company_id')->get();
         $users = User::all('id', 'name', 'email');
+
         return view(
             'time-doctor.create-accounts',
             [
@@ -378,14 +384,14 @@ class TimeDoctorController extends Controller
         try {
             $data = [
                 'email' => $request->email,
-                'name'  => $request->name,
+                'name' => $request->name,
             ];
             $userId = $request->userId;
             $time_doctor_acount = TimeDoctorAccount::find($request->tda);
-            if ($time_doctor_acount):
+            if ($time_doctor_acount) {
                 $companyId = $time_doctor_acount->company_id;
-                $accessToken = $time_doctor_acount->auth_token; 
-                $inviteResponse = $this->timedoctor->sendSingleInvitation( $companyId, $accessToken, $data );
+                $accessToken = $time_doctor_acount->auth_token;
+                $inviteResponse = $this->timedoctor->sendSingleInvitation($companyId, $accessToken, $data);
                 switch ($inviteResponse['code']) {
                     case '401':
                         return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.']);
@@ -403,20 +409,21 @@ class TimeDoctorController extends Controller
                         break;
                     default:
                         $lastRow = TimeDoctorAccount::create([
-                            'time_doctor_email'=> $request->email 
+                            'time_doctor_email' => $request->email,
                         ]);
                         TimeDoctorMember::create([
                             'time_doctor_user_id' => $inviteResponse['data']['time_doctor_user_id'],
                             'time_doctor_account_id' => $lastRow->id,
                             'email' => $request->email,
-                            'user_id' => $userId
+                            'user_id' => $userId,
                         ]);
+
                         return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor account created successfully']);
                         break;
                 }
-            else:
+            } else {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
-            endif;
+            }
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
@@ -426,25 +433,25 @@ class TimeDoctorController extends Controller
     {
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->tda);
-            if ($time_doctor_acount):
+            if ($time_doctor_acount) {
                 $companyId = $time_doctor_acount->company_id;
-                $accessToken = $time_doctor_acount->auth_token; 
-                $users = User::whereIn('id',$request->ids)->get();
+                $accessToken = $time_doctor_acount->auth_token;
+                $users = User::whereIn('id', $request->ids)->get();
                 $payloadUsers = [];
-                foreach($users as $u){
+                foreach ($users as $u) {
                     $obj = new stdClass;
                     $obj->email = $u->email;
                     $obj->name = $u->name;
-                    
+
                     array_push($payloadUsers, $obj);
                 }
 
                 $bulkInvitePayload = [
-                    "users"=> $payloadUsers,
-                    "noSendEmail" => "false"
+                    'users' => $payloadUsers,
+                    'noSendEmail' => 'false',
                 ];
 
-                $bulkInviteResponse = $this->timedoctor->sendBulkInvitation( $companyId, $accessToken, $bulkInvitePayload );
+                $bulkInviteResponse = $this->timedoctor->sendBulkInvitation($companyId, $accessToken, $bulkInvitePayload);
                 switch ($bulkInviteResponse['code']) {
                     case '401':
                         return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.']);
@@ -462,27 +469,27 @@ class TimeDoctorController extends Controller
                         break;
                     default:
                         $response = $bulkInviteResponse['data']['response']->data;
-                        foreach($users as $u){
+                        foreach ($users as $u) {
                             $userId = $u->id;
                             $email = $u->email;
-                            $time_doctor_user_id = "";
-                            foreach($response as $key => $val){
-                                foreach($val as $k => $v){
-                                    if($k == $email && $v->status == 'sent') {
+                            $time_doctor_user_id = '';
+                            foreach ($response as $key => $val) {
+                                foreach ($val as $k => $v) {
+                                    if ($k == $email && $v->status == 'sent') {
                                         $time_doctor_user_id = $v->userId;
                                     }
                                 }
                             }
 
-                            if ($time_doctor_user_id != "") {
+                            if ($time_doctor_user_id != '') {
                                 $lastRow = TimeDoctorAccount::create([
-                                    'time_doctor_email'=> $email 
+                                    'time_doctor_email' => $email,
                                 ]);
                                 TimeDoctorMember::create([
                                     'time_doctor_user_id' => $time_doctor_user_id,
                                     'time_doctor_account_id' => $lastRow->id,
                                     'email' => $email,
-                                    'user_id' => $userId
+                                    'user_id' => $userId,
                                 ]);
                             }
                         }
@@ -490,13 +497,14 @@ class TimeDoctorController extends Controller
                         return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor account created successfully']);
                         break;
                 }
-            else:
+            } else {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
-            endif;
+            }
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
+
     /**
      * This function will retrive the log which are logged while ceating the account
      */
@@ -506,12 +514,11 @@ class TimeDoctorController extends Controller
             $responseCode = TimeDoctorLog::distinct()->get('response_code')->pluck('response_code');
             $filterUsers = TimeDoctorLog::with('user')->distinct()->get('user_id')->pluck('user.name', 'user.id');
 
-            $developerTask = TimeDoctorLog::distinct()->whereNotNull("dev_task_id")->get('dev_task_id')->pluck('dev_task_id');
-            $generalTask = TimeDoctorLog::distinct()->whereNotNull("task_id")->get('task_id')->pluck('task_id');
+            $developerTask = TimeDoctorLog::distinct()->whereNotNull('dev_task_id')->get('dev_task_id')->pluck('dev_task_id');
+            $generalTask = TimeDoctorLog::distinct()->whereNotNull('task_id')->get('task_id')->pluck('task_id');
+
             return view('time-doctor.task-creation-logs', compact('responseCode', 'filterUsers', 'generalTask', 'developerTask'));
-            
         } catch (Exception $e) {
-            
             return view('time-doctor.task-creation-logs');
         }
     }
@@ -521,52 +528,59 @@ class TimeDoctorController extends Controller
         try {
             $logs = TimeDoctorLog::query()->with(['user']);
 
-            if($request->search_url) {
-                $logs->where("url", "like", "%$request->search_url%");
+            if(!auth()->user()->isAdmin()) {
+                $logs->where('user_id', auth()->user()->id);
             }
 
-            if(isset($request->response_code) && !empty($request->response_code)) {
-                $logs->whereIn("response_code", $request->response_code);
+            if ($request->search_url) {
+                $logs->where('url', 'like', "%$request->search_url%");
             }
 
-            if(isset($request->search_users) && !empty($request->search_users)) {
-                $logs->whereIn("user_id", $request->search_users);
+            if (isset($request->response_code) && ! empty($request->response_code)) {
+                $logs->whereIn('response_code', $request->response_code);
+            }
+
+            if (isset($request->search_users) && ! empty($request->search_users)) {
+                $logs->whereIn('user_id', $request->search_users);
             }
 
             $dev_task = [];
             $general_task = [];
-            if(isset($request->search_tasks) && !empty($request->search_tasks)){
+            if (isset($request->search_tasks) && ! empty($request->search_tasks)) {
                 foreach ($request->search_tasks as $key => $task) {
-                    if(str_contains($task, "DEVTASK-")) {
-                        array_push($dev_task, trim($task, "DEVTASK-"));
+                    if (str_contains($task, 'DEVTASK-')) {
+                        array_push($dev_task, trim($task, 'DEVTASK-'));
                     } else {
-                        array_push($general_task, trim($task, "TASK-"));
+                        array_push($general_task, trim($task, 'TASK-'));
                     }
                 }
             }
 
-            $logs->where(function($query) use ($dev_task, $general_task) {
-                if(!empty($dev_task)) {
-                    $query->orWhereIn("dev_task_id", $dev_task);
+            $logs->where(function ($query) use ($dev_task, $general_task) {
+                if (! empty($dev_task)) {
+                    $query->orWhereIn('dev_task_id', $dev_task);
                 }
-    
-                if(!empty($general_task)) {
-                    $query->orWhereIn("task_id", $general_task);
+
+                if (! empty($general_task)) {
+                    $query->orWhereIn('task_id', $general_task);
                 }
             });
 
+            // dd($logs->toSql());
+
             $logs = $logs->paginate(20);
+
             return response()->json([
-                "tbody" => view('time-doctor.task-creation-logs-list', compact("logs"))->render(),
-                "pagination" => $logs->links()->render()
+                'tbody' => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
+                'pagination' => $logs->links()->render(),
             ]);
         } catch (Exception $e) {
             $logs = [];
+
             return response()->json([
-                "tbody" => view('time-doctor.task-creation-logs-list', compact("logs"))->render(),
-                "pagination" => ""
+                'tbody' => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
+                'pagination' => '',
             ]);
         }
     }
-    
 }

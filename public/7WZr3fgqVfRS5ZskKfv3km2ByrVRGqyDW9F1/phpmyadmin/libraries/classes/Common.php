@@ -5,43 +5,43 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_pop;
 use function count;
-use function date_default_timezone_get;
-use function date_default_timezone_set;
 use function define;
+use function strlen;
 use function defined;
-use const E_USER_ERROR;
 use function explode;
-use function extension_loaded;
-use function function_exists;
-use function hash_equals;
-use function htmlspecialchars;
 use function implode;
 use function ini_get;
 use function ini_set;
 use function is_array;
+use const E_USER_ERROR;
+use function array_pop;
 use function is_scalar;
-use function mb_internal_encoding;
 use function mb_strlen;
 use function mb_strpos;
-use function mb_strrpos;
 use function mb_substr;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\TableName;
-use PhpMyAdmin\Http\Factory\ServerRequestFactory;
-use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\Plugins\AuthenticationPlugin;
-use PhpMyAdmin\SqlParser\Lexer;
-use function register_shutdown_function;
-use function session_id;
-use function strlen;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use function trigger_error;
 use function urldecode;
+use function mb_strrpos;
+use function session_id;
+use function hash_equals;
+use function trigger_error;
 use Webmozart\Assert\Assert;
+use function function_exists;
+use function extension_loaded;
+use function htmlspecialchars;
+use PhpMyAdmin\Dbal\TableName;
+use PhpMyAdmin\SqlParser\Lexer;
+use PhpMyAdmin\Dbal\DatabaseName;
+use function mb_internal_encoding;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\ConfigStorage\Relation;
+use function date_default_timezone_get;
+use function date_default_timezone_set;
+use function register_shutdown_function;
+use PhpMyAdmin\Plugins\AuthenticationPlugin;
 use Webmozart\Assert\InvalidArgumentException;
+use PhpMyAdmin\Http\Factory\ServerRequestFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class Common
 {
@@ -414,7 +414,7 @@ final class Common
             // as there is nothing sane to do
         }
 
-        $PMA_PHP_SELF = htmlspecialchars('/'.implode('/', $path));
+        $PMA_PHP_SELF = htmlspecialchars('/' . implode('/', $path));
     }
 
     private static function setGotoAndBackGlobals(ContainerInterface $container, Config $config): void
@@ -545,8 +545,8 @@ final class Common
             Core::fatalError(
                 __(
                     'You have enabled mbstring.func_overload in your PHP '
-                    .'configuration. This option is incompatible with phpMyAdmin '
-                    .'and might cause some data to be corrupted!'
+                    . 'configuration. This option is incompatible with phpMyAdmin '
+                    . 'and might cause some data to be corrupted!'
                 )
             );
         }

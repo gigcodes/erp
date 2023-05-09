@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Hubstaff\HubstaffActivity;
-use App\PaymentReceipt;
-use App\TimeDoctor\TimeDoctorActivity;
+use DB;
 use App\User;
 use App\UserRate;
-use DB;
+use App\PaymentReceipt;
 use Illuminate\Console\Command;
+use App\Hubstaff\HubstaffActivity;
+use App\TimeDoctor\TimeDoctorActivity;
 
 class UserPayment extends Command
 {
@@ -53,7 +53,7 @@ class UserPayment extends Command
             } else {
                 $bigining = date('Y-m-d');
             }
-            \Log::info('Users found - '.$users->count().' on Date - '.$bigining);
+            \Log::info('Users found - ' . $users->count() . ' on Date - ' . $bigining);
             foreach ($users as $user) {
                 $lastPayment = PaymentReceipt::where('user_id', $user->id)->orderBy('date', 'DESC')->first();
                 $start = $bigining;
@@ -63,19 +63,19 @@ class UserPayment extends Command
                 //$end =  $start;
                 //}
                 $yesterday = date('Y-m-d', strtotime('-1 days'));
-                echo PHP_EOL."=====Checking $start - $end for $user->id ====".PHP_EOL;
+                echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
                 \Log::info("=====Checking $start - $end for $user->id ====");
 
                 $activityrecords = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
-                echo PHP_EOL.'===== Result found '.count($activityrecords).' ===='.PHP_EOL;
+                echo PHP_EOL . '===== Result found ' . count($activityrecords) . ' ====' . PHP_EOL;
 
-                \Log::info('User ID - '.$user->id);
+                \Log::info('User ID - ' . $user->id);
 
                 $total = 0;
                 $minutes = 0;
                 $startsAt = null;
-                \Log::info('Activity Records found - '.count($activityrecords));
+                \Log::info('Activity Records found - ' . count($activityrecords));
                 foreach ($activityrecords as $record) {
                     $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at, $user->id);
                     if ($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
@@ -87,7 +87,7 @@ class UserPayment extends Command
                     }
                 }
 
-                \Log::info('Total count - '.$total);
+                \Log::info('Total count - ' . $total);
                 /*$billingStartDate = ($lastPayment && !empty($startsAt)) ? $startsAt : date("Y-m-d",strtotime("-1 day"));
                 if($user->payment_frequency == 'fornightly') {
                     $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));
@@ -129,19 +129,17 @@ class UserPayment extends Command
                     $paymentReceipt->billing_end_date = isset($billingEndDate) ? $billingEndDate : $end;*/
                     $paymentReceipt->currency = ''; //we need to change this.
                     if ($user->billing_frequency_day > 0) {
-                        $paymentReceipt->billing_due_date = date('Y-m-d', strtotime($startsAt.' +'.$user->billing_frequency_day));
+                        $paymentReceipt->billing_due_date = date('Y-m-d', strtotime($startsAt . ' +' . $user->billing_frequency_day));
                     }
                     $paymentReceipt->saveWithoutEvents();
 
-                    \Log::info('Paymemt Receipt Added - '.$paymentReceipt->id);
+                    \Log::info('Paymemt Receipt Added - ' . $paymentReceipt->id);
                 }
             }
             DB::commit();
 
-
-
-            echo PHP_EOL.'===== Checking for Time dctor activity ===='.PHP_EOL;
-            // Cron for time doctor 
+            echo PHP_EOL . '===== Checking for Time dctor activity ====' . PHP_EOL;
+            // Cron for time doctor
 
             DB::beginTransaction();
             $users = User::whereIn('fixed_price_user_or_job', [2, 3])->get();
@@ -152,7 +150,7 @@ class UserPayment extends Command
             } else {
                 $bigining = date('Y-m-d');
             }
-            \Log::info('Users found - '.$users->count().' on Date - '.$bigining);
+            \Log::info('Users found - ' . $users->count() . ' on Date - ' . $bigining);
             foreach ($users as $user) {
                 $lastPayment = PaymentReceipt::where('user_id', $user->id)->orderBy('date', 'DESC')->first();
                 $start = $bigining;
@@ -162,19 +160,19 @@ class UserPayment extends Command
                 //$end =  $start;
                 //}
                 $yesterday = date('Y-m-d', strtotime('-1 days'));
-                echo PHP_EOL."=====Checking $start - $end for $user->id ====".PHP_EOL;
+                echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
                 \Log::info("=====Checking $start - $end for $user->id ====");
 
                 $activityrecords = TimeDoctorActivity::getTrackedActivitiesBetween($start, $end, $user->id);
-                echo PHP_EOL.'===== Result found '.count($activityrecords).' ===='.PHP_EOL;
+                echo PHP_EOL . '===== Result found ' . count($activityrecords) . ' ====' . PHP_EOL;
 
-                \Log::info('User ID - '.$user->id);
+                \Log::info('User ID - ' . $user->id);
 
                 $total = 0;
                 $minutes = 0;
                 $startsAt = null;
-                \Log::info('Activity Records found - '.count($activityrecords));
+                \Log::info('Activity Records found - ' . count($activityrecords));
                 foreach ($activityrecords as $record) {
                     $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at, $user->id);
                     if ($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
@@ -186,7 +184,7 @@ class UserPayment extends Command
                     }
                 }
 
-                \Log::info('Total count - '.$total);
+                \Log::info('Total count - ' . $total);
 
                 if ($total > 0) {
                     $total = number_format($total, 2);
@@ -200,20 +198,20 @@ class UserPayment extends Command
                     $paymentReceipt->billing_end_date = isset($billingEndDate) ? $billingEndDate : $end;*/
                     $paymentReceipt->currency = '';
                     if ($user->billing_frequency_day > 0) {
-                        $paymentReceipt->billing_due_date = date('Y-m-d', strtotime($startsAt.' +'.$user->billing_frequency_day));
+                        $paymentReceipt->billing_due_date = date('Y-m-d', strtotime($startsAt . ' +' . $user->billing_frequency_day));
                     }
                     $paymentReceipt->saveWithoutEvents();
 
-                    \Log::info('Paymemt Receipt Added - '.$paymentReceipt->id);
+                    \Log::info('Paymemt Receipt Added - ' . $paymentReceipt->id);
                 }
             }
             DB::commit();
-            echo PHP_EOL.'=====DONE===='.PHP_EOL;
+            echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (Exception $e) {
             \Log::error($e);
             echo $e->getMessage();
             DB::rollBack();
-            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
+            echo PHP_EOL . '=====FAILED====' . PHP_EOL;
         }
     }
 }

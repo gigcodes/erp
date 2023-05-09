@@ -44,6 +44,13 @@
                                             @endforeach
                                         </datalist>
                                     </div>
+                                    <div class="form-group px-2 googleDocCategory-container">
+                                        <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
+                                            @foreach ($googleDocCategory as $key => $c)
+                                                <option value="{{$key}}">{{$c}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 				    @if(Auth::user()->isAdmin())
                                     <div class="form-group m-1">
                                         <select name="user_gmail" class="form-control" placeholder="Search User">
@@ -67,6 +74,9 @@
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#AddGoogleDocCategoryModal">
+                    Create Category
+                </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#RemoveGoogleDocPermissionModal">
                     Remove Permission
                 </button>
@@ -88,6 +98,7 @@
                 <th>File Name</th>
                 <th>Category</th>
                 <th>Task</th>
+                <th>Created By</th>
                 <th>Created At</th>
                 <th>URL</th>
                 <th>Action</th>
@@ -117,8 +128,8 @@
                             </label>
                             <select class="w-100 js-example-basic-multiple js-states"
                                     id="remove_permission_write"  name="remove_permission">
-                                @foreach(App\User::all() as $val)
-                                    <option value="{{$val->email}}" class="form-control">{{$val->name}}</option>
+                                @foreach(App\User::whereNotNull('gmail')->get() as $val)
+                                    <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -127,6 +138,34 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-secondary">remove</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div id="AddGoogleDocCategoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create new category</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="{{ route('google-docs.category.create') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group custom-select2">
+                            <label>Category</label>
+                            <input type="text" name="name" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Create</button>
                     </div>
                 </form>
             </div>
@@ -169,10 +208,35 @@
     @include('googledocs.partials.update-doc-permissions')
     </div>
     @include('googledocs.partials.update-doc')
+
+    <style>
+        .select2-search--inline {
+            display: contents; 
+        }
+
+        .select2-search__field:placeholder-shown {
+            width: 100% !important; 
+        }
+        .multi-select-box .select2{
+            width: 200px!important;
+        }
+        ul.select2-selection__rendered{
+            display: block!important;
+        }
+        .googleDocCategory-container .select2-container{
+            width: 200px!important
+        }
+    </style>
 @endsection
 @section('scripts')
 <script type="text/javascript">
     $("#remove_permission_write").select2();
+    $("#googleDocCategoryFilter").select2({
+        multiple: true,
+        placeholder: "Select Category"
+    });
+    $("#googleDocCategoryFilter").trigger('change');
+    
 
 $(document).on('click', '.permissionupdate', function (e) {
 
@@ -242,10 +306,40 @@ $(document).on('click', '.permissionview', function (e) {
             data: {_token: "{{ csrf_token() }}"},
             dataType: "json",
             success: function (response) {
-                $('#updateGoogleDocModal input[name=doc_category]').val(response.data.category);
+                // $('#updateGoogleDocModal input[name=doc_category]').val(response.data.category);
+                $("#editGoogleDocCategory").val(response.data.category);
+                $('#updateGoogleDocModal input[name=docId]').val(response.data.docId);
+                $('#updateGoogleDocModal [name=type]').val(response.data.type);
+                $('#updateGoogleDocModal input[name=name]').val(response.data.name);
                 $('#updateGoogleDocModal input[name=id]').val(response.data.id);
             }
         });
 	});
+    $(document).on("change", ".update-category", function () {
+        var doc_id = $(this).data("docs_id")
+        var category_id = $(this).val()
+
+        if(doc_id != "" && doc_id != null) {
+            $.ajax({
+                type: "post",
+                url: "{{ route('google-docs.category.update') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id, doc_id
+                },
+                success: function (response) {
+                    if(response.status == true) {
+                        toastr['success'](response.message, 'Note');
+                    } else {
+                        toastr['error'](response.message, 'Error');
+                    }
+                }, 
+                error: function(error) {
+                    toastr['error']("Something went wrong.", 'Error');
+                }
+            });
+        }
+        
+    });
     </script>
 @endsection

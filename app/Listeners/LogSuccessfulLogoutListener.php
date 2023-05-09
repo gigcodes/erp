@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
-use App\Http\Controllers\ActivityConroller;
-use App\UserLogin;
 use Auth;
+use App\UserLogin;
 use Carbon\Carbon;
+use App\Http\Controllers\ActivityConroller;
 
 class LogSuccessfulLogoutListener
 {

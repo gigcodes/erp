@@ -29,9 +29,9 @@ class RedisJobRepository extends \Laravel\Horizon\Repositories\RedisJobRepositor
             LuaScripts::clear(),
             4,
             $queue,
-            $queue.':delayed',
-            $queue.':reserved',
-            $queue.':notify'
+            $queue . ':delayed',
+            $queue . ':reserved',
+            $queue . ':notify'
         );
     }
 }

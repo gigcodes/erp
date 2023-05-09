@@ -7,18 +7,18 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use function array_merge;
-use function in_array;
+use function trim;
 use function intval;
+use function substr;
+use function in_array;
 use function is_array;
 use function mb_strpos;
-use function mb_strtoupper;
 use function mb_substr;
+use function array_merge;
+use function mb_strtoupper;
 use PhpMyAdmin\Gis\GisFactory;
-use PhpMyAdmin\Gis\GisVisualization;
 use PhpMyAdmin\Http\ServerRequest;
-use function substr;
-use function trim;
+use PhpMyAdmin\Gis\GisVisualization;
 
 /**
  * Editor for Geometry data types.
@@ -99,7 +99,7 @@ class GisDataEditorController extends AbstractController
         $srid = isset($gis_data['srid']) && $gis_data['srid'] != '' ? (int) $gis_data['srid'] : 0;
         $wkt = $gis_obj->generateWkt($gis_data, 0);
         $wkt_with_zero = $gis_obj->generateWkt($gis_data, 0, '0');
-        $result = "'".$wkt."',".$srid;
+        $result = "'" . $wkt . "'," . $srid;
 
         // Generate SVG based visualization
         $visualizationSettings = [

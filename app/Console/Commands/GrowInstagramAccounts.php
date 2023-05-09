@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;
@@ -113,7 +113,7 @@ class GrowInstagramAccounts extends Command
 //                $instagram->people->follow($id2);
 
                 foreach ($imagesToPost as $i) {
-                    $filename = __DIR__.'/images/'.$i.'.jpeg';
+                    $filename = __DIR__ . '/images/' . $i . '.jpeg';
                     $source = imagecreatefromjpeg($filename);
                     [$width, $height] = getimagesize($filename);
 
@@ -122,7 +122,7 @@ class GrowInstagramAccounts extends Command
 
                     $destination = imagecreatetruecolor($newwidth, $newheight);
                     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-                    imagejpeg($destination, __DIR__.'/images/'.$i.'.jpeg', 100);
+                    imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
 
                     try {
 //                        $instagram->timeline->uploadPhoto($filename);

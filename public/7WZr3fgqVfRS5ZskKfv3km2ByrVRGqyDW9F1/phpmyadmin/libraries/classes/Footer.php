@@ -7,17 +7,17 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use Traversable;
+use function strlen;
 use function basename;
-use function file_exists;
 use function in_array;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function file_exists;
 use function json_encode;
 use function json_last_error;
 use PhpMyAdmin\ConfigStorage\Relation;
-use function strlen;
-use Traversable;
 
 /**
  * Class used to output the footer
@@ -82,9 +82,9 @@ class Footer
     {
         $info = [];
 
-        if (@file_exists(ROOT_PATH.'revision-info.php')) {
+        if (@file_exists(ROOT_PATH . 'revision-info.php')) {
             /** @psalm-suppress MissingFile,UnresolvableInclude */
-            $info = include ROOT_PATH.'revision-info.php';
+            $info = include ROOT_PATH . 'revision-info.php';
         }
 
         return is_array($info) ? $info : [];
@@ -186,7 +186,7 @@ class Footer
             $params['single_table'] = $_REQUEST['single_table'];
         }
 
-        return basename(Core::getenv('SCRIPT_NAME')).Url::getCommonRaw($params);
+        return basename(Core::getenv('SCRIPT_NAME')) . Url::getCommonRaw($params);
     }
 
     /**
@@ -285,7 +285,7 @@ class Footer
                     $url = $this->getSelfUrl();
                 }
 
-                $this->scripts->addCode('var debugSQLInfo = '.$this->getDebugMessage().';');
+                $this->scripts->addCode('var debugSQLInfo = ' . $this->getDebugMessage() . ';');
                 $errorMessages = $this->getErrorMessages();
                 $scripts = $this->scripts->getDisplay();
 

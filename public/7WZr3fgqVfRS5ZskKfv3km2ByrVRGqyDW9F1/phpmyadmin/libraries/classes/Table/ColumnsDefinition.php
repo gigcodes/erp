@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Table;
 
-use function array_keys;
-use function array_merge;
-use function bin2hex;
+use function trim;
 use function count;
-use function explode;
-use function in_array;
+use function rtrim;
+use PhpMyAdmin\Url;
 use function intval;
+use function substr;
+use PhpMyAdmin\Util;
+use function bin2hex;
+use function explode;
+use PhpMyAdmin\Table;
+use function in_array;
 use function is_array;
-use function mb_strtoupper;
+use function array_keys;
+use function preg_quote;
 use PhpMyAdmin\Charsets;
-use PhpMyAdmin\ConfigStorage\Relation;
+use function array_merge;
+use function preg_replace;
+use function mb_strtoupper;
+use function stripcslashes;
+use PhpMyAdmin\StorageEngine;
+use PhpMyAdmin\Transformations;
 use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Query\Compatibility;
+use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\Partitioning\Partition;
 use PhpMyAdmin\Partitioning\TablePartitionDefinition;
-use PhpMyAdmin\Query\Compatibility;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Table;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function preg_quote;
-use function preg_replace;
-use function rtrim;
-use function stripcslashes;
-use function substr;
-use function trim;
 
 /**
  * Displays the form used to define the structure of the table
@@ -101,7 +101,7 @@ final class ColumnsDefinition
 
         if (is_array($selected)) {
             foreach ($selected as $o_fld_nr => $o_fld_val) {
-                $form_params['selected['.$o_fld_nr.']'] = $o_fld_val;
+                $form_params['selected[' . $o_fld_nr . ']'] = $o_fld_val;
             }
         }
 
@@ -133,8 +133,8 @@ final class ColumnsDefinition
             }
 
             foreach (array_keys($available_mime[$mime_type]) as $mimekey) {
-                $available_mime[$mime_type.'_file_quoted'][$mimekey] = preg_quote(
-                    $available_mime[$mime_type.'_file'][$mimekey],
+                $available_mime[$mime_type . '_file_quoted'][$mimekey] = preg_quote(
+                    $available_mime[$mime_type . '_file'][$mimekey],
                     '@'
                 );
             }
@@ -355,27 +355,27 @@ final class ColumnsDefinition
             if ($is_backup) {
                 // old column name
                 if (isset($columnMeta['Field'])) {
-                    $form_params['field_orig['.$columnNumber.']'] = $columnMeta['Field'];
+                    $form_params['field_orig[' . $columnNumber . ']'] = $columnMeta['Field'];
                     if (isset($columnMeta['column_status']) && ! $columnMeta['column_status']['isEditable']) {
-                        $form_params['field_name['.$columnNumber.']'] = $columnMeta['Field'];
+                        $form_params['field_name[' . $columnNumber . ']'] = $columnMeta['Field'];
                     }
                 } else {
-                    $form_params['field_orig['.$columnNumber.']'] = '';
+                    $form_params['field_orig[' . $columnNumber . ']'] = '';
                 }
 
                 // old column type
                 if (isset($columnMeta['Type'])) {
                     // keep in uppercase because the new type will be in uppercase
-                    $form_params['field_type_orig['.$columnNumber.']'] = mb_strtoupper($type);
+                    $form_params['field_type_orig[' . $columnNumber . ']'] = mb_strtoupper($type);
                     if (isset($columnMeta['column_status']) && ! $columnMeta['column_status']['isEditable']) {
-                        $form_params['field_type['.$columnNumber.']'] = mb_strtoupper($type);
+                        $form_params['field_type[' . $columnNumber . ']'] = mb_strtoupper($type);
                     }
                 } else {
-                    $form_params['field_type_orig['.$columnNumber.']'] = '';
+                    $form_params['field_type_orig[' . $columnNumber . ']'] = '';
                 }
 
                 // old column length
-                $form_params['field_length_orig['.$columnNumber.']'] = $length;
+                $form_params['field_length_orig[' . $columnNumber . ']'] = $length;
 
                 // old column default
                 $form_params = array_merge(

@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -82,10 +83,10 @@ class CronScraperNotRunning extends Command
                 // Loop over suppliers
                 foreach ($allSuppliers as $supplier) {
                     // Create message
-                    $message = '['.date('d-m-Y H:i:s').'] Scraper not running: '.$supplier->supplier;
+                    $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
 
                     // Output debug message
-                    dump('Scraper not running: '.$supplier->supplier);
+                    dump('Scraper not running: ' . $supplier->supplier);
 
                     // Try to send message
                     try {
@@ -101,7 +102,9 @@ class CronScraperNotRunning extends Command
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

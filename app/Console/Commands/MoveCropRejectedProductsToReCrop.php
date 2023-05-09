@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class MoveCropRejectedProductsToReCrop extends Command
@@ -49,7 +49,7 @@ class MoveCropRejectedProductsToReCrop extends Command
             $products = Product::where('is_crop_rejected', 1)->where('crop_remark', 'LIKE', '%sequence%')->get();
 
             foreach ($products as $key => $product) {
-                dump('Reverting....'.$key);
+                dump('Reverting....' . $key);
 //            $product->is_image_processed = 0;
                 //            $product->is_being_cropped = 0;
                 //            $product->is_crop_rejected = 0;

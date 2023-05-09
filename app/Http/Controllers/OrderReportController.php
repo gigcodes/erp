@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\OrderHelper;
+use Auth;
 use App\Order;
 use App\OrderReport;
 use App\OrderStatus;
-use Auth;
+use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
 
 class OrderReportController extends Controller
 {
@@ -36,7 +36,6 @@ class OrderReportController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -117,7 +116,7 @@ class OrderReportController extends Controller
             $orders->where('orders.id', $request->order_id);
         }
         if ($request->customer_name && $request->customer_name != null) {
-            $orders->where('customers.name', 'LIKE', '%'.$request->customer_name.'%');
+            $orders->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
         }
 
         if ($request->flt_order_status && $request->flt_order_status != null) {
@@ -134,7 +133,7 @@ class OrderReportController extends Controller
             $order_n_refunds->where('return_exchanges.id', $request->order_id);
         }
         if ($request->customer_name && $request->customer_name != null) {
-            $order_n_refunds->where('customers.name', 'LIKE', '%'.$request->customer_name.'%');
+            $order_n_refunds->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
         }
         $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date', 'DESC')->get();
         // dd($order_n_refunds);
@@ -210,7 +209,6 @@ class OrderReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

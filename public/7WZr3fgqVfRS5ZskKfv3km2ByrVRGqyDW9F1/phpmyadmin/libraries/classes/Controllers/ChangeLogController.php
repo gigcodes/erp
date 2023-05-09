@@ -8,16 +8,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers;
 
 use function __;
+use function printf;
+use function substr;
+use function ob_start;
 use function array_keys;
-use function file_get_contents;
-use function htmlspecialchars;
+use function readgzfile;
 use function is_readable;
 use function ob_get_clean;
-use function ob_start;
 use function preg_replace;
-use function printf;
-use function readgzfile;
-use function substr;
+use function htmlspecialchars;
+use function file_get_contents;
 
 class ChangeLogController extends AbstractController
 {
@@ -68,25 +68,25 @@ class ChangeLogController extends AbstractController
             '/([0-9]{4}-[0-9]{2}-[0-9]{2}) (.+[^ ]) +&lt;(.*@.*)&gt;/i' => '\\1 <a href="mailto:\\3">\\2</a>',
 
             // FAQ entries
-            '/FAQ ([0-9]+)\.([0-9a-z]+)/i' => '<a href="url.php?url='.$faq_url.'#faq\\1-\\2">FAQ \\1.\\2</a>',
+            '/FAQ ([0-9]+)\.([0-9a-z]+)/i' => '<a href="url.php?url=' . $faq_url . '#faq\\1-\\2">FAQ \\1.\\2</a>',
 
             // GitHub issues
-            '/issue\s*#?([0-9]{4,5}) /i' => '<a href="url.php?url='.$github_url.'issues/\\1">issue #\\1</a> ',
+            '/issue\s*#?([0-9]{4,5}) /i' => '<a href="url.php?url=' . $github_url . 'issues/\\1">issue #\\1</a> ',
 
             // CVE/CAN entries
             '/((CAN|CVE)-[0-9]+-[0-9]+)/' => '<a href="url.php?url='
-                .'https://cve.mitre.org/cgi-bin/cvename.cgi?name=\\1">\\1</a>',
+                . 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=\\1">\\1</a>',
 
             // PMASAentries
             '/(PMASA-[0-9]+-[0-9]+)/' => '<a href="url.php?url=https://www.phpmyadmin.net/security/\\1/">\\1</a>',
 
             // Highlight releases (with links)
             '/([0-9]+)\.([0-9]+)\.([0-9]+)\.0 (\([0-9-]+\))/' => '<a id="\\1_\\2_\\3"></a>'
-                .'<a href="url.php?url='.$github_url.'commits/RELEASE_\\1_\\2_\\3">'
-                .'\\1.\\2.\\3.0 \\4</a>',
+                . '<a href="url.php?url=' . $github_url . 'commits/RELEASE_\\1_\\2_\\3">'
+                . '\\1.\\2.\\3.0 \\4</a>',
             '/([0-9]+)\.([0-9]+)\.([0-9]+)\.([1-9][0-9]*) (\([0-9-]+\))/' => '<a id="\\1_\\2_\\3_\\4"></a>'
-                .'<a href="url.php?url='.$github_url.'commits/RELEASE_\\1_\\2_\\3_\\4">'
-                .'\\1.\\2.\\3.\\4 \\5</a>',
+                . '<a href="url.php?url=' . $github_url . 'commits/RELEASE_\\1_\\2_\\3_\\4">'
+                . '\\1.\\2.\\3.\\4 \\5</a>',
 
             // Highlight releases (not linkable)
             '/(    ### )(.*)/' => '\\1<b>\\2</b>',

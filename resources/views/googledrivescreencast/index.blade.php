@@ -86,11 +86,12 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>File Name</th>
+                <th style="max-width: 150px">File Name</th>
                 <th>Dev Task</th>
                 <th>File Creation Date</th>
                 <th>URL</th>
-                <th>Remarks</th>
+                <th style="max-width: 200px">Remarks</th>
+                <th>User</th>
                 <th>File Uploaded AT</th>
                 <th>Action</th>
             </tr>
@@ -103,6 +104,23 @@
     </div>
 
 @include('googledrivescreencast.partials.upload')
+
+<div id="showFullMessageModel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+</div>
 @endsection
 @section('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -142,6 +160,15 @@ $(document).on('click', '.filepermissionupdate', function (e) {
         $('#id').val(id);
 	
 	});
+
+    $(document).on("click",".showFullMessage", function () {
+        let title = $(this).data('title');
+        let message = $(this).data('message');
+
+        $("#showFullMessageModel .modal-body").html(message);
+        $("#showFullMessageModel .modal-title").html(title);
+        $("#showFullMessageModel").modal("show");
+    });
     </script>
 @endsection
 

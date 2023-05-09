@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Setting;
 use App\UpdateLog;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class UpdateLogController extends Controller
 {
@@ -19,7 +19,7 @@ class UpdateLogController extends Controller
         try {
             $q = UpdateLog::query();
             if ($s = request('api_url')) {
-                $q->where('api_url', 'like', '%'.$s.'%');
+                $q->where('api_url', 'like', '%' . $s . '%');
             }
             if ($s = request('device')) {
                 $q->where('device', $s);
@@ -60,7 +60,6 @@ class UpdateLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -123,7 +122,6 @@ class UpdateLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

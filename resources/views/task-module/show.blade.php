@@ -701,8 +701,11 @@
                             //$task->lead_hubstaff_task_id=0;
                             //$task->status=1;
                                     $status_color = \App\TaskStatus::where('id',$task->status)->first();
+                                    if ($status_color == null) {
+                                        $status_color = new stdClass();
+                                    }
                                     @endphp
-                                    <tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
+                                    <tr style="background-color: {{$status_color->task_color ?? ""}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                         <td class="p-2">
                                             @if(auth()->user()->isAdmin())
                                                 <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
@@ -916,7 +919,7 @@
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
                                                     <?php $text_box = "100"; ?>
-                                                        <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                    <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
                                                     <div class="d-flex">
                                                         <div style="max-width: 30px;">
                                                             <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
@@ -936,27 +939,27 @@
                                                     @if (isset($task->message))
                                                         <div style="margin-bottom:10px;width: 100%;">
                                                             <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                    <?php
-                                                    if (!empty($task->message) && !empty($task->task_subject)) {
-                                                        $pos = strpos($task->message, $task->task_subject);
-                                                        $length = strlen($task->task_subject);
-                                                        if ($pos) {
-                                                            $start = $pos + $length + 1;
-                                                        } else {
-                                                            $start = 0;
-                                                        }
-                                                    } else {
-                                                        $start = 0;
-                                                    }
-                                                    ?>
-                                                    {{substr($task->message, $start,28)}}
-                                                </span>
+                                                                <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                <?php
+                                                                    if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                        $pos = strpos($task->message, $task->task_subject);
+                                                                        $length = strlen($task->task_subject);
+                                                                        if ($pos) {
+                                                                            $start = $pos + $length + 1;
+                                                                        } else {
+                                                                            $start = 0;
+                                                                        }
+                                                                    } else {
+                                                                        $start = 0;
+                                                                    }
+                                                                    ?>
+                                                                {{substr($task->message, $start,28)}}
+                                                                </span>
                                                             </div>
                                                             <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                <span class="td-full-container-{{$task->id}} hidden">
-                                                    {{ $task->message }}
-                                                </span>
+                                                                <span class="td-full-container-{{$task->id}} hidden">
+                                                                {{ $task->message }}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -1565,10 +1568,18 @@
                         <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
                     </div>
 
-                    <div class="form-group">
+                    {{-- <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category"> --}}
+                    {{-- <div class="form-group">
                         <strong>Category:</strong>
-                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
-                    </div>
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div> --}}
                    
                 </div>
 
@@ -3814,7 +3825,7 @@
             $(document).on('click', "#btnCreateTaskDocument", function () {
                 let doc_type = $("#doc-type").val();
                 let doc_name = $("#doc-name").val();
-                let doc_category = $("#doc-category").val();
+                // let doc_category = $("#doc-category").val();
                 let task_id = $("#task_id").val();
                 
                 if(doc_type.trim() == "") {
@@ -3825,17 +3836,17 @@
                     toastr["error"]("Insert document name.");
                     return
                 }
-                if(doc_category.trim() == "") {
-                    toastr["error"]("Insert document category.");
-                    return
-                }
+                // if(doc_category.trim() == "") {
+                //     toastr["error"]("Insert document category.");
+                //     return
+                // }
 
                 $.ajax({
                     type: "POST",
                     url: "{{route('google-docs.task')}}",
                     data: {
                         _token: "{{csrf_token()}}",
-                        doc_category,
+                        // doc_category,
                         doc_type,
                         doc_name,
                         task_id,

@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use App\DatabaseHistoricalRecord;
-use App\DatabaseTableHistoricalRecord;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\DatabaseHistoricalRecord;
 use Illuminate\Support\Facades\DB;
+use App\DatabaseTableHistoricalRecord;
+use App\Helpers\LogHelper;
 
 class AddDatabaseHistoricalData extends Command
 {
@@ -55,7 +56,7 @@ class AddDatabaseHistoricalData extends Command
 
             // get the historical data and store into the new table
             $db = \DB::select('SELECT table_schema as "db_name",Round(Sum(data_length + index_length) / 1024 / 1024, 1) as "db_size"
-                FROM information_schema.tables  where table_schema = "'.env('DB_DATABASE', 'solo').'" GROUP  BY table_schema'
+                FROM information_schema.tables  where table_schema = "' . env('DB_DATABASE', 'solo') . '" GROUP  BY table_schema'
             );
 
             $lastDb = DatabaseHistoricalRecord::where('database_name', env('DB_DATABASE', 'solo'))->latest()->first();
@@ -67,11 +68,11 @@ class AddDatabaseHistoricalData extends Command
                         if ($lastDb->database_name == $d->db_name) {
                             if (($d->db_size - $lastDb->size) >= self::MAX_REACH_LIMIT) {
                                 \App\CronJob::insertLastError($this->signature,
-                                    'Database is reached to the max limit : '.self::MAX_REACH_LIMIT.' MB'
+                                    'Database is reached to the max limit : ' . self::MAX_REACH_LIMIT . ' MB'
                                 );
                             } elseif ($d->db_size > self::MAX_REACH_TOTAL_LIMIT) {
                                 \App\CronJob::insertLastError($this->signature,
-                                    'Database is reached to the max total limit : '.self::MAX_REACH_TOTAL_LIMIT.' MB'
+                                    'Database is reached to the max total limit : ' . self::MAX_REACH_TOTAL_LIMIT . ' MB'
                                 );
                             }
                         }
@@ -81,7 +82,7 @@ class AddDatabaseHistoricalData extends Command
                         'database_name' => $d->db_name,
                         'size' => $d->db_size,
                     ]);
-                    $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="'.$d->db_name.'" GROUP  BY TABLE_NAME'
+                    $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="' . $d->db_name . '" GROUP  BY TABLE_NAME'
                     );
                     foreach ($db_table as $d_table) {
                         $databaseTableHistoricalRecord = DatabaseTableHistoricalRecord::where('database_name', $d_table->db_table_name)->where('database_id', $database_recent_entry->id)->orderBy('created_at', 'ASC')->first();
@@ -91,7 +92,7 @@ class AddDatabaseHistoricalData extends Command
                             $differance = (($v1 - $v2) / (($v1 + $v2) / 2)) * 100;
                             if ($differance > 10) {
                                 $user_id = 6;
-                                $message = $d->db_name.'.'.$d_table->db_table_name.' Database table increased size more than 10%.';
+                                $message = $d->db_name . '.' . $d_table->db_table_name . ' Database table increased size more than 10%.';
                                 $params = [];
                                 $params['message'] = $message;
                                 $params['erp_user'] = $user_id;
@@ -118,6 +119,8 @@ class AddDatabaseHistoricalData extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

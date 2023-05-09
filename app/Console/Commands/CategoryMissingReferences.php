@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\CronJobReport;
-use App\Loggers\LogScraper;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
+use App\ScrapedProducts;
+use App\Loggers\LogScraper;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command
@@ -78,7 +79,7 @@ class CategoryMissingReferences extends Command
 
                     // Exists?
                     if ($exists == null) {
-                        $exists = Category::where('references', 'LIKE', '%'.$lastCategory.'%')->first();
+                        $exists = Category::where('references', 'LIKE', '%' . $lastCategory . '%')->first();
                     }
 
                     // Still null
@@ -98,13 +99,15 @@ class CategoryMissingReferences extends Command
 
             // Update
             if ($unknownCategory != null && strlen($arrUnknown) > 0) {
-                $unknownCategory->references = $unknownCategory->references.','.$arrUnknown;
+                $unknownCategory->references = $unknownCategory->references . ',' . $arrUnknown;
                 $unknownCategory->save();
             }
 
             // Update cron report
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

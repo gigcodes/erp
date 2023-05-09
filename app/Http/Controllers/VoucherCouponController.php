@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Platform;
 use App\VoucherCoupon;
 use App\VoucherCouponCode;
 use App\VoucherCouponOrder;
 use App\VoucherCouponRemark;
-use DB;
 use Illuminate\Http\Request;
 
 class VoucherCouponController extends Controller
@@ -60,7 +60,6 @@ class VoucherCouponController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -100,7 +99,6 @@ class VoucherCouponController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\VoucherCoupon  $voucherCoupon
      * @return \Illuminate\Http\Response
      */
     public function show(VoucherCoupon $voucherCoupon)
@@ -130,7 +128,6 @@ class VoucherCouponController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\VoucherCoupon  $voucherCoupon
      * @return \Illuminate\Http\Response
      */
@@ -269,7 +266,6 @@ class VoucherCouponController extends Controller
     /**
      * Store Remark the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\VoucherCoupon  $voucherCouponId
      * @return \Illuminate\Http\Response
      */

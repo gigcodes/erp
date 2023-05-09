@@ -1,6 +1,6 @@
 CodeMirror.sqlLint = function (text, updateLinting, options, cm) {
   // Skipping check if text box is empty.
-  if (text.trim() === '') {
+  if (text.trim() === "") {
     updateLinting(cm, []);
     return;
   }
@@ -15,7 +15,7 @@ CodeMirror.sqlLint = function (text, updateLinting, options, cm) {
         // eslint-disable-next-line new-cap
         to: CodeMirror.Pos(response[idx].toLine, response[idx].toColumn),
         messageHTML: response[idx].message,
-        severity: response[idx].severity
+        severity: response[idx].severity,
       });
     }
 
@@ -23,15 +23,15 @@ CodeMirror.sqlLint = function (text, updateLinting, options, cm) {
   }
 
   $.ajax({
-    method: 'POST',
-    url: 'index.php?route=/lint',
-    dataType: 'json',
+    method: "POST",
+    url: "index.php?route=/lint",
+    dataType: "json",
     data: {
-      'sql_query': text,
-      'server': CommonParams.get('server'),
-      'options': options.lintOptions,
-      'no_history': true
+      sql_query: text,
+      server: CommonParams.get("server"),
+      options: options.lintOptions,
+      no_history: true,
     },
-    success: handleResponse
+    success: handleResponse,
   });
 };

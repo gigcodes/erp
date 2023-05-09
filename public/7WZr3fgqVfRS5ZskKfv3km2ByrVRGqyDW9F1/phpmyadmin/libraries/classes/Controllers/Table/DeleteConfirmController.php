@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function is_array;
-use PhpMyAdmin\DbTableExists;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use function is_array;
+use PhpMyAdmin\DbTableExists;
 use PhpMyAdmin\Utils\ForeignKey;
 
 final class DeleteConfirmController extends AbstractController

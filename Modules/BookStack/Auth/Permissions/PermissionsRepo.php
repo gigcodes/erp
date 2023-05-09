@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Auth\Permissions;
 
 use Illuminate\Support\Str;
-use Modules\BookStack\Auth\Permissions;
 use Modules\BookStack\Auth\Role;
+use Modules\BookStack\Auth\Permissions;
 use Modules\BookStack\Exceptions\PermissionsException;
 
 class PermissionsRepo
@@ -20,8 +20,6 @@ class PermissionsRepo
     /**
      * PermissionsRepo constructor.
      *
-     * @param  RolePermission  $permission
-     * @param  Role  $role
      * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
      */
     public function __construct(RolePermission $permission, Role $role, Permissions\PermissionService $permissionService)
@@ -44,7 +42,6 @@ class PermissionsRepo
     /**
      * Get all the roles except for the provided one.
      *
-     * @param  Role  $role
      * @return mixed
      */
     public function getAllRolesExcept(Role $role)
@@ -55,7 +52,6 @@ class PermissionsRepo
     /**
      * Get a role via its ID.
      *
-     * @param $id
      * @return mixed
      */
     public function getRoleById($id)
@@ -90,8 +86,6 @@ class PermissionsRepo
      * Updates an existing role.
      * Ensure Admin role always have core permissions.
      *
-     * @param $roleId
-     * @param $roleData
      *
      * @throws PermissionsException
      */
@@ -120,7 +114,6 @@ class PermissionsRepo
     /**
      * Assign an list of permission names to an role.
      *
-     * @param  Role  $role
      * @param  array  $permissionNameArray
      */
     public function assignRolePermissions(Role $role, $permissionNameArray = [])
@@ -139,8 +132,6 @@ class PermissionsRepo
      * If an migration Role ID is specified the users assign to the current role
      * will be added to the role of the specified id.
      *
-     * @param $roleId
-     * @param $migrateRoleId
      *
      * @throws PermissionsException
      */

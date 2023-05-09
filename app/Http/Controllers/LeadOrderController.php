@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\ErpLeads;
-use App\LeadProductPriceCountLogs;
 use App\Leads;
 use App\Order;
-use App\ProductPriceDiscountLog;
+use App\ErpLeads;
 use Illuminate\Http\Request;
+use App\ProductPriceDiscountLog;
+use App\LeadProductPriceCountLogs;
 
 class LeadOrderController extends Controller
 {
@@ -46,9 +46,9 @@ class LeadOrderController extends Controller
             } else {
                 $orders = $Order->orWhere('orders.id', '=', $term)
                                 ->orWhere('products.id', '=', $term)
-                                ->orWhere('products.name', 'like', '%'.$term.'%')
+                                ->orWhere('products.name', 'like', '%' . $term . '%')
                                 ->orWhere('brands.id', '=', $brandIds)
-                                ->orWhere('customers.name', 'like', '%'.$term.'%');
+                                ->orWhere('customers.name', 'like', '%' . $term . '%');
                 // ->orWhere('users.name', 'like', '%' . $term . '%');
             }
         }
@@ -76,9 +76,9 @@ class LeadOrderController extends Controller
             } else {
                 $orders = $leads->orWhere('erp_leads.id', '=', $term)
                                 ->orWhere('erp_leads.product_id', '=', $term)
-                                ->orWhere('products.name', 'like', '%'.$term.'%')
+                                ->orWhere('products.name', 'like', '%' . $term . '%')
                                 //->orWhere('users.name', 'like', '%' . $term . '%');
-                                ->orWhere('customers.name', 'like', '%'.$term.'%');
+                                ->orWhere('customers.name', 'like', '%' . $term . '%');
             }
         }
 
@@ -104,7 +104,6 @@ class LeadOrderController extends Controller
     /**
      * This funcrtion is use for get product suggested log
      *
-     * @param  Request  $request
      * @return JsonResponse
      */
     public function leadProductPriceLog(Request $request)
@@ -115,14 +114,14 @@ class LeadOrderController extends Controller
                 $html = '';
                 foreach ($prodPriceDis as $prodDisData) {
                     $html .= '<tr style="height:32px;width:100%;">';
-                    $html .= '<td with="5%">'.$prodDisData->id.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->order_id.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->product_id.'</td>';
-                    $html .= '<td with="20%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->stage.'</span></td>';
-                    $html .= '<td with="5%">'.$prodDisData->product_price.'</td>';
-                    $html .= '<td with="5%">'.$prodDisData->product_total_price.'</td>';
-                    $html .= '<td with="5%">'.$prodDisData->product_discount.'</td>';
-                    $html .= '<td with="35%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->log.'</span></td>';
+                    $html .= '<td with="5%">' . $prodDisData->id . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->order_id . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->product_id . '</td>';
+                    $html .= '<td with="20%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">' . $prodDisData->stage . '</span></td>';
+                    $html .= '<td with="5%">' . $prodDisData->product_price . '</td>';
+                    $html .= '<td with="5%">' . $prodDisData->product_total_price . '</td>';
+                    $html .= '<td with="5%">' . $prodDisData->product_discount . '</td>';
+                    $html .= '<td with="35%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">' . $prodDisData->log . '</span></td>';
                     $html .= '</tr>';
                 }
 
@@ -138,7 +137,6 @@ class LeadOrderController extends Controller
     /**
      * This funcrtion is use for get Lead product Cal log
      *
-     * @param  Request  $request
      * @return JsonResponse
      */
     public function leadProductPriceCalLog(Request $request)
@@ -149,15 +147,15 @@ class LeadOrderController extends Controller
                 $html = '';
                 foreach ($prodPriceDis as $prodDisData) {
                     $html .= '<tr style="height:32px;width:100%;">';
-                    $html .= '<td with="5%">'.$prodDisData->id.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->product_id.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->original_price.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->promotion_per.'%</td>';
-                    $html .= '<td with="10%">'.$prodDisData->promotion.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->segment_discount.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->segment_discount_per.'%</td>';
-                    $html .= '<td with="10%">'.$prodDisData->total_price.'</td>';
-                    $html .= '<td with="10%">'.$prodDisData->euro_to_inr_price.'</td>';
+                    $html .= '<td with="5%">' . $prodDisData->id . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->product_id . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->original_price . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->promotion_per . '%</td>';
+                    $html .= '<td with="10%">' . $prodDisData->promotion . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->segment_discount . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->segment_discount_per . '%</td>';
+                    $html .= '<td with="10%">' . $prodDisData->total_price . '</td>';
+                    $html .= '<td with="10%">' . $prodDisData->euro_to_inr_price . '</td>';
                     $html .= '</tr>';
                 }
 

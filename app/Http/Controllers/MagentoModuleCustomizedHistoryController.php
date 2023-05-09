@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleCustomizedHistoryRequest;
 use App\MagentoModuleCustomizedHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleCustomizedHistoryRequest;
 
 class MagentoModuleCustomizedHistoryController extends Controller
 {

@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Language;
+use Validator;
 use App\Product;
-use App\scraperImags;
 use App\Setting;
-use App\SiteDevelopment;
 use App\Website;
-use App\WebsiteStore;
+use App\Language;
 use Carbon\Carbon;
+use App\scraperImags;
+use App\WebsiteStore;
 use Dompdf\Exception;
 use GuzzleHttp\Client;
+use App\SiteDevelopment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Validator;
 
 class scrapperPhyhon extends Controller
 {
@@ -72,15 +72,15 @@ class scrapperPhyhon extends Controller
             }
 
             $desktop = scraperImags::selectRaw('count(id) as desktop')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'desktop')->whereRaw('date(created_at) = "'.$image->date_created_at.'"')
+            ->where('store_website', $image->store_website)->where('device', 'desktop')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
             ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $mobile = scraperImags::selectRaw('count(id) as mobile')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'mobile')->whereRaw('date(created_at) = "'.$image->date_created_at.'"')
+            ->where('store_website', $image->store_website)->where('device', 'mobile')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
             ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $tablet = scraperImags::selectRaw('count(id) as tablet')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'tablet')->whereRaw('date(created_at) = "'.$image->date_created_at.'"')
+            ->where('store_website', $image->store_website)->where('device', 'tablet')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
             ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $image->desktop = isset($desktop->desktop) ? $desktop->desktop : 0;
@@ -366,13 +366,13 @@ class scrapperPhyhon extends Controller
             $imageData = base64_decode($base64Image);
 
             // //Set image whole path here
-            $filePath = public_path('scrappersImages').'/'.$file_name;
+            $filePath = public_path('scrappersImages') . '/' . $file_name;
             file_put_contents($filePath, $imageData);
 
             return true;
         } catch (\Throwable $th) {
             dd($th->getMessage());
-            \Log::error('scrapper_images :: '.$th->getMessage());
+            \Log::error('scrapper_images :: ' . $th->getMessage());
 
             return false;
         }
@@ -387,7 +387,7 @@ class scrapperPhyhon extends Controller
         $log_data = ['user_id' => \Auth::id(), 'action' => $request->data_name, 'website' => $request->webName, 'device' => $request->type, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
         try {
             //   $url = env("PYTHON_PRODUCT_TEMPLATES")."/".$request->data_name;
-            $url = 'http://167.86.88.58:5000/'.$request->data_name;
+            $url = 'http://167.86.88.58:5000/' . $request->data_name;
             $data = [
                 'type' => $request->type,
                 'name' => $store_website->title,
@@ -513,7 +513,7 @@ class scrapperPhyhon extends Controller
                 continue;
             }
 
-            $imagePath = public_path('scrappersImages/'.$image->img_name);
+            $imagePath = public_path('scrappersImages/' . $image->img_name);
 
             if (file_exists($imagePath) && ! is_dir($imagePath)) {
                 unlink($imagePath);
@@ -522,7 +522,7 @@ class scrapperPhyhon extends Controller
             $image->delete();
         }
 
-        return ['message' => count($images).' Deleted Successfully.', 'statusCode' => 200];
+        return ['message' => count($images) . ' Deleted Successfully.', 'statusCode' => 200];
     }
 
     public function imageUrlList(Request $request)
@@ -556,7 +556,7 @@ class scrapperPhyhon extends Controller
                         $urls = $urls->where('store_website', $request->flt_website);
                     }
                     if ($request->scrapper_url && $request->scrapper_url != null) {
-                        $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
+                        $urls->where('url', 'LIKE', '%' . $request->scrapper_url . '%');
                     }
 
                     $urls = $urls->paginate(Setting::get('pagination'));
@@ -567,14 +567,14 @@ class scrapperPhyhon extends Controller
             $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
             if (! empty($flagUrl)) {
                 $urls = $urls->where('scraper_imags.id', $flagUrl);
-                $flagUrl = '#'.$flagUrl;
+                $flagUrl = '#' . $flagUrl;
             }
             if ($request->flt_website && $request->flt_website != null) {
                 $urls = $urls->where('store_website', $request->flt_website);
             }
 
             if ($request->scrapper_url && $request->scrapper_url != null) {
-                $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
+                $urls->where('url', 'LIKE', '%' . $request->scrapper_url . '%');
             }
             $urls = $urls->paginate(Setting::get('pagination'));
             //        $urls=$urls->get();

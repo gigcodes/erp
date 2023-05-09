@@ -7,21 +7,21 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_merge;
-use function defined;
 use function gmdate;
 use function header;
-use function htmlspecialchars;
+use function strlen;
+use function defined;
 use function implode;
 use function ini_get;
 use function is_bool;
-use PhpMyAdmin\ConfigStorage\Relation;
+use function sprintf;
+use function urlencode;
+use function strtolower;
+use function array_merge;
+use function htmlspecialchars;
 use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\Navigation\Navigation;
-use function sprintf;
-use function strlen;
-use function strtolower;
-use function urlencode;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Class used to output the HTTP and HTML headers
@@ -174,8 +174,6 @@ class Header
     /**
      * Returns, as an array, a list of parameters
      * used on the client side
-     *
-     * @return array
      */
     public function getJsParams(): array
     {
@@ -223,13 +221,13 @@ class Header
         $params = $this->getJsParams();
         foreach ($params as $key => $value) {
             if (is_bool($value)) {
-                $params[$key] = $key.':'.($value ? 'true' : 'false').'';
+                $params[$key] = $key . ':' . ($value ? 'true' : 'false') . '';
             } else {
-                $params[$key] = $key.':"'.Sanitize::escapeJsString($value).'"';
+                $params[$key] = $key . ':"' . Sanitize::escapeJsString($value) . '"';
             }
         }
 
-        return 'CommonParams.setAll({'.implode(',', $params).'});';
+        return 'CommonParams.setAll({' . implode(',', $params) . '});';
     }
 
     /**
@@ -366,7 +364,7 @@ class Header
 
         $this->scripts->addCode($this->getVariablesForJavaScript());
 
-        $this->scripts->addCode('ConsoleEnterExecutes='.($GLOBALS['cfg']['ConsoleEnterExecutes'] ? 'true' : 'false'));
+        $this->scripts->addCode('ConsoleEnterExecutes=' . ($GLOBALS['cfg']['ConsoleEnterExecutes'] ? 'true' : 'false'));
         $this->scripts->addFiles($this->console->getScripts());
 
         // if database storage for user preferences is transient,
@@ -472,7 +470,7 @@ class Header
         /**
          * Sends http headers
          */
-        $GLOBALS['now'] = gmdate('D, d M Y H:i:s').' GMT';
+        $GLOBALS['now'] = gmdate('D, d M Y H:i:s') . ' GMT';
 
         $headers = $this->getHttpHeaders();
 
@@ -589,14 +587,14 @@ class Header
             && ! empty($cfg['CaptchaRequestParam'])
             && ! empty($cfg['CaptchaResponseParam'])
         ) {
-            $captchaUrl = ' '.$cfg['CaptchaCsp'].' ';
+            $captchaUrl = ' ' . $cfg['CaptchaCsp'] . ' ';
         }
 
         $headers = [];
 
         $headers['Content-Security-Policy'] = sprintf(
             'default-src \'self\' %s%s;script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' %s%s;'
-                .'style-src \'self\' \'unsafe-inline\' %s%s;img-src \'self\' data: %s%s%s;object-src \'none\';',
+                . 'style-src \'self\' \'unsafe-inline\' %s%s;img-src \'self\' data: %s%s%s;object-src \'none\';',
             $captchaUrl,
             $cspAllow,
             $captchaUrl,
@@ -610,7 +608,7 @@ class Header
 
         $headers['X-Content-Security-Policy'] = sprintf(
             'default-src \'self\' %s%s;options inline-script eval-script;'
-                .'referrer no-referrer;img-src \'self\' data: %s%s%s;object-src \'none\';',
+                . 'referrer no-referrer;img-src \'self\' data: %s%s%s;object-src \'none\';',
             $captchaUrl,
             $cspAllow,
             $cspAllow,
@@ -620,8 +618,8 @@ class Header
 
         $headers['X-WebKit-CSP'] = sprintf(
             'default-src \'self\' %s%s;script-src \'self\' %s%s \'unsafe-inline\' \'unsafe-eval\';'
-                .'referrer no-referrer;style-src \'self\' \'unsafe-inline\' %s;'
-                .'img-src \'self\' data: %s%s%s;object-src \'none\';',
+                . 'referrer no-referrer;style-src \'self\' \'unsafe-inline\' %s;'
+                . 'img-src \'self\' data: %s%s%s;object-src \'none\';',
             $captchaUrl,
             $cspAllow,
             $captchaUrl,
@@ -665,7 +663,7 @@ class Header
      */
     public static function getVersionParameter(): string
     {
-        return 'v='.urlencode(Version::VERSION);
+        return 'v=' . urlencode(Version::VERSION);
     }
 
     private function getVariablesForJavaScript(): string

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use File;
+use Carbon\Carbon;
 use App\LinksToPost;
 use App\SEOAnalytics;
-use App\Services\SEO\Mozscape;
-use Carbon\Carbon;
-use File;
 use Illuminate\Http\Request;
+use App\Services\SEO\Mozscape;
 
 class SEOAnalyticsController extends Controller
 {
@@ -138,7 +138,7 @@ class SEOAnalyticsController extends Controller
                     }
                 }
                 // Match dates: Sunday 1st March 2015; Sunday, 1 March 2015; Sun 1 Mar 2015; Sun-1-March-2015
-                preg_match('/(?:(?:'.implode('|', $day_names).'|'.implode('|', $short_day_names).')[ ,\-_\/]*)?([0-9]?[0-9])[ ,\-_\/]*(?:'.implode('|', $ordinal_number).')?[ ,\-_\/]*('.implode('|', $month_names).'|'.implode('|', $short_month_names).')[ ,\-_\/]+([0-9]{4})/i', $article, $matches);
+                preg_match('/(?:(?:' . implode('|', $day_names) . '|' . implode('|', $short_day_names) . ')[ ,\-_\/]*)?([0-9]?[0-9])[ ,\-_\/]*(?:' . implode('|', $ordinal_number) . ')?[ ,\-_\/]*(' . implode('|', $month_names) . '|' . implode('|', $short_month_names) . ')[ ,\-_\/]+([0-9]{4})/i', $article, $matches);
                 if ($matches) {
                     if (empty($day) && $matches[1]) {
                         $day = $matches[1];
@@ -155,7 +155,7 @@ class SEOAnalyticsController extends Controller
                     }
                 }
                 // Match dates: March 1st 2015; March 1 2015; March-1st-2015
-                preg_match('/('.implode('|', $month_names).'|'.implode('|', $short_month_names).')[ ,\-_\/]*([0-9]?[0-9])[ ,\-_\/]*(?:'.implode('|', $ordinal_number).')?[ ,\-_\/]+([0-9]{4})/i', $article, $matches);
+                preg_match('/(' . implode('|', $month_names) . '|' . implode('|', $short_month_names) . ')[ ,\-_\/]*([0-9]?[0-9])[ ,\-_\/]*(?:' . implode('|', $ordinal_number) . ')?[ ,\-_\/]+([0-9]{4})/i', $article, $matches);
                 if ($matches) {
                     if (empty($month) && $matches[1]) {
                         $month = array_search(strtolower($matches[1]), $short_month_names);
@@ -173,13 +173,13 @@ class SEOAnalyticsController extends Controller
                 }
                 // Match month name:
                 if (empty($month)) {
-                    preg_match('/('.implode('|', $month_names).')/i', $article, $matches_month_word);
+                    preg_match('/(' . implode('|', $month_names) . ')/i', $article, $matches_month_word);
                     if ($matches_month_word && $matches_month_word[1]) {
                         $month = array_search(strtolower($matches_month_word[1]), $month_names);
                     }
                     // Match short month names
                     if (empty($month)) {
-                        preg_match('/('.implode('|', $short_month_names).')/i', $article, $matches_month_word);
+                        preg_match('/(' . implode('|', $short_month_names) . ')/i', $article, $matches_month_word);
                         if ($matches_month_word && $matches_month_word[1]) {
                             $month = array_search(strtolower($matches_month_word[1]), $short_month_names);
                         }
@@ -190,7 +190,7 @@ class SEOAnalyticsController extends Controller
                 }
                 // Match 5th 1st day:
                 if (empty($day)) {
-                    preg_match('/([0-9]?[0-9])('.implode('|', $ordinal_number).')/', $article, $matches_day);
+                    preg_match('/([0-9]?[0-9])(' . implode('|', $ordinal_number) . ')/', $article, $matches_day);
                     if ($matches_day && $matches_day[1]) {
                         $day = $matches_day[1];
                     }
@@ -210,19 +210,19 @@ class SEOAnalyticsController extends Controller
                 }
                 // Day leading 0
                 if (1 == strlen($day)) {
-                    $day = '0'.$day;
+                    $day = '0' . $day;
                 }
                 // Month leading 0
                 if (1 == strlen($month)) {
-                    $month = '0'.$month;
+                    $month = '0' . $month;
                 }
                 // Check year:
                 if (2 == strlen($year) && $year > 20) {
-                    $year = '19'.$year;
+                    $year = '19' . $year;
                 } elseif (2 == strlen($year) && $year < 20) {
-                    $year = '20'.$year;
+                    $year = '20' . $year;
                 }
-                $date = $year.$month.$day;
+                $date = $year . $month . $day;
 
                 // Return false if nothing found:
                 if (empty($year) && empty($month) && empty($day)) {

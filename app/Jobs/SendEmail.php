@@ -3,19 +3,22 @@
 namespace App\Jobs;
 
 use App\Email;
-use App\Mails\Manual\DefaultSendEmail;
 use Illuminate\Bus\Queueable;
+use App\Mails\Manual\DefaultSendEmail;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $email;
-    public $emailNewData, $emailOldData;
+
+    public $emailNewData;
+
+    public $emailOldData;
 
     public $tries = 3;
 
@@ -24,8 +27,8 @@ class SendEmail implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param object $email
-     * @param array $emaildetails
+     * @param  object  $email
+     * @param  array  $emaildetails
      * @return void
      */
     public function __construct(Email $email, $emaildetails = [])
@@ -44,7 +47,7 @@ class SendEmail implements ShouldQueue
     public function handle()
     {
         // Used to set customer email's data to send email to customer if question has auto approve flag is yes
-        if(!empty($this->emailNewData)) {
+        if (! empty($this->emailNewData)) {
             $updatedEmail = $this->emailNewData;
 
             $email = $this->email;
@@ -120,7 +123,7 @@ class SendEmail implements ShouldQueue
                 'refer_id' => $email->id,
                 'method' => 'email',
             ]);
-            if(!empty($this->emailNewData)) {
+            if (! empty($this->emailNewData)) {
                 $emailOld = $this->emailOldData;
                 $email->to = $emailOld['to'];
                 $email->from = $emailOld['from'];
@@ -133,7 +136,7 @@ class SendEmail implements ShouldQueue
             $email->error_message = $e->getMessage();
             $email->save();
 
-            \Log::info('Issue fom SendEmail '.$e->getMessage());
+            \Log::info('Issue fom SendEmail ' . $e->getMessage());
             //\Log::info("Issue fom SendEmail ");
             \App\EmailLog::create([
                 'email_id' => $email->id,

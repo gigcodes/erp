@@ -36,7 +36,7 @@ $columns = [
             // Technically a DOM id cannot start with an integer, so we prefix
             // a string. This can also be useful if you have multiple tables
             // to ensure that the id is unique with a different prefix
-            return 'row_'.$d;
+            return 'row_' . $d;
         },
     ],
 

@@ -2,17 +2,18 @@
 
 namespace App\Models\Seo;
 
+use App\User;
 use App\EmailAddress;
 use App\StoreWebsite;
-use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeoCompanyHistroy extends Model
 {
     use HasFactory;
 
-    protected $table = "seo_company_histories";
+    protected $table = 'seo_company_histories';
+
     protected $fillable = [
         'seo_company_id',
         'user_id',
@@ -23,6 +24,7 @@ class SeoCompanyHistroy extends Model
         'ss',
         'email_address_id',
         'live_link',
+        'status',
     ];
 
     /**

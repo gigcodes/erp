@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ListingPayments;
 use App\User;
+use App\ListingPayments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -52,7 +52,6 @@ class ListingPaymentsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * Create the entry for the paid amount
      */
@@ -69,7 +68,7 @@ class ListingPaymentsController extends Controller
         $amt->amount = $request->get('amount');
         $amt->user_id = $request->get('user_id');
         $amt->product_ids = [];
-        $amt->remarks = 'Paid till '.$request->get('date');
+        $amt->remarks = 'Paid till ' . $request->get('date');
         $amt->save();
 
         return redirect()->back()->with('success', 'Amount paid successfully!');
@@ -78,7 +77,6 @@ class ListingPaymentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function show(ListingPayments $listingPayments)
@@ -89,7 +87,6 @@ class ListingPaymentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function edit(ListingPayments $listingPayments)
@@ -100,8 +97,6 @@ class ListingPaymentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ListingPayments $listingPayments)
@@ -112,7 +107,6 @@ class ListingPaymentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function destroy(ListingPayments $listingPayments)

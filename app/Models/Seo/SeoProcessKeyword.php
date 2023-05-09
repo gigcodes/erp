@@ -2,28 +2,30 @@
 
 namespace App\Models\Seo;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeoProcessKeyword extends Model
 {
     use HasFactory;
 
     protected $table = 'seo_process_keywords';
+
     public $timestamps = false;
+
     protected $fillable = [
         'seo_process_id',
         'name',
         'index',
     ];
 
-
-    /** 
+    /**
      * Model accrssor and mutator
      */
     public function getKeywordTypeAttribute()
     {
         $data = $this->remarks()->first();
+
         return $data->processStatus->type;
     }
 

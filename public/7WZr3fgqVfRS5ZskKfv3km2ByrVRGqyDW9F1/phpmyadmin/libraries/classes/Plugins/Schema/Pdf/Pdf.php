@@ -8,16 +8,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Pdf;
 
 use function __;
+use function max;
 use function count;
 use function getcwd;
-use function max;
 use function mb_ord;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Pdf as PdfLib;
-use PhpMyAdmin\Util;
-use function str_replace;
 use function strlen;
+use PhpMyAdmin\Util;
 use function ucfirst;
+use function str_replace;
+use PhpMyAdmin\Pdf as PdfLib;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 // phpcs:disable PSR1.Files.SideEffects
 /**
@@ -271,10 +271,10 @@ class Pdf extends PdfLib
             $pg_name = __('PDF export page');
         } else {
             $test_query = 'SELECT * FROM '
-                .Util::backquote($pdfFeature->database).'.'
-                .Util::backquote($pdfFeature->pdfPages)
-                .' WHERE db_name = \''.$dbi->escapeString($this->db)
-                .'\' AND page_nr = \''.$this->pageNumber.'\'';
+                . Util::backquote($pdfFeature->database) . '.'
+                . Util::backquote($pdfFeature->pdfPages)
+                . ' WHERE db_name = \'' . $dbi->escapeString($this->db)
+                . '\' AND page_nr = \'' . $this->pageNumber . '\'';
             $test_rs = $dbi->queryAsControlUser($test_query);
             $pageDesc = (string) $test_rs->fetchValue('page_descr');
 

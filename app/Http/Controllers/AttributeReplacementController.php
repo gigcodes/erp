@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\AttributeReplacement;
 use Illuminate\Http\Request;
+use App\AttributeReplacement;
 use Illuminate\Support\Facades\Auth;
 
 class AttributeReplacementController extends Controller
@@ -33,7 +33,6 @@ class AttributeReplacementController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -80,7 +79,6 @@ class AttributeReplacementController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function edit(AttributeReplacement $attributeReplacement)
@@ -91,8 +89,6 @@ class AttributeReplacementController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, AttributeReplacement $attributeReplacement)
@@ -103,7 +99,6 @@ class AttributeReplacementController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function destroy(AttributeReplacement $attributeReplacement)

@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\StoreWebsite;
-use App\WebsiteLog;
 use DB;
-use Exception;
 use File;
+use Exception;
+use App\WebsiteLog;
+use App\StoreWebsite;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class WebsiteCreateLog extends Command
 {
@@ -56,19 +57,19 @@ class WebsiteCreateLog extends Command
                 foreach ($filesDirectories as $websiteName) {
                     // find the Directory
                     if (File::isDirectory($mainPath) && $websiteName != '.' && $websiteName != '..') {
-                        $website = StoreWebsite::select('website')->where('website', 'like', '%'.$websiteName.'%')->first();
+                        $website = StoreWebsite::select('website')->where('website', 'like', '%' . $websiteName . '%')->first();
                         if (! $website) {
-                            $this->info('Website not found '.$websiteName);
+                            $this->info('Website not found ' . $websiteName);
                         } else {
                             $fullPath = File::allFiles($mainPath);
                             foreach ($fullPath as $key => $val) {
-                                if (file_exists($mainPath.$websiteName.'/'.$val->getFilename()) && $val->getFilename() == 'debug.log') {
+                                if (file_exists($mainPath . $websiteName . '/' . $val->getFilename()) && $val->getFilename() == 'debug.log') {
                                     if ($val->getFilename() == 'debug.log') {
                                         $fileTypeName = 'debug';
                                     } else {
                                         $fileTypeName = $val->getFilename();
                                     }
-                                    $content = File::get($mainPath.$websiteName.'/'.$val->getFilename());
+                                    $content = File::get($mainPath . $websiteName . '/' . $val->getFilename());
                                     $logs = preg_split('/\n\n/', $content);
                                     $totalLogs = [];
                                     foreach ($logs as $log) {
@@ -102,7 +103,7 @@ class WebsiteCreateLog extends Command
                                         }
                                     }
                                 } else {
-                                    $this->info('DB log not found for '.$websiteName);
+                                    $this->info('DB log not found for ' . $websiteName);
                                 }
                             }
                         }
@@ -112,11 +113,15 @@ class WebsiteCreateLog extends Command
                 $this->info('Cannot find the logs folder');
             }
             DB::commit();
-            echo PHP_EOL.'=====DONE===='.PHP_EOL;
+            echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+            
             echo $e->getMessage();
             DB::rollBack();
-            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
+            echo PHP_EOL . '=====FAILED====' . PHP_EOL;
         }
     }
 }

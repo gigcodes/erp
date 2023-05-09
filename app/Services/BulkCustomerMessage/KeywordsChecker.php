@@ -2,16 +2,13 @@
 
 namespace App\Services\BulkCustomerMessage;
 
-use App\BulkCustomerRepliesKeyword;
 use App\ChatMessage;
 use Illuminate\Support\Facades\DB;
+use App\BulkCustomerRepliesKeyword;
 
 class KeywordsChecker
 {
     /**
-     * @param $keywords
-     * @param $customers
-     *
      * @purpose This method gets the messages, and then checks if keywords is in that string or not...
      */
     public function assignCustomerAndKeyword($keywords, $customers): void
@@ -29,10 +26,6 @@ class KeywordsChecker
     }
 
     /**
-     * @param $customer
-     * @param $message
-     * @param $keywords
-     *
      * @purpose Checks if the message is in string, and creates keywords like that...
      */
     private function makeKeywordEntryForCustomer($customer, $message, $keywords): void
@@ -59,9 +52,6 @@ class KeywordsChecker
     }
 
     /**
-     * @param $message
-     * @param $customer
-     *
      * @purpose create customer and keyword relationship for new incoming messages...
      */
     public function assignCustomerAndKeywordForNewMessage($message, $customer): void
@@ -71,9 +61,6 @@ class KeywordsChecker
     }
 
     /**
-     * @param $customer
-     * @return string
-     *
      * @purpose To return the latest 3 non-replied messages, this will ignore the auto-generated message...
      */
     private function getCustomerMessages($customer): string

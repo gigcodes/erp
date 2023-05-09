@@ -232,7 +232,7 @@
                      <option value="">-- N/A --</option>
                      <?php
    foreach (\App\SimplyDutyCountry::all() as $k => $l) {
-       echo "<option {{if data.country_duty == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name.'</option>';
+       echo "<option {{if data.country_duty == '" . $l->country_code . "'}} selected {{/if}} value='" . $l->country_code . "'>" . $l->country_name . '</option>';
    }
    ?>
                   </select>
@@ -284,7 +284,7 @@
                      <option value="">-- N/A --</option>
                      <?php
    foreach (\App\Github\GithubRepository::all() as $k => $l) {
-       echo "<option {{if data.repository_id == '".$l->id."'}} selected {{/if}} value='".$l->id."'>".$l->name.'</option>';
+       echo "<option {{if data.repository_id == '" . $l->id . "'}} selected {{/if}} value='" . $l->id . "'>" . $l->name . '</option>';
    }
    ?>
                   </select>
@@ -309,7 +309,7 @@
                      <option value="">Choose store code</option>
                     <?php
                        foreach ($storeCodes as $storeCode) {
-                           echo "<option {{if data.store_code_id == '".(isset($storeCode['id']) ? $storeCode['id'] : '')."'}} selected {{/if}} value='".(isset($storeCode['id']) ? $storeCode['id'] : '')."'>".(isset($storeCode['code']) ? ($storeCode['code'].' ( '.(isset($storeCode['server_id']) ? $storeCode['server_id'] : 'NA').' ) ') : '').'</option>';
+                           echo "<option {{if data.store_code_id == '" . (isset($storeCode['id']) ? $storeCode['id'] : '') . "'}} selected {{/if}} value='" . (isset($storeCode['id']) ? $storeCode['id'] : '') . "'>" . (isset($storeCode['code']) ? ($storeCode['code'] . ' ( ' . (isset($storeCode['server_id']) ? $storeCode['server_id'] : 'NA') . ' ) ') : '') . '</option>';
                        }
    ?>
                   </select>
@@ -322,7 +322,7 @@
                      <option>--Select Site Folder--</option>
                   <?php
    foreach (\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
-       echo "<option {{if data.site_folder == '".$l->folder_name."'}} selected {{/if}} value='".$l->folder_name."'>".$l->ip_name.'</option>';
+       echo "<option {{if data.site_folder == '" . $l->folder_name . "'}} selected {{/if}} value='" . $l->folder_name . "'>" . $l->ip_name . '</option>';
    }
    /*$dataofIp = \App\AssetsManager::whereNotNull('ip')->get();
    foreach($dataofIp as $kk => $ll) {

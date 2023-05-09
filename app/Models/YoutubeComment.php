@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class YoutubeComment extends Model
 {
-   
     protected $fillable = [
         'youtube_video_id',
         'video_id',
@@ -18,6 +16,6 @@ class YoutubeComment extends Model
         'create_time',
         'created_at',
         'updated_at',
-        'deleted_at'
-       ];
+        'deleted_at',
+    ];
 }

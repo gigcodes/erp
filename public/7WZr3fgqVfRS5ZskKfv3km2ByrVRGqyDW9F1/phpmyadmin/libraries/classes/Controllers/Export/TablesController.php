@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Export;
 
 use function __;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Controllers\AbstractController;
 use PhpMyAdmin\Controllers\Database\ExportController;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 
 final class TablesController extends AbstractController
 {

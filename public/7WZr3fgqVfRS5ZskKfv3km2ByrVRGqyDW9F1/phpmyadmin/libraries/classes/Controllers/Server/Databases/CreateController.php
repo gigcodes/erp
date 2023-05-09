@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server\Databases;
 
 use function __;
-use function array_key_exists;
-use function explode;
-use function mb_strlen;
-use function mb_strtolower;
-use PhpMyAdmin\Charsets;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use function explode;
+use function mb_strlen;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
 use function str_contains;
+use function mb_strtolower;
+use function array_key_exists;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
 
 final class CreateController extends AbstractController
 {
@@ -54,7 +54,7 @@ final class CreateController extends AbstractController
         /**
          * Builds and executes the db creation sql query
          */
-        $sqlQuery = 'CREATE DATABASE '.Util::backquote($params['new_db']);
+        $sqlQuery = 'CREATE DATABASE ' . Util::backquote($params['new_db']);
         if (! empty($params['db_collation'])) {
             [$databaseCharset] = explode('_', $params['db_collation']);
             $charsets = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
@@ -64,7 +64,7 @@ final class CreateController extends AbstractController
                 && array_key_exists($params['db_collation'], $collations[$databaseCharset])
             ) {
                 $sqlQuery .= ' DEFAULT'
-                    .Util::getCharsetQueryPart($params['db_collation']);
+                    . Util::getCharsetQueryPart($params['db_collation']);
             }
         }
 
@@ -91,7 +91,7 @@ final class CreateController extends AbstractController
             $json = [
                 'message' => $message,
                 'sql_query' => Generator::getMessage('', $sqlQuery, 'success'),
-                'url' => $scriptName.Url::getCommon(
+                'url' => $scriptName . Url::getCommon(
                     ['db' => $params['new_db']],
                     ! str_contains($scriptName, '?') ? '?' : '&'
                 ),

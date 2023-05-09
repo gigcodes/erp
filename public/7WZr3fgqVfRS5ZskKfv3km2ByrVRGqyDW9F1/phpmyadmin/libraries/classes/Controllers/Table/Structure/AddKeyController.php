@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Controllers\Sql\SqlController;
 use PhpMyAdmin\Controllers\Table\AbstractController;
 use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 
 final class AddKeyController extends AbstractController
 {

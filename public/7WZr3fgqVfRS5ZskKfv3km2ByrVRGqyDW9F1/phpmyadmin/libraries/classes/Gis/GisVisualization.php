@@ -7,25 +7,25 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function array_merge;
-use function base64_encode;
+use TCPDF;
 use function count;
+use function rtrim;
 use function intval;
-use function is_numeric;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use function ob_start;
 use function is_string;
 use function mb_strlen;
 use function mb_strpos;
-use function mb_strtolower;
 use function mb_substr;
-use function ob_get_clean;
-use function ob_start;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Image\ImageWrapper;
+use function is_numeric;
 use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\Util;
+use function array_merge;
 use const PNG_ALL_FILTERS;
-use function rtrim;
-use TCPDF;
+use function ob_get_clean;
+use function base64_encode;
+use function mb_strtolower;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles visualization of GIS data
@@ -200,29 +200,29 @@ class GisVisualization
         // If label column is chosen add it to the query
         if (! empty($this->userSpecifiedSettings['labelColumn'])) {
             $modified_query .= Util::backquote($this->userSpecifiedSettings['labelColumn'])
-            .', ';
+            . ', ';
         }
 
         // Wrap the spatial column with 'ST_ASTEXT()' function and add it
-        $modified_query .= $spatialAsText.'('
-            .Util::backquote($this->userSpecifiedSettings['spatialColumn'])
-            .$axisOrder.') AS '.Util::backquote($this->userSpecifiedSettings['spatialColumn'])
-            .', ';
+        $modified_query .= $spatialAsText . '('
+            . Util::backquote($this->userSpecifiedSettings['spatialColumn'])
+            . $axisOrder . ') AS ' . Util::backquote($this->userSpecifiedSettings['spatialColumn'])
+            . ', ';
 
         // Get the SRID
-        $modified_query .= $spatialSrid.'('
-            .Util::backquote($this->userSpecifiedSettings['spatialColumn'])
-            .') AS '.Util::backquote('srid').' ';
+        $modified_query .= $spatialSrid . '('
+            . Util::backquote($this->userSpecifiedSettings['spatialColumn'])
+            . ') AS ' . Util::backquote('srid') . ' ';
 
         // Append the original query as the inner query
-        $modified_query .= 'FROM ('.rtrim($sql_query, ';').') AS '
-            .Util::backquote('temp_gis');
+        $modified_query .= 'FROM (' . rtrim($sql_query, ';') . ') AS '
+            . Util::backquote('temp_gis');
 
         // LIMIT clause
         if (is_numeric($rows) && $rows > 0) {
             $modified_query .= ' LIMIT ';
             if (is_numeric($pos) && $pos >= 0) {
-                $modified_query .= $pos.', '.$rows;
+                $modified_query .= $pos . ', ' . $rows;
             } else {
                 $modified_query .= $rows;
             }
@@ -275,7 +275,7 @@ class GisVisualization
 
         // Check if the user already added extension;
         // get the substring where the extension would be if it was included
-        $required_extension = '.'.$ext;
+        $required_extension = '.' . $ext;
         $extension_length = mb_strlen($required_extension);
         $user_extension = mb_substr($file_name, -$extension_length);
         if (mb_strtolower($user_extension) != $required_extension) {
@@ -308,12 +308,12 @@ class GisVisualization
         $this->init();
 
         $output = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
-            ."\n"
-            .'<svg version="1.1" xmlns:svg="http://www.w3.org/2000/svg"'
-            .' xmlns="http://www.w3.org/2000/svg"'
-            .' width="'.intval($this->settings['width']).'"'
-            .' height="'.intval($this->settings['height']).'">'
-            .'<g id="groupPanel">';
+            . "\n"
+            . '<svg version="1.1" xmlns:svg="http://www.w3.org/2000/svg"'
+            . ' xmlns="http://www.w3.org/2000/svg"'
+            . ' width="' . intval($this->settings['width']) . '"'
+            . ' height="' . intval($this->settings['height']) . '">'
+            . '<g id="groupPanel">';
 
         $scale_data = $this->scaleDataSet($this->data);
         $output .= $this->prepareDataSet($this->data, $scale_data, 'svg', '');
@@ -391,7 +391,7 @@ class GisVisualization
         // base64 encode
         $encoded = base64_encode((string) $output);
 
-        return '<img src="data:image/png;base64,'.$encoded.'">';
+        return '<img src="data:image/png;base64,' . $encoded . '">';
     }
 
     /**
@@ -423,35 +423,35 @@ class GisVisualization
         $this->init();
         $scale_data = $this->scaleDataSet($this->data);
         $output = 'function drawOpenLayers() {'
-            .'if (typeof ol !== "undefined") {'
-            .'var olCss = "js/vendor/openlayers/theme/ol.css";'
-            .'$(\'head\').append(\'<link rel="stylesheet" type="text/css" href=\'+olCss+\'>\');'
-            .'var vectorLayer = new ol.source.Vector({});'
-            .'var map = new ol.Map({'
-            .'target: \'openlayersmap\','
-            .'layers: ['
-            .'new ol.layer.Tile({'
-            .'source: new ol.source.OSM()'
-            .'}),'
-            .'new ol.layer.Vector({'
-            .'source: vectorLayer'
-            .'})'
-            .'],'
-            .'view: new ol.View({'
-            .'center: ol.proj.fromLonLat([37.41, 8.82]),'
-            .'zoom: 4'
-            .'}),'
-            .'controls: [new ol.control.MousePosition({'
-            .'coordinateFormat: ol.coordinate.createStringXY(4),'
-            .'projection: \'EPSG:4326\'}),'
-            .'new ol.control.Zoom,'
-            .'new ol.control.Attribution]'
-            .'});';
+            . 'if (typeof ol !== "undefined") {'
+            . 'var olCss = "js/vendor/openlayers/theme/ol.css";'
+            . '$(\'head\').append(\'<link rel="stylesheet" type="text/css" href=\'+olCss+\'>\');'
+            . 'var vectorLayer = new ol.source.Vector({});'
+            . 'var map = new ol.Map({'
+            . 'target: \'openlayersmap\','
+            . 'layers: ['
+            . 'new ol.layer.Tile({'
+            . 'source: new ol.source.OSM()'
+            . '}),'
+            . 'new ol.layer.Vector({'
+            . 'source: vectorLayer'
+            . '})'
+            . '],'
+            . 'view: new ol.View({'
+            . 'center: ol.proj.fromLonLat([37.41, 8.82]),'
+            . 'zoom: 4'
+            . '}),'
+            . 'controls: [new ol.control.MousePosition({'
+            . 'coordinateFormat: ol.coordinate.createStringXY(4),'
+            . 'projection: \'EPSG:4326\'}),'
+            . 'new ol.control.Zoom,'
+            . 'new ol.control.Attribution]'
+            . '});';
         $output .= $this->prepareDataSet($this->data, $scale_data, 'ol', '')
-            .'return map;'
-            .'}'
-            .'return undefined;'
-            .'}';
+            . 'return map;'
+            . '}'
+            . 'return undefined;'
+            . '}';
 
         return $output;
     }

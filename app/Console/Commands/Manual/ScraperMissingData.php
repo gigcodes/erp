@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -79,23 +79,23 @@ class ScraperMissingData extends Command
                 // Get properties
                 $properties = ! empty($result->properties) ? unserialize($result->properties) : [];
 
-                echo '"'.$result->website.'";'.
-                '"'.$result->sku.'";'.
-                '"'.$result->url.'";'.
-                '"'.$result->brand_id.'";'.
-                '"'.(isset($properties['gender']) ? $properties['gender'] : '').'";'.
-                '"'.(! empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '').'";'.
-                '"'.$result->title.'";'.
-                '"'.str_replace('"', "'", $result->description).'";'.
-                '"'.(! empty($properties['color']) ? $properties['color'] : '').'";'.
-                '"'.(! empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '').'";'.
-                '"'.(! empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '').'";'.
-                '"'.(! empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '').'";'.
-                '"'.$result->size_system.'";'.
-                '"'.$result->currency.'";'.
-                $result->price.';'.
-                $result->discounted_price.';'.
-                $result->is_sale.';'.
+                echo '"' . $result->website . '";' .
+                '"' . $result->sku . '";' .
+                '"' . $result->url . '";' .
+                '"' . $result->brand_id . '";' .
+                '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
+                '"' . (! empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
+                '"' . $result->title . '";' .
+                '"' . str_replace('"', "'", $result->description) . '";' .
+                '"' . (! empty($properties['color']) ? $properties['color'] : '') . '";' .
+                '"' . (! empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '') . '";' .
+                '"' . (! empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '') . '";' .
+                '"' . (! empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '') . '";' .
+                '"' . $result->size_system . '";' .
+                '"' . $result->currency . '";' .
+                $result->price . ';' .
+                $result->discounted_price . ';' .
+                $result->is_sale . ';' .
                     "\n";
             }
         }

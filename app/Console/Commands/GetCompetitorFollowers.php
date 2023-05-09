@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use App\CompetitorPage;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\CompetitorPage;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;

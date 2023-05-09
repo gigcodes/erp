@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use App\InstagramCommentQueue;
 use Illuminate\Bus\Queueable;
+use App\InstagramCommentQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class InstagramComment implements ShouldQueue
 {
@@ -49,7 +49,7 @@ class InstagramComment implements ShouldQueue
             $comment->account_id = $this->_account_id;
             $comment->save();
         } catch (\Exception $e) {
-            \Log::info('Issue fom InstagramComment'.' '.$e->getMessage());
+            \Log::info('Issue fom InstagramComment' . ' ' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }

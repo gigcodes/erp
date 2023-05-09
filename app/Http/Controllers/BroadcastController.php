@@ -20,7 +20,7 @@ class BroadcastController extends Controller
         $customers = \App\Customer::all();
 
         if (@$inputs['name']) {
-            $data->where('name', 'like', '%'.$inputs['name'].'%');
+            $data->where('name', 'like', '%' . $inputs['name'] . '%');
         }
 
         if (@$inputs['order']) {
@@ -95,9 +95,9 @@ class BroadcastController extends Controller
 
                     $approveRequest = new Request();
                     $approveRequest->setMethod('GET');
-                    $approveRequest->request->add(['messageId' => $chat_message->id,'subject'=> $request->name ]);
+                    $approveRequest->request->add(['messageId' => $chat_message->id, 'subject' => $request->name]);
 
-                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $approveRequest,$chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $approveRequest, $chat_message->id);
                 } elseif ($item->type == 'App\Http\Controllers\App\Supplier') {
                     //Supplier
                     $message = [
@@ -121,7 +121,7 @@ class BroadcastController extends Controller
 
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
-                    $myRequest->request->add(['messageId' => $chat_message->id,'subject'=> $request->name ]);
+                    $myRequest->request->add(['messageId' => $chat_message->id, 'subject' => $request->name]);
                     app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('supplier', $myRequest, $chat_message->id);
                 } else {
                     //Customer
@@ -149,7 +149,7 @@ class BroadcastController extends Controller
                     $chat_message = \App\ChatMessage::create($params);
                     $custRequest = new Request();
                     $custRequest->setMethod('POST');
-                    $custRequest->request->add(['messageId' => $chat_message->id,'subject'=> $request->name ]);
+                    $custRequest->request->add(['messageId' => $chat_message->id, 'subject' => $request->name]);
                     app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('customer', $custRequest, $chat_message->id);
                 }
             }
@@ -196,7 +196,6 @@ class BroadcastController extends Controller
     /**
      * This function user for get the broadcast user group list
      *
-     * @param  Request  $request
      * @return JsonResponse
      */
     public function getSendType(Request $request)

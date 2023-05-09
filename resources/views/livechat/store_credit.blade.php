@@ -212,27 +212,24 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
               <form id="credit_form">
                   <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                   <div class="form-group">
+                      <label for="credit" class="col-form-label">Website:</label>
+                      <select class="form-control select2" name="store_website_id" id="store_website_id" style="width: 100%;" >
+                            <option value="">-- Select Store website --</option>
+                            @foreach ($store_website as $website)
+                                <option value="{{$website->id}}">{{$website->website}}</option>
+                            @endforeach
+                            <!-- <option value="Others">Others</option> -->
+                      </select>
+                      <span class="text-danger" id="store_website_id_error"></span>
+                  </div>
+
+                  <div class="form-group">
                       <label for="credit" class="col-form-label">Customer:</label>
                       <select class="form-control select2" name="credit_customer_id" id="credit_customer_id" style="width: 100%;" >
-                        <option></option>
-                        @foreach ($customers as $customer)
-                            <optgroup label="{{$customer->title}}">
-                                <option value="{{$customer->id}}">{{$customer->name. ' Email -'.$customer->email}}</option>
-                            </optgroup>
-                        @endforeach
+                        
                       </select>
                       <span class="text-danger" id="credit_customer_id_error"></span>
                   </div>
-                  {{-- <div class="form-group">
-                    <label for="credit" class="col-form-label">Store Website:</label>
-                    <select class="form-control select2" name="store_website_id" id="store_website_id" >
-                      <option></option>
-                      @foreach ($store_website as $website)
-                          <option value="{{$website->id}}">{{$website->website}}</option>
-                      @endforeach
-                    </select>
-                    <span class="text-danger" id="store_website_id"></span>
-                  </div> --}}
                   <div class="form-group">
                     <label for="credit" class="col-form-label">Credit:</label>
                     <input type="number" min="0" class="form-control" name="credit" id="credit">
@@ -287,11 +284,9 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
 @section('scripts')
  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
  <script>
-      
-       var isLoading = false;
-       var page = 1;
-       $(document).ready(function () {
-          
+         var isLoading = false;
+         var page = 1;
+        $(document).ready(function () {
            $(window).scroll(function() {
                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
                    loadMore();
@@ -327,84 +322,114 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                    }
                });
            }           
-       });
-       $('.open-customer-credit').click(function (e) { 
+        });
+
+        $('#store_website_id').change(function (){
+            var storeWebsiteId = $(this).val();
+            
+            $('#credit_customer_id').empty();
+
+            if(storeWebsiteId.length > 0){
+                $.ajax({
+                    url: "{{ url('customer/websites') }}",
+                    type: 'POST',
+                    
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        store_website_id: storeWebsiteId
+                    },
+                    success: function (customers) {
+                        if(customers.length > 0){
+                            $.each(customers, function (k, v){
+                                $('#credit_customer_id').append(`<option value="${v.id}">${v.name} Email - ${v.email}</option>`);
+                            });
+                        }
+                    },  
+                    error: function () {
+                        //
+                    }
+                });
+            }
+        });
+
+        $('.open-customer-credit').click(function (e) { 
             $('#credit_customer_id').select2();
-       });
-    $('#submit_credit_form').click(function (e) {
-        e.preventDefault();
-        if ($('#credit').val() == '') {
-            $('#credit_error').text('Credit filed is required.');
-            return false;
-        } else {
-            $('#credit_error').text('');
-        }
-        
+        });
+
+        $('#submit_credit_form').click(function (e) {
+            e.preventDefault();
+            if ($('#credit').val() == '') {
+                $('#credit_error').text('Credit filed is required.');
+                return false;
+            } else {
+                $('#credit_error').text('');
+            }
+            
+            $.ajax({
+                type: "POST",
+                url: window.location.origin + '/livechat/create-credit',
+                data: $('#credit_form').serialize(), // serializes the form's elements.
+                success: function (data)
+                {
+                    if (data.status == 'success') {
+                        alert('credit updated successfully.');
+                        $('#credit_form').trigger("reset");
+                        $('#create-customer-credit-modal').modal('toggle');
+                    }else{
+                        console.log(data);
+                        //var msg = JSON.parse(JSON.parse(data[0]));
+                        alert(data.msg);
+                    }
+                }, error: function (jqXHR, exception) {
+                    var msg = '';
+                    if (jqXHR.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (jqXHR.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (jqXHR.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (exception === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (exception === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (exception === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                    }
+                    alert(msg);
+                }
+            });
+        });
+
+        $('.get_email_log').click(function (e) {
+        var cust_id = $(this).data('cust_id');
+        //alert(cust_id);
         $.ajax({
             type: "POST",
-            url: window.location.origin + '/livechat/create-credit',
-            data: $('#credit_form').serialize(), // serializes the form's elements.
+            url: "{{route('credit.get.email.log')}}",
+            headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                cust_id : cust_id
+            },
             success: function (data)
             {
-                if (data.status == 'success') {
-                    alert('credit updated successfully.');
-                    $('#credit_form').trigger("reset");
-                    $('#create-customer-credit-modal').modal('toggle');
+                if (data.code == '200') {
+                    //alert('credit updated successfully.');
+                    $('#email_log_histories').html(data.data);
+                    $('#credit_email_log').modal('toggle');
                 }else{
-                    console.log(data);
+                    //console.log(data);
                     //var msg = JSON.parse(JSON.parse(data[0]));
                     alert(data.msg);
                 }
             }, error: function (jqXHR, exception) {
-                var msg = '';
-                if (jqXHR.status === 0) {
-                    msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status == 404) {
-                    msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
-                    msg = 'Internal Server Error [500].';
-                } else if (exception === 'parsererror') {
-                    msg = 'Requested JSON parse failed.';
-                } else if (exception === 'timeout') {
-                    msg = 'Time out error.';
-                } else if (exception === 'abort') {
-                    msg = 'Ajax request aborted.';
-                } else {
-                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
-                }
-                alert(msg);
+                alert(jqXHR.msg);
             }
         });
-    });
-
-    $('.get_email_log').click(function (e) {
-      var cust_id = $(this).data('cust_id');
-      //alert(cust_id);
-      $.ajax({
-          type: "POST",
-          url: "{{route('credit.get.email.log')}}",
-          headers: {
-                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },
-          data: {
-            cust_id : cust_id
-          },
-          success: function (data)
-          {
-              if (data.code == '200') {
-                  //alert('credit updated successfully.');
-                  $('#email_log_histories').html(data.data);
-                  $('#credit_email_log').modal('toggle');
-              }else{
-                  //console.log(data);
-                  //var msg = JSON.parse(JSON.parse(data[0]));
-                  alert(data.msg);
-              }
-          }, error: function (jqXHR, exception) {
-              alert(jqXHR.msg);
-          }
-      });
-    });
+        });
     
 		function getLogs(customerId) {
 			$('#display_logs').html('');

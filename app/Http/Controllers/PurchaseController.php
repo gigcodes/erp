@@ -2,56 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Agent;
-use App\Brand;
-use App\Category;
-use App\ChatMessage;
-use App\Comment;
-use App\CommunicationHistory;
-use App\Customer;
-use App\Email;
-use App\Events\ProformaConfirmed;
-use App\Exports\PurchasesExport;
+use Auth;
+use Storage;
 use App\File;
-use App\Helpers;
-use App\LogExcelImport;
-use App\Mail\CustomerEmail;
-use App\Mail\PurchaseEmail;
-use App\Mails\Manual\ForwardEmail;
-use App\Mails\Manual\PurchaseExport;
-use App\Mails\Manual\ReplyToEmail;
-use App\Message;
-use App\Order;
-use App\OrderProduct;
-use App\PrivateView;
-use App\Product;
-use App\Purchase;
-use App\PurchaseDiscount;
-use App\ReadOnly\OrderStatus as OrderStatus;
-use App\ReadOnly\PurchaseStatus;
-use App\ReadOnly\SupplierList;
-use App\Remark;
-use App\Reply;
-use App\ReplyCategory;
-use App\Setting;
-use App\StatusChange;
-use App\Supplier;
 use App\Task;
 use App\User;
-use Auth;
+use App\Agent;
+use App\Brand;
+use App\Email;
+use App\Order;
+use App\Reply;
+use App\Remark;
+use App\Comment;
+use App\Helpers;
+use App\Message;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Customer;
+use App\Purchase;
+use App\Supplier;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatMessage;
+use App\PrivateView;
+use App\OrderProduct;
+use App\StatusChange;
+use App\ReplyCategory;
+use App\LogExcelImport;
+use App\PurchaseDiscount;
+use App\Mail\CustomerEmail;
+use App\Mail\PurchaseEmail;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\CommunicationHistory;
+use App\ReadOnly\SupplierList;
+use App\Exports\PurchasesExport;
+use App\ReadOnly\PurchaseStatus;
+use App\Events\ProformaConfirmed;
+use App\Mails\Manual\ForwardEmail;
+use App\Mails\Manual\ReplyToEmail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
-
 use Webklex\PHPIMAP\ClientManager;
+use App\Mails\Manual\PurchaseExport;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
+use App\ReadOnly\OrderStatus as OrderStatus;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class PurchaseController extends Controller
 {
@@ -115,10 +115,10 @@ class PurchaseController extends Controller
 
         if (! empty($term)) {
             $purchases = $purchases
-                ->orWhere('id', 'like', '%'.$term.'%')
+                ->orWhere('id', 'like', '%' . $term . '%')
                 ->orWhere('purchase_handler', Helpers::getUserIdByName($term))
-                ->orWhere('supplier', 'like', '%'.$term.'%')
-                ->orWhere('status', 'like', '%'.$term.'%')
+                ->orWhere('supplier', 'like', '%' . $term . '%')
+                ->orWhere('status', 'like', '%' . $term . '%')
                 ->orWhereHas('Products', function ($query) use ($term) {
                     $query->where('sku', 'LIKE', "%$term%");
                 });
@@ -211,7 +211,7 @@ class PurchaseController extends Controller
         $agents_array = [];
 
         foreach ($agents as $agent) {
-            $agents_array[$agent->model_id][$agent->id] = $agent->name.' - '.$agent->email;
+            $agents_array[$agent->model_id][$agent->id] = $agent->name . ' - ' . $agent->email;
         }
 
         if ($request->ajax()) {
@@ -608,10 +608,10 @@ class PurchaseController extends Controller
         if (! empty($term)) {
             $products = $products->where(function ($query) use ($term) {
                 return $query
-                    ->orWhere('name', 'like', '%'.$term.'%')
-                    ->orWhere('short_description', 'like', '%'.$term.'%')
-                    ->orWhere('sku', 'like', '%'.$term.'%')
-                    ->orWhere('supplier', 'like', '%'.$term.'%');
+                    ->orWhere('name', 'like', '%' . $term . '%')
+                    ->orWhere('short_description', 'like', '%' . $term . '%')
+                    ->orWhere('sku', 'like', '%' . $term . '%')
+                    ->orWhere('supplier', 'like', '%' . $term . '%');
             });
         }
 
@@ -849,7 +849,7 @@ class PurchaseController extends Controller
             $purchase->save();
         }
 
-        $path = 'purchase_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_purchases_export.xlsx';
+        $path = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
 
         Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
@@ -860,8 +860,8 @@ class PurchaseController extends Controller
 
     public function sendExport(Request $request)
     {
-        $path = 'purchase_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_purchases_export.xlsx';
-        $filename = Carbon::now()->format('Y-m-d-H-m-s').'_purchases_export.xlsx';
+        $path = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
+        $filename = Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -911,7 +911,7 @@ class PurchaseController extends Controller
     {
         $file = File::find($id);
 
-        return Storage::disk('files')->download('files/'.$file->filename);
+        return Storage::disk('files')->download('files/' . $file->filename);
     }
 
     public function downloadAttachments(Request $request)
@@ -1062,7 +1062,6 @@ class PurchaseController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -1195,7 +1194,7 @@ class PurchaseController extends Controller
         $agents = Agent::all();
 
         foreach ($agents as $agent) {
-            $data['agents_array'][$agent->model_id][$agent->id] = $agent->name.' - '.$agent->email;
+            $data['agents_array'][$agent->model_id][$agent->id] = $agent->name . ' - ' . $agent->email;
         }
 
         return view('purchase.show', $data)->withOrder($purchase);
@@ -1293,7 +1292,7 @@ class PurchaseController extends Controller
 
         $product->detachMediaTags(config('constants.media_tags'));
         $media = MediaUploader::fromSource($request->file('image'))
-                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                             ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
 
@@ -1338,7 +1337,6 @@ class PurchaseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -1540,11 +1538,11 @@ class PurchaseController extends Controller
 
                         if ($product->orderproducts) {
                             foreach ($product->orderproducts as $order_product) {
-                                $batch_number = $order_product->purchase_id.(array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[$order_product->batch_number] : '');
+                                $batch_number = $order_product->purchase_id . (array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[$order_product->batch_number] : '');
                                 $product_names .= "#$batch_number, ";
 
                                 if ($order_product->order && $order_product->order->customer) {
-                                    $product_information .= $order_product->order->customer->address.', '.$order_product->order->customer->pincode.', '.$order_product->order->customer->city.'; ';
+                                    $product_information .= $order_product->order->customer->address . ', ' . $order_product->order->customer->pincode . ', ' . $order_product->order->customer->city . '; ';
                                 }
                             }
                         }
@@ -1923,7 +1921,7 @@ class PurchaseController extends Controller
                 $filename = pathinfo($original_name, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $full_name = $filename.'.'.$extension;
+                $full_name = $filename . '.' . $extension;
 
                 $file->storeAs('files', $full_name, 'files');
 
@@ -2021,7 +2019,7 @@ class PurchaseController extends Controller
 
     public function emailInbox(Request $request)
     {
-        try{
+        try {
             $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
@@ -2034,7 +2032,7 @@ class PurchaseController extends Controller
             ]);
 
             $imap->connect();
-            if($request->supplier_id) {
+            if ($request->supplier_id) {
                 $supplier = Supplier::find($request->supplier_id);
 
                 if ($request->type == 'inbox') {
@@ -2161,10 +2159,10 @@ class PurchaseController extends Controller
                 $view = view('purchase.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
                 return response()->json(['emails' => $view]);
-            }else{
+            } else {
                 return response()->json(['message' => 'Something went wrong!'], 422);
             }
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Something went wrong!'], 422);
         }
     }
@@ -2179,8 +2177,8 @@ class PurchaseController extends Controller
                 $attachments = $email->getAttachments();
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
-                    file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                    $path = 'email-attachments/'.$attachment->name;
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
@@ -2569,9 +2567,9 @@ class PurchaseController extends Controller
             $attachments = $email->getAttachments();
 
             $attachments->each(function ($attachment) use (&$content) {
-                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                $path = 'email-attachments/'.$attachment->name;
-                $content .= " <form action='".route('purchase.download.attachments')."' method='GET'><input type='hidden' name='path' value='".$path."' /><button type='submit' class='btn-link'>Attachment</button></form>";
+                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                $path = 'email-attachments/' . $attachment->name;
+                $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $path . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
             });
         // dd($content);
 
@@ -2621,11 +2619,11 @@ class PurchaseController extends Controller
                         if (! isset($alert)) {
                             $alert = '';
                         }
-                        $content .= " <form action='".route('purchase.download.attachments')."' method='GET'><input type='hidden' name='path' value='".$attach."' /><button type='submit' class='btn-link'>Attachment</button>
-                        <button type='button' class='btn-secondary' onclick='processExcel(".$email->id.")' id='email".$email->id."' data-attached='".$attach."' >".$alert.'</button></form>';
+                        $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button>
+                        <button type='button' class='btn-secondary' onclick='processExcel(" . $email->id . ")' id='email" . $email->id . "' data-attached='" . $attach . "' >" . $alert . '</button></form>';
                     }
                 } else {
-                    $content = "$email->message <form action='".route('purchase.download.attachments')."' method='GET'><input type='hidden' name='path' value='".$attachment."' /><button type='submit' class='btn-link'>Attachment</button></form>";
+                    $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
                 }
             } else {
                 $content = $email->message;
@@ -2759,7 +2757,7 @@ class PurchaseController extends Controller
                 'model_type' => Purchase::class,
                 'from' => 'customercare@sololuxury.co.in',
                 'to' => $request->recipient,
-                'subject' => 'Resent: '.$email->getSubject(),
+                'subject' => 'Resent: ' . $email->getSubject(),
                 'message' => $content,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $attachment]),
@@ -2859,11 +2857,11 @@ class PurchaseController extends Controller
             }
 
             $sku = isset($product->sku) ? $product->sku : '';
-            $size = ! empty($request->get('size')) ? ' size '.$request->get('size') : '';
+            $size = ! empty($request->get('size')) ? ' size ' . $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
                 if ($supplier->phone != '') {
-                    $message = $request->input('message').' ('.$sku.')'.$size;
+                    $message = $request->input('message') . ' (' . $sku . ')' . $size;
 
                     try {
                         dump('Sending message');

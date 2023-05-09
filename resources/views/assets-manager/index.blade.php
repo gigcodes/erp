@@ -476,6 +476,8 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
+      $('#link').val(asset.link);
+      $('#client_id').val(asset.client_id);
       
       $('#ip_name_ins').val(asset.ip_name);
       

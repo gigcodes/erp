@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\MemoryUsage;
 use App\Setting;
+use App\MemoryUsage;
 use Illuminate\Http\Request;
 
 class MemoryUsesController extends Controller
@@ -32,6 +32,6 @@ class MemoryUsesController extends Controller
             'type' => 'number',
         ]);
 
-        return response()->json(['code' => 200, 'message' => 'Thresold limit updated to '.$updatedData->val]);
+        return response()->json(['code' => 200, 'message' => 'Thresold limit updated to ' . $updatedData->val]);
     }
 }

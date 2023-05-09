@@ -32,7 +32,7 @@ class OrderDeliveryDateChangeMail extends Mailable
      */
     public function build()
     {
-        $subject = 'Order # '.$this->order->order_id.' delivery date has been changed';
+        $subject = 'Order # ' . $this->order->order_id . ' delivery date has been changed';
         $order = $this->order;
 
         $customer = $order->customer;

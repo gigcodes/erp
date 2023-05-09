@@ -172,7 +172,7 @@
                         <option value="">-- N/A --</option>
                         <?php
                             foreach ([0 => 'No', 1 => 'Yes'] as $k => $l) {
-                                echo "<option {{if data.active == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+                                echo "<option {{if data.active == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
                             }
     ?>
                      </select>
@@ -183,7 +183,7 @@
                         <option value="">-- N/A --</option>
                         <?php
         foreach (\App\Language::pluck('name', 'name')->toArray() as $k => $l) {
-            echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+            echo "<option {{if data.language == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
         }
     ?>
                      </select>
@@ -199,7 +199,7 @@
                         <option value="">-- N/A --</option>
                         <?php
         foreach ($storeWebsites as $k => $l) {
-            echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+            echo "<option {{if data.store_website_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
         }
     ?>
                      </select>

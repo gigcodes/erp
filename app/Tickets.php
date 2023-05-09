@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
 class Tickets extends Model
 {
@@ -45,7 +45,7 @@ class Tickets extends Model
 
     public function getTicketList($params = [])
     {
-        $selectArray[] = $this->table.'.*';
+        $selectArray[] = $this->table . '.*';
         $query = DB::table($this->table);
 
         $query->select($selectArray);

@@ -4,89 +4,89 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use Stringable;
 use function __;
-use function _pgettext;
 use function abs;
-use function array_key_exists;
-use function array_map;
-use function array_merge;
-use function array_shift;
-use function array_unique;
-use function basename;
-use function bin2hex;
 use function chr;
-use function count;
-use function ctype_digit;
+use function ord;
 use function date;
-use function decbin;
-use const ENT_COMPAT;
-use const ENT_QUOTES;
-use function explode;
-use function extension_loaded;
-use function fclose;
-use function floatval;
+use function sort;
+use function time;
+use function trim;
+use function count;
 use function floor;
 use function fread;
-use function function_exists;
-use function html_entity_decode;
-use function htmlentities;
-use function htmlspecialchars;
-use function htmlspecialchars_decode;
-use function implode;
-use function in_array;
-use function ini_get;
-use function is_array;
-use function is_callable;
-use function is_object;
-use function is_scalar;
-use function is_string;
 use function log10;
-use function mb_detect_encoding;
-use function mb_strlen;
-use function mb_strpos;
-use function mb_strrpos;
-use function mb_strstr;
-use function mb_strtolower;
-use function mb_substr;
-use function number_format;
-use function ord;
-use function parse_url;
-use const PHP_INT_SIZE;
-use const PHP_MAJOR_VERSION;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Html\MySQLDocumentation;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\SqlParser\Components\Expression;
-use PhpMyAdmin\SqlParser\Context;
-use PhpMyAdmin\SqlParser\Token;
-use PhpMyAdmin\Utils\SessionCache;
-use function preg_match;
-use function preg_quote;
-use function preg_replace;
-use function random_bytes;
 use function range;
 use function reset;
 use function round;
 use function rtrim;
-use function set_time_limit;
-use function sort;
-use function sprintf;
-use function str_contains;
-use function str_pad;
-use const STR_PAD_LEFT;
-use function str_replace;
-use function strcasecmp;
-use function strftime;
-use Stringable;
+use function strtr;
+use function decbin;
+use function fclose;
 use function strlen;
 use function strrev;
-use function strtolower;
-use function strtr;
 use function substr;
-use function time;
-use function trim;
 use function uksort;
+use const ENT_COMPAT;
+use const ENT_QUOTES;
+use function bin2hex;
+use function explode;
+use function implode;
+use function ini_get;
+use function sprintf;
+use function str_pad;
+use function basename;
+use function floatval;
+use function in_array;
+use function is_array;
+use function strftime;
+use const PHP_INT_SIZE;
+use const STR_PAD_LEFT;
+use function _pgettext;
+use function array_map;
+use function is_object;
+use function is_scalar;
+use function is_string;
+use function mb_strlen;
+use function mb_strpos;
+use function mb_strstr;
+use function mb_substr;
+use function parse_url;
+use function mb_strrpos;
+use function preg_match;
+use function preg_quote;
+use function strcasecmp;
+use function strtolower;
+use function array_merge;
+use function array_shift;
+use function ctype_digit;
+use function is_callable;
+use function str_replace;
+use function array_unique;
+use function htmlentities;
+use function preg_replace;
+use function random_bytes;
+use function str_contains;
+use function mb_strtolower;
+use function number_format;
+use const PHP_MAJOR_VERSION;
+use function set_time_limit;
+use function function_exists;
+use function array_key_exists;
+use function extension_loaded;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\SqlParser\Token;
+use function html_entity_decode;
+use function mb_detect_encoding;
+use PhpMyAdmin\SqlParser\Context;
+use PhpMyAdmin\Utils\SessionCache;
+use PhpMyAdmin\Dbal\ResultInterface;
+use function htmlspecialchars_decode;
+use PhpMyAdmin\Html\MySQLDocumentation;
+use PhpMyAdmin\SqlParser\Components\Expression;
 
 /**
  * Misc functions used all over the scripts.
@@ -125,7 +125,7 @@ class Util
         // to avoid weird results like 512 kKib
         [$maxSize, $maxUnit] = self::formatByteDown($maxUploadSize, 4);
 
-        return '('.sprintf(__('Max: %s%s'), $maxSize, $maxUnit).')';
+        return '(' . sprintf(__('Max: %s%s'), $maxSize, $maxUnit) . ')';
     }
 
     /**
@@ -178,7 +178,7 @@ class Util
             if (mb_substr($quotedString, 0, 1) === $quote && mb_substr($quotedString, -1, 1) === $quote) {
                 $unquotedString = mb_substr($quotedString, 1, -1);
                 // replace escaped quotes
-                $unquotedString = str_replace($quote.$quote, $quote, $unquotedString);
+                $unquotedString = str_replace($quote . $quote, $quote, $unquotedString);
 
                 return $unquotedString;
             }
@@ -221,9 +221,9 @@ class Util
         }
 
         $url = 'https://dev.mysql.com/doc/refman/'
-            .$mysql.'/'.$lang.'/'.$link.'.html';
+            . $mysql . '/' . $lang . '/' . $link . '.html';
         if (! empty($anchor)) {
-            $url .= '#'.$anchor;
+            $url .= '#' . $anchor;
         }
 
         return Core::linkURL($url);
@@ -328,23 +328,23 @@ class Util
                 $partsCount = count($parts) - 1;
 
                 while (($i < $partsCount) && ($i < $GLOBALS['cfg']['NavigationTreeTableLevel'])) {
-                    $groupName = $parts[$i].$sep;
+                    $groupName = $parts[$i] . $sep;
                     $groupNameFull .= $groupName;
 
                     if (! isset($group[$groupName])) {
                         $group[$groupName] = [];
-                        $group[$groupName]['is'.$sep.'group'] = true;
-                        $group[$groupName]['tab'.$sep.'count'] = 1;
-                        $group[$groupName]['tab'.$sep.'group'] = $groupNameFull;
-                    } elseif (! isset($group[$groupName]['is'.$sep.'group'])) {
+                        $group[$groupName]['is' . $sep . 'group'] = true;
+                        $group[$groupName]['tab' . $sep . 'count'] = 1;
+                        $group[$groupName]['tab' . $sep . 'group'] = $groupNameFull;
+                    } elseif (! isset($group[$groupName]['is' . $sep . 'group'])) {
                         $table = $group[$groupName];
                         $group[$groupName] = [];
                         $group[$groupName][$groupName] = $table;
-                        $group[$groupName]['is'.$sep.'group'] = true;
-                        $group[$groupName]['tab'.$sep.'count'] = 1;
-                        $group[$groupName]['tab'.$sep.'group'] = $groupNameFull;
+                        $group[$groupName]['is' . $sep . 'group'] = true;
+                        $group[$groupName]['tab' . $sep . 'count'] = 1;
+                        $group[$groupName]['tab' . $sep . 'group'] = $groupNameFull;
                     } else {
-                        $group[$groupName]['tab'.$sep.'count']++;
+                        $group[$groupName]['tab' . $sep . 'count']++;
                     }
 
                     $group = &$group[$groupName];
@@ -419,7 +419,7 @@ class Util
             $escapeChar = '\\';
         }
 
-        return $quote.str_replace($quote, $escapeChar.$quote, $identifier).$quote;
+        return $quote . str_replace($quote, $escapeChar . $quote, $identifier) . $quote;
     }
 
     /**
@@ -536,7 +536,7 @@ class Util
                 __(',')
             );
             if (($originalValue != 0) && (floatval($value) == 0)) {
-                $value = ' <'.(1 / 10 ** $digitsRight);
+                $value = ' <' . (1 / 10 ** $digitsRight);
             }
 
             return $value;
@@ -603,14 +603,14 @@ class Util
         $formattedValue = number_format($value, $digitsRight, $decimalSep, $thousandsSep);
         // If we don't want any zeros, remove them now
         if ($noTrailingZero && str_contains($formattedValue, $decimalSep)) {
-            $formattedValue = preg_replace('/'.preg_quote($decimalSep, '/').'?0+$/', '', $formattedValue);
+            $formattedValue = preg_replace('/' . preg_quote($decimalSep, '/') . '?0+$/', '', $formattedValue);
         }
 
         if ($originalValue != 0 && floatval($value) == 0) {
-            return ' <'.number_format(1 / 10 ** $digitsRight, $digitsRight, $decimalSep, $thousandsSep).' '.$unit;
+            return ' <' . number_format(1 / 10 ** $digitsRight, $digitsRight, $decimalSep, $thousandsSep) . ' ' . $unit;
         }
 
-        return $sign.$formattedValue.' '.$unit;
+        return $sign . $formattedValue . ' ' . $unit;
     }
 
     /**
@@ -816,10 +816,10 @@ class Util
             }
 
             $errorMessage .= $reportedScriptName
-                .': '.__('Missing parameter:').' '
-                .$param
-                .MySQLDocumentation::showDocumentation('faq', 'faqmissingparameters', true)
-                .'[br]';
+                . ': ' . __('Missing parameter:') . ' '
+                . $param
+                . MySQLDocumentation::showDocumentation('faq', 'faqmissingparameters', true)
+                . '[br]';
             $foundError = true;
         }
 
@@ -864,7 +864,7 @@ class Util
         // See commit: 049fc7fef7548c2ba603196937c6dcaf9ff9bf00
         // See bug: https://sourceforge.net/p/phpmyadmin/bugs/3064/
         if ($meta->isNumeric && ! $meta->isMappedTypeTimestamp && $meta->isNotType(FieldMetadata::TYPE_REAL)) {
-            $conditionValue = '= '.$row;
+            $conditionValue = '= ' . $row;
         } elseif ($isBlobAndIsBinaryCharset || (! empty($row) && $isBinaryString)) {
             // hexify only if this is a true not empty BLOB or a BINARY
 
@@ -873,12 +873,12 @@ class Util
             if ($rowLength > 0 && $rowLength < 1000) {
                 // use a CAST if possible, to avoid problems
                 // if the field contains wildcard characters % or _
-                $conditionValue = '= CAST(0x'.bin2hex((string) $row).' AS BINARY)';
+                $conditionValue = '= CAST(0x' . bin2hex((string) $row) . ' AS BINARY)';
             } elseif ($fieldsCount === 1) {
                 // when this blob is the only field present
                 // try settling with length comparison
-                $condition = ' CHAR_LENGTH('.$conditionKey.') ';
-                $conditionValue = ' = '.$rowLength;
+                $condition = ' CHAR_LENGTH(' . $conditionKey . ') ';
+                $conditionValue = ' = ' . $rowLength;
             } else {
                 // this blob won't be part of the final condition
                 $conditionValue = null;
@@ -886,16 +886,16 @@ class Util
         } elseif ($meta->isMappedTypeGeometry && ! empty($row)) {
             // do not build a too big condition
             if (mb_strlen((string) $row) < 5000) {
-                $condition .= '= CAST(0x'.bin2hex((string) $row).' AS BINARY)';
+                $condition .= '= CAST(0x' . bin2hex((string) $row) . ' AS BINARY)';
             } else {
                 $condition = '';
             }
         } elseif ($meta->isMappedTypeBit) {
             $conditionValue = "= b'"
-                .self::printableBitValue((int) $row, (int) $meta->length)."'";
+                . self::printableBitValue((int) $row, (int) $meta->length) . "'";
         } else {
             $conditionValue = '= \''
-                .$dbi->escapeString($row).'\'';
+                . $dbi->escapeString($row) . '\'';
         }
 
         return [$conditionValue, $condition];
@@ -983,14 +983,14 @@ class Util
             // (also, the syntax "CONCAT(field) IS NULL"
             // that we need on the next "if" will work)
             if ($meta->isType(FieldMetadata::TYPE_REAL)) {
-                $conKey = 'CONCAT('.self::backquote($meta->table).'.'
-                    .self::backquote($meta->orgname).')';
+                $conKey = 'CONCAT(' . self::backquote($meta->table) . '.'
+                    . self::backquote($meta->orgname) . ')';
             } else {
-                $conKey = self::backquote($meta->table).'.'
-                    .self::backquote($meta->orgname);
+                $conKey = self::backquote($meta->table) . '.'
+                    . self::backquote($meta->orgname);
             }
 
-            $condition = ' '.$conKey.' ';
+            $condition = ' ' . $conKey . ' ';
 
             [$conVal, $condition] = self::getConditionValue($row[$i] ?? null, $meta, $fieldsCount, $conKey, $condition);
 
@@ -998,7 +998,7 @@ class Util
                 continue;
             }
 
-            $condition .= $conVal.' AND';
+            $condition .= $conVal . ' AND';
 
             if ($meta->isPrimaryKey()) {
                 $primaryKey .= $condition;
@@ -1053,8 +1053,8 @@ class Util
             $keyword = ' CHARACTER SET ';
         }
 
-        return $keyword.$charset
-            .($charset == $collation ? '' : ' COLLATE '.$collation);
+        return $keyword . $charset
+            . ($charset == $collation ? '' : ' COLLATE ' . $collation);
     }
 
     /**
@@ -1091,9 +1091,9 @@ class Util
         $pageNowMinusRange = $pageNow - $range;
         $pageNowPlusRange = $pageNow + $range;
 
-        $gotoPage = $prompt.' <select class="pageselector ajax"';
+        $gotoPage = $prompt . ' <select class="pageselector ajax"';
 
-        $gotoPage .= ' name="'.$name.'" >';
+        $gotoPage .= ' name="' . $name . '" >';
         if ($nbTotalPage < $showAll) {
             $pages = range(1, $nbTotalPage);
         } else {
@@ -1198,8 +1198,8 @@ class Util
                 $selected = '';
             }
 
-            $gotoPage .= '                <option '.$selected
-                .' value="'.(($i - 1) * $rows).'">'.$i.'</option>'."\n";
+            $gotoPage .= '                <option ' . $selected
+                . ' value="' . (($i - 1) * $rows) . '">' . $i . '</option>' . "\n";
         }
 
         $gotoPage .= ' </select>';
@@ -1281,9 +1281,9 @@ class Util
 
             while ($i >= 0) {
                 if ($value - 2 ** $i < 0) {
-                    $printable = '0'.$printable;
+                    $printable = '0' . $printable;
                 } else {
-                    $printable = '1'.$printable;
+                    $printable = '1' . $printable;
                     $value -= 2 ** $i;
                 }
 
@@ -1349,7 +1349,7 @@ class Util
             // Define our working vars
             $enumSetValues = self::parseEnumSetValues($columnSpecification, false);
             $printType = $type
-                .'('.str_replace("','", "', '", $specInBrackets).')';
+                . '(' . str_replace("','", "', '", $specInBrackets) . ')';
             $binary = false;
             $unsigned = false;
             $zerofill = false;
@@ -1398,13 +1398,13 @@ class Util
         // for the case ENUM('&#8211;','&ldquo;')
         $displayedType = htmlspecialchars($printType, ENT_COMPAT);
         if (mb_strlen($printType) > $GLOBALS['cfg']['LimitChars']) {
-            $displayedType = '<abbr title="'.htmlspecialchars($printType).'">';
+            $displayedType = '<abbr title="' . htmlspecialchars($printType) . '">';
             $displayedType .= htmlspecialchars(
                 mb_substr(
                     $printType,
                     0,
                     (int) $GLOBALS['cfg']['LimitChars']
-                ).'...',
+                ) . '...',
                 ENT_COMPAT
             );
             $displayedType .= '</abbr>';
@@ -1434,7 +1434,7 @@ class Util
     {
         $firstOccurrence = mb_strpos($string, "\r\n");
         if ($firstOccurrence === 0) {
-            $string = "\n".$string;
+            $string = "\n" . $string;
         }
 
         return $string;
@@ -1601,7 +1601,7 @@ class Util
 
         $vars['database'] = $GLOBALS['db'];
         $vars['table'] = $GLOBALS['table'];
-        $vars['phpmyadmin_version'] = 'phpMyAdmin '.Version::VERSION;
+        $vars['phpmyadmin_version'] = 'phpMyAdmin ' . Version::VERSION;
 
         /* Update forced variables */
         foreach ($updates as $key => $val) {
@@ -1763,7 +1763,7 @@ class Util
 
         // Prepare the query
         $query = 'SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`%s` '
-               ."WHERE GRANTEE='%s' AND PRIVILEGE_TYPE='%s'";
+               . "WHERE GRANTEE='%s' AND PRIVILEGE_TYPE='%s'";
 
         // Check global privileges first.
         $userPrivileges = $dbi->fetchValue(
@@ -1984,7 +1984,7 @@ class Util
         }
 
         if (! str_contains($value, '.')) {
-            return $value.'.000000';
+            return $value . '.000000';
         }
 
         $value .= '000000';
@@ -2071,7 +2071,7 @@ class Util
         foreach ($indexes as $row) {
             // Backups the list of primary keys
             if ($row['Key_name'] === 'PRIMARY') {
-                $primary .= $row['Column_name'].', ';
+                $primary .= $row['Column_name'] . ', ';
                 $pkArray[$row['Column_name']] = 1;
             }
 
@@ -2160,7 +2160,7 @@ class Util
         // Special speedup for newer MySQL Versions (in 4.0 format changed)
         if ($cfg['SkipLockedTables'] === true) {
             $dbInfoResult = $dbi->query(
-                'SHOW OPEN TABLES FROM '.self::backquote($db).' WHERE In_use > 0;'
+                'SHOW OPEN TABLES FROM ' . self::backquote($db) . ' WHERE In_use > 0;'
             );
 
             // Blending out tables in use
@@ -2225,7 +2225,7 @@ class Util
                         $tableType
                     );
                     $groupWithSeparator = $tableGroup
-                        .$GLOBALS['cfg']['NavigationTreeTableSeparator'];
+                        . $GLOBALS['cfg']['NavigationTreeTableSeparator'];
                 }
             } else {
                 // all tables in db
@@ -2313,14 +2313,14 @@ class Util
                 $group = $dbi->escapeMysqlLikeString((string) $_REQUEST['tbl_group']);
                 $groupWithSeparator = $dbi->escapeMysqlLikeString(
                     $_REQUEST['tbl_group']
-                    .$GLOBALS['cfg']['NavigationTreeTableSeparator']
+                    . $GLOBALS['cfg']['NavigationTreeTableSeparator']
                 );
                 $tblGroupSql .= ' WHERE ('
-                    .self::backquote('Tables_in_'.$db)
-                    ." LIKE '".$groupWithSeparator."%'"
-                    .' OR '
-                    .self::backquote('Tables_in_'.$db)
-                    ." LIKE '".$group."')";
+                    . self::backquote('Tables_in_' . $db)
+                    . " LIKE '" . $groupWithSeparator . "%'"
+                    . ' OR '
+                    . self::backquote('Tables_in_' . $db)
+                    . " LIKE '" . $group . "')";
                 $whereAdded = true;
             }
 
@@ -2333,7 +2333,7 @@ class Util
                 }
             }
 
-            $dbInfoResult = $dbi->query('SHOW FULL TABLES FROM '.self::backquote($db).$tblGroupSql);
+            $dbInfoResult = $dbi->query('SHOW FULL TABLES FROM ' . self::backquote($db) . $tblGroupSql);
             unset($tblGroupSql, $whereAdded);
 
             if ($dbInfoResult->numRows() > 0) {
@@ -2377,7 +2377,7 @@ class Util
      */
     public static function checkDbExtension(string $extension = 'mysqli'): bool
     {
-        return function_exists($extension.'_connect');
+        return function_exists($extension . '_connect');
     }
 
     /**
@@ -2526,7 +2526,7 @@ class Util
             if ($requestedSortOrder === 'ASC') {
                 $futureSortOrder = 'DESC';
                 // current sort order is ASC
-                $orderImg = ' '.Generator::getImage(
+                $orderImg = ' ' . Generator::getImage(
                     's_asc',
                     __('Ascending'),
                     [
@@ -2534,7 +2534,7 @@ class Util
                         'title' => '',
                     ]
                 );
-                $orderImg .= ' '.Generator::getImage(
+                $orderImg .= ' ' . Generator::getImage(
                     's_desc',
                     __('Descending'),
                     [
@@ -2549,7 +2549,7 @@ class Util
             } else {
                 $futureSortOrder = 'ASC';
                 // current sort order is DESC
-                $orderImg = ' '.Generator::getImage(
+                $orderImg = ' ' . Generator::getImage(
                     's_asc',
                     __('Ascending'),
                     [
@@ -2557,7 +2557,7 @@ class Util
                         'title' => '',
                     ]
                 );
-                $orderImg .= ' '.Generator::getImage(
+                $orderImg .= ' ' . Generator::getImage(
                     's_desc',
                     __('Descending'),
                     [
@@ -2589,7 +2589,7 @@ class Util
 
         $url = Url::getFromRoute('/database/structure');
 
-        return Generator::linkOrButton($url, $urlParams, $title.$orderImg, $orderLinkParams);
+        return Generator::linkOrButton($url, $urlParams, $title . $orderImg, $orderLinkParams);
     }
 
     /**

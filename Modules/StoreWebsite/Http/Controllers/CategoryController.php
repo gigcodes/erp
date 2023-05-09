@@ -3,15 +3,15 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Category;
-use App\LogStoreWebsiteCategory;
 use App\StoreWebsite;
-use App\StoreWebsiteCategory;
-use App\StoreWebsiteCategoryUserHistory;
 use Illuminate\Http\Request;
+use App\StoreWebsiteCategory;
 use Illuminate\Http\Response;
+use App\LogStoreWebsiteCategory;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\StoreWebsiteCategoryUserHistory;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
 
@@ -59,7 +59,7 @@ class CategoryController extends Controller
 
         $validator = Validator::make($post, [
             'store_website_id' => 'required',
-            'category_id' => 'unique:store_website_categories,category_id,NULL,id,store_website_id,'.$storeWebsiteId.'|required',
+            'category_id' => 'unique:store_website_categories,category_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
         ]);
 
         if ($validator->fails()) {
@@ -67,7 +67,7 @@ class CategoryController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -343,7 +343,7 @@ class CategoryController extends Controller
         $categories = Category::query();
 
         if ($request->keyword != null) {
-            $categories = $categories->where('title', 'like', '%'.$request->keyword.'%');
+            $categories = $categories->where('title', 'like', '%' . $request->keyword . '%');
         }
         if ($request->category_id != null) {
             $categories = $categories->whereIn('id', $request->category_id);
@@ -410,13 +410,13 @@ class CategoryController extends Controller
         if (count($categoryData) > 0) {
             foreach ($categoryData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$i.'</td>';
-                $html .= '<td>'.$history->log_case_id.'</td>';
-                $html .= '<td>'.$history->category_id.'</td>';
-                $html .= '<td>'.$history->store_id.'</td>';
-                $html .= '<td>'.$history->log_detail.'</td>';
-                $html .= '<td>'.$history->log_msg.'</td>';
-                $html .= '<td>'.$history->created_at.'</td>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->category_id . '</td>';
+                $html .= '<td>' . $history->store_id . '</td>';
+                $html .= '<td>' . $history->log_detail . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -451,15 +451,15 @@ class CategoryController extends Controller
         if (count($categoryData) > 0) {
             foreach ($categoryData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$history->created_at.'</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 if ($history->website_action == 'checked') {
                     $html .= '<td>unchecked</td>';
                 } else {
                     $html .= '<td>checked</td>';
                 }
 
-                $html .= '<td>'.$history->website_action.'</td>';
-                $html .= '<td>'.$history->name.'</td>';
+                $html .= '<td>' . $history->website_action . '</td>';
+                $html .= '<td>' . $history->name . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -849,11 +849,6 @@ class CategoryController extends Controller
         return response()->json(['code' => 200, 'message' => $msg, 'storeWebsites' => $storeWebsites]);
     }
 
-    /**
-     * @param $category_id
-     * @param $store_website_id
-     * @param $remote_id
-     */
     public function createStoreWebsiteCategory($category_id, $store_website_id, $remote_id)
     {
         $storeWebsiteCategory = new StoreWebsiteCategory();

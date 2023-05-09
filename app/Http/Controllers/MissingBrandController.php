@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Activity;
-use App\Brand;
-use App\MissingBrand;
 use Auth;
+use App\Brand;
+use App\Activity;
+use App\MissingBrand;
 use Illuminate\Http\Request;
 
 class MissingBrandController extends Controller
@@ -66,7 +66,7 @@ class MissingBrandController extends Controller
 
         //orderBy('id','desc')->paginate(20);
         if (! empty($request->term)) {
-            $missingBrands = $missingBrands->where('name', 'LIKE', '%'.$request->term.'%')->orWhere('supplier', 'LIKE', '%'.$request->term.'%');
+            $missingBrands = $missingBrands->where('name', 'LIKE', '%' . $request->term . '%')->orWhere('supplier', 'LIKE', '%' . $request->term . '%');
         }
 
         if (! empty($request->select)) {
@@ -74,7 +74,7 @@ class MissingBrandController extends Controller
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
-        $missingBrands = $missingBrands->orderBy('name','Asc')->paginate(20);
+        $missingBrands = $missingBrands->orderBy('name', 'Asc')->paginate(20);
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('missingbrand.partial.data', compact('missingBrands', 'scrapers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -175,7 +175,7 @@ class MissingBrandController extends Controller
                 similar_text(strtolower($input), strtolower($word), $percent);
 
                 if ($percent >= 70) {
-                    $brand->references .= ','.$missingBrand->name;
+                    $brand->references .= ',' . $missingBrand->name;
                     $brand->save();
                     $isFind = 1;
                     break;

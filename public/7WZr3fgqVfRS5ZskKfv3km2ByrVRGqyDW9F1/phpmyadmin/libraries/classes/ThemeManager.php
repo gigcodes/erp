@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_key_exists;
-use function closedir;
-use const DIRECTORY_SEPARATOR;
-use const E_USER_ERROR;
-use const E_USER_WARNING;
-use function htmlspecialchars;
-use function is_dir;
 use function ksort;
+use function is_dir;
 use function opendir;
 use function readdir;
 use function sprintf;
+use function closedir;
+use const E_USER_ERROR;
+use const E_USER_WARNING;
 use function trigger_error;
+use const DIRECTORY_SEPARATOR;
+use function array_key_exists;
+use function htmlspecialchars;
 
 /**
  * phpMyAdmin theme manager
@@ -166,7 +166,7 @@ class ThemeManager
     {
         // Allow different theme per server
         if (isset($GLOBALS['server']) && $this->perServer) {
-            return $this->cookieName.'-'.$GLOBALS['server'];
+            return $this->cookieName . '-' . $GLOBALS['server'];
         }
 
         return $this->cookieName;
@@ -221,7 +221,7 @@ class ThemeManager
         }
 
         while (($dir = readdir($dirHandle)) !== false) {
-            if ($dir === '.' || $dir === '..' || ! @is_dir($this->themesPath.$dir)) {
+            if ($dir === '.' || $dir === '..' || ! @is_dir($this->themesPath . $dir)) {
                 continue;
             }
 
@@ -229,7 +229,7 @@ class ThemeManager
                 continue;
             }
 
-            $newTheme = Theme::load($this->themesPathUrl.$dir, $this->themesPath.$dir.DIRECTORY_SEPARATOR, $dir);
+            $newTheme = Theme::load($this->themesPathUrl . $dir, $this->themesPath . $dir . DIRECTORY_SEPARATOR, $dir);
             if (! $newTheme instanceof Theme) {
                 continue;
             }
@@ -278,7 +278,7 @@ class ThemeManager
      */
     public static function getThemesFsDir(): string
     {
-        return ROOT_PATH.'themes'.DIRECTORY_SEPARATOR;
+        return ROOT_PATH . 'themes' . DIRECTORY_SEPARATOR;
     }
 
     /**

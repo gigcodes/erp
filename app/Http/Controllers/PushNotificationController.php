@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers;
-use App\NotificationQueue;
-use App\PushNotification;
 use App\Remark;
+use App\Helpers;
+use App\PushNotification;
+use App\NotificationQueue;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PushNotificationController extends Controller
 {
@@ -168,7 +168,7 @@ class PushNotificationController extends Controller
 
         if ($status == 1) {
             PushNotification::create([
-                'message' => 'Task Accepted by '.Helpers::getUserNameById(Auth::id()),
+                'message' => 'Task Accepted by ' . Helpers::getUserNameById(Auth::id()),
                 'model_type' => Task::class,
                 'model_id' => $push_notification->model_id,
                 'user_id' => Auth::id(),
@@ -179,7 +179,7 @@ class PushNotificationController extends Controller
 
         if ($status == 3) {
             PushNotification::create([
-                'message' => 'Task Declined by '.Helpers::getUserNameById(Auth::id()),
+                'message' => 'Task Declined by ' . Helpers::getUserNameById(Auth::id()),
                 'model_type' => Task::class,
                 'model_id' => $push_notification->model_id,
                 'user_id' => Auth::id(),
@@ -198,7 +198,7 @@ class PushNotificationController extends Controller
                     ]);
 
                     PushNotification::create([
-                        'message' => 'Remark added '.$remark,
+                        'message' => 'Remark added ' . $remark,
                         'model_type' => Task::class,
                         'model_id' => $push_notification->model_id,
                         'user_id' => Auth::id(),
@@ -231,7 +231,7 @@ class PushNotificationController extends Controller
         }
 
         PushNotification::create([
-            'message' => $message.' : '.$push_notification->message,
+            'message' => $message . ' : ' . $push_notification->message,
             'role' => '',
             'user_id' => Auth::id(),
             'sent_to' => $push_notification->user_id,
@@ -241,7 +241,7 @@ class PushNotificationController extends Controller
 
         if ($status == 1) {
             NotificationQueueController::createNewNotification([
-                'message' => 'Reminder: '.$push_notification->message,
+                'message' => 'Reminder: ' . $push_notification->message,
                 'timestamps' => ['+10 minutes', '+20 minutes', '+30 minutes', '+40 minutes', '+50 minutes', '+60 minutes', '+70 minutes', '+80 minutes', '+90 minutes', '+100 minutes', '+110 minutes', '+120 minutes'],
                 'model_type' => $push_notification->model_type,
                 'model_id' => $push_notification->model_id,

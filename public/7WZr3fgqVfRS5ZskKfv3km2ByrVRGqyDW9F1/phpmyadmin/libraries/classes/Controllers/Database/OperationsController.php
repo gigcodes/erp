@@ -6,23 +6,23 @@ namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
 use function count;
-use function mb_strtolower;
-use PhpMyAdmin\Charsets;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\Operations;
 use PhpMyAdmin\Plugins;
-use PhpMyAdmin\Plugins\Export\ExportSql;
+use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use function mb_strtolower;
+use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\Query\Utilities;
 use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function strlen;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Plugins\Export\ExportSql;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 /**
  * Handles miscellaneous database operations.
@@ -168,8 +168,8 @@ class OperationsController extends AbstractController
 
                         // if someday the RENAME DATABASE reappears, do not DROP
                         $local_query = 'DROP DATABASE '
-                            .Util::backquote($db).';';
-                        $sql_query .= "\n".$local_query;
+                            . Util::backquote($db) . ';';
+                        $sql_query .= "\n" . $local_query;
                         $this->dbi->query($local_query);
 
                         $message = Message::success(
@@ -296,8 +296,8 @@ class OperationsController extends AbstractController
                 )
             );
             $message->addParamHtml(
-                '<a href="'.Url::getFromRoute('/check-relations')
-                .'" data-post="'.Url::getCommon(['db' => $db]).'">'
+                '<a href="' . Url::getFromRoute('/check-relations')
+                . '" data-post="' . Url::getCommon(['db' => $db]) . '">'
             );
             $message->addParamHtml('</a>');
             /* Show error if user has configured something, notice elsewhere */

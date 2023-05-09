@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\PushFcmNotification;
-use App\StoreWebsite;
 use Auth;
+use App\StoreWebsite;
+use App\PushFcmNotification;
 use Illuminate\Http\Request;
 
 class FcmNotificationController extends Controller
@@ -22,10 +22,10 @@ class FcmNotificationController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('title', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('body', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('url', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('created_by', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('title', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('body', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('url', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('created_by', 'LIKE', '%' . $request->term . '%');
         }
 
         $data = $query->leftJoin('users as usr', 'usr.id', 'push_fcm_notifications.created_by')
@@ -58,7 +58,6 @@ class FcmNotificationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -109,7 +108,6 @@ class FcmNotificationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

@@ -20,11 +20,11 @@ class SentryErrorLog extends Model
         'device_name',
         'os',
         'os_name',
-        'release_version'
+        'release_version',
     ];
 
-    public function sentry_project(){
-        return $this->belongsTo(\App\Sentry\SentryAccount::class,'project_id');
+    public function sentry_project()
+    {
+        return $this->belongsTo(\App\Sentry\SentryAccount::class, 'project_id');
     }
-   
 }

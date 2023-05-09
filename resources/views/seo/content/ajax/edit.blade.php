@@ -71,34 +71,6 @@
                     </div>
                 </div>
 
-                <div class="row mt-3 border">
-                    <div class="col-md-8 mb-3">
-                        <h4>SEO Team Checklist</h4>
-                        <div class="row">
-                            @foreach ($seoProcess->seoChecklist as $item)
-                                <div class="col-md-6 mt-3">
-                                    <label class="form-label">{{ $item->processStatus->label }}</label>
-                                    <input type="text" name="seo_checklist[{{ $item->seo_process_status_id }}]" class="form-control mt-2" value="{{ $item->remark }}" required data-msg-required="Please enter {{ strtolower($item->processStatus->label) }}.">
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-3 border">
-                    <div class="col-md-8 mb-3">
-                        <h4>Publish Team Checklist</h4>
-                        <div class="row">
-                            @foreach ($seoProcess->publishChecklist as $item)
-                                <div class="col-md-6 mt-3">
-                                    <label class="form-label">{{ $item->processStatus->label }}</label>
-                                    <input type="text" name="publish_checklist[{{ $item->seo_process_status_id }}]" class="form-control mt-2" value="{{ $item->remark }}" required data-msg-required="Please enter {{ strtolower($item->processStatus->label) }}.">
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
                 @if($auth->hasRole(['Admin', 'Seo Head']))
                 <div class="row mt-3">
                     <div class="col-md-4">

@@ -1,5 +1,4 @@
-composer/ca-bundle
-==================
+# composer/ca-bundle
 
 Small utility library that lets you find a path to the system CA bundle,
 and includes a fallback to the Mozilla CA bundle.
@@ -7,9 +6,7 @@ and includes a fallback to the Mozilla CA bundle.
 Originally written as part of [composer/composer](https://github.com/composer/composer),
 now extracted and made available as a stand-alone library.
 
-
-Installation
-------------
+## Installation
 
 Install the latest version with:
 
@@ -17,15 +14,11 @@ Install the latest version with:
 $ composer require composer/ca-bundle
 ```
 
+## Requirements
 
-Requirements
-------------
+- PHP 5.3.2 is required but using the latest version of PHP is highly recommended.
 
-* PHP 5.3.2 is required but using the latest version of PHP is highly recommended.
-
-
-Basic usage
------------
+## Basic usage
 
 ### `Composer\CaBundle\CaBundle`
 
@@ -34,7 +27,6 @@ Basic usage
 - `CaBundle::validateCaFile($filename)`: Validates a CA file using openssl_x509_parse only if it is safe to use
 - `CaBundle::isOpensslParseSafe()`: Test if it is safe to use the PHP function openssl_x509_parse()
 - `CaBundle::reset()`: Resets the static caches
-
 
 #### To use with curl
 
@@ -79,7 +71,6 @@ $client = new \GuzzleHttp\Client([
 ]);
 ```
 
-License
--------
+## License
 
 composer/ca-bundle is licensed under the MIT License, see the LICENSE file for details.

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Budget;
-use App\BudgetCategory;
 use App\Setting;
 use Carbon\Carbon;
+use App\BudgetCategory;
 use Illuminate\Http\Request;
 
 class BudgetController extends Controller
@@ -52,7 +52,6 @@ class BudgetController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -126,7 +125,6 @@ class BudgetController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

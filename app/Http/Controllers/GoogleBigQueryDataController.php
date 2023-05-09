@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleBigQueryData;
 use App\Setting;
+use App\GoogleBigQueryData;
 use Illuminate\Http\Request;
 
 class GoogleBigQueryDataController extends Controller
@@ -46,7 +46,6 @@ class GoogleBigQueryDataController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\GoogleBigQueryData  $googleBigQueryData
      * @return \Illuminate\Http\Response
      */
     public function destroy(GoogleBigQueryData $googleBigQueryData, Request $request)

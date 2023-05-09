@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server\Status\Processes;
 
 use function __;
-use PhpMyAdmin\Controllers\Server\Status\AbstractController;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Server\Status\Data;
-use PhpMyAdmin\Template;
+use PhpMyAdmin\Controllers\Server\Status\AbstractController;
 
 final class KillController extends AbstractController
 {

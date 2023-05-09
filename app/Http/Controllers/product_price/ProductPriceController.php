@@ -3,23 +3,23 @@
 namespace App\Http\Controllers\product_price;
 
 use App\Brand;
-use App\Category;
-use App\CategorySegmentDiscount;
-use App\Http\Controllers\Controller;
-use App\Jobs\PushToMagento;
-use App\Loggers\LogListMagento;
-use App\PriceOverride;
 use App\Product;
-use App\ProductUpdateLog;
 use App\Setting;
-use App\SimplyDutyCountry;
-use App\SimplyDutyCountryHistory;
-use App\SimplyDutySegment;
-use App\StoreWebsite;
+use App\Category;
 use App\Supplier;
+use App\StoreWebsite;
+use App\PriceOverride;
+use App\ProductUpdateLog;
+use App\SimplyDutyCountry;
+use App\SimplyDutySegment;
+use App\Jobs\PushToMagento;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Loggers\LogListMagento;
+use App\CategorySegmentDiscount;
+use App\SimplyDutyCountryHistory;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ProductPriceController extends Controller
 {
@@ -139,9 +139,9 @@ class ProductPriceController extends Controller
                     'eur_price' => $productPrice,
                     'seg_discount' => (float) $price['segment_discount'],
                     'segment_discount_per' => (float) $price['segment_discount_per'],
-                    'iva' => \App\Product::IVA_PERCENTAGE.'%',
+                    'iva' => \App\Product::IVA_PERCENTAGE . '%',
                     'net_price' => $productPrice - (float) $price['segment_discount'] - ($productPrice) * (\App\Product::IVA_PERCENTAGE) / 100,
-                    'add_duty' => $product->getDuty($p->product_country_code).'%',
+                    'add_duty' => $product->getDuty($p->product_country_code) . '%',
                     'add_profit' => number_format($price['promotion'], 2, '.', ''),
                     'add_profit_per' => (float) $price['promotion_per'],
                     'final_price' => number_format($price['total'], 2, '.', ''),
@@ -310,9 +310,9 @@ class ProductPriceController extends Controller
                     'eur_price' => $productPrice,
                     'seg_discount' => (float) $price['segment_discount'],
                     'segment_discount_per' => (float) $price['segment_discount_per'],
-                    'iva' => \App\Product::IVA_PERCENTAGE.'%',
+                    'iva' => \App\Product::IVA_PERCENTAGE . '%',
                     'net_price' => $productPrice - (float) $price['segment_discount'] - ($productPrice) * (\App\Product::IVA_PERCENTAGE) / 100,
-                    'add_duty' => $product->getDuty($p->product_country_code).'%',
+                    'add_duty' => $product->getDuty($p->product_country_code) . '%',
                     'add_profit' => number_format($price['promotion'], 2, '.', ''),
                     'add_profit_per' => (float) $price['promotion_per'],
                     'final_price' => number_format($price['total'], 2, '.', ''),
@@ -410,7 +410,7 @@ class ProductPriceController extends Controller
             $arr['add_profit'] = number_format($price['promotion'], 2, '.', '');
             $arr['add_profit_per'] = number_format($price['promotion_per'], 2, '.', '');
             $arr['price'] = number_format($price['total'], 2, '.', '');
-            $arr['add_duty'] = empty($add_duty) ? $p->add_duty : $add_duty.'%';
+            $arr['add_duty'] = empty($add_duty) ? $p->add_duty : $add_duty . '%';
             $response_array[] = $arr;
         }
         DB::table('category_segment_discounts')->where('id', $request->seg_id)->update(['amount' => $request->seg_discount]);
@@ -577,7 +577,7 @@ class ProductPriceController extends Controller
 
                 $categoryDetail = Category::where('id', $brand['catId'])->select('id', 'title')->first();
 
-                $product_list[$categoryDetail->id.'_'.$brand['store_websites_id'].'_'.$brand['brand_segment']] = [
+                $product_list[$categoryDetail->id . '_' . $brand['store_websites_id'] . '_' . $brand['brand_segment']] = [
                     'catId' => $categoryDetail ? $categoryDetail->id : '',
                     'categoryName' => $categoryDetail ? $categoryDetail->title : '',
                     'product' => 'Product For Brand',
@@ -588,7 +588,7 @@ class ProductPriceController extends Controller
                     'product_website' => $brand['product_website'],
                     'country' => $country,
                     'product_price' => 100,
-                    'less_IVA' => \App\Product::IVA_PERCENTAGE.'%',
+                    'less_IVA' => \App\Product::IVA_PERCENTAGE . '%',
                     'final_price1' => number_format($final_price1, 2, '.', ''),
                     'add_profit' => number_format($profit, 2, '.', ''),
                     'add_profit_per' => (float) $profit_per,
@@ -792,7 +792,7 @@ class ProductPriceController extends Controller
                     $final_price2 = $final_price2 + $profitCost;
                 }
 
-                $product_list[$categoryDetail->id.'_'.$brand['store_websites_id'].'_'.$brand['brand_segment']] = [
+                $product_list[$categoryDetail->id . '_' . $brand['store_websites_id'] . '_' . $brand['brand_segment']] = [
                     'catId' => $categoryDetail->id,
                     'categoryName' => $categoryDetail->title,
                     'product' => 'Product For Brand',
@@ -803,7 +803,7 @@ class ProductPriceController extends Controller
                     'product_website' => $brand['product_website'],
                     'country' => $country,
                     'product_price' => 100,
-                    'less_IVA' => \App\Product::IVA_PERCENTAGE.'%',
+                    'less_IVA' => \App\Product::IVA_PERCENTAGE . '%',
                     'cost1' => $cost1,
                     'cost2' => $cost2,
                     'final_price1' => number_format($final_price1, 2, '.', ''),
@@ -887,7 +887,7 @@ class ProductPriceController extends Controller
                 if ($ps) {
                     foreach ($ps as $p) {
                         \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
-                        $note = 'Country Duty changed  from '.$p->duty_price.' To '.$amount;
+                        $note = 'Country Duty changed  from ' . $p->duty_price . ' To ' . $amount;
                         \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
                     }
                 }
@@ -961,7 +961,7 @@ class ProductPriceController extends Controller
                    })->select('products.id as product_id', 'products.name as product_name', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
 
             foreach ($ps as $p) {
-                ProductUpdateLog::create(['store_website_id' => $p->store_website_id, 'created_by' => \Auth::id(), 'product_id' => $p->product_id, 'log' => $p->product_name.' updated.']);
+                ProductUpdateLog::create(['store_website_id' => $p->store_website_id, 'created_by' => \Auth::id(), 'product_id' => $p->product_id, 'log' => $p->product_name . ' updated.']);
             }
             foreach ($ps as $p) {
                 $this->pushToMagento($p->product_id, $p->store_website_id);
@@ -1008,8 +1008,8 @@ class ProductPriceController extends Controller
         $history = \App\StoreWebsiteProductPriceHistory::where('sw_product_prices_id', $id)->orderBy('created_at', 'desc')->get();
         $html = "<table class='table table-bordered table-striped'> <thead><tr><th>Date</th><th>Notes</th></thead> <tbody>";
         foreach ($history as $h) {
-            $html .= '<tr><td>'.$h->created_at.'</td>';
-            $html .= '<td>'.$h->notes.'</td></tr>';
+            $html .= '<tr><td>' . $h->created_at . '</td>';
+            $html .= '<td>' . $h->notes . '</td></tr>';
         }
         $html .= ' </tbody> </table>';
 
@@ -1026,7 +1026,7 @@ class ProductPriceController extends Controller
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
-                $note = 'Country Duty changed  from '.$p->duty_price.' To '.$amount;
+                $note = 'Country Duty changed  from ' . $p->duty_price . ' To ' . $amount;
                 $this->pushToMagento($p->product_id, $p->store_website_id);
                 \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
             }
@@ -1055,8 +1055,8 @@ class ProductPriceController extends Controller
         if ($product) {
             $website = StoreWebsite::where('id', $websiteId)->first();
             if ($website == null) {
-                \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
-                $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
+                \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
+                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                 //ProductPushErrorLog::log($product->id, $msg, 'error');
                 //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                 echo $msg;
@@ -1066,8 +1066,8 @@ class ProductPriceController extends Controller
 
                 if ($website) {
                     // testing
-                    \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                    $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                    \Log::channel('productUpdates')->info('Product started website found For website' . $website->website);
+                    $log = LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id);
                     //currently we have 3 queues assigned for this task.
                     if ($i > 3) {
                         $i = 1;

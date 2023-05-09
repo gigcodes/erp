@@ -36,7 +36,7 @@
 							<option value="">Select BugType</option>											
 							<?php
                                 foreach ($bugTypes as $bugtype) {
-                                    echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
+                                    echo "<option {{if prop.bug_type_id_val == '" . $bugtype->id . "'}} selected {{/if}} value='" . $bugtype->id . "'>" . $bugtype->name . '</option>';
                                 }
 					    ?>
 
@@ -67,7 +67,7 @@
 							<select class='form-control assign_to'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 								<?php
 					                foreach ($users as $user) {
-					                    echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
+					                    echo "<option {{if prop.assign_to == '" . $user->id . "'}} selected {{/if}} value='" . $user->id . "'>" . $user->name . '</option>';
 					                }
 					?>
 							</select>
@@ -80,7 +80,7 @@
 						   <option value="">-Select-</option>
 							<?php
 					foreach ($bugSeveritys as $bugSeverity) {
-					    echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+					    echo "<option {{if prop.bug_severity_id == '" . $bugSeverity->id . "'}} selected {{/if}} value='" . $bugSeverity->id . "'>" . $bugSeverity->name . '</option>';
 					}
 					?>
 							</select>
@@ -92,7 +92,7 @@
 							<select class='form-control bug_status_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 								<?php
 					    foreach ($bugStatuses as $bugStatus) {
-					        echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+					        echo "<option {{if prop.bug_status_id == '" . $bugStatus->id . "'}} selected {{/if}} value='" . $bugStatus->id . "'>" . $bugStatus->name . '</option>';
 					    }
 					?>
 							</select>
@@ -109,7 +109,7 @@
 					        ?>
 
 									<?php
-					        echo "<option data-val='".str_replace("'", '', $filterCategory)."'  {{if prop.module_id == '".str_replace("'", '', $filterCategory)."'}} selected {{/if}} value='".htmlentities($filterCategory)."'>".$filterCategory.'</option>';
+					        echo "<option data-val='" . str_replace("'", '', $filterCategory) . "'  {{if prop.module_id == '" . str_replace("'", '', $filterCategory) . "'}} selected {{/if}} value='" . htmlentities($filterCategory) . "'>" . $filterCategory . '</option>';
 					    }
 					    ?>
 						</select>

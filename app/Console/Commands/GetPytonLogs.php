@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Loggers\ScrapPythonLog;
 use Carbon\Carbon;
+use App\Loggers\ScrapPythonLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -58,9 +58,9 @@ class GetPytonLogs extends Command
                 if ($response == 'Log File Not Found') {
                     $data['log_text'] = $response;
                 } else {
-                    $file_name = 'python_logs/python_site_log_'.$website.'_'.$data['device'].'.log';
+                    $file_name = 'python_logs/python_site_log_' . $website . '_' . $data['device'] . '.log';
                     Storage::put($file_name, $response);
-                    $data['log_text'] = url('/storage/app/'.$file_name);
+                    $data['log_text'] = url('/storage/app/' . $file_name);
                 }
 
                 ScrapPythonLog::create($data);

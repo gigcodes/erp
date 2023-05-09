@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Image;
+use Carbon\Carbon;
+use App\CronJobReport;
 use App\ImageSchedule;
 use App\ScheduleGroup;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class MakeApprovedImagesSchedule extends Command
@@ -51,14 +51,14 @@ class MakeApprovedImagesSchedule extends Command
                 $schedule->facebook = 1;
                 $schedule->instagram = 1;
                 $schedule->description = 'Auto Scheduled';
-                $schedule->scheduled_for = Carbon::tomorrow()->toDateString().' '.date('H:i:00');
+                $schedule->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
                 $schedule->status = 0;
                 $schedule->save();
             }
 
             $scheduleGroup = new ScheduleGroup();
             $scheduleGroup->images = $images;
-            $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString().' '.date('H:i:00');
+            $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
             $scheduleGroup->description = 'Auto Scheduled';
             $scheduleGroup->status = 1;
             $scheduleGroup->save();

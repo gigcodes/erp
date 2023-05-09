@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Status;
 
-use function is_numeric;
+use PhpMyAdmin\Url;
 use function microtime;
-use PhpMyAdmin\DatabaseInterface;
+use function is_numeric;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Server\Status\Data;
 use PhpMyAdmin\Server\SysInfo\SysInfo;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
 
 class MonitorController extends AbstractController
 {
