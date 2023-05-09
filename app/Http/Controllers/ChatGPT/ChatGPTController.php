@@ -47,7 +47,7 @@ class ChatGPTController extends Controller
                     'response' => $response['data']['choices'][0]['text'],
                     'response_data' => serialize($response['data'])
                 ];
-                ChatGptResponses::insert($insertData);
+                ChatGptResponses::create($insertData);
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => $response['data']['choices'][0]['text']]);
             }
         } catch (\Exception $e) {
