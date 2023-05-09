@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server;
 
 use function __;
-use function array_merge;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Export\Options;
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Plugins;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
+use function array_merge;
+use PhpMyAdmin\Export\Options;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\Controllers\AbstractController;
 
 final class ExportController extends AbstractController
 {

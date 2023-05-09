@@ -115,7 +115,7 @@ class ShortDescriptionChecker implements CheckerInterface
         foreach ($sentences as $key => $sentence) {
             $newString .= ($key & 1) == 0 ?
                 ucfirst(strtolower(trim($sentence))) :
-                $sentence.' ';
+                $sentence . ' ';
         }
 
         return trim($newString);

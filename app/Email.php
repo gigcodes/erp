@@ -14,21 +14,146 @@ class Email extends Model
     {
         parent::boot();
         self::creating(function ($email) {
-            try{
-                if(isset($email->type) && !empty($email->type) && $email->type == 'incoming'){
-                    $emailCategoryId = Email::where('from', 'like', '%'.$email->from.'%')
+            try {
+                if (isset($email->type) && ! empty($email->type) && $email->type == 'incoming') {
+                    $emailCategoryId = Email::where('from', 'like', '%' . $email->from . '%')
                         ->where('type', 'incoming')
                         ->orderBy('created_at', 'desc')
                         ->pluck('email_category_id')
                         ->first();
-    
-                    if(strlen($emailCategoryId) > 0){
+
+                    if (strlen($emailCategoryId) > 0) {
                         $email->email_category_id = $emailCategoryId;
                     }
-                }
-            }
-            catch(\Exception $e){
 
+                    if (empty($email->module_type)) {
+                        $email->is_unknow_module = 1;
+                    }
+                }
+
+                if (! empty($email->from)) {
+                    $explodeArray = explode('@', $email->from);
+                    $email->name = $explodeArray[0];
+                }
+            } catch(\Exception $e) {
+            }
+        });
+
+        self::created(function ($email) {
+            try {
+                $is_module_found = 0;
+                $customer = Customer::where('email', $email->from)->first();
+
+                if (! empty($customer)) {
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $customer->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'vendor_id' => null,
+                        'customer_id' => $customer->id,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@', $email->from)[0];
+                    $email->save();
+
+                    $messageModel = ChatMessage::create($params);
+                }
+
+                $supplier = Supplier::where('email', $email->from)->first();
+                if ($supplier) {
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $supplier->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => $supplier->id,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@', $email->from)[0];
+                    $email->save();
+
+                    $messageModel = ChatMessage::create($params);
+                }
+
+                $vandor = Vendor::where('email', $email->from)->first();
+                if ($vandor) {
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $vandor->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'vendor_id' => $vandor->id,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@', $email->from)[0];
+                    $email->save();
+
+                    $messageModel = ChatMessage::create($params);
+                }
+
+                if ($is_module_found == 0) {
+                    $email->is_unknow_module = 1;
+                    $email->name = explode('@', $email->from)[0];
+                    $email->save();
+
+                    $params = [
+                        'number' => null,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                        'message_type' => 'email',
+                    ];
+
+                    $messageModel = ChatMessage::create($params);
+                    $mailFound = true;
+                }
+            } catch(\Exception $e) {
             }
         });
     }
@@ -56,7 +181,7 @@ class Email extends Model
     protected $fillable = [
         'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
         'cc', 'bcc', 'origin_id', 'reference_id', 'status', 'approve_mail', 'is_draft', 'error_message', 'store_website_id',
-        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status',
+        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status', 'is_unknow_module',
     ];
 
     protected $casts = [
@@ -100,5 +225,16 @@ class Email extends Model
             'App\User' => 'User',
             'App\Vendor' => 'Vendor',
         ];
+    }
+
+    public function whatsappAll($needBroadcast = false)
+    {
+        if ($needBroadcast) {
+            return $this->hasMany(\App\ChatMessage::class, 'email_id')->where(function ($q) {
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
+            })->latest();
+        } else {
+            return $this->hasMany(\App\ChatMessage::class, 'email_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        }
     }
 }

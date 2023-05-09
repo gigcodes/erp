@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\DatabaseTableHistoricalRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\DatabaseTableHistoricalRecord;
 
 class DatabaseTableController extends Controller
 {
@@ -26,7 +26,7 @@ class DatabaseTableController extends Controller
         }
 
         if ($request->table_name) {
-            $databaseHis = $databaseHis->where('database_table_historical_records.database_name', 'like', '%'.$request->table_name.'%');
+            $databaseHis = $databaseHis->where('database_table_historical_records.database_name', 'like', '%' . $request->table_name . '%');
         }
         $databaseHis = $databaseHis->orderBy('database_table_historical_records.size', 'desc');
         $databaseHis = $databaseHis->paginate(20);

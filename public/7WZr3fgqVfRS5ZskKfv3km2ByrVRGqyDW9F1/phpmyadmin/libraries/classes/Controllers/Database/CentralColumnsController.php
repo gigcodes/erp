@@ -9,13 +9,13 @@ namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
 use function is_bool;
-use function is_numeric;
-use function parse_str;
-use PhpMyAdmin\Database\CentralColumns;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use function sprintf;
+use function parse_str;
+use PhpMyAdmin\Message;
+use function is_numeric;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Database\CentralColumns;
 
 class CentralColumnsController extends AbstractController
 {

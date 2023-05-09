@@ -7,17 +7,17 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use const PHP_SAPI;
+use function strlen;
 use function defined;
-use function headers_sent;
-use function http_response_code;
 use function is_array;
 use function is_scalar;
-use function json_encode;
-use function json_last_error_msg;
 use function mb_strlen;
-use const PHP_SAPI;
+use function json_encode;
+use function headers_sent;
+use function http_response_code;
+use function json_last_error_msg;
 use function register_shutdown_function;
-use function strlen;
 
 /**
  * Singleton class used to manage the rendering of pages in PMA
@@ -332,7 +332,7 @@ class ResponseRenderer
 
         if ($this->isSuccess) {
             if (! isset($this->JSON['title'])) {
-                $this->addJSON('title', '<title>'.$this->getHeader()->getPageTitle().'</title>');
+                $this->addJSON('title', '<title>' . $this->getHeader()->getPageTitle() . '</title>');
             }
 
             if (isset($dbi)) {
@@ -395,7 +395,7 @@ class ResponseRenderer
         if ($result === false) {
             return (string) json_encode([
                 'success' => false,
-                'error' => 'JSON encoding failed: '.json_last_error_msg(),
+                'error' => 'JSON encoding failed: ' . json_last_error_msg(),
             ]);
         }
 
@@ -459,7 +459,7 @@ class ResponseRenderer
     public function setHttpResponseCode(int $responseCode): void
     {
         $this->httpResponseCode($responseCode);
-        $header = 'status: '.$responseCode.' ';
+        $header = 'status: ' . $responseCode . ' ';
         if (isset(static::$httpStatusMessages[$responseCode])) {
             $header .= static::$httpStatusMessages[$responseCode];
         } else {
@@ -481,7 +481,7 @@ class ResponseRenderer
     public function generateHeader303($location): void
     {
         $this->setHttpResponseCode(303);
-        $this->header('Location: '.$location);
+        $this->header('Location: ' . $location);
         if (! defined('TESTSUITE')) {
             exit;
         }

@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\LandingPageProduct;
-use App\Library\Shopify\Client as ShopifyClient;
 use Illuminate\Console\Command;
+use App\Library\Shopify\Client as ShopifyClient;
+use App\Helpers\LogHelper;
 
 class CheckLandingProducts extends Command
 {
@@ -39,35 +40,41 @@ class CheckLandingProducts extends Command
      */
     public function handle()
     {
-        $client = new ShopifyClient();
-        $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere('status', 0)->get();
-        foreach ($landingProducts as $product) {
-            $productData = [
-                'product' => [
-                    'published' => false,
-                    'published_scope' => false,
-                ],
-            ];
-            if ($product->shopify_id) {
-                $response = $client->updateProduct($product->shopify_id, $productData, $product->store_website_id);
-            }
-        }
-
-        $landingProducts = LandingPageProduct::whereRaw('timestamp(start_date) < NOW() AND timestamp(end_date) > NOW()')->get();
-        foreach ($landingProducts as $landingPage) {
-            // Set data for Shopify
-            $landingPageProduct = $landingPage->product;
-
-            $productData = $landingPage->getShopifyPushData();
-            if ($productData == false) {
-                continue;
+        try{
+            $client = new ShopifyClient();
+            $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere('status', 0)->get();
+            foreach ($landingProducts as $product) {
+                $productData = [
+                    'product' => [
+                        'published' => false,
+                        'published_scope' => false,
+                    ],
+                ];
+                if ($product->shopify_id) {
+                    $response = $client->updateProduct($product->shopify_id, $productData, $product->store_website_id);
+                }
             }
 
-            if ($landingPage->shopify_id) {
-                $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
-            } else {
-                $response = $client->addProduct($productData, $landingPage->store_website_id);
+            $landingProducts = LandingPageProduct::whereRaw('timestamp(start_date) < NOW() AND timestamp(end_date) > NOW()')->get();
+            foreach ($landingProducts as $landingPage) {
+                // Set data for Shopify
+                $landingPageProduct = $landingPage->product;
+
+                $productData = $landingPage->getShopifyPushData();
+                if ($productData == false) {
+                    continue;
+                }
+
+                if ($landingPage->shopify_id) {
+                    $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
+                } else {
+                    $response = $client->addProduct($productData, $landingPage->store_website_id);
+                }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

@@ -43,5 +43,6 @@ class Job extends Model
         'customer_message' => 'Customer message queue',
         'watson_push' => 'Watson push queue',
         'send_email' => 'Sending Email',
+        'generate_hash_tags' => 'Generate Google search keywords',
     ];
 }

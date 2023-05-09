@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SocialConfig extends Model
 {
     protected $fillable = [
-        'store_website_id','page_language' ,'platform', 'name', 'email', 'password', 'api_key', 'api_secret', 'token', 'status', 'page_id', 'page_token', 'account_id', 'webhook_token','ads_manager',
+        'store_website_id', 'page_language', 'platform', 'name', 'email', 'password', 'api_key', 'api_secret', 'token', 'status', 'page_id', 'page_token', 'account_id', 'webhook_token', 'ads_manager',
     ];
 
     public function storeWebsite()

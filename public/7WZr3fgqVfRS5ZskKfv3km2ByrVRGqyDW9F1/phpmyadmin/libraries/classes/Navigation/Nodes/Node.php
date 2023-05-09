@@ -8,24 +8,24 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Navigation\Nodes;
 
 use function __;
-use function array_keys;
-use function array_reverse;
-use function array_slice;
-use function base64_encode;
-use function count;
-use function implode;
-use function in_array;
-use function is_string;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Util;
-use function preg_match;
 use function sort;
-use function sprintf;
+use function count;
 use function strlen;
 use function strpos;
 use function strstr;
+use PhpMyAdmin\Util;
+use function implode;
+use function sprintf;
+use function in_array;
+use function is_string;
+use function array_keys;
+use function preg_match;
+use function array_slice;
+use function array_reverse;
+use function base64_encode;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * The Node is the building block for the collapsible navigation tree
@@ -339,8 +339,6 @@ class Node
     /**
      * Returns the actual path and the virtual paths for a node
      * both as clean arrays and base64 encoded strings
-     *
-     * @return array
      */
     public function getPaths(): array
     {
@@ -428,7 +426,7 @@ class Node
 
             $retval = 0;
             foreach ($this->getDatabasesToSearch($searchClause) as $db) {
-                $query = "SHOW DATABASES LIKE '".$db."'";
+                $query = "SHOW DATABASES LIKE '" . $db . "'";
                 $retval += (int) $dbi->queryAndGetNumRows($query);
             }
 
@@ -440,7 +438,7 @@ class Node
             $query = 'SELECT COUNT(*) ';
             $query .= 'FROM ( ';
             $query .= 'SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, ';
-            $query .= "'".$dbSeparator."', 1) ";
+            $query .= "'" . $dbSeparator . "', 1) ";
             $query .= 'DB_first_level ';
             $query .= 'FROM INFORMATION_SCHEMA.SCHEMATA ';
             $query .= $this->getWhereClause('SCHEMA_NAME', $searchClause);
@@ -452,7 +450,7 @@ class Node
         if ($GLOBALS['dbs_to_test'] !== false) {
             $prefixMap = [];
             foreach ($this->getDatabasesToSearch($searchClause) as $db) {
-                $query = "SHOW DATABASES LIKE '".$db."'";
+                $query = "SHOW DATABASES LIKE '" . $db . "'";
                 $handle = $dbi->tryQuery($query);
                 if ($handle === false) {
                     continue;
@@ -501,7 +499,7 @@ class Node
     private function isHideDb($db): bool
     {
         return ! empty($GLOBALS['cfg']['Server']['hide_db'])
-            && preg_match('/'.$GLOBALS['cfg']['Server']['hide_db'].'/', $db);
+            && preg_match('/' . $GLOBALS['cfg']['Server']['hide_db'] . '/', $db);
     }
 
     /**
@@ -520,7 +518,7 @@ class Node
         $databases = [];
         if (! empty($searchClause)) {
             $databases = [
-                '%'.$dbi->escapeString($searchClause).'%',
+                '%' . $dbi->escapeString($searchClause) . '%',
             ];
         } elseif (! empty($GLOBALS['cfg']['Server']['only_db'])) {
             $databases = $GLOBALS['cfg']['Server']['only_db'];
@@ -547,17 +545,17 @@ class Node
 
         $whereClause = 'WHERE TRUE ';
         if (! empty($searchClause)) {
-            $whereClause .= 'AND '.Util::backquote($columnName)
-                ." LIKE '%";
+            $whereClause .= 'AND ' . Util::backquote($columnName)
+                . " LIKE '%";
             $whereClause .= $dbi->escapeString($searchClause);
             $whereClause .= "%' ";
         }
 
         if (! empty($GLOBALS['cfg']['Server']['hide_db'])) {
-            $whereClause .= 'AND '.Util::backquote($columnName)
-                ." NOT REGEXP '"
-                .$dbi->escapeString($GLOBALS['cfg']['Server']['hide_db'])
-                ."' ";
+            $whereClause .= 'AND ' . Util::backquote($columnName)
+                . " NOT REGEXP '"
+                . $dbi->escapeString($GLOBALS['cfg']['Server']['hide_db'])
+                . "' ";
         }
 
         if (! empty($GLOBALS['cfg']['Server']['only_db'])) {
@@ -570,12 +568,12 @@ class Node
             $whereClause .= 'AND (';
             $subClauses = [];
             foreach ($GLOBALS['cfg']['Server']['only_db'] as $eachOnlyDb) {
-                $subClauses[] = ' '.Util::backquote($columnName)
-                    ." LIKE '"
-                    .$dbi->escapeString($eachOnlyDb)."' ";
+                $subClauses[] = ' ' . Util::backquote($columnName)
+                    . " LIKE '"
+                    . $dbi->escapeString($eachOnlyDb) . "' ";
             }
 
-            $whereClause .= implode('OR', $subClauses).') ';
+            $whereClause .= implode('OR', $subClauses) . ') ';
         }
 
         return $whereClause;
@@ -649,11 +647,11 @@ class Node
         $navigationItemsHidingFeature = $this->relation->getRelationParameters()->navigationItemsHidingFeature;
         if ($navigationItemsHidingFeature !== null) {
             $navTable = Util::backquote($navigationItemsHidingFeature->database)
-                .'.'.Util::backquote($navigationItemsHidingFeature->navigationHiding);
-            $sqlQuery = 'SELECT `db_name`, COUNT(*) AS `count` FROM '.$navTable
-                ." WHERE `username`='"
-                .$dbi->escapeString($GLOBALS['cfg']['Server']['user'])."'"
-                .' GROUP BY `db_name`';
+                . '.' . Util::backquote($navigationItemsHidingFeature->navigationHiding);
+            $sqlQuery = 'SELECT `db_name`, COUNT(*) AS `count` FROM ' . $navTable
+                . " WHERE `username`='"
+                . $dbi->escapeString($GLOBALS['cfg']['Server']['user']) . "'"
+                . ' GROUP BY `db_name`';
 
             return $dbi->fetchResult($sqlQuery, 'db_name', 'count', DatabaseInterface::CONNECT_CONTROL);
         }
@@ -685,11 +683,11 @@ class Node
         $dbSeparator = $cfg['NavigationTreeDbSeparator'];
         $query = sprintf(
             'SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level'
-                .' FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, \'%1$s\', 1) DB_first_level'
-                .' FROM INFORMATION_SCHEMA.SCHEMATA %2$s) t'
-                .' ORDER BY DB_first_level ASC LIMIT %3$d, %4$d) t2'
-                .' %2$sAND 1 = LOCATE(CONCAT(DB_first_level, \'%1$s\'),'
-                .' CONCAT(SCHEMA_NAME, \'%1$s\')) ORDER BY SCHEMA_NAME ASC',
+                . ' FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, \'%1$s\', 1) DB_first_level'
+                . ' FROM INFORMATION_SCHEMA.SCHEMATA %2$s) t'
+                . ' ORDER BY DB_first_level ASC LIMIT %3$d, %4$d) t2'
+                . ' %2$sAND 1 = LOCATE(CONCAT(DB_first_level, \'%1$s\'),'
+                . ' CONCAT(SCHEMA_NAME, \'%1$s\')) ORDER BY SCHEMA_NAME ASC',
             $dbi->escapeString($dbSeparator),
             $this->getWhereClause('SCHEMA_NAME', $searchClause),
             $pos,
@@ -865,7 +863,7 @@ class Node
                 }
 
                 foreach ($prefixes as $prefix) {
-                    $startsWith = strpos($arr[0].$dbSeparator, $prefix.$dbSeparator) === 0;
+                    $startsWith = strpos($arr[0] . $dbSeparator, $prefix . $dbSeparator) === 0;
                     if ($startsWith) {
                         $retval[] = $arr[0];
                         break;

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\EmailAddress;
 use App\PleskHelper;
+use App\EmailAddress;
 use Illuminate\Http\Request;
 
 class PleskController extends Controller
@@ -47,12 +47,12 @@ class PleskController extends Controller
             $response = $pleskHelper->createMail($request->name, $id, $request->mailbox, $request->password);
             $address = new EmailAddress;
             $address->from_name = $request->name;
-            $address->from_address = $request->name.'@'.$request->site_name;
+            $address->from_address = $request->name . '@' . $request->site_name;
             $address->driver = 'imap';
             $address->host = $request->site_name;
             $address->port = '993';
             $address->encryption = 'ssl';
-            $address->username = $request->name.'@'.$request->site_name;
+            $address->username = $request->name . '@' . $request->site_name;
             $address->password = $request->password;
             $address->save();
             $msg = 'Successfully created';
@@ -87,7 +87,7 @@ class PleskController extends Controller
         $pleskHelper = new PleskHelper;
         try {
             $pleskHelper->deleteMailAccount($id, $request->name);
-            $username = $request->name.'@'.$request->site_name;
+            $username = $request->name . '@' . $request->site_name;
             EmailAddress::where('username', $username)->delete();
             $msg = 'Successful';
             $type = 'success';
@@ -108,7 +108,7 @@ class PleskController extends Controller
         $pleskHelper = new PleskHelper;
         try {
             $pleskHelper->changePassword($request->hidden_site_id, $request->hidden_mail_name, $request->password);
-            $username = $request->hidden_mail_name.'@'.$request->hidden_domain_name;
+            $username = $request->hidden_mail_name . '@' . $request->hidden_domain_name;
             EmailAddress::where('username', $username)->update(['password' => $request->password]);
             $msg = 'Successful';
             $type = 'success';
@@ -123,7 +123,6 @@ class PleskController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -162,7 +161,6 @@ class PleskController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

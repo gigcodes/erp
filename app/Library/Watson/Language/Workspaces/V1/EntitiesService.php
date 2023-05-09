@@ -41,7 +41,7 @@ class EntitiesService extends Service
         // dump($this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities');
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/entities',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities',
             ['query' => ['version' => $version], 'json' => $params]
         );
     }
@@ -50,7 +50,7 @@ class EntitiesService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/entities',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities',
             ['query' => ['version' => $version] + $params]
         );
     }
@@ -59,7 +59,7 @@ class EntitiesService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/entities/'.$entity,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities/' . $entity,
             ['query' => ['version' => $version]]
         );
     }
@@ -68,7 +68,7 @@ class EntitiesService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/entities/'.$entity,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities/' . $entity,
             ['query' => ['version' => $version], 'json' => $params]
         );
     }
@@ -77,7 +77,7 @@ class EntitiesService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/entities/'.$entity,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities/' . $entity,
             ['query' => ['version' => $version]]
         );
     }

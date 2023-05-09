@@ -41,7 +41,7 @@ class NegativeCouponResponses extends Command
         try {
             $storeWebsites = \App\StoreWebsite::select('store_websites.id', 'store_websites.api_token', 'store_websites.website')->where('api_token', '!=', '')->where('website_source', 'magento')->get();
             foreach ($storeWebsites as $storeWebsite) {
-                $authorization = 'Authorization: Bearer '.$storeWebsite->api_token;
+                $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
                 // Init cURL
                 $curl = curl_init();
                 // Set cURL options

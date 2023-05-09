@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\AutoReply;
-use App\Customer;
 use App\Email;
-use App\Helpers\OrderHelper;
-use App\Http\Controllers\Controller;
 use App\Order;
+use App\Customer;
+use App\AutoReply;
 use App\ReturnExchange;
-use App\ReturnExchangeProduct;
 use App\StoreWebsiteOrder;
+use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
+use App\ReturnExchangeProduct;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class BuyBackController extends Controller
@@ -58,7 +58,6 @@ class BuyBackController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -155,7 +154,7 @@ class BuyBackController extends Controller
                         'customer_id' => $getCustomerOrderData->customer_id,
                         'website_id' => $storeWebsite->id,
                         'type' => $request->type,
-                        'reason_for_refund' => $request->get('reason', ''.ucwords($request->type).' of product from '.$storeWebsite->website),
+                        'reason_for_refund' => $request->get('reason', '' . ucwords($request->type) . ' of product from ' . $storeWebsite->website),
                         'refund_amount' => $getCustomerOrderData->product_price,
                         'status' => 1,
                         'date_of_request' => date('Y-m-d H:i:s'),
@@ -163,7 +162,7 @@ class BuyBackController extends Controller
                     $success = ReturnExchange::create($return_exchanges_data);
 
                     if (! $success) {
-                        $message = $this->generate_erp_response("$request->type.failed", $storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
+                        $message = $this->generate_erp_response("$request->type.failed", $storeWebsite->id, $default = 'Unable to create ' . ucwords($request->type) . ' request!', request('lang_code'));
 
                         return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
@@ -293,7 +292,7 @@ class BuyBackController extends Controller
             }
 
             if ($isSuccess) {
-                $message = $this->generate_erp_response("$request->type.success", $storeWebsite->id, $default = ucwords($request->type).' request created successfully', request('lang_code'));
+                $message = $this->generate_erp_response("$request->type.success", $storeWebsite->id, $default = ucwords($request->type) . ' request created successfully', request('lang_code'));
 
                 return response()->json(['status' => 'success', 'message' => $message], 200);
             } else {
@@ -331,7 +330,6 @@ class BuyBackController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

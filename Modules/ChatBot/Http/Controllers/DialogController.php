@@ -2,18 +2,18 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\StoreWebsite;
 use App\ChatbotDialog;
-use App\ChatbotDialogErrorLog;
-use App\ChatbotDialogResponse;
+use App\WatsonAccount;
 use App\ChatbotKeyword;
 use App\ChatbotQuestion;
-use App\Library\Watson\Model as WatsonManager;
-use App\StoreWebsite;
-use App\WatsonAccount;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\ChatbotDialogErrorLog;
+use App\ChatbotDialogResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Watson\Model as WatsonManager;
 
 class DialogController extends Controller
 {
@@ -216,23 +216,23 @@ class DialogController extends Controller
                 $chatbotDialogE = ChatbotDialog::where('id', $k)->first();
                 if (! $chatbotDialogE) {
                     $chatbotDialogE = new ChatbotDialog;
-                    $chatbotDialogE->name = 'response_'.time().'_'.rand();
+                    $chatbotDialogE->name = 'response_' . time() . '_' . rand();
                 }
                 $condition = $mResponse['condition'];
 
                 if (! empty($mResponse['condition']) && ! empty($mResponse['condition_value'])) {
                     switch ($mResponse['condition_sign']) {
                         case ':':
-                            $condition .= ':('.$mResponse['condition_value'].')';
+                            $condition .= ':(' . $mResponse['condition_value'] . ')';
                             break;
                         case '!=':
-                            $condition .= '!="'.$mResponse['condition_value'].'"';
+                            $condition .= '!="' . $mResponse['condition_value'] . '"';
                             break;
                         case '>':
-                            $condition .= '>'.$mResponse['condition_value'];
+                            $condition .= '>' . $mResponse['condition_value'];
                             break;
                         case '<':
-                            $condition .= '<'.$mResponse['condition_value'];
+                            $condition .= '<' . $mResponse['condition_value'];
                             break;
                     }
                 }
@@ -445,7 +445,7 @@ class DialogController extends Controller
     public function restCreate(Request $request)
     {
         $params = [
-            'name' => $request->get('dialog_type', 'node') == 'node' ? 'solo_'.time() : 'solo_project_'.time(),
+            'name' => $request->get('dialog_type', 'node') == 'node' ? 'solo_' . time() : 'solo_project_' . time(),
             'parent_id' => $request->get('parent_id', 0),
             'dialog_type' => $request->get('dialog_type', 'node'),
         ];
@@ -497,7 +497,7 @@ class DialogController extends Controller
 
         if (! empty($keyword)) {
             $chatDialog = $chatDialog->where(function ($q) use ($keyword) {
-                $q->orWhere('cdr.value', 'like', '%'.$keyword.'%')->orWhere('chatbot_dialogs.name', 'like', '%'.$keyword.'%');
+                $q->orWhere('cdr.value', 'like', '%' . $keyword . '%')->orWhere('chatbot_dialogs.name', 'like', '%' . $keyword . '%');
             });
         }
 
@@ -521,7 +521,7 @@ class DialogController extends Controller
                     $response = ChatbotDialog::with('singleResponse')->where('parent_id', $chatDlg['id'])->pluck('match_condition')->toArray();
                     $str = '';
                     foreach ($response as $r) {
-                        $str .= '<hr>'.$r;
+                        $str .= '<hr>' . $r;
                     }
 
                     //dd($response, $str);
@@ -597,7 +597,7 @@ class DialogController extends Controller
         $keyword = request('term', '');
         $parentId = request('parent_id', 0);
 
-        $allDialog = ChatbotDialog::where('name', 'like', '%'.$keyword.'%');
+        $allDialog = ChatbotDialog::where('name', 'like', '%' . $keyword . '%');
         if ($parentId > 0) {
             $allDialog->where('parent_id', $parentId);
         }

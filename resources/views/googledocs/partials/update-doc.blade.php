@@ -14,9 +14,32 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id = "id">
                     <div class="form-group custom-select2">
-                        <label>Category:
-                        </label>
-                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required>
+                        <label>Name:</label>
+                        <input type="text" name="name" class="form-control mb-3">
+
+                        <label>Document Id:</label>
+                        <input type="text" name="docId" class="form-control mb-3">
+                        
+                        <label>Document type:</label>
+                        <select class="form-control mb-3" name="type" required="">
+                            <option value="spreadsheet">Spreadsheet</option>
+                            <option value="doc">Doc</option>
+                            <option value="ppt">Ppt</option>
+                            <option value="xps">Xps</option>
+                            <option value="txt">Txt</option>
+                        </select>
+
+
+                        <label>Category:</label>
+                        <select name="doc_category" class="form-control" id="editGoogleDocCategory">
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        {{-- <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required> --}}
                     </div>
                 </div>
 

@@ -5,31 +5,31 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_key_exists;
-use function array_keys;
+use function strlen;
 use function explode;
-use function htmlspecialchars;
+use function sprintf;
+use function strncmp;
 use function in_array;
-use function json_decode;
+use function array_keys;
 use function mb_stripos;
+use function json_decode;
 use function mb_strtolower;
 use PhpMyAdmin\Engines\Bdb;
-use PhpMyAdmin\Engines\Berkeleydb;
+use PhpMyAdmin\Engines\Pbxt;
+use PhpMyAdmin\Engines\Merge;
+use function array_key_exists;
+use function htmlspecialchars;
 use PhpMyAdmin\Engines\Binlog;
-use PhpMyAdmin\Engines\Innobase;
 use PhpMyAdmin\Engines\Innodb;
 use PhpMyAdmin\Engines\Memory;
-use PhpMyAdmin\Engines\Merge;
-use PhpMyAdmin\Engines\MrgMyisam;
 use PhpMyAdmin\Engines\Myisam;
-use PhpMyAdmin\Engines\Ndbcluster;
-use PhpMyAdmin\Engines\Pbxt;
-use PhpMyAdmin\Engines\PerformanceSchema;
 use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Engines\Innobase;
+use PhpMyAdmin\Engines\MrgMyisam;
+use PhpMyAdmin\Engines\Berkeleydb;
+use PhpMyAdmin\Engines\Ndbcluster;
 use PhpMyAdmin\Utils\SessionCache;
-use function sprintf;
-use function strlen;
-use function strncmp;
+use PhpMyAdmin\Engines\PerformanceSchema;
 
 /**
  * Library for extracting information about the available storage engines
@@ -171,7 +171,7 @@ class StorageEngine
     public static function getMroongaLengths(string $dbName, string $tableName): array
     {
         global $dbi;
-        $cacheKey = 'storage-engine.mroonga.object_list.'.$dbName;
+        $cacheKey = 'storage-engine.mroonga.object_list.' . $dbName;
 
         $dbi->selectDb($dbName); // Needed for mroonga_command calls
 
@@ -207,7 +207,7 @@ class StorageEngine
             }
 
             $result = $dbi->fetchSingleRow(
-                'SELECT mroonga_command(\'object_inspect '.$mroongaName.'\');',
+                'SELECT mroonga_command(\'object_inspect ' . $mroongaName . '\');',
                 DatabaseInterface::FETCH_NUM
             );
             $decodedData = json_decode($result[0] ?? '', true);
@@ -216,7 +216,7 @@ class StorageEngine
                 continue;
             }
 
-            $indexPrefix = $tableName.'#'.$tableName;
+            $indexPrefix = $tableName . '#' . $tableName;
             if (strncmp($indexPrefix, $mroongaName, strlen($indexPrefix)) === 0) {
                 $indexLength += $decodedData['disk_usage'];
 
@@ -337,46 +337,46 @@ class StorageEngine
         $ret = '';
 
         foreach ($this->getVariablesStatus() as $details) {
-            $ret .= '<tr>'."\n"
-                  .'    <td>'."\n";
+            $ret .= '<tr>' . "\n"
+                  . '    <td>' . "\n";
             if (! empty($details['desc'])) {
                 $ret .= '        '
-                    .Generator::showHint($details['desc'])
-                    ."\n";
+                    . Generator::showHint($details['desc'])
+                    . "\n";
             }
 
-            $ret .= '    </td>'."\n"
-                  .'    <th scope="row">'.htmlspecialchars($details['title']).'</th>'
-                  ."\n"
-                  .'    <td class="font-monospace text-end">';
+            $ret .= '    </td>' . "\n"
+                  . '    <th scope="row">' . htmlspecialchars($details['title']) . '</th>'
+                  . "\n"
+                  . '    <td class="font-monospace text-end">';
             switch ($details['type']) {
                 case self::DETAILS_TYPE_SIZE:
                     $parsed_size = $this->resolveTypeSize($details['value']);
                     if ($parsed_size !== null) {
-                        $ret .= $parsed_size[0].'&nbsp;'.$parsed_size[1];
+                        $ret .= $parsed_size[0] . '&nbsp;' . $parsed_size[1];
                     }
 
                     break;
                 case self::DETAILS_TYPE_NUMERIC:
-                    $ret .= Util::formatNumber($details['value']).' ';
+                    $ret .= Util::formatNumber($details['value']) . ' ';
                     break;
                 default:
-                    $ret .= htmlspecialchars($details['value']).'   ';
+                    $ret .= htmlspecialchars($details['value']) . '   ';
             }
 
-            $ret .= '</td>'."\n"
-                  .'</tr>'."\n";
+            $ret .= '</td>' . "\n"
+                  . '</tr>' . "\n";
         }
 
         if (! $ret) {
-            $ret = '<p>'."\n"
-                .'    '
-                .__('There is no detailed status information available for this storage engine.')
-                ."\n"
-                .'</p>'."\n";
+            $ret = '<p>' . "\n"
+                . '    '
+                . __('There is no detailed status information available for this storage engine.')
+                . "\n"
+                . '</p>' . "\n";
         } else {
             $ret = '<table class="table table-light table-striped table-hover w-auto">'
-                ."\n".$ret.'</table>'."\n";
+                . "\n" . $ret . '</table>' . "\n";
         }
 
         return $ret;
@@ -411,14 +411,14 @@ class StorageEngine
         $like = $this->getVariablesLikePattern();
 
         if ($like) {
-            $like = " LIKE '".$like."' ";
+            $like = " LIKE '" . $like . "' ";
         } else {
             $like = '';
         }
 
         $mysql_vars = [];
 
-        $sql_query = 'SHOW GLOBAL VARIABLES '.$like.';';
+        $sql_query = 'SHOW GLOBAL VARIABLES ' . $like . ';';
         $res = $dbi->query($sql_query);
         foreach ($res as $row) {
             if (isset($variables[$row['Variable_name']])) {
@@ -508,7 +508,7 @@ class StorageEngine
      */
     public function getMysqlHelpPage()
     {
-        return $this->engine.'-storage-engine';
+        return $this->engine . '-storage-engine';
     }
 
     /**
@@ -544,7 +544,7 @@ class StorageEngine
             return '';
         }
 
-        $id = 'getPage'.$id;
+        $id = 'getPage' . $id;
 
         return $this->$id();
     }

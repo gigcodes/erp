@@ -1,14 +1,17 @@
-var designerTables = [{
-  name: 'pdf_pages',
-  key: 'pgNr',
-  autoIncrement: true
-}, {
-  name: 'table_coords',
-  key: 'id',
-  autoIncrement: true
-}]; // eslint-disable-next-line no-unused-vars
+var designerTables = [
+  {
+    name: "pdf_pages",
+    key: "pgNr",
+    autoIncrement: true,
+  },
+  {
+    name: "table_coords",
+    key: "id",
+    autoIncrement: true,
+  },
+]; // eslint-disable-next-line no-unused-vars
 
-var DesignerOfflineDB = function () {
+var DesignerOfflineDB = (function () {
   var designerDB = {};
   /**
    * @type {IDBDatabase|null}
@@ -21,13 +24,12 @@ var DesignerOfflineDB = function () {
    */
 
   designerDB.getTransaction = function (table) {
-    return datastore.transaction([table], 'readwrite');
+    return datastore.transaction([table], "readwrite");
   };
   /**
    * @param {String} table
    * @return {IDBObjectStore}
    */
-
 
   designerDB.getObjectStore = function (table) {
     var transaction = designerDB.getTransaction(table);
@@ -40,7 +42,6 @@ var DesignerOfflineDB = function () {
    * @return {IDBObjectStore}
    */
 
-
   designerDB.getCursorRequest = function (transaction, table) {
     var objStore = transaction.objectStore(table);
     var keyRange = IDBKeyRange.lowerBound(0);
@@ -52,10 +53,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.open = function (callback) {
     var version = 1;
-    var request = window.indexedDB.open('pma_designer', version);
+    var request = window.indexedDB.open("pma_designer", version);
 
     request.onupgradeneeded = function (e) {
       var db = e.target.result;
@@ -71,7 +71,7 @@ var DesignerOfflineDB = function () {
       for (t in designerTables) {
         db.createObjectStore(designerTables[t].name, {
           keyPath: designerTables[t].key,
-          autoIncrement: designerTables[t].autoIncrement
+          autoIncrement: designerTables[t].autoIncrement,
         });
       }
     };
@@ -79,13 +79,13 @@ var DesignerOfflineDB = function () {
     request.onsuccess = function (e) {
       datastore = e.target.result;
 
-      if (typeof callback === 'function') {
+      if (typeof callback === "function") {
         callback(true);
       }
     };
 
     request.onerror = function () {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
     };
   };
   /**
@@ -95,10 +95,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.loadObject = function (table, id, callback) {
     if (datastore === null) {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
       return;
     }
 
@@ -117,10 +116,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.loadAllObjects = function (table, callback) {
     if (datastore === null) {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
       return;
     }
 
@@ -151,10 +149,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.loadFirstObject = function (table, callback) {
     if (datastore === null) {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
       return;
     }
 
@@ -185,10 +182,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.addObject = function (table, obj, callback) {
     if (datastore === null) {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
       return;
     }
 
@@ -196,7 +192,7 @@ var DesignerOfflineDB = function () {
     var request = objStore.put(obj);
 
     request.onsuccess = function (e) {
-      if (typeof callback === 'function') {
+      if (typeof callback === "function") {
         callback(e.currentTarget.result);
       }
     };
@@ -210,10 +206,9 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.deleteObject = function (table, id, callback) {
     if (datastore === null) {
-      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, 'error');
+      Functions.ajaxShowMessage(Messages.strIndexedDBNotWorking, null, "error");
       return;
     }
 
@@ -221,7 +216,7 @@ var DesignerOfflineDB = function () {
     var request = objStore.delete(parseInt(id));
 
     request.onsuccess = function () {
-      if (typeof callback === 'function') {
+      if (typeof callback === "function") {
         callback(true);
       }
     };
@@ -233,12 +228,10 @@ var DesignerOfflineDB = function () {
    * @return {void}
    */
 
-
   designerDB.onerror = function (e) {
     // eslint-disable-next-line no-console
     console.log(e);
   }; // Export the designerDB object.
 
-
   return designerDB;
-}();
+})();

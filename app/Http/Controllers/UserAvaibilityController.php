@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\UserAvaibility;
-use App\UserAvaibilityHistory;
 use Carbon\Carbon;
+use App\UserAvaibility;
 use Illuminate\Http\Request;
+use App\UserAvaibilityHistory;
 
 class UserAvaibilityController extends Controller
 {
@@ -44,16 +44,16 @@ class UserAvaibilityController extends Controller
         </thead>';
         if ($list->count()) {
             foreach ($list as $single) {
-                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from. ' - ' . $single->lunch_time_to: "-";
+                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
                 $html[] = '<tr>
-                    <td>'.$single->id.'</td>
-                    <td>'.$single->from.' - '.$single->to.'</td>
-                    <td>'.$single->start_time.' - '.$single->end_time.'</td>
-                    <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                    <td>'.$lunch_time.'</td>
-                    <td>'.$single->created_at.'</td>
-                    <td><a class="btn btn-image" onclick="funUserAvailabilityEdit('.$single->id.')" style="padding: 0px 1px;"><img src="/images/edit.png" style="cursor: nwse-resize;"></a> 
-                     <i onclick="UserAvailabilityHistory('.$single->id.')" data-id="'.$single->id.'" class="btn fa fa-info-circle user-avaibility-history" aria-hidden="true" style="padding: 0px 1px;"></i>
+                    <td>' . $single->id . '</td>
+                    <td>' . $single->from . ' - ' . $single->to . '</td>
+                    <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                    <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                    <td>' . $lunch_time . '</td>
+                    <td>' . $single->created_at . '</td>
+                    <td><a class="btn btn-image" onclick="funUserAvailabilityEdit(' . $single->id . ')" style="padding: 0px 1px;"><img src="/images/edit.png" style="cursor: nwse-resize;"></a> 
+                     <i onclick="UserAvailabilityHistory(' . $single->id . ')" data-id="' . $single->id . '" class="btn fa fa-info-circle user-avaibility-history" aria-hidden="true" style="padding: 0px 1px;"></i>
                     </td>
                 </tr>';
             }
@@ -70,7 +70,7 @@ class UserAvaibilityController extends Controller
     public function save()
     {
         try {
-            \Log::info('Request:'.json_encode(request()->all()));
+            \Log::info('Request:' . json_encode(request()->all()));
 
             $user_id = request('user_id');
             if (! isAdmin()) {
@@ -96,12 +96,12 @@ class UserAvaibilityController extends Controller
                 return respJson(400, $errors[0]);
             }
 
-            $to = Carbon::createFromFormat("Y-m-d", request('to'));
-            $from = Carbon::createFromFormat("Y-m-d", request('from'));
+            $to = Carbon::createFromFormat('Y-m-d', request('to'));
+            $from = Carbon::createFromFormat('Y-m-d', request('from'));
             if ($to->lte($from)) {
                 return respJson(400, 'From date must be grater then To date');
             }
-            
+
             if (request('start_time') >= request('end_time')) {
                 return respJson(400, 'Start time must be greater than end time.');
             }
@@ -191,14 +191,14 @@ class UserAvaibilityController extends Controller
         </thead>';
         if ($list->count()) {
             foreach ($list as $single) {
-                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from. ' - ' . $single->lunch_time_to: "-";
+                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
                 $html[] = '<tr>
-                    <td>'.$single->id.'</td>
-                    <td>'.$single->from.' - '.$single->to.'</td>
-                    <td>'.$single->start_time.' - '.$single->end_time.'</td>
-                    <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                    <td>'.$lunch_time.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td>' . $single->id . '</td>
+                    <td>' . $single->from . ' - ' . $single->to . '</td>
+                    <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                    <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                    <td>' . $lunch_time . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -216,21 +216,20 @@ class UserAvaibilityController extends Controller
      */
     public function search(Request $request)
     {
-
-        if($request->user_id) {
+        if ($request->user_id) {
             $useravaibility = UserAvaibility::where('user_id', $request->user_id)->orderBy('id', 'desc')->get();
 
             $html = [];
-            if($useravaibility && count($useravaibility) > 0){
-                foreach ($useravaibility as $key=> $avaibility) {
-                    $lunch_time = ($avaibility->lunch_time_from && $avaibility->lunch_time_to) ? $avaibility->lunch_time_from. ' - ' . $avaibility->lunch_time_to: "-";
+            if ($useravaibility && count($useravaibility) > 0) {
+                foreach ($useravaibility as $key => $avaibility) {
+                    $lunch_time = ($avaibility->lunch_time_from && $avaibility->lunch_time_to) ? $avaibility->lunch_time_from . ' - ' . $avaibility->lunch_time_to : '-';
                     $html[] = '<tr>
-                        <td>'.($key+1).'</td>
-                        <td>'.$avaibility->from.' - '.$avaibility->to.'</td>
-                        <td>'.$avaibility->start_time.' - '.$avaibility->end_time.'</td>
-                        <td>'.(str_replace(',', ', ', $avaibility->date) ?: '-').'</td>
-                        <td>'.$lunch_time.'</td>
-                        <td>'.$avaibility->created_at.'</td>
+                        <td>' . ($key + 1) . '</td>
+                        <td>' . $avaibility->from . ' - ' . $avaibility->to . '</td>
+                        <td>' . $avaibility->start_time . ' - ' . $avaibility->end_time . '</td>
+                        <td>' . (str_replace(',', ', ', $avaibility->date) ?: '-') . '</td>
+                        <td>' . $lunch_time . '</td>
+                        <td>' . $avaibility->created_at . '</td>
                     </tr>';
                 }
             } else {
@@ -238,21 +237,20 @@ class UserAvaibilityController extends Controller
                     <td colspan="6">No record found.</td>
                 </tr>';
             }
-            
+
             return response()->json([
-                "status" => 200,
-                "message" => "Schedule successfully fetched",
-                "data" => implode("", $html),
-                "addButton" => '<button type="button" class="btn btn-secondary" onclick="funUserAvailabilityAddShortcut('.$request->user_id.')">Add
-                New</button>'
+                'status' => 200,
+                'message' => 'Schedule successfully fetched',
+                'data' => implode('', $html),
+                'addButton' => '<button type="button" class="btn btn-secondary" onclick="funUserAvailabilityAddShortcut(' . $request->user_id . ')">Add
+                New</button>',
             ]);
-            
         } else {
             return response()->json([
-                "status" => 400,
-                "data" => "",
-                "addButton" => "",
-                "message" => "Something went wrong",
+                'status' => 400,
+                'data' => '',
+                'addButton' => '',
+                'message' => 'Something went wrong',
             ]);
         }
     }

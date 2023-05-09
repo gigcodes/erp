@@ -7,21 +7,21 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function count;
-use function explode;
-use function intval;
-use function is_numeric;
-use function is_object;
-use function json_decode;
-use const PHP_VERSION;
-use PhpMyAdmin\Utils\HttpRequest;
-use function preg_match;
 use stdClass;
+use function time;
+use function count;
+use function intval;
 use function strlen;
 use function strpos;
 use function substr;
-use function time;
+use function explode;
+use const PHP_VERSION;
+use function is_object;
+use function is_numeric;
+use function preg_match;
+use function json_decode;
 use function version_compare;
+use PhpMyAdmin\Utils\HttpRequest;
 
 /**
  * Responsible for retrieving version information and notifying about latest version

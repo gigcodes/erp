@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Session;
 use App\Issue;
 use App\OldIncoming;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Session;
 
 class OldIncomingController extends Controller
 {
@@ -75,7 +75,6 @@ class OldIncomingController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -114,7 +113,6 @@ class OldIncomingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

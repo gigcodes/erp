@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\Export;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Export;
 
 /**
  * Schema export handler

@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use App\Site;
+use App\Setting;
+use App\WebmasterLog;
+use App\GoogleWebMasters;
+use App\WebsiteStoreView;
+use Google_Service_Oauth2;
 use App\GoogleClientAccount;
+use Illuminate\Http\Request;
+use App\GoogleSearchAnalytics;
 use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
-use App\GoogleSearchAnalytics;
-use App\GoogleWebMasters;
-use App\Setting;
-use App\Site;
-use App\WebmasterLog;
-use App\WebsiteStoreView;
-use App\WebsiteStoreViewsWebmasterHistory;
-use Auth;
-use Google_Service_Oauth2;
-use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use App\WebsiteStoreViewsWebmasterHistory;
 
 class GoogleWebMasterController extends Controller
 {
@@ -146,7 +146,7 @@ class GoogleWebMasterController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => [
-                'authorization: Bearer '.$this->googleToken,
+                'authorization: Bearer ' . $this->googleToken,
 
             ],
         ]);
@@ -173,7 +173,7 @@ class GoogleWebMasterController extends Controller
             $this->updateSites($response->siteEntry);
         }
 
-        return ['status' => 1, 'sitesUpdated' => $this->sitesUpdated, 'sitesCreated' => $this->sitesCreated, 'searchAnalyticsCreated' => $this->searchAnalyticsCreated, 'success' => $this->sitesUpdated.' of sites are updated.', 'error' => count($this->curl_errors_array).' error found in this request.', 'error_message' => $this->curl_errors_array[0]['error'] ?? ''];
+        return ['status' => 1, 'sitesUpdated' => $this->sitesUpdated, 'sitesCreated' => $this->sitesCreated, 'searchAnalyticsCreated' => $this->searchAnalyticsCreated, 'success' => $this->sitesUpdated . ' of sites are updated.', 'error' => count($this->curl_errors_array) . ' error found in this request.', 'error_message' => $this->curl_errors_array[0]['error'] ?? ''];
     }
 
     public function updateSites($sites)
@@ -254,7 +254,7 @@ class GoogleWebMasterController extends Controller
                     $indexData['indexed'] = $inspectionResult->indexStatusResult->verdict === 'PASS';
                     $indexData['not_indexed'] = $inspectionResult->indexStatusResult->verdict !== 'PASS';
                     $indexData['not_indexed_reason'] = $inspectionResult->indexStatusResult->verdict !== 'PASS' ?
-                        ($inspectionResult->indexStatusResult->indexingState !== 'INDEXING_ALLOWED' ? config('constants.google_indexing_state_enum')[$inspectionResult->indexStatusResult->indexingState]: config('constants.google_verdict_enum')[$inspectionResult->indexStatusResult->verdict])
+                        ($inspectionResult->indexStatusResult->indexingState !== 'INDEXING_ALLOWED' ? config('constants.google_indexing_state_enum')[$inspectionResult->indexStatusResult->indexingState] : config('constants.google_verdict_enum')[$inspectionResult->indexStatusResult->verdict])
                         : '-';
                     $indexData['mobile_usable'] = isset($inspectionResult->mobileUsabilityResult) ? $inspectionResult->mobileUsabilityResult->verdict === 'PASS' : false;
                     $enhancements = [];
@@ -270,7 +270,7 @@ class GoogleWebMasterController extends Controller
                             }
                         }
                     }
-                    $indexData['enhancements'] = implode(",", $enhancements);
+                    $indexData['enhancements'] = implode(',', $enhancements);
                 }
             }
 
@@ -290,7 +290,7 @@ class GoogleWebMasterController extends Controller
 
     public function googleResultForPageInspections($pageUrl, $siteUrl)
     {
-        $params = ["inspectionUrl" => $pageUrl, "siteUrl" => $siteUrl];
+        $params = ['inspectionUrl' => $pageUrl, 'siteUrl' => $siteUrl];
         $url = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
 
         $curl = curl_init();
@@ -305,7 +305,7 @@ class GoogleWebMasterController extends Controller
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_HTTPHEADER => [
-                'authorization: Bearer '.$this->googleToken,
+                'authorization: Bearer ' . $this->googleToken,
                 'Content-Type:application/json',
             ],
         ]);
@@ -336,7 +336,7 @@ class GoogleWebMasterController extends Controller
 
     public function googleResultForAnaylist($siteUrl, $params)
     {
-        $url = 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($siteUrl).'/searchAnalytics/query';
+        $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
 
         $curl = curl_init();
         //replace website name with code coming form site list
@@ -350,7 +350,7 @@ class GoogleWebMasterController extends Controller
             //  CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_HTTPHEADER => [
-                'authorization: Bearer '.$this->googleToken,
+                'authorization: Bearer ' . $this->googleToken,
                 'Content-Type:application/json',
             ],
         ]);
@@ -408,8 +408,8 @@ class GoogleWebMasterController extends Controller
         $google_acc = GoogleClientAccountMail::latest()->first();
         $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
         foreach ($fetchStores as $key => $value) {
-            $websiter = urlencode(utf8_encode($value['website'].'/'.$value['code']));
-            $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+            $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
+            $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
             //$token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
 
             $curl = curl_init();
@@ -425,7 +425,7 @@ class GoogleWebMasterController extends Controller
                 CURLOPT_HTTPHEADER => [
                     'Accept: application/json',
                     'Content-length: 0',
-                    'authorization: Bearer '.$token,
+                    'authorization: Bearer ' . $token,
                 ],
             ]);
             $response = curl_exec($curl);
@@ -433,9 +433,9 @@ class GoogleWebMasterController extends Controller
 
             if (curl_errno($curl)) {
                 $error_msg = curl_error($curl);
-                \Log::info('Request URL::'.$url_for_sites);
-                \Log::info('Request Token::'.$token);
-                \Log::error('Error Msg::'.$error_msg);
+                \Log::info('Request URL::' . $url_for_sites);
+                \Log::info('Request Token::' . $token);
+                \Log::error('Error Msg::' . $error_msg);
             }
 
             curl_close($curl);
@@ -443,26 +443,26 @@ class GoogleWebMasterController extends Controller
             if (! empty($response)) {
                 $history = [
                     'website_store_views_id' => $value['id'],
-                    'log' => isset($response->error->message) ? $value['website'].'/'.$value['code'].' - '.$response->error->message : $value['website'].'/'.$value['code'].' - '.'Error',
+                    'log' => isset($response->error->message) ? $value['website'] . '/' . $value['code'] . ' - ' . $response->error->message : $value['website'] . '/' . $value['code'] . ' - ' . 'Error',
                 ];
 
                 WebsiteStoreViewsWebmasterHistory::create($history);
 
-                \Log::info('Request URL::'.$url_for_sites);
-                \Log::info('Request Token::'.$token);
-                \Log::error('Error Msg::'.$response->error->message);
+                \Log::info('Request URL::' . $url_for_sites);
+                \Log::info('Request Token::' . $token);
+                \Log::error('Error Msg::' . $response->error->message);
                 \App\WebmasterLog::create([
                     'user_name' => Auth::user()->name,
                     'name' => 'Submit Site',
                     'status' => 'Error',
-                    'message' => $value['website'].'/'.$value['code'].' - '.$response->error->message,
+                    'message' => $value['website'] . '/' . $value['code'] . ' - ' . $response->error->message,
                 ]);
             } else {
                 \App\WebmasterLog::create([
                     'user_name' => Auth::user()->name,
                     'name' => 'Submit Site',
                     'status' => 'Success',
-                    'message' => 'Site submit successfully Website is '.$value['website'].'/'.$value['code'],
+                    'message' => 'Site submit successfully Website is ' . $value['website'] . '/' . $value['code'],
                 ]);
 
                 WebsiteStoreView::where('id', $value['id'])->update(['site_submit_webmaster' => 1]);
@@ -489,8 +489,8 @@ class GoogleWebMasterController extends Controller
                         ->first();
 
             if ($fetchStores) {
-                $websiter = urlencode(utf8_encode($fetchStores->website.'/'.$fetchStores->code));
-                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+                $websiter = urlencode(utf8_encode($fetchStores->website . '/' . $fetchStores->code));
+                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
 
                 $google_acc = GoogleClientAccountMail::latest()->first();
                 $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
@@ -509,7 +509,7 @@ class GoogleWebMasterController extends Controller
                         CURLOPT_HTTPHEADER => [
                             'Accept: application/json',
                             'Content-length: 0',
-                            'authorization: Bearer '.$token,
+                            'authorization: Bearer ' . $token,
                         ],
                     ]);
                     $response = curl_exec($curl);
@@ -564,7 +564,7 @@ class GoogleWebMasterController extends Controller
             'user_name' => Auth::user()->name,
             'name' => 'Show Acount',
             'status' => 'Success',
-            'message' => 'Total Account '.count($GoogleClientAccounts),
+            'message' => 'Total Account ' . count($GoogleClientAccounts),
         ]);
 
         return response()->json(['code' => 200, 'data' => $GoogleClientAccounts]);
@@ -578,7 +578,7 @@ class GoogleWebMasterController extends Controller
             'user_name' => Auth::user()->name,
             'name' => 'Show Notifications',
             'status' => 'Success',
-            'message' => 'Total Account '.count($notifications),
+            'message' => 'Total Account ' . count($notifications),
         ]);
 
         return response()->json(['code' => 200, 'data' => $notifications]);
@@ -611,7 +611,7 @@ class GoogleWebMasterController extends Controller
             // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
             //  $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
-            if (!$refreshToken || $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
+            if (! $refreshToken || $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
                 continue;
             }
 
@@ -640,7 +640,7 @@ class GoogleWebMasterController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'GET',
                     CURLOPT_HTTPHEADER => [
-                        'authorization:Bearer '.$this->client->getAccessToken()['access_token'],
+                        'authorization:Bearer ' . $this->client->getAccessToken()['access_token'],
                     ],
                 ]);
 
@@ -678,12 +678,12 @@ class GoogleWebMasterController extends Controller
                             // Create ot update site url
                             GoogleWebMasters::updateOrCreate(['sites' => $site->siteUrl]);
 
-                            echo 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($site->siteUrl).'/sitemaps';
+                            echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                             $curl1 = curl_init();
                             //replace website name with code coming form site list
 
                             curl_setopt_array($curl1, [
-                                CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($site->siteUrl).'/sitemaps',
+                                CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
@@ -691,7 +691,7 @@ class GoogleWebMasterController extends Controller
                                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                 CURLOPT_CUSTOMREQUEST => 'GET',
                                 CURLOPT_HTTPHEADER => [
-                                    'authorization: Bearer '.$this->client->getAccessToken()['access_token'],
+                                    'authorization: Bearer ' . $this->client->getAccessToken()['access_token'],
                                 ],
                             ]);
 
@@ -700,7 +700,7 @@ class GoogleWebMasterController extends Controller
 
                             if ($err) {
                                 activity('v3_sites')->log($err);
-                                echo 'cURL Error #:'.$err;
+                                echo 'cURL Error #:' . $err;
 
                                 \App\WebmasterLog::create([
                                     'user_name' => Auth::user()->name,
@@ -795,13 +795,14 @@ class GoogleWebMasterController extends Controller
     /*
      * This functions deletes the sites from google webmaster
      * */
-    public function deleteSiteFromWebmaster(Request $request) {
+    public function deleteSiteFromWebmaster(Request $request)
+    {
         if (! empty($request->id)) {
             $delete = false;
             $site = GoogleWebMasters::find($request->id);
             if ($site) {
                 $websiter = urlencode(utf8_encode($site->sites));
-                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
 
                 $google_acc = GoogleClientAccountMail::with('google_client_account')->get();
 
@@ -830,7 +831,7 @@ class GoogleWebMasterController extends Controller
                             CURLOPT_HTTPHEADER => [
                                 'Accept: application/json',
                                 'Content-length: 0',
-                                'authorization: Bearer '.$token['access_token'],
+                                'authorization: Bearer ' . $token['access_token'],
                             ],
                         ]);
                         $response = curl_exec($curl);
@@ -849,6 +850,7 @@ class GoogleWebMasterController extends Controller
                                 'status' => 'Error',
                                 'message' => isset($response->error->message) ? $response->error->message : 'Error',
                             ]);
+
                             return response()->json(['code' => 400, 'message' => 'Invalid Token']);
                         } else {
                             $delete = true;
@@ -873,6 +875,7 @@ class GoogleWebMasterController extends Controller
                         'status' => 'Success',
                         'message' => 'Site Deleted Successfully',
                     ]);
+
                     return response()->json(['code' => 200, 'message' => 'Site Deleted successfully']);
                 }
             } else {
@@ -882,6 +885,7 @@ class GoogleWebMasterController extends Controller
                     'status' => 'Success',
                     'message' => 'No Data Found',
                 ]);
+
                 return response()->json(['code' => 400, 'message' => 'No record found']);
             }
         }

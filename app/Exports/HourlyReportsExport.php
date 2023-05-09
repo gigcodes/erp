@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
-use App\DailyActivity;
 use Carbon\Carbon;
+use App\DailyActivity;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class HourlyReportsExport implements WithMultipleSheets

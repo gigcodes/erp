@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Dbal;
 
-use function in_array;
-use function is_numeric;
-use function is_string;
 use Stringable;
+use function in_array;
+use function is_string;
+use function is_numeric;
 
 /**
  * @see https://mariadb.com/kb/en/show-warnings/
@@ -70,6 +70,6 @@ final class Warning implements Stringable
      */
     public function __toString(): string
     {
-        return $this->level.': #'.$this->code.($this->message !== '' ? ' '.$this->message : '');
+        return $this->level . ': #' . $this->code . ($this->message !== '' ? ' ' . $this->message : '');
     }
 }

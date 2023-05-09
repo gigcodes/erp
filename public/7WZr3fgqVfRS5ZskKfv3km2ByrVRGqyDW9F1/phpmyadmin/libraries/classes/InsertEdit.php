@@ -8,49 +8,49 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_fill;
-use function array_key_exists;
-use function array_keys;
-use function array_merge;
-use function array_values;
-use function bin2hex;
-use function class_exists;
-use function count;
-use function current;
+use function max;
+use function md5;
+use function min;
 use function date;
+use function time;
+use function trim;
+use function count;
+use function strlen;
+use function substr;
 use const ENT_COMPAT;
+use function bin2hex;
+use function current;
 use function explode;
-use function htmlspecialchars;
 use function implode;
+use function is_file;
 use function in_array;
 use function is_array;
-use function is_file;
 use function is_string;
-use function max;
-use function mb_stripos;
 use function mb_strlen;
 use function mb_strstr;
 use function mb_substr;
-use function md5;
-use function method_exists;
-use function min;
-use const PASSWORD_DEFAULT;
-use function password_hash;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
-use PhpMyAdmin\Utils\Gis;
+use function array_fill;
+use function array_keys;
+use function mb_stripos;
 use function preg_match;
+use function array_merge;
+use function str_replace;
+use PhpMyAdmin\Utils\Gis;
+use function array_values;
+use function class_exists;
 use function preg_replace;
 use function str_contains;
-use function str_replace;
-use function stripcslashes;
 use function stripslashes;
-use function strlen;
-use function substr;
-use function time;
-use function trim;
+use const PASSWORD_DEFAULT;
+use function method_exists;
+use function password_hash;
+use function stripcslashes;
+use function array_key_exists;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Dbal\ResultInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * PhpMyAdmin\InsertEdit class
@@ -114,7 +114,7 @@ class InsertEdit
         ];
         if (isset($whereClauses)) {
             foreach ($whereClauseArray as $keyId => $whereClause) {
-                $formParams['where_clause['.$keyId.']'] = trim($whereClause);
+                $formParams['where_clause[' . $keyId . ']'] = trim($whereClause);
             }
         }
 
@@ -163,9 +163,9 @@ class InsertEdit
         $foundUniqueKey = false;
         foreach ($whereClauseArray as $keyId => $whereClause) {
             $localQuery = 'SELECT * FROM '
-                .Util::backquote($db).'.'
-                .Util::backquote($table)
-                .' WHERE '.$whereClause.';';
+                . Util::backquote($db) . '.'
+                . Util::backquote($table)
+                . ' WHERE ' . $whereClause . ';';
             $result[$keyId] = $this->dbi->query($localQuery);
             $rows[$keyId] = $result[$keyId]->fetchAssoc();
 
@@ -247,8 +247,8 @@ class InsertEdit
     private function loadFirstRow($table, $db)
     {
         $result = $this->dbi->query(
-            'SELECT * FROM '.Util::backquote($db)
-            .'.'.Util::backquote($table).' LIMIT 1;'
+            'SELECT * FROM ' . Util::backquote($db)
+            . '.' . Util::backquote($table) . ' LIMIT 1;'
         );
         // Can be a string on some old configuration storage settings
         $rows = array_fill(0, (int) $GLOBALS['cfg']['InsertRows'], false);
@@ -308,17 +308,17 @@ class InsertEdit
         $thisUrlParams = array_merge($urlParams, $params);
 
         if (! $isShow) {
-            return ' : <a href="'.Url::getFromRoute('/table/change').'" data-post="'
-                .Url::getCommon($thisUrlParams, '', false).'">'
-                .$this->showTypeOrFunctionLabel($which)
-                .'</a>';
+            return ' : <a href="' . Url::getFromRoute('/table/change') . '" data-post="'
+                . Url::getCommon($thisUrlParams, '', false) . '">'
+                . $this->showTypeOrFunctionLabel($which)
+                . '</a>';
         }
 
-        return '<th><a href="'.Url::getFromRoute('/table/change').'" data-post="'
-            .Url::getCommon($thisUrlParams, '', false)
-            .'" title="'.__('Hide').'">'
-            .$this->showTypeOrFunctionLabel($which)
-            .'</a></th>';
+        return '<th><a href="' . Url::getFromRoute('/table/change') . '" data-post="'
+            . Url::getCommon($thisUrlParams, '', false)
+            . '" title="' . __('Hide') . '">'
+            . $this->showTypeOrFunctionLabel($which)
+            . '</a></th>';
     }
 
     /**
@@ -402,8 +402,8 @@ class InsertEdit
     {
         if (isset($commentsMap[$column['Field']])) {
             return '<span style="border-bottom: 1px dashed black;" title="'
-                .htmlspecialchars($commentsMap[$column['Field']]).'">'
-                .htmlspecialchars($column['Field']).'</span>';
+                . htmlspecialchars($commentsMap[$column['Field']]) . '">'
+                . htmlspecialchars($column['Field']) . '</span>';
         }
 
         return htmlspecialchars($column['Field']);
@@ -553,20 +553,20 @@ class InsertEdit
             $textareaCols = $GLOBALS['cfg']['TextareaCols'] * 2;
         }
 
-        return $backupField."\n"
-            .'<textarea name="fields'.$columnNameAppendix.'"'
-            .' class="'.$theClass.'"'
-            .($readOnly ? ' readonly="readonly"' : '')
-            .(isset($maxlength) ? ' data-maxlength="'.$maxlength.'"' : '')
-            .' rows="'.$textAreaRows.'"'
-            .' cols="'.$textareaCols.'"'
-            .' dir="'.$textDir.'"'
-            .' id="field_'.$idindex.'_3"'
-            .($onChangeClause ? ' '.$onChangeClause : '')
-            .' tabindex="'.($tabindex + $tabindexForValue).'"'
-            .' data-type="'.$dataType.'">'
-            .$specialCharsEncoded
-            .'</textarea>';
+        return $backupField . "\n"
+            . '<textarea name="fields' . $columnNameAppendix . '"'
+            . ' class="' . $theClass . '"'
+            . ($readOnly ? ' readonly="readonly"' : '')
+            . (isset($maxlength) ? ' data-maxlength="' . $maxlength . '"' : '')
+            . ' rows="' . $textAreaRows . '"'
+            . ' cols="' . $textareaCols . '"'
+            . ' dir="' . $textDir . '"'
+            . ' id="field_' . $idindex . '_3"'
+            . ($onChangeClause ? ' ' . $onChangeClause : '')
+            . ' tabindex="' . ($tabindex + $tabindexForValue) . '"'
+            . ' data-type="' . $dataType . '">'
+            . $specialCharsEncoded
+            . '</textarea>';
     }
 
     /**
@@ -663,25 +663,25 @@ class InsertEdit
             $extractedColumnspec = Util::extractColumnSpec($column['Type']);
             $isUnsigned = $extractedColumnspec['unsigned'];
             $minMaxValues = $this->dbi->types->getIntegerRange($column['True_Type'], ! $isUnsigned);
-            $inputMinMax = 'min="'.$minMaxValues[0].'" '
-                .'max="'.$minMaxValues[1].'"';
+            $inputMinMax = 'min="' . $minMaxValues[0] . '" '
+                . 'max="' . $minMaxValues[1] . '"';
             $dataType = 'INT';
         }
 
         // do not use the 'date' or 'time' types here; they have no effect on some
         // browsers and create side effects (see bug #4218)
         return '<input type="text"'
-            .' name="fields'.$columnNameAppendix.'"'
-            .' value="'.$specialChars.'" size="'.$fieldsize.'"'
-            .(isset($column['is_char']) && $column['is_char']
-                ? ' data-maxlength="'.$fieldsize.'"'
+            . ' name="fields' . $columnNameAppendix . '"'
+            . ' value="' . $specialChars . '" size="' . $fieldsize . '"'
+            . (isset($column['is_char']) && $column['is_char']
+                ? ' data-maxlength="' . $fieldsize . '"'
                 : '')
-            .($readOnly ? ' readonly="readonly"' : '')
-            .($inputMinMax ? ' '.$inputMinMax : '')
-            .' data-type="'.$dataType.'"'
-            .' class="'.$theClass.'" '.$onChangeClause
-            .' tabindex="'.($tabindex + $tabindexForValue).'"'
-            .' id="field_'.$idindex.'_3">';
+            . ($readOnly ? ' readonly="readonly"' : '')
+            . ($inputMinMax ? ' ' . $inputMinMax : '')
+            . ' data-type="' . $dataType . '"'
+            . ' class="' . $theClass . '" ' . $onChangeClause
+            . ' tabindex="' . ($tabindex + $tabindexForValue) . '"'
+            . ' id="field_' . $idindex . '_3">';
     }
 
     /**
@@ -698,8 +698,8 @@ class InsertEdit
         );
 
         if ($files === false) {
-            return '<span style="color:red">'.__('Error').'</span><br>'."\n"
-                .__('The directory you set for upload work cannot be reached.')."\n";
+            return '<span style="color:red">' . __('Error') . '</span><br>' . "\n"
+                . __('The directory you set for upload work cannot be reached.') . "\n";
         }
 
         if ($files === '') {
@@ -707,13 +707,13 @@ class InsertEdit
         }
 
         return "<br>\n"
-            .'<i>'.__('Or').'</i> '
-            .__('web server upload directory:').'<br>'."\n"
-            .'<select size="1" name="fields_uploadlocal'
-            .$vkey.'['.$fieldHashMd5.']">'."\n"
-            .'<option value="" selected="selected"></option>'."\n"
-            .$files
-            .'</select>'."\n";
+            . '<i>' . __('Or') . '</i> '
+            . __('web server upload directory:') . '<br>' . "\n"
+            . '<select size="1" name="fields_uploadlocal'
+            . $vkey . '[' . $fieldHashMd5 . ']">' . "\n"
+            . '<option value="" selected="selected"></option>' . "\n"
+            . $files
+            . '</select>' . "\n";
     }
 
     /**
@@ -744,7 +744,7 @@ class InsertEdit
             $thisFieldMaxSize = $maxFieldSizes[$pma_type];
         }
 
-        $htmlOutput = Util::getFormattedMaximumUploadSize($thisFieldMaxSize)."\n";
+        $htmlOutput = Util::getFormattedMaximumUploadSize($thisFieldMaxSize) . "\n";
         // do not generate here the MAX_FILE_SIZE, because we should
         // put only one in the form to accommodate the biggest field
         if ($thisFieldMaxSize > $biggestMaxFileSize) {
@@ -800,7 +800,7 @@ class InsertEdit
         // HTML5 data-* attribute data-type
         $dataType = $this->dbi->types->getTypeClass($column['True_Type']);
         $fieldsize = $this->getColumnSize($column, $extractedColumnspec['spec_in_brackets']);
-        $htmlOutput = $backupField."\n";
+        $htmlOutput = $backupField . "\n";
         if ($column['is_char'] && ($GLOBALS['cfg']['CharEditing'] === 'textarea' || str_contains($data, "\n"))) {
             $htmlOutput .= "\n";
             $GLOBALS['cfg']['CharEditing'] = $defaultCharEditing;
@@ -836,28 +836,28 @@ class InsertEdit
                 && ! str_contains($column['Extra'], 'DEFAULT_GENERATED')
             ) {
                 $htmlOutput .= '<input type="hidden" name="virtual'
-                    .$columnNameAppendix.'" value="1">';
+                    . $columnNameAppendix . '" value="1">';
             }
 
             if ($column['Extra'] === 'auto_increment') {
                 $htmlOutput .= '<input type="hidden" name="auto_increment'
-                    .$columnNameAppendix.'" value="1">';
+                    . $columnNameAppendix . '" value="1">';
             }
 
             if (substr($column['pma_type'], 0, 9) === 'timestamp') {
                 $htmlOutput .= '<input type="hidden" name="fields_type'
-                    .$columnNameAppendix.'" value="timestamp">';
+                    . $columnNameAppendix . '" value="timestamp">';
             }
 
             if (substr($column['pma_type'], 0, 4) === 'date') {
                 $type = substr($column['pma_type'], 0, 8) === 'datetime' ? 'datetime' : 'date';
                 $htmlOutput .= '<input type="hidden" name="fields_type'
-                    .$columnNameAppendix.'" value="'.$type.'">';
+                    . $columnNameAppendix . '" value="' . $type . '">';
             }
 
             if ($column['True_Type'] === 'bit') {
                 $htmlOutput .= '<input type="hidden" name="fields_type'
-                    .$columnNameAppendix.'" value="bit">';
+                    . $columnNameAppendix . '" value="bit">';
             }
         }
 
@@ -1063,8 +1063,8 @@ class InsertEdit
         // however, things have changed since MySQL 4.1, so
         // it's better to set a fields_prev in this situation
         $backupField = '<input type="hidden" name="fields_prev'
-            .$columnNameAppendix.'" value="'
-            .htmlspecialchars($currentRow[$column['Field']], ENT_COMPAT).'">';
+            . $columnNameAppendix . '" value="'
+            . htmlspecialchars($currentRow[$column['Field']], ENT_COMPAT) . '">';
 
         return [
             $realNullValue,
@@ -1170,9 +1170,9 @@ class InsertEdit
      */
     public function setSessionForEditNext($oneWhereClause): void
     {
-        $localQuery = 'SELECT * FROM '.Util::backquote($GLOBALS['db'])
-            .'.'.Util::backquote($GLOBALS['table']).' WHERE '
-            .str_replace('` =', '` >', $oneWhereClause).' LIMIT 1;';
+        $localQuery = 'SELECT * FROM ' . Util::backquote($GLOBALS['db'])
+            . '.' . Util::backquote($GLOBALS['table']) . ' WHERE '
+            . str_replace('` =', '` >', $oneWhereClause) . ' LIMIT 1;';
 
         $res = $this->dbi->query($localQuery);
         $row = $res->fetchRow();
@@ -1274,10 +1274,10 @@ class InsertEdit
         }
 
         return [
-            $insertCommand.'INTO '
-            .Util::backquote($GLOBALS['table'])
-            .' ('.implode(', ', $queryFields).') VALUES ('
-            .implode('), (', $valueSets).')',
+            $insertCommand . 'INTO '
+            . Util::backquote($GLOBALS['table'])
+            . ' (' . implode(', ', $queryFields) . ') VALUES ('
+            . implode('), (', $valueSets) . ')',
         ];
     }
 
@@ -1297,7 +1297,7 @@ class InsertEdit
             $returnToSqlQuery = $GLOBALS['sql_query'];
         }
 
-        $GLOBALS['sql_query'] = implode('; ', $query).';';
+        $GLOBALS['sql_query'] = implode('; ', $query) . ';';
         // to ensure that the query is displayed in case of
         // "insert as new row" and then "insert another new row"
         $GLOBALS['display_query'] = $GLOBALS['sql_query'];
@@ -1391,11 +1391,11 @@ class InsertEdit
         $displayField = $this->relation->getDisplayField($foreigner['foreign_db'], $foreigner['foreign_table']);
         // Field to display from the foreign table?
         if (is_string($displayField) && strlen($displayField) > 0) {
-            $dispsql = 'SELECT '.Util::backquote($displayField)
-                .' FROM '.Util::backquote($foreigner['foreign_db'])
-                .'.'.Util::backquote($foreigner['foreign_table'])
-                .' WHERE '.Util::backquote($foreigner['foreign_field'])
-                .$whereComparison;
+            $dispsql = 'SELECT ' . Util::backquote($displayField)
+                . ' FROM ' . Util::backquote($foreigner['foreign_db'])
+                . '.' . Util::backquote($foreigner['foreign_table'])
+                . ' WHERE ' . Util::backquote($foreigner['foreign_field'])
+                . $whereComparison;
             $dispresult = $this->dbi->tryQuery($dispsql);
             if ($dispresult && $dispresult->numRows() > 0) {
                 return (string) $dispresult->fetchValue();
@@ -1433,17 +1433,17 @@ class InsertEdit
             // user chose "relational key" in the display options, so
             // the title contains the display field
             $title = $dispval
-                ? ' title="'.htmlspecialchars($dispval).'"'
+                ? ' title="' . htmlspecialchars($dispval) . '"'
                 : '';
         } else {
-            $title = ' title="'.htmlspecialchars($relationFieldValue).'"';
+            $title = ' title="' . htmlspecialchars($relationFieldValue) . '"';
         }
 
         $sqlQuery = 'SELECT * FROM '
-            .Util::backquote($foreigner['foreign_db'])
-            .'.'.Util::backquote($foreigner['foreign_table'])
-            .' WHERE '.Util::backquote($foreigner['foreign_field'])
-            .$whereComparison;
+            . Util::backquote($foreigner['foreign_db'])
+            . '.' . Util::backquote($foreigner['foreign_table'])
+            . ' WHERE ' . Util::backquote($foreigner['foreign_field'])
+            . $whereComparison;
         $urlParams = [
             'db' => $foreigner['foreign_db'],
             'table' => $foreigner['foreign_table'],
@@ -1451,7 +1451,7 @@ class InsertEdit
             'sql_signature' => Core::signSqlQuery($sqlQuery),
             'sql_query' => $sqlQuery,
         ];
-        $output = '<a href="'.Url::getFromRoute('/sql', $urlParams).'"'.$title.'>';
+        $output = '<a href="' . Url::getFromRoute('/sql', $urlParams) . '"' . $title . '>';
 
         if ($_SESSION['tmpval']['relational_display'] === 'D') {
             // user chose "relational display field" in the
@@ -1491,8 +1491,8 @@ class InsertEdit
         array $extraData,
         $type
     ) {
-        $includeFile = 'libraries/classes/Plugins/Transformations/'.$file;
-        if (is_file(ROOT_PATH.$includeFile)) {
+        $includeFile = 'libraries/classes/Plugins/Transformations/' . $file;
+        if (is_file(ROOT_PATH . $includeFile)) {
             // $cfg['SaveCellsAtOnce'] = true; JS code sends an array
             $whereClause = is_array($_POST['where_clause']) ? $_POST['where_clause'][0] : $_POST['where_clause'];
             $urlParams = [
@@ -1502,7 +1502,7 @@ class InsertEdit
                 'where_clause' => $whereClause,
                 'transform_key' => $columnName,
             ];
-            $transformOptions = $this->transformations->getOptions($transformation[$type.'_options'] ?? '');
+            $transformOptions = $this->transformations->getOptions($transformation[$type . '_options'] ?? '');
             $transformOptions['wrapper_link'] = Url::getCommon($urlParams);
             $transformOptions['wrapper_params'] = $urlParams;
             $className = $this->transformations->getClassName($includeFile);
@@ -1561,14 +1561,14 @@ class InsertEdit
              */
             $hash = password_hash($currentValue, PASSWORD_DEFAULT);
 
-            return "'".$hash."'";
+            return "'" . $hash . "'";
         }
 
         if ($multiEditFuncs[$key] === 'UUID') {
             /* This way user will know what UUID new row has */
             $uuid = (string) $this->dbi->fetchValue('SELECT UUID()');
 
-            return "'".$uuid."'";
+            return "'" . $uuid . "'";
         }
 
         if (
@@ -1582,7 +1582,7 @@ class InsertEdit
             // Remove backslash-escaped apostrophes
             $currentValue = str_replace("\'", "'", $currentValue);
 
-            return $multiEditFuncs[$key].'('.$currentValue.')';
+            return $multiEditFuncs[$key] . '(' . $currentValue . ')';
         }
 
         if (
@@ -1599,14 +1599,14 @@ class InsertEdit
                         || $multiEditFuncs[$key] === 'DES_DECRYPT'
                         || $multiEditFuncs[$key] === 'ENCRYPT'))
             ) {
-                return $multiEditFuncs[$key].'('.$currentValue.",'"
-                    .$this->dbi->escapeString($multiEditSalt[$key])."')";
+                return $multiEditFuncs[$key] . '(' . $currentValue . ",'"
+                    . $this->dbi->escapeString($multiEditSalt[$key]) . "')";
             }
 
-            return $multiEditFuncs[$key].'('.$currentValue.')';
+            return $multiEditFuncs[$key] . '(' . $currentValue . ')';
         }
 
-        return $multiEditFuncs[$key].'()';
+        return $multiEditFuncs[$key] . '()';
     }
 
     /**
@@ -1658,12 +1658,12 @@ class InsertEdit
             // field had the null checkbox before the update
             // field no longer has the null checkbox
             $queryValues[] = Util::backquote($multiEditColumnsName[$key])
-                .' = '.$currentValueAsAnArray;
+                . ' = ' . $currentValueAsAnArray;
         } elseif (
             ! (empty($multiEditFuncs[$key])
                 && isset($multiEditColumnsPrev[$key])
-                && (($currentValue === "'".$this->dbi->escapeString($multiEditColumnsPrev[$key])."'")
-                    || ($currentValue === '0x'.$multiEditColumnsPrev[$key])))
+                && (($currentValue === "'" . $this->dbi->escapeString($multiEditColumnsPrev[$key]) . "'")
+                    || ($currentValue === '0x' . $multiEditColumnsPrev[$key])))
             && $currentValue
         ) {
             // avoid setting a field to NULL when it's already NULL
@@ -1671,7 +1671,7 @@ class InsertEdit
             //  field still has the null checkbox)
             if (empty($multiEditColumnsNullPrev[$key]) || empty($multiEditColumnsNull[$key])) {
                 $queryValues[] = Util::backquote($multiEditColumnsName[$key])
-                    .' = '.$currentValueAsAnArray;
+                    . ' = ' . $currentValueAsAnArray;
             }
         }
 
@@ -1721,7 +1721,7 @@ class InsertEdit
         }
 
         if (! empty($multiEditFuncs[$key])) {
-            return "'".$this->dbi->escapeString($currentValue)."'";
+            return "'" . $this->dbi->escapeString($currentValue) . "'";
         }
 
         // c o l u m n    v a l u e    i n    t h e    f o r m
@@ -1739,7 +1739,7 @@ class InsertEdit
             if (! empty($_POST['fields']['multi_edit'][$rownumber][$key])) {
                 $currentValue = implode(',', $_POST['fields']['multi_edit'][$rownumber][$key]);
                 $currentValue = "'"
-                    .$this->dbi->escapeString($currentValue)."'";
+                    . $this->dbi->escapeString($currentValue) . "'";
             }
         } elseif ($type === 'protected') {
             // Fetch the current values of a row to use in case we have a protected field
@@ -1749,8 +1749,8 @@ class InsertEdit
                 && is_array($multiEditColumnsType) && $whereClause
             ) {
                 $protectedRow = $this->dbi->fetchSingleRow(
-                    'SELECT * FROM '.Util::backquote($table)
-                    .' WHERE '.$whereClause.';'
+                    'SELECT * FROM ' . Util::backquote($table)
+                    . ' WHERE ' . $whereClause . ';'
                 );
             }
 
@@ -1765,22 +1765,22 @@ class InsertEdit
             $currentValue = '';
             if (! empty($protectedRow[$multiEditColumnsName[$key]])) {
                 $currentValue = '0x'
-                    .bin2hex($protectedRow[$multiEditColumnsName[$key]]);
+                    . bin2hex($protectedRow[$multiEditColumnsName[$key]]);
             }
         } elseif ($type === 'hex') {
             if (substr($currentValue, 0, 2) != '0x') {
-                $currentValue = '0x'.$currentValue;
+                $currentValue = '0x' . $currentValue;
             }
         } elseif ($type === 'bit') {
             $currentValue = (string) preg_replace('/[^01]/', '0', $currentValue);
-            $currentValue = "b'".$this->dbi->escapeString($currentValue)."'";
+            $currentValue = "b'" . $this->dbi->escapeString($currentValue) . "'";
         } elseif (
             ! ($type === 'datetime' || $type === 'timestamp' || $type === 'date')
             || ($currentValue !== 'CURRENT_TIMESTAMP'
                 && $currentValue !== 'current_timestamp()')
         ) {
-            $currentValue = "'".$this->dbi->escapeString($currentValue)
-                ."'";
+            $currentValue = "'" . $this->dbi->escapeString($currentValue)
+                . "'";
         }
 
         // Was the Null checkbox checked for this field?
@@ -1819,11 +1819,11 @@ class InsertEdit
     ): void {
         $extraData['isNeedToRecheck'] = false;
 
-        $sqlForRealValue = 'SELECT '.Util::backquote($table).'.'
-            .Util::backquote($columnName)
-            .' FROM '.Util::backquote($db).'.'
-            .Util::backquote($table)
-            .' WHERE '.$_POST['where_clause'][0];
+        $sqlForRealValue = 'SELECT ' . Util::backquote($table) . '.'
+            . Util::backquote($columnName)
+            . ' FROM ' . Util::backquote($db) . '.'
+            . Util::backquote($table)
+            . ' WHERE ' . $_POST['where_clause'][0];
 
         $result = $this->dbi->tryQuery($sqlForRealValue);
 
@@ -1842,7 +1842,7 @@ class InsertEdit
         if ($meta->isTimeType()) {
             $newValue = Util::addMicroseconds($newValue);
         } elseif ($meta->isBinary()) {
-            $newValue = '0x'.bin2hex($newValue);
+            $newValue = '0x' . bin2hex($newValue);
         }
 
         $extraData['isNeedToRecheck'] = true;
@@ -1869,7 +1869,6 @@ class InsertEdit
      * @param  string|null  $whereClause where clause
      * @param  string  $db          current database
      * @param  string  $table       current table
-     * @return array
      */
     public function determineInsertOrEdit($whereClause, $db, $table): array
     {
@@ -1965,12 +1964,12 @@ class InsertEdit
     public function getHtmlForIgnoreOption($rowId, $checked = true): string
     {
         return '<input type="checkbox"'
-            .($checked ? ' checked="checked"' : '')
-            .' name="insert_ignore_'.$rowId.'"'
-            .' id="insert_ignore_'.$rowId.'">'
-            .'<label for="insert_ignore_'.$rowId.'">'
-            .__('Ignore')
-            .'</label><br>'."\n";
+            . ($checked ? ' checked="checked"' : '')
+            . ' name="insert_ignore_' . $rowId . '"'
+            . ' id="insert_ignore_' . $rowId . '">'
+            . '<label for="insert_ignore_' . $rowId . '">'
+            . __('Ignore')
+            . '</label><br>' . "\n";
     }
 
     /**
@@ -2073,13 +2072,13 @@ class InsertEdit
 
         //Call validation when the form submitted...
         $onChangeClause = $chgEvtHandler
-            ."=\"return verificationsAfterFieldChange('"
-            .Sanitize::escapeJsString($fieldHashMd5)."', '"
-            .Sanitize::escapeJsString($jsvkey)."','".$column['pma_type']."')\"";
+            . "=\"return verificationsAfterFieldChange('"
+            . Sanitize::escapeJsString($fieldHashMd5) . "', '"
+            . Sanitize::escapeJsString($jsvkey) . "','" . $column['pma_type'] . "')\"";
 
         // Use an MD5 as an array index to avoid having special characters
         // in the name attribute (see bug #1746964 )
-        $columnNameAppendix = $vkey.'['.$fieldHashMd5.']';
+        $columnNameAppendix = $vkey . '[' . $fieldHashMd5 . ']';
 
         if ($column['Type'] === 'datetime' && $column['Null'] !== 'YES' && ! isset($column['Default']) && $insertMode) {
             $column['Default'] = date('Y-m-d H:i:s', time());
@@ -2156,8 +2155,8 @@ class InsertEdit
         $transformedHtml = '';
         if (! empty($columnMime['input_transformation'])) {
             $file = $columnMime['input_transformation'];
-            $includeFile = 'libraries/classes/Plugins/Transformations/'.$file;
-            if (is_file(ROOT_PATH.$includeFile)) {
+            $includeFile = 'libraries/classes/Plugins/Transformations/' . $file;
+            if (is_file(ROOT_PATH . $includeFile)) {
                 $className = $this->transformations->getClassName($includeFile);
                 if (class_exists($className)) {
                     $transformationPlugin = new $className();
@@ -2425,7 +2424,7 @@ class InsertEdit
         array $whereClauseArray
     ) {
         $htmlOutput = $this->getHeadAndFootOfInsertRowTable($urlParams)
-            .'<tbody>';
+            . '<tbody>';
 
         //store the default value for CharEditing
         $defaultCharEditing = $GLOBALS['cfg']['CharEditing'];
@@ -2483,8 +2482,8 @@ class InsertEdit
 
         $oRows++;
 
-        return $htmlOutput.'  </tbody>'
-            .'</table></div><br>'
-            .'<div class="clearfloat"></div>';
+        return $htmlOutput . '  </tbody>'
+            . '</table></div><br>'
+            . '<div class="clearfloat"></div>';
     }
 }

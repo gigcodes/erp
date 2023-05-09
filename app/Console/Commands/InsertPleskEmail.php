@@ -46,7 +46,7 @@ class InsertPleskEmail extends Command
                 $mailAccounts = $pleskHelper->getMailAccounts($domain['id']);
                 if (! empty($mailAccounts)) {
                     foreach ($mailAccounts as $mail) {
-                        $fullEmail = $mail['name'].'@'.$domain['name'];
+                        $fullEmail = $mail['name'] . '@' . $domain['name'];
                         $emailAddress = \App\EmailAddress::where('username', $fullEmail)->first();
                         if (! $emailAddress) {
                             $address = new \App\EmailAddress;
@@ -60,7 +60,7 @@ class InsertPleskEmail extends Command
                             $address->password = '';
                             $address->save();
 
-                            echo $address->from_address.' Created succesfully';
+                            echo $address->from_address . ' Created succesfully';
                             echo PHP_EOL;
                         }
                     }

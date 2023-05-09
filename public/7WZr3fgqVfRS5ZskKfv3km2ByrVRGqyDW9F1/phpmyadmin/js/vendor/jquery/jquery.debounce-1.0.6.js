@@ -9,74 +9,62 @@
  */
 
 (function ($) {
+  $.extend({
+    /**
+     * Debounce's decorator
+     * @param {Function} fn original function
+     * @param {Number} timeout timeout
+     * @param {Boolean} [invokeAsap=false] invoke function as soon as possible
+     * @param {Object} [ctx] context of original function
+     */
+    debounce: function (fn, timeout, invokeAsap, ctx) {
+      if (arguments.length == 3 && typeof invokeAsap != "boolean") {
+        ctx = invokeAsap;
+        invokeAsap = false;
+      }
 
-	$.extend({
+      var timer;
 
-		/**
-		 * Debounce's decorator
-		 * @param {Function} fn original function
-		 * @param {Number} timeout timeout
-		 * @param {Boolean} [invokeAsap=false] invoke function as soon as possible
-		 * @param {Object} [ctx] context of original function
-		 */
-		debounce: function (fn, timeout, invokeAsap, ctx) {
+      return function () {
+        var args = arguments;
+        ctx = ctx || this;
 
-			if (arguments.length == 3 && typeof invokeAsap != 'boolean') {
-				ctx = invokeAsap;
-				invokeAsap = false;
-			}
+        invokeAsap && !timer && fn.apply(ctx, args);
 
-			var timer;
+        clearTimeout(timer);
 
-			return function () {
+        timer = setTimeout(function () {
+          invokeAsap || fn.apply(ctx, args);
+          timer = null;
+        }, timeout);
+      };
+    },
 
-				var args = arguments;
-				ctx = ctx || this;
+    /**
+     * Throttle's decorator
+     * @param {Function} fn original function
+     * @param {Number} timeout timeout
+     * @param {Object} [ctx] context of original function
+     */
+    throttle: function (fn, timeout, ctx) {
+      var timer, args, needInvoke;
 
-				invokeAsap && !timer && fn.apply(ctx, args);
+      return function () {
+        args = arguments;
+        needInvoke = true;
+        ctx = ctx || this;
 
-				clearTimeout(timer);
-
-				timer = setTimeout(function () {
-					invokeAsap || fn.apply(ctx, args);
-					timer = null;
-				}, timeout);
-
-			};
-
-		},
-
-		/**
-		 * Throttle's decorator
-		 * @param {Function} fn original function
-		 * @param {Number} timeout timeout
-		 * @param {Object} [ctx] context of original function
-		 */
-		throttle: function (fn, timeout, ctx) {
-
-			var timer, args, needInvoke;
-
-			return function () {
-
-				args = arguments;
-				needInvoke = true;
-				ctx = ctx || this;
-
-				timer || (function () {
-					if (needInvoke) {
-						fn.apply(ctx, args);
-						needInvoke = false;
-						timer = setTimeout(arguments.callee, timeout);
-					}
-					else {
-						timer = null;
-					}
-				})();
-
-			};
-
-		}
-
-	});
-
+        timer ||
+          (function () {
+            if (needInvoke) {
+              fn.apply(ctx, args);
+              needInvoke = false;
+              timer = setTimeout(arguments.callee, timeout);
+            } else {
+              timer = null;
+            }
+          })();
+      };
+    },
+  });
 })(jQuery);

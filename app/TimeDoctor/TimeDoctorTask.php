@@ -16,12 +16,11 @@ class TimeDoctorTask extends Model
         'summery',
         'description',
         'time_doctor_company_id',
-        'time_doctor_account_id'
+        'time_doctor_account_id',
     ];
 
     public function account()
     {
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class,'time_doctor_account_id');
-    }    
-   
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class, 'time_doctor_account_id');
+    }
 }

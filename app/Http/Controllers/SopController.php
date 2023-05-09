@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\PurchaseProductOrderLog;
+use App\Models\SopHasCategory;
 use App\Sop;
-use App\SopCategory;
-use App\SopPermission; // sop category model
 use App\User;
-// use App\Mail\downloadData;
 use Dompdf\Dompdf;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\SopCategory; // sop category model
+use App\SopPermission;
+// use App\Mail\downloadData;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\PurchaseProductOrderLog;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class SopController extends Controller
 {
@@ -19,18 +21,23 @@ class SopController extends Controller
     {
         $users = User::all();
         // $users = User::limit(10)->get();
-        $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
+        $usersop = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory']);
         if ($request->get('search')) {
-            $usersop = $usersop->where('name', 'like', '%'.$request->get('search').'%')
-                               ->orWhere('content', 'like', '%'.$request->get('search').'%');
+            $usersop = $usersop->where('name', 'like', '%' . $request->get('search') . '%')
+            ->orWhere('content', 'like', '%' . $request->get('search') . '%');
         }
+        
+        if($request->get("category")) {
+            $sop_ids = SopHasCategory::distinct('sop_id')->whereIn('sop_category_id', $request->get("category"))->select('sop_id')->get()->pluck('sop_id')->toArray();
+            $usersop = $usersop->whereIn('id', $sop_ids);
+        } 
 
-        $usersop = $usersop->limit(25)->paginate(25);
+        $usersop = $usersop->orderBy('id', 'desc')->limit(25)->paginate(25);
 
         $total_record = $usersop->total();
         $category_result = SopCategory::all();
-
-        return view('products.sop', compact('usersop', 'total_record', 'users', 'category_result'));
+        $request = $request->all();
+        return view('products.sop', compact('usersop', 'total_record', 'users', 'category_result', 'request'));
     }
 
     public function sopnamedata_logs(Request $request)
@@ -56,7 +63,6 @@ class SopController extends Controller
     /**
      * Sop category add in table
      *
-     * @param  Request  $request
      * @return void
      */
     public function categoryStore(Request $request)
@@ -92,20 +98,29 @@ class SopController extends Controller
             return response()->json(['success' => false, 'message' => 'Name already existed']);
         }
 
+        $appendData = '';
         if (! $sop) {
+            $category = $request->get('category');
             $sop = new Sop();
             $sop->name = $request->get('name');
-            $sop->category = implode(',', $request->get('category'));
+            // $sop->category = implode(',', $request->get('category'));
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
-
+            
+            if(!empty($category) && count($category) > 0) {
+                $sop->sopCategory()->attach($category);
+            }
+            
             $params['purchase_product_order_id'] = $sop->id;
             $params['header_name'] = 'SOP Listing Approve Logs';
             $params['replace_from'] = '-';
             $params['replace_to'] = $request->get('name');
             $params['created_by'] = \Auth::id();
 
+            $appendsop = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory'])->find($sop->id);
+            $users = User::all();
+            $appendData = view('products.partials.sop-list-single', compact('appendsop', 'users'))->render();
             $log = PurchaseProductOrderLog::create($params);
         }
 
@@ -113,12 +128,16 @@ class SopController extends Controller
 
         $only_date = $sop->created_at->todatestring();
 
-        return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params]);
+        return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params, 'appendData'=> $appendData]);
     }
 
     public function edit(Request $request)
     {
-        $sopedit = Sop::findOrFail($request->id);
+        $sopedit = Sop::with('sopCategory')->findOrFail($request->id);
+
+        if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+            $sopedit->sopCategory = $sopedit->sopCategory->pluck('id');
+        }
 
         return response()->json(['sopedit' => $sopedit]);
     }
@@ -133,19 +152,31 @@ class SopController extends Controller
             return response()->json(['success' => false, 'message' => 'Category already existed']);
         }
 
-        $sopedit = Sop::where('id', $request->id)->where('category', $category)->first();
+        $sopedit = Sop::where('id', $request->id)->first();
+        // ->where('category', $category)   
+        // dd($sopedit, $category, $request->id);
         if ($sopedit) {
             $sopedit->name = $request->get('name', '');
-            $sopedit->category = $request->get('category', '');
+            // $sopedit->category = $request->get('category', '');
             $sopedit->content = $request->get('content', '');
             $updatedSop = $sopedit->save();
 
+            $sopedit->hasSopCategory()->delete();
+            if(!empty($category) && count($category) > 0) {
+                $sopedit->sopCategory()->attach($category ?? []);
+            }
             $params['purchase_product_order_id'] = $request->id;
             $params['header_name'] = 'SOP Listing Approve Logs';
             $params['replace_from'] = $request->get('sop_old_name', '');
             $params['replace_to'] = $request->get('name', '');
             $params['created_by'] = \Auth::id();
 
+
+            if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+                $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
+                $sopedit->sopCategory = implode(",", $temp);
+            }
+            
             $log = PurchaseProductOrderLog::create($params);
 
             if ($sopedit) {
@@ -158,16 +189,26 @@ class SopController extends Controller
         } else {
             $sop = new Sop();
             $sop->name = $request->get('name');
-            $sop->category = $request->get('category');
+            // $sop->category = $request->get('category');
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
+
+            $sop->hasSopCategory()->delete();
+            if(!empty($category) && count($category) > 0) {
+                $sop->sopCategory()->attach($category ?? []);
+            }
 
             $params['purchase_product_order_id'] = $sop->id;
             $params['header_name'] = 'SOP Listing Approve Logs';
             $params['replace_from'] = '-';
             $params['replace_to'] = $request->get('name');
             $params['created_by'] = \Auth::id();
+
+            if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+                $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
+                $sopedit->sopCategory = implode(",", $temp);
+            }
 
             $log = PurchaseProductOrderLog::create($params);
 
@@ -190,7 +231,7 @@ class SopController extends Controller
     public function search(Request $request)
     {
         $searchsop = $request->get('search');
-        $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
+        $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
     }
@@ -199,7 +240,7 @@ class SopController extends Controller
     {
         $searchsop = $request->get('search');
         if (! empty($searchsop)) {
-            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->get();
+            $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->get();
         } else {
             $usersop = Sop::all();
         }
@@ -207,18 +248,18 @@ class SopController extends Controller
 
         $html = '';
         foreach ($usersop as $key => $value) {
-            $html .= '<tr id="sid'.$value->id.'" class="parent_tr" data-id="'.$value->id.'">
-                        <td class="sop_table_id">'.$value->id.'</td>
-                            <td class="expand-row-msg" data-name="name" data-id="'.$value->id.'">
-                                <span class="show-short-name-'.$value->id.'">'.Str::limit($value->name, 17, '..').'</span>
-                                <span style="word-break:break-all;" class="show-full-name-'.$value->id.' hidden">'.$value->name.'</span>
+            $html .= '<tr id="sid' . $value->id . '" class="parent_tr" data-id="' . $value->id . '">
+                        <td class="sop_table_id">' . $value->id . '</td>
+                            <td class="expand-row-msg" data-name="name" data-id="' . $value->id . '">
+                                <span class="show-short-name-' . $value->id . '">' . Str::limit($value->name, 17, '..') . '</span>
+                                <span style="word-break:break-all;" class="show-full-name-' . $value->id . ' hidden">' . $value->name . '</span>
                             </td>
-                            <td class="expand-row-msg Website-task " data-name="content" data-id="'.$value->id.'">
-                                <span class="show-short-content-{{$value->id}}">'.Str::limit($value->content, 50, '..').'</span>
-                                <span style="word-break:break-all;" class="show-full-content-'.$value->id.' hidden">'.$value->content.'</span>
+                            <td class="expand-row-msg Website-task " data-name="content" data-id="' . $value->id . '">
+                                <span class="show-short-content-{{$value->id}}">' . Str::limit($value->content, 50, '..') . '</span>
+                                <span style="word-break:break-all;" class="show-full-content-' . $value->id . ' hidden">' . $value->content . '</span>
                             </td>
                             <td class="p-1">
-                                <a href="javascript:;" data-id="'.$value->id.'" class="menu_editor_edit btn btn-xs p-2" >
+                                <a href="javascript:;" data-id="' . $value->id . '" class="menu_editor_edit btn btn-xs p-2" >
                                     <i class="fa fa-edit"></i>
                                 </a>
                             </td>
@@ -245,7 +286,7 @@ class SopController extends Controller
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
-            $pdf->stream(date('Y-m-d H:i:s').'SOPData.pdf');
+            $pdf->stream(date('Y-m-d H:i:s') . 'SOPData.pdf');
         }
     }
 
@@ -302,5 +343,48 @@ class SopController extends Controller
         }
 
         return response()->json(['message' => 'Permission Apply Successfully']);
+    }
+
+    /**
+     * Delete category
+     */
+    public function categoryDelete(Request $request)
+    {
+        try {
+            SopHasCategory::where('sop_category_id', $request->id)->delete();
+            SopCategory::destroy($request->id);
+            return redirect()->back()->withSuccess('Caregory delete successfully.');
+            
+        } catch (Exception $e) {
+            return redirect()->back()->withError('Error while deleting category.');
+        }
+    }
+
+    /**
+     * Sop category update
+     */
+    public function categoryUpdate(Request $request)
+    {
+        try {
+            if(!isset($request->name) || $request->name == "") {
+                throw new Exception("Category name must required.");
+            }
+            if(!isset($request->id) || $request->id == "") {
+                throw new Exception("Category not found.");
+            }
+            
+            $sopcategory = SopCategory::find($request->id);
+            
+            if($sopcategory) {
+                $sopcategory->category_name = $request->name;
+                $sopcategory->update();
+            } else {
+                throw new Exception("Category not found.");
+            }
+            return redirect()->back()->withSuccess("Category successfully created.");
+        } catch (Exception $e) {
+            //throw $th;
+            return redirect()->back()->withError($e->getMessage());
+        }
     }
 }

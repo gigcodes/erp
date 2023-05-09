@@ -40,12 +40,12 @@ class addWebsiteLangGroup extends Command
     {
         $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
         foreach ($websiteStoreViews as $v) {
-            dump($v->name.'_'.$v->code);
+            dump($v->name . '_' . $v->code);
 
             $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
 
             $postData = [
-                'name' => $v->name.'_'.$v->code,
+                'name' => $v->name . '_' . $v->code,
                 'agent_priorities' => [
                     'buying@amourint.com' => 'normal',
                 ],
@@ -76,7 +76,7 @@ class addWebsiteLangGroup extends Command
             $ref_websiteStoreView = WebsiteStoreView::where('name', $v->name)->where('code', $v->code)->first();
             if ($ref_websiteStoreView) {
                 WebsiteStoreView::where('id', $v->id)->update(['store_group_id' => $ref_websiteStoreView->store_group_id]);
-                dump($v->id.' is updated');
+                dump($v->id . ' is updated');
             }
         }
     }

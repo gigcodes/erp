@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Entities;
 
-use Modules\BookStack\Auth\User;
 use Modules\BookStack\Model;
+use Modules\BookStack\Auth\User;
 
 class PageRevision extends Model
 {
@@ -37,9 +37,9 @@ class PageRevision extends Model
      */
     public function getUrl($path = null)
     {
-        $url = $this->page->getUrl().'/revisions/'.$this->id;
+        $url = $this->page->getUrl() . '/revisions/' . $this->id;
         if ($path) {
-            return $url.'/'.trim($path, '/');
+            return $url . '/' . trim($path, '/');
         }
 
         return $url;
@@ -64,7 +64,6 @@ class PageRevision extends Model
      * Included here to align with entities in similar use cases.
      * (Yup, Bit of an awkward hack)
      *
-     * @param $type
      * @return bool
      */
     public static function isA($type)

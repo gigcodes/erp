@@ -149,8 +149,8 @@ class Partition extends SubPartition
         if (self::havePartitioning()) {
             $result = $dbi->fetchResult(
                 'SELECT * FROM `information_schema`.`PARTITIONS`'
-                ." WHERE `TABLE_SCHEMA` = '".$dbi->escapeString($db)
-                ."' AND `TABLE_NAME` = '".$dbi->escapeString($table)."'"
+                . " WHERE `TABLE_SCHEMA` = '" . $dbi->escapeString($db)
+                . "' AND `TABLE_NAME` = '" . $dbi->escapeString($table) . "'"
             );
             if ($result) {
                 $partitionMap = [];
@@ -195,8 +195,8 @@ class Partition extends SubPartition
         if (self::havePartitioning()) {
             return $dbi->fetchResult(
                 'SELECT DISTINCT `PARTITION_NAME` FROM `information_schema`.`PARTITIONS`'
-                ." WHERE `TABLE_SCHEMA` = '".$dbi->escapeString($db)
-                ."' AND `TABLE_NAME` = '".$dbi->escapeString($table)."'"
+                . " WHERE `TABLE_SCHEMA` = '" . $dbi->escapeString($db)
+                . "' AND `TABLE_NAME` = '" . $dbi->escapeString($table) . "'"
             );
         }
 
@@ -217,9 +217,9 @@ class Partition extends SubPartition
         if (self::havePartitioning()) {
             $partition_method = $dbi->fetchResult(
                 'SELECT `PARTITION_METHOD` FROM `information_schema`.`PARTITIONS`'
-                ." WHERE `TABLE_SCHEMA` = '".$dbi->escapeString($db)."'"
-                ." AND `TABLE_NAME` = '".$dbi->escapeString($table)."'"
-                .' LIMIT 1'
+                . " WHERE `TABLE_SCHEMA` = '" . $dbi->escapeString($db) . "'"
+                . " AND `TABLE_NAME` = '" . $dbi->escapeString($table) . "'"
+                . ' LIMIT 1'
             );
             if (! empty($partition_method)) {
                 return $partition_method[0];

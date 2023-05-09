@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Dia;
 
 use function __;
-use function in_array;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Plugins\Schema\TableStats;
 use function shuffle;
 use function sprintf;
+use function in_array;
+use PhpMyAdmin\Plugins\Schema\TableStats;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * Table preferences/statistics
@@ -93,7 +93,7 @@ class TableStatsDia extends TableStats
                 '00FF00',
             ];
             shuffle($listOfColors);
-            $this->tableColor = '#'.$listOfColors[0].'';
+            $this->tableColor = '#' . $listOfColors[0] . '';
         } else {
             $this->tableColor = '#000000';
         }
@@ -103,22 +103,22 @@ class TableStatsDia extends TableStats
         $this->diagram->startElement('dia:object');
         $this->diagram->writeAttribute('type', 'Database - Table');
         $this->diagram->writeAttribute('version', '0');
-        $this->diagram->writeAttribute('id', ''.$this->tableId.'');
+        $this->diagram->writeAttribute('id', '' . $this->tableId . '');
         $this->diagram->writeRaw(
             '<dia:attribute name="obj_pos">
                 <dia:point val="'
-            .($this->x * $factor).','.($this->y * $factor).'"/>
+            . ($this->x * $factor) . ',' . ($this->y * $factor) . '"/>
             </dia:attribute>
             <dia:attribute name="obj_bb">
                 <dia:rectangle val="'
-            .($this->x * $factor).','.($this->y * $factor).';9.97,9.2"/>
+            . ($this->x * $factor) . ',' . ($this->y * $factor) . ';9.97,9.2"/>
             </dia:attribute>
             <dia:attribute name="meta">
                 <dia:composite type="dict"/>
             </dia:attribute>
             <dia:attribute name="elem_corner">
                 <dia:point val="'
-            .($this->x * $factor).','.($this->y * $factor).'"/>
+            . ($this->x * $factor) . ',' . ($this->y * $factor) . '"/>
             </dia:attribute>
             <dia:attribute name="elem_width">
                 <dia:real val="5.9199999999999999"/>
@@ -127,7 +127,7 @@ class TableStatsDia extends TableStats
                 <dia:real val="3.5"/>
             </dia:attribute>
             <dia:attribute name="text_colour">
-                <dia:color val="'.$this->tableColor.'"/>
+                <dia:color val="' . $this->tableColor . '"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
                 <dia:color val="#000000"/>
@@ -139,7 +139,7 @@ class TableStatsDia extends TableStats
                 <dia:real val="0.10000000000000001"/>
             </dia:attribute>
             <dia:attribute name="name">
-                <dia:string>#'.$this->tableName.'#</dia:string>
+                <dia:string>#' . $this->tableName . '#</dia:string>
             </dia:attribute>
             <dia:attribute name="comment">
                 <dia:string>##</dia:string>
@@ -183,7 +183,7 @@ class TableStatsDia extends TableStats
             $this->diagram->writeRaw(
                 '<dia:composite type="table_attribute">
                     <dia:attribute name="name">
-                <dia:string>#'.$field.'#</dia:string>
+                <dia:string>#' . $field . '#</dia:string>
                 </dia:attribute>
                 <dia:attribute name="type">
                     <dia:string>##</dia:string>
@@ -204,13 +204,13 @@ class TableStatsDia extends TableStats
 
             $this->diagram->writeRaw(
                 '<dia:attribute name="primary_key">
-                    <dia:boolean val="'.$pm.'"/>
+                    <dia:boolean val="' . $pm . '"/>
                 </dia:attribute>
                 <dia:attribute name="nullable">
                     <dia:boolean val="false"/>
                 </dia:attribute>
                 <dia:attribute name="unique">
-                    <dia:boolean val="'.$pm.'"/>
+                    <dia:boolean val="' . $pm . '"/>
                 </dia:attribute>
                 </dia:composite>'
             );

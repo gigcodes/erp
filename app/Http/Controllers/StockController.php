@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\Customer;
-use App\DeliveryApproval;
+use Auth;
+use App\User;
+use App\Stock;
 use App\Helpers;
-use App\PrivateView;
 use App\Product;
 use App\Setting;
+use App\Customer;
+use App\AutoReply;
+use App\ChatMessage;
+use App\PrivateView;
 use App\StatusChange;
-use App\Stock;
-use App\User;
-use Auth;
+use App\DeliveryApproval;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -58,7 +58,6 @@ class StockController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -148,7 +147,6 @@ class StockController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -292,7 +290,7 @@ class StockController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('privateview/'.floor($private_view->id / config('constants.image_per_folder')))
+                                        ->toDirectory('privateview/' . floor($private_view->id / config('constants.image_per_folder')))
                                         ->upload();
                 $private_view->attachMedia($media, config('constants.media_tags'));
             }
@@ -382,7 +380,7 @@ class StockController extends Controller
             }
         }
 
-        $address = $private_view->customer->address.', '.$private_view->customer->pincode.', '.$private_view->customer->city;
+        $address = $private_view->customer->address . ', ' . $private_view->customer->pincode . ', ' . $private_view->customer->city;
 
         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-details')->first();
 

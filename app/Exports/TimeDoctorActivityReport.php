@@ -2,15 +2,11 @@
 
 namespace App\Exports;
 
-use App\DeveloperTask;
-use App\DeveloperTaskHistory;
-use App\Task;
-use App\User;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class TimeDoctorActivityReport implements FromArray, ShouldAutoSize, WithHeadings, WithEvents
 {
@@ -43,7 +39,7 @@ class TimeDoctorActivityReport implements FromArray, ShouldAutoSize, WithHeading
      */
     public function array(): array
     {
-        $new_customers = [];        
+        $new_customers = [];
         $total_amount = 0;
         $total_amount_paid = 0;
         $total_balance = 0;
@@ -68,7 +64,7 @@ class TimeDoctorActivityReport implements FromArray, ShouldAutoSize, WithHeading
             }
         }
 
-        array_push($new_customers, ['Total ', null, null, null, $total_amount, null, $total_amount_paid, $total_balance]); 
+        array_push($new_customers, ['Total ', null, null, null, $total_amount, null, $total_amount_paid, $total_balance]);
 
         return $new_customers;
     }

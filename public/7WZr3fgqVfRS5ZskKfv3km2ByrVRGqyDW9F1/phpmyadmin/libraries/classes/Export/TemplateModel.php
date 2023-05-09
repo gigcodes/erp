@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Export;
 
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\TableName;
 use PhpMyAdmin\Util;
 use function sprintf;
+use PhpMyAdmin\Dbal\TableName;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Dbal\DatabaseName;
 
 final class TemplateModel
 {
@@ -24,7 +24,7 @@ final class TemplateModel
     {
         $query = sprintf(
             'INSERT INTO %s.%s (`username`, `export_type`, `template_name`, `template_data`)'
-                .' VALUES (\'%s\', \'%s\', \'%s\', \'%s\');',
+                . ' VALUES (\'%s\', \'%s\', \'%s\', \'%s\');',
             Util::backquote($db),
             Util::backquote($table),
             $this->dbi->escapeString($template->getUsername()),

@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
-use App\Jobs\SendMessageToAll;
-use App\Jobs\SendMessageToSelected;
-use App\MessageQueue;
 use Carbon\Carbon;
+use App\MessageQueue;
+use App\CronJobReport;
+use App\Jobs\SendMessageToAll;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendMessageToSelected;
+use App\Helpers\LogHelper;
 
 class RunMessageQueue extends Command
 {
@@ -117,7 +118,7 @@ class RunMessageQueue extends Command
                                     }
                                 } else {
                                     if (substr($number, 0, 3) == '971') {
-                                        dump('sorry , message is full right now for this number : '.$number);
+                                        dump('sorry , message is full right now for this number : ' . $number);
                                     } else {
                                         $message->delete();
                                         dump('deleting queue');
@@ -133,7 +134,7 @@ class RunMessageQueue extends Command
 
                                     dump('sent to selected');
                                 } else {
-                                    dump('sorry , message is full right now for this number : '.$number);
+                                    dump('sorry , message is full right now for this number : ' . $number);
                                 }
                             }
 
@@ -152,6 +153,8 @@ class RunMessageQueue extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

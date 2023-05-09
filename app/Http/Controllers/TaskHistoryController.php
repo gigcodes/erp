@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tasks\TaskDueDateHistoryLog;
-use App\Models\Tasks\TaskDueDateHistoryLogApprovals;
 use App\Models\Tasks\TaskHistoryForCost;
+use App\Models\Tasks\TaskDueDateHistoryLog;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\Models\Tasks\TaskDueDateHistoryLogApprovals;
 use App\Models\Tasks\TaskHistoryForStartDateApprovals;
 
 class TaskHistoryController extends Controller
@@ -33,12 +33,12 @@ class TaskHistoryController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td><input type="radio" name="radio_for_approve" value="'.$single->id.'" '.($single->approved ? 'checked' : '').' style="height:auto;" /></td>
-                    <td>'.$single->id.'</td>
-                    <td>'.($single->updatedBy ? $single->updatedBy->name : '-').'</td>
-                    <td>'.$single->old_value.'</td>
-                    <td>'.$single->new_value.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->approved ? 'checked' : '') . ' style="height:auto;" /></td>
+                    <td>' . $single->id . '</td>
+                    <td>' . ($single->updatedBy ? $single->updatedBy->name : '-') . '</td>
+                    <td>' . $single->old_value . '</td>
+                    <td>' . $single->new_value . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -70,12 +70,12 @@ class TaskHistoryController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td><input type="radio" name="radio_for_approve" value="'.$single->id.'" '.($single->approved ? 'checked' : '').' style="height:auto;" /></td>
-                    <td>'.$single->id.'</td>
-                    <td>'.($single->users ? $single->users->name : '-').'</td>
-                    <td>'.$single->old_due_date.'</td>
-                    <td>'.$single->new_due_date.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->approved ? 'checked' : '') . ' style="height:auto;" /></td>
+                    <td>' . $single->id . '</td>
+                    <td>' . ($single->users ? $single->users->name : '-') . '</td>
+                    <td>' . $single->old_due_date . '</td>
+                    <td>' . $single->new_due_date . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -106,11 +106,11 @@ class TaskHistoryController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td>'.$single->id.'</td>
-                    <td>'.($single->updatedBy ? $single->updatedBy->name : '-').'</td>
-                    <td>'.$single->old_value.'</td>
-                    <td>'.$single->new_value.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td>' . $single->id . '</td>
+                    <td>' . ($single->updatedBy ? $single->updatedBy->name : '-') . '</td>
+                    <td>' . $single->old_value . '</td>
+                    <td>' . $single->new_value . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -181,10 +181,10 @@ class TaskHistoryController extends Controller
         if (isset($list) && $list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td>'.$single->parent_id.'</td>
-                    <td>'.($single->approvedByName() ?: '-').'</td>
-                    <td>'.$single->value.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td>' . $single->parent_id . '</td>
+                    <td>' . ($single->approvedByName() ?: '-') . '</td>
+                    <td>' . $single->value . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {

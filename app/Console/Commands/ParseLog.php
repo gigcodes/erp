@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\LaravelLog;
 use File;
+use App\LaravelLog;
 use Illuminate\Console\Command;
 
 class ParseLog extends Command

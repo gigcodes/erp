@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\CommunicationHistory;
-use App\CronJobReport;
-use App\Customer;
 use App\Order;
-use App\PrivateView;
-use App\ScheduledMessage;
+use App\Customer;
+use App\AutoReply;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\PrivateView;
+use App\CronJobReport;
+use App\ScheduledMessage;
+use App\CommunicationHistory;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class AutoMessenger extends Command
 {
@@ -304,6 +305,8 @@ class AutoMessenger extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

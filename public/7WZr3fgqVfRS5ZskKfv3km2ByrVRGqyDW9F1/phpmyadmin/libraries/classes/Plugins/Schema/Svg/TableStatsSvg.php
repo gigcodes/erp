@@ -8,12 +8,12 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Svg;
 
 use function __;
-use function count;
-use function in_array;
 use function max;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Plugins\Schema\TableStats;
+use function count;
 use function sprintf;
+use function in_array;
+use PhpMyAdmin\Plugins\Schema\TableStats;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * Table preferences/statistics
@@ -173,7 +173,7 @@ class TableStatsSvg extends TableStats
                 $this->width,
                 $this->heightCell,
                 null,
-                'fill:'.$fillColor.';stroke:black;'
+                'fill:' . $fillColor . ';stroke:black;'
             );
             $this->diagram->printElement(
                 'text',

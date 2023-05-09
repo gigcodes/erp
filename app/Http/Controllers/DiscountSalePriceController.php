@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreWebsiteSalesPrice;
 use Auth;
 use Illuminate\Http\Request;
+use App\StoreWebsiteSalesPrice;
 
 class DiscountSalePriceController extends Controller
 {
@@ -52,7 +52,7 @@ class DiscountSalePriceController extends Controller
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
-                $select .= "<option value='".$r->id."'>".$r->name.'</option>';
+                $select .= "<option value='" . $r->id . "'>" . $r->name . '</option>';
             }
         }
         if ($type == 'category') {
@@ -60,7 +60,7 @@ class DiscountSalePriceController extends Controller
             $rs = $model_type::all();
             $data = '';
             foreach ($rs as $r) {
-                $select .= "<option value='".$r->id."'>".$r->title.'</option>';
+                $select .= "<option value='" . $r->id . "'>" . $r->title . '</option>';
             }
         }
 
@@ -69,7 +69,7 @@ class DiscountSalePriceController extends Controller
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
-                $select .= "<option value='".$r->id."'>".$r->name.'</option>';
+                $select .= "<option value='" . $r->id . "'>" . $r->name . '</option>';
             }
         }
 
@@ -78,7 +78,7 @@ class DiscountSalePriceController extends Controller
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
-                $select .= "<option value='".$r->id."'>".$r->title.'</option>';
+                $select .= "<option value='" . $r->id . "'>" . $r->title . '</option>';
             }
         }
         $select .= '</select>';

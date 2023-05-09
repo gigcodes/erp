@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\SqlQueryForm;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Config\PageSettings;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\SqlQueryForm;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
 
 /**
  * Server SQL executor

@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use DB;
+use App\User;
+use Exception;
+use App\UserRate;
+use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
-use App\User;
-use App\UserRate;
-use DB;
-use Exception;
-use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class AccountHubstaffActivities extends Command
 {
@@ -54,20 +55,20 @@ class AccountHubstaffActivities extends Command
             // UTC midnight
             $today = strtotime('today+00:00');
 
-            $firstUnaccountActivityTime = strtotime($firstUnaccountedActivity->starts_at.' UTC').PHP_EOL;
+            $firstUnaccountActivityTime = strtotime($firstUnaccountedActivity->starts_at . ' UTC') . PHP_EOL;
 
-            echo $today.PHP_EOL;
-            echo $firstUnaccountActivityTime.PHP_EOL;
+            echo $today . PHP_EOL;
+            echo $firstUnaccountActivityTime . PHP_EOL;
 
             // account only previous days activity
             if ($firstUnaccountActivityTime < $today) {
                 // accounting periods
                 $start = $firstUnaccountedActivity->starts_at; // inclusive
                 $endTime = strtotime($start) + (1 * 24 * 60 * 60);
-                $end = date('Y-m-d', $endTime).' 23:59:59'; //exclusive
+                $end = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
 
-                echo $start.PHP_EOL;
-                echo $end.PHP_EOL;
+                echo $start . PHP_EOL;
+                echo $end . PHP_EOL;
 
                 //get the rate for the start of yesterday
                 $userRatesForStartOfDayYesterday = UserRate::latestRatesBeforeTime($end);
@@ -212,8 +213,8 @@ class AccountHubstaffActivities extends Command
                     0
                 );
 
-                echo 'Account activities: '.$accountedActivityCount.PHP_EOL;
-                echo 'Unaccounted activities: '.count($unaccountedActivities).PHP_EOL;
+                echo 'Account activities: ' . $accountedActivityCount . PHP_EOL;
+                echo 'Unaccounted activities: ' . count($unaccountedActivities) . PHP_EOL;
 
                 //update the accounted activities with the account entry id
                 foreach ($accountingEntries as $entry) {
@@ -259,11 +260,15 @@ class AccountHubstaffActivities extends Command
                 }
             }
             DB::commit();
-            echo PHP_EOL.'=====DONE===='.PHP_EOL;
+            echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
             echo $e->getMessage();
             DB::rollBack();
-            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
+            echo PHP_EOL . '=====FAILED====' . PHP_EOL;
         }
     }
 }

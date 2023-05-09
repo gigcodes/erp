@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Properties\Plugins;
 
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 use PhpMyAdmin\Properties\PropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Superclass for

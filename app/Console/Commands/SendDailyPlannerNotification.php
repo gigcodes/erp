@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
-use App\DailyActivitiesHistories;
 use App\DailyActivity;
 use App\UserEvent\UserEvent;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\DailyActivitiesHistories;
+use App\Helpers\LogHelper;
 
 class SendDailyPlannerNotification extends Command
 {
@@ -81,13 +82,13 @@ class SendDailyPlannerNotification extends Command
 
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
-                            $notification[] = $no.') ['.changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone).'] => '.$event->subject;
+                            $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                             $no++;
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
                                 'title' => 'Sent notification',
-                                'description' => 'To '.$user->name,
+                                'description' => 'To ' . $user->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
@@ -113,12 +114,12 @@ class SendDailyPlannerNotification extends Command
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
 
-                            $notification[] = $no.') ['.changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone).'] => '.$event->subject;
+                            $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                             $no++;
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
                                 'title' => 'Sent notification',
-                                'description' => 'To '.$vendor->name,
+                                'description' => 'To ' . $vendor->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
@@ -135,7 +136,9 @@ class SendDailyPlannerNotification extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

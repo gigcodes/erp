@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database;
 
-use PhpMyAdmin\Database\Events;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
 use function strlen;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Database\Events;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 final class EventsController extends AbstractController
 {

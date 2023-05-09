@@ -4,8 +4,8 @@ namespace App\Services\Bots;
 
 use App\ScrapEntries;
 use GuzzleHttp\Client;
-use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class CucProductDataEmulator
 {
@@ -80,7 +80,7 @@ class CucProductDataEmulator
 
                         $price = $detailsHTML->filter('.prezzidettaglio span')->getInnerHtml();
                         $price = explode(',', $price);
-                        $price = str_replace('.', ',', $price[0]).'.'.$price[1];
+                        $price = str_replace('.', ',', $price[0]) . '.' . $price[1];
 
                         $brand = $detailsHTML->filter('h1 a span')->getInnerHtml();
                         $category = $detailsHTML->filter('h2 a span')->getInnerHtml();
@@ -116,7 +116,7 @@ class CucProductDataEmulator
                         $propertiesToSave['category'] = trim($category);
                         $propertiesToSave['original_sku'] = $sku_original;
 
-                        $title = $category.' '.$brand;
+                        $title = $category . ' ' . $brand;
 
                         //Lukas, can you check here, wht this isn't saving?
 

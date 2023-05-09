@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\EventEnum;
-use App\Events\SendgridEventCreated;
-use App\Repositories\SendgridEventRepositoryInterface;
 use App\SendgridEvent;
-use Illuminate\Foundation\Validation\ValidatesRequests;
+use App\Enums\EventEnum;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use App\Events\SendgridEventCreated;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Repositories\SendgridEventRepositoryInterface;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 /**
  * Class WebhookController
@@ -29,7 +29,6 @@ class WebhookController extends Controller
      * WebhookController constructor.
      *
      * @param  SendgridEvent  $sendgridEvent
-     * @param  SendgridEventRepositoryInterface  $sendgridEventRepository
      */
     public function __construct(SendgridEventRepositoryInterface $sendgridEventRepository)
     {
@@ -37,8 +36,6 @@ class WebhookController extends Controller
     }
 
     /**
-     * @param  Request  $request
-     *
      * @throws ValidationException
      * @throws \ReflectionException
      */
@@ -57,12 +54,12 @@ class WebhookController extends Controller
             [
                 '*.email' => 'required|email',
                 '*.timestamp' => 'required|integer',
-                '*.event' => 'required|in:'.implode(',', EventEnum::getAll()),
+                '*.event' => 'required|in:' . implode(',', EventEnum::getAll()),
                 '*.sg_event_id' => 'required|string',
                 '*.sg_message_id' => 'required|string',
                 '*.category' => function ($attribute, $value, $fail) {
                     if (! is_null($value) && ! in_array(gettype($value), ['string', 'array'])) {
-                        $fail($attribute.' must be a string or array.');
+                        $fail($attribute . ' must be a string or array.');
                     }
                 },
                 '*.category.*' => 'string',
@@ -96,8 +93,6 @@ class WebhookController extends Controller
 
     /**
      * Processes an individual event
-     *
-     * @param $event
      */
     private function processEvent(array $event): void
     {
@@ -157,8 +152,6 @@ class WebhookController extends Controller
 
     /**
      * Logs a message that we have received a duplicate webhook for an event
-     *
-     * @param  array  $event
      */
     private function logDuplicateEvent(array $event)
     {

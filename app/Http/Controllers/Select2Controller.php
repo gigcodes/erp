@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
-use App\Customer;
-use App\DeveloperTask;
-use App\Supplier;
 use App\Task;
 use App\User;
+use App\Brand;
 use App\Vendor;
+use App\Category;
+use App\Customer;
+use App\Supplier;
+use App\DeveloperTask;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
@@ -22,8 +22,8 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $customers->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%')
-                    ->orWhere('email', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
 
@@ -48,8 +48,8 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $suppliers->where(function ($q) use ($request) {
-                $q->where('supplier', 'LIKE', '%'.$request->q.'%')
-                    ->orWhere('email', 'LIKE', '%'.$request->q.'%');
+                $q->where('supplier', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
         $suppliers = $suppliers->paginate(30);
@@ -124,8 +124,8 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $users->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%')
-                    ->orWhere('email', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
 
@@ -138,7 +138,7 @@ class Select2Controller extends Controller
             $text = $user->name;
 
             if ($request->format === 'name-email') {
-                $text = $user->name.' - '.$user->email;
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result['items'][] = [
@@ -156,8 +156,8 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $users->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%')
-                    ->orWhere('email', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
 
@@ -170,7 +170,7 @@ class Select2Controller extends Controller
             $text = $user->name;
 
             if ($request->format === 'name-email') {
-                $text = $user->name.' - '.$user->email;
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result['items'][] = [
@@ -182,8 +182,8 @@ class Select2Controller extends Controller
         $vendors = Vendor::select('id', 'name', 'email');
         if (! empty($request->q)) {
             $vendors->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%')
-                    ->orWhere('email', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
         $vendors = $vendors->paginate(30);
@@ -195,7 +195,7 @@ class Select2Controller extends Controller
             $text = $user->name;
 
             if ($request->format === 'name-email') {
-                $text = $user->name.' - '.$user->email;
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result_vendors['items'][] = [
@@ -219,7 +219,7 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $brands->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', $request->q.'%');
+                $q->where('name', 'LIKE', $request->q . '%');
             });
         }
 
@@ -248,7 +248,7 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $tasks->where(function ($q) use ($request) {
-                $q->where('id', 'LIKE', $request->q.'%')->orwhere('subject', 'LIKE', $request->q.'%')->get();
+                $q->where('id', 'LIKE', $request->q . '%')->orwhere('subject', 'LIKE', $request->q . '%')->get();
             });
         }
         $tasks = $tasks->paginate(30);
@@ -262,7 +262,7 @@ class Select2Controller extends Controller
 
             if (! empty($request->q)) {
                 $tasks->where(function ($q) use ($request) {
-                    $q->where('id', 'LIKE', $request->q.'%')->orwhere('task_subject', 'LIKE', $request->q.'%')->get();
+                    $q->where('id', 'LIKE', $request->q . '%')->orwhere('task_subject', 'LIKE', $request->q . '%')->get();
                 });
             }
             $tasks = $tasks->paginate(30);
@@ -275,7 +275,7 @@ class Select2Controller extends Controller
         foreach ($tasks as $task) {
             $result['items'][] = [
                 'id' => $task->id,
-                'text' => get_class($task) == \App\DeveloperTask::class ? '#DEVTASK-'.$task->id.'-'.$task->subject : '#TASK-'.$task->id.'-'.$task->task_subject,
+                'text' => get_class($task) == \App\DeveloperTask::class ? '#DEVTASK-' . $task->id . '-' . $task->subject : '#TASK-' . $task->id . '-' . $task->task_subject,
             ];
         }
 
@@ -288,7 +288,7 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $category->where(function ($q) use ($request) {
-                $q->where('title', 'LIKE', $request->q.'%');
+                $q->where('title', 'LIKE', $request->q . '%');
             });
         }
 
@@ -320,7 +320,7 @@ class Select2Controller extends Controller
         foreach ($customers as $customer) {
             $result['items'][] = [
                 'id' => $customer->id,
-                'text' => '<strong>Name</strong>: '.$customer->name.' <strong>Phone</strong>: '.$customer->phone,
+                'text' => '<strong>Name</strong>: ' . $customer->name . ' <strong>Phone</strong>: ' . $customer->phone,
             ];
         }
 
@@ -353,7 +353,7 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $time_doctor_accounts->where(function ($q) use ($request) {
-                $q->where('time_doctor_email', 'LIKE', '%'.$request->q.'%');
+                $q->where('time_doctor_email', 'LIKE', '%' . $request->q . '%');
             });
         }
 
@@ -370,6 +370,7 @@ class Select2Controller extends Controller
                 'text' => $text,
             ];
         }
+
         return response()->json($result);
     }
 
@@ -379,11 +380,11 @@ class Select2Controller extends Controller
 
         if (! empty($request->q)) {
             $time_doctor_accounts->where(function ($q) use ($request) {
-                $q->where('time_doctor_email', 'LIKE', '%'.$request->q.'%');
+                $q->where('time_doctor_email', 'LIKE', '%' . $request->q . '%');
             });
         }
 
-        $time_doctor_accounts = $time_doctor_accounts->where('auth_token','!=','');
+        $time_doctor_accounts = $time_doctor_accounts->where('auth_token', '!=', '');
 
         $time_doctor_accounts = $time_doctor_accounts->orderBy('time_doctor_email', 'asc')->paginate(30);
 
@@ -398,6 +399,7 @@ class Select2Controller extends Controller
                 'text' => $text,
             ];
         }
+
         return response()->json($result);
     }
 
@@ -405,14 +407,14 @@ class Select2Controller extends Controller
     {
         $time_doctor_projects = TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name');
 
-        if (! empty($request->q)) {            
+        if (! empty($request->q)) {
             $time_doctor_projects->where(function ($q) use ($request) {
-                $q->where('time_doctor_project_name', 'LIKE', '%'.$request->q.'%');
+                $q->where('time_doctor_project_name', 'LIKE', '%' . $request->q . '%');
             });
         }
-        if(! empty($request->account_id)){
-            $time_doctor_projects->where('time_doctor_account_id',$request->account_id);
-        }   
+        if (! empty($request->account_id)) {
+            $time_doctor_projects->where('time_doctor_account_id', $request->account_id);
+        }
 
         $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->paginate(30);
 
@@ -427,6 +429,7 @@ class Select2Controller extends Controller
                 'text' => $text,
             ];
         }
+
         return response()->json($result);
     }
 
@@ -434,19 +437,19 @@ class Select2Controller extends Controller
     {
         $time_doctor_projects = TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name');
 
-        if (! empty($request->q)) {            
+        if (! empty($request->q)) {
             $time_doctor_projects->where(function ($q) use ($request) {
-                $q->where('time_doctor_project_name', 'LIKE', '%'.$request->q.'%');
+                $q->where('time_doctor_project_name', 'LIKE', '%' . $request->q . '%');
             });
         }
-        if(! empty($request->account_id)){
-            $time_doctor_projects->where('time_doctor_account_id',$request->account_id);
-        }   
+        if (! empty($request->account_id)) {
+            $time_doctor_projects->where('time_doctor_account_id', $request->account_id);
+        }
 
         $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->get();
         $response_str = "<option value=''>Select Project</option>";
-        foreach($time_doctor_projects as $project){
-            $response_str .= "<option value='".$project->time_doctor_project_id."'>".$project->time_doctor_project_name."</option>";
+        foreach ($time_doctor_projects as $project) {
+            $response_str .= "<option value='" . $project->time_doctor_project_id . "'>" . $project->time_doctor_project_name . '</option>';
         }
 
         return $response_str;

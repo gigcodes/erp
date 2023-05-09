@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\CronJob;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Http\Request;
 
 class CronController extends Controller
@@ -68,11 +68,11 @@ class CronController extends Controller
             foreach ($reports as $report) {
                 $status = ! empty($report->last_error) ? 'Failed' : 'Success';
                 $history .= '<tr>
-				<td>'.$report->signature.'</td>
-				<td>'.$status.'</td>
-				<td>'.$report->start_time.'</td>
-				<td>'.$report->end_time.'</td>
-				<td>'.$report->updated_at->format('Y-m-d H:i:s').'</td>
+				<td>' . $report->signature . '</td>
+				<td>' . $status . '</td>
+				<td>' . $report->start_time . '</td>
+				<td>' . $report->end_time . '</td>
+				<td>' . $report->updated_at->format('Y-m-d H:i:s') . '</td>
 				</tr>';
             }
         } else {

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function __;
-use PhpMyAdmin\Controllers\Database\AbstractController;
 use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\Database\AbstractController;
 
 final class ShowCreateController extends AbstractController
 {

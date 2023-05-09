@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\EmailAddress;
-use App\Jobs\FetchEmail;
 use Carbon\Carbon;
+use App\EmailAddress;
+use App\CronJobReport;
+use App\Jobs\FetchEmail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -62,7 +62,7 @@ class FetchAllEmails extends Command
         // new code added for optimising
         EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
             foreach ($emailAddresses as $emailAddress) {
-                FetchEmail::dispatch($emailAddress)->onQueue('email')->queue();
+                FetchEmail::dispatch($emailAddress)->onQueue('email');
             }
         });
 

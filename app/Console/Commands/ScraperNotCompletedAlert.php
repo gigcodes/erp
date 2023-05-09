@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use App\Scraper;
-use App\ScrapRemark;
 use Carbon\Carbon;
+use App\ScrapRemark;
 use Illuminate\Console\Command;
 
 class ScraperNotCompletedAlert extends Command
@@ -53,7 +54,9 @@ class ScraperNotCompletedAlert extends Command
                     ]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

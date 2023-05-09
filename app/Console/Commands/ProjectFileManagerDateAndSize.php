@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ProjectFileManager;
-use App\ProjectFileManagerHistory;
-use App\Setting;
-use App\User;
 use DB;
+use App\User;
+use App\Setting;
+use App\ProjectFileManager;
 use Illuminate\Console\Command;
+use App\ProjectFileManagerHistory;
 
 class ProjectFileManagerDateAndSize extends Command
 {
@@ -52,7 +52,7 @@ class ProjectFileManagerDateAndSize extends Command
         $param = [];
 
         foreach ($fileInformation as $key => $val) {
-            $path = base_path().DIRECTORY_SEPARATOR.(str_replace('./', '', $val->name));
+            $path = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $val->name));
             $file_size = 0;
             if (is_dir($path)) {
                 if (file_exists($path)) {
@@ -71,7 +71,7 @@ class ProjectFileManagerDateAndSize extends Command
                     $id = $val->id;
                     $name = $val->name;
 
-                    $io = popen('/usr/bin/du -sk '.$path, 'r');
+                    $io = popen('/usr/bin/du -sk ' . $path, 'r');
                     $size = fgets($io, 4096);
                     $new_size = substr($size, 0, strpos($size, "\t"));
 
@@ -90,8 +90,8 @@ class ProjectFileManagerDateAndSize extends Command
                         $param = [
                             'project_id' => $id,
                             'name' => $name,
-                            'old_size' => $old_size.'MB',
-                            'new_size' => $new_size.'MB',
+                            'old_size' => $old_size . 'MB',
+                            'new_size' => $new_size . 'MB',
                         ];
 
                         ProjectFileManagerHistory::create($param);
@@ -100,7 +100,7 @@ class ProjectFileManagerDateAndSize extends Command
                     $both_size = ($old_size + $increase_size);
 
                     if ($new_size >= $both_size) {
-                        $message = 'Project Directory Size increase in Path = '.$name.','.' OldSize = '.$old_size.'MB'.' And '.'NewSize = '.$new_size.'MB';
+                        $message = 'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size . 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB';
 
                         $users = User::get();
                         foreach ($users as $user) {
@@ -140,8 +140,8 @@ class ProjectFileManagerDateAndSize extends Command
                         $param = [
                             'project_id' => $id,
                             'name' => $name,
-                            'old_size' => $old_size.'MB',
-                            'new_size' => $new_size.'MB',
+                            'old_size' => $old_size . 'MB',
+                            'new_size' => $new_size . 'MB',
                         ];
 
                         ProjectFileManagerHistory::create($param);
@@ -150,7 +150,7 @@ class ProjectFileManagerDateAndSize extends Command
                     $both_size = ($old_size + $increase_size);
 
                     if ($new_size > $both_size) {
-                        $message = 'Project Directory Size increase in Path = '.$name.','.' OldSize = '.$old_size.'MB'.' And '.'NewSize = '.$new_size.'MB';
+                        $message = 'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size . 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB';
 
                         $users = User::get();
                         foreach ($users as $user) {

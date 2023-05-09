@@ -14,8 +14,6 @@ class SettingController extends Controller
 
     /**
      * SettingController constructor.
-     *
-     * @param $imageRepo
      */
     public function __construct(ImageRepo $imageRepo)
     {
@@ -45,7 +43,6 @@ class SettingController extends Controller
     /**
      * Update the specified settings in storage.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function update(Request $request)
@@ -103,8 +100,6 @@ class SettingController extends Controller
     /**
      * Action to clean-up images in the system.
      *
-     * @param  Request  $request
-     * @param  ImageService  $imageService
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function cleanupImages(Request $request, ImageService $imageService)

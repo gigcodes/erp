@@ -7,13 +7,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function __;
-use function count;
-use Exception;
-use function strlen;
-use function strtr;
 use TCPDF;
+use Exception;
+use function __;
 use TCPDF_FONTS;
+use function count;
+use function strtr;
+use function strlen;
 
 /**
  * PDF export base class providing basic configuration.
@@ -54,7 +54,7 @@ class Pdf extends TCPDF
         $pdfa = false
     ) {
         parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
-        $this->SetAuthor('phpMyAdmin '.Version::VERSION);
+        $this->SetAuthor('phpMyAdmin ' . Version::VERSION);
         $this->AddFont('DejaVuSans', '', 'dejavusans.php');
         $this->AddFont('DejaVuSans', 'B', 'dejavusansb.php');
         $this->SetFont(self::PMA_PDF_FONT, '', 14);
@@ -77,8 +77,8 @@ class Pdf extends TCPDF
         $this->Cell(
             0,
             6,
-            __('Page number:').' '
-            .$this->getAliasNumPage().'/'.$this->getAliasNbPages(),
+            __('Page number:') . ' '
+            . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(),
             'T',
             0,
             'C'
@@ -132,7 +132,7 @@ class Pdf extends TCPDF
     public function Error($error_message = ''): void
     {
         echo Message::error(
-            __('Error while creating PDF:').' '.$error_message
+            __('Error while creating PDF:') . ' ' . $error_message
         )->getDisplay();
         exit;
     }

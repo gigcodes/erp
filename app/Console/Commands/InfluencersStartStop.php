@@ -45,7 +45,7 @@ class InfluencersStartStop extends Command
         $runningKeywordId = 0;
         foreach ($keywords as $keyword) {
             $status = $this->get_status($keyword->name);
-            if ($status == 'Script Already Running '.$keyword->name) {
+            if ($status == 'Script Already Running ' . $keyword->name) {
                 $runningKeywordId = $keyword->id;
                 $runningCount++;
             }
@@ -75,7 +75,7 @@ class InfluencersStartStop extends Command
         //stop current script
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/stop-script?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
@@ -91,7 +91,7 @@ class InfluencersStartStop extends Command
         //start script
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/start-script?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
@@ -106,7 +106,7 @@ class InfluencersStartStop extends Command
     {
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-status?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);

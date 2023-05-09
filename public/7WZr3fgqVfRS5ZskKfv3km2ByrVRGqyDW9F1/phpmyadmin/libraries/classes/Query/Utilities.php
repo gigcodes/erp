@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Query;
 
 use function __;
-use function array_slice;
-use function debug_backtrace;
-use function explode;
-use function htmlspecialchars;
-use function intval;
 use function md5;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Error;
 use PhpMyAdmin\Url;
+use function intval;
+use function explode;
 use function sprintf;
-use function str_contains;
+use PhpMyAdmin\Error;
 use function strcasecmp;
-use function strnatcasecmp;
 use function strtolower;
+use function array_slice;
+use function str_contains;
+use function strnatcasecmp;
+use function debug_backtrace;
+use function htmlspecialchars;
+use PhpMyAdmin\Dbal\ResultInterface;
 
 /**
  * Some helfull functions for common tasks related to SQL results
@@ -86,37 +86,37 @@ class Utilities
     {
         $error_message = htmlspecialchars($error_message);
 
-        $error = '#'.((string) $error_number);
+        $error = '#' . ((string) $error_number);
         $separator = ' &mdash; ';
 
         if ($error_number == 2002) {
-            $error .= ' - '.$error_message;
+            $error .= ' - ' . $error_message;
             $error .= $separator;
             $error .= __('The server is not responding (or the local server\'s socket is not correctly configured).');
         } elseif ($error_number == 2003) {
-            $error .= ' - '.$error_message;
-            $error .= $separator.__('The server is not responding.');
+            $error .= ' - ' . $error_message;
+            $error .= $separator . __('The server is not responding.');
         } elseif ($error_number == 1698) {
-            $error .= ' - '.$error_message;
-            $error .= $separator.'<a href="'.Url::getFromRoute('/logout').'" class="disableAjax">';
-            $error .= __('Logout and try as another user.').'</a>';
+            $error .= ' - ' . $error_message;
+            $error .= $separator . '<a href="' . Url::getFromRoute('/logout') . '" class="disableAjax">';
+            $error .= __('Logout and try as another user.') . '</a>';
         } elseif ($error_number == 1005) {
             if (str_contains($error_message, 'errno: 13')) {
-                $error .= ' - '.$error_message;
+                $error .= ' - ' . $error_message;
                 $error .= $separator
-                    .__('Please check privileges of directory containing database.');
+                    . __('Please check privileges of directory containing database.');
             } else {
                 /**
                  * InnoDB constraints, see
                  * https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html
                  */
-                $error .= ' - '.$error_message.
-                    ' (<a href="'.
-                    Url::getFromRoute('/server/engines/InnoDB/Status').
-                    '">'.__('Details…').'</a>)';
+                $error .= ' - ' . $error_message .
+                    ' (<a href="' .
+                    Url::getFromRoute('/server/engines/InnoDB/Status') .
+                    '">' . __('Details…') . '</a>)';
             }
         } else {
-            $error .= ' - '.$error_message;
+            $error .= ' - ' . $error_message;
         }
 
         return $error;
@@ -180,7 +180,7 @@ class Utilities
 
         if ($result === false && $errorMessage !== null) {
             $dbgInfo['error'] = '<span class="text-danger">'
-                .htmlspecialchars($errorMessage).'</span>';
+                . htmlspecialchars($errorMessage) . '</span>';
         }
 
         $dbgInfo['query'] = htmlspecialchars($query);

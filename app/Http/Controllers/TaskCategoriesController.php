@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\TaskCategories;
-use App\TaskHistories;
-use App\TaskSubCategory;
-use App\TaskSubject;
 use Auth;
+use App\TaskSubject;
+use App\TaskHistories;
+use App\TaskCategories;
+use App\TaskSubCategory;
 use Illuminate\Http\Request;
 
 class TaskCategoriesController extends Controller
@@ -20,15 +20,15 @@ class TaskCategoriesController extends Controller
             if (isset($request->category_name) && ! empty($request->category_name)) {
                 $items = TaskSubCategory::with(['task_subject', 'task_category'])
                 ->whereHas('task_category', function ($q) use ($request) {
-                    $q->where('task_category.name', 'Like', '%'.$request->category_name.'%');
+                    $q->where('task_category.name', 'Like', '%' . $request->category_name . '%');
                 });
             }
             if (isset($request->sub_category_name) && ! empty($request->sub_category_name)) {
-                $items->where('task_sub_categories.name', 'Like', '%'.$request->sub_category_name.'%');
+                $items->where('task_sub_categories.name', 'Like', '%' . $request->sub_category_name . '%');
             }
             if (isset($request->subjects) && ! empty($request->subjects)) {
                 $items = TaskSubCategory::with(['task_subject', 'task_category'])->whereHas('task_subject', function ($q) use ($request) {
-                    $q->where('task_subjects.name', 'Like', '%'.$request->subjects.'%');
+                    $q->where('task_subjects.name', 'Like', '%' . $request->subjects . '%');
                 });
             }
 

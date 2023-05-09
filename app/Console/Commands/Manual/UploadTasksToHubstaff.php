@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands\Manual;
 
-use Carbon\Carbon;
 use DB;
+use Storage;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use Storage;
+use GuzzleHttp\Exception\ClientException;
 
 class UploadTasksToHubstaff extends Command
 {
@@ -77,16 +77,16 @@ class UploadTasksToHubstaff extends Command
 
         $tasks = array_map(
             function ($task) {
-                $task->summary = '#'.$task->id.' => '.$task->summary;
+                $task->summary = '#' . $task->id . ' => ' . $task->summary;
 
                 return $task;
             },
             $tasks
         );
 
-        echo 'Total tasks: '.count($tasks).PHP_EOL;
+        echo 'Total tasks: ' . count($tasks) . PHP_EOL;
         $this->uploadTasks($tasks, 'tasks');
-        echo 'UPLOADED TASKS'.PHP_EOL;
+        echo 'UPLOADED TASKS' . PHP_EOL;
     }
 
     private function uploadDeveloperTasks()
@@ -103,7 +103,7 @@ class UploadTasksToHubstaff extends Command
             function ($task) {
                 $summary = '#';
                 if ($task->task_type_id == 1) {
-                    $summary .= 'DEVTASK-'.$task->id.' => '.$task->summary;
+                    $summary .= 'DEVTASK-' . $task->id . ' => ' . $task->summary;
                 }
                 $task->summary = $summary;
 
@@ -112,7 +112,7 @@ class UploadTasksToHubstaff extends Command
             $assignedTasks
         );
 
-        echo 'Total Dev tasks: '.count($assignedTasks).PHP_EOL;
+        echo 'Total Dev tasks: ' . count($assignedTasks) . PHP_EOL;
         $this->uploadTasks($assignedTasks, 'developer_tasks');
         echo 'UPLOADED DEVELOPER TASKS';
     }
@@ -122,7 +122,7 @@ class UploadTasksToHubstaff extends Command
         foreach ($tasks as $index => $task) {
             $taskId = $this->uploadTask($task);
             if ($taskId) {
-                echo '('.($index + 1).'/'.count($tasks).') Created Hubstaff Task: '.$taskId.' for task: '.$task->id.PHP_EOL;
+                echo '(' . ($index + 1) . '/' . count($tasks) . ') Created Hubstaff Task: ' . $taskId . ' for task: ' . $task->id . PHP_EOL;
 
                 DB::table($tableName)
                     ->where('id', '=', $task->id)
@@ -132,7 +132,7 @@ class UploadTasksToHubstaff extends Command
                         ]
                     );
             } else {
-                echo '('.($index + 1).'/'.count($tasks).')Failed to create task for task ID: '.$task->id.PHP_EOL;
+                echo '(' . ($index + 1) . '/' . count($tasks) . ')Failed to create task for task ID: ' . $task->id . PHP_EOL;
             }
             sleep(5);
         }
@@ -143,14 +143,14 @@ class UploadTasksToHubstaff extends Command
         $tokens = $this->getTokens();
 
         // $url        = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
-        $url = 'https://api.hubstaff.com/v2/projects/'.config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID').'/tasks';
+        $url = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
             $response = $httpClient->post(
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -174,7 +174,7 @@ class UploadTasksToHubstaff extends Command
                     );
                 }
             }
-            echo $e->getMessage().PHP_EOL;
+            echo $e->getMessage() . PHP_EOL;
         }
 
         return false;

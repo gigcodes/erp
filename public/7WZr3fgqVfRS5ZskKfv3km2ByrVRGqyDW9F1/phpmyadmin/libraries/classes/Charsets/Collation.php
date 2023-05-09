@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Charsets;
 
 use function __;
-use function _pgettext;
 use function count;
 use function explode;
 use function implode;
+use function _pgettext;
 
 /**
  * Value object class for a collation
@@ -259,11 +259,11 @@ final class Collation
     private function buildName(string $result, ?string $variant, array $suffixes): string
     {
         if ($variant !== null) {
-            $result .= ' ('.$variant.')';
+            $result .= ' (' . $variant . ')';
         }
 
         if (count($suffixes) > 0) {
-            $result .= ', '.implode(', ', $suffixes);
+            $result .= ', ' . implode(', ', $suffixes);
         }
 
         return $result;

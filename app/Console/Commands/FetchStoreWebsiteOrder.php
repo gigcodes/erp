@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class FetchStoreWebsiteOrder extends Command
 {
@@ -37,14 +38,20 @@ class FetchStoreWebsiteOrder extends Command
      */
     public function handle()
     {
-        $storeWebsite = \App\StoreWebsite::all();
-        foreach ($storeWebsite as $sW) {
-            // if site is in magento the fetch orders
-            if ($sW->website_source == 'magento') {
-                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    \seo2websites\MagentoHelper\MagentoHelper::fetchOrder($sW);
+        try{
+            $storeWebsite = \App\StoreWebsite::all();
+            foreach ($storeWebsite as $sW) {
+                // if site is in magento the fetch orders
+                if ($sW->website_source == 'magento') {
+                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        \seo2websites\MagentoHelper\MagentoHelper::fetchOrder($sW);
+                    }
                 }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

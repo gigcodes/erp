@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Country;
-use App\Models\State;
-use App\Models\City;
-
 use Http;
+use App\Models\City;
+use App\Models\State;
+use App\Models\Country;
+
+use Illuminate\Console\Command;
 
 class StoreCities extends Command
 {
@@ -44,34 +44,29 @@ class StoreCities extends Command
     {
         $states = State::has('country')->with('country')->get();
 
-        foreach($states as $state){
-
+        foreach ($states as $state) {
             $country = $state->country;
 
-            $url = 'https://api.countrystatecity.in/v1/countries/'.$country->code.'/states/'.$state->code.'/cities';
+            $url = 'https://api.countrystatecity.in/v1/countries/' . $country->code . '/states/' . $state->code . '/cities';
 
             // API Reference: https://countrystatecity.in/docs/api/cities-by-state-country/
             $response = Http::withHeaders([
                 'X-CSCAPI-KEY' => 'WUZWeG9GbFpXMnhEcmRBNUZzN0JIYXpuN1FlMTd3eG1YR2duRnlwRA==',
             ])->get($url)->json();
 
-            if(!@$response['error']){
-                
-                foreach($response as $value){
-
-                    $input = array(
-                        "name" => $value['name'],
-                        "state_id" => $state->id,
-                        "country_id" => $country->id,
-                    );
+            if (! @$response['error']) {
+                foreach ($response as $value) {
+                    $input = [
+                        'name' => $value['name'],
+                        'state_id' => $state->id,
+                        'country_id' => $country->id,
+                    ];
 
                     City::updateOrCreate($input);
 
-                    $this->info("Stored city: ". $value['name']);
+                    $this->info('Stored city: ' . $value['name']);
                 }
-
             }
         }
-
     }
 }

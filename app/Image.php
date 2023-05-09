@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
@@ -18,7 +18,7 @@ class Image extends Model
         $extension = Input::file($key)->getClientOriginalExtension();
         $timestamp = date('Y-m-d-His', time());
 
-        return $name.'-'.$timestamp.'.'.$extension;
+        return $name . '-' . $timestamp . '.' . $extension;
     }
 
     public static function newImage($key = 'image')
@@ -31,8 +31,8 @@ class Image extends Model
 
     public static function replaceImage($imageName, $key = 'image')
     {
-        File::move(public_path().config('constants.uploads_dir').$imageName,
-            public_path().config('constants.archive__dir').$imageName
+        File::move(public_path() . config('constants.uploads_dir') . $imageName,
+            public_path() . config('constants.archive__dir') . $imageName
         );
 
         return self::newImage($key);
@@ -41,8 +41,8 @@ class Image extends Model
     public static function trashImage($imageName)
     {
         $path = Storage::disk('uploads')->getDriver()->getAdapter()->getPathPrefix();
-        File::move($path.'/'.$imageName,
-            $path.'trash/'.$imageName
+        File::move($path . '/' . $imageName,
+            $path . 'trash/' . $imageName
         );
     }
 

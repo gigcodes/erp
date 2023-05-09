@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\InstagramKeyword;
-use App\Marketing\InstaAccAutomationForm;
 use App\Setting;
-use Illuminate\Console\Command;
+use App\InstagramKeyword;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use App\Marketing\InstaAccAutomationForm;
 
 class InstaAutoFeedDaily extends Command
 {

@@ -4,15 +4,15 @@ namespace Modules\BookStack\Uploads;
 
 use DB;
 use Exception;
-use Illuminate\Contracts\Cache\Repository as Cache;
-use Illuminate\Contracts\Filesystem\Factory as FileSystem;
 use Illuminate\Support\Str;
-use Intervention\Image\Exception\NotSupportedException;
-use Intervention\Image\ImageManager;
 use Modules\BookStack\Auth\User;
+use Intervention\Image\ImageManager;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Modules\BookStack\Exceptions\HttpFetchException;
 use Modules\BookStack\Exceptions\ImageUploadException;
+use Intervention\Image\Exception\NotSupportedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Illuminate\Contracts\Filesystem\Factory as FileSystem;
 
 class ImageService extends UploadService
 {
@@ -28,12 +28,6 @@ class ImageService extends UploadService
 
     /**
      * ImageService constructor.
-     *
-     * @param  Image  $image
-     * @param  ImageManager  $imageTool
-     * @param  FileSystem  $fileSystem
-     * @param  Cache  $cache
-     * @param  HttpFetcher  $http
      */
     public function __construct(Image $image, ImageManager $imageTool, FileSystem $fileSystem, Cache $cache, HttpFetcher $http)
     {
@@ -65,12 +59,6 @@ class ImageService extends UploadService
     /**
      * Saves a new image from an upload.
      *
-     * @param  UploadedFile  $uploadedFile
-     * @param  string  $type
-     * @param  int  $uploadedTo
-     * @param  int|null  $resizeWidth
-     * @param  int|null  $resizeHeight
-     * @param  bool  $keepRatio
      * @return mixed
      *
      * @throws ImageUploadException
@@ -96,9 +84,6 @@ class ImageService extends UploadService
     /**
      * Save a new image from a uri-encoded base64 string of data.
      *
-     * @param  string  $base64Uri
-     * @param  string  $name
-     * @param  string  $type
      * @param  int  $uploadedTo
      * @return Image
      *
@@ -118,7 +103,6 @@ class ImageService extends UploadService
     /**
      * Gets an image from url and saves it to the database.
      *
-     * @param    $url
      * @param  string  $type
      * @param  bool|string  $imageName
      * @return mixed
@@ -154,15 +138,15 @@ class ImageService extends UploadService
         $secureUploads = setting('app-secure-images');
         $imageName = str_replace(' ', '-', $imageName);
 
-        $imagePath = '/uploads/images/'.$type.'/'.date('Y-m').'/';
+        $imagePath = '/uploads/images/' . $type . '/' . date('Y-m') . '/';
 
-        while ($storage->exists($imagePath.$imageName)) {
-            $imageName = Str::random(3).$imageName;
+        while ($storage->exists($imagePath . $imageName)) {
+            $imageName = Str::random(3) . $imageName;
         }
 
-        $fullPath = $imagePath.$imageName;
+        $fullPath = $imagePath . $imageName;
         if ($secureUploads) {
-            $fullPath = $imagePath.Str::random(16).'-'.$imageName;
+            $fullPath = $imagePath . Str::random(16) . '-' . $imageName;
         }
 
         try {
@@ -195,7 +179,6 @@ class ImageService extends UploadService
     /**
      * Checks if the image is a gif. Returns true if it is, else false.
      *
-     * @param  Image  $image
      * @return bool
      */
     protected function isGif(Image $image)
@@ -208,7 +191,6 @@ class ImageService extends UploadService
      * If $keepRatio is true only the width will be used.
      * Checks the cache then storage to avoid creating / accessing the filesystem on every check.
      *
-     * @param  Image  $image
      * @param  int  $width
      * @param  int  $height
      * @param  bool  $keepRatio
@@ -223,11 +205,11 @@ class ImageService extends UploadService
             return $this->getPublicUrl($image->path);
         }
 
-        $thumbDirName = '/'.($keepRatio ? 'scaled-' : 'thumbs-').$width.'-'.$height.'/';
+        $thumbDirName = '/' . ($keepRatio ? 'scaled-' : 'thumbs-') . $width . '-' . $height . '/';
         $imagePath = $image->path;
-        $thumbFilePath = dirname($imagePath).$thumbDirName.basename($imagePath);
+        $thumbFilePath = dirname($imagePath) . $thumbDirName . basename($imagePath);
 
-        if ($this->cache->has('images-'.$image->id.'-'.$thumbFilePath) && $this->cache->get('images-'.$thumbFilePath)) {
+        if ($this->cache->has('images-' . $image->id . '-' . $thumbFilePath) && $this->cache->get('images-' . $thumbFilePath)) {
             return $this->getPublicUrl($thumbFilePath);
         }
 
@@ -240,7 +222,7 @@ class ImageService extends UploadService
 
         $storage->put($thumbFilePath, $thumbData);
         $storage->setVisibility($thumbFilePath, 'public');
-        $this->cache->put('images-'.$image->id.'-'.$thumbFilePath, $thumbFilePath, 60 * 72);
+        $this->cache->put('images-' . $image->id . '-' . $thumbFilePath, $thumbFilePath, 60 * 72);
 
         return $this->getPublicUrl($thumbFilePath);
     }
@@ -248,10 +230,8 @@ class ImageService extends UploadService
     /**
      * Resize image data.
      *
-     * @param  string  $imageData
      * @param  int  $width
      * @param  int  $height
-     * @param  bool  $keepRatio
      * @return string
      *
      * @throws ImageUploadException
@@ -282,7 +262,6 @@ class ImageService extends UploadService
     /**
      * Get the raw data content from an image.
      *
-     * @param  Image  $image
      * @return string
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -298,7 +277,6 @@ class ImageService extends UploadService
     /**
      * Destroy an image along with its revisions, thumbnails and remaining folders.
      *
-     * @param  Image  $image
      *
      * @throws Exception
      */
@@ -312,7 +290,6 @@ class ImageService extends UploadService
      * Destroys an image at the given path.
      * Searches for image thumbnails in addition to main provided path..
      *
-     * @param  string  $path
      * @return bool
      */
     protected function destroyImagesFromPath(string $path)
@@ -363,7 +340,7 @@ class ImageService extends UploadService
         ];
 
         $userAvatarUrl = strtr($avatarUrl, $replacements);
-        $imageName = str_replace(' ', '-', $user->name.'-avatar.png');
+        $imageName = str_replace(' ', '-', $user->name . '-avatar.png');
         $image = $this->saveNewFromUrl($userAvatarUrl, 'user', $imageName);
         $image->created_by = $user->id;
         $image->updated_by = $user->id;
@@ -421,7 +398,7 @@ class ImageService extends UploadService
         $this->image->newQuery()->whereIn('type', $types)
             ->chunk(1000, function ($images) use ($checkRevisions, &$deletedPaths, $dryRun) {
                 foreach ($images as $image) {
-                    $searchQuery = '%'.basename($image->path).'%';
+                    $searchQuery = '%' . basename($image->path) . '%';
                     $inPage = DB::table('pages')
                          ->where('html', 'like', $searchQuery)->count() > 0;
                     $inRevision = false;
@@ -446,7 +423,6 @@ class ImageService extends UploadService
      * Convert a image URI to a Base64 encoded string.
      * Attempts to find locally via set storage method first.
      *
-     * @param  string  $uri
      * @return null|string
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -486,7 +462,7 @@ class ImageService extends UploadService
             $extension = 'svg+xml';
         }
 
-        return 'data:image/'.$extension.';base64,'.base64_encode($imageData);
+        return 'data:image/' . $extension . ';base64,' . base64_encode($imageData);
     }
 
     /**
@@ -506,9 +482,9 @@ class ImageService extends UploadService
             if ($storageUrl == false && config('filesystems.images') === 's3') {
                 $storageDetails = config('filesystems.disks.s3');
                 if (strpos($storageDetails['bucket'], '.') === false) {
-                    $storageUrl = 'https://'.$storageDetails['bucket'].'.s3.amazonaws.com';
+                    $storageUrl = 'https://' . $storageDetails['bucket'] . '.s3.amazonaws.com';
                 } else {
-                    $storageUrl = 'https://s3-'.$storageDetails['region'].'.amazonaws.com/'.$storageDetails['bucket'];
+                    $storageUrl = 'https://s3-' . $storageDetails['region'] . '.amazonaws.com/' . $storageDetails['bucket'];
                 }
             }
             $this->storageUrl = $storageUrl;
@@ -516,6 +492,6 @@ class ImageService extends UploadService
 
         $basePath = ($this->storageUrl == false) ? url('/') : $this->storageUrl;
 
-        return rtrim($basePath, '/').$filePath;
+        return rtrim($basePath, '/') . $filePath;
     }
 }

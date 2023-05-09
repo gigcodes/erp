@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Exports\ProductSupplierExport;
+use Excel;
 use App\Product;
-use App\ProductSupplier;
 use App\Supplier;
 use Carbon\Carbon;
-use Excel;
+use App\ProductSupplier;
 use Illuminate\Console\Command;
+use App\Exports\ProductSupplierExport;
 
 class ProductSupplierData extends Command
 {
@@ -85,16 +85,16 @@ class ProductSupplierData extends Command
             }
         }
 
-        $filename = Carbon::now()->format('Y-m-d-H-m-s').'_not_mapping_supplier.xlsx';
-        $path = 'not_mapping_product_supplier/'.$filename;
+        $filename = Carbon::now()->format('Y-m-d-H-m-s') . '_not_mapping_supplier.xlsx';
+        $path = 'not_mapping_product_supplier/' . $filename;
 
         Excel::store(new ProductSupplierExport($supplier_not_exist_product_supplier_table, $path), $path, 'files');
 
-        $downloadUrl = '/admin-menu/db-query/report-download?file=app/files/not_mapping_product_supplier/'.$filename;
+        $downloadUrl = '/admin-menu/db-query/report-download?file=app/files/not_mapping_product_supplier/' . $filename;
 
-        $download_url = '<a href="'.$downloadUrl.'" >Download File</a>';
+        $download_url = '<a href="' . $downloadUrl . '" >Download File</a>';
 
-        dd('Please Check This File : '.$download_url);
+        dd('Please Check This File : ' . $download_url);
 
         // $chatFileData = '';
         // $chatFileData .= html_entity_decode("Product Supplier Data", ENT_QUOTES, 'UTF-8');

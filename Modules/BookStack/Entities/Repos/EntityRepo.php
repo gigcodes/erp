@@ -3,27 +3,27 @@
 namespace Modules\BookStack\Entities\Repos;
 
 use Activity;
-use DOMDocument;
 use DOMXPath;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Modules\BookStack\Actions\TagRepo;
-use Modules\BookStack\Actions\ViewService;
-use Modules\BookStack\Auth\Permissions\PermissionService;
-use Modules\BookStack\Auth\User;
-use Modules\BookStack\Entities\Book;
-use Modules\BookStack\Entities\Bookshelf;
-use Modules\BookStack\Entities\Chapter;
-use Modules\BookStack\Entities\Entity;
-use Modules\BookStack\Entities\EntityProvider;
-use Modules\BookStack\Entities\Page;
-use Modules\BookStack\Entities\SearchService;
-use Modules\BookStack\Exceptions\NotFoundException;
-use Modules\BookStack\Exceptions\NotifyException;
-use Modules\BookStack\Uploads\AttachmentService;
 use Throwable;
+use DOMDocument;
+use Illuminate\Http\Request;
+use Modules\BookStack\Auth\User;
+use Illuminate\Support\Collection;
+use Modules\BookStack\Entities\Book;
+use Modules\BookStack\Entities\Page;
+use Modules\BookStack\Actions\TagRepo;
+use Modules\BookStack\Entities\Entity;
+use Modules\BookStack\Entities\Chapter;
+use Illuminate\Database\Eloquent\Builder;
+use Modules\BookStack\Entities\Bookshelf;
+use Modules\BookStack\Actions\ViewService;
+use Modules\BookStack\Entities\SearchService;
+use Modules\BookStack\Entities\EntityProvider;
+use Modules\BookStack\Uploads\AttachmentService;
+use Modules\BookStack\Exceptions\NotifyException;
+use Modules\BookStack\Exceptions\NotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Modules\BookStack\Auth\Permissions\PermissionService;
 
 class EntityRepo
 {
@@ -54,12 +54,6 @@ class EntityRepo
 
     /**
      * EntityRepo constructor.
-     *
-     * @param  EntityProvider  $entityProvider
-     * @param  ViewService  $viewService
-     * @param  PermissionService  $permissionService
-     * @param  TagRepo  $tagRepo
-     * @param  SearchService  $searchService
      */
     public function __construct(
         EntityProvider $entityProvider,
@@ -96,8 +90,6 @@ class EntityRepo
     /**
      * Check if an entity with the given id exists.
      *
-     * @param $type
-     * @param $id
      * @return bool
      */
     public function exists($type, $id)
@@ -166,7 +158,7 @@ class EntityRepo
         }
         $entity = $q->first();
         if ($entity === null) {
-            throw new NotFoundException(trans('bookstack::errors.'.strtolower($type).'_not_found'));
+            throw new NotFoundException(trans('bookstack::errors.' . strtolower($type) . '_not_found'));
         }
 
         return $entity;
@@ -193,10 +185,6 @@ class EntityRepo
     /**
      * Get all entities in a paginated format
      *
-     * @param $type
-     * @param  int  $count
-     * @param  string  $sort
-     * @param  string  $order
      * @param  null|callable  $queryAddition
      * @return LengthAwarePaginator
      */
@@ -214,9 +202,6 @@ class EntityRepo
     /**
      * Add sorting operations to an entity query.
      *
-     * @param  Builder  $query
-     * @param  string  $sort
-     * @param  string  $order
      * @return Builder
      */
     protected function addSortToQuery(Builder $query, string $sort = 'name', string $order = 'asc')
@@ -319,9 +304,6 @@ class EntityRepo
     /**
      * Get the most popular entities base on all views.
      *
-     * @param  string  $type
-     * @param  int  $count
-     * @param  int  $page
      * @return mixed
      */
     public function getPopular(string $type, int $count = 10, int $page = 0)
@@ -347,8 +329,6 @@ class EntityRepo
     /**
      * Get the number of entities the given user has created.
      *
-     * @param  string  $type
-     * @param  User  $user
      * @return int
      */
     public function getUserTotalCreated(string $type, User $user)
@@ -361,7 +341,6 @@ class EntityRepo
      * Get the child items for a chapter sorted by priority but
      * with draft items floated to the top.
      *
-     * @param  Bookshelf  $bookshelf
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
     public function getBookshelfChildren(Bookshelf $bookshelf)
@@ -372,7 +351,6 @@ class EntityRepo
     /**
      * Get the direct children of a book.
      *
-     * @param  Book  $book
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getBookDirectChildren(Book $book)
@@ -388,7 +366,6 @@ class EntityRepo
      * Returns a sorted collection of Pages and Chapters.
      * Loads the book slug onto child elements to prevent access database access for getting the slug.
      *
-     * @param  Book  $book
      * @param  bool  $filterDrafts
      * @param  bool  $renderPages
      * @return mixed
@@ -409,7 +386,7 @@ class EntityRepo
                 }
             } elseif ($rawEntity->entity_type === $this->entityProvider->chapter->getMorphClass()) {
                 $entities[$index] = $this->entityProvider->chapter->newFromBuilder($rawEntity);
-                $key = $entities[$index]->entity_type.':'.$entities[$index]->id;
+                $key = $entities[$index]->entity_type . ':' . $entities[$index]->id;
                 $parents[$key] = $entities[$index];
                 $parents[$key]->setAttribute('pages', collect());
             }
@@ -423,7 +400,7 @@ class EntityRepo
             if ($entity->chapter_id === 0 || $entity->chapter_id === '0') {
                 continue;
             }
-            $parentKey = $this->entityProvider->chapter->getMorphClass().':'.$entity->chapter_id;
+            $parentKey = $this->entityProvider->chapter->getMorphClass() . ':' . $entity->chapter_id;
             if (! isset($parents[$parentKey])) {
                 $tree[] = $entity;
 
@@ -440,7 +417,6 @@ class EntityRepo
      * Get the child items for a chapter sorted by priority but
      * with draft items floated to the top.
      *
-     * @param  Chapter  $chapter
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
     public function getChapterChildren(Chapter $chapter)
@@ -452,7 +428,6 @@ class EntityRepo
     /**
      * Get the next sequential priority for a new child element in the given book.
      *
-     * @param  Book  $book
      * @return int
      */
     public function getNewBookPriority(Book $book)
@@ -465,7 +440,6 @@ class EntityRepo
     /**
      * Get a new priority for a new page to be added to the given chapter.
      *
-     * @param  Chapter  $chapter
      * @return int
      */
     public function getNewChapterPriority(Chapter $chapter)
@@ -488,7 +462,7 @@ class EntityRepo
     {
         $slug = $this->nameToSlug($name);
         while ($this->slugExists($type, $slug, $currentId, $bookId)) {
-            $slug .= '-'.substr(md5(rand(1, 500)), 0, 3);
+            $slug .= '-' . substr(md5(rand(1, 500)), 0, 3);
         }
 
         return $slug;
@@ -519,8 +493,6 @@ class EntityRepo
     /**
      * Updates entity restrictions from a request
      *
-     * @param  Request  $request
-     * @param  Entity  $entity
      *
      * @throws Throwable
      */
@@ -577,7 +549,6 @@ class EntityRepo
      * Used for books and chapters
      *
      * @param  string  $type
-     * @param  Entity  $entityModel
      * @param  array  $input
      * @return Entity
      */
@@ -603,9 +574,6 @@ class EntityRepo
     /**
      * Sync the books assigned to a shelf from a comma-separated list
      * of book IDs.
-     *
-     * @param  Bookshelf  $shelf
-     * @param  string  $books
      */
     public function updateShelfBooks(Bookshelf $shelf, string $books)
     {
@@ -625,9 +593,6 @@ class EntityRepo
 
     /**
      * Append a Book to a BookShelf.
-     *
-     * @param  Bookshelf  $shelf
-     * @param  Book  $book
      */
     public function appendBookToShelf(Bookshelf $shelf, Book $book)
     {
@@ -644,7 +609,6 @@ class EntityRepo
      *
      * @param  string  $type
      * @param  int  $newBookId
-     * @param  Entity  $entity
      * @param  bool  $rebuildPermissions
      * @return Entity
      */
@@ -677,8 +641,6 @@ class EntityRepo
 
     /**
      * Alias method to update the book jointPermissions in the PermissionService.
-     *
-     * @param  Book  $book
      */
     public function buildJointPermissionsForBook(Book $book)
     {
@@ -688,7 +650,6 @@ class EntityRepo
     /**
      * Format a name as a url slug.
      *
-     * @param $name
      * @return string
      */
     protected function nameToSlug($name)
@@ -705,10 +666,6 @@ class EntityRepo
 
     /**
      * Render the page for viewing
-     *
-     * @param  Page  $page
-     * @param  bool  $blankIncludes
-     * @return string
      */
     public function renderPage(Page $page, bool $blankIncludes = false): string
     {
@@ -729,9 +686,6 @@ class EntityRepo
 
     /**
      * Remove any page include tags within the given HTML.
-     *
-     * @param  string  $html
-     * @return string
      */
     protected function blankPageIncludes(string $html): string
     {
@@ -741,7 +695,6 @@ class EntityRepo
     /**
      * Parse any include tags "{{@<page_id>#section}}" to be part of the page.
      *
-     * @param  string  $html
      * @return mixed|string
      */
     protected function parsePageIncludes(string $html): string
@@ -772,7 +725,7 @@ class EntityRepo
 
             $doc = new DOMDocument();
             libxml_use_internal_errors(true);
-            $doc->loadHTML(mb_convert_encoding('<body>'.$matchedPage->html.'</body>', 'HTML-ENTITIES', 'UTF-8'));
+            $doc->loadHTML(mb_convert_encoding('<body>' . $matchedPage->html . '</body>', 'HTML-ENTITIES', 'UTF-8'));
             $matchingElem = $doc->getElementById($splitInclude[1]);
             if ($matchingElem === null) {
                 $html = str_replace($matches[0][$index], '', $html);
@@ -797,9 +750,6 @@ class EntityRepo
 
     /**
      * Escape script tags within HTML content.
-     *
-     * @param  string  $html
-     * @return string
      */
     protected function escapeScripts(string $html): string
     {
@@ -844,12 +794,11 @@ class EntityRepo
     /**
      * Search for image usage within page content.
      *
-     * @param $imageString
      * @return mixed
      */
     public function searchForImage($imageString)
     {
-        $pages = $this->entityQuery('page')->where('html', 'like', '%'.$imageString.'%')->get(['id', 'name', 'slug', 'book_id']);
+        $pages = $this->entityQuery('page')->where('html', 'like', '%' . $imageString . '%')->get(['id', 'name', 'slug', 'book_id']);
         foreach ($pages as $page) {
             $page->url = $page->getUrl();
             $page->html = '';
@@ -862,7 +811,6 @@ class EntityRepo
     /**
      * Destroy a bookshelf instance
      *
-     * @param  Bookshelf  $shelf
      *
      * @throws Throwable
      */
@@ -875,7 +823,6 @@ class EntityRepo
     /**
      * Destroy the provided book and all its child entities.
      *
-     * @param  Book  $book
      *
      * @throws NotifyException
      * @throws Throwable
@@ -895,7 +842,6 @@ class EntityRepo
     /**
      * Destroy a chapter and its relations.
      *
-     * @param  Chapter  $chapter
      *
      * @throws Throwable
      */
@@ -914,7 +860,6 @@ class EntityRepo
     /**
      * Destroy a given page along with its dependencies.
      *
-     * @param  Page  $page
      *
      * @throws NotifyException
      * @throws Throwable
@@ -944,7 +889,6 @@ class EntityRepo
     /**
      * Destroy or handle the common relations connected to an entity.
      *
-     * @param  Entity  $entity
      *
      * @throws Throwable
      */
@@ -963,7 +907,6 @@ class EntityRepo
      * Copy the permissions of a bookshelf to all child books.
      * Returns the number of books that had permissions updated.
      *
-     * @param  Bookshelf  $bookshelf
      * @return int
      *
      * @throws Throwable

@@ -4,45 +4,45 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_pop;
-use function array_slice;
-use function basename;
-use function count;
-use function debug_backtrace;
-use const DIRECTORY_SEPARATOR;
-use const E_COMPILE_ERROR;
-use const E_COMPILE_WARNING;
-use const E_CORE_ERROR;
-use const E_CORE_WARNING;
-use const E_DEPRECATED;
+use Throwable;
+use function md5;
 use const E_ERROR;
-use const E_NOTICE;
 use const E_PARSE;
-use const E_RECOVERABLE_ERROR;
+use const E_NOTICE;
 use const E_STRICT;
-use const E_USER_DEPRECATED;
-use const E_USER_ERROR;
-use const E_USER_NOTICE;
-use const E_USER_WARNING;
+use function count;
 use const E_WARNING;
 use function explode;
-use function function_exists;
-use function get_class;
 use function gettype;
-use function htmlspecialchars;
 use function implode;
+use function basename;
 use function in_array;
+use function realpath;
+use const E_CORE_ERROR;
+use const E_DEPRECATED;
+use const E_USER_ERROR;
+use function array_pop;
+use function get_class;
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function mb_substr;
-use function md5;
-use const PATH_SEPARATOR;
-use function realpath;
 use function serialize;
-use function str_replace;
-use Throwable;
+use const E_USER_NOTICE;
 use function var_export;
+use const E_CORE_WARNING;
+use const E_USER_WARNING;
+use const PATH_SEPARATOR;
+use function array_slice;
+use function str_replace;
+use const E_COMPILE_ERROR;
+use const E_COMPILE_WARNING;
+use const E_USER_DEPRECATED;
+use function debug_backtrace;
+use function function_exists;
+use const DIRECTORY_SEPARATOR;
+use const E_RECOVERABLE_ERROR;
+use function htmlspecialchars;
 
 /**
  * a single error
@@ -156,7 +156,6 @@ class Error extends Message
      * Process backtrace to avoid path disclosures, objects and so on
      *
      * @param  array  $backtrace backtrace
-     * @return array
      */
     public static function processBacktrace(array $backtrace): array
     {
@@ -257,10 +256,10 @@ class Error extends Message
 
         if ($this->hash === null) {
             $this->hash = md5(
-                $this->getNumber().
-                $this->getMessage().
-                $this->getFile().
-                $this->getLine().
+                $this->getNumber() .
+                $this->getMessage() .
+                $this->getFile() .
+                $this->getLine() .
                 $backtrace
             );
         }
@@ -342,7 +341,7 @@ class Error extends Message
      */
     public function getTitle(): string
     {
-        return $this->getType().': '.$this->getMessage();
+        return $this->getType() . ': ' . $this->getMessage();
     }
 
     /**
@@ -375,11 +374,11 @@ class Error extends Message
         foreach ($backtrace as $step) {
             if (isset($step['file'], $step['line'])) {
                 $retval .= self::relPath($step['file'])
-                    .'#'.$step['line'].': ';
+                    . '#' . $step['line'] . ': ';
             }
 
             if (isset($step['class'])) {
-                $retval .= $step['class'].$step['type'];
+                $retval .= $step['class'] . $step['type'];
             }
 
             $retval .= self::getFunctionCall($step, $separator);
@@ -397,14 +396,14 @@ class Error extends Message
      */
     public static function getFunctionCall(array $step, string $separator): string
     {
-        $retval = $step['function'].'(';
+        $retval = $step['function'] . '(';
         if (isset($step['args'])) {
             if (count($step['args']) > 1) {
                 $retval .= $separator;
                 foreach ($step['args'] as $arg) {
                     $retval .= "\t";
                     $retval .= $arg;
-                    $retval .= ','.$separator;
+                    $retval .= ',' . $separator;
                 }
             } elseif (count($step['args']) > 0) {
                 foreach ($step['args'] as $arg) {
@@ -413,7 +412,7 @@ class Error extends Message
             }
         }
 
-        return $retval.')';
+        return $retval . ')';
     }
 
     /**
@@ -446,12 +445,12 @@ class Error extends Message
         if (in_array($function, $includeFunctions)) {
             $retval .= self::relPath($arg);
         } elseif (in_array($function, $connectFunctions) && is_string($arg)) {
-            $retval .= gettype($arg).' ********';
+            $retval .= gettype($arg) . ' ********';
         } elseif (is_scalar($arg)) {
-            $retval .= gettype($arg).' '
-                .htmlspecialchars(var_export($arg, true));
+            $retval .= gettype($arg) . ' '
+                . htmlspecialchars(var_export($arg, true));
         } elseif (is_object($arg)) {
-            $retval .= '<Class:'.get_class($arg).'>';
+            $retval .= '<Class:' . get_class($arg) . '>';
         } else {
             $retval .= gettype($arg);
         }
@@ -472,10 +471,10 @@ class Error extends Message
             $context = 'danger';
         }
 
-        $retval = '<div class="alert alert-'.$context.'" role="alert">';
+        $retval = '<div class="alert alert-' . $context . '" role="alert">';
         if (! $this->isUserError()) {
-            $retval .= '<strong>'.$this->getType().'</strong>';
-            $retval .= ' in '.$this->getFile().'#'.$this->getLine();
+            $retval .= '<strong>' . $this->getType() . '</strong>';
+            $retval .= ' in ' . $this->getFile() . '#' . $this->getLine();
             $retval .= "<br>\n";
         }
 
@@ -522,7 +521,7 @@ class Error extends Message
 
         $hereParts = explode(
             DIRECTORY_SEPARATOR,
-            (string) realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')
+            (string) realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..')
         );
         $destParts = explode(DIRECTORY_SEPARATOR, $dest);
 
@@ -530,14 +529,14 @@ class Error extends Message
         while (implode(DIRECTORY_SEPARATOR, $destParts) != implode(DIRECTORY_SEPARATOR, $hereParts)) {
             if (count($hereParts) > count($destParts)) {
                 array_pop($hereParts);
-                $result .= DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..';
+                $result .= DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..';
             } else {
                 array_pop($destParts);
             }
         }
 
-        $path = $result.str_replace(implode(DIRECTORY_SEPARATOR, $destParts), '', $dest);
+        $path = $result . str_replace(implode(DIRECTORY_SEPARATOR, $destParts), '', $dest);
 
-        return str_replace(DIRECTORY_SEPARATOR.PATH_SEPARATOR, DIRECTORY_SEPARATOR, $path);
+        return str_replace(DIRECTORY_SEPARATOR . PATH_SEPARATOR, DIRECTORY_SEPARATOR, $path);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use File;
-use Illuminate\Console\Command;
 use Plank\Mediable\Media;
+use Illuminate\Console\Command;
 
 class addImagesInMissingPath extends Command
 {
@@ -45,7 +45,7 @@ class addImagesInMissingPath extends Command
             if ($key == 0 || $key == count($path) - 1) {
                 continue;
             }
-            $dir .= $f.'/';
+            $dir .= $f . '/';
             if (! is_dir($dir)) {
                 mkdir($dir);
             }
@@ -65,8 +65,8 @@ class addImagesInMissingPath extends Command
 
                 $m_url = $media->getAbsolutePath();
                 $file_info = pathinfo($m_url);
-                $file_name = $file_info['filename'].'.'.$file_info['extension'];
-                $file_full_folder = $file_info['dirname'].'/'.$file_name;
+                $file_name = $file_info['filename'] . '.' . $file_info['extension'];
+                $file_full_folder = $file_info['dirname'] . '/' . $file_name;
                 $this->createPath($m_url);
                 copy($r_file, $file_full_folder);
             }

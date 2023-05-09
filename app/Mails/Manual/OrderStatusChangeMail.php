@@ -2,10 +2,10 @@
 
 namespace App\Mails\Manual;
 
+use Illuminate\Support\Arr;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
 
 class OrderStatusChangeMail extends Mailable
 {
@@ -48,7 +48,7 @@ class OrderStatusChangeMail extends Mailable
      */
     public function build()
     {
-        $subject = 'Order # '.$this->order->order_id.' Status has been changed';
+        $subject = 'Order # ' . $this->order->order_id . ' Status has been changed';
         $order = $this->order;
 
         $customer = $order->customer;

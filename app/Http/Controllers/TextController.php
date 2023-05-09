@@ -12,7 +12,7 @@ class TextController extends Controller
         $skuFormat = SkuFormat::where('brand_id', 2)->first();
 
         // Run brand regex on sku
-        preg_match('/'.$skuFormat->sku_format.'/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
+        preg_match('/' . $skuFormat->sku_format . '/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
 
         // Do we have a match
         if (isset($matches) && isset($matches[0]) && $matches != null) {

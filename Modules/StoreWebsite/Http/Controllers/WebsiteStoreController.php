@@ -2,10 +2,10 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Website;
 use App\WebsiteStore;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteStoreController extends Controller
@@ -34,8 +34,8 @@ class WebsiteStoreController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $websiteStores = $websiteStores->where(function ($q) use ($request) {
-                $q->where('website_stores.name', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('website_stores.code', 'like', '%'.$request->keyword.'%');
+                $q->where('website_stores.name', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('website_stores.code', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -62,7 +62,7 @@ class WebsiteStoreController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -91,7 +91,6 @@ class WebsiteStoreController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -108,7 +107,6 @@ class WebsiteStoreController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -177,7 +175,7 @@ class WebsiteStoreController extends Controller
             if ($websiteStores) {
                 $options = ['<option value="" >-- Select Website --</option>'];
                 foreach ($websiteStores as $key => $value) {
-                    $options[] = '<option value="'.$key.'" '.($key == request('selected') ? 'selected' : '').' >'.$value.'</option>';
+                    $options[] = '<option value="' . $key . '" ' . ($key == request('selected') ? 'selected' : '') . ' >' . $value . '</option>';
                 }
             } else {
                 $options = ['<option value="" >No records found.</option>'];

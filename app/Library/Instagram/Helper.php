@@ -15,7 +15,7 @@ class Helper
             $bytes /= 1024;
         }
 
-        return round($bytes, 2).' '.$units[$i];
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 
     public static function sec_to_hms($seconds)
@@ -57,7 +57,7 @@ class Helper
 
                 // Check if new or old key
                 if ($entry[0] == $data_key) {
-                    $env[$env_key] = $data_key.'='.$data_value;
+                    $env[$env_key] = $data_key . '=' . $data_value;
                     $updated = true;
                 } else {
                     $env[$env_key] = $env_value;
@@ -66,7 +66,7 @@ class Helper
 
             // Lets create if not available
             if (! $updated) {
-                $env[] = $data_key.'='.$data_value;
+                $env[] = $data_key . '=' . $data_value;
             }
         }
 

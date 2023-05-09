@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ScrapRemark;
-use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use App\Services\Whatsapp\ChatApi\ChatApi;
+use App\Helpers\LogHelper;
 
 class CheckScrapersLog extends Command
 {
@@ -51,7 +52,7 @@ class CheckScrapersLog extends Command
                 if (isset($needed[1])) {
                     $day = explode('.', $needed[1]);
                     if ($day[0] === $yesterdayDate) {
-                        $filePath = $root.'/'.$file->getRelativePath().'/'.$needed[0].'-'.$day[0].'.'.$day[1];
+                        $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
                         $result = File::get($filePath);
                         if (empty($result) ||
                             (strpos($result, 'exception') || strpos($result, 'Exception')) ||
@@ -61,7 +62,7 @@ class CheckScrapersLog extends Command
                                 $user = \App\User::where('id', $suplier->scraper_made_by)->first();
                                 if (! is_null($user)) {
                                     $whatsappNumber = $user->phone;
-                                    $message = 'scraper log file '.$filePath.' has issue.';
+                                    $message = 'scraper log file ' . $filePath . ' has issue.';
                                     $data = [
                                         'phone' => $whatsappNumber, // Receivers phone
                                         'body' => $message, // Message
@@ -80,6 +81,8 @@ class CheckScrapersLog extends Command
                 }
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

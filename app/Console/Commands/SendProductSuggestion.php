@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Product;
+use App\Customer;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use App\Customer;
-use App\Product;
 use App\SuggestedProduct;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class SendProductSuggestion extends Command
 {
@@ -153,6 +154,8 @@ class SendProductSuggestion extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

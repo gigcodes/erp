@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -82,7 +82,7 @@ class ChatMessage extends Model
     //Purpose - Add learning_id - DEVTASK-4020
     //Purpose : Add additional_data - DEVATSK-4236
 
-    protected $fillable = ['is_queue', 'unique_id', 'bug_id', 'test_case_id', 'test_suites_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at', 'broadcast_numbers_id', 'flow_exit', 'task_time_reminder', 'order_status', 'ui_check_id1', 'time_doctor_activity_summary_id', 'time_doctor_activity_user_id'];
+    protected $fillable = ['is_queue', 'unique_id', 'bug_id', 'test_case_id', 'test_suites_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at', 'broadcast_numbers_id', 'flow_exit', 'task_time_reminder', 'order_status', 'ui_check_id1', 'time_doctor_activity_summary_id', 'time_doctor_activity_user_id', 'message_type'];
 
     protected $table = 'chat_messages';
 
@@ -93,7 +93,6 @@ class ChatMessage extends Model
     /**
      * Send WhatsApp message via Chat-Api
      *
-     * @param $number
      * @param  null  $whatsAppNumber
      * @param  null  $message
      * @param  null  $file
@@ -115,7 +114,7 @@ class ChatMessage extends Model
 
         // Add plus to number and add to array
         $chatApiArray = [
-            'phone' => '+'.$number,
+            'phone' => '+' . $number,
         ];
 
         if ($message != null && $file == null) {
@@ -135,7 +134,7 @@ class ChatMessage extends Model
 
         // Set cURL options
         curl_setopt_array($curl, [
-            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=".$token,
+            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=" . $token,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -160,12 +159,12 @@ class ChatMessage extends Model
         // Check for errors
         if ($err) {
             // Log error
-            \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') cURL Error for number '.$number.':'.$err);
+            \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') cURL Error for number ' . $number . ':' . $err);
 
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:'.$response."\nMessage: ".$message."\nFile:".$file."\n");
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
             // Json decode response into result
             $result = json_decode($response, true);
@@ -173,12 +172,12 @@ class ChatMessage extends Model
             // Check for possible incorrect response
             if (! is_array($result) || array_key_exists('sent', $result) && ! $result['sent']) {
                 // Log error
-                \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') Something was wrong with the message for number '.$number.': '.$response);
+                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $response);
 
                 return false;
             } else {
                 // Log successful send
-                \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') Message was sent to number '.$number.':'.$response);
+                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Message was sent to number ' . $number . ':' . $response);
             }
         }
 
@@ -187,8 +186,6 @@ class ChatMessage extends Model
 
     /**
      * Handle Chat-Api ACK-message
-     *
-     * @param $json
      */
     public static function handleChatApiAck($json)
     {
@@ -456,25 +453,25 @@ class ChatMessage extends Model
     {
         $media = $this->getMedia(config('constants.attach_image_tag'))->first();
         if ($media) {
-            \Log::channel('customer')->info('Media image found for customer id : '.$customer->id);
-            $log_comment = $log_comment.' Media image found for customer with ID : '.$customer->id;
+            \Log::channel('customer')->info('Media image found for customer id : ' . $customer->id);
+            $log_comment = $log_comment . ' Media image found for customer with ID : ' . $customer->id;
             $mediable = \DB::table('mediables')->where('media_id', $media->id)
                 ->where('mediable_type', \App\Product::class)
                 ->first();
             if (! empty($mediable)) {
-                $log_comment = $log_comment.' Mediable found for customer with ID : '.$customer->id;
-                \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
+                $log_comment = $log_comment . ' Mediable found for customer with ID : ' . $customer->id;
+                \Log::channel('customer')->info('Mediable for customer id : ' . $customer->id);
                 try {
                     app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
-                    $log_comment = $log_comment.' Mediable dispatched with ID : '.$mediable->mediable_id;
+                    $log_comment = $log_comment . ' Mediable dispatched with ID : ' . $mediable->mediable_id;
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
                 }
             } else {
-                $log_comment = $log_comment.' Mediable not found ';
+                $log_comment = $log_comment . ' Mediable not found ';
             }
         } else {
-            $log_comment = $log_comment.' Media not found ';
+            $log_comment = $log_comment . ' Media not found ';
         }
     }
 
@@ -487,12 +484,12 @@ class ChatMessage extends Model
     {
         $media = $this->getMedia(config('constants.attach_image_tag'))->first();
         if ($media) {
-            \Log::channel('customer')->info('Media image found for customer id : '.$customer->id);
+            \Log::channel('customer')->info('Media image found for customer id : ' . $customer->id);
             $mediable = \DB::table('mediables')->where('media_id', $media->id)
                 ->where('mediable_type', \App\Product::class)
                 ->first();
             if (! empty($mediable)) {
-                \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
+                \Log::channel('customer')->info('Mediable for customer id : ' . $customer->id);
                 try {
                     app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
                 } catch (\Exception $e) {
