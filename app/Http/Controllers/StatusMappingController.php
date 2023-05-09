@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\OrderStatus;
 use App\PurchaseStatus;
+use App\ReadOnly\ShippingStatus;
 use App\StatusMapping;
 use App\StatusMappingHistory;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class StatusMappingController extends Controller
     {
         $data['orderStatuses'] = OrderStatus::pluck('status', 'id')->all();
         $data['purchaseStatuses'] = PurchaseStatus::pluck('name', 'id')->all();
+        $data['shippingStatuses'] = (new ShippingStatus)->all();
 
         $data['statusMappings'] = StatusMapping::latest()->get();
 
@@ -76,11 +78,37 @@ class StatusMappingController extends Controller
                 'status_name' => 'error',
             ], 500);
         } else {
-            $oldStatusId = $statusMapping->purchase_status_id;
-            $statusMapping->purchase_status_id = $input['purchaseStatusId'];
+            if ($input['statusType'] == StatusMappingHistory::STATUS_TYPE_PURCHASE) {
+                $purchaseStatusMapping = StatusMapping::where('purchase_status_id', $input['purchaseStatusId'])->first();
+                if ($purchaseStatusMapping) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This purchase status already mapped with other Order status, Please choose different one',
+                        'status_name' => 'error',
+                    ], 500);
+                }
+
+                $oldStatusId = $statusMapping->purchase_status_id;
+                $newStatusId = $input['purchaseStatusId'];
+                $statusMapping->purchase_status_id = $newStatusId;
+            } elseif ($input['statusType'] == StatusMappingHistory::STATUS_TYPE_SHIPPING) {
+                $shippingStatusMapping = StatusMapping::where('shipping_status_id', $input['shippingStatusId'])->first();
+                if ($shippingStatusMapping) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This shipping status already mapped with other Order status, Please choose different one',
+                        'status_name' => 'error',
+                    ], 500);
+                }
+
+                $oldStatusId = $statusMapping->shipping_status_id;
+                $newStatusId = $input['shippingStatusId'];
+                $statusMapping->shipping_status_id = $newStatusId;
+            }
+            
             $statusMapping->save();
 
-            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldStatusId, $input['purchaseStatusId'], "Purchase");
+            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldStatusId, $newStatusId, $input['statusType']);
 
             if ($statusMapping) {
                 return response()->json([
@@ -112,11 +140,15 @@ class StatusMappingController extends Controller
         $statusMapping = StatusMapping::where('id', $id)->first();
 
         if ($statusMapping) {
-            $oldStatusId = $statusMapping->purchase_status_id;
+            $oldPurchaseStatusId = $statusMapping->purchase_status_id;
+            $oldShippingStatusId = $statusMapping->shipping_status_id;
+
             $statusMapping->purchase_status_id = '';
+            $statusMapping->shipping_status_id = '';
             $statusMapping->save();
 
-            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldStatusId, '', "Purchase");
+            $this->saveStatusMappingHistory($statusMapping, $oldPurchaseStatusId, '', StatusMappingHistory::STATUS_TYPE_PURCHASE);
+            $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldShippingStatusId, '', StatusMappingHistory::STATUS_TYPE_SHIPPING);
 
             return response()->json([
                 'status' => true,
