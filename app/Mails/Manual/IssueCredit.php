@@ -17,10 +17,12 @@ class IssueCredit extends Mailable
      * @return void
      */
     public $customer;
+    public $fromMailer;
 
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;
+        $this->fromMailer = \App\Helpers::getFromEmail($this->customer->id);
     }
 
     /**
@@ -30,8 +32,8 @@ class IssueCredit extends Mailable
      */
     public function build()
     {
-        return $this->from('customercare@sololuxury.co.in')
-                    ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
                     ->subject('Customer Credit Issued')
                     ->markdown('emails.customers.issue-credit');
     }

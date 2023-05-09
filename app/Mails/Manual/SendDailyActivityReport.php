@@ -20,10 +20,13 @@ class SendDailyActivityReport extends Mailable
 
     public $time_slots;
 
+    public $fromMailer;
+
     public function __construct(User $user, array $time_slots)
     {
         $this->user = $user;
         $this->time_slots = $time_slots;
+        $this->fromMailer=\App\Helpers::getFromEmail();
     }
 
     /**
@@ -33,8 +36,8 @@ class SendDailyActivityReport extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-                    // ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    // ->bcc($this->fromMailer)
                     ->subject('Daily Planner Report')
                     ->markdown('emails.daily-activity-report');
     }

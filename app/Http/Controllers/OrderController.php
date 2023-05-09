@@ -1623,6 +1623,7 @@ class OrderController extends Controller
         if (true) {
             // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
+                $from_email=\App\Helpers::getFromEmail($order->customer->id);
                 $emailClass = (new AdvanceReceipt($order))->build();
 
                 // $order->update([
@@ -1633,7 +1634,7 @@ class OrderController extends Controller
                 $email = Email::create([
                     'model_id' => $order->customer->id,
                     'model_type' => Customer::class,
-                    'from' => 'customercare@sololuxury.co.in',
+                    'from' => $from_email,
                     'to' => $order->customer->email,
                     'subject' => $emailClass->subject,
                     'message' => $emailClass->render(),
@@ -2119,14 +2120,15 @@ class OrderController extends Controller
                 'type' => 'refund-initiated',
                 'method' => 'whatsapp',
             ]);
-
+            
+            $from_email=\App\Helpers::getFromEmail($order->customer->id);
             $emailClass = (new RefundProcessed($order->order_id, $product_names))->build();
 
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             $email = Email::create([
                 'model_id' => $order->id,
                 'model_type' => Order::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' => $from_email,
                 'to' => $order->customer->email,
                 'subject' => $emailClass->subject,
                 'message' => $emailClass->render(),
@@ -4107,7 +4109,7 @@ class OrderController extends Controller
                                     $email = Email::create([
                                         'model_id' => $order->customer->id,
                                         'model_type' => Customer::class,
-                                        'from' => 'customercare@sololuxury.co.in',
+                                        'from' => $storeEmailAddress->from_address,
                                         'to' => $order->customer->email,
                                         'subject' => $emailClass->subject,
                                         'message' => $emailClass->render(),
@@ -4496,7 +4498,7 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = 'customercare@sololuxury.co.in';
+        $from = config('env.MAIL_FROM_ADDRESS');
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4563,7 +4565,7 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = 'customercare@sololuxury.co.in';
+        $from = config('env.MAIL_FROM_ADDRESS');
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4924,7 +4926,7 @@ class OrderController extends Controller
 
             if (! empty($customer) && ! empty($customer->email) && ! empty($addRequestData['message'])) {
                 // dump('send customer email final');
-                $from = 'customercare@sololuxury.co.in';
+                $from = config('env.MAIL_FROM_ADDRESS');
                 // Check from address exist for customer's store website
                 $emailAddress = EmailAddress::where('store_website_id', $customer->store_website_id)->first();
                 if ($emailAddress) {

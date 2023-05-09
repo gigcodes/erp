@@ -13,7 +13,7 @@ class OrderDeliveryDateChangeMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $order;
-
+    public $fromMailer;
     /**
      * Create a new message instance.
      *
@@ -22,7 +22,7 @@ class OrderDeliveryDateChangeMail extends Mailable
     public function __construct($data)
     {
         $this->order = $data;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
     /**
@@ -39,10 +39,7 @@ class OrderDeliveryDateChangeMail extends Mailable
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
-
-        //$email          = "customercare@sololuxury.co.in";
-
+        
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         if ($storeWebsiteOrder) {

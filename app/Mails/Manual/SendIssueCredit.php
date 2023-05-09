@@ -20,10 +20,12 @@ class SendIssueCredit extends Mailable
      */
     public $customer;
 
+    public $fromMailer;
+
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer=\App\Helpers::getFromEmail($this->customer->id);
     }
 
     /**
@@ -37,7 +39,7 @@ class SendIssueCredit extends Mailable
         $customer = $this->customer;
 
         $this->subject = $subject;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        
         try {
             if ($customer) {
                 if ($customer->store_website_id > 0) {

@@ -217,8 +217,8 @@ class GiftCardController extends Controller
             $email = \App\Email::create([
                 'model_id' => $data['model_id'],
                 'model_type' => $data['model_class'],
-                'from' => 'customercare@sololuxury.co.in',
-                'to' => $order->customer->email,
+                'from' => $data['receiver_email'],
+                'to' => $data['sender_email'] ,
                 'subject' => $emailClass->subject,
                 'message' => $emailClass->render(),
                 'template' => 'gift-card',
