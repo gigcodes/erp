@@ -4,8 +4,13 @@ namespace App\Http\Controllers\ChatGPT;
 
 class ChatGPTService
 {
-    private $api_key = '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';
+    private $api_key = '';
     private $base_api = 'https://api.openai.com/v1/';
+
+    public function __construct()
+    {
+        $this->api_key = env('CHAT_GPT_API_KEY', '');
+    }
 
     public function getCompletions($prompt)
     {
