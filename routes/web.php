@@ -301,7 +301,6 @@ use App\Http\Controllers\GoogleShoppingAdsController;
 use App\Http\Controllers\KeywordToCategoryController;
 use App\Http\Controllers\MagentoModuleTypeController;
 use App\Http\Controllers\NotificationQueueController;
-use App\Http\Controllers\PinterestAccountAcontroller;
 use App\Http\Controllers\ProductSupervisorController;
 use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutySegmentController;
@@ -358,6 +357,7 @@ use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\Pinterest\PinterestAccountController;
 
 Auth::routes();
 
@@ -1788,7 +1788,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
     Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
-    
+
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
     Route::get('customer/priority-range-points/{id?}', [CustomerController::class, 'getSelectCustomerPriorityRangePoints'])->name('customer.get.select.priority.range.points');
@@ -3082,7 +3082,15 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 });
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
-    Route::resource('accounts', PinterestAccountAcontroller::class);
+    Route::prefix('accounts')->group(function () {
+        Route::get('', [PinterestAccountController::class, 'index'])->name('pinterest.accounts');
+        Route::post('create', [PinterestAccountController::class, 'createAccount'])->name('pinterest.accounts.create');
+        Route::get('{id}', [PinterestAccountController::class, 'getAccount'])->name('pinterest.accounts.get');
+        Route::post('update/{id}', [PinterestAccountController::class, 'updateAccount'])->name('pinterest.accounts.update');
+        Route::post('delete/{id}', [PinterestAccountController::class, 'deleteAccount'])->name('pinterest.accounts.delete');
+        Route::get('connect/login', [PinterestAccountController::class, 'loginAccount'])->name('pinterest.accounts.connect.login');
+        Route::get('connect/{id}', [PinterestAccountController::class, 'connectAccount'])->name('pinterest.accounts.connect');
+    });
 });
 
 Route::prefix('database')->middleware('auth')->group(function () {
