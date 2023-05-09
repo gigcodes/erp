@@ -504,7 +504,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
                                                 <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
-                                                <td> 
+                                                <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
                                                 </a></td>
@@ -2422,6 +2422,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('chatgpt.index') }}">Chat GPT</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>
@@ -3897,7 +3900,7 @@ if (!empty($notifications)) {
                                 </select>
                             </div>
                             <div class="modal-table">
-                                
+
                             </div>
                         </div>
                     </div>
@@ -4896,7 +4899,7 @@ if (!empty($notifications)) {
                         use App\User;
                         $userlist = [];
                         $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
-                        
+
                         $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh
                         -f list');
                         $final_array = [];
@@ -4910,7 +4913,7 @@ if (!empty($notifications)) {
                         }
                         }
                         @endphp
-                       
+
                         <div id="select-user">
                             <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
                             <select class="form-control col-md-2 ml-3 ipusersSelect" name="user_id" id="ipusers">
@@ -4927,9 +4930,9 @@ if (!empty($notifications)) {
                             <button class="btn-success btn addIp ml-3 mb-5">Add</button>
                             <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
                         </div>
-                       
-                       
-                      
+
+
+
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -4998,7 +5001,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
-   
+
 {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
@@ -6088,7 +6091,7 @@ if (!empty($notifications)) {
             },
             dataType: 'json',
             success: function(result) {
-                 
+
 
                  const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
 
@@ -6648,7 +6651,7 @@ if (!\Auth::guest()) {
             $route = request()->route()->getName();
         @endphp
         @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
-            $(".show-estimate-time").click(function (e) { 
+            $(".show-estimate-time").click(function (e) {
                 e.preventDefault();
                 var tasktype = $(this).data('task');
                 $.ajax({
@@ -6661,7 +6664,7 @@ if (!\Auth::guest()) {
                         $("#showLatestEstimateTime").modal('show');
                         $("#showLatestEstimateTime .modal-table").html(response);
                     },
-                    error: function (error) { 
+                    error: function (error) {
 
                     }
 
@@ -6669,7 +6672,7 @@ if (!\Auth::guest()) {
             });
             $("#shortcut-estimate-search").select2();
 
-            $("#shortcut-estimate-search").change(function (e) { 
+            $("#shortcut-estimate-search").change(function (e) {
                 e.preventDefault();
                 let task_id = $(this).val();
                 @if ($route == "development.issue.index")
@@ -6688,7 +6691,7 @@ if (!\Auth::guest()) {
                         $("#showLatestEstimateTime").modal('show');
                         $("#showLatestEstimateTime .modal-table").html(response);
                     },
-                    error: function (error) { 
+                    error: function (error) {
                         toastr["error"]("Error while fetching data.");
                     }
 
@@ -7198,7 +7201,7 @@ if (!\Auth::guest()) {
 		});
 	}
 
-    function estimateFunTaskDetailHandler(elm) { 
+    function estimateFunTaskDetailHandler(elm) {
         let tasktype = $(elm).data('task');
         let taskid = $(elm).data('id');
         if(tasktype == "DEVTASK") {
