@@ -87,9 +87,18 @@
                   <span style="word-break:break-all;" class="show-full-user_name-{{$asset->id}} hidden">{{$asset->user_name}}</span>
                 </td>
                 
-                <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
-                  <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+                <td>
+                  <div class="row">
+                    <div class="col expand-row-msg" data-id="{{$asset->id}}" data-name="password">
+                      <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
+                      <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+                    </div>
+                    <div class="col">
+                      <span class="copy-icon" data-value="{{$asset->password}}">
+                        <i class="fa fa-copy fa-1x" aria-hidden="true"></i>
+                      </span>
+                    </div>
+                  </div>
                 </td>
                 <td>{{ $asset->asset_type }}</td>
                 <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -319,6 +328,14 @@
 
 @endsection
 
+@push('styles')
+<style>
+  .copy-icon {
+    cursor: pointer !important;
+  }
+</style>
+@endpush
+
 @section('scripts')
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
@@ -475,6 +492,12 @@
       $('#server_password').val(asset.server_password);
       $('.show-user-history-btn').attr('data-id', asset.id);
     });
+
+    $(document).on('click', '.copy-icon', function (evt) {
+      navigator.clipboard.writeText($(this).data('value'));
+      toastr.success('Password Copied Successfully!');
+    });
+
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
       var id = $(this).data('id');
