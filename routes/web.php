@@ -358,6 +358,7 @@ use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\ChatGPT\ChatGPTController;
 
 Auth::routes();
 
@@ -1789,7 +1790,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
     Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
-    
+
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
     Route::get('customer/priority-range-points/{id?}', [CustomerController::class, 'getSelectCustomerPriorityRangePoints'])->name('customer.get.select.priority.range.points');
@@ -5095,4 +5096,9 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
         Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
     });
+});
+
+Route::prefix('chat-gpt')->middleware('auth')->group(function () {
+    Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
+    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
 });
