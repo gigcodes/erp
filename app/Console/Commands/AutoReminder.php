@@ -6,6 +6,7 @@ use App\Customer;
 use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\Helpers\OrderHelper;
 use Illuminate\Console\Command;
 
@@ -95,7 +96,9 @@ class AutoReminder extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

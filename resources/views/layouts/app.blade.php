@@ -47,7 +47,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <script src="{{siteJs('site.js')}}" defer></script>
     <script>var BASE_URL = "{{config('app.url')}}";</script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -60,9 +59,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             z-index:9999999
         }
 
-        .select-multiple.cs-select-2 + .select2.select2-container{
+        .ipusersSelect{
             margin-top:-30px;
+            font-size: 14px;
         }
+        #select-user .select2-container--default {
+            display: inline-block;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
         #message-chat-data-box .p1[data-count]:after{
           position:absolute;
           right:10%;
@@ -1444,7 +1450,7 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="" href="{{ route('store-website.all.status') }}" role="button"
-                                                aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                                aria-haspopup="true" aria-expanded="false">Magento order status<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1606,6 +1612,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}"
                                         role="button">Purchase</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('status-mapping.index') }}"
+                                        role="button">Status Mappings</a>
                                 </li>
                             </ul>
                         </li>
@@ -3712,7 +3722,7 @@ if (!empty($notifications)) {
                             @php
                                 $route = request()->route()->getName();
                             @endphp
-                            @if (in_array($route, ["development.issue.index", "task.index"]))
+                            @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
                                 <li>
                                     <a title="Time Estimations" type="button" class="quick-icon show-estimate-time" data-task="{{$route == "development.issue.index" ? "DEVTASK" : "TASK"}}">
                                         <span>
@@ -3853,16 +3863,16 @@ if (!empty($notifications)) {
         @php
         $route = request()->route()->getName();
         @endphp
-        @if (in_array($route, ["development.issue.index", "task.index"]))
-            @if ($route == "development.issue.index")
-                @php
-                    $taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
-                @endphp
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
+            @php
+                $d_taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                $g_taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+            @endphp
+            {{-- @if ($route == "development.issue.index")
             @else
-                @php
-                    $taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+            @php
                 @endphp
-            @endif
+            @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
                 <div class="modal-dialog modal-lg">
 
@@ -3877,9 +3887,12 @@ if (!empty($notifications)) {
                                 <label>Search</label>
                                 <br>
                                 <select name="task_id" id="shortcut-estimate-search" class="form-control">
-                                    <option disabled>Select task</option>
-                                    @foreach ($taskList as $val)
-                                        <option value="{{$val}}">{{$val}}</option>
+                                    <option selected value>Select task</option>
+                                    @foreach ($d_taskList as $val)
+                                        <option value="DEVTASK-{{$val}}">DEVTASK-{{$val}}</option>
+                                    @endforeach
+                                    @foreach ($g_taskList as $val)
+                                        <option value="TASK-{{$val}}">TASK-{{$val}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -3891,6 +3904,7 @@ if (!empty($notifications)) {
 
                 </div>
             </div>
+            @include('development.partials.estimate-shortcut')
         @endif
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
@@ -4897,9 +4911,9 @@ if (!empty($notifications)) {
                         }
                         @endphp
 
-                        <div class="select-user">
+                        <div id="select-user">
                             <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                            <select class="form-control col-md-2 ml-3 select-multiple cs-select-2" name="user_id" id="ipusers">
+                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="user_id" id="ipusers">
                                 <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -5003,7 +5017,7 @@ if (!empty($notifications)) {
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
-        $('.select-user .select-multiple').select2({width: '20%'});
+        $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
@@ -6633,16 +6647,16 @@ if (!\Auth::guest()) {
         @php
             $route = request()->route()->getName();
         @endphp
-        @if (in_array($route, ["development.issue.index", "task.index"]))
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
             $(".show-estimate-time").click(function (e) {
                 e.preventDefault();
                 var tasktype = $(this).data('task');
                 $.ajax({
                     type: "GET",
                     url: "{{route('task.estimate.list')}}",
-                    data: {
-                        task: tasktype
-                    },
+                    // data: {
+                    //     task: tasktype
+                    // },
                     success: function (response) {
                         $("#showLatestEstimateTime").modal('show');
                         $("#showLatestEstimateTime .modal-table").html(response);
@@ -7188,19 +7202,19 @@ if (!\Auth::guest()) {
         let tasktype = $(elm).data('task');
         let taskid = $(elm).data('id');
         if(tasktype == "DEVTASK") {
-            $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
-            funTaskInformationModal(elm, taskid)
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
         } else {
-            $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
-            $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
-            funTaskInformationModal(elm, taskid)
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
         }
     }
 

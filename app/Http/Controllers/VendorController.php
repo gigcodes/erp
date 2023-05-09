@@ -110,13 +110,14 @@ class VendorController extends Controller
                 $query = Vendor::query();
             } else {
                 $imp_permi = implode(',', $permittedCategories);
-                if ($imp_permi != 0) {
+                if ($imp_permi != 0 && $imp_permi !='') {
                     $query = Vendor::whereIn('category_id', $permittedCategories);
                 } else {
                     $query = Vendor::query();
                 }
+                $query->where('email',Auth::user()->email);
             }
-
+            
             if (request('term') != null) {
                 $query->where('name', 'LIKE', "%{$request->term}%");
             }
@@ -198,7 +199,8 @@ class VendorController extends Controller
                 $totalVendor = $query->orderby('name', 'asc')->count();
                 $vendors = $query->orderby('name', 'asc')->paginate($pagination);
             }
-        } else {
+        } else { 
+            $updatedByWhere = '';
             if ($isAdmin) {
                 $permittedCategories = '';
             } else {
@@ -211,6 +213,7 @@ class VendorController extends Controller
                 } else {
                     $permittedCategories = 'and vendors.category_id in (' . implode(',', $permittedCategories) . ')';
                 }
+                $updatedByWhere=' and vendors.email="'.Auth::user()->email.'"';
             }
             $vendors = DB::select('
                   SELECT *,
@@ -233,7 +236,7 @@ class VendorController extends Controller
                   ON vendors.id = chat_messages.vendor_id
 
                   LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                  ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . '
+                  ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . $updatedByWhere.'
                   )
 
                   AS vendors

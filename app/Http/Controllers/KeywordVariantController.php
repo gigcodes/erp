@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
+use App\Jobs\CreateHashTags;
 use Illuminate\Http\Request;
 use App\KeywordSearchVariants;
 use Yajra\DataTables\DataTables;
@@ -14,8 +17,8 @@ class KeywordVariantController extends Controller
             $variant = new KeywordSearchVariants();
             $variant->keyword = $request->keyword;
             $variant->save();
-
-            return response()->json(['message' => 'Variant add successfully']);
+            $this->generateHashTagKeywords();
+            return response()->json(['message' => "Variant add successfully"]);
         }
     }
 
@@ -40,4 +43,18 @@ class KeywordVariantController extends Controller
 
         return response()->json(['message' => 'delete successfully']);
     }
+
+    public function generateHashTagKeywords() {
+        $brandList = Brand::getAll();
+        $categoryList = Category::getCategoryHierarchyString(4);
+
+        /* Initialize queue for add hashtags */
+        $keywordVariantList = KeywordSearchVariants::where('is_hashtag_generated', 0)->pluck('keyword', 'id')->chunk(100)->toArray();
+
+
+        foreach ($keywordVariantList as $chunk) {
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'category_List' =>$categoryList, 'brand_list' => $brandList, 'type' => 'keyword_variant'])->onQueue('generategooglescraperkeywords');
+        }
+    }
+
 }

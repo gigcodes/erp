@@ -384,6 +384,7 @@ Route::prefix('youtube')->middleware('auth')->group(function () {
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
+use App\Http\Controllers\StatusMappingController;
 use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
@@ -1390,12 +1391,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
     Route::post('order/change-return-status', [OrderController::class, 'returnStatus'])->name('order.change_return_status');
 
     Route::resource('order', OrderController::class);
+
+    Route::resource('status-mapping', StatusMappingController::class);
 
     Route::post('order/payment-history', [OrderController::class, 'paymentHistory'])->name('order.paymentHistory');
     Route::post('order/magento-log-list', [OrderController::class, 'getOrderMagentoErrorLogList'])->name('order.magento.log.list');
@@ -1944,6 +1948,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('purchaseproductorders/list', [PurchaseProductController::class, 'purchaseproductorders'])->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', [PurchaseProductController::class, 'purchaseproductorders_update'])->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/purchase-status-change', [PurchaseProductController::class, 'purchaseStatusChange'])->name('purchaseproductorders.purchase-status-change'); //Purpose : Add Route - DEVTASK-23362
     Route::get('purchaseproductorders/logs', [PurchaseProductController::class, 'purchaseproductorders_logs'])->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/flows', [PurchaseProductController::class, 'purchaseproductorders_flows'])->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236

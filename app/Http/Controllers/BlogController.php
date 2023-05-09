@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use View;
+use File;
 use App\Tag;
 use App\User;
+use Response;
 use DataTables;
 use App\Models\Blog;
 use App\StoreWebsite;
 use App\Models\BlogTag;
 use App\Models\BlogHistory;
-use Spatie\Sitemap\Sitemap;
 use Illuminate\Http\Request;
-use Spatie\Sitemap\Tags\Url;
 use Illuminate\Support\Carbon;
 
 class BlogController extends Controller
@@ -217,6 +218,7 @@ class BlogController extends Controller
         return view('blogs.index', compact('users', 'store_website'));
     }
 
+
     /**
      * Show the form for creating a new resource.
      *
@@ -339,31 +341,20 @@ class BlogController extends Controller
     {
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
         if (! empty($storeWebsite)) {
-            $sitemapUrl = "sitemap/web_$websiteId";
+            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->orderBy('id','desc')->get();
+            if(!empty($blogData)){
+                $FilePath = public_path('sitemap/web_' . $websiteId);
 
-            $baseUrl = url('/');
-
-            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->get();
-
-            $pollsPath = public_path('sitemap/web_' . $websiteId);
-            // $indexPath = public_path('sitemap');
-
-            if (! file_exists($pollsPath)) {
-                mkdir($pollsPath, 0777, true);
+                if (! file_exists($FilePath)) {
+                    mkdir($FilePath, 0777, true);
+                }
+                $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
+                File::put($FilePath.'/blog.xml', $output);
+                Response::make($output, 200)->header('Content-Type', 'application/xml');
+                return true;
             }
-
-            $pollChildIndex = Sitemap::create();
-            foreach ($blogData as $keys => $poll) {
-                $pollChildIndex->add(
-                    Url::create($poll->url_xml)
-                );
-            }
-
-            $pollChildIndex->writeToFile($pollsPath . '/blog.xml');
-
-            return true;
+          
         }
-
         return true;
     }
 

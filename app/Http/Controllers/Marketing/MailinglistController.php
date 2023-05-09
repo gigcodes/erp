@@ -761,7 +761,7 @@ class MailinglistController extends Controller
         }
     }
 
-    public function sendAutoEmails()
+    public static function sendAutoEmails()
     {
         $mailing_templates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->get();
         foreach ($mailing_templates as $mailing_item) {
