@@ -49,7 +49,7 @@ class SendDailyPlannerNotification extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report added. => " . json_encode($report->toArray())]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report added."]);
 
             // get the events which has 30  OR 05 Min left
             // $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 AND TIMESTAMPDIFF(MINUTE, now(), start) <= 35 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
@@ -77,7 +77,7 @@ class SendDailyPlannerNotification extends Command
                 foreach ($userWise as $id => $events) {
                     // find user into database
                     $user = \App\User::find($id);
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "user query finished. => " . json_encode($user->toArray())]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "user query finished."]);
                     // if user exist
                     if (! empty($user)) {
                         $notification = [];
@@ -86,7 +86,7 @@ class SendDailyPlannerNotification extends Command
 
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Daily activity query finished. => " . json_encode($dailyActivities->toArray())]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Daily activity query finished."]);
                             $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                             $no++;
 
@@ -103,7 +103,7 @@ class SendDailyPlannerNotification extends Command
                         $params['message'] = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message created. => " . json_encode($chat_message->toArray())]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message created."]);
                         // send
                         app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -114,14 +114,14 @@ class SendDailyPlannerNotification extends Command
             if (! empty($vendorParticipants)) {
                 foreach ($vendorParticipants as $id => $vendorParticipant) {
                     $vendor = \App\Vendor::find($id);
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "vendor created. => " . json_encode($vendor->toArray())]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "vendor created."]);
                     if (! empty($vendor)) {
                         $notification = [];
                         $notification[] = 'Following Event Schedule on within the next 30 min';
                         $no = 1;
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Daily activities created. => " . json_encode($vendor->toArray())]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Daily activities created."]);
 
                             $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                             $no++;
@@ -138,7 +138,7 @@ class SendDailyPlannerNotification extends Command
                         $params['message'] = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message added. => " . json_encode($chat_message->toArray())]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message added."]);
                         // send
                         app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);

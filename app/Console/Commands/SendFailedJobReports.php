@@ -45,7 +45,7 @@ class SendFailedJobReports extends Command
         try {
             $beforeFiveMin = Carbon::now()->subMinutes(5)->toDateTimeString();
             $failedReports = \DB::table('failed_jobs')->where('failed_at', '>', $beforeFiveMin)->get();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "failed jobs query finished. => " . json_encode($failedReports->toArray())]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "failed jobs query finished."]);
             if (! $failedReports->isEmpty()) {
                 throw new \Exception('Error Processing jobs, Total Failed Jobs in last five min : ' . $failedReports->count(), 1);
             }

@@ -15,7 +15,7 @@ class SendEventNotificationBefore24hr extends Command
      *
      * @var string
      */
-    protected $signature = '';
+    protected $signature = 'send:event-notification24hr';
 
     /**
      * The console command description.

@@ -119,7 +119,7 @@ class SendDailyPlannerReport extends Command
             foreach ($time_slots as $user_id => $data) {
                 if ($user = User::find($user_id)) {
                     Mail::to('yogeshmordani@icloud.com')->send(new SendDailyActivityReport($user, $data));
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Mail sended. => " . json_encode($data)]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Mail sent."]);
                     // Mail::to('vysniukass@gmail.com')->send(new SendDailyActivityReport($user, $data));
                 }
             }

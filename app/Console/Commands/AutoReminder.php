@@ -83,7 +83,7 @@ class AutoReminder extends Command
 
                     if ($time_to_send) {
                         $chat_messages = ChatMessage::where('customer_id', $customer['id'])->whereBetween('created_at', [$order['auto_messaged_date'], Carbon::now()])->latest()->get();
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query finished. => " . json_encode($chat_messages->toArray())]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query finished."]);
                         $received_count = false;
 
                         foreach ($chat_messages as $chat_message) {
@@ -94,7 +94,7 @@ class AutoReminder extends Command
 
                         if (! $received_count) {
                             $chat_message = ChatMessage::create($params);
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message saved. => " . json_encode($chat_message->toArray())]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message saved."]);
                         }
                     }
                 }

@@ -68,7 +68,7 @@ class RefreshCurrencies extends Command
                         'rate' => $rate,
                     ]
                 );
-                LogHelper::createCustomLogForCron($this->signature, ['message' => "{$symbol} currency rate : {$rate} saved."]);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "currency rate saved."]);
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
 
