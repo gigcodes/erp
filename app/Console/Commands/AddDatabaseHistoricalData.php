@@ -49,6 +49,8 @@ class AddDatabaseHistoricalData extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -61,9 +63,13 @@ class AddDatabaseHistoricalData extends Command
 
             $lastDb = DatabaseHistoricalRecord::where('database_name', env('DB_DATABASE', 'solo'))->latest()->first();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'DatabaseHistoricalRecord query finished']);
+
             if (! empty($db)) {
                 foreach ($db as $d) {
                     // check the last db size and current size and manage with it
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Comparing the database name & size']);
+
                     if ($lastDb) {
                         if ($lastDb->database_name == $d->db_name) {
                             if (($d->db_size - $lastDb->size) >= self::MAX_REACH_LIMIT) {
@@ -82,6 +88,9 @@ class AddDatabaseHistoricalData extends Command
                         'database_name' => $d->db_name,
                         'size' => $d->db_size,
                     ]);
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved database historical record by ID:'.$database_recent_entry->id]);
+
                     $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="' . $d->db_name . '" GROUP  BY TABLE_NAME'
                     );
                     foreach ($db_table as $d_table) {
@@ -102,10 +111,14 @@ class AddDatabaseHistoricalData extends Command
                                 $params['message_application_id'] = 10001;
                                 $chat_message = ChatMessage::create($params);
 
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
                                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'user');
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Message sent successfully.']);
                             }
                         }
                         DatabaseTableHistoricalRecord::create([
@@ -113,6 +126,8 @@ class AddDatabaseHistoricalData extends Command
                             'size' => $d_table->db_size,
                             'database_id' => $database_recent_entry->id,
                         ]);
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved database table historical record record']);
                     }
                 }
             }

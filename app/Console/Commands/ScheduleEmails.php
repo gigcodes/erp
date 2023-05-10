@@ -56,6 +56,8 @@ class ScheduleEmails extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             //dd("test");
             $created_date = Carbon::now();
             $modalType = '';
@@ -67,6 +69,8 @@ class ScheduleEmails extends Command
             // dd($flows);
             //$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();
             FlowLog::log(['flow_id' => 0, 'messages' => 'Flow action started to check and found total flows : ' . $flows->count()]);
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow model query was finished']);
 
             //$this->log[]="Flow action started to check and found total flows : ".$flows->count();
             foreach ($flows as $flow) {
@@ -85,9 +89,14 @@ class ScheduleEmails extends Command
                     ->select('flows.store_website_id', 'flows.id', 'store_websites.website', 'flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
                     ->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
                     ->get();
+                
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'FlowAction model query was finished']);
+
                 $flowlog = FlowLog::log(['flow_id' => $flow['id'], 'messages' => $flow['name'] . ' has found total Action  : ' . $flowActions->count()]);
 
                 if ($flowActions != null) {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow action records found']);
+
                     $i = 0;
                     $created_date = Carbon::now();
                     foreach ($flowActions as $key => $flowAction) {
@@ -124,6 +133,8 @@ class ScheduleEmails extends Command
                             $i = 1;
 
                             $modalType = ErpLeads::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'ErpLeads model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'wishlist') {
                             $leads = \App\CustomerBasketProduct::join('customer_baskets as cb', 'cb.id', 'customer_basket_products.customer_basket_id');
                             $leads = $leads->where('cb.store_website_id', $flow['store_website_id']);
@@ -134,6 +145,8 @@ class ScheduleEmails extends Command
                             $leads = $leads->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
                             ->get();
                             $modalType = CustomerBasketProduct::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'CustomerBasketProduct model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'delivered') {
                             // $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
                             // 	->where("customers.store_website_id", $flow['store_website_id'])
@@ -152,6 +165,8 @@ class ScheduleEmails extends Command
                             $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
                             ->get();
                             $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Order model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'newsletters') {
                             $leads = \App\Mailinglist::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
                                 ->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id');
@@ -166,6 +181,8 @@ class ScheduleEmails extends Command
 
                             $leads = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
                             $modalType = Mailinglist::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Mailinglist model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'customer_win_back') {
                             $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
                             $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
@@ -179,6 +196,8 @@ class ScheduleEmails extends Command
                             $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
                             ->get();
                             $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'order_reviews') {
                             $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
                             if (in_array('order_reviews_customers_store_website_id', $allflowconditions)) {
@@ -193,6 +212,8 @@ class ScheduleEmails extends Command
 
                             $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
                             $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'customer_post_purchase') { //
                             $leads = [];
                             $modalType = Orders::class;
@@ -211,7 +232,11 @@ class ScheduleEmails extends Command
                                 ->select('orders.id', 'orders.order_status', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
 
                             $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
                         }
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Starting the process']);
                         // dd($leads, "leads");
                         $this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog['id'], 'customer', $allflowconditions, $flow);
                     }

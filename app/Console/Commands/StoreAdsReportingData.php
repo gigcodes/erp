@@ -45,7 +45,12 @@ class StoreAdsReportingData extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'GoogleAdsAccount model query finished']);
+
             foreach ($googleAdsAccounts as $googleAdsAccount) {
                 $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
                 if (! empty($campaignIds)) {
