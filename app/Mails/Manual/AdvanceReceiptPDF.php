@@ -15,6 +15,9 @@ class AdvanceReceiptPDF extends Mailable
 
     public $product_names = '';
 
+    public $fromMailer;
+
+
     /**
      * Create a new message instance.
      *
@@ -23,7 +26,7 @@ class AdvanceReceiptPDF extends Mailable
     public function __construct(Order $order)
     {
         $this->order = $order;
-
+        $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
         $count = count($order->order_product);
         foreach ($order->order_product as $key => $order_product) {
             if ((($count - 1) == $key) && $key != 0) {
@@ -43,8 +46,8 @@ class AdvanceReceiptPDF extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-                    ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
                     ->markdown('emails.orders.advance-receipt-pdf');
     }
 }

@@ -883,11 +883,11 @@ class PurchaseController extends Controller
         //Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
 
         $emailClass = (new PurchaseExport($path, $request->subject, $request->message))->build();
-
+        $from_email=\App\Helpers::getFromEmail();
         $email = Email::create([
             'model_id' => $request->supplier_id,
             'model_type' => Supplier::class,
-            'from' => 'buying@amourint.com',
+            'from' => $from_email,
             'to' => $first_agent_email,
             'subject' => $request->subject,
             'message' => $request->message,
@@ -2688,11 +2688,11 @@ class PurchaseController extends Controller
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
-
+            $from_email=\App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
+                'from' => $from_email,
                 'to' => $request->email[0],
                 'seen' => 1,
                 'subject' => $request->subject,
@@ -2751,11 +2751,11 @@ class PurchaseController extends Controller
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->getSubject(), $content, $attachment));
-
+            $from_email=\App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' => $from_email,
                 'to' => $request->recipient,
                 'subject' => 'Resent: ' . $email->getSubject(),
                 'message' => $content,
@@ -2778,11 +2778,11 @@ class PurchaseController extends Controller
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
-
+            $from_email=\App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' =>  $from_email,
                 'to' => $request->recipient,
                 'subject' => "Resent: $email->subject",
                 'message' => $email->message,
@@ -2986,11 +2986,11 @@ class PurchaseController extends Controller
             }
 
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-
+            $from_email=\App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
+                'from' => $from_email,
                 'seen' => 1,
                 'to' => $supplier->default_email ?? $supplier->email,
                 'subject' => $request->subject,

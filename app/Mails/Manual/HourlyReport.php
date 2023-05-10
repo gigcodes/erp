@@ -16,10 +16,13 @@ class HourlyReport extends Mailable
      * @return void
      */
     protected $path;
+    
+    public $fromMailer;
 
     public function __construct($path)
     {
         $this->path = $path;
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**
@@ -29,8 +32,8 @@ class HourlyReport extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-                    ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
                     ->subject('Generated Hourly Report')
                     ->markdown('emails.hourly-report')
                     ->attachFromStorageDisk('files', $this->path);

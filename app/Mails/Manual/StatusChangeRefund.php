@@ -19,11 +19,13 @@ class StatusChangeRefund extends Mailable
      * @return void
      */
     public $return;
+    
+    public $fromMailer;
 
     public function __construct(ReturnExchange $return)
     {
         $this->return = $return;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer=\App\Helpers::getFromEmail($this->return->customer->id);
     }
 
     /**
@@ -38,8 +40,7 @@ class StatusChangeRefund extends Mailable
         $customer = $return->customer;
 
         $this->subject = $subject;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
-
+        
         if ($customer) {
             if ($customer->store_website_id > 0) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();

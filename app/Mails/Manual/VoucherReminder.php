@@ -18,9 +18,13 @@ class VoucherReminder extends Mailable
      */
     public $voucher;
 
+    public $fromMailer;
+
     public function __construct(Voucher $voucher)
     {
         $this->voucher = $voucher;
+
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**
@@ -30,8 +34,8 @@ class VoucherReminder extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-                    ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
                     ->subject('Voucher Reminder')
                     ->markdown('emails.vouchers.reminder');
     }
