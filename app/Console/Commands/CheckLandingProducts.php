@@ -41,8 +41,16 @@ class CheckLandingProducts extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $client = new ShopifyClient();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to ShopifyClient']);
+
             $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere('status', 0)->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'LandingPageProduct model query was finished']);
+
             foreach ($landingProducts as $product) {
                 $productData = [
                     'product' => [
@@ -52,6 +60,8 @@ class CheckLandingProducts extends Command
                 ];
                 if ($product->shopify_id) {
                     $response = $client->updateProduct($product->shopify_id, $productData, $product->store_website_id);
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:'.$product->shopify_id]);
                 }
             }
 
@@ -67,6 +77,8 @@ class CheckLandingProducts extends Command
 
                 if ($landingPage->shopify_id) {
                     $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:'.$landingPage->shopify_id]);
                 } else {
                     $response = $client->addProduct($productData, $landingPage->store_website_id);
                 }
