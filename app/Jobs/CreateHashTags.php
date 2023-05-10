@@ -36,7 +36,7 @@ class CreateHashTags implements ShouldQueue
      */
     public function handle(): bool
     {
-
+        $insert_data = [];
         try {
             self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : '.date('Y-m-d H:i:s'));
             switch($this->data['type']) {
@@ -65,7 +65,7 @@ class CreateHashTags implements ShouldQueue
                                 $insert_data = $hashtag->toArray();
                                 if(isset($insert_data['hashtag'])) {
                                     \DB::table('hash_tags')->insert($insert_data);
-                                    CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                    CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                 }
                             }
 
@@ -85,7 +85,7 @@ class CreateHashTags implements ShouldQueue
 
                     if (!empty($brandList)) {
                         $processed_category_id_array = [];
-                        foreach ($categoryList as  $category) {
+                        foreach ($categoryList as  $category_id => $category) {
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
                                     $generated_string = $brand . ' ' . $category . ' ' . $keywordVariant;
@@ -103,12 +103,12 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
-                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
                             }
-                            $processed_category_id_array[] = $category->id;
+                            $processed_category_id_array[] = $category_id;
                         }
                         Category::updateStatusIsHashtagsGeneratedCategories($processed_category_id_array);
                     }
@@ -122,7 +122,7 @@ class CreateHashTags implements ShouldQueue
                     $user_id = $this->data['user_id'];
                     if (!empty($brands)) {
                         $processed_variant_id_array = [];
-                        foreach ($keywordVariants as $keywordVariant) {
+                        foreach ($keywordVariants as $keywordId => $keywordVariant) {
                             foreach ($brands as $brand) {
                                 foreach($categories as $category) {
                                     $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
@@ -140,12 +140,12 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
-                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('runGoogleScrapperForKeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
                             }
-                            $processed_variant_id_array[] = $keywordVariant->id;
+                            $processed_variant_id_array[] = $keywordId;
 
                         }
                         KeywordSearchVariants::updateStatusIsHashtagsGeneratedKeywordVariants($processed_variant_id_array);

@@ -55,7 +55,7 @@ class CreateKeywordScrapperQueue implements ShouldQueue
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
-
+            \Log::info(json_encode($response));
             $result = null;
             /*if (! empty($response)) {
                 $result = json_decode($response);
