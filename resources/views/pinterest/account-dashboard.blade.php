@@ -76,26 +76,10 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Boards
                 </a>
-                {{--                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Programs--}}
-                {{--                </a>--}}
-                {{--                <a href="{!! route('affiliate-marketing.provider.payments.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Payments--}}
-                {{--                </a>--}}
-                {{--                <a href="{!! route('affiliate-marketing.provider.commission.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Commissions--}}
-                {{--                </a>--}}
-                {{--                <a href="{!! route('affiliate-marketing.provider.conversion.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Conversions--}}
-                {{--                </a>--}}
-                {{--                <a href="{!! route('affiliate-marketing.provider.customer.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Customers--}}
-                {{--                </a>--}}
+                <a href="{!! route('pinterest.accounts.boardSections.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Board Sections
+                </a>
             </div>
         </div>
     </div>

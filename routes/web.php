@@ -3110,6 +3110,13 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
                 Route::post('update', [PinterestAdsAccountsController::class, 'updateBoard'])->name('pinterest.accounts.board.update');
                 Route::get('delete/{boardId}', [PinterestAdsAccountsController::class, 'deleteBoard'])->name('pinterest.accounts.board.delete');
             });
+            Route::prefix('board-sections')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardSectionsIndex'])->name('pinterest.accounts.boardSections.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoardSections'])->name('pinterest.accounts.boardSections.create');
+                Route::get('get/{boardSectionId}', [PinterestAdsAccountsController::class, 'getBoardSection'])->name('pinterest.accounts.boardSections.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoardSection'])->name('pinterest.accounts.boardSections.update');
+                Route::get('delete/{boardSectionId}', [PinterestAdsAccountsController::class, 'deleteBoardSection'])->name('pinterest.accounts.boardSections.delete');
+            });
         });
     });
 });
