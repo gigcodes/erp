@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Pinterest;
 
 use App\Http\Controllers\Controller;
 use App\PinterestAdsAccounts;
+use App\PinterestBoards;
 use App\PinterestBusinessAccountMails;
 use App\Setting;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -100,6 +102,201 @@ class PinterestAdsAccountsController extends Controller
             }
         } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts.dashboard', [$id])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get all boards for a account.
+     * @param Request $request
+     * @param $id
+     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     */
+    public function boardsIndex(Request $request, $id)
+    {
+        try {
+            $pinterestBusinessAccountMail = PinterestBusinessAccountMails::with('account')->findOrFail($id);
+            if (!$pinterestBusinessAccountMail) {
+                return Redirect::route('pinterest.accounts.dashboard', [$id])
+                    ->with('error', 'No account found');
+            }
+            $pinterestBoards = PinterestBoards::with('account')
+                ->where(function ($query) use ($pinterestBusinessAccountMail, $request) {
+                    $query->whereHas('account', function ($query2) use ($pinterestBusinessAccountMail) {
+                        $query2->where('pinterest_mail_id', $pinterestBusinessAccountMail->id);
+                    });
+                    if ($request->has('name') && $request->name) {
+                        $query->where('name', 'like', '%' . $request->name . '%');
+                    }
+                    if ($request->has('account_id') && $request->account_id) {
+                        $query->where('pinterest_ads_account_id', $request->account_id);
+                    }
+                })->paginate(Setting::get('pagination'), ['*'], 'boards');
+            $pinterestAdsAccount = PinterestAdsAccounts::where('pinterest_mail_id', $pinterestBusinessAccountMail->id)->pluck('ads_account_name', 'id')->toArray();
+            return view('pinterest.boards-index', compact('pinterestBusinessAccountMail', 'pinterestBoards', 'pinterestAdsAccount'));
+        } catch (\Exception $e) {
+            return Redirect::route('pinterest.accounts.dashboard', [$id])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Create a new Board.
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function createBoard(Request $request, $id): RedirectResponse
+    {
+        try {
+            $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
+            if (!$pinterestAccount) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', 'No account found');
+            }
+            $validator = Validator::make($request->all(), [
+                'pinterest_ads_account_id' => 'required',
+                'name' => 'required',
+                'description' => 'sometimes',
+            ]);
+            if ($validator->fails()) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $pinterestAdAccount = PinterestAdsAccounts::where('id', $request->get('pinterest_ads_account_id'))->first();
+            $pinterest = new PinterestService($pinterestAccount->account->pinterest_client_id, $pinterestAccount->account->pinterest_client_secret, $pinterestAccount->account->id);
+            $pinterest->updateAccessToken($pinterestAccount->pinterest_access_token);
+            $response = $pinterest->createBoards([
+                "name" => $request->get('name'),
+                "description" => $request->get('description')
+            ], ['ad_account_id' => $pinterestAdAccount->ads_account_id]);
+            if ($response['status']) {
+                PinterestBoards::create([
+                    'pinterest_ads_account_id' => $request->get('pinterest_ads_account_id'),
+                    'board_id' => $response['data']['id'],
+                    'name' => $request->get('name'),
+                    'description' => $request->get('description'),
+                ]);
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('success', 'Board created successfully.');
+            } else {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', $response['message']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('pinterest.accounts.board.index', [$id])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get Board Details
+     * @param $accountId
+     * @param $boardId
+     * @return JsonResponse
+     */
+    public function getBoard($id, $boardId): JsonResponse
+    {
+        try {
+            $pinterestBusinessAccount = PinterestBusinessAccountMails::findOrFail($id);
+            if (!$pinterestBusinessAccount) {
+                return response()->json(['status' => false, 'message' => 'Account not found']);
+            }
+            $pinterestBoard = PinterestBoards::findOrFail($boardId);
+            if (!$pinterestBoard) {
+                return response()->json(['status' => false, 'message' => 'Board not found']);
+            }
+            return response()->json(['status' => true, 'message' => 'Account found', 'data' => $pinterestBoard->toArray()]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update a new Board.
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function updateBoard(Request $request, $id): RedirectResponse
+    {
+        try {
+            $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
+            if (!$pinterestAccount) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', 'No account found');
+            }
+            $validator = Validator::make($request->all(), [
+                'edit_board_id' => 'required',
+                'edit_pinterest_ads_account_id' => 'required',
+                'edit_name' => 'required',
+                'edit_description' => 'sometimes',
+            ]);
+            if ($validator->fails()) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $pinterestAdAccount = PinterestAdsAccounts::where('id', $request->get('edit_pinterest_ads_account_id'))->first();
+            $pinterestBoard = PinterestBoards::where('id', $request->get('edit_board_id'))->first();
+            $pinterest = new PinterestService($pinterestAccount->account->pinterest_client_id, $pinterestAccount->account->pinterest_client_secret, $pinterestAccount->account->id);
+            $pinterest->updateAccessToken($pinterestAccount->pinterest_access_token);
+            $response = $pinterest->updateBoards($pinterestBoard->board_id, [
+                "name" => $request->get('edit_name'),
+                "description" => $request->get('edit_description')
+            ], ['ad_account_id' => $pinterestAdAccount->ads_account_id]);
+            if ($response['status']) {
+                $pinterestBoard->pinterest_ads_account_id = $request->get('edit_pinterest_ads_account_id');
+                $pinterestBoard->name = $request->get('edit_name');
+                $pinterestBoard->description = $request->get('edit_description');
+                $pinterestBoard->save();
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('success', 'Board Updated successfully.');
+            } else {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', $response['message']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('pinterest.accounts.board.index', [$id])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete Board
+     * @param $id
+     * @param $boardId
+     * @return RedirectResponse
+     */
+    public function deleteBoard($id, $boardId): RedirectResponse
+    {
+        try {
+            $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
+            if (!$pinterestAccount) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', 'No account found');
+            }
+            $pinterestBoard = PinterestBoards::with('account')->findOrFail($boardId);
+            if (!$pinterestBoard) {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', 'Board not found');
+            }
+            $pinterest = new PinterestService($pinterestAccount->account->pinterest_client_id, $pinterestAccount->account->pinterest_client_secret, $pinterestAccount->account->id);
+            $pinterest->updateAccessToken($pinterestAccount->pinterest_access_token);
+            $response = $pinterest->deleteBoards($pinterestBoard->board_id, ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
+            if ($response['status']) {
+                $pinterestBoard->delete();
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('success', 'Board deleted successfully');
+            } else {
+                return Redirect::route('pinterest.accounts.board.index', [$id])
+                    ->with('error', $response['message']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('pinterest.accounts.board.index', [$id])
                 ->with('error', $e->getMessage());
         }
     }

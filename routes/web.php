@@ -3103,6 +3103,13 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
             Route::prefix('adsAccount')->group(function () {
                 Route::post('create', [PinterestAdsAccountsController::class, 'createAdsAccount'])->name('pinterest.accounts.adsAccount.create');
             });
+            Route::prefix('boards')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardsIndex'])->name('pinterest.accounts.board.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoard'])->name('pinterest.accounts.board.create');
+                Route::get('get/{boardId}', [PinterestAdsAccountsController::class, 'getBoard'])->name('pinterest.accounts.board.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoard'])->name('pinterest.accounts.board.update');
+                Route::get('delete/{boardId}', [PinterestAdsAccountsController::class, 'deleteBoard'])->name('pinterest.accounts.board.delete');
+            });
         });
     });
 });

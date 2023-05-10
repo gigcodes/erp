@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Pinterest')
+@section('title', 'Pinterest Ads Account')
 @section('styles')
     <style type="text/css">
         #loading-image {
@@ -72,10 +72,10 @@
                 <button data-toggle="modal" data-target="#create-ads-account" type="button"
                         class="float-right mb-3 mr-2 btn-secondary">New Ads Account
                 </button>
-                {{--                <a href="{!! route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $provider->id]) !!}"--}}
-                {{--                   type="button"--}}
-                {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Affiliates--}}
-                {{--                </a>--}}
+                <a href="{!! route('pinterest.accounts.board.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Boards
+                </a>
                 {{--                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"--}}
                 {{--                   type="button"--}}
                 {{--                   class="float-right mb-3 mr-2 btn-secondary link-button">View Programs--}}
@@ -150,7 +150,7 @@
         @endif
 
         if (showPopup) {
-            $('#create-group').modal('show');
+            $('#create-ads-account').modal('show');
         }
     </script>
 @endsection

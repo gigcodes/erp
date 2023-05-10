@@ -494,6 +494,7 @@ class PinterestClient
         }
 
         $response = curl_exec($curl);
+//        _p([$method, $this->getBASEAPI() . $url, json_encode($params), $this->getAccessToken(), curl_getinfo($curl), $response]);die;
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {
@@ -502,6 +503,9 @@ class PinterestClient
         } else {
             $response = json_decode($response, true);
             if (is_array($response)) {
+                if (isset($response['code'])) {
+                    return ['status' => false, 'message' => $response['message']];
+                }
                 return ['status' => true, 'message' => 'Data found', 'data' => $response];
             } else {
                 if ($method == 'DELETE') {
