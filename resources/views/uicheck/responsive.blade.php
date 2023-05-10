@@ -99,7 +99,7 @@
 <br />
 <div class="col-lg-12 margin-tb">
 	<div class="row">
-		<div class="col-md-10">
+		<div class="col-md-9">
 			<form>
 				<div class="row">
 					<div class="col-md-2">
@@ -160,15 +160,16 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-2">
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
 						<a href="{{route('uicheck.responsive')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
 				</div>
 			</form>
 		</div>
-		<div class="col-md-2">
-			@if (Auth::user()->isAdmin())
+		<div class="col-md-3">
+				<a href="/uicheck/device-logs" class="btn btn-secondary my-3"> UI Check Logs</a>&nbsp;
+				@if (Auth::user()->isAdmin())
 				@php
 					if(request('website') && request('website') != '' && request('user') && request('user') != ''){
 						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
@@ -258,60 +259,70 @@
 									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="1" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['3']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['5']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('6', '{{$uiDevData->uicheck_id}}', '6');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('6', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('7', '{{$uiDevData->uicheck_id}}', '7');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('7', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage8{{$uiDevData->uicheck_id}}" class="uidevmessage8{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['8']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="8" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('8', '{{$uiDevData->uicheck_id}}', '8');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('8', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="8" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage9{{$uiDevData->uicheck_id}}" class="uidevmessage9{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['9']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="9" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('9', '{{$uiDevData->uicheck_id}}', '9');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('9', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="9" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage10{{$uiDevData->uicheck_id}}" class="uidevmessage10{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['10']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="10" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('10', '{{$uiDevData->uicheck_id}}', '10');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('10', '{{$uiDevData->uicheck_id}}');"></i>
+									<input type="checkbox" class="toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="10" data-toggle="toggle">
 									@include('uicheck.partials.device-google-screencast-button')
 								</td>
 								
@@ -1019,6 +1030,36 @@
 		});
 	}
 	@endif
+
+	$(function() {
+		$('.toggle-event').change(function() {
+			var uicheckId = $(this).data('uicheck_id');
+			var deviceNo = $(this).data('device_no');
+
+			jQuery.ajax({
+				headers: {
+					'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+				},
+				url: "/uicheck/set/device-log",
+				type: 'POST',
+				data: {
+					deviceNo : deviceNo,
+					uicheckId : uicheckId,
+					eventType : $(this).prop('checked')
+				},
+				beforeSend: function() {
+					//jQuery("#loading-image").show();
+				}
+			}).done(function(response) {
+				toastr["success"](response.message);
+				//mdl.find('tbody').html(response.html);
+				//mdl.modal("show");
+			}).fail(function(errObj) {
+				console.log(errObj);
+				toastr["error"](errObj.responseJSON.message);
+			});
+		})
+	});
 </script>
 
 @endsection
