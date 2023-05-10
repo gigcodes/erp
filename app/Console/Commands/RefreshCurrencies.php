@@ -40,6 +40,7 @@ class RefreshCurrencies extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             $fixerApiKey = env('FIXER_API_KEY');
             if (! isset($fixerApiKey)) {
@@ -67,7 +68,10 @@ class RefreshCurrencies extends Command
                         'rate' => $rate,
                     ]
                 );
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "{$symbol} currency rate : {$rate} saved."]);
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+
         } catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

@@ -39,6 +39,7 @@ class IosPaymentsReport extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
 
@@ -78,6 +79,7 @@ class IosPaymentsReport extends Command
                 $res = json_decode($result, true);
 
                 curl_close($curl);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);
 
                 if ($res) {
                     $r = new AppPaymentReport();
@@ -99,6 +101,8 @@ class IosPaymentsReport extends Command
                 $i += 1;
             }
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "App payment report was added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
             return $this->info('Payments Report added');
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
