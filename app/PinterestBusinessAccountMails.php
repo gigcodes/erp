@@ -14,4 +14,8 @@ class PinterestBusinessAccountMails extends Model
         'expires_in',
         'refresh_token_expires_in'
     ];
+
+    public function account() {
+        return $this->hasOne(PinterestBusinessAccounts::class, 'id', 'pinterest_business_account_id');
+    }
 }

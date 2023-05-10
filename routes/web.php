@@ -358,6 +358,7 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
+use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 
 Auth::routes();
 
@@ -3095,6 +3096,14 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
         Route::post('delete/{id}', [PinterestAccountController::class, 'deleteAccount'])->name('pinterest.accounts.delete');
         Route::get('connect/login', [PinterestAccountController::class, 'loginAccount'])->name('pinterest.accounts.connect.login');
         Route::get('connect/{id}', [PinterestAccountController::class, 'connectAccount'])->name('pinterest.accounts.connect');
+        Route::get('refresh/{id}', [PinterestAccountController::class, 'refreshAccount'])->name('pinterest.accounts.refresh');
+        Route::get('disconnect/{id}', [PinterestAccountController::class, 'disconnectAccount'])->name('pinterest.accounts.disconnect');
+        Route::prefix('{id}')->group(function () {
+            Route::get('dashboard', [PinterestAdsAccountsController::class, 'dashboard'])->name('pinterest.accounts.dashboard');
+            Route::prefix('adsAccount')->group(function () {
+                Route::post('create', [PinterestAdsAccountsController::class, 'createAdsAccount'])->name('pinterest.accounts.adsAccount.create');
+            });
+        });
     });
 });
 

@@ -21,7 +21,7 @@ class PinterestAccountController extends Controller
      */
     public function index(Request $request)
     {
-        $pinterestBusinessAccounts = PinterestBusinessAccounts::where(function ($query) use ($request) {
+        $pinterestBusinessAccounts = PinterestBusinessAccounts::with('accounts')->where(function ($query) use ($request) {
             if ($request->has('name') && $request->name) {
                 $query->where('pinterest_application_name', 'like', '%' . $request->name . '%');
             }
@@ -137,7 +137,7 @@ class PinterestAccountController extends Controller
             $pinterestBusinessAccount = PinterestBusinessAccounts::findOrFail($id);
             if (!$pinterestBusinessAccount) {
                 return Redirect::route('pinterest.accounts')
-                    ->with('error', 'No provider found');
+                    ->with('error', 'No account found');
             }
             PinterestBusinessAccountMails::where('pinterest_business_account_id', $pinterestBusinessAccount->id)->delete();
             $pinterestBusinessAccount->delete();
@@ -160,7 +160,7 @@ class PinterestAccountController extends Controller
             $pinterestAccount = PinterestBusinessAccounts::findOrFail($id);
             if (!$pinterestAccount) {
                 return Redirect::route('pinterest.accounts')
-                    ->with('error', 'No provider found');
+                    ->with('error', 'No account found');
             }
             $pinterest = new PinterestService($pinterestAccount->pinterest_client_id, $pinterestAccount->pinterest_client_secret, $pinterestAccount->id);
             $authUrl = $pinterest->getAuthURL();
@@ -189,9 +189,82 @@ class PinterestAccountController extends Controller
             }
             $pinterest = new PinterestService($pinterestAccount->pinterest_client_id, $pinterestAccount->pinterest_client_secret, $pinterestAccount->id);
             $response = $pinterest->validateAccessTokenAndRefreshToken($request->all());
-            _p($response);die;
+            if (!$response['status']) {
+                return Redirect::route('pinterest.accounts')
+                    ->with('error', $response['message']);
+            } else {
+                $pinterestBusinessAccount = new PinterestBusinessAccountMails();
+                $pinterestBusinessAccount->pinterest_business_account_id = $pinterestAccount->id;
+                $pinterestBusinessAccount->pinterest_refresh_token = $response['data']['refresh_token'];
+                $pinterestBusinessAccount->pinterest_access_token = $response['data']['access_token'];
+                $pinterestBusinessAccount->expires_in = $response['data']['expires_in'];
+                $pinterestBusinessAccount->refresh_token_expires_in = $response['data']['refresh_token_expires_in'];
+                $pinterestBusinessAccount->save();
+                $pinterest->updateAccessToken($pinterestBusinessAccount->pinterest_access_token);
+                $userResponse = $pinterest->getUserAccount();
+                if ($userResponse['status']) {
+                    $pinterestBusinessAccount->pinterest_account = $userResponse['data']['username'];
+                    $pinterestBusinessAccount->save();
+                } else {
+                    return Redirect::route('pinterest.accounts')
+                        ->with('error', $userResponse['message']);
+                }
+                return Redirect::route('pinterest.accounts')
+                    ->with('success', 'Account connected successfully');
+            }
+        } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts')
-                ->with('success', 'Account connected successfully');
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Refresh the token and account details
+     * @param Request $request
+     * @param $id
+     */
+    public function refreshAccount(Request $request, $id): RedirectResponse
+    {
+        try {
+            $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
+            if (!$pinterestAccount) {
+                return Redirect::route('pinterest.accounts')
+                    ->with('error', 'No account found');
+            }
+            $pinterest = new PinterestService($pinterestAccount->account->pinterest_client_id, $pinterestAccount->account->pinterest_client_secret, $pinterestAccount->account->id);
+            $pinterest->updateAccessToken($pinterestAccount->pinterest_access_token);
+            $response = $pinterest->getUserAccount();
+            if ($response['status']) {
+                $pinterestAccount->pinterest_account = $response['data']['username'];
+                $pinterestAccount->save();
+                return Redirect::route('pinterest.accounts')
+                    ->with('success', 'Account refreshed successfully');
+            } else {
+                return Redirect::route('pinterest.accounts')
+                    ->with('error', $response['message']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('pinterest.accounts')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Disconnect account from pinterest.
+     * @param Request $request
+     * @param $id
+     */
+    public function disconnectAccount(Request $request, $id): RedirectResponse
+    {
+        try {
+            $pinterestAccount = PinterestBusinessAccountMails::findOrFail($id);
+            if (!$pinterestAccount) {
+                return Redirect::route('pinterest.accounts')
+                    ->with('error', 'No account found');
+            }
+            $pinterestAccount->delete();
+            return Redirect::route('pinterest.accounts')
+                ->with('success', 'Account disconnected successfully');
         } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts')
                 ->with('error', $e->getMessage());

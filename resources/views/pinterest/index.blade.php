@@ -95,6 +95,39 @@
                         <a href="{!! route('pinterest.accounts.connect', [$pinterestBusinessAccount->id]) !!}">Connect</a>
                     </td>
                 </tr>
+                @if(count($pinterestBusinessAccount->accounts) > 0)
+                    <tr>
+                        <td colspan="5">
+                            <div>
+                                <h5>Connected Accounts</h5>
+                                <table style="width: 95%;margin: 0 auto;">
+                                    <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($pinterestBusinessAccount->accounts as $accountKey => $account)
+                                        <tr>
+                                            <td>{!! $accountKey + 1 !!}</td>
+                                            <td>{!! $account->pinterest_account !!}</td>
+                                            <td>
+                                                <a class="btn-image" href="{!! route('pinterest.accounts.refresh', [$account->id]) !!}"
+                                                   title="Refresh"><img src="/images/resend2.png"/></a>
+                                                <a class="btn-image" href="{!! route('pinterest.accounts.disconnect', [$account->id]) !!}"
+                                                   title="Disconnect"><img src="/images/delete.png"/></a>
+                                                <a href="{!! route('pinterest.accounts.dashboard', [$account->id]) !!}">Dashboard</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
             @endforeach
             </tbody>
         </table>
