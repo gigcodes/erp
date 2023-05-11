@@ -90,6 +90,19 @@ class MagentoRunCommand extends Command
             } else {
                 $websites = StoreWebsite::whereIn('id', explode(',', $magCom->website_ids))->get();
                 
+                if ($websites->isEmpty() ) {
+                    MagentoCommandRunLog::create(
+                        [
+                            'command_id' => $magCom->id,
+                            'user_id' => \Auth::user()->id ?? '',
+                            'website_ids' => '',
+                            'command_name' => $magCom->command_name,
+                            'server_ip' => '',
+                            'command_type' => $magCom->command_type,
+                            'response' => 'The command website is not found!',
+                        ]
+                    );
+                }
                 foreach ($websites as $website) {
                     Log::info("Start Rum Magento Command for website_id: ".$website->id);
                     if ($magCom->command_name != '' && $website->server_ip != '') {
@@ -165,6 +178,18 @@ class MagentoRunCommand extends Command
                                 }
                             }
                             
+                        }else{
+                            MagentoCommandRunLog::create(
+                                [
+                                    'command_id' => $magCom->id,
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => '',
+                                    'command_name' => $magCom->command_name,
+                                    'server_ip' => '',
+                                    'command_type' => $magCom->command_type,
+                                    'response' => 'Assets Manager & Client id not found for this command!',
+                                ]
+                            );
                         }
                         
                         //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type;
