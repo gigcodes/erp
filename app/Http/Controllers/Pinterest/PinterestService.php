@@ -120,9 +120,9 @@ class PinterestService extends PinterestClient
         return $this->callApi('POST', $this->buildParams('ad_accounts/' . $accountId . '/campaigns', $query), $params);
     }
 
-    public function updateCampaign($accountId, $id, $query, $params): array
+    public function updateCampaign($accountId, $params, $query = []): array
     {
-        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/campaigns/' . $id, $query), $params);
+        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/campaigns', $query), $params);
     }
 
     public function getCampaign($accountId, $id, $query = []): array

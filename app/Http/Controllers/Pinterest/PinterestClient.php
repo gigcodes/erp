@@ -506,6 +506,13 @@ class PinterestClient
                 if (isset($response['code'])) {
                     return ['status' => false, 'message' => $response['message']];
                 }
+                if (isset($response['items'])) {
+                    if (isset($response['items'][0]['exceptions'][0])) {
+                        if (isset($response['items'][0]['exceptions'][0]['message'])) {
+                            return ['status' => false, 'message' => $response['items'][0]['exceptions'][0]['message']];
+                        }
+                    }
+                }
                 return ['status' => true, 'message' => 'Data found', 'data' => $response];
             } else {
                 if ($method == 'DELETE') {

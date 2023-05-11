@@ -37,8 +37,8 @@ class PinterestPinsController extends Controller
                     $query->whereHas('account', function ($query2) use ($pinterestBusinessAccountMail) {
                         $query2->where('pinterest_mail_id', $pinterestBusinessAccountMail->id);
                     });
-                    if ($request->has('title') && $request->name) {
-                        $query->where('name', 'like', '%' . $request->name . '%');
+                    if ($request->has('name') && $request->name) {
+                        $query->where('title', 'like', '%' . $request->name . '%');
                     }
                     if ($request->has('pinterest_board_id') && $request->pinterest_board_id) {
                         $query->where('pinterest_board_id', $request->pinterest_board_id);
@@ -202,7 +202,7 @@ class PinterestPinsController extends Controller
     }
 
     /**
-     * Update a Board section.
+     * Update a Pin.
      * @param Request $request
      * @param $id
      * @return RedirectResponse
@@ -263,7 +263,7 @@ class PinterestPinsController extends Controller
     }
 
     /**
-     * Delete Board Section
+     * Delete Pin
      * @param $id
      * @param $pinId
      * @return RedirectResponse

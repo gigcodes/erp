@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Pinterest Pins')
+@section('title', 'Pinterest Campaigns')
 @section('styles')
     <style type="text/css">
         #myDiv {
@@ -7,7 +7,7 @@
             position: fixed;
             z-index: 99999;
             height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
         }
 
         #loading-image {
@@ -32,6 +32,30 @@
             text-decoration: none;
             line-height: 1.4;
         }
+
+        legend {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            padding: 0;
+            margin-bottom: 0;
+            font-size: 1.5rem;
+            line-height: inherit;
+            color: inherit;
+            white-space: normal;
+            border-bottom: none !important;
+        }
+
+        fieldset {
+            padding: 10px 10px;
+            margin: 0 2px;
+            border: 1px solid #c0c0c07a;
+            border-radius: 4px;
+        }
+
+        .note {
+            font-size: 10px;
+        }
     </style>
 @endsection
 @section('content')
@@ -41,26 +65,23 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">
-                {!! $pinterestBusinessAccountMail->pinterest_account !!} Pins (<span
-                        id="affiliate_count">{{ $pinterestPins->total() }}</span>)
+                {!! $pinterestBusinessAccountMail->pinterest_account !!} Campaigns (<span
+                        id="affiliate_count">{{ $pinterestCampaigns->total() }}</span>)
             </h2>
             <div class="pull-left">
-                <form action="{{route('pinterest.accounts.pin.index', [$pinterestBusinessAccountMail->id])}}">
+                <form action="{{route('pinterest.accounts.campaign.index', [$pinterestBusinessAccountMail->id])}}">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <input name="name" type="text" class="form-control"
                                        value="{{ request('name') }}" placeholder="Search name">
-                            </div>
-                            <div class="col-md-3">
-                                {!! Form::select("pinterest_board_id", ['' => 'Select board'] + $pinterestBoards, request('pinterest_board_id'), ["class" => "form-control type-filter"]) !!}
                             </div>
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-image">
                                     <img src="/images/filter.png"/>
                                 </button>
                                 <button type="reset"
-                                        onclick="window.location='{{route('pinterest.accounts.pin.index', [$pinterestBusinessAccountMail->id])}}'"
+                                        onclick="window.location='{{route('pinterest.accounts.campaign.index', [$pinterestBusinessAccountMail->id])}}'"
                                         class="btn btn-image" id="resetFilter">
                                     <img src="/images/resend2.png"/>
                                 </button>
@@ -71,7 +92,7 @@
             </div>
             <div class="col-md-6 pl-0 float-right">
                 <button data-toggle="modal" data-target="#create-board" type="button"
-                        class="float-right mb-3 mr-2 btn-secondary">New Pin
+                        class="float-right mb-3 mr-2 btn-secondary">New Campaign
                 </button>
                 <a href="{!! route('pinterest.accounts.dashboard', [$pinterestBusinessAccountMail->id]) !!}"
                    type="button"
@@ -88,43 +109,46 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>Title</th>
-                <th>Link</th>
-                <th>Board</th>
                 <th>Ads Account</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Lifetime spend cap.</th>
+                <th>Daily spend cap.</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($pinterestPins as $key => $pinterestPin)
+            @foreach ($pinterestCampaigns as $key => $pinterestCampaign)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $pinterestPin->title }}</td>
-                    <td>{{ $pinterestPin->link }}</td>
-                    <td>{{ $pinterestPin->board->name }}</td>
-                    <td>{{ $pinterestPin->account->ads_account_name }}</td>
+                    <td>{{ $pinterestCampaign->account->ads_account_name }}</td>
+                    <td>{{ $pinterestCampaign->name }}</td>
+                    <td>{{ $pinterestCampaign->status }}</td>
+                    <td>{{ $pinterestCampaign->start_time ? date('d-m-Y', $pinterestCampaign->start_time): '-' }}</td>
+                    <td>{{ $pinterestCampaign->end_time ? date('d-m-Y', $pinterestCampaign->end_time): '-' }}</td>
+                    <td>{{$pinterestCampaign->account->ads_account_currency}} {{ $pinterestCampaign->lifetime_spend_cap ?: '0' }}</td>
+                    <td>{{$pinterestCampaign->account->ads_account_currency}} {{ $pinterestCampaign->daily_spend_cap ?: '0' }}</td>
                     <td>
                         <button type="button" data-toggle="modal" data-target="#update-board"
-                                onclick="editData('{!! $pinterestPin->id !!}')"
+                                onclick="editData('{!! $pinterestCampaign->id !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>
-                        <a class="btn-image"
-                           href="{!! route('pinterest.accounts.pin.delete', [$pinterestBusinessAccountMail->id, $pinterestPin->id]) !!}"
-                           title="Delete Board"><img src="/images/delete.png"/></a>
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
-    {!! $pinterestPins->render() !!}
+    {!! $pinterestCampaigns->render() !!}
     <div class="modal fade" id="create-board" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="col-md-12">
                     <div class="page-header" style="width: 69%">
-                        <h2>Create Pin</h2>
+                        <h2>Create Campaign</h2>
                     </div>
-                    @include('pinterest._partials.pins-create')
+                    @include('pinterest._partials.campaings-create')
                 </div>
             </div>
         </div>
@@ -134,9 +158,9 @@
             <div class="modal-content">
                 <div class="col-md-12">
                     <div class="page-header" style="width: 69%">
-                        <h2>Update Pin</h2>
+                        <h2>Update Campaign</h2>
                     </div>
-                    @include('pinterest._partials.pins-update')
+                    @include('pinterest._partials.campaigns-update')
                 </div>
             </div>
         </div>
@@ -165,52 +189,8 @@
             $('#update-board').modal('show');
         }
 
-        function updateValues() {
-            let file = document.getElementById('media').files[0];
-            $('#media_content_type').val(file.type)
-            var reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                $('#media_data').val(reader.result.split("base64,")[1]);
-            };
-            reader.onerror = function (error) {
-                console.log('Error: ', error);
-            };
-        }
-
-        function getSections(input, isEdit) {
-            let val = $(input).val();
-            if (val) {
-                let url = "{{ route('pinterest.accounts.pin.board.sections', [$pinterestBusinessAccountMail->id, ':id']) }}";
-                url = url.replace(':id', val);
-                $.ajax({
-                    url,
-                    type: 'GET',
-                    beforeSend: function () {
-                        $("#myDiv").show();
-                    },
-                    success: function (response) {
-                        $("#myDiv").hide();
-                        if (!response.status) {
-                            toastr["error"](response.message);
-                        } else {
-                            let html = '<option value="">Select</option>';
-                            response.data.forEach(item => {
-                                html += `<option value="${item.id}">${item.name}</option>`
-                            })
-                            if (isEdit) {
-                                $('#edit_pinterest_board_section_id').html(html);
-                            } else {
-                                $('#pinterest_board_section_id').html(html);
-                            }
-                        }
-                    }
-                })
-            }
-        }
-
         function editData(id) {
-            let url = "{{ route('pinterest.accounts.pin.get', [$pinterestBusinessAccountMail->id, ':id']) }}";
+            let url = "{{ route('pinterest.accounts.campaign.get', [$pinterestBusinessAccountMail->id, ':id']) }}";
             url = url.replace(':id', id);
             $.ajax({
                 url,
@@ -224,22 +204,34 @@
                         toastr["error"](response.message);
                         $('#update-board').modal('hide');
                     } else {
-                        let {pin, sections} = response.data;
-                        let html = '<option value="">Select</option>';
-                        sections.forEach(item => {
-                            html += `<option value="${item.id}">${item.name}</option>`
-                        })
-                        $('#edit_pinterest_board_section_id').html(html);
-                        $('#edit_pin_id').val(id);
-                        $('#edit_title').val(pin.title);
-                        $('#edit_description').val(pin.description);
-                        $('#edit_alt_text').val(pin.alt_text);
-                        $('#edit_link').val(pin.link);
-                        $('#edit_pinterest_board_id').val(pin.pinterest_board_id);
-                        $('#edit_pinterest_board_section_id').val(pin.pinterest_board_section_id || '');
+                        let urls = JSON.parse(response.data.tracking_urls)
+                        $('#edit_campaign_id').val(id);
+                        $('#edit_pinterest_ads_account_id').val(response.data.pinterest_ads_account_id);
+                        $('#edit_name').val(response.data.name);
+                        $('#edit_status').val(response.data.status);
+                        $('#edit_lifetime_spend_cap').val(response.data.lifetime_spend_cap);
+                        $('#edit_daily_spend_cap').val(response.data.daily_spend_cap);
+                        $('#edit_start_time').val(convertDate(Number(response.data.start_time)));
+                        $('#edit_end_time').val(convertDate(Number(response.data.end_time)));
+                        $('#edit_summary_status').val(response.data.summary_status);
+                        $('#edit_is_flexible_daily_budgets').prop('checked', response.data.is_flexible_daily_budgets);
+                        // $('#edit_tracking_urls_impression1').val(urls?.impression[0] || '');
+                        // $('#edit_tracking_urls_click1').val(urls?.click[0] || '');
+                        // $('#edit_tracking_urls_engagement1').val(urls?.engagement[0] || '');
+                        // $('#edit_tracking_urls_buyable_button1').val(urls?.buyable_button[0] || '');
+                        // $('#edit_tracking_urls_audience_verification1').val(urls?.audience_verification[0] || '');
                     }
                 }
             })
+        }
+
+        function convertDate(date) {
+            let time = new Date(Number(date))
+            let d = time.getDate();
+            let m = (Number(time.getMonth()) + 1);
+            d = (d < 10 ? '0' + d : d);
+            m = (m < 10 ? '0' + m : m)
+            return time.getFullYear() + '-' + m + '-' + d;
         }
     </script>
 @endsection

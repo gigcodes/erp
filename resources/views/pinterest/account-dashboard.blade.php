@@ -84,6 +84,10 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Pins
                 </a>
+                <a href="{!! route('pinterest.accounts.campaign.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Campaigns
+                </a>
             </div>
         </div>
     </div>

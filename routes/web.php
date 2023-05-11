@@ -361,6 +361,7 @@ use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
+use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 
 Auth::routes();
 
@@ -3126,6 +3127,12 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
                 Route::post('update', [PinterestPinsController::class, 'updatePin'])->name('pinterest.accounts.pin.update');
                 Route::get('delete/{pinId}', [PinterestPinsController::class, 'deletePin'])->name('pinterest.accounts.pin.delete');
                 Route::get('boards/{boardId}', [PinterestPinsController::class, 'getBoardSections'])->name('pinterest.accounts.pin.board.sections');
+            });
+            Route::prefix('campaigns')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'campaignsIndex'])->name('pinterest.accounts.campaign.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createCampaign'])->name('pinterest.accounts.campaign.create');
+                Route::get('get/{campaignId}', [PinterestCampaignsController::class, 'getCampaign'])->name('pinterest.accounts.campaign.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateCampaign'])->name('pinterest.accounts.campaign.update');
             });
         });
     });
