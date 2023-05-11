@@ -31,7 +31,7 @@ class MessageController extends Controller
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id']); //Purpose : Add task_id - DEVTASK-4203
+            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -83,7 +83,7 @@ class MessageController extends Controller
         AND bug_id IS NULL
         AND task_id IS NULL
         AND developer_task_id IS NULL
-        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
+        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
