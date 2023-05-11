@@ -3134,6 +3134,18 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
                 Route::get('get/{campaignId}', [PinterestCampaignsController::class, 'getCampaign'])->name('pinterest.accounts.campaign.get');
                 Route::post('update', [PinterestCampaignsController::class, 'updateCampaign'])->name('pinterest.accounts.campaign.update');
             });
+            Route::prefix('ads-group')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsGroupIndex'])->name('pinterest.accounts.adsGroup.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAdsGroup'])->name('pinterest.accounts.adsGroup.create');
+                Route::get('get/{adsGroupId}', [PinterestCampaignsController::class, 'getAdsGroup'])->name('pinterest.accounts.adsGroup.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAdsGroup'])->name('pinterest.accounts.adsGroup.update');
+            });
+            Route::prefix('ads')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsIndex'])->name('pinterest.accounts.ads.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAds'])->name('pinterest.accounts.ads.create');
+                Route::get('get/{adsId}', [PinterestCampaignsController::class, 'getAds'])->name('pinterest.accounts.ads.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAds'])->name('pinterest.accounts.ads.update');
+            });
         });
     });
 });

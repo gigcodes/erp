@@ -23,8 +23,8 @@ class CreatePinterestAdsGroupsTable extends Migration
             $table->string('budget_in_micro_currency')->nullable();
             $table->string('bid_in_micro_currency')->nullable();
             $table->enum('budget_type', ['DAILY', 'LIFETIME', 'CBO_ADGROUP'])->default('DAILY');
-            $table->integer('start_time')->nullable();
-            $table->integer('end_time')->nullable();
+            $table->bigInteger('start_time')->nullable();
+            $table->bigInteger('end_time')->nullable();
             $table->string('lifetime_frequency_cap')->nullable();
             $table->json('tracking_urls')->nullable();
             $table->boolean('auto_targeting_enabled')->default(false);

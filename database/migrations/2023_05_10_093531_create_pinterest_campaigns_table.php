@@ -22,8 +22,8 @@ class CreatePinterestCampaignsTable extends Migration
             $table->string('lifetime_spend_cap')->nullable();
             $table->string('daily_spend_cap')->nullable();
             $table->json('tracking_urls')->nullable();
-            $table->integer('start_time')->nullable();
-            $table->integer('end_time')->nullable();
+            $table->bigInteger('start_time')->nullable();
+            $table->bigInteger('end_time')->nullable();
             $table->enum('summary_status', ['RUNNING', 'PAUSED', 'NOT_STARTED', 'COMPLETED', 'ADVERTISER_DISABLED', 'ARCHIVED']);
             $table->boolean('is_campaign_budget_optimization')->default(false);
             $table->boolean('is_flexible_daily_budgets')->default(false);

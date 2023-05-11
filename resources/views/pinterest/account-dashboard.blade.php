@@ -88,6 +88,14 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Campaigns
                 </a>
+                <a href="{!! route('pinterest.accounts.adsGroup.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Ads Group
+                </a>
+                <a href="{!! route('pinterest.accounts.ads.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Ads
+                </a>
             </div>
         </div>
     </div>

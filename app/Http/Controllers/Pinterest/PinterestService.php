@@ -20,9 +20,9 @@ class PinterestService extends PinterestClient
         return $this->callApi('POST', $this->buildParams('ad_accounts/' . $accountId . '/ads', $query), $params);
     }
 
-    public function updateAd($accountId, $id, $params, $query = []): array
+    public function updateAd($accountId, $params, $query = []): array
     {
-        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/ads' . $id, $query), $params);
+        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/ads', $query), $params);
     }
 
     public function getAd($accountId, $id, $query = []): array
@@ -47,22 +47,22 @@ class PinterestService extends PinterestClient
 
     public function getAdsGroups($accountId, $query = []): array
     {
-        return $this->callApi('GET', $this->buildParams('ad_accounts/' . $accountId . '/ads_groups', $query));
+        return $this->callApi('GET', $this->buildParams('ad_accounts/' . $accountId . '/ad_groups', $query));
     }
 
     public function createAdsGroup($accountId, $params, $query = []): array
     {
-        return $this->callApi('POST', $this->buildParams('ad_accounts/' . $accountId . '/ads_groups', $query), $params);
+        return $this->callApi('POST', $this->buildParams('ad_accounts/' . $accountId . '/ad_groups', $query), $params);
     }
 
-    public function updateAdsGroup($accountId, $id, $params, $query = []): array
+    public function updateAdsGroup($accountId, $params, $query = []): array
     {
-        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/ads_groups' . $id, $query), $params);
+        return $this->callApi('PATCH', $this->buildParams('ad_accounts/' . $accountId . '/ad_groups', $query), $params);
     }
 
     public function getAdsGroup($accountId, $id, $query = []): array
     {
-        return $this->callApi('GET', $this->buildParams('ad_accounts/' . $accountId . '/ads_groups' . $id, $query));
+        return $this->callApi('GET', $this->buildParams('ad_accounts/' . $accountId . '/ad_groups' . $id, $query));
     }
 
     public function getBoards($query = []): array
