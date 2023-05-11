@@ -359,6 +359,7 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
+use App\Http\Controllers\ChatGPT\ChatGPTController;
 
 Auth::routes();
 
@@ -5130,4 +5131,9 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
         Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
     });
+});
+
+Route::prefix('chat-gpt')->middleware('auth')->group(function () {
+    Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
+    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
 });

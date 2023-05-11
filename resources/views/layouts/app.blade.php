@@ -2422,6 +2422,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('chatgpt.index') }}">Chat GPT</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>

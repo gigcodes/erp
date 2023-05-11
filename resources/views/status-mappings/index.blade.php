@@ -28,7 +28,7 @@
             <h2 class="page-heading">Status Mappings</h2>
             <div class="form-group">
                 <div class="row">
-                    <div class="col-md-4 status-mappings">
+                    <div class="col-md-3 status-mappings">
                         <h3>Order Status</h3>
                         <ul>
                             @foreach ($orderStatuses as $orderStatusId => $orderStatus)
@@ -39,7 +39,7 @@
                             @endforeach
                         </ul>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <h3>Purchase Status</h3>
                         <ul>
                             @foreach ($purchaseStatuses as $purchaseStatus)
@@ -49,8 +49,25 @@
                             @endforeach
                         </ul>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <h3>Shipping Status</h3>
+                        <ul>
+                            @foreach ($shippingStatuses as $shippingStatus)
+                                <li class="right" style="margin-right: 10px; margin-bottom: 5px">
+                                    {{ $shippingStatus }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>Return Exchange Status</h3>
+                        <ul>
+                            @foreach ($returnExchangeStatuses as $returnExchangeStatus)
+                                <li class="right" style="margin-right: 10px; margin-bottom: 5px">
+                                    {{ $returnExchangeStatus }}
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -66,6 +83,7 @@
                     <th>Order Status</th>
                     <th>Purchase Status</th>
                     <th>Shipping Status</th>
+                    <th>Return Exchange Status</th>
                     <th>Updated By</th>
                     <th width="280px">Action</th>
                 </tr>
@@ -85,7 +103,28 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td>&nbsp;</td>
+                        <td class="number">
+                            <select class="form-control ui-autocomplete-input shipping-status"
+                                data-row-id="{{ $statusMapping->id }}">
+                                <option value="0">-- Select --</option>
+                                @foreach ($shippingStatuses as $skey => $shippingStatus)
+                                    <option value="{{ $skey }}"
+                                        @if ($statusMapping->shipping_status_id == $skey) selected=selected @endif>
+                                        {{ $shippingStatus }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td class="number">
+                            <select class="form-control ui-autocomplete-input return-exchange-status"
+                                data-row-id="{{ $statusMapping->id }}">
+                                <option value="0">-- Select --</option>
+                                @foreach ($returnExchangeStatuses as $rkey => $returnExchangeStatus)
+                                    <option value="{{ $rkey }}"
+                                        @if ($statusMapping->return_exchange_status_id == $rkey) selected=selected @endif>
+                                        {{ $returnExchangeStatus }}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td class="updated-by">
                             {{ isset($statusMapping->statusMappingHistories[0]) ? $statusMapping->statusMappingHistories[0]->user->name : '' }}
                         </td>
@@ -159,7 +198,84 @@
                 },
                 dataType: 'json',
                 data: {
+                    statusType: "Purchase",
                     purchaseStatusId: purchaseStatusId
+                },
+                async: false,
+                success: function(response) {
+                    if (response.status) {
+                        toastr['success'](response.message);
+                        updatedByTd.text(response.data.lastUpdatedUser);
+                    } else {
+                        toastr['error']('Something went wrong with ajax !');
+                    }
+                },
+                error: function(xhr, status, error) { // if error occured
+                    if (xhr.status == 422) {
+                        var errors = JSON.parse(xhr.responseText).errors;
+                        customFnErrors(self, errors);
+                    } else if (xhr.status == 500) {
+                        toastr['error'](xhr.responseJSON.message);
+                    } else {
+                        toastr['error']('Something went wrong with ajax !');
+                    }
+                },
+            });
+        });
+
+        $(document).on('change', '.shipping-status', function() {
+            var rowId = $(this).attr("data-row-id");
+            var shippingStatusId = $(this).val();
+            var updatedByTd = $(this).closest('tr').find('td.updated-by');
+
+            $.ajax({
+                url: '{{ route('status-mapping.update', '') }}/' + rowId,
+                type: "PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType: 'json',
+                data: {
+                    statusType: "Shipping",
+                    shippingStatusId: shippingStatusId
+                },
+                async: false,
+                success: function(response) {
+                    if (response.status) {
+                        toastr['success'](response.message);
+                        updatedByTd.text(response.data.lastUpdatedUser);
+                    } else {
+                        toastr['error']('Something went wrong with ajax !');
+                    }
+                },
+                error: function(xhr, status, error) { // if error occured
+                    if (xhr.status == 422) {
+                        var errors = JSON.parse(xhr.responseText).errors;
+                        customFnErrors(self, errors);
+                    } else if (xhr.status == 500) {
+                        toastr['error'](xhr.responseJSON.message);
+                    } else {
+                        toastr['error']('Something went wrong with ajax !');
+                    }
+                },
+            });
+        });
+
+        $(document).on('change', '.return-exchange-status', function() {
+            var rowId = $(this).attr("data-row-id");
+            var returnExchangeStatusId = $(this).val();
+            var updatedByTd = $(this).closest('tr').find('td.updated-by');
+
+            $.ajax({
+                url: '{{ route('status-mapping.update', '') }}/' + rowId,
+                type: "PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType: 'json',
+                data: {
+                    statusType: "Return Exchange",
+                    returnExchangeStatusId: returnExchangeStatusId
                 },
                 async: false,
                 success: function(response) {
