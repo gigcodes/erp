@@ -232,9 +232,9 @@ class ProductController extends Controller
             $categories_paths_array[$category->id] = $categoryPath;
         }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-            $newProducts = Product::query()->with('categories.parent');
+            $newProducts = Product::query()->with('categories.parent', 'cropApprover', 'cropOrderer', 'approver', 'log_scraper_vs_ai', 'croppedImages', 'brands', 'landingPageProduct');
         } else {
-            $newProducts = Product::query()->with('categories.parent')->where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->with('categories.parent', 'cropApprover', 'cropOrderer', 'approver', 'log_scraper_vs_ai', 'croppedImages', 'brands', 'landingPageProduct')->where('assigned_to', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {

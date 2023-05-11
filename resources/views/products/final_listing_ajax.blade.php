@@ -156,7 +156,7 @@
         <tr id="product_{{ $product->id }}" class="">
             <td> <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}"></td>
             @php
-                $websiteArrays = \App\Helpers\ProductHelper::getStoreWebsiteName($product->id);
+                $websiteArrays = \App\Helpers\ProductHelper::getStoreWebsiteName('', $product);
                 $productMoreSupplierList = $product->more_suppliers();
 
                 $productWebsites[$product->id] = $websiteArrays;
@@ -165,7 +165,7 @@
 
             <td class="table-hover-cell">
                 {{ $product->id }}
-                @if($product->croppedImages()->count() == count($websiteArrays))
+                @if(count($product->croppedImages) == count($websiteArrays))
                     <span class="badge badge-success" >&nbsp;</span>
                 @else
                     <span class="badge badge-warning" >&nbsp;</span>
@@ -509,7 +509,7 @@
                                 // Set opener URL
                                 $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);
                             @endphp
-                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                            @if ( isset($product->log_scraper_vs_ai) && count($product->log_scraper_vs_ai) > 0 )
                                 <tr>
                                     <th>AI</th>
                                     <td></td>
