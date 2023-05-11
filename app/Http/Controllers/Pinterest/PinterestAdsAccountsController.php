@@ -235,7 +235,6 @@ class PinterestAdsAccountsController extends Controller
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.board.index', [$id])
-                    ->with('update_popup', true)
                     ->withErrors($validator)
                     ->withInput();
             }
@@ -426,7 +425,6 @@ class PinterestAdsAccountsController extends Controller
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.boardSections.index', [$id])
-                    ->with('update_popup', true)
                     ->withErrors($validator)
                     ->withInput();
             }

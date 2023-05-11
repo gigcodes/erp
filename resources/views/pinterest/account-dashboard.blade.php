@@ -80,6 +80,10 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Board Sections
                 </a>
+                <a href="{!! route('pinterest.accounts.pin.index', [$pinterestBusinessAccountMail->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Pins
+                </a>
             </div>
         </div>
     </div>

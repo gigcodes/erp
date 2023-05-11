@@ -359,6 +359,7 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
+use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 
 Auth::routes();
@@ -3117,6 +3118,14 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
                 Route::get('get/{boardSectionId}', [PinterestAdsAccountsController::class, 'getBoardSection'])->name('pinterest.accounts.boardSections.get');
                 Route::post('update', [PinterestAdsAccountsController::class, 'updateBoardSection'])->name('pinterest.accounts.boardSections.update');
                 Route::get('delete/{boardSectionId}', [PinterestAdsAccountsController::class, 'deleteBoardSection'])->name('pinterest.accounts.boardSections.delete');
+            });
+            Route::prefix('pins')->group(function () {
+                Route::get('', [PinterestPinsController::class, 'pinsIndex'])->name('pinterest.accounts.pin.index');
+                Route::post('create', [PinterestPinsController::class, 'createPin'])->name('pinterest.accounts.pin.create');
+                Route::get('get/{pinId}', [PinterestPinsController::class, 'getPin'])->name('pinterest.accounts.pin.get');
+                Route::post('update', [PinterestPinsController::class, 'updatePin'])->name('pinterest.accounts.pin.update');
+                Route::get('delete/{pinId}', [PinterestPinsController::class, 'deletePin'])->name('pinterest.accounts.pin.delete');
+                Route::get('boards/{boardId}', [PinterestPinsController::class, 'getBoardSections'])->name('pinterest.accounts.pin.board.sections');
             });
         });
     });
