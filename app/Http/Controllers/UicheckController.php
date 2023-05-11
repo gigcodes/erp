@@ -45,6 +45,7 @@ use App\UiDeveloperStatusHistoryLog;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\UiDeviceLog;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
@@ -1066,6 +1067,94 @@ class UicheckController extends Controller
             return respJson(200, 'Record updated successfully.', []);
         } catch (\Throwable $th) {
             return respException($th);
+        }
+    }
+
+    public function setDeviceLog(Request $request)
+    {
+        try {
+            $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->first();
+            
+            if ($uiDevice) {
+                $uiDeviceLog = UiDeviceLog::where("user_id", \Auth::user()->id)
+                        ->where("uicheck_id", $request->uicheckId)
+                        ->where("ui_device_id", $uiDevice->id)
+                        ->whereNotNull("start_time")
+                        ->whereNull("end_time")
+                        ->first();
+
+                // If toggle event is true
+                if ($request->eventType == 'true') {
+                    if ($uiDeviceLog) {
+                        // While toggle ON, If record already exists then just update the start time once again. 
+                        $uiDeviceLog['start_time'] = \Carbon\Carbon::now();
+                        $uiDeviceLog->save();
+                    } else {
+                        // While toggle ON, If record not exists then create new entry. 
+                        $uiDeviceLogNew['user_id'] = \Auth::user()->id;
+                        $uiDeviceLogNew['uicheck_id'] = $request->uicheckId;
+                        $uiDeviceLogNew['ui_device_id'] = $uiDevice->id;
+                        $uiDeviceLogNew['start_time'] = \Carbon\Carbon::now();
+
+                        UiDeviceLog::create($uiDeviceLogNew);
+                    }
+                    return respJson(200, 'Device log created successfully.', []);
+                } else {
+                    // While toggle OFF, If record exists then just update the end time. 
+                    if ($uiDeviceLog) {
+                        $uiDeviceLog['end_time'] = \Carbon\Carbon::now();
+                        $uiDeviceLog->save();
+                    }
+                    return respJson(200, 'Device log updated successfully.', []);
+                }
+            } else {
+                return respJson(404, 'Device entry not found', []);
+            }
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function deviceLogs(Request $request)
+    {
+        try {
+            $uiDeviceLogs = UiDeviceLog::join('ui_devices as uid', 'uid.id', 'ui_device_logs.ui_device_id')
+                ->leftJoin('users', 'users.id', 'ui_device_logs.user_id')
+                ->leftJoin('uichecks as uic', 'uic.id', 'ui_device_logs.uicheck_id')
+                ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id');
+
+            if ($request->category != '') {
+                $uiDeviceLogs = $uiDeviceLogs->where('uic.site_development_category_id', $request->category);
+            } 
+
+            if ($request->user_name != null and $request->user_name != 'undefined') {
+                $uiDeviceLogs = $uiDeviceLogs->whereIn('ui_device_logs.user_id', $request->user_name);
+            }
+            
+            if ($request->daterange != '') {
+                $date = explode('-', $request->daterange);
+                $datefrom = date('Y-m-d', strtotime($date[0]));
+                $dateto = date('Y-m-d', strtotime($date[1]));
+                $uiDeviceLogs = $uiDeviceLogs->whereRaw("date(ui_device_logs.start_time) between date('$datefrom') and date('$dateto')");
+            }
+            
+            // If not an admin, then get logged in user logs only.
+            if (! Auth::user()->hasRole('Admin')) {
+                $uiDeviceLogs = $uiDeviceLogs->where('ui_device_logs.user_id', \Auth::user()->id);
+            }
+                
+            $uiDeviceLogs = $uiDeviceLogs->select('ui_device_logs.*', 'sw.website', 'sdc.title', 'users.name')
+                ->orderBy('ui_device_logs.id', 'DESC')
+                ->get();
+
+            $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
+            $allUsers = User::where('is_active', '1')->get();
+
+            return view('uicheck.device-logs', compact('uiDeviceLogs', 'siteDevelopmentCategories', 'allUsers'))->with('i', ($request->input('page', 1) - 1) * 5);;
+        } catch (\Exception $e) {
+            //dd($e->getMessage());
+            return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
 
