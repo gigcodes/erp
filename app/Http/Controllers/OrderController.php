@@ -3049,6 +3049,26 @@ class OrderController extends Controller
     }
 
     /**
+     * This function is used to list the Order Journey
+     *
+     * @param  Request  $request Request
+     *  @return view;
+     */
+    public function getOrderJourney(Request $request)
+    {
+        $orders = Order::latest("id")->paginate(25);
+        $orderStatusList = OrderStatus::pluck('status', 'id')->all();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('orders.partials.order-journey', compact('orders', 'orderStatusList'))->render(),
+            ], 200);
+        }
+
+        return view('orders.order-journey', compact('orders', 'orderStatusList'));
+    }
+
+    /**
      * This function is use for List Order Exception Error Log
      *
      * @param  Request  $request Request

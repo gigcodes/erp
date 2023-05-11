@@ -14,5 +14,6 @@ class MagentoCommandRunLog extends Model
         'server_ip',
         'command_type',
         'response',
+        'job_id',
     ];
 }
