@@ -2808,6 +2808,11 @@ if (!empty($notifications)) {
                                             <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
                                         </li>
+
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-suites') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Suites</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
                                                 messages</a>
