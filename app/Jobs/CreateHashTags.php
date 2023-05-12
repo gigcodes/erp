@@ -6,6 +6,7 @@ use App\Brand;
 use App\Category;
 use App\HashTag;
 use App\KeywordSearchVariants;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,10 +36,9 @@ class CreateHashTags implements ShouldQueue
      */
     public function handle(): bool
     {
-
+        $insert_data = [];
         try {
             self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : '.date('Y-m-d H:i:s'));
-
             switch($this->data['type']) {
                 case('brand'):
 
@@ -46,9 +46,6 @@ class CreateHashTags implements ShouldQueue
                     $user_id = $this->data['user_id'];
                     $category_postfix_string_list = $this->data['category_postfix_string_list'];
                     if (count($brand_list) > 0) {
-
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
                         $processed_brand_id_array = [];
 
                         foreach ($brand_list as $id=>$name) {
@@ -68,6 +65,7 @@ class CreateHashTags implements ShouldQueue
                                 $insert_data = $hashtag->toArray();
                                 if(isset($insert_data['hashtag'])) {
                                     \DB::table('hash_tags')->insert($insert_data);
+                                    CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                 }
                             }
 
@@ -86,13 +84,11 @@ class CreateHashTags implements ShouldQueue
                     $user_id = $this->data['user_id'];
 
                     if (!empty($brandList)) {
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
                         $processed_category_id_array = [];
-                        foreach ($categoryList as  $category) {
+                        foreach ($categoryList as  $category_id => $category) {
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
-                                    $generated_string = $brand . ' ' . $category->title . ' ' . $keywordVariant;
+                                    $generated_string = $brand . ' ' . $category . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
@@ -107,11 +103,12 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
                             }
-                            $processed_category_id_array[] = $category->id;
+                            $processed_category_id_array[] = $category_id;
                         }
                         Category::updateStatusIsHashtagsGeneratedCategories($processed_category_id_array);
                     }
@@ -119,19 +116,16 @@ class CreateHashTags implements ShouldQueue
                     break;
 
                 case ('keyword_variant'):
-
-                    if (!empty($brandList)) {
-                        ini_set('max_execution_time', '-1');
-                        ini_set('max_execution_time', '0'); // for infinite time of execution
-                        $keywordVariants = $this->data['data'];
-                        $brands = $this->data['brand_list'];
-                        $categories = $this->data['category_list'];
-                        $user_id = $this->data['user_id'];
+                    $keywordVariants = $this->data['data'];
+                    $brands = $this->data['brand_list'];
+                    $categories = $this->data['category_list'];
+                    $user_id = $this->data['user_id'];
+                    if (!empty($brands)) {
                         $processed_variant_id_array = [];
-                        foreach ($keywordVariants as $keywordVariant) {
+                        foreach ($keywordVariants as $keywordId => $keywordVariant) {
                             foreach ($brands as $brand) {
                                 foreach($categories as $category) {
-                                    $generated_string = $brand . ' ' . $category->title . ' ' . $keywordVariant;
+                                    $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
@@ -146,11 +140,12 @@ class CreateHashTags implements ShouldQueue
                                     $insert_data = $hashtag->toArray();
                                     if(isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
+                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
                                     }
                                 }
 
                             }
-                            $processed_variant_id_array[] = $keywordVariant->id;
+                            $processed_variant_id_array[] = $keywordId;
 
                         }
                         KeywordSearchVariants::updateStatusIsHashtagsGeneratedKeywordVariants($processed_variant_id_array);

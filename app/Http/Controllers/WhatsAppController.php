@@ -5822,6 +5822,7 @@ class WhatsAppController extends FindByNumberController
                 'user_id' => $chat_message->user_id,
                 'number' => null,
                 'task_id' => $chat_message->task_id,
+                'developer_task_id' => $chat_message->developer_task_id,
                 'erp_user' => $chat_message->erp_user,
                 'contact_id' => $chat_message->contact_id,
                 'message' => $sending_message,
