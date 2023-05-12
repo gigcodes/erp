@@ -83,7 +83,65 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
+    <div class="row m-4">
+        <div class="col-md-12">
+            <div class="panel-group" style="margin-bottom: 5px;">
+                <div class="panel mt-3 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Category</th>
+                                </tr>
+                                
+                                <tr>
+                                    <td>Users</td>
+                                    <td>
+                                        <select class="form-control update-default-category" name="users_category" data-id="users">
+                                            <option value="">None</option>
+                                            @foreach($reply_categories as $cat)
+                                            <option value="{{$cat->id }}" {{$cat->default_for=='users' ? 'selected': ''}}>{{ $cat->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Customers</td>
+                                    <td>
+                                        <select class="form-control update-default-category" name="customers_category" data-id="customers">
+                                            <option value="">None</option>
+                                            @foreach($reply_categories as $cat)
+                                            <option value="{{$cat->id }}" {{$cat->default_for=='customers' ? 'selected': ''}}>{{ $cat->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vendors</td>
+                                    <td>
+                                        <select class="form-control update-default-category" name="vendors_category" data-id="vendors">
+                                            <option value="">None</option>
+                                            @foreach($reply_categories as $cat)
+                                            <option value="{{$cat->id }}" {{$cat->default_for=='vendors' ? 'selected': ''}}>{{ $cat->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                </tr>
+                               
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+    </div>
     <div class="tab-content ">
         <!-- Pending task div start -->
         <div class="tab-pane active" id="1">
@@ -129,6 +187,38 @@
 @include('partials.modals.auto-reply')
 
 <script type="text/javascript">
+    $( document ).ready(function() {
+        $(document).on("change",".update-default-category",function() {
+            var model=$(this).attr('data-id');
+            var cat_id=$(this).val();
+            console.log(model);
+            console.log(cat_id);
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: "post",
+                url: '/reply/category/setDefault',
+                data: {
+                    "model": model,
+                    "cat_id": cat_id,
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.success) {
+                        toastr['success'](response.message);
+                    } else {
+                        
+                        toastr['error'](response.message);
+                    }
+                },
+                error: function() {
+                    toastr['error']('Something might be wrong please try again later!');
+                }
+            });
+
+        });
+    });
   $(document).on("click",".intent-edit",function() {
       var reply_model = $(this).closest("tr").children('#reply_model').text();
       var reply_text = $(this).closest("tr").children('#reply_text').text();

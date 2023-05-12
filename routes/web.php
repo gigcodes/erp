@@ -1037,6 +1037,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
     Route::get('reply-list', [ReplyController::class, 'replyList'])->name('reply.replyList');

@@ -41,6 +41,7 @@ class DeleteChatMessages extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
@@ -51,7 +52,10 @@ class DeleteChatMessages extends Command
             $result->where('created_at', '<=', date('Y-m-d', strtotime('-90 days')));
             $result->Where('message', '=', '');
             $row = $result->delete();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message deleted."]);
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
             

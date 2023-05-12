@@ -43,9 +43,11 @@ class SetTemplatesForProduct extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $totalCount = 0;
             $templates = Template::where('auto_generate_product', 1)->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "template query was finished."]);
             foreach ($templates as $template) {
                 if ($totalCount > 10000) {
                     break;
@@ -96,6 +98,7 @@ class SetTemplatesForProduct extends Command
                     }
                 });
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

@@ -39,8 +39,15 @@ class CashflowOverdueStatus extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $cashflow = \App\CashFlow::where('type', 'pending')->whereDate('date', date('Y-m-d'))->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'CashFlow model query was finished']);
+
             if (! $cashflow->isEmpty()) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'CashFlow records was found']);
+
                 foreach ($cashflow as $ca) {
                     $received = \App\CashFlow::where('cash_flow_able_id', $ca->cash_flow_able_id)->where('cash_flow_able_type', $ca->cash_flow_able_type)->where(function ($q) {
                         $q->orWhere('type', 'received')->orWhere('type', 'paid');
@@ -62,6 +69,8 @@ class CashflowOverdueStatus extends Command
 
                     $ca->due_amount_eur = $amountPending;
                     $ca->save();
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'CashFlow type '.$ca->type.' and due amount '.$amountPending.' updated for CashFlow ID:'.$ca->id]);
                 }
             }
         }catch(\Exception $e){

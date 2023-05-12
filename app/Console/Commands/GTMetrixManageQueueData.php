@@ -44,9 +44,14 @@ class GTMetrixManageQueueData extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
+
             $gtmatrixAccount = StoreGTMetrixAccount::select('store_gt_metrix_account.*');
             $query = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*');
             $lists = $query->where('process', 1)->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the GT matrix account and url information']);
+
             if ($lists) {
                 foreach ($lists as $list) {
                     $gt_metrix['store_view_id'] = $list->store_view_id;
@@ -58,9 +63,13 @@ class GTMetrixManageQueueData extends Command
                     $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
                     $gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_id', $gt_metrix['website_id'])->first();
 
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved views GT metrix by ID'. $new_id]);
+
                     try {
                         if (! empty($gtmatrix->account_id)) {
                             $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting GT Matrix account detail by ID'. $gtmatrix->account_id]);
 
                             $curl = curl_init();
                             curl_setopt_array($curl, [
@@ -93,6 +102,8 @@ class GTMetrixManageQueueData extends Command
                                     'status' => 'queued',
                                 ];
                                 $gtmetrix->update($update);
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
                             }
                         } else {
                             $AccountData = $gtmatrixAccount->orderBy('id', 'desc')->get();
@@ -131,6 +142,8 @@ class GTMetrixManageQueueData extends Command
                                         'account_id' => $value['account_id'],
                                     ];
                                     $gtmetrix->update($update);
+
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
                                     break;
                                 }
                             }
@@ -143,6 +156,8 @@ class GTMetrixManageQueueData extends Command
                             'error' => $e->getMessage(),
                         ];
                         $gtmetrix->update($update);
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
                         \Log::info('GTMetrix :: successfully' . $e->getMessage());
                     }
                 }
