@@ -1440,6 +1440,9 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
