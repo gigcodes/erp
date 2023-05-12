@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePinterestBoardsTable extends Migration
+class CreatePinterestBusinessBoardsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePinterestBoardsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pinterest_boards', function (Blueprint $table) {
+        Schema::create('pinterest_business_boards', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('pinterest_ads_account_id');
             $table->string('board_id');
@@ -32,6 +32,6 @@ class CreatePinterestBoardsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pinterest_boards');
+        Schema::dropIfExists('pinterest_business_boards');
     }
 }
