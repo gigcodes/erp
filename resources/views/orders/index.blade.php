@@ -163,6 +163,7 @@
             <th title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
             <th>Brands</th>
             <th title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+            <th title="Order Product Status">Order Product Status</th>
             <th title="Product Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Product Status</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
@@ -308,6 +309,18 @@
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
                                     <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Order Product Status" class="form-control order-product-status-select" data-order_product_id={{$items->id}} >
+                            <optgroup label="Order Product Status">
+                              <option value="">Select Order Product Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $items->order_product_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
                     </select>
@@ -1436,6 +1449,38 @@
           }
 
       });
+
+      $(".order-product-status-select").change(function(){
+        var orderProductId = $(this).data('order_product_id');
+        var orderProductStatusId = $(this).val();
+
+        if(orderProductStatusId == '')
+        {
+            toastr['error']('Status is Required');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('order.order-product-status-change') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                orderProductStatusId : orderProductStatusId,
+                orderProductId: orderProductId,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
 
       $(document).on("click", ".order_return", function(e) {
 

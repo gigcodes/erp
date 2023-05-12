@@ -14,6 +14,11 @@ class StatusMapping extends Model
         return $this->belongsTo(\App\OrderStatus::class);
     }
 
+    public function purchaseStatus()
+    {
+        return $this->belongsTo(\App\PurchaseStatus::class);
+    }
+
     public function statusMappingHistories()
     {
         return $this->hasMany(\App\StatusMappingHistory::class)->latest();
