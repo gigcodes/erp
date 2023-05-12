@@ -1,4 +1,11 @@
-@php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); @endphp
+@php 
+    $productLogScrappers = array();
+    $productDescriptions = array();
+    $productWebsites = array();
+    $productMoreSuppliers = array();
+
+    $imageCropperRole = Auth::user()->hasRole('ImageCropers'); 
+@endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <thead>
         <tr>
@@ -50,10 +57,17 @@
                         </p>
                         <br/>
                         @php
-                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
+                            $logScrapers = array();
+                            $descriptions = \App\ScrapedProducts::select('description','website','validated','url','last_inventory_at')->where('sku', $product->sku)->get();
                         @endphp
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
+                                @php 
+                                    if($description->validated == 1){
+                                        $logScrapers[] = $description;
+                                    }
+                                @endphp
+
                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                     <hr/>
                                     <span class="same-color">
@@ -76,8 +90,10 @@
                             <hr/>
                         @endif
                         @php
+                            $productLogScrappers[$product->id] = $logScrapers;
+                            $productDescriptions[$product->id] = $descriptions;
+                            
                             //getting proper composition and hscode
-                            $composition = $product->commonComposition($product->category , $product->composition);
                             $hscode =  $product->hsCode($product->category , $product->composition);
                         @endphp
                         <p>
@@ -96,7 +112,7 @@
                         </p>
                         <p class="same-color">
                             View All:
-                            <strong>{{ isset($product->product_category->id) ? \App\Category::getCategoryPathById($product->product_category->id)  : '' }}</strong>
+                            <strong>{{ isset($product->categories->id) ? $categories_paths_array[$product->categories->id]  : '' }}</strong>
                             <br/>
                             View All:
                             <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
@@ -119,9 +135,6 @@
                                 @endif
                             </p>
                         @endif
-                        @php
-                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
-                        @endphp
                         @if ($logScrapers)
                             <div>
                                 <br/>
@@ -147,16 +160,21 @@
         <tr id="product_{{ $product->id }}" class="">
             <td> <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}"></td>
             @php
-                $websiteArraysForProduct = \App\Helpers\ProductHelper::getStoreWebsiteName($product->id);
+                $websiteArrays = \App\Helpers\ProductHelper::getStoreWebsiteName('', $product);
+                $productMoreSupplierList = $product->more_suppliers();
+
+                $productWebsites[$product->id] = $websiteArrays;
+                $productMoreSuppliers[$product->id] = $productMoreSupplierList;
             @endphp
+
             <td class="table-hover-cell">
                 {{ $product->id }}
-                @if($product->croppedImages()->count() == count($websiteArraysForProduct))
+                @if(count($product->croppedImages) == count($websiteArrays))
                     <span class="badge badge-success" >&nbsp;</span>
                 @else
                     <span class="badge badge-warning" >&nbsp;</span>
                 @endif
-                @if(count($product->more_suppliers()) > 1)
+                @if(count($productMoreSupplierList) > 1)
                     <button style="padding:0px;" type="button" class="btn-link"
                     data-id="{{ $product->id }}" data-target="#product_suppliers_{{ $product->id }}"
                     data-toggle="modal">View
@@ -495,7 +513,7 @@
                                 // Set opener URL
                                 $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);
                             @endphp
-                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                            @if ( isset($product->log_scraper_vs_ai) && count($product->log_scraper_vs_ai) > 0 )
                                 <tr>
                                     <th>AI</th>
                                     <td></td>
@@ -547,9 +565,8 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        @php
-                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
-                        @endphp
+                        @php $logScrapers = $productLogScrappers[$product->id]; @endphp
+
                         @if ($logScrapers)
                             <div>
                                 <ul>
@@ -579,23 +596,23 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                    @php
-                        $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->first();
-                    @endphp
                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
-                        @if($anyCropExist)
+                        @if(isset($siteCroppedImages[$product->id]))
                             Reject All - Re Crop
                         @else 
                             All Rejected - Re Crop
                         @endif
                     </button>
                         @php 
-                            $websiteList = $product->getWebsites();
+                            $websiteArrays = $productWebsites[$product->id];
+                            $websiteList = $store_websites->whereIn('id', $websiteArrays);
                         @endphp
                         @if(!empty($websiteList))
                             @foreach($websiteList as $index => $site)
                                 @php 
-                                    $siteCroppedImage = \App\SiteCroppedImages::where('product_id', $product->id)->where('website_id' , $site->id)->first();
+                                    $productWebsiteArr = (isset($siteCroppedImages[$product->id]) ? explode(',', $siteCroppedImages[$product->id]) : array());
+
+                                    $websiteProductExist = (!empty($productWebsiteArr) && in_array($site->id, $productWebsiteArr) ? 1 : 0);
                                 @endphp
                                 <div class="product-slider {{$index == 0 ? 'd-block' : 'd-none'}}">
                                     <p style="text-align:center;">{{$site->title}}</p>
@@ -607,7 +624,7 @@
                                             <div class="d-flex" style="float: right;">
                                                 <div class="form-group">
                                                     <button type="button" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-site_id="{{$site->id}}" value="reject" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary reject-product-cropping">
-                                                        @if($siteCroppedImage)
+                                                        @if($websiteProductExist == 1)
                                                             <span>Reject</span>
                                                         @else 
                                                             <span>Rejected</span>
@@ -685,7 +702,6 @@
                                             <button onclick="crop('{{ $siteImage }}','{{ $product->id }}','{{ $gridImage }}','{{ $site->id }}')"
                                                     class="btn btn-secondary">Crop
                                             </button>
-
                                         @endif
                                     </div>
                                     </div>
@@ -717,10 +733,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @php
-                            $product = \App\Product::find($product->id);
-                            @endphp
-                    @foreach($product->more_suppliers() as $index => $supplier)
+                    @php $productMoreSupplierList = $productMoreSuppliers[$product->id]; @endphp
+
+                    @foreach($productMoreSupplierList as $index => $supplier)
                         <tr>
                             <td>{{$supplier->name}}</td>
                             <td><a target="_new" href="{{$supplier->link}}">Visit</a> </td>
@@ -745,9 +760,8 @@
                             <span id="description{{ $product->id }}" class="same-color">{{ ucwords(strtolower(html_entity_decode($product->short_description))) }}</span>
                         </p>
                         <br/>
-                        @php
-                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
-                        @endphp
+                        @php $descriptions = $productDescriptions[$product->id]; @endphp
+
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
@@ -779,7 +793,6 @@
                     </thead>
                     <tbody>
                     @php
-                    $product = \App\Product::find($product->id);
                     $attributes = \App\StoreWebsiteProductAttribute::join('store_websites','store_websites.id','store_website_product_attributes.store_website_id')->where('product_id', $product->id)->select('store_website_product_attributes.description','store_websites.title')->get();
                     @endphp
                     @foreach($attributes as $index => $att)
