@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PinterestBoards extends Model
 {
+    protected $table = 'pinterest_business_boards';
     protected $fillable = [
         'pinterest_ads_account_id',
         'board_id',
@@ -14,7 +15,8 @@ class PinterestBoards extends Model
         'privacy',
     ];
 
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(PinterestAdsAccounts::class, 'id', 'pinterest_ads_account_id');
     }
 }
