@@ -39,6 +39,7 @@ class IosUsageReport extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
 
@@ -80,6 +81,7 @@ class IosUsageReport extends Command
                 // print_r($res["apple:analytics"]);
                 // print($res["apple:analytics"]["crashes"]);
                 curl_close($curl);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished."]);
                 print_r($res);
 
                 if ($res) {
@@ -103,14 +105,16 @@ class IosUsageReport extends Command
                     $r->storefront = $res['apple:analytics']['storefront'];
                     $r->store = $res['apple:analytics']['store'];
                     $r->save();
-
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "App user report was added."]);
                     return $this->info('Usage Report added');
                 } else {
                     return $this->info('Usage Report not generated');
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "App user report was not generated."]);
                 }
 
                 $i += 1;
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron job was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
