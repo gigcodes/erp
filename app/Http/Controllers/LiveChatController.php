@@ -1566,7 +1566,7 @@ class LiveChatController extends Controller
         $currency = $request->get('currency', 'EUR');
         $customercurrency = ! empty($customer->currency) ? $customer->currency : 'EUR';
 
-        if ($customer->credit == null || $customer->credit == '') {
+        if (!isset($customer->credit) || $customer->credit == null || $customer->credit == '') {
             $customer->credit = 0;
         }
 

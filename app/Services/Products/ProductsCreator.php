@@ -524,7 +524,7 @@ class ProductsCreator
             $pending_auto_crop_status = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$autocrop,
+                'new_status' => StatusHelper::$autoCrop,
                 'pending_status' => 1,
                 'created_at' => date('Y-m-d H:i:s'),
             ];

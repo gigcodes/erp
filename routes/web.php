@@ -358,6 +358,7 @@ use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\ChatGPT\ChatGPTController;
 
 Auth::routes();
 
@@ -384,6 +385,7 @@ Route::prefix('youtube')->middleware('auth')->group(function () {
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
+use App\Http\Controllers\StatusMappingController;
 use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
@@ -1391,12 +1393,16 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
+    Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
     Route::post('order/change-return-status', [OrderController::class, 'returnStatus'])->name('order.change_return_status');
 
     Route::resource('order', OrderController::class);
+
+    Route::resource('status-mapping', StatusMappingController::class);
 
     Route::post('order/payment-history', [OrderController::class, 'paymentHistory'])->name('order.paymentHistory');
     Route::post('order/magento-log-list', [OrderController::class, 'getOrderMagentoErrorLogList'])->name('order.magento.log.list');
@@ -1789,7 +1795,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
     Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
-    
+
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
     Route::get('customer/priority-range-points/{id?}', [CustomerController::class, 'getSelectCustomerPriorityRangePoints'])->name('customer.get.select.priority.range.points');
@@ -1945,6 +1951,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('purchaseproductorders/list', [PurchaseProductController::class, 'purchaseproductorders'])->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', [PurchaseProductController::class, 'purchaseproductorders_update'])->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/purchase-status-change', [PurchaseProductController::class, 'purchaseStatusChange'])->name('purchaseproductorders.purchase-status-change'); //Purpose : Add Route - DEVTASK-23362
     Route::get('purchaseproductorders/logs', [PurchaseProductController::class, 'purchaseproductorders_logs'])->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/flows', [PurchaseProductController::class, 'purchaseproductorders_flows'])->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
@@ -3949,6 +3956,8 @@ Route::middleware('auth')->group(function () {
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
         Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
+        Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
+        Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -5095,4 +5104,9 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
         Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
     });
+});
+
+Route::prefix('chat-gpt')->middleware('auth')->group(function () {
+    Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
+    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
 });
