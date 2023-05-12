@@ -58,11 +58,18 @@
                         <br/>
                         @php
                             $logScrapers = array();
+                            $tempProductDescriptions = array();
                             $descriptions = \App\ScrapedProducts::select('description','website','validated','url','last_inventory_at')->where('sku', $product->sku)->get();
                         @endphp
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
-                                @php $logScrapers[] = $description; @endphp
+                                @php 
+                                    $logScrapers[] = $description; 
+
+                                    if($description->validated == 1){
+                                        $tempProductDescriptions[] = $description;
+                                    }
+                                @endphp
 
                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                     <hr/>
@@ -87,7 +94,7 @@
                         @endif
                         @php
                             $productLogScrappers[$product->id] = $logScrapers;
-                            $productDescriptions[$product->id] = $descriptions;
+                            $productDescriptions[$product->id] = $tempProductDescriptions;
                             
                             //getting proper composition and hscode
                             $hscode =  $product->hsCode($product->category , $product->composition);
