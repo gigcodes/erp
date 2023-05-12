@@ -2057,7 +2057,7 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('\App\Http\Controllers\PinterestAccountAcontroller@index') }}">Accounts</a>
+                                                href="{{ route('pinterest.accounts') }}">Accounts</a>
                                         </li>
                                     </ul>
                                 </li>
