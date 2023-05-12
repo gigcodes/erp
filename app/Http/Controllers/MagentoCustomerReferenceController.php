@@ -45,9 +45,9 @@ class MagentoCustomerReferenceController extends Controller
         $newArray['items'][] = $order;
         $order = json_decode(json_encode($newArray));
 
-        if (isset($order->items[0]->website)) {
+        // if (isset($order->items[0]->website)) {
             $website = StoreWebsite::where('website', $order->items[0]->website)->first();
-            if ($website) {
+            // if ($website) {
                 $orderCreate = MagentoOrderHandleHelper::createOrder($order, $website);
                 if ($orderCreate == true) {
                     $message = $this->generate_erp_response('magento.order.success', 0, $default = 'Order create successfully', $lang_code);
@@ -57,10 +57,10 @@ class MagentoCustomerReferenceController extends Controller
                         'message' => $message,
                     ]);
                 }
-            } else {
-                \Log::error('Magento website not found');
-            }
-        }
+            // } else {
+            //     \Log::error('Magento website not found');
+            // }
+        // }
 
         $message = $this->generate_erp_response('magento.order.failed', 0, $default = 'Something went wrong, Please try again', $lang_code);
 
