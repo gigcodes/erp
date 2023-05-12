@@ -64,9 +64,8 @@
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
                                 @php 
-                                    $logScrapers[] = $description; 
-
                                     if($description->validated == 1){
+                                        $logScrapers[] = $description;
                                         $tempProductDescriptions[] = $description;
                                     }
                                 @endphp
