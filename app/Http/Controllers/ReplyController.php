@@ -88,6 +88,21 @@ class ReplyController extends Controller
         return redirect()->route('reply.index')->with('success', 'Quick Reply added successfully');
     }
 
+    public function categorySetDefault(Request $request)
+    {
+        if($request->has('model') && $request->has('cat_id')){
+            $model=$request->model;
+            $cat_id=$request->cat_id;
+            $ReplyCategory=\App\ReplyCategory::find($cat_id);
+            if ($ReplyCategory) {
+                $ReplyCategory->default_for=$model;
+                $ReplyCategory->save();
+                return response()->json(['success' => true, 'message' => 'Category Assignments Successfully']);
+            }
+            return response()->json(['success' => false, 'message' => 'The Reply Category data was not found']);
+        }
+        return response()->json(['success' => false, 'message' => 'The requested data was not found']);
+    }
     public function categoryStore(Request $request)
     {
         $this->validate($request, [

@@ -242,9 +242,17 @@ padding: 3px 2px;
               <div class="col-6 d-inline form-inline p-0">
                   <div style="float:left;width: calc(100% - 5px)">
                       <select name="quickCategory" class="form-control mb-2 quickCategory select-quick-category">
-                          <option value="">Select Category</option>
-                          @foreach($reply_categories as $category)
-                              <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                            <option value="">Select Category</option>
+                            @foreach($reply_categories as $category)
+                                @if(!empty($pam->vendor_id) && $category->default_for=='vendors')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @elseif (!empty($pam->customer_id) && $category->default_for=='customers')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @elseif (!empty($pam->user_id) && $category->default_for=='users')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @else
+                                    <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @endif
                           @endforeach
                       </select>
                   </div>
