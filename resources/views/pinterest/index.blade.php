@@ -92,7 +92,9 @@
                         {!! Form::open(['method' => 'POST','route' => ['pinterest.accounts.delete', [$pinterestBusinessAccount->id]],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-                        <a href="{!! route('pinterest.accounts.connect', [$pinterestBusinessAccount->id]) !!}">Connect</a>
+                        @if ($pinterestBusinessAccount->is_active)
+                            <a href="{!! route('pinterest.accounts.connect', [$pinterestBusinessAccount->id]) !!}">Connect</a>
+                        @endif
                     </td>
                 </tr>
                 @if(count($pinterestBusinessAccount->accounts) > 0)
