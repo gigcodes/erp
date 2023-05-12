@@ -1034,6 +1034,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
     Route::get('reply-list', [ReplyController::class, 'replyList'])->name('reply.replyList');
@@ -1393,6 +1394,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
+    Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
@@ -3954,6 +3956,8 @@ Route::middleware('auth')->group(function () {
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
         Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
+        Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
+        Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');

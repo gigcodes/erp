@@ -46,6 +46,8 @@ class MakeKeywordAndCustomersIndex extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -56,9 +58,14 @@ class MakeKeywordAndCustomersIndex extends Command
                 $this->checker->assignCustomerAndKeyword($keywords, $customers);
             });
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'BulkCustomerRepliesKeyword model query finished']);
+
             $keywords = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
             $customers = Customer::all();
             $this->checker->assignCustomerAndKeyword($keywords, $customers);
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Assign customers and keyword process was finished']);
+
             BulkCustomerRepliesKeyword::where('is_processed', 0)->update([
                 'is_processed' => 1,
             ]);

@@ -50,6 +50,8 @@ class AddDatabaseHistoricalData extends Command
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -67,6 +69,8 @@ class AddDatabaseHistoricalData extends Command
             if (! empty($db)) {
                 foreach ($db as $d) {
                     // check the last db size and current size and manage with it
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Comparing the database name & size']);
+
                     if ($lastDb) {
                         if ($lastDb->database_name == $d->db_name) {
                             if (($d->db_size - $lastDb->size) >= self::MAX_REACH_LIMIT) {
@@ -107,10 +111,14 @@ class AddDatabaseHistoricalData extends Command
                                 $params['message_application_id'] = 10001;
                                 $chat_message = ChatMessage::create($params);
 
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
                                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'user');
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Message sent successfully.']);
                             }
                         }
                         DatabaseTableHistoricalRecord::create([

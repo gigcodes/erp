@@ -41,6 +41,8 @@ class CheckScraperKilledHistory extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             \Log::info('Command has been started');
             $report = CronJobReport::create([
                 'signature' => $this->signature,
@@ -54,20 +56,34 @@ class CheckScraperKilledHistory extends Command
 
             \Log::info(print_r(['got this out for kill histoyr', $output], true));
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'get scraper path:'.$path]);
+
             if (count($output) > 0) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'output found']);
+
                 foreach ($output as $_data) {
                     $scraper_name = trim($_data);
                     \Log::info('Found this scraper name ' . $scraper_name);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Found this scraper name '.$scraper_name]);
+
                     if ($scraper_name) {
                         $scrapers = \App\Scraper::where('scraper_name', $scraper_name)->get();
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'getting Scraper detail by name'.$scraper_name]);
+
                         if ($scrapers) {
                             \Log::info('record found this scraper name ' . $scraper_name);
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'record found this scraper name '.$scraper_name]);
+
                             foreach ($scrapers as $_scrap) {
                                 $status = \App\ScraperKilledHistory::create([
                                     'scraper_id' => $_scrap->id,
                                     'scraper_name' => $_scrap->scraper_name,
                                     'comment' => 'Scraper killed',
                                 ]);
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved scraper killed history by ID:'.$status->id]);
                             }
                         }
                     }

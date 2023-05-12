@@ -1440,6 +1440,9 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2807,6 +2810,11 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown ">
                                             <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-suites') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Suites</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
