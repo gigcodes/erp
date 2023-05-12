@@ -44,6 +44,8 @@ class CheckEmailsErrors extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -61,9 +63,13 @@ class CheckEmailsErrors extends Command
 
             $imap->connect();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to IMAMP']);
+
             $inbox = $imap->getFolder('INBOX');
 
             $email_addresses = config('app.failed_email_addresses');
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get email addresses from config app.failed_email_addresses file.']);
 
             foreach ($email_addresses as $address) {
                 $emails = $inbox->messages()->where('from', $address);
@@ -77,12 +83,16 @@ class CheckEmailsErrors extends Command
                     } else {
                         $content = $email->getTextBody();
                     }
-
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting html body of the email ID:'.$email->id]);
+                    
                     if (preg_match_all("/failed: ([\a-zA-Z0-9_.-@]+) host/i", preg_replace('/\s+/', ' ', $content), $match)) {
                         dump('Found address ' . $match[1][0]);
 
                         $suppliers = Supplier::where('email', $match[1][0])->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier model query was finished.']);
+
                         $agents = Agent::where('email', $match[1][0])->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Agent model query was finished.']);
 
                         foreach ($agents as $agent) {
                             dump('Found agent email');

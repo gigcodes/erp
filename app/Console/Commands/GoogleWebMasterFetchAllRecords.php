@@ -27,15 +27,21 @@ class GoogleWebMasterFetchAllRecords extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron stared to run']);
+
             $google_redirect_url = route('googlewebmaster.get-access-token');
 
             $id = \Cache::get('google_client_account_id');
 
-            $GoogleClientAccounts1 = GoogleClientAccount::get();
+            $GoogleClientAccounts = GoogleClientAccount::get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting google client accounts']);
 
             foreach ($GoogleClientAccounts as $GoogleClientAccount) {
                 $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
                 if (isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null) {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'found the refresh token from google account id:'.$GoogleClientAccount->id]);
+
                     // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
                     $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
@@ -57,9 +63,13 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                     $google_oauthV2 = new \Google_Service_Oauth2($this->client);
 
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to google client']);
+
                     if ($this->client->getAccessToken()) {
                         //  $details=$this->updateSitesData($request);
                         $details = $this->updateSitesData($token);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
+
                         //echo"<pre>";print_r($token);die;
                         $curl = curl_init();
                         curl_setopt_array($curl, [
@@ -93,6 +103,8 @@ class GoogleWebMasterFetchAllRecords extends Command
                         curl_close($curl);
 
                         if (isset($check_error_response->error->message) || $err) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Error found from the curl request']);
+
                             $this->curl_errors_array[] = ['key' => 'sites', 'error' => $check_error_response->error->message, 'type' => 'sites'];
                             activity('v3_sites')->log($check_error_response->error->message);
                             echo $this->curl_errors_array[0]['error'];
@@ -101,6 +113,8 @@ class GoogleWebMasterFetchAllRecords extends Command
                                 foreach (json_decode($response)->siteEntry as $key => $site) {
                                     // Create ot update site url
                                     GoogleWebMasters::updateOrCreate(['sites' => $site->siteUrl]);
+
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google web master record']);
 
                                     echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                                     $curl1 = curl_init();
@@ -123,11 +137,15 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     $err = curl_error($curl1);
 
                                     if ($err) {
+                                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Error found from the curl request']);
+                                        
                                         activity('v3_sites')->log($err);
                                         echo 'cURL Error #:' . $err;
                                     } else {
                                         if (isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap)) {
                                             foreach (json_decode($response1)->sitemap as $key => $sitemap) {
+                                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'updated crawls detail for site'.$site->siteUrl]);
+
                                                 GoogleWebMasters::where('sites', $site->siteUrl)->update(['crawls' => $sitemap->errors]);
                                             }
                                         }
