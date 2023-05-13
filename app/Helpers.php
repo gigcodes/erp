@@ -418,7 +418,7 @@ class Helpers
     
     public static function getFromEmailByOrderId($order_id){
         if(!empty($order_id)){
-            $order = Order::find($id);
+            $order = Order::find($order_id);
             if($order){
                 return self::getFromEmail($order->customer->id);
             }
