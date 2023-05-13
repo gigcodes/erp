@@ -404,7 +404,7 @@ class Helpers
     }
     public static function getFromEmail($customer_id=0){
         if(!empty($customer_id)){
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::find($customer_id);
             if($customer){
                 $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
                 if($emailAddressDetails){
