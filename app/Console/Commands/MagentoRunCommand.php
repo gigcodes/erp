@@ -126,7 +126,7 @@ class MagentoRunCommand extends Command
                             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 'command' => $magCom->command_type, 
-                                //'cwd' => "/var/www/erp.theluxuryunlimited.com", 
+                                'cwd' => $magCom->working_directory, 
                             ]));
 
                             $headers = [];

@@ -73,14 +73,9 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <?php $magentoComArr = []; ?>
-                    @foreach ($magentoCommand as $key => $magentoCom)
-                    <?php array_push($magentoComArr,$magentoCom->command_name);?>
-                    @endforeach
-                    <?php $magentoComArr = array_unique($magentoComArr); ?>
                     <select name="command_name" class="form-control" id="command_name">
                         <option value="">--Select Command Name--</option>
-                        @foreach ($magentoComArr as $key => $comName)
+                        @foreach ($magentoCommandListArray as $comName => $comType)
                         <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                         @endforeach
                     </select>
@@ -279,14 +274,9 @@
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <?php $magentoComArr = []; ?>
-                                    @foreach ($magentoCommand as $key => $magentoCom)
-                                    <?php array_push($magentoComArr,$magentoCom->command_name);?>
-                                    @endforeach
-                                    <?php $magentoComArr = array_unique($magentoComArr); ?>
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%">
+                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
                                         <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoComArr as $key => $comName)
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
                                         <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                                         @endforeach
                                     </select>
@@ -294,17 +284,17 @@
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <?php $commandTypeArr = []; ?>
-                                    @foreach ($magentoCommand as $key => $magentoComT)
-                                    <?php array_push($magentoComArr,$magentoComT->command_type);?>
-                                    @endforeach
-                                    <?php $magentoComArr = array_unique($magentoComArr); ?>
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%">
+                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
                                         <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoComArr as $key => $comType)
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
                                         <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="working_directory">Working Directory</label>
+                                    <input type="text" name="working_directory" value="" class="form-control" id="working_directory" placeholder="Enter the working directory" required>
+                                    
                                 </div>
                             </div>
                         </form>
@@ -414,7 +404,10 @@
                 }
                 , data: {
                     id: id
-                }
+                },
+                beforeSend: function() {
+                    $('#loading-image').show();
+                },
             }).done(function(response) {
                 if (response.code = '200') {
                     toastr['success']('Command deleted successfully!!!', 'success');
@@ -432,14 +425,34 @@
     $(document).on("click", ".submit-form", function(e) {
         e.preventDefault();
         var $this = $(this);
+        if($("#websites_ids").val()=='--Website--'){
+            toastr['error']('Please Select Website', 'error');
+            return '';
+        }
+        if($("#command_name_search").val()==''){
+            toastr['error']('Please Select Command Name', 'error');
+            return '';
+        }
+        if($("#command_type").val()==''){
+            toastr['error']('Please Select Command', 'error');
+            return '';
+        }
+        if($("#working_directory").val()==''){
+            toastr['error']('Please Enter Command Working Directory', 'error');
+            return '';
+        }
+
         if ($('#titleUpdate').text() == 'Add')
             $("#command_id").val("");
         $.ajax({
             url: "/magento/command/add"
             , type: "post"
-            , data: $('#magentoForm').serialize()
+            , data: $('#magentoForm').serialize(),
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
-            if (response.code = '200') {
+            if (response.code == '200') {
                 $('#loading-image').hide();
                 $('#addCommand').modal('hide');
                 toastr['success']('Command added successfully!!!', 'success');
@@ -467,7 +480,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 form = $('#magentoForm');
@@ -508,6 +524,7 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#addPostman").hide();
@@ -527,7 +544,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 var t = '';
@@ -543,6 +563,7 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#postmanHistory").hide();
@@ -562,13 +583,17 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 toastr['success']('Command Run successfully!!!', 'success');
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             if (errObj ?.responseJSON ?.message) {
@@ -591,7 +616,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 var t = '';
@@ -626,6 +654,7 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#commandResponseHistoryModel").hide();
