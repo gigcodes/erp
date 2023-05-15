@@ -78,6 +78,8 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
+use App\PurchaseProductOrder;
+use App\StatusMapping;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -4839,6 +4841,39 @@ class OrderController extends Controller
         }
 
         return response()->json('Success', 200);
+    }
+
+    public function orderProductStatusChange(Request $request)
+    {
+        try {
+            // Get order product
+            $orderProduct = OrderProduct::FindOrFail($request->orderProductId);
+
+            if($orderProduct) {
+                // Get status from request
+                $orderProductStatusId = $request->orderProductStatusId;
+
+                // Update the order product status in order products table.
+                $orderProduct->order_product_status_id = $orderProductStatusId;
+                $orderProduct->save();
+
+                // Find mapped purchase status
+                $mappedStatus = StatusMapping::where("order_status_id", $orderProductStatusId)->first();
+                if ($mappedStatus) {
+                    $purchaseStatusId = $mappedStatus->purchase_status_id;
+                    if ($purchaseStatusId) {
+                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck("id")->toArray();
+                        if ($purchaseProductOrders) {
+                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id'=>$purchaseStatusId]);
+                        }
+                    }
+                }
+
+                return response()->json(['messages' => 'Order Product Status Updated Successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Order product not found!'], 404);
+        }
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)
