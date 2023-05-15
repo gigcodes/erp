@@ -5066,4 +5066,7 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
 Route::prefix('magento-users')->middleware('auth')->group(function () {
     Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });
