@@ -22,11 +22,11 @@ class MagentoCommandController extends Controller
         try {
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
             $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
-
+            $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
             $websites = StoreWebsite::all();
             $users = User::all();
 
-            return view('magento-command.index', compact('magentoCommand', 'websites', 'users'));
+            return view('magento-command.index', compact('magentoCommand', 'websites', 'users','magentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -37,7 +37,7 @@ class MagentoCommandController extends Controller
     public function search(Request $request)
     {
         $magentoCommand = MagentoCommand::whereNotNull('id');
-
+        $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
         if (! empty($request->website)) {
             $magentoCommand->where('website_ids', 'like', '%' . $request->website . '%');
         }
@@ -52,7 +52,7 @@ class MagentoCommandController extends Controller
         $users = User::all();
         $websites = StoreWebsite::all();
 
-        return view('magento-command.index', compact('magentoCommand', 'websites', 'users'));
+        return view('magento-command.index', compact('magentoCommandListArray','magentoCommand', 'websites', 'users'));
     }
 
     /**
@@ -75,6 +75,7 @@ class MagentoCommandController extends Controller
             $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
+            $mCom->working_directory = $request->working_directory;
             $mCom->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
