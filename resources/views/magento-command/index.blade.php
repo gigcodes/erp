@@ -270,6 +270,20 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12">
+                                    <label for="assets_manager_id">Assets Manager</label>
+                                    <div class="dropdown-sin-1">
+                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
+                                            <option value="">--Assets Manager--</option>
+                                            
+                                            <?php
+                            foreach($assetsmanager as $am){
+                                echo '<option value="'.$am->id.'">'.$am->name.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
@@ -425,8 +439,13 @@
     $(document).on("click", ".submit-form", function(e) {
         e.preventDefault();
         var $this = $(this);
+        
         if($("#websites_ids").val()=='--Website--'){
             toastr['error']('Please Select Website', 'error');
+            return '';
+        }
+        if($("#assets_manager_id").val()==''){
+            toastr['error']('Please Select Assets Manager', 'error');
             return '';
         }
         if($("#command_name_search").val()==''){
@@ -437,10 +456,10 @@
             toastr['error']('Please Select Command', 'error');
             return '';
         }
-        if($("#working_directory").val()==''){
+        /*if($("#working_directory").val()==''){
             toastr['error']('Please Enter Command Working Directory', 'error');
             return '';
-        }
+        }*/
 
         if ($('#titleUpdate').text() == 'Add')
             $("#command_id").val("");
@@ -505,6 +524,9 @@
                         }
                         if (key == 'command_type') {
                             $('#command_type').val(v).trigger('change');
+                        }
+                        if (key == 'assets_manager_id') {
+                            $('#assets_manager_id').val(v).trigger('change');
                         }
 
                     } else if (form.find('[name="' + key + '[]"]').length) {
