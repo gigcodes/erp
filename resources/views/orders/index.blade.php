@@ -937,6 +937,11 @@
       event.preventDefault();
       $('#order-status-map').modal('show');
     });
+
+    $(function() {
+      $(document).tooltip();
+    });
+    
     $(document).on("click",".toggle-title-box",function(ele) {
         var $this = $(this);
         if($this.hasClass("has-small")){
