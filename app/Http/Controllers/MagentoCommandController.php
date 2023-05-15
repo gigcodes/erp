@@ -23,10 +23,11 @@ class MagentoCommandController extends Controller
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
             $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
             $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
+            $assetsmanager = AssetsManager::all();
             $websites = StoreWebsite::all();
             $users = User::all();
 
-            return view('magento-command.index', compact('magentoCommand', 'websites', 'users','magentoCommandListArray'));
+            return view('magento-command.index', compact('magentoCommand', 'websites', 'users','magentoCommandListArray','assetsmanager'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -51,8 +52,8 @@ class MagentoCommandController extends Controller
         $magentoCommand = $magentoCommand->paginate($limit);
         $users = User::all();
         $websites = StoreWebsite::all();
-
-        return view('magento-command.index', compact('magentoCommandListArray','magentoCommand', 'websites', 'users'));
+        $assetsmanager = AssetsManager::all();
+        return view('magento-command.index', compact('magentoCommandListArray','magentoCommand', 'websites', 'users','assetsmanager'));
     }
 
     /**
@@ -76,6 +77,7 @@ class MagentoCommandController extends Controller
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
             $mCom->working_directory = $request->working_directory;
+            $mCom->assets_manager_id = $request->assets_manager_id;
             $mCom->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
@@ -142,7 +144,8 @@ class MagentoCommandController extends Controller
 
             foreach($postHis as $logs){
                 if($logs->website_ids !='' && $logs->job_id!=''){
-                    $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                    $magCom = MagentoCommand::find($logs->command_id);
+                    $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
                     if($assetsmanager && $assetsmanager->client_id!=''){
                         $client_id=$assetsmanager->client_id;
                         $job_id=$logs->job_id;

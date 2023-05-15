@@ -50,7 +50,90 @@ class MagentoRunCommand extends Command
             Log::info("Magento Command: ".$magCom->command_type);
             Log::info("Magento Command website_ids: ".$magCom->website_ids);
             if ($magCom->website_ids == 'ERP') {
+                $job_id='';
+                Log::info("Start Rum Magento Command for website_id: ERP");
                 $cmd = $magCom->command_type;
+                $assets_manager_id = $magCom->assets_manager_id;
+                $assetsmanager = AssetsManager::where('id', $assets_manager_id)->first();
+                if($assetsmanager && $assetsmanager->client_id!=''){
+                    Log::info("client_id: ".$assetsmanager->client_id);
+                    $client_id=$assetsmanager->client_id;
+                    $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+                    $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                            
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL,$url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                        'command' => $magCom->command_type, 
+                        'cwd' => $magCom->working_directory, 
+                    ]));
+
+                    $headers = [];
+                    $headers[] = 'Authorization: Basic '.$key;
+                    $headers[] = 'Content-Type: application/json';
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                    $result = curl_exec($ch);
+                    Log::info("API result: ".$result);
+                    if (curl_errno($ch)) {
+                        Log::info("API Error: ".curl_error($ch));
+                        MagentoCommandRunLog::create(
+                            [
+                                'command_id' => $magCom->id,
+                                'user_id' => \Auth::user()->id ?? '',
+                                'website_ids' => 'ERP',
+                                'command_name' => $magCom->command_type,
+                                'server_ip' => '',
+                                'command_type' => $magCom->command_type,
+                                'response' => curl_error($ch),
+                            ]
+                        );
+                    }
+                    $response = json_decode($result);
+                    
+                    curl_close($ch);
+                    
+                    if(isset($response->errors)){ 
+                        foreach($response->errors as $error){
+                            $message=$error->code.":".$error->title.":".$error->detail;
+                            Log::info("API Response Error: ".$message);
+                            MagentoCommandRunLog::create(
+                                [
+                                    'command_id' => $magCom->id,
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' =>'ERP',
+                                    'command_name' => $magCom->command_type,
+                                    'server_ip' => '',
+                                    'command_type' => $magCom->command_type,
+                                    'response' => $message,
+                                ]
+                            );
+                        }
+                    }
+                    if(isset($response->data) ){
+                        if(isset($response->data->jid)){
+                            $job_id=$response->data->jid;
+                            Log::info("API Response job_id: ".$job_id);
+                        }
+                    }
+
+                }else{
+                    MagentoCommandRunLog::create(
+                        [
+                            'command_id' => $magCom->id,
+                            'user_id' => \Auth::user()->id ?? '',
+                            'website_ids' => 'ERP',
+                            'command_name' => $magCom->command_name,
+                            'server_ip' => '',
+                            'command_type' => $magCom->command_type,
+                            'response' => 'Assets Manager & Client id not found for this command!',
+                        ]
+                    );
+                }
+
                 $contains = \Str::contains($cmd, 'php artisan');
                 if ($contains) {
                     $result = '';
@@ -85,8 +168,10 @@ class MagentoRunCommand extends Command
                         'server_ip' => '',
                         'command_type' => $magCom->command_type,
                         'response' => $result,
+                        'job_id' => $job_id,
                     ]
                 );
+                Log::info("End Rum Magento Command for website_id: ERP");
             } else {
                 $websites = StoreWebsite::whereIn('id', explode(',', $magCom->website_ids))->get();
                 
@@ -110,7 +195,7 @@ class MagentoRunCommand extends Command
                         Log::info("website server_ip: ".$website->server_ip);
                         $job_id='';
                         $website_id=$website->id;
-                        $assetsmanager = AssetsManager::where('website_id', $website_id)->first();
+                        $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
                         
                         if($assetsmanager && $assetsmanager->client_id!=''){
                             Log::info("client_id: ".$assetsmanager->client_id);
