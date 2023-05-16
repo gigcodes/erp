@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use File;
 use App\LaravelLog;
 use Illuminate\Console\Command;
@@ -39,6 +40,7 @@ class ParseLog extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $path = storage_path('logs');
             $logs = File::allfiles($path);
@@ -61,6 +63,7 @@ class ParseLog extends Command
                     $dateTime = $datetime[1][0];
 
                     $alreadyLogged = LaravelLog::where('log_created', $dateTime)->first();
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "laravel log query finished."]);
 
                     if ($alreadyLogged != null && $alreadyLogged != '') {
                         continue;
@@ -75,13 +78,16 @@ class ParseLog extends Command
                             $log->filename = $filename;
                             $log->log = $value;
                             $log->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Laravel log added."]);
                         } else {
                             $loggedBefore->touch();
                         }
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

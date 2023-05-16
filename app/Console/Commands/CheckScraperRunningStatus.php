@@ -40,11 +40,13 @@ class CheckScraperRunningStatus extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report addes."]);
 
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrapper-running.sh 2>&1';
 
@@ -132,11 +134,14 @@ class CheckScraperRunningStatus extends Command
                             'in_percentage' => $inPercentage,
                             'pid' => $pid,
                         ]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Scraper server status history was added."]);
                     }
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

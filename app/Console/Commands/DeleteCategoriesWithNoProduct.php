@@ -39,12 +39,14 @@ class DeleteCategoriesWithNoProduct extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             set_time_limit(0);
 
             ini_set('memory_limit', '-1');
 
             $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Category query finished."]);
             if ($unKnownCategory) {
                 $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
                 $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
@@ -58,6 +60,7 @@ class DeleteCategoriesWithNoProduct extends Command
                         $unKnownCategory->save();
                         if (! in_array($unKnownC, $fixedCategories)) {
                             $count = \App\Category::ScrapedProducts($unKnownC);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Product count match ({$count}) :" . $unKnownC]);
                             $this->info("Product count match ({$count}) :" . $unKnownC);
                             if ($count <= 0) {
                                 $storeUnUserCategory[] = $unKnownC;
@@ -67,10 +70,12 @@ class DeleteCategoriesWithNoProduct extends Command
                             }
                         } else {
                             $this->info('Already fetched record :' . $unKnownC);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Already fetched record :' . $unKnownC]);
                         }
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

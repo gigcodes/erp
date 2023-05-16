@@ -6,6 +6,7 @@ use App\Task;
 use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class SendReminderToTaskIfTheyHaventReplied extends Command
@@ -41,33 +42,39 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now(),
-        ]);
-
-        $now = Carbon::now()->toDateTimeString();
-
-        // task page logic starting from here
-        $tasks = \App\Task::where('frequency', '>', 0)->where('reminder_message', '!=', '')->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
-
-        if (! $tasks->isEmpty()) {
-            foreach ($tasks as $task) {
-                $templateMessage = "#TASK-{$task->id} - {$task->task_subject} - " . $task->reminder_message;
-                $this->info('started for task #' . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
-                if ($task->diff_min >= $task->frequency && ($task->reminder_from == '0000-00-00 00:00' || strtotime($task->reminder_from) <= strtotime('now'))) {
-                    $this->info('condition matched for task #' . $task->id);
-                    $this->sendMessage($task, $templateMessage);
-                    if ($task->frequency == 1) {
-                        $task->frequency = 0;
+        try {
+            $report = CronJobReport::create([
+                'signature' => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+    
+            $now = Carbon::now()->toDateTimeString();
+    
+            // task page logic starting from here
+            $tasks = \App\Task::where('frequency', '>', 0)->where('reminder_message', '!=', '')->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
+    
+            if (! $tasks->isEmpty()) {
+                foreach ($tasks as $task) {
+                    $templateMessage = "#TASK-{$task->id} - {$task->task_subject} - " . $task->reminder_message;
+                    $this->info('started for task #' . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
+                    if ($task->diff_min >= $task->frequency && ($task->reminder_from == '0000-00-00 00:00' || strtotime($task->reminder_from) <= strtotime('now'))) {
+                        $this->info('condition matched for task #' . $task->id);
+                        $this->sendMessage($task, $templateMessage);
+                        if ($task->frequency == 1) {
+                            $task->frequency = 0;
+                        }
+                        $task->last_send_reminder = date('Y-m-d H:i:s');
+                        $task->save();
                     }
-                    $task->last_send_reminder = date('Y-m-d H:i:s');
-                    $task->save();
                 }
             }
-        }
+    
+            $report->update(['end_time' => Carbon::now()]);
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
-        $report->update(['end_time' => Carbon::now()]);
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
     /**

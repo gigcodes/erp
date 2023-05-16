@@ -719,11 +719,13 @@ class ChatMessagesController extends Controller
             }
 
             $recorsArray[] = [
+                'id' => $row->id,
                 'created_at' => $row->created_at->format('d-m-y H:i:s'),
                 'type' => $type,
                 'message' => $row->message,
                 'sender' => $type,
                 'sender_name' => $sender,
+                'resent' => $row->resent,
             ];
         }
 

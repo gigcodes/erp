@@ -177,7 +177,6 @@
                     $("#loading-image").show();
                 },
                 success: function (response) {
-                    debugger;
                     $("#loading-image").hide();
                     if (!response.status) {
                         toastr["error"](response.message);

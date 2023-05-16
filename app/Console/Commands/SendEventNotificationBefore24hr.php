@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\UserEvent\UserEvent;
 use Illuminate\Console\Command;
 
@@ -116,7 +117,9 @@ class SendEventNotificationBefore24hr extends Command
             //
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

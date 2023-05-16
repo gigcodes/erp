@@ -78,6 +78,8 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
+use App\PurchaseProductOrder;
+use App\StatusMapping;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -1623,6 +1625,7 @@ class OrderController extends Controller
         if (true) {
             // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
+                $from_email=\App\Helpers::getFromEmail($order->customer->id);
                 $emailClass = (new AdvanceReceipt($order))->build();
 
                 // $order->update([
@@ -1633,7 +1636,7 @@ class OrderController extends Controller
                 $email = Email::create([
                     'model_id' => $order->customer->id,
                     'model_type' => Customer::class,
-                    'from' => 'customercare@sololuxury.co.in',
+                    'from' => $from_email,
                     'to' => $order->customer->email,
                     'subject' => $emailClass->subject,
                     'message' => $emailClass->render(),
@@ -2119,14 +2122,15 @@ class OrderController extends Controller
                 'type' => 'refund-initiated',
                 'method' => 'whatsapp',
             ]);
-
+            
+            $from_email=\App\Helpers::getFromEmail($order->customer->id);
             $emailClass = (new RefundProcessed($order->order_id, $product_names))->build();
 
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             $email = Email::create([
                 'model_id' => $order->id,
                 'model_type' => Order::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' => $from_email,
                 'to' => $order->customer->email,
                 'subject' => $emailClass->subject,
                 'message' => $emailClass->render(),
@@ -3024,6 +3028,46 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * This function is used to list the Order Status Journey
+     *
+     * @param  Request  $request Request
+     *  @return view;
+     */
+    public function getOrderStatusJourney(Request $request)
+    {
+        $orders = Order::paginate(25);
+        $orderStatusList = OrderHelper::getStatus();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('orders.partials.order-status', compact('orders', 'orderStatusList'))->render(),
+            ], 200);
+        }
+
+        return view('orders.order-status-journey', compact('orders', 'orderStatusList'));
+    }
+
+    /**
+     * This function is used to list the Order Journey
+     *
+     * @param  Request  $request Request
+     *  @return view;
+     */
+    public function getOrderJourney(Request $request)
+    {
+        $orders = Order::latest("id")->paginate(25);
+        $orderStatusList = OrderStatus::pluck('status', 'id')->all();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('orders.partials.order-journey', compact('orders', 'orderStatusList'))->render(),
+            ], 200);
+        }
+
+        return view('orders.order-journey', compact('orders', 'orderStatusList'));
     }
 
     /**
@@ -4107,7 +4151,7 @@ class OrderController extends Controller
                                     $email = Email::create([
                                         'model_id' => $order->customer->id,
                                         'model_type' => Customer::class,
-                                        'from' => 'customercare@sololuxury.co.in',
+                                        'from' => $storeEmailAddress->from_address,
                                         'to' => $order->customer->email,
                                         'subject' => $emailClass->subject,
                                         'message' => $emailClass->render(),
@@ -4496,7 +4540,7 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = 'customercare@sololuxury.co.in';
+        $from = config('env.MAIL_FROM_ADDRESS');
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4563,7 +4607,7 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = 'customercare@sololuxury.co.in';
+        $from = config('env.MAIL_FROM_ADDRESS');
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4799,6 +4843,39 @@ class OrderController extends Controller
         return response()->json('Success', 200);
     }
 
+    public function orderProductStatusChange(Request $request)
+    {
+        try {
+            // Get order product
+            $orderProduct = OrderProduct::FindOrFail($request->orderProductId);
+
+            if($orderProduct) {
+                // Get status from request
+                $orderProductStatusId = $request->orderProductStatusId;
+
+                // Update the order product status in order products table.
+                $orderProduct->order_product_status_id = $orderProductStatusId;
+                $orderProduct->save();
+
+                // Find mapped purchase status
+                $mappedStatus = StatusMapping::where("order_status_id", $orderProductStatusId)->first();
+                if ($mappedStatus) {
+                    $purchaseStatusId = $mappedStatus->purchase_status_id;
+                    if ($purchaseStatusId) {
+                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck("id")->toArray();
+                        if ($purchaseProductOrders) {
+                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id'=>$purchaseStatusId]);
+                        }
+                    }
+                }
+
+                return response()->json(['messages' => 'Order Product Status Updated Successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Order product not found!'], 404);
+        }
+    }
+
     public function getInvoiceDetails(Request $request, $invoiceId)
     {
         $invoice = \App\Invoice::find($invoiceId);
@@ -4924,7 +5001,7 @@ class OrderController extends Controller
 
             if (! empty($customer) && ! empty($customer->email) && ! empty($addRequestData['message'])) {
                 // dump('send customer email final');
-                $from = 'customercare@sololuxury.co.in';
+                $from = config('env.MAIL_FROM_ADDRESS');
                 // Check from address exist for customer's store website
                 $emailAddress = EmailAddress::where('store_website_id', $customer->store_website_id)->first();
                 if ($emailAddress) {

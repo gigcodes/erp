@@ -40,7 +40,9 @@ class CustomerChatMessageQuickData extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer chunk query started."]);
             $customers = Customer::with(['allMessages' => function ($qr) {
                 $qr->orderBy('created_at', 'desc');
             }])->chunk(100, function ($customers) {
@@ -73,6 +75,8 @@ class CustomerChatMessageQuickData extends Command
                     }
                 }
             });
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer chunk query ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

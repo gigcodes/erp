@@ -1346,6 +1346,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status-temp', [OrderController::class, 'prodctStatusChangeTemplate']);
     Route::post('order/change-status', [OrderController::class, 'statusChange']);
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
+    Route::post('order/order-product-status-change', [OrderController::class, 'orderProductStatusChange'])->name('order.order-product-status-change');
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
 

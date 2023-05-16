@@ -44,11 +44,13 @@ class FetchEmails extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report added."]);
             $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
@@ -61,9 +63,11 @@ class FetchEmails extends Command
             ]);
 
             $imap->connect();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Client manager connected."]);
 
             // $supplier = Supplier::find($request->supplier_id);
             $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Supplier query finished."]);
 
             dump(count($suppliers));
 
@@ -163,6 +167,8 @@ class FetchEmails extends Command
                                             ];
 
                                             Email::create($params);
+                                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Email added."]);
+                                            
                                         }
                                     }
                                 } else {
@@ -226,6 +232,7 @@ class FetchEmails extends Command
                                             ];
 
                                             Email::create($params);
+                                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Email added."]);
                                         }
                                     }
 
@@ -292,6 +299,7 @@ class FetchEmails extends Command
                                     ];
 
                                     Email::create($params);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Email added"]);
                                 }
                             }
                         } else {
@@ -362,6 +370,7 @@ class FetchEmails extends Command
                                     ];
 
                                     Email::create($params);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Email added."]);
                                 }
                             }
                         } else {
@@ -374,6 +383,8 @@ class FetchEmails extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

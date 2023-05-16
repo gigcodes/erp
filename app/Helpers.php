@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Customer;
 use App\EmailAddress;
+use App\Order;
 
 class Helpers
 {
@@ -403,7 +404,7 @@ class Helpers
     }
     public static function getFromEmail($customer_id=0){
         if(!empty($customer_id)){
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::find($customer_id);
             if($customer){
                 $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
                 if($emailAddressDetails){
@@ -413,5 +414,16 @@ class Helpers
         }
         return config('env.MAIL_FROM_ADDRESS');
     }
-    //How to call \App\Helpers::getFromEmail() |  pass custome id if available 
+    //How to call \App\Helpers::getFromEmail() |  pass custome id if available
+    
+    public static function getFromEmailByOrderId($order_id){
+        if(!empty($order_id)){
+            $order = Order::find($order_id);
+            if($order){
+                return self::getFromEmail($order->customer->id);
+            }
+        }
+        return config('env.MAIL_FROM_ADDRESS');
+    }
+     
 }
