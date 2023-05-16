@@ -115,6 +115,8 @@
                             <label class="form-check-label" for="priceApprove">Approve</label>
                         </div>
                     </div>
+                    @else
+                        <input type="hidden" name="is_price_approved" value="{{ $seoProcess->is_price_approved }}">
                     @endif
                 </div>
 
