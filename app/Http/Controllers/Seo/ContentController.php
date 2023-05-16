@@ -239,7 +239,7 @@ class ContentController extends Controller
         $auth = auth()->user();
         $request = request();
         $seoStatus = SeoProcessStatus::all();
-        $seoProcess = SeoProcess::with(['website:id,website', 'user:id,name']);
+        $seoProcess = SeoProcess::with(['website:id,website', 'user:id,name'])->orderBy('id','desc');
         $filter = (object) $request->filter;
         if (! empty($filter->website_id)) {
             $seoProcess = $seoProcess->where('website_id', $filter->website_id);
