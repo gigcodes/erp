@@ -68,7 +68,8 @@ class MagentoRunCommand extends Command
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                         'command' => $magCom->command_type, 
-                        'cwd' => $magCom->working_directory, 
+                        'cwd' => $magCom->working_directory,
+                        'is_sudo' => true 
                     ]));
 
                     $headers = [];
@@ -212,6 +213,7 @@ class MagentoRunCommand extends Command
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 'command' => $magCom->command_type, 
                                 'cwd' => $magCom->working_directory, 
+                                'is_sudo' => true 
                             ]));
 
                             $headers = [];
