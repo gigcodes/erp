@@ -229,7 +229,7 @@
 
           <div class="form-group">
             <strong>Amount:</strong>
-            <input type="number" name="amount" class="form-control" value="{{ old('amount') }}">
+            <input type="number" name="amount" class="form-control" value="{{ old('amount') }}" step=".01">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
@@ -620,7 +620,7 @@
 
           <div class="form-group">
             <strong>Amount:</strong>
-            <input type="number" name="amount" id="asset_amount" class="form-control" value="{{ old('amount') }}">
+            <input type="number" name="amount" id="asset_amount" class="form-control" value="{{ old('amount') }}" step=".01">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
