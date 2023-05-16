@@ -17,7 +17,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Select Website </label>
-                            <select name="website_id" class="form-control" required data-msg-required="Please select website." {{ $auth->hasRole(['Admin']) ? '' : 'readonly'}}>
+                            <select name="website_id" class="form-control" required data-msg-required="Please select website." {{ $auth->hasRole(['Admin', 'Seo Head']) ? '' : 'disabled=true'}}>
                                 <option value="">-- Select --</option>
                                 @foreach ($storeWebsites as $item)
                                 <option value="{{ $item->id }}" {{ $seoProcess->website_id == $item->id ? 'selected' : '' }}>{{ $item->website }}</option>
