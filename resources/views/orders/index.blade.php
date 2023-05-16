@@ -447,6 +447,9 @@
                     <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
                         <img src="{{asset('/images/chat.png')}}" alt="">
                     </button>
+                    <button type="button" title="Order SMS Send Log" class="btn  btn-xs btn-image pd-5 order_sms_send_log" data-id="{{$order->id}}">
+                      <img src="{{asset('/images/chat.png')}}" alt="">
+                  </button>
                     <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
                         <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
                     </button>
@@ -599,10 +602,10 @@
   </div>
 
   <div id="order_email_send_log" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Order Logs</h4>
+                <h4 class="modal-title">Order Email Logs</h4>
             </div>
             <div class="modal-body">
               <div class="table-responsive">
@@ -615,10 +618,43 @@
                       <th>From</th>
                       <th>To</th>
                       <th>Subject</th>
+                      <th>Message</th>
+                      <th>Status</th>
                       <th>Date</th>
                     </tr>
                   </thead>
                   <tbody id="order_emailsendlogtd">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_sms_send_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order SMS Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Number</th>
+                      <th>Message</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_smssendlogtd">
 
                   </tbody>
                 </table>
@@ -1110,6 +1146,8 @@
               t += `<td>`+v.from+`</td>`;
               t += `<td>`+v.to+`</td>`;
               t += `<td>`+v.subject+`</td>`;
+              t += `<td>`+v.message+`</td>`;
+              t += `<td>`+v.status+`</td>`;
               t += `<td>`+v.created_at+`</td></tr>`;
             });
 
@@ -1123,6 +1161,39 @@
           toastr['error']('Could not find any error Log', 'Error');
         });
 		  });
+
+    $(document).on("click",".order_sms_send_log",function() {
+      var order_id = $(this).data("id");
+      $.ajax({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "order/"+order_id+"/get-sms-send-logs",
+        type: "GET",
+        beforeSend: function() {
+          $("loading-image").show();
+        }
+      }).done( function(response) {
+        if(response.code == 200) {
+          var t = '';
+          $.each(response.data,function(k,v) {
+            t += `<tr><td>`+v.id+`</td>`;
+            t += `<td>`+v.order_id+`</td>`;
+            t += `<td>`+v.number+`</td>`;
+            t += `<td>`+v.message+`</td>`;
+            t += `<td>`+v.created_at+`</td></tr>`;
+          });
+
+          $("#order_sms_send_log").find("#order_smssendlogtd").html(t);
+          $('#order_sms_send_log').modal("show");
+          $("loading-image").hide();
+        } else if(response.code == 500){
+          toastr['error']('Could not find any logs', 'Warning');
+        }
+      }).fail(function(error) {
+        toastr['error']('Could not find any logs', 'Warning');
+      });
+    });
 
     $(document).on("click",".load-log-modal",function() {
 			  console.log(this);
