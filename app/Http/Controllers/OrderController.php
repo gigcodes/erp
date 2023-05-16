@@ -2947,7 +2947,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
@@ -3106,6 +3106,27 @@ class OrderController extends Controller
                 return response()->json(['code' => 200, 'data' => $orderError]);
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any error Log']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is use for List Order SMS send Log
+     *
+     * @param  Request  $request Request
+     *  @return JsonReponse;
+     */
+    public function getOrderSmsSendLog($id)
+    {
+        try {
+            $smsSendLogs = ChatMessage::where('order_id', $id)->latest()->get();
+
+            if (count($smsSendLogs) > 0) {
+                return response()->json(['code' => 200, 'data' => $smsSendLogs]);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Could not find any Log']);
             }
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -4780,7 +4801,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
