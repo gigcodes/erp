@@ -128,6 +128,8 @@ padding: 3px 2px;
         <td>
             @if($pam->message_type!='')
                 {{ucfirst($pam->message_type)}}
+            @elseif ($pam->is_email>0)
+                {{'Email'}}
             @elseif ($pam->task_id>0)
                 {{'Task'}}
             @elseif ($pam->developer_task_id>0)

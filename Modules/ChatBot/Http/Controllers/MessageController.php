@@ -61,6 +61,7 @@ class MessageController extends Controller
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
                 if(request('message_type')=='email'){
                     $q->where('chat_messages.message_type', 'email');
+                    $q->orWhere('chat_messages.is_email', '>', 0);
                 }
                 if(request('message_type')=='task'){
                     $q->orWhere('chat_messages.task_id', '>', 0);
