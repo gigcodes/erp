@@ -191,7 +191,7 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><span id="titleUpdate">Add</span> Postman Collection</h5>
+        <h5 class="modal-title">Collection Folder</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -354,8 +354,8 @@
     });
   });
 
-  $(document).on("click", ".view-postman-collection-folder-btn", function(e) {
-    e.preventDefault();
+  $(document).on("click", ".view-postman-collection-folder-btn", function() {
+    // e.preventDefault();
 
     var collectionId = $(this).attr('data-id');
     $('#folder_collection_id').val(collectionId);
@@ -468,10 +468,6 @@
     }).fail(function(errObj) {
       $('#loading-image').hide();
       toastr['error'](errObj.message, 'error');
-
-      $("form").submit(function(e){
-        e.preventDefault();
-    });
     });
   });
 </script>
