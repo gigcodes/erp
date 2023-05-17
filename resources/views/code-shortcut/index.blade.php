@@ -1,6 +1,15 @@
 @extends('layouts.app')
 @section('title', 'Code Shortcut')
 @section('content')
+<script>
+
+    function confirmDelete(code, url) {
+        let result = confirm("Are you sure you want to delete the code " + code + "?");
+        if (result) {
+            window.location.href = url;
+        }
+    }
+</script>
 <style type="text/css">
 	#loading-image {
 		position: fixed;

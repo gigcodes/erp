@@ -20,10 +20,16 @@ class CodeShortcutController extends Controller
         $data['suppliers'] = Supplier::select('id', 'supplier')->get();
         $data['users'] = User::select('id', 'name')->get();
         if ($request->ajax()) {
-            $data['codeshortcut'] = CodeShortcut::where('code', 'like', '%' . $request->term . '%')->orwhere('supplier_id', '=', $request->id)->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+            $query = CodeShortcut::select('*');
+            if($request->term){
+                $query = $query->where('code', 'like', '%' . $request->term . '%');
+            }
+            if($request->id){
+                $query = $query->where('supplier_id', '=', $request->id);
+            }
+            $data['codeshortcut'] = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
             return response()->json([
                 'tbody' => view('code-shortcut.partials.list-code', $data)->render(),
-
             ], 200);
         }
         return view('code-shortcut.index', $data);
