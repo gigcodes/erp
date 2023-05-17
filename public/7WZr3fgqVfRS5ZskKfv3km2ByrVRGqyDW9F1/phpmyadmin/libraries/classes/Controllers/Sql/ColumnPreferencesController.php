@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Sql;
 
+use PhpMyAdmin\Sql;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\CheckUserPrivileges;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
 
 final class ColumnPreferencesController extends AbstractController
 {

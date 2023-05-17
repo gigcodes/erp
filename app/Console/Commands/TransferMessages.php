@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
 use App\Message;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class TransferMessages extends Command

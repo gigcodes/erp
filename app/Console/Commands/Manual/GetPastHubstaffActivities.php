@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Helpers\HubstaffTrait;
-use App\Hubstaff\HubstaffActivity;
 use GuzzleHttp\Client;
+use App\Helpers\HubstaffTrait;
 use Illuminate\Console\Command;
+use App\Hubstaff\HubstaffActivity;
 
 class GetPastHubstaffActivities extends Command
 {
@@ -59,19 +59,19 @@ class GetPastHubstaffActivities extends Command
         $userIds = explode(',', $userIds);
         $userIds = array_filter($userIds);
 
-        $start = strtotime($startString.' UTC');
-        $now = strtotime($endString.' UTC');
+        $start = strtotime($startString . ' UTC');
+        $now = strtotime($endString . ' UTC');
 
         while ($start < $now) {
             $end = $start + 7 * 24 * 60 * 60; // 1 week limited by API
 
-            echo '====================='.PHP_EOL;
-            echo 'Start: '.gmdate('c', $start).PHP_EOL;
-            echo 'End: '.gmdate('c', $end).PHP_EOL;
+            echo '=====================' . PHP_EOL;
+            echo 'Start: ' . gmdate('c', $start) . PHP_EOL;
+            echo 'End: ' . gmdate('c', $end) . PHP_EOL;
 
             $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end), 0, [], $userIds);
 
-            echo 'Got activities(count): '.count($activities).PHP_EOL;
+            echo 'Got activities(count): ' . count($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [

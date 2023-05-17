@@ -8,19 +8,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Export;
 
 use function __;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use function strtr;
 use PhpMyAdmin\Util;
 use PhpMyAdmin\Version;
 use function preg_match;
+use function var_export;
 use function preg_replace;
 use function stripslashes;
-use function strtr;
-use function var_export;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the export for the PHP Array class
@@ -79,11 +79,11 @@ class ExportPhparray extends ExportPlugin
     public function exportHeader(): bool
     {
         $this->export->outputHandler(
-            '<?php'.$GLOBALS['crlf']
-            .'/**'.$GLOBALS['crlf']
-            .' * Export to PHP Array plugin for PHPMyAdmin'.$GLOBALS['crlf']
-            .' * @version '.Version::VERSION.$GLOBALS['crlf']
-            .' */'.$GLOBALS['crlf'].$GLOBALS['crlf']
+            '<?php' . $GLOBALS['crlf']
+            . '/**' . $GLOBALS['crlf']
+            . ' * Export to PHP Array plugin for PHPMyAdmin' . $GLOBALS['crlf']
+            . ' * @version ' . Version::VERSION . $GLOBALS['crlf']
+            . ' */' . $GLOBALS['crlf'] . $GLOBALS['crlf']
         );
 
         return true;
@@ -110,9 +110,9 @@ class ExportPhparray extends ExportPlugin
         }
 
         $this->export->outputHandler(
-            '/**'.$GLOBALS['crlf']
-            .' * Database '.$this->commentString(Util::backquote($dbAlias))
-            .$GLOBALS['crlf'].' */'.$GLOBALS['crlf']
+            '/**' . $GLOBALS['crlf']
+            . ' * Database ' . $this->commentString(Util::backquote($dbAlias))
+            . $GLOBALS['crlf'] . ' */' . $GLOBALS['crlf']
         );
 
         return true;
@@ -187,17 +187,17 @@ class ExportPhparray extends ExportPlugin
 
             // variable name must not start with a number or dash...
             if (preg_match('/^[a-zA-Z_\x7f-\xff]/', $tablefixed) === 0) {
-                $tablefixed = '_'.$tablefixed;
+                $tablefixed = '_' . $tablefixed;
             }
         }
 
         $buffer = '';
         $record_cnt = 0;
         // Output table name as comment
-        $buffer .= $crlf.'/* '
-            .$this->commentString(Util::backquote($db_alias)).'.'
-            .$this->commentString(Util::backquote($table_alias)).' */'.$crlf;
-        $buffer .= '$'.$tablefixed.' = array(';
+        $buffer .= $crlf . '/* '
+            . $this->commentString(Util::backquote($db_alias)) . '.'
+            . $this->commentString(Util::backquote($table_alias)) . ' */' . $crlf;
+        $buffer .= '$' . $tablefixed . ' = array(';
         if (! $this->export->outputHandler($buffer)) {
             return false;
         }
@@ -208,15 +208,15 @@ class ExportPhparray extends ExportPlugin
             $record_cnt++;
 
             if ($record_cnt == 1) {
-                $buffer .= $crlf.'  array(';
+                $buffer .= $crlf . '  array(';
             } else {
-                $buffer .= ','.$crlf.'  array(';
+                $buffer .= ',' . $crlf . '  array(';
             }
 
             for ($i = 0; $i < $columns_cnt; $i++) {
                 $buffer .= var_export($columns[$i], true)
-                    .' => '.var_export($record[$i], true)
-                    .($i + 1 >= $columns_cnt ? '' : ',');
+                    . ' => ' . var_export($record[$i], true)
+                    . ($i + 1 >= $columns_cnt ? '' : ',');
             }
 
             $buffer .= ')';
@@ -228,7 +228,7 @@ class ExportPhparray extends ExportPlugin
             $buffer = '';
         }
 
-        $buffer .= $crlf.');'.$crlf;
+        $buffer .= $crlf . ');' . $crlf;
 
         return $this->export->outputHandler($buffer);
     }

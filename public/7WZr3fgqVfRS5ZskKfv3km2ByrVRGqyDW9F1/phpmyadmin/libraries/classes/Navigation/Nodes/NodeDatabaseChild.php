@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Navigation\Nodes;
 
 use function __;
-use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\Url;
+use PhpMyAdmin\Html\Generator;
 
 /**
  * Represents a node that is a child of a database node
@@ -46,11 +46,11 @@ abstract class NodeDatabaseChild extends Node
             ];
 
             $ret = '<span class="navItemControls">'
-                .'<a href="'.Url::getFromRoute('/navigation').'" data-post="'
-                .Url::getCommon($params, '', false).'"'
-                .' class="hideNavItem ajax">'
-                .Generator::getImage('hide', __('Hide'))
-                .'</a></span>';
+                . '<a href="' . Url::getFromRoute('/navigation') . '" data-post="'
+                . Url::getCommon($params, '', false) . '"'
+                . ' class="hideNavItem ajax">'
+                . Generator::getImage('hide', __('Hide'))
+                . '</a></span>';
         }
 
         return $ret;

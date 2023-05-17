@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\Helpers\StatusHelper;
 use App\Image;
+use App\Stage;
 use App\Product;
 use App\Setting;
-use App\Stage;
+use App\Category;
 use App\Supplier;
+use Plank\Mediable\Media;
 use Illuminate\Http\Request;
+use App\Helpers\StatusHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 use Qoraiche\MailEclipse\MailEclipse;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductSelectionController extends Controller
 {
@@ -54,18 +54,18 @@ class ProductSelectionController extends Controller
         $term = $request->input('term');
         if (trim($term) != '') {
             $products = $products->where(function ($query) use ($term) {
-                $query->orWhere('sku', 'LIKE', '%'.$term.'%')
-                      ->orWhere('id', 'LIKE', '%'.$term.'%');
+                $query->orWhere('sku', 'LIKE', '%' . $term . '%')
+                      ->orWhere('id', 'LIKE', '%' . $term . '%');
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
                 }
 
-                $brand = \App\Brand::where('name', 'LIKE', '%'.$term.'%')->first();
+                $brand = \App\Brand::where('name', 'LIKE', '%' . $term . '%')->first();
                 if ($brand) {
                     $query = $query->orWhere('brand', '=', $brand->id);
                 }
 
-                $category = \App\Category::where('name', 'LIKE', '%'.$term.'%')->first();
+                $category = \App\Category::where('name', 'LIKE', '%' . $term . '%')->first();
                 if ($category) {
                     $query = $query->orWhere('category', '=', $category->id);
                 }
@@ -109,12 +109,12 @@ class ProductSelectionController extends Controller
         }
 
         if ($request->get('supplier')) {
-            $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id = '.$request->get('supplier').')');
+            $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id = ' . $request->get('supplier') . ')');
         }
 
         if ($request->get('size')) {
             $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
-                $query->where('size', $request->get('size'))->orWhere('size', 'LIKE', '%'.$request->get('size').',')->orWhere('size', 'LIKE', '%,'.$request->get('size').',%');
+                $query->where('size', $request->get('size'))->orWhere('size', 'LIKE', '%' . $request->get('size') . ',')->orWhere('size', 'LIKE', '%,' . $request->get('size') . ',%');
             });
         }
 
@@ -192,7 +192,7 @@ class ProductSelectionController extends Controller
 
         $productselection->detachMediaTags(config('constants.media_tags'));
         $media = MediaUploader::fromSource($request->file('image'))
-                                ->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+                                ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
                                 ->upload();
         $productselection->attachMedia($media, config('constants.media_tags'));
 
@@ -223,7 +223,7 @@ class ProductSelectionController extends Controller
     public function update(Request $request, Product $productselection)
     {
         $validations = [
-            'sku' => 'required|unique:products,sku,'.$productselection->id,
+            'sku' => 'required|unique:products,sku,' . $productselection->id,
         ];
 
         if ($request->input('oldImage') != 0) {
@@ -255,7 +255,7 @@ class ProductSelectionController extends Controller
             self::replaceImage($request, $productselection);
         } elseif ($request->oldImage == -1) {
             $media = MediaUploader::fromSource($request->file('image'))
-                                    ->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+                                    ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
                                     ->upload();
             $productselection->attachMedia($media, config('constants.media_tags'));
         }
@@ -287,7 +287,7 @@ class ProductSelectionController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
                                         ->upload();
                 $productselection->attachMedia($media, config('constants.media_tags'));
             }

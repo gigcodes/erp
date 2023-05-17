@@ -321,6 +321,16 @@
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$issue->id}}">
                 <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{ $issue->id }}')">Task Information: Update</a>
             </div>
+            
+            <button class="btn btn-sm mt-2 create-task-document" title="Create document" data-id="{{$issue->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm mt-2 show-created-task-document" title="Show created document" data-id="{{$issue->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                <i class="fa fa-key" aria-hidden="true"></i>
+            </button>
         </div>
     </td>
 </tr>

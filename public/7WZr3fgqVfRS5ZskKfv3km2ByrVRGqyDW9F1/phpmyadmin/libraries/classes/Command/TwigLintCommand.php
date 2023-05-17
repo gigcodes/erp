@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Command;
 
-use function array_push;
-use function closedir;
-use function count;
-use const DIRECTORY_SEPARATOR;
-use const E_USER_DEPRECATED;
-use function explode;
-use function file_get_contents;
-use function is_dir;
-use function is_file;
+use Twig\Source;
 use function max;
 use function min;
+use function count;
+use function is_dir;
+use function explode;
+use function is_file;
 use function opendir;
-use PhpMyAdmin\Template;
-use function preg_match;
 use function readdir;
-use function restore_error_handler;
-use function set_error_handler;
 use function sprintf;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Twig\Error\Error;
+use function closedir;
+use function array_push;
+use function preg_match;
+use PhpMyAdmin\Template;
+use const E_USER_DEPRECATED;
 use Twig\Loader\ArrayLoader;
-use Twig\Source;
+use const DIRECTORY_SEPARATOR;
+use function file_get_contents;
+use function set_error_handler;
+use function restore_error_handler;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command that will validate your template syntax and output encountered errors.
@@ -86,7 +86,7 @@ class TwigLintCommand extends Command
                 continue;
             }
 
-            $itemPath = $baseFolder.DIRECTORY_SEPARATOR.$file;
+            $itemPath = $baseFolder . DIRECTORY_SEPARATOR . $file;
 
             if (is_dir($itemPath)) {
                 array_push($foundFiles, ...$this->findFiles($itemPath));
@@ -130,7 +130,7 @@ class TwigLintCommand extends Command
         }
 
         try {
-            $filesInfo = $this->getFilesInfo(ROOT_PATH.'templates');
+            $filesInfo = $this->getFilesInfo(ROOT_PATH . 'templates');
         } finally {
             if ($showDeprecations) {
                 restore_error_handler();
@@ -191,7 +191,7 @@ class TwigLintCommand extends Command
 
         foreach ($filesInfo as $info) {
             if ($info['valid'] && $output->isVerbose()) {
-                $io->comment('<info>OK</info>'.($info['file'] ? sprintf(' in %s', $info['file']) : ''));
+                $io->comment('<info>OK</info>' . ($info['file'] ? sprintf(' in %s', $info['file']) : ''));
             } elseif (! $info['valid']) {
                 $errors++;
                 $this->renderException($io, $info['template'], $info['exception'], $info['file']);

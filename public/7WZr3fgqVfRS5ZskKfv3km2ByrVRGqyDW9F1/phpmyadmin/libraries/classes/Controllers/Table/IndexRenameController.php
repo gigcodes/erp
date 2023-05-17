@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use function is_array;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\Indexes;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Index;
+use function is_array;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\Table\Indexes;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 final class IndexRenameController extends AbstractController
 {

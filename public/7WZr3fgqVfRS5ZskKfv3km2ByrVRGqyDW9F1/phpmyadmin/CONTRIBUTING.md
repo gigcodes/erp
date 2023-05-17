@@ -12,7 +12,7 @@ We appreciate your effort to improve phpMyAdmin by submitting a bug report. Befo
 
 3. If you got some error, please **describe what happened** and add an error message. Reports like "I get an error when I clicked on some link" are useless.
 
-4. Provide easy steps to reproduce and if possible include your table structure (``SHOW CREATE TABLE `tbl_name`;``); if your problem implies specific data, attach a small export file for sample rows.
+4. Provide easy steps to reproduce and if possible include your table structure (`` SHOW CREATE TABLE `tbl_name`; ``); if your problem implies specific data, attach a small export file for sample rows.
 
 5. **Security problems** should not be reported here. See [our security page](https://www.phpmyadmin.net/security/).
 
@@ -24,7 +24,7 @@ Please report [bugs on GitHub][1].
 
 ## Patches submission
 
-Patches are welcome as [pull requests on GitHub][2].  Please include a
+Patches are welcome as [pull requests on GitHub][2]. Please include a
 Signed-off-by tag in the commit message (you can do this by passing [`--signoff`][4] parameter to Git).
 
 When creating the commit on GitHub or using some other tool which does not have
@@ -35,7 +35,6 @@ Example: `Signed-off-by: Jane Smith <jane.smith@example.org>`
 
 Note that by submitting patches with the Signed-off-by tag, you are giving
 permission to license the patch as GPLv2-or-later. See [the DCO file][3] for details.
-
 
 [2]: https://github.com/phpmyadmin/phpmyadmin/pulls
 [3]: https://github.com/phpmyadmin/phpmyadmin/blob/master/DCO

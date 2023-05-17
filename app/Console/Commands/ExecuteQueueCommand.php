@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\RedisQueue;
-use App\RedisQueueCommandExecutionLog;
 use Illuminate\Console\Command;
+use App\RedisQueueCommandExecutionLog;
 
 class ExecuteQueueCommand extends Command
 {
@@ -41,7 +41,7 @@ class ExecuteQueueCommand extends Command
     {
         try {
             $queue = RedisQueue::find($this->argument('id'));
-            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'horizon.sh '.$this->argument('command_tail');
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'horizon.sh ' . $this->argument('command_tail');
 
             $allOutput = [];
             $allOutput[] = $cmd;
@@ -49,9 +49,9 @@ class ExecuteQueueCommand extends Command
             if ($result == '') {
                 $result = 'No response';
             } elseif ($result == 0) {
-                $result = 'Command run success. Response '.$result;
+                $result = 'Command run success. Response ' . $result;
             } elseif ($result == 1) {
-                $result = 'Command run fail. Response '.$result;
+                $result = 'Command run fail. Response ' . $result;
             } else {
                 $result = is_array($result) ? json_encode($result, true) : $result;
             }

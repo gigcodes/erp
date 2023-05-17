@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
+use DB;
+use Redirect;
 use App\HsCode;
-use App\HsCodeGroup;
-use App\HsCodeGroupsCategoriesComposition;
-use App\HsCodeSetting;
 use App\Product;
 use App\Setting;
+use App\Category;
+use App\HsCodeGroup;
+use App\HsCodeSetting;
 use App\SimplyDutyCategory;
-use DB;
 use Illuminate\Http\Request;
+use App\HsCodeGroupsCategoriesComposition;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Redirect;
 
 class HsCodeController extends Controller
 {
@@ -76,7 +76,7 @@ class HsCodeController extends Controller
             }
 
             if ($request->combination != null) {
-                $query->where('composition', 'LIKE', '%'.$request->combination.'%');
+                $query->where('composition', 'LIKE', '%' . $request->combination . '%');
             }
 
             $productss = $query->orderBy('total', 'desc')->take(100)->get();
@@ -98,9 +98,9 @@ class HsCodeController extends Controller
                 }
 
                 $parentCategory = $product->product_category->title;
-                $name = $childCategory.' > '.$parentCategory;
+                $name = $childCategory . ' > ' . $parentCategory;
 
-                $hscodeSearchString = str_replace(['&gt;', '>'], '', $product->composition.' '.$name);
+                $hscodeSearchString = str_replace(['&gt;', '>'], '', $product->composition . ' ' . $name);
 
                 $hscode = HsCode::where('description', $hscodeSearchString)->first();
 
@@ -160,9 +160,9 @@ class HsCodeController extends Controller
             }
 
             $parentCategory = $category->title;
-            $name = $childCategory.' > '.$parentCategory;
+            $name = $childCategory . ' > ' . $parentCategory;
             if ($request->combination != null) {
-                $products = Product::select('composition')->where('category', $category->id)->where('category', '>', 3)->where('stock', 1)->where('composition', 'LIKE', '%'.$request->combination.'%')->whereNotNull('composition')->groupBy('composition')->limit(3)->get();
+                $products = Product::select('composition')->where('category', $category->id)->where('category', '>', 3)->where('stock', 1)->where('composition', 'LIKE', '%' . $request->combination . '%')->whereNotNull('composition')->groupBy('composition')->limit(3)->get();
             } else {
                 $products = Product::select('composition')->where('category', $category->id)->where('stock', 1)->groupBy('composition')->whereNotNull('composition')->where('composition', '!=', '')->limit(3)->get();
             }
@@ -170,7 +170,7 @@ class HsCodeController extends Controller
             foreach ($products as $product) {
                 //Check if product hscode exist
 
-                $hscodeSearchString = str_replace(['&gt;', '>'], '', $product->composition.' '.$name);
+                $hscodeSearchString = str_replace(['&gt;', '>'], '', $product->composition . ' ' . $name);
 
                 $hscode = HsCode::where('description', $hscodeSearchString)->first();
 

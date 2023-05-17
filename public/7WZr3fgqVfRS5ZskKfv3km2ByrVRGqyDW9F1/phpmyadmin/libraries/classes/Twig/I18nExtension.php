@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
-use PhpMyAdmin\Twig\Extensions\I18nExtension as TwigI18nExtension;
-use PhpMyAdmin\Twig\Extensions\Node\TransNode;
 use Twig\TwigFilter;
+use PhpMyAdmin\Twig\Extensions\Node\TransNode;
+use PhpMyAdmin\Twig\Extensions\I18nExtension as TwigI18nExtension;
 
 class I18nExtension extends TwigI18nExtension
 {

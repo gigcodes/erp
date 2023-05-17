@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function count;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Dbal\ResultInterface;
 use function sprintf;
+use PhpMyAdmin\Dbal\ResultInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 class SystemDatabase
 {
@@ -77,9 +77,9 @@ class SystemDatabase
         // Need to store new transformation details for VIEW
         $newTransformationsSql = sprintf(
             'INSERT INTO %s.%s ('
-            .'`db_name`, `table_name`, `column_name`, '
-            .'`comment`, `mimetype`, `transformation`, '
-            .'`transformation_options`) VALUES',
+            . '`db_name`, `table_name`, `column_name`, '
+            . '`comment`, `mimetype`, `transformation`, '
+            . '`transformation_options`) VALUES',
             Util::backquote($browserTransformationFeature->database),
             Util::backquote($browserTransformationFeature->columnInfo)
         );

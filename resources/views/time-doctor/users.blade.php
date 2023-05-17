@@ -62,7 +62,8 @@
                           <th width="10%">No</th>
                           <th width="20%">Email</th>
                           <th width="10%">Password</th>
-                          <th width="50%">Access Token</th>
+                          <th width="18%">Create DateTime</th>
+                          <th width="42%">Access Token</th>
                       </tr>
                     </thead>
                     <tbody id="account_list">                      
@@ -120,11 +121,46 @@
 
   @if(!empty($members))
   <div class="row">
-    <div class="col-md-12 pr-5 pl-5">
-    <button type="button" class="btn btn-secondary float-right-addbtn" id="add_account">+ Add Account</button>
-    <button type="button" class="btn btn-secondary float-right-addbtn" id="list_account"> List Account</button>
-    <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_users"> Refresh Users</button>
-    <table class="table table-bordered">
+
+    <div class="col-lg-8 col-12">
+      <form id="filter">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 col-12">
+            <input type="text" class="form-control" name="time_doctor_user_id" id="time_doctor_user_id" placeholder="Time Doctor User Id">
+          </div>
+          <div class="col-lg-4 col-md-6 col-12">
+            <input type="text" class="form-control" name="time_doctor_email" id="time_doctor_email" placeholder="Time Doctor Email">
+          </div>
+          <div class="col-lg-4 col-md-6 col-12">
+            <select class="form-control" name="time_doctor_account_id" id="time_doctor_account_id">
+              @foreach($accountList as $account)
+                <option value="{{$account->id}}">{{$account->time_doctor_email}}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-lg-4 col-md-6 col-12 mt-4 mb-4">
+            <select class="form-control" name="time_doctor_user" id="time_doctor_user">
+              @foreach($users as $user)
+                <option value="{{$user->id}}" >{{$user->name}}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-lg-4 col-12">
+              <button type="button" class="btn btn-image mt-4" onclick="submitSearch()"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+              <button type="button" class="btn btn-image mt-4" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" style="cursor: nwse-resize;"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-4 col-12">
+      <button type="button" class="btn btn-secondary float-right-addbtn" id="add_account">+ Add Account</button>
+      <button type="button" class="btn btn-secondary float-right-addbtn" id="list_account"> List Account</button>
+      <button type="button" class="btn btn-secondary float-right-addbtn" onclick="window.location.href='{{ route('time-doctor.create-account') }}'"> Create TimeDoctor Account</button>
+      <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_users"> Refresh Users</button>
+    </div>
+    <div class="col-md-12 pr-5 pl-5">    
+    <table class="table table-bordered" id="time-doctor-members">
       <thead>
         <tr>
           <th>#</th>
@@ -132,18 +168,20 @@
           <th>TimeDoctor User Id</th>
           <th>TimeDoctor Email</th>
           <th>TimeDoctor Account</th>
+          <th>Create DateTime</th>
           <th>User</th>
         </tr>
       </thead>
       @php  $no=1; @endphp
-      @foreach($members as $member)
       <tbody>
+      @foreach($members as $member)
         <tr>
           <td style="vertical-align:middle;">{{ $no++ }}</td>
           <td style="vertical-align:middle;">{{ $member->id }}</td>
           <td style="vertical-align:middle;">{{ $member->time_doctor_user_id }}</td>
           <td style="vertical-align:middle;">{{ $member->email }}</td>
           <td style="vertical-align:middle;">{{ $member->account_detail->time_doctor_email }}</td>
+          <td style="vertical-align:middle;">{{ $member->account_detail->created_at }}</td>
           <td style="vertical-align:middle;">
              <div class="form-group"style="margin-top: -10px;margin-bottom:-10px;">
                 <select onchange="saveUser(this)"class="form-control">
@@ -155,8 +193,8 @@
             </div>
           </td>
         </tr>
+        @endforeach
       </tbody>
-      @endforeach
     </table>
     <br>
     <hr>
@@ -301,5 +339,70 @@
     }
   });
 
+  $("#time_doctor_account_id").select2({
+      multiple: true,
+      placeholder: "Select account"
+    });
+  $("#time_doctor_user").select2({
+      multiple: true,
+      placeholder: "Select user"
+  });
+  $("#time_doctor_account_id").val(null);
+  $("#time_doctor_user").val(null);
+  $("#time_doctor_account_id, #time_doctor_user").trigger("change");
+
+  function submitSearch(){
+      src = "{{route('time-doctor.members')}}"
+      time_doctor_user_id = $('#time_doctor_user_id').val()
+      time_doctor_email = $('#time_doctor_email').val()
+      time_doctor_account_id = $('#time_doctor_account_id').val()
+      time_doctor_user = $('#time_doctor_user').val()
+      $.ajax({
+          url: src,
+          dataType: "json",
+          data: {
+            time_doctor_user_id,
+            time_doctor_email,
+            time_doctor_account_id,
+            time_doctor_user
+          },
+          beforeSend: function () {
+              $("#loading-image").show();
+          },
+
+      }).done(function (data) {
+          $("#loading-image").hide();
+          $("#time-doctor-members tbody").empty().html(data.tbody);
+          // $("#Referral_count").text(data.count);
+          // if (data.links.length > 10) {
+          //     $('ul.pagination').replaceWith(data.links);
+          // } else {
+          //     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+          // }
+
+      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          alert('No response from server');
+      });
+      
+  }
+
+  function resetSearch(){
+    $('#time_doctor_user_id').val("")
+    $('#time_doctor_email').val("")
+    $('#time_doctor_account_id').val(null)
+    $('#time_doctor_user').val(null)
+    $("#time_doctor_account_id, #time_doctor_user").trigger("change");
+    submitSearch();
+  }
+
 </script>
+<style>
+  .select2-search--inline {
+      display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+  }
+
+  .select2-search__field:placeholder-shown {
+      width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+  }
+</style>
 @endsection

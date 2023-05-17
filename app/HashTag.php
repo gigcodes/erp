@@ -14,7 +14,7 @@ class HashTag extends Model
      *
      * @SWG\Property(property="hashtag",type="string")
      */
-    protected $fillable = ['hashtag', 'instagram_account_id'];
+    protected $fillable = ['hashtag', 'platforms_id', 'instagram_account_id'];
 
     public function posts()
     {
@@ -24,5 +24,10 @@ class HashTag extends Model
     public function instagramPost()
     {
         return $this->hasMany(InstagramPosts::class, 'hashtag_id', 'id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\User::class, 'created_by', 'id');
     }
 }

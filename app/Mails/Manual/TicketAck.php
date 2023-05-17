@@ -19,10 +19,12 @@ class TicketAck extends Mailable
      */
     public $order;
 
+    public $fromMailer;
+
     public function __construct($ticket)
     {
         $this->ticket = $ticket;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**

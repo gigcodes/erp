@@ -41,7 +41,7 @@
 
     					<div class="form-group">
     						<strong>Provider:</strong>
-    						<input type="text" name="provider" class="form-control" value="{{ old('provider') }}" required>
+    						<input type="text" oninput="updateFields(this)" name="provider" class="form-control" value="{{ old('provider') }}" required>
 
     						@if ($errors->has('provider'))
     						<div class="alert alert-danger">{{$errors->first('provider')}}</div>
@@ -68,7 +68,7 @@
     						<div class="alert alert-danger">{{$errors->first('customer_support')}}</div>
     						@endif
     					</div>
-						
+
 						<div class="form-group">
     						<strong>Select Store:</strong>
     						<select class="form-control" name="store_website_id">
@@ -81,7 +81,7 @@
     						@if ($errors->has('customer_support'))
     						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
     						@endif
-    					</div> 
+    					</div>
 						<div class="form-group">
     						<strong>Default For:</strong>
     						<select class="form-control" name="default_for[]" multiple>
@@ -96,9 +96,24 @@
     						@endif
     					</div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="whatsapp-instance-id">
                             <strong>Instance Id:</strong>
                             <input type="text" name="instance_id" class="form-control" value="{{ old('instance_id') }}">
+                            @if ($errors->has('instance_id'))
+                                <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group" id="whatsapp-instance-id-dropdown">
+                            @php
+                                $allAccounts = [];
+                                if (isset($businessAccounts)) {
+                                    foreach($businessAccounts as $businessAccount) {
+                                        $allAccounts[$businessAccount->id] = $businessAccount->business_account_id . '(' . $businessAccount->business_phone_number .')';
+                                    }
+                                }
+                            @endphp
+                            <strong>Account</strong>
+                            {!! Form::select('instance_id', $allAccounts, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select account']) !!}
                             @if ($errors->has('instance_id'))
                                 <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
                             @endif

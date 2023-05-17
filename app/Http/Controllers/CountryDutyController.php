@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Duty\SimplyDuty;
 use Illuminate\Http\Request;
+use App\Library\Duty\SimplyDuty;
 use Illuminate\Support\Facades\Validator;
 
 class CountryDutyController extends Controller
@@ -40,7 +40,7 @@ class CountryDutyController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -95,7 +95,7 @@ class CountryDutyController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -158,15 +158,15 @@ class CountryDutyController extends Controller
         $records = \App\CountryDuty::leftJoin('duty_groups as dg', 'dg.id', 'country_duties.duty_group_id');
 
         if ($request->keyword != null) {
-            $records = $records->where('country_duties.hs_code', 'like', '%'.$request->keyword.'%');
+            $records = $records->where('country_duties.hs_code', 'like', '%' . $request->keyword . '%');
         }
 
         if ($request->destination != null) {
-            $records = $records->where('country_duties.destination', 'like', '%'.$request->destination.'%');
+            $records = $records->where('country_duties.destination', 'like', '%' . $request->destination . '%');
         }
 
         if ($request->group_name != null) {
-            $records = $records->where('dg.name', 'like', '%'.$request->group_name.'%');
+            $records = $records->where('dg.name', 'like', '%' . $request->group_name . '%');
         }
 
         $records = $records->select(['country_duties.*', 'dg.name as group_name', 'dg.duty as group_duty', 'dg.vat as group_vat'])->get();
@@ -178,7 +178,6 @@ class CountryDutyController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -195,7 +194,6 @@ class CountryDutyController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -213,7 +211,6 @@ class CountryDutyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)

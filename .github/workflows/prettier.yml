@@ -1,27 +1,31 @@
-name: Prettier Code Formatter
+name: Prettier
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
-  build:
-
+  prettier:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-      - name: node install
-        run: npm install -g npm@latest
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Prettier Install
-        run: npm install --save-dev --save-exact prettier
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          node-version: 16
+      - name: Install node modules
+        run: npm install
+      - name: Execute prettier
+        run: npm run format
+      - name: "Push the changes to Git"
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply Laravel Prettier Changes
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -10,6 +10,10 @@
         .select2.select2-container.select2-container--default {
             width: 100% !important;
         }  
+
+        div.pac-container {
+            z-index: 99999999999 !important;
+        }
     </style>
     <div class="col-md-12">
     <h4 class="page-heading">Google Locations (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign <button class="btn-image" onclick="window.location.href='/google-campaigns?account_id={{$account_id}}'">Back to campaign</button></h4>
@@ -75,7 +79,7 @@
     {{ $locations->links() }}
     </div>
 
-    <div class="modal fade" id="new_location" role="dialog" style="z-index: 3000;">
+    <div class="modal fade" id="new_location" role="dialog">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="container">
@@ -164,7 +168,7 @@
                                             <div class="form-group m-0 mb-5">
                                                 <label for="target_location_address" class="col-form-label">Address</label>
 
-                                                <input type="text" class="form-control" id="" name="target_location_address" placeholder="Enter a place name, address or coordinates">
+                                                <input type="text" class="form-control" id="target_location_address" name="target_location_address" placeholder="Enter a place name, address or coordinates">
                                                 {{-- <select class="form-control" id="" name="target_location_address" style="height: auto">
                                                     
                                                 </select> --}}
@@ -289,7 +293,21 @@
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{@$google_map_api_key}}&libraries=places"></script>
+
 <script>
+
+    function gm_authFailure() {
+        toastr["error"]('Google maps failed to load!');
+    }
+
+    function initialize() {
+      var input = document.getElementById('target_location_address');
+      new google.maps.places.Autocomplete(input);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
     $(document).ready(function() {
         $(document).on('change', '[name="target_location"]', function(event) {
             event.preventDefault();

@@ -6,9 +6,11 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use Exception;
+use Carbon\Carbon;
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 class DeveloperTask extends Model
 {
@@ -308,6 +310,13 @@ class DeveloperTask extends Model
         $type = 'start_date';
         $old = $this->start_date;
 
+        if (isset($this->estimate_date) && $this->estimate_date != '0000-00-00 00:00:00' && isset($new)) {
+            $newStartDate = Carbon::parse($new);
+            $estimateDate = Carbon::parse($this->estimate_date);
+            if ($newStartDate->gte($estimateDate)) {
+                throw new Exception('Start date must be less then Estimate date.');
+            }
+        }
         $count = DeveloperTaskHistory::query()
             ->where('model', \App\DeveloperTask::class)
             ->where('attribute', $type)
@@ -326,6 +335,14 @@ class DeveloperTask extends Model
     {
         $type = 'estimate_date';
         $old = $this->estimate_date;
+
+        if (isset($this->start_date) && $this->start_date != '0000-00-00 00:00:00' && isset($new)) {
+            $startDate = Carbon::parse($this->start_date);
+            $newEstimateDate = Carbon::parse($new);
+            if ($newEstimateDate->lte($startDate)) {
+                throw new Exception('Estimate date must be greater then start date.');
+            }
+        }
 
         $count = DeveloperTaskHistory::query()
             ->where('model', \App\DeveloperTask::class)
@@ -362,6 +379,11 @@ class DeveloperTask extends Model
 
     public static function getMessagePrefix($obj)
     {
-        return '#DEVTASK-'.$obj->id.'-'.$obj->subject.' => ';
+        return '#DEVTASK-' . $obj->id . '-' . $obj->subject . ' => ';
+    }
+
+    public function taskStatus()
+    {
+        return $this->hasOne(TaskStatus::class, 'name', 'status');
     }
 }

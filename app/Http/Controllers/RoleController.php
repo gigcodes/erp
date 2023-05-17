@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Permission;
 use App\Role;
-use function GuzzleHttp\json_encode;
+use App\Permission;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -41,7 +40,7 @@ class RoleController extends Controller
             ], 200);
         }
 
-        return view('roles.index', compact('roles','permission'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('roles.index', compact('roles', 'permission'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -59,7 +58,6 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -121,7 +119,6 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -163,24 +160,8 @@ class RoleController extends Controller
 
     public function search_role(Request $request)
     {
-        $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
-<<<<<<< HEAD
-        $permission_array = explode(',', $request->permission);
-
-        $html = '<strong>Permission:</strong><br/>';
-        foreach ($permission as $k => $value) {
-            $checked = '';
-            if (in_array($value['id'], $permission_array)) {
-                $checked = 'checked';
-            }
-
-            $html .= '<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'.$value['id'].'" '.$checked.'><span style="padding-left: 4px;">'.$value->name.'</span></label><br/>';
-        }
-
-        return json_encode($html);
-=======
+        $permission = Permission::where('name', 'LIKE', '%' . $request->search_role . '%')->get();
 
         return $permission;
->>>>>>> 75f724c53 (roles in pop up)
     }
 }

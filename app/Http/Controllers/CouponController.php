@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Coupon;
-use App\CouponCodeRuleLog;
-use App\CouponCodeRules;
-use App\Customer;
-use App\Helpers\SSP;
-use App\Http\Requests\CreateCouponRequest;
-use App\LogRequest;
-use App\Mails\AddCoupon;
 use App\Order;
-use App\StoreWebsite;
-use App\Website;
-use App\WebsiteStore;
-use App\WebsiteStoreViewValue;
-use Carbon\Carbon;
 use Exception;
+use App\Coupon;
+use App\Website;
+use App\Customer;
+use Carbon\Carbon;
+use App\LogRequest;
+use App\Helpers\SSP;
+use App\StoreWebsite;
+use App\WebsiteStore;
 use GuzzleHttp\Client;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\CouponCodeRules;
+use App\Mails\AddCoupon;
+use App\CouponCodeRuleLog;
 use Illuminate\Http\Request;
+use App\WebsiteStoreViewValue;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CreateCouponRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CouponController extends Controller
 {
@@ -110,7 +110,7 @@ class CouponController extends Controller
                 'formatter' => function ($d, $row) {
                     $discount = '';
                     if ($row['currency']) {
-                        $discount .= $row['currency'].' ';
+                        $discount .= $row['currency'] . ' ';
                     }
                     // if ($row['discount_fixed']) {
                     //     $discount .= $row['discount_fixed'] . ' fixed plus ';
@@ -249,7 +249,7 @@ class CouponController extends Controller
         $queryString = http_build_query($data);
 
         try {
-            $url = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?'.$queryString;
+            $url = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString;
             $response = $httpClient->get($url);
 
             Coupon::create($request->all());
@@ -298,7 +298,6 @@ class CouponController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -340,7 +339,7 @@ class CouponController extends Controller
         } catch (ModelNotFoundException $e) {
             return response(
                 json_encode([
-                    'message' => 'Did not find coupon with id: '.$id,
+                    'message' => 'Did not find coupon with id: ' . $id,
                 ]),
                 404
             );
@@ -378,7 +377,7 @@ class CouponController extends Controller
         $start = $request->start;
         $end = $request->end;
 
-        if (isset($couponId)) {
+        if (isset($couponId) && $couponId != 0) {
             $orders = Order::where('coupon_id', $couponId)
                 ->where('order_date', '>=', Carbon::parse($start))
                 ->where('order_date', '<=', Carbon::parse($end))
@@ -431,7 +430,7 @@ class CouponController extends Controller
 
         $count = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
-            $authorization = 'Authorization: Bearer '.$storeWebsite->api_token;
+            $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             $parameters = [];
@@ -491,7 +490,7 @@ class CouponController extends Controller
                 //"store_website_id" => $request->store_website_id
             ];
 
-            $url = $storeWebsite->magento_url.'/rest/V1/salesRules/';
+            $url = $storeWebsite->magento_url . '/rest/V1/salesRules/';
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -507,7 +506,7 @@ class CouponController extends Controller
 
             \Log::channel('listMagento')->info(print_r([$url, $storeWebsite->api_token, json_encode($parameters), $response], true));
             if ($result != false) {
-                if (isset($result->code)) {
+                if (isset($result->code) || isset($result->message)) {
                     return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
                 }
 
@@ -580,7 +579,7 @@ class CouponController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        $authorization = 'Authorization: Bearer '.$store_website_id->api_token;
+        $authorization = 'Authorization: Bearer ' . $store_website_id->api_token;
         $parameters = [];
         $parameters['coupon'] = [
             'code' => $code,
@@ -595,7 +594,7 @@ class CouponController extends Controller
             'extension_attributes' => json_encode('{}'),
         ];
 
-        $url = $store_website_id->magento_url.'/rest/V1/coupons';
+        $url = $store_website_id->magento_url . '/rest/V1/coupons';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -647,8 +646,8 @@ class CouponController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $store_website = StoreWebsite::where('id', $storeWebsiteID)->first();
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
-        $url = $store_website->magento_url.'/rest/V1/salesRules/salesRules/'.$id;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
+        $url = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $id;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -669,8 +668,8 @@ class CouponController extends Controller
 
         $rule_lists = CouponCodeRules::where('id', $id)->first();
         $store_website = StoreWebsite::where('id', $rule_lists->store_website_id)->first();
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
-        $url = $store_website->magento_url.'/rest/V1/salesRules/salesRules/'.$rule_lists->magento_rule_id;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
+        $url = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $rule_lists->magento_rule_id;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -721,9 +720,9 @@ class CouponController extends Controller
         ];
 
         $store_website = StoreWebsite::where('id', $rule_id->store_website_id)->first();
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
 
-        $url = $store_website->magento_url.'/rest/V1/coupons/generate';
+        $url = $store_website->magento_url . '/rest/V1/coupons/generate';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -773,7 +772,7 @@ class CouponController extends Controller
 
         $local_rules = CouponCodeRules::where('id', $request->rule_id)->first();
         $store_website = StoreWebsite::where('id', $local_rules->store_website_id)->first();
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
         $parameters = [];
         $parameters['rule'] = [
             'name' => $request->name_edit,
@@ -830,7 +829,7 @@ class CouponController extends Controller
             'simple_free_shipping' => '0',
         ];
 
-        $url = $store_website->magento_url.'/rest/V1/salesRules/'.$local_rules->magento_rule_id;
+        $url = $store_website->magento_url . '/rest/V1/salesRules/' . $local_rules->magento_rule_id;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
@@ -920,9 +919,9 @@ class CouponController extends Controller
         $local_rules = CouponCodeRules::where('id', $coupon->rule_id)->first();
         $store_website = StoreWebsite::where('id', $local_rules->store_website_id)->first();
 
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
         $parameters = ['codes' => [$coupon->code], 'ignoreInvalidCoupons' => true];
-        $url = $store_website->magento_url.'/rest/V1/coupons/deleteByCodes';
+        $url = $store_website->magento_url . '/rest/V1/coupons/deleteByCodes';
 
         $ch = curl_init();
 
@@ -998,7 +997,7 @@ class CouponController extends Controller
         $endDate = $request->expiration;
         $timeUsed = 6;
 
-        $authorization = 'Authorization: Bearer '.$store_website->api_token;
+        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
 
         $parameters = [];
         $parameters['rule'] = [
@@ -1057,7 +1056,7 @@ class CouponController extends Controller
             //"store_website_id" => $request->store_website_id
         ];
 
-        $url = $store_website->magento_url.'/rest/V1/salesRules/';
+        $url = $store_website->magento_url . '/rest/V1/salesRules/';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -1143,7 +1142,7 @@ class CouponController extends Controller
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
             'log_type' => 'send_to_user_intiate',
-            'message' => 'Sending coupon mail to '.$customerData->email,
+            'message' => 'Sending coupon mail to ' . $customerData->email,
         ]);
         $emailAddress = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
         $mailData['receiver_email'] = $customerData->email;
@@ -1176,7 +1175,7 @@ class CouponController extends Controller
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
             'log_type' => 'send_mail',
-            'message' => 'Mail was sent to '.$customerData->email,
+            'message' => 'Mail was sent to ' . $customerData->email,
         ]);
 
         return redirect()->route('coupons.index')->with('success', 'Email is send to the user');

@@ -2,9 +2,9 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\StoreWebsiteSeoFormat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreWebsiteSeoFormat;
 use Illuminate\Routing\Controller;
 
 class SeoController extends Controller
@@ -78,7 +78,6 @@ class SeoController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $storeWebsiteId)
     {

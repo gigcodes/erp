@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\MagentoDevscripUpdateLog;
 use Illuminate\Http\Request;
+use App\MagentoDevscripUpdateLog;
 
 class MagentoDevScripUpdateLogController extends Controller
 {
@@ -30,7 +30,6 @@ class MagentoDevScripUpdateLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class MagentoDevScripUpdateLogController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\MagentoDevscripUpdateLog  $magentoDevscripUpdateLog
      * @return \Illuminate\Http\Response
      */
     public function show(MagentoDevscripUpdateLog $magentoDevscripUpdateLog)
@@ -52,7 +50,6 @@ class MagentoDevScripUpdateLogController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\MagentoDevscripUpdateLog  $magentoDevscripUpdateLog
      * @return \Illuminate\Http\Response
      */
     public function edit(MagentoDevscripUpdateLog $magentoDevscripUpdateLog)
@@ -63,8 +60,6 @@ class MagentoDevScripUpdateLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\MagentoDevscripUpdateLog  $magentoDevscripUpdateLog
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, MagentoDevscripUpdateLog $magentoDevscripUpdateLog)
@@ -75,7 +70,6 @@ class MagentoDevScripUpdateLogController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\MagentoDevscripUpdateLog  $magentoDevscripUpdateLog
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoDevscripUpdateLog $magentoDevscripUpdateLog)

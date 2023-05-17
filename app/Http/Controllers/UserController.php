@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Customer;
-use App\EmailNotificationEmailDetails;
-use App\Helpers;
-use App\Hubstaff\HubstaffActivity;
-use App\Hubstaff\HubstaffPaymentAccount;
-use App\Payment;
-use App\PaymentMethod;
-use App\Permission;
-use App\Product;
+use DB;
+use Log;
+use Auth;
+use Hash;
+use Cache;
 use App\Role;
-use App\Setting;
 use App\Task;
 use App\User;
+use DateTime;
+use App\ApiKey;
+use App\Helpers;
+use App\Payment;
+use App\Product;
+use App\Setting;
+use App\Customer;
+use App\UserRate;
 use App\UserLogin;
+use Carbon\Carbon;
+use App\Permission;
 use App\UserLoginIp;
 use App\UserProduct;
-use App\UserRate;
 use App\UserSysyemIp;
+use App\PaymentMethod;
+use Illuminate\Support\Arr;
 use App\WebhookNotification;
-use Auth;
-use Cache;
-use Carbon\Carbon;
-use DateTime;
-use DB;
-use Hash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr; //Purpose : add MOdal - DEVTASK-4359
-use Log;
+use App\Hubstaff\HubstaffActivity;
+use App\EmailNotificationEmailDetails; //Purpose : add MOdal - DEVTASK-4359
+use App\Hubstaff\HubstaffPaymentAccount;
 
 class UserController extends Controller
 {
@@ -63,8 +63,8 @@ class UserController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('name', 'LIKE', '%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%')
-                ->orWhere('phone', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('name', 'LIKE', '%' . $request->term . '%')->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('phone', 'LIKE', '%' . $request->term . '%');
         }
 
         $data = $query->orderBy('name', 'asc')->paginate(25)->appends(request()->except(['page']));
@@ -107,7 +107,6 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -120,7 +119,7 @@ class UserController extends Controller
             'password' => 'required|same:confirm-password',
             'hourly_rate' => 'numeric',
             'currency' => 'string',
-
+            'timezone' => 'required',
         ]);
 
         $input = $request->all();
@@ -131,7 +130,7 @@ class UserController extends Controller
         if (empty($input['whatsapp_number'])) {
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
-                ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
+                ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
                 ->first();
             $input['whatsapp_number'] = $task_info->number;
         }
@@ -154,7 +153,7 @@ class UserController extends Controller
         $userRate->user_id = $user->id;
         $userRate->save();
 
-        return redirect()->to('/users/'.$user->id.'/edit')->with('success', 'User created successfully');
+        return redirect()->to('/users/' . $user->id . '/edit')->with('success', 'User created successfully');
     }
 
     /**
@@ -234,7 +233,6 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -243,9 +241,9 @@ class UserController extends Controller
         // dd($request->all());
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => 'required|email|unique:users,email,' . $id,
             'gmail' => 'sometimes|nullable|email',
-            'phone' => 'sometimes|nullable|integer|unique:users,phone,'.$id,
+            'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
             'password' => 'same:confirm-password',
             'roles' => 'required',
         ]);
@@ -397,7 +395,7 @@ class UserController extends Controller
         $user->products()->attach($products);
 
         if (count($products) >= $amount_assigned - 1) {
-            $message = 'You have successfully assigned '.count($products).' products';
+            $message = 'You have successfully assigned ' . count($products) . ' products';
 
             return redirect()->back()->with('success', $message);
         }
@@ -632,7 +630,7 @@ class UserController extends Controller
 
     public function checkUserLogins()
     {
-        Log::channel('customer')->info(Carbon::now().' begin checking users logins');
+        Log::channel('customer')->info(Carbon::now() . ' begin checking users logins');
         $users = User::all();
 
         foreach ($users as $user) {
@@ -641,7 +639,7 @@ class UserController extends Controller
                 $login = UserLogin::create(['user_id' => $user->id]);
             }
 
-            if (Cache::has('user-is-online-'.$user->id)) {
+            if (Cache::has('user-is-online-' . $user->id)) {
                 if ($login->logout_at) {
                     UserLogin::create(['user_id' => $user->id, 'login_at' => Carbon::now()]);
                 } elseif (! $login->login_at) {
@@ -654,7 +652,7 @@ class UserController extends Controller
             }
         }
 
-        Log::channel('customer')->info(Carbon::now().' end of checking users logins');
+        Log::channel('customer')->info(Carbon::now() . ' end of checking users logins');
     }
 
     public function searchUser(Request $request)
@@ -662,7 +660,7 @@ class UserController extends Controller
         $q = $request->input('q');
 
         $results = User::select('id', 'name', 'name AS text')
-            ->orWhere('name', 'LIKE', '%'.$q.'%')
+            ->orWhere('name', 'LIKE', '%' . $q . '%')
             ->offset(0)
             ->limit(15)
             ->get();
@@ -686,7 +684,7 @@ class UserController extends Controller
     public function addSystemIp(Request $request)
     {
         if ($request->ip) {
-            $shell_cmd = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f add -i '.$request->ip.' -c '.$request->get('comment', ''));
+            $shell_cmd = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f add -i ' . $request->ip . ' -c ' . $request->get('comment', ''));
 
             UserSysyemIp::create([
                 'index_txt' => $shell_cmd['index'] ?? 'null',
@@ -706,7 +704,7 @@ class UserController extends Controller
                     $user->save();
                     $params = [];
                     $params['user_id'] = $userID;
-                    $params['message'] = 'Your ip address '.$request->ip.'  whitelist request has been approved';
+                    $params['message'] = 'Your ip address ' . $request->ip . '  whitelist request has been approved';
                     // send chat message
                     $chat_message = \App\ChatMessage::create($params);
                     // send
@@ -725,7 +723,7 @@ class UserController extends Controller
         if ($request->usersystemid) {
             $row = UserSysyemIp::where('id', $request->usersystemid)->first();
             $userID = $row->user_id ?? null;
-            shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$row->index ?? '');
+            shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f delete -n ' . $row->index ?? '');
 
             $row->delete();
             if ($userID) {
@@ -768,7 +766,7 @@ class UserController extends Controller
                 if (! empty($ip_matches)) {
                     if ($chatMessage->user_id > 0 || $chatMessage->erp_user > 0) {
                         foreach ($ip_matches[0] as $key => $value) {
-                            $shell_cmd = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f add -i '.$value.' -c Added from chat messages');
+                            $shell_cmd = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f add -i ' . $value . ' -c Added from chat messages');
                             $userID = $chatMessage->erp_user ?? $chatMessage->user_id;
 
                             UserSysyemIp::create([
@@ -787,7 +785,7 @@ class UserController extends Controller
                                     $user->save();
                                     $params = [];
                                     $params['user_id'] = $userID;
-                                    $params['message'] = 'Your ip address '.$value.'  whitelist request has been approved';
+                                    $params['message'] = 'Your ip address ' . $value . '  whitelist request has been approved';
                                     // send chat message
                                     $chat_message = \App\ChatMessage::create($params);
                                     // send
@@ -806,16 +804,15 @@ class UserController extends Controller
 
         return response()->json(['code' => 500, 'message' => 'Message record not found!']);
     }
+
     public function bulkDeleteSystemIp(Request $request)
     {
-        try{
+        try {
             $systemIps = UserSysyemIp::get();
-            if(!empty($systemIps))
-            {
-                foreach($systemIps as $systemIp)
-                {
+            if (! empty($systemIps)) {
+                foreach ($systemIps as $systemIp) {
                     $userID = $systemIp->user_id ?? null;
-                    shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$systemIp->index ?? '');
+                    shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f delete -n ' . $systemIp->index ?? '');
                     $systemIp->delete();
                     if ($userID) {
                         $user = \App\User::find($userID);
@@ -825,38 +822,40 @@ class UserController extends Controller
                         }
                     }
                 }
+
                 return response()->json(['code' => 200, 'data' => 'Success']);
             }
         } catch (\Throwable $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
+
     public function addSystemIpFromEmail(Request $request)
     {
-        if($request->email)
-        {
-            $user = \App\User::where('email',$request->email)->first();
-            if(!empty($user))
-            {
+        if ($request->email) {
+            $user = \App\User::where('email', $request->email)->first();
+            if (! empty($user)) {
                 UserSysyemIp::create([
                     'index_txt' => $request->index_txt ?? 'null',
                     'ip' => $request->ip,
                     'user_id' => $user->id ?? null,
                     'notes' => $request->comment ?? null,
                     'source' => 'email',
-                ]);  
+                ]);
                 $user->is_whitelisted = 1;
-                $user->save(); 
+                $user->save();
                 $params = [];
                 $params['user_id'] = $user->id;
-                $params['message'] = 'Your ip address '.$request->ip.'  whitelist request has been approved';
+                $params['message'] = 'Your ip address ' . $request->ip . '  whitelist request has been approved';
                 // send chat message
                 $chat_message = \App\ChatMessage::create($params);
                 // send
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
             }
+
             return response()->json(['code' => 200, 'data' => 'Success']);
         }
+
         return response()->json(['code' => 500, 'data' => 'Error occured!']);
     }
 }

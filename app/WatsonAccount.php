@@ -5,8 +5,8 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Database\Eloquent\Model;
+use App\Library\Watson\Model as WatsonManager;
 
 class WatsonAccount extends Model
 {

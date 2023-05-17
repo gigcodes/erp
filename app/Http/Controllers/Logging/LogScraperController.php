@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Logging;
 
-use App\DeveloperTask;
-use App\Http\Controllers\Controller;
 use App\Setting;
+use App\DeveloperTask;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LogScraperController extends Controller
 {
@@ -28,31 +28,31 @@ class LogScraperController extends Controller
         }
 
         if (! empty($request->ip_address)) {
-            $scraperLogs = $scraperLogs->where('ip_address', 'LIKE', '%'.$request->ip_address.'%');
+            $scraperLogs = $scraperLogs->where('ip_address', 'LIKE', '%' . $request->ip_address . '%');
         }
 
         if (! empty($request->website)) {
-            $scraperLogs = $scraperLogs->where('website', 'LIKE', '%'.$request->website.'%');
+            $scraperLogs = $scraperLogs->where('website', 'LIKE', '%' . $request->website . '%');
         }
 
         if (! empty($request->url)) {
-            $scraperLogs = $scraperLogs->where('url', 'LIKE', '%'.$request->url.'%');
+            $scraperLogs = $scraperLogs->where('url', 'LIKE', '%' . $request->url . '%');
         }
 
         if (! empty($request->sku)) {
-            $scraperLogs = $scraperLogs->where('sku', 'LIKE', '%'.$request->sku.'%');
+            $scraperLogs = $scraperLogs->where('sku', 'LIKE', '%' . $request->sku . '%');
         }
 
         if (! empty($request->original_sku)) {
-            $scraperLogs = $scraperLogs->where('original_sku', 'LIKE', '%'.$request->original_sku.'%');
+            $scraperLogs = $scraperLogs->where('original_sku', 'LIKE', '%' . $request->original_sku . '%');
         }
 
         if (! empty($request->title)) {
-            $scraperLogs = $scraperLogs->where('title', 'LIKE', '%'.$request->title.'%');
+            $scraperLogs = $scraperLogs->where('title', 'LIKE', '%' . $request->title . '%');
         }
 
         if (! empty($request->validation_result)) {
-            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%'.$request->validation_result.'%');
+            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->validation_result . '%');
         }
 
         if (! empty($from) && ! empty($to)) {
@@ -95,7 +95,7 @@ class LogScraperController extends Controller
         }
 
         if (! empty($request->sku)) {
-            $logScrapper->where('sku', 'LIKE', '%'.$request->sku.'%');
+            $logScrapper->where('sku', 'LIKE', '%' . $request->sku . '%');
         }
 
         if (! empty($request->brand)) {
@@ -106,7 +106,7 @@ class LogScraperController extends Controller
             $cats = explode(',', $request->category);
             foreach ($cats as $cat) {
                 $cat = preg_replace('/\s+/', '', $cat);
-                $logScrapper->where('category', 'LIKE', '%'.$cat.'%');
+                $logScrapper->where('category', 'LIKE', '%' . $cat . '%');
             }
         }
 
@@ -174,7 +174,7 @@ class LogScraperController extends Controller
         }
 
         if (! empty($request->sku)) {
-            $logScrapper->where('sku', 'LIKE', '%'.$request->sku.'%');
+            $logScrapper->where('sku', 'LIKE', '%' . $request->sku . '%');
         }
 
         if (! empty($request->brand)) {
@@ -185,7 +185,7 @@ class LogScraperController extends Controller
             $cats = explode(',', $request->category);
             foreach ($cats as $cat) {
                 $cat = preg_replace('/\s+/', '', $cat);
-                $logScrapper->where('category', 'LIKE', '%'.$cat.'%');
+                $logScrapper->where('category', 'LIKE', '%' . $cat . '%');
             }
         }
 

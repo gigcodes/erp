@@ -15,8 +15,8 @@
 
 ### QRCode For Google2FA
 
-This is package is [Goole2FA](https://github.com/antonioribeiro/google2fa) integrated with a QRCode generator, providing an easy way to plot QRCode for your two factor authentication. For documentation related to Google2FA, please check the [documentation of the main package](https://github.com/antonioribeiro/google2fa).  
- 
+This is package is [Goole2FA](https://github.com/antonioribeiro/google2fa) integrated with a QRCode generator, providing an easy way to plot QRCode for your two factor authentication. For documentation related to Google2FA, please check the [documentation of the main package](https://github.com/antonioribeiro/google2fa).
+
 ## Requirements
 
 - PHP 5.4+
@@ -35,16 +35,16 @@ composer require pragmarx/google2fa-qrcode
 
 ```php
 use PragmaRX\Google2FAQRCode\Google2FA;
-    
+
 $google2fa = new Google2FA();
-    
+
 return $google2fa->generateSecretKey();
 ```
 
 ## Generating QRCodes
 
 The securer way of creating QRCode is to do it yourself or using a library. First you have to install the BaconQrCode package, as stated above, then you just have to generate the inline string using:
- 
+
 ```php
 $inlineUrl = $google2fa->getQRCodeInline(
     $companyName,
@@ -56,7 +56,7 @@ $inlineUrl = $google2fa->getQRCodeInline(
 And use it in your blade template this way:
 
 ```html
-<img src="{{ $inlineUrl }}">
+<img src="{{ $inlineUrl }}" />
 ```
 
 ```php
@@ -95,7 +95,7 @@ $valid = $google2fa->verifyKey($user->google2fa_secret, $secret);
 
 ## Replacing the QRCode rendering service
 
-If you want to use a different service, you just have to 
+If you want to use a different service, you just have to
 
 ```php
 $google2fa->setQrcodeService(new YourService())
@@ -108,10 +108,10 @@ $google2fa->setQrcodeService(new YourService())
 
 ## Built-in QRCode rendering services
 
-Beginning on version 2.0 the rendering service is optional, so you have to manually install one of those packages in order to generate QRCodes: 
+Beginning on version 2.0 the rendering service is optional, so you have to manually install one of those packages in order to generate QRCodes:
 
 - [BaconQrCode](https://github.com/Bacon/BaconQrCode): renders PNG by default, but requires the Imagick PHP extension. You can configure it to use different backends, but you'll have to instantiate it yourself.
-- [chillerlan/php-qrcode](https://github.com/chillerlan/php-qrcode): renders SVG by default and don't require the Imagick PHP extension, but can also generate other formats, which may require Imagick. 
+- [chillerlan/php-qrcode](https://github.com/chillerlan/php-qrcode): renders SVG by default and don't require the Imagick PHP extension, but can also generate other formats, which may require Imagick.
 
 ## Using a diffent image backend
 
@@ -122,7 +122,7 @@ $google2fa->setQrcodeService(
     )
 );
 
-// or 
+// or
 
 $google2fa = new Google2FA(
     new Bacon(

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
-use PhpMyAdmin\ConfigStorage\Relation;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 class RelationExtension extends AbstractExtension
 {

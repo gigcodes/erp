@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\BugEnvironment;
-use App\BugSeveritiesHistory;
-use App\BugSeverity;
-use App\BugStatus;
-use App\BugStatusHistory;
-use App\BugTracker;
-use App\BugTrackerHistory;
-use App\BugType;
-use App\BugUserHistory;
-use App\ChatMessage;
-use App\DeveloperTask;
-use App\SiteDevelopment;
-use App\SiteDevelopmentCategory;
-use App\StoreWebsite;
 use App\Task;
-use App\TestCase;
-use App\TestCaseHistory;
 use App\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Exception;
+use App\BugType;
+use App\TestCase;
+use App\BugStatus;
+use App\BugTracker;
+use App\BugSeverity;
+use App\ChatMessage;
+use App\StoreWebsite;
+use App\DeveloperTask;
+use App\BugEnvironment;
+use App\BugUserHistory;
+use App\SiteDevelopment;
+use App\TestCaseHistory;
+use App\BugStatusHistory;
+use App\GoogleScreencast;
+use App\BugTrackerHistory;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\BugSeveritiesHistory;
+use App\SiteDevelopmentCategory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Jobs\UploadGoogleDriveScreencast;
+use Illuminate\Support\Facades\Validator;
 
 class BugTrackingController extends Controller
 {
@@ -39,6 +42,7 @@ class BugTrackingController extends Controller
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->get();
+        $permission_users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
         return view(
             'bug-tracking.index', [
@@ -51,6 +55,7 @@ class BugTrackingController extends Controller
                 'users' => $users,
                 'allUsers' => $users,
                 'filterWebsites' => $filterWebsites,
+                'permission_users' => $permission_users,
             ]
         );
     }
@@ -123,13 +128,13 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        if ($keyword = request('url')) {
-            $records = $records->where(
-                function ($q) use ($keyword) {
-                    $q->where('url', 'LIKE', "%$keyword%");
-                }
-            );
-        }
+        // if ($keyword = request('url')) {
+        //     $records = $records->where(
+        //         function ($q) use ($keyword) {
+        //             $q->where('url', 'LIKE', "%$keyword%");
+        //         }
+        //     );
+        // }
         if ($keyword = request('website')) {
             $records = $records->WhereIn('website', $keyword);
         }
@@ -262,13 +267,13 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        if ($keyword = request('url')) {
-            $records = $records->where(
-                function ($q) use ($keyword) {
-                    $q->where('url', 'LIKE', "%$keyword%");
-                }
-            );
-        }
+        // if ($keyword = request('url')) {
+        //     $records = $records->where(
+        //         function ($q) use ($keyword) {
+        //             $q->where('url', 'LIKE', "%$keyword%");
+        //         }
+        //     );
+        // }
         if ($keyword = request('website')) {
             $records = $records->WhereIn('website', $keyword);
         }
@@ -511,7 +516,7 @@ class BugTrackingController extends Controller
             $bug, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                'url' => 'required|string',
+                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -529,7 +534,7 @@ class BugTrackingController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -603,7 +608,7 @@ class BugTrackingController extends Controller
             );
         } catch(\Exception $e) {
             $msg = $e->getMessage();
-            \Log::error('Bug Tracker Request Delete Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            \Log::error('Bug Tracker Request Delete Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
             $this->BugErrorLog($request->id ?? '', 'Bug Tracker Request Delete Error', $msg, 'bug_tracker');
 
             return response()->json(
@@ -621,7 +626,7 @@ class BugTrackingController extends Controller
             $request, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                'url' => 'required|string',
+                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -732,7 +737,7 @@ class BugTrackingController extends Controller
                 if (isset($bug_type_id) && $bug_type_id == 'null') {
                     $bug_type_id = '-';
                 }
-                $bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name').' '.$bug->bug_environment_ver;
+                $bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name') . ' ' . $bug->bug_environment_ver;
                 if (! isset($bug_environment_id)) {
                     $bug_environment_id = '-';
                 }
@@ -1153,7 +1158,7 @@ class BugTrackingController extends Controller
         $messages = ChatMessage::where('bug_id', $id)->orderBy('id', 'desc')->get();
         $messages = $messages->map(
             function ($message) {
-                $message->user_name = 'From '.User::where('id', $message->user_id)->value('name').' to '.User::where('id', $message->send_to_user_id)->value('name').' '.\Carbon\Carbon::parse($message->created_at)->format('Y-m-d H:i A');
+                $message->user_name = 'From ' . User::where('id', $message->user_id)->value('name') . ' to ' . User::where('id', $message->send_to_user_id)->value('name') . ' ' . \Carbon\Carbon::parse($message->created_at)->format('Y-m-d H:i A');
 
                 return $message;
             }
@@ -1245,8 +1250,8 @@ class BugTrackingController extends Controller
                     $name = $userData[0]['name'];
                 }
 
-                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'" data-summary="'.htmlentities($summary_txt).'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce.'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
-                <i class="fa fa-clone" aria-hidden="true"></i></button></td><td>&nbsp;'.$name.'</td><td  title="'.$module_id_txt.'" data-toggle="tooltip">&nbsp;'.$module_id.'</td><td  title="'.$website.'" data-toggle="tooltip">&nbsp;'.$website.'</td></tr>';
+                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="' . $bug_id . '" id="name="chkBugId' . $bug_id . '" data-summary="' . htmlentities($summary_txt) . '"  /></td><td  style="text-align:center">' . $bug_id . '</td><td title="' . $summary_txt . '" data-toggle="tooltip">&nbsp;' . $summary . '</td><td title="' . $step_to_reproduce_txt . '" data-toggle="tooltip">&nbsp;' . $step_to_reproduce . '</td><td>&nbsp;' . $url . ' <button type="button" class="btn btn-copy-url btn-sm" data-id="' . $bug_list[$i]['url'] . '">
+                <i class="fa fa-clone" aria-hidden="true"></i></button></td><td>&nbsp;' . $name . '</td><td  title="' . $module_id_txt . '" data-toggle="tooltip">&nbsp;' . $module_id . '</td><td  title="' . $website . '" data-toggle="tooltip">&nbsp;' . $website . '</td></tr>';
             }
         }
 
@@ -1258,7 +1263,7 @@ class BugTrackingController extends Controller
 
         $websiteCheckbox = '';
         foreach ($websiteData as $website) {
-            $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name['.$website->id.']" value="'.$website->title.' - '.$request->cat_title.'"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">'.$website->website.'</div></div>';
+            $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name[' . $website->id . ']" value="' . $website->title . ' - ' . $request->cat_title . '"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">' . $website->website . '</div></div>';
         }
 
         $data['websiteCheckbox'] = $websiteCheckbox;
@@ -1512,5 +1517,76 @@ class BugTrackingController extends Controller
                 'data' => $data,
             ]
         );
+    }
+
+    /**
+     * Upload a bug file to google drive
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'bug_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes',
+        ]);
+
+        $data = $request->all();
+        try {
+            foreach ($data['file'] as $file) {
+                DB::transaction(function () use ($file, $data) {
+                    $googleScreencast = new GoogleScreencast();
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::id();
+
+                    $googleScreencast->read = '';
+                    $googleScreencast->write = '';
+                    // if (isset($data['file_read'])) {
+                    //     $googleScreencast->read = implode(',', $data['file_read']);
+                    // }
+                    // if (isset($data['file_write'])) {
+                    //     $googleScreencast->write = implode(',', $data['file_write']);
+                    // }
+
+                    $googleScreencast->bug_id = $data['bug_id'];
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+                    // $googleScreencast->developer_task_id = $data['task_id'];
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, 'anyone');
+                });
+            }
+
+            return back()->with('success', 'File is Uploaded to Google Drive.');
+        } catch (Exception $e) {
+            return back()->with('error', 'Something went wrong. Please try again');
+        }
+    }
+
+    /**
+     * get the list of bugs file
+     */
+    public function getBugFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if (isset($request->bug_id)) {
+                $result = GoogleScreencast::where('bug_id', $request->bug_id)->orderBy('id', 'desc')->get();
+                if (isset($result) && count($result) > 0) {
+                    $result = $result->toArray();
+                }
+
+                return response()->json([
+                    'data' => view('bug-tracking.google-drive-list', compact('result'))->render(),
+                ]);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'data' => view('bug-tracking.google-drive-list', ['result' => null])->render(),
+            ]);
+        }
     }
 }

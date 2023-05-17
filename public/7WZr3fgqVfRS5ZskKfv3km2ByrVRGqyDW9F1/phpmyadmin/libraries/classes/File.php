@@ -4,42 +4,42 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use ZipArchive;
 use function __;
-use function basename;
-use function bin2hex;
-use function bzopen;
-use function bzread;
-use function extension_loaded;
-use function fclose;
 use function feof;
-use function file_get_contents;
+use function trim;
 use function fopen;
 use function fread;
-use function function_exists;
+use function bzopen;
+use function bzread;
+use function fclose;
 use function gzopen;
 use function gzread;
-use function is_link;
-use function is_readable;
-use function is_string;
-use function is_uploaded_file;
-use function mb_strcut;
-use function move_uploaded_file;
-use function ob_end_clean;
-use function ob_start;
-use function sprintf;
 use function strlen;
-use function tempnam;
-use function trim;
 use function unlink;
-use const UPLOAD_ERR_CANT_WRITE;
+use function bin2hex;
+use function is_link;
+use function sprintf;
+use function tempnam;
+use function basename;
+use function ob_start;
+use function is_string;
+use function mb_strcut;
+use const UPLOAD_ERR_OK;
+use function is_readable;
+use function ob_end_clean;
+use const UPLOAD_ERR_NO_FILE;
+use const UPLOAD_ERR_PARTIAL;
+use function function_exists;
+use const UPLOAD_ERR_INI_SIZE;
+use function extension_loaded;
+use function is_uploaded_file;
 use const UPLOAD_ERR_EXTENSION;
 use const UPLOAD_ERR_FORM_SIZE;
-use const UPLOAD_ERR_INI_SIZE;
-use const UPLOAD_ERR_NO_FILE;
+use function file_get_contents;
+use const UPLOAD_ERR_CANT_WRITE;
 use const UPLOAD_ERR_NO_TMP_DIR;
-use const UPLOAD_ERR_OK;
-use const UPLOAD_ERR_PARTIAL;
-use ZipArchive;
+use function move_uploaded_file;
 
 /**
  * File wrapper class
@@ -190,7 +190,7 @@ class File
             return false;
         }
 
-        return '0x'.bin2hex($result);
+        return '0x' . bin2hex($result);
     }
 
     /**
@@ -312,7 +312,6 @@ class File
      * @param  array  $file      the array
      * @param  string  $rownumber number of row to process
      * @param  string  $key       key to process
-     * @return array
      *
      * @static
      */
@@ -413,7 +412,7 @@ class File
         }
 
         $this->setName(
-            Util::userDir($GLOBALS['cfg']['UploadDir']).Core::securePath($name)
+            Util::userDir($GLOBALS['cfg']['UploadDir']) . Core::securePath($name)
         );
         if (@is_link((string) $this->getName())) {
             $this->errorMessage = Message::error(__('File is a symbolic link'));
@@ -566,8 +565,8 @@ class File
         $this->errorMessage = Message::error(sprintf(
             __(
                 'You attempted to load file with unsupported compression (%s). '
-                .'Either support for it is not implemented or disabled by your '
-                .'configuration.'
+                . 'Either support for it is not implemented or disabled by your '
+                . 'configuration.'
             ),
             $this->getCompression()
         ));

@@ -38,7 +38,7 @@ class FilterCompositionSpace extends Command
     public function handle()
     {
         //
-        \Log::info('Non breaking space issue started =>'.date('Y-m-d H:i:s'));
+        \Log::info('Non breaking space issue started =>' . date('Y-m-d H:i:s'));
         /*$compositions = \App\Compositions::all();
         if (! $compositions->isEmpty()) {
             foreach ($compositions as $composition) {
@@ -48,6 +48,6 @@ class FilterCompositionSpace extends Command
             }
         }*/
 
-        \Log::info('Non breaking space issue has been done =>'.date('Y-m-d H:i:s'));
+        \Log::info('Non breaking space issue has been done =>' . date('Y-m-d H:i:s'));
     }
 }

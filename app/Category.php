@@ -2,10 +2,10 @@
 
 namespace App;
 
-use App\Helpers\ProductHelper;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
+use App\Helpers\ProductHelper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use seo2websites\MagentoHelper\MagentoHelper;
 
 /**
@@ -84,8 +84,8 @@ class Category extends Model
 
     public static function website_name($name)
     {
-        $name = '"'.$name.'"';
-        $products = \App\ScrapedProducts::where('properties', 'like', '%'.$name.'%')->select('website')->distinct()->get()->pluck('website')->toArray();
+        $name = '"' . $name . '"';
+        $products = \App\ScrapedProducts::where('properties', 'like', '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
         $web_name = implode(', ', $products);
 
         return $web_name ? $web_name : '-';
@@ -117,7 +117,7 @@ class Category extends Model
 
         // No result? Try where like
         if ($dbResult->count() == 0) {
-            $dbResult = self::where('references', 'like', '%'.$keyword.'%')->whereNotIn('id', [self::UNKNOWN_CATEGORIES, 1])->get();
+            $dbResult = self::where('references', 'like', '%' . $keyword . '%')->whereNotIn('id', [self::UNKNOWN_CATEGORIES, 1])->get();
             $matchIds = [];
             foreach ($dbResult as $db) {
                 if ($db->references) {
@@ -243,7 +243,7 @@ class Category extends Model
 
                 // Update category path
                 if ($category !== null) {
-                    $categoryPath = $category->title.' > '.$categoryPath;
+                    $categoryPath = $category->title . ' > ' . $categoryPath;
                 }
             }
         }
@@ -1078,5 +1078,41 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(Product::class, 'category', 'id');
+    }
+
+    /**
+     * Static Function for generate a keyword sting with category and its sub category
+     * parent_id = 231 & 233 : 231 & 233 are ids of Root id called NEW and PREOWNED and we dont want t consider it in Sting
+     * id = 1, 143, 144, 211, 241, 366, 372 <- these are some unwanted ids od category which we dont want to keep in generated string
+     * ex: Select Category, Unknown Category, Ignore Category Reference, Ignore Category Reference,
+     * Level in this query is taken for we wanted to go deep till 4 levels for category and sub category
+     *
+     * @param  int  $level
+     */
+    public static function getCategoryHierarchyString($level = 4): array
+    {
+        $query = 'WITH RECURSIVE category_path AS(
+                        SELECT id, title, title AS generated_string, 1 AS level
+                        FROM categories
+                        WHERE parent_id IN (231, 233) AND id NOT IN (1, 143, 144, 211, 241, 366, 372)
+                        UNION ALL
+                    SELECT c.id, c.title, CONCAT(cp.generated_string, " ", c.title), cp.level + 1
+                    FROM categories c
+                    JOIN category_path cp ON  c.parent_id = cp.id
+                    WHERE cp.level < ' . $level . ')
+                    
+                    SELECT CONCAT(cp.generated_string, " ", ksv.keyword) AS combined_string
+                    FROM category_path cp
+                    CROSS JOIN keyword_search_variants ksv
+                    WHERE NOT EXISTS (
+                          SELECT 1 FROM categories c2
+                          WHERE c2.parent_id = cp.id
+                        )';
+
+        return DB::select($query);
+    }
+
+    public static function updateStatusIsHashtagsGeneratedCategories($category_id_arr) {
+        \DB::table('categories')->whereIn('id', $category_id_arr)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
     }
 }

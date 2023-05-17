@@ -1,49 +1,50 @@
 <?php
 
-use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Api;
+use App\Http\Controllers\Logging;
+use App\Http\Controllers\Products;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EnvController;
+use App\Http\Controllers\scrapperPhyhon;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
-use App\Http\Controllers\BrokenLinkCheckerController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ScrapController;
+use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\HashtagController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserLogController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FacebookController;
-use App\Http\Controllers\GoogleAffiliateController;
-use App\Http\Controllers\GoogleSearchController;
-use App\Http\Controllers\GoogleDeveloperController;
-use App\Http\Controllers\HashtagController;
-use App\Http\Controllers\InfluencersController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InstagramController;
-use App\Http\Controllers\InstagramPostsController;
-use App\Http\Controllers\InstantMessagingController;
-use App\Http\Controllers\LaravelLogController;
-use App\Http\Controllers\Logging;
-use App\Http\Controllers\MagentoCustomerReferenceController;
-use App\Http\Controllers\MissingBrandController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PriceComparisionController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductCropperController;
-use App\Http\Controllers\Products;
-use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\QuickSellController;
+use App\Http\Controllers\TemplatesController;
+use App\Http\Controllers\UpdateLogController;
+use App\Http\Controllers\LaravelLogController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\WeTransferController;
+use App\Http\Controllers\InfluencersController;
 use App\Http\Controllers\ResourceImgController;
-use App\Http\Controllers\ScrapController;
-use App\Http\Controllers\scrapperPhyhon;
-use App\Http\Controllers\ScrapStatisticsController;
 use App\Http\Controllers\SearchQueueController;
-use App\Http\Controllers\SimplyDutyCalculationController;
+use App\Http\Controllers\GoogleSearchController;
+use App\Http\Controllers\MissingBrandController;
+use App\Http\Controllers\SocialWebhookController;
+use App\Http\Controllers\InstagramPostsController;
+use App\Http\Controllers\ProductCropperController;
+use App\Http\Controllers\GoogleAffiliateController;
+use App\Http\Controllers\GoogleDeveloperController;
+use App\Http\Controllers\ScrapStatisticsController;
+use App\Http\Controllers\InstantMessagingController;
+use App\Http\Controllers\PriceComparisionController;
+use App\Http\Controllers\ProductTemplatesController;
+use App\Http\Controllers\BrokenLinkCheckerController;
 use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutyCurrencyController;
-use App\Http\Controllers\SocialWebhookController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\TemplatesController;
-use App\Http\Controllers\TwilioController;
-use App\Http\Controllers\UpdateLogController;
-use App\Http\Controllers\UserLogController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\WeTransferController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SimplyDutyCalculationController;
+use App\Http\Controllers\MagentoCustomerReferenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,8 @@ Route::post('mailinglist/add', [Api\v1\MailinglistController::class, 'add']);
  **/
 Route::post('fetch-credit-balance', [CustomerController::class, 'fetchCreditBalance']);
 Route::post('deduct-credit', [CustomerController::class, 'deductCredit']);
+Route::post('add-env', [EnvController::class, 'addEnv'])->name('add-env');
+Route::post('edit-env', [EnvController::class, 'editEnv'])->name('edit-env');
 
 Route::post('add-credit', [CustomerController::class, 'addCredit']);
 

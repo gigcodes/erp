@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Currency;
-use App\DeveloperTask;
-use App\Events\VoucherApproved;
-use App\Payment;
-use App\PaymentMethod;
-use App\PaymentReceipt;
+use Auth;
 use App\Task;
 use App\Team;
 use App\User;
+use App\Payment;
 use App\Voucher;
+use App\Currency;
+use App\ChatMessage;
+use App\DeveloperTask;
+use App\PaymentMethod;
+use App\PaymentReceipt;
 use App\VoucherCategory;
-use Auth;
 use Illuminate\Http\Request;
+use App\Events\VoucherApproved;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VoucherController extends Controller
@@ -173,7 +173,6 @@ class VoucherController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -195,7 +194,7 @@ class VoucherController extends Controller
             'number' => null,
             'user_id' => Auth::id(),
             'voucher_id' => $voucher->id,
-            'message' => $voucher->description.' '.$voucher->amount,
+            'message' => $voucher->description . ' ' . $voucher->amount,
         ];
         $message = ChatMessage::create($params);
 
@@ -265,7 +264,6 @@ class VoucherController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -355,8 +353,8 @@ class VoucherController extends Controller
     public function userSearch()
     {
         $term = request()->get('q', null);
-        $search = User::where('name', 'LIKE', '%'.$term.'%')
-            ->orWhere('email', 'LIKE', '%'.$term.'%')->get();
+        $search = User::where('name', 'LIKE', '%' . $term . '%')
+            ->orWhere('email', 'LIKE', '%' . $term . '%')->get();
 
         return response()->json($search);
     }
@@ -444,7 +442,7 @@ class VoucherController extends Controller
 
         $payment_method = PaymentMethod::find($input['payment_method_id']);
         $input['payment_receipt_id'] = $preceipt->id;
-        $message['message'] = 'Admin has given the payment of Payment Receipt #'.$preceipt->id.' and amount '.$request->amount.' '.$request->currency.' through '.$payment_method->name." \n Note: ".$request->note;
+        $message['message'] = 'Admin has given the payment of Payment Receipt #' . $preceipt->id . ' and amount ' . $request->amount . ' ' . $request->currency . ' through ' . $payment_method->name . " \n Note: " . $request->note;
         $message['user_id'] = $request->user_id;
         $message['status'] = 1;
 
@@ -486,7 +484,7 @@ class VoucherController extends Controller
 
         $file = $request->file('file');
 
-        $name = uniqid().'_'.trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
@@ -503,9 +501,9 @@ class VoucherController extends Controller
             $receipt = PaymentReceipt::find($request->id);
 
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('voucher/'.floor($request->id / config('constants.image_per_folder')))
+                    ->toDirectory('voucher/' . floor($request->id / config('constants.image_per_folder')))
                     ->upload();
                 $receipt->attachMedia($media, config('constants.media_tags'));
             }
@@ -664,7 +662,7 @@ class VoucherController extends Controller
 
                     $input['payment_receipt_id'] = $preceipt->id;
                     $input['amount'] = $amount;
-                    $message['message'] = 'Admin has given the payment of Payment Receipt #'.$preceipt->id.' and amount '.$amount.' '.$request->currency.' through '.$payment_method->name." \n Note: ".$request->note;
+                    $message['message'] = 'Admin has given the payment of Payment Receipt #' . $preceipt->id . ' and amount ' . $amount . ' ' . $request->currency . ' through ' . $payment_method->name . " \n Note: " . $request->note;
                     $message['user_id'] = $preceipt->user_id;
                     $message['status'] = 1;
 
@@ -710,10 +708,10 @@ class VoucherController extends Controller
         if (count($paymentData) > 0) {
             foreach ($paymentData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$history->id.'</td>';
-                $html .= '<td>'.$history->amount.'</td>';
-                $html .= '<td>'.$history->date.'</td>';
-                $html .= '<td>'.$history->description.'</td>';
+                $html .= '<td>' . $history->id . '</td>';
+                $html .= '<td>' . $history->amount . '</td>';
+                $html .= '<td>' . $history->date . '</td>';
+                $html .= '<td>' . $history->description . '</td>';
                 $html .= '</tr>';
 
                 $i++;

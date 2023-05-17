@@ -1,9 +1,39 @@
 {{--{{ dd($data) }}--}}
+@php
+    $enum = [
+        "App\DeveloperTask" => "DEVTASK-",
+        "App\Task" => "TASK-",
+    ];
+@endphp
 @foreach ($data as $key => $file)
 <tr>
     <td>{{ ++$i }}</td>
     <td>{{ $file->name }}</td>
-    <td>{{ $file->category }}</td>
+    <td>
+        {{-- $googleDocCategory     --}}
+        <select class="form-control select-multiple0 select-multiple2 update-category" name="type[]" data-docs_id="{{$file->id}}" data-placeholder="Select Category">
+            <option>Select category</option>
+            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                @foreach ($googleDocCategory as $key => $category)
+                    <option value="{{$key}}" {{$key == $file->category ? "selected" : ""}}>{{$category}}</option>
+                @endforeach
+            @endif
+        </select>
+    </td>
+    <td>
+        @if (isset($file->belongable_type))
+            {{$enum[$file->belongable_type] ?? ""}}{{$file->belongable_id}}
+        @else
+            -
+        @endif
+    </td>
+    <td>
+        @if (isset($file->created_by))
+            {{$file->user->name}}
+        @else
+            -
+        @endif
+    </td>
     <td>{{ $file->created_at }}</td>
     <td>
         @if($file->type === 'spreadsheet')

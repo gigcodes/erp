@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use App\Scraper;
-use App\ScrapRemark;
 use Carbon\Carbon;
+use App\ScrapRemark;
 use Illuminate\Console\Command;
 
 class ScraperNotCompletedAlert extends Command
@@ -40,20 +41,26 @@ class ScraperNotCompletedAlert extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $scrapers = Scraper::whereNull('last_completed_at')
                             ->orWhere('last_completed_at', '<',
                                 Carbon::now()->subHours(30)->toDateTimeString()
                             )->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Scraper query finished."]);
             if (count($scrapers)) {
                 foreach ($scrapers as $key => $item) {
                     $remark_entry = ScrapRemark::create([
                         'scraper_name' => $item->scraper_name,
                         'remark' => 'Scraper not completed',
                     ]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Scrap remark added."]);
                 }
             }
-        } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

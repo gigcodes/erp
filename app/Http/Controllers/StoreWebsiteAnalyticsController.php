@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreWebsite;
-use App\StoreWebsiteAnalytic;
 use File;
-use Illuminate\Http\Request;
 use Storage;
+use App\StoreWebsite;
+use Illuminate\Http\Request;
+use App\StoreWebsiteAnalytic;
 
 class StoreWebsiteAnalyticsController extends Controller
 {
@@ -24,12 +24,10 @@ class StoreWebsiteAnalyticsController extends Controller
             $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
             $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
 
-            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData','storeWebsites'));
+            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData', 'storeWebsites'));
         } catch (Exception $e) {
-            \Log::error('Account page ::'.$e->getMessage());
+            \Log::error('Account page ::' . $e->getMessage());
         }
-
-
     }
 
     public function create(Request $request)
@@ -38,7 +36,7 @@ class StoreWebsiteAnalyticsController extends Controller
             $rules = [
                 'website' => 'required',
                 'account_id' => 'required',
-//                'view_id' => 'required',
+                //                'view_id' => 'required',
                 'store_website_id' => 'required|integer',
             ];
 
@@ -73,7 +71,7 @@ class StoreWebsiteAnalyticsController extends Controller
                 if ($request->hasFile('google_service_account_json')) {
                     $GoogleServiceAccountJsonFile = $request->file('google_service_account_json');
                     $extension = $GoogleServiceAccountJsonFile->getClientOriginalExtension();
-                    $filename = $request->view_id.$GoogleServiceAccountJsonFile->getFilename().'.'.$extension;
+                    $filename = $request->view_id . $GoogleServiceAccountJsonFile->getFilename() . '.' . $extension;
                     // file will be uploaded to resources/analytics_files
                     Storage::disk('analytics_files')->put($filename, File::get($GoogleServiceAccountJsonFile));
                 }

@@ -31,7 +31,7 @@
               </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary btn-sm text-white mr-4" data-toggle="modal" data-target="#assetsCreateModal"><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm text-white mr-4 assets-create-modal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-xs ml-3 mr-3 mt-1" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
@@ -43,7 +43,7 @@
 
 
     <div class="mt-3 col-md-12">
-      <div class="infinite-scroll">
+      <div class="infinite-scroll" style="overflow-y: auto">
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -62,6 +62,10 @@
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
+                <th width="10%">Link</th>
+                <th width="10%">IP</th>
+
+                <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
           </thead>
@@ -101,20 +105,27 @@
                   <span class="show-short-usage-{{$asset->id}}">{{ Str::limit($asset->usage, 9, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
+                  <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
+                  <td>{{ $asset->ip }}</td>
+
+                  <td>{{ $asset->created_by }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
                 </td>
-
             </tr>
             <tr class="action-btn-tr-{{$asset->id}} d-none">
                 <td>Action</td>
                 <td colspan="15">
-                    <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" title="Edit Assets" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                    @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('asset-manager'))
+                      <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" title="Edit Assets" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                    @endif
                     <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
-                    {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-xs pull-left" title="Delete Assets"><i class="fa fa-trash"></i></button>
-                    {!! Form::close() !!}
+                    @if(auth()->user()->hasRole('Admin'))
+                      {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
+                      <button type="submit" class="btn btn-xs pull-left" title="Delete Assets"><i class="fa fa-trash"></i></button>
+                      {!! Form::close() !!}
+                    @endif
                     <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" title="Payment History" data-id="{{$asset->id}}">
                         <i class="fa fa-history"></i>
                     </button>
@@ -126,6 +137,10 @@
                     <button title="Response History" data-id="{{$asset->id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
                         <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
                     </button>
+                    @if(auth()->user()->hasRole('Admin'))
+                      <button type="button" class="btn btn-xs send-assets-email" data-toggle="modal" data-assetid="{{$asset->id}}" data-target="#assetsSendEmailModal" title="Send Email" ><i class="fa fa-envelope"></i></button>
+                      <button type="button" class="btn btn-xs assets-manager-record-permission" data-toggle="modal" data-assetid="{{$asset->id}}" data-target="#assetsPermissionModal" title="Record Permission" ><i class="fa fa-lock"></i></button>
+                    @endif
                 </td>
             </tr>
             @endforeach
@@ -223,6 +238,85 @@
       </div>
     </div>
 
+    <div id="assetsSendEmailModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="{{ route('asset.manage.send.email') }}" method="POST">
+            @csrf
+
+            <div class="modal-header">
+              <h4 class="modal-title">Send Email</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                  <input type="hidden" name="assets_manager_id" id="assets-manager-id">
+                    <label for="value">Send To(Users)</label>
+                    <select class="form-control select2" name="user_name" >
+                        <option value="">Select</option>
+                        @foreach($users as $key => $user)
+                          <option value="{{$user['id']}}">{{$user['name']}}</option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('user_name'))
+                    <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label for="value">From Mail</label>
+                    <select class="form-control" name="from_email" id="from_email" required>
+                        @foreach ($emailAddress as $emailAddress)
+                        <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('from_email'))
+                    <div class="alert alert-danger">{{$errors->first('from_email')}}</div>
+                    @endif
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Send</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div id="assetsPermissionModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="{{ route('asset.manage.records.permission') }}" method="POST">
+            @csrf
+
+            <div class="modal-header">
+              <h4 class="modal-title">Records Permission</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                  <input type="hidden" name="assets_manager_id" id="permission-assets-manager-id">
+                    <label for="value">Users</label>
+                    <select class="form-control select2" multiple id="asset_user_name" name="user_name[]" >
+                        <option value="">Select</option>
+                        @foreach($users as $key => $user)
+                          <option value="{{$user['id']}}">{{$user['name']}}</option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('user_name'))
+                    <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
+                    @endif
+                </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -232,6 +326,7 @@
   <script type="text/javascript">
     function Showactionbtn(id){
       $(".action-btn-tr-"+id).toggleClass('d-none')
+      $("#asset_user_name").select2('destroy');
     }
    $('.select-multiple').select2({width: '100%'});
     // $('ul.pagination').hide();
@@ -364,6 +459,8 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
+      $('#link').val(asset.link);
+      $('#client_id').val(asset.client_id);
       
       $('#ip_name_ins').val(asset.ip_name);
       
@@ -577,5 +674,49 @@
           $(".addInsServerUpdate").append(addInsServerUpdate);
       });
 
+      $(".send-assets-email, .assets-manager-record-permission").on("click", function(){
+        var assetid = $(this).data('assetid');
+        $("#assets-manager-id").val(assetid);
+        $("#permission-assets-manager-id").val(assetid);
+        $("#asset_user_name option:selected").removeAttr('selected');
+        $("#asset_user_name").select2();
+
+        $.ajax({
+              type: 'POST',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: "{{ route('assetsmanager.linkuser.list') }}",
+              data: {
+                asset_id:assetid,
+              },
+          }).done(response => {
+            var ids = response.data.userids;
+            ids = ids.split(',');
+            for (let index = 0; index < ids.length; index++) {
+              const element = ids[index];
+              $("#asset_user_name option[value="+element+"]").attr('selected', 'selected');
+            }
+            $("#asset_user_name").select2();
+
+          }).fail(function(response) {
+
+            alert('Could not fetch Log');
+          });
+      });
+
+      $(".assets-create-modal").on("click", function(){
+        var createPermission = "<?= userCan('assets-manager-create'); ?>";
+        if(createPermission){
+          $("#assetsCreateModal").modal("show");
+        }else{
+          $(".unauthorised").removeClass("hidden");
+          $(".unauthorised").html("<p> Unauthorised permission</p>")
+        }
+      });
+
+      $("#asset_user_name").select2({
+        placeholder: 'Select Users'
+      });
   </script>
 @endsection

@@ -35,6 +35,7 @@ class GoogleAdsCampaign extends Model
      * @SWG\Property(property="ad_rotation",type="sting")
      * @SWG\Property(property="campaign_response",type="sting")
      * @SWG\Property(property="status",type="sting")
+     * @SWG\Property(property="type",type="sting")
      */
     protected $table = 'googlecampaigns';
 
@@ -61,6 +62,7 @@ class GoogleAdsCampaign extends Model
         'status',
         'app_id',
         'app_store',
+        'type',
     ];
 
     const CAHANNEL_TYPE = [
@@ -84,9 +86,9 @@ class GoogleAdsCampaign extends Model
 
     public function googleAccount()
     {
-        return $this->belongsTo(GoogleAdsAccount::class,'account_id');
+        return $this->belongsTo(GoogleAdsAccount::class, 'account_id');
     }
-    
+
     public function account()
     {
         return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use ColorThief\ColorThief;
 use Illuminate\Console\Command;
 
@@ -46,7 +46,7 @@ class GraphicaImageCropper extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            $domC = ColorThief::getColor(__DIR__.'/image.jpg');
+            $domC = ColorThief::getColor(__DIR__ . '/image.jpg');
             dd($domC);
 
             $report->update(['end_time' => Carbon::now()]);

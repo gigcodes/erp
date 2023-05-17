@@ -17,29 +17,29 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_shift;
-use function class_exists;
-use function closedir;
-use function count;
-use function explode;
-use function ltrim;
-use function mb_strtolower;
-use function mb_substr;
-use function opendir;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Plugins\TransformationsInterface;
-use function preg_match;
-use function preg_replace;
-use function readdir;
-use function rtrim;
 use function sort;
-use function str_contains;
-use function str_replace;
-use function stripslashes;
-use function strlen;
 use function trim;
+use function count;
+use function ltrim;
+use function rtrim;
+use function strlen;
+use function explode;
+use function opendir;
+use function readdir;
 use function ucfirst;
 use function ucwords;
+use function closedir;
+use function mb_substr;
+use function preg_match;
+use function array_shift;
+use function str_replace;
+use function class_exists;
+use function preg_replace;
+use function str_contains;
+use function stripslashes;
+use function mb_strtolower;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Plugins\TransformationsInterface;
 
 /**
  * Transformations class
@@ -84,7 +84,7 @@ class Transformations
                 $rtrimmed = '';
                 while (($option = array_shift($transformOptions)) !== null) {
                     // ...,
-                    $trimmed .= ','.$option;
+                    $trimmed .= ',' . $option;
                     $rtrimmed = rtrim($trimmed);
                     if ($rtrimmed[strlen($rtrimmed) - 1] == "'") {
                         // ,...'
@@ -124,11 +124,11 @@ class Transformations
         ];
 
         foreach ($sub_dirs as $sd => $prefix) {
-            $handle = opendir(ROOT_PATH.'libraries/classes/Plugins/Transformations/'.$sd);
+            $handle = opendir(ROOT_PATH . 'libraries/classes/Plugins/Transformations/' . $sd);
 
             if (! $handle) {
-                $stack[$prefix.'transformation'] = [];
-                $stack[$prefix.'transformation_file'] = [];
+                $stack[$prefix . 'transformation'] = [];
+                $stack[$prefix . 'transformation_file'] = [];
 
                 continue;
             }
@@ -155,14 +155,14 @@ class Transformations
                 if (preg_match('|^[^.].*_.*_.*\.php$|', $file)) {
                     // File contains transformation functions.
                     $parts = explode('_', str_replace('.php', '', $file));
-                    $mimetype = $parts[0].'/'.$parts[1];
+                    $mimetype = $parts[0] . '/' . $parts[1];
                     $stack['mimetype'][$mimetype] = $mimetype;
 
-                    $stack[$prefix.'transformation'][] = $mimetype.': '.$parts[2];
-                    $stack[$prefix.'transformation_file'][] = $sd.$file;
+                    $stack[$prefix . 'transformation'][] = $mimetype . ': ' . $parts[2];
+                    $stack[$prefix . 'transformation_file'][] = $sd . $file;
                     if ($sd === '') {
-                        $stack['input_transformation'][] = $mimetype.': '.$parts[2];
-                        $stack['input_transformation_file'][] = $sd.$file;
+                        $stack['input_transformation'][] = $mimetype . ': ' . $parts[2];
+                        $stack['input_transformation_file'][] = $sd . $file;
                     }
                 } elseif (preg_match('|^[^.].*\.php$|', $file)) {
                     // File is a plain mimetype, no functions.
@@ -190,7 +190,7 @@ class Transformations
     {
         // get the transformation class name
         $class_name = explode('.php', $filename);
-        $class_name = 'PhpMyAdmin\\'.str_replace('/', '\\', mb_substr($class_name[0], 18));
+        $class_name = 'PhpMyAdmin\\' . str_replace('/', '\\', mb_substr($class_name[0], 18));
 
         return $class_name;
     }
@@ -203,7 +203,7 @@ class Transformations
      */
     public function getDescription($file)
     {
-        $include_file = 'libraries/classes/Plugins/Transformations/'.$file;
+        $include_file = 'libraries/classes/Plugins/Transformations/' . $file;
         /** @psalm-var class-string<TransformationsInterface> $class_name */
         $class_name = $this->getClassName($include_file);
         if (class_exists($class_name)) {
@@ -221,7 +221,7 @@ class Transformations
      */
     public function getName($file)
     {
-        $include_file = 'libraries/classes/Plugins/Transformations/'.$file;
+        $include_file = 'libraries/classes/Plugins/Transformations/' . $file;
         /** @psalm-var class-string<TransformationsInterface> $class_name */
         $class_name = $this->getClassName($include_file);
         if (class_exists($class_name)) {
@@ -292,19 +292,19 @@ class Transformations
         }
 
         $com_qry .= '`mimetype`, '
-                    .'`transformation`, '
-                    .'`transformation_options`, '
-                    .'`input_transformation`, '
-                    .'`input_transformation_options`'
-            .' FROM '.Util::backquote($browserTransformationFeature->database).'.'
-            .Util::backquote($browserTransformationFeature->columnInfo)
-            .' WHERE `db_name` = \''.$dbi->escapeString($db).'\''
-            .' AND `table_name` = \''.$dbi->escapeString($table).'\''
-            .' AND ( `mimetype` != \'\''.(! $strict ?
+                    . '`transformation`, '
+                    . '`transformation_options`, '
+                    . '`input_transformation`, '
+                    . '`input_transformation_options`'
+            . ' FROM ' . Util::backquote($browserTransformationFeature->database) . '.'
+            . Util::backquote($browserTransformationFeature->columnInfo)
+            . ' WHERE `db_name` = \'' . $dbi->escapeString($db) . '\''
+            . ' AND `table_name` = \'' . $dbi->escapeString($table) . '\''
+            . ' AND ( `mimetype` != \'\'' . (! $strict ?
                 ' OR `transformation` != \'\''
-                .' OR `transformation_options` != \'\''
-                .' OR `input_transformation` != \'\''
-                .' OR `input_transformation_options` != \'\'' : '').')';
+                . ' OR `transformation_options` != \'\''
+                . ' OR `input_transformation` != \'\''
+                . ' OR `input_transformation_options` != \'\'' : '') . ')';
         $result = $dbi->fetchResult($com_qry, 'column_name', null, DatabaseInterface::CONNECT_CONTROL);
 
         foreach ($result as $column => $values) {
@@ -317,12 +317,12 @@ class Transformations
             $dir = explode('/', $values['transformation']);
             $subdir = '';
             if (count($dir) === 2) {
-                $subdir = ucfirst($dir[0]).'/';
+                $subdir = ucfirst($dir[0]) . '/';
                 $values['transformation'] = $dir[1];
             }
 
             $values['transformation'] = $this->fixUpMime($values['transformation']);
-            $values['transformation'] = $subdir.$values['transformation'];
+            $values['transformation'] = $subdir . $values['transformation'];
             $result[$column] = $values;
         }
 
@@ -378,11 +378,11 @@ class Transformations
         $test_qry = '
              SELECT `mimetype`,
                     `comment`
-               FROM '.Util::backquote($browserTransformationFeature->database).'.'
-            .Util::backquote($browserTransformationFeature->columnInfo).'
-              WHERE `db_name`     = \''.$dbi->escapeString($db).'\'
-                AND `table_name`  = \''.$dbi->escapeString($table).'\'
-                AND `column_name` = \''.$dbi->escapeString($key).'\'';
+               FROM ' . Util::backquote($browserTransformationFeature->database) . '.'
+            . Util::backquote($browserTransformationFeature->columnInfo) . '
+              WHERE `db_name`     = \'' . $dbi->escapeString($db) . '\'
+                AND `table_name`  = \'' . $dbi->escapeString($table) . '\'
+                AND `column_name` = \'' . $dbi->escapeString($key) . '\'';
 
         $test_rs = $dbi->queryAsControlUser($test_qry);
 
@@ -391,47 +391,47 @@ class Transformations
 
             if (! $forcedelete && ($has_value || strlen($row['comment']) > 0)) {
                 $upd_query = 'UPDATE '
-                    .Util::backquote($browserTransformationFeature->database).'.'
-                    .Util::backquote($browserTransformationFeature->columnInfo)
-                    .' SET '
-                    .'`mimetype` = \''
-                    .$dbi->escapeString($mimetype).'\', '
-                    .'`transformation` = \''
-                    .$dbi->escapeString($transformation).'\', '
-                    .'`transformation_options` = \''
-                    .$dbi->escapeString($transformationOpts).'\', '
-                    .'`input_transformation` = \''
-                    .$dbi->escapeString($inputTransform).'\', '
-                    .'`input_transformation_options` = \''
-                    .$dbi->escapeString($inputTransformOpts).'\'';
+                    . Util::backquote($browserTransformationFeature->database) . '.'
+                    . Util::backquote($browserTransformationFeature->columnInfo)
+                    . ' SET '
+                    . '`mimetype` = \''
+                    . $dbi->escapeString($mimetype) . '\', '
+                    . '`transformation` = \''
+                    . $dbi->escapeString($transformation) . '\', '
+                    . '`transformation_options` = \''
+                    . $dbi->escapeString($transformationOpts) . '\', '
+                    . '`input_transformation` = \''
+                    . $dbi->escapeString($inputTransform) . '\', '
+                    . '`input_transformation_options` = \''
+                    . $dbi->escapeString($inputTransformOpts) . '\'';
             } else {
                 $upd_query = 'DELETE FROM '
-                    .Util::backquote($browserTransformationFeature->database)
-                    .'.'.Util::backquote($browserTransformationFeature->columnInfo);
+                    . Util::backquote($browserTransformationFeature->database)
+                    . '.' . Util::backquote($browserTransformationFeature->columnInfo);
             }
 
             $upd_query .= '
-                WHERE `db_name`     = \''.$dbi->escapeString($db).'\'
-                  AND `table_name`  = \''.$dbi->escapeString($table)
-                    .'\'
-                  AND `column_name` = \''.$dbi->escapeString($key)
-                    .'\'';
+                WHERE `db_name`     = \'' . $dbi->escapeString($db) . '\'
+                  AND `table_name`  = \'' . $dbi->escapeString($table)
+                    . '\'
+                  AND `column_name` = \'' . $dbi->escapeString($key)
+                    . '\'';
         } elseif ($has_value) {
             $upd_query = 'INSERT INTO '
-                .Util::backquote($browserTransformationFeature->database)
-                .'.'.Util::backquote($browserTransformationFeature->columnInfo)
-                .' (db_name, table_name, column_name, mimetype, '
-                .'transformation, transformation_options, '
-                .'input_transformation, input_transformation_options) '
-                .' VALUES('
-                .'\''.$dbi->escapeString($db).'\','
-                .'\''.$dbi->escapeString($table).'\','
-                .'\''.$dbi->escapeString($key).'\','
-                .'\''.$dbi->escapeString($mimetype).'\','
-                .'\''.$dbi->escapeString($transformation).'\','
-                .'\''.$dbi->escapeString($transformationOpts).'\','
-                .'\''.$dbi->escapeString($inputTransform).'\','
-                .'\''.$dbi->escapeString($inputTransformOpts).'\')';
+                . Util::backquote($browserTransformationFeature->database)
+                . '.' . Util::backquote($browserTransformationFeature->columnInfo)
+                . ' (db_name, table_name, column_name, mimetype, '
+                . 'transformation, transformation_options, '
+                . 'input_transformation, input_transformation_options) '
+                . ' VALUES('
+                . '\'' . $dbi->escapeString($db) . '\','
+                . '\'' . $dbi->escapeString($table) . '\','
+                . '\'' . $dbi->escapeString($key) . '\','
+                . '\'' . $dbi->escapeString($mimetype) . '\','
+                . '\'' . $dbi->escapeString($transformation) . '\','
+                . '\'' . $dbi->escapeString($transformationOpts) . '\','
+                . '\'' . $dbi->escapeString($inputTransform) . '\','
+                . '\'' . $dbi->escapeString($inputTransformOpts) . '\')';
         }
 
         if (isset($upd_query)) {
@@ -464,19 +464,19 @@ class Transformations
         }
 
         $delete_sql = 'DELETE FROM '
-            .Util::backquote($browserTransformationFeature->database).'.'
-            .Util::backquote($browserTransformationFeature->columnInfo)
-            .' WHERE ';
+            . Util::backquote($browserTransformationFeature->database) . '.'
+            . Util::backquote($browserTransformationFeature->columnInfo)
+            . ' WHERE ';
 
         if (($column != '') && ($table != '')) {
-            $delete_sql .= '`db_name` = \''.$db.'\' AND '
-                .'`table_name` = \''.$table.'\' AND '
-                .'`column_name` = \''.$column.'\' ';
+            $delete_sql .= '`db_name` = \'' . $db . '\' AND '
+                . '`table_name` = \'' . $table . '\' AND '
+                . '`column_name` = \'' . $column . '\' ';
         } elseif ($table != '') {
-            $delete_sql .= '`db_name` = \''.$db.'\' AND '
-                .'`table_name` = \''.$table.'\' ';
+            $delete_sql .= '`db_name` = \'' . $db . '\' AND '
+                . '`table_name` = \'' . $table . '\' ';
         } else {
-            $delete_sql .= '`db_name` = \''.$db.'\' ';
+            $delete_sql .= '`db_name` = \'' . $db . '\' ';
         }
 
         return (bool) $dbi->tryQuery($delete_sql);

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Import;
 
-use function implode;
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Html;
+use function implode;
+use function strtoupper;
 use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\SqlParser\Statement;
+use PhpMyAdmin\SqlParser\Utils\Query;
 use PhpMyAdmin\SqlParser\Statements\DeleteStatement;
 use PhpMyAdmin\SqlParser\Statements\UpdateStatement;
-use PhpMyAdmin\SqlParser\Utils\Query;
-use PhpMyAdmin\Url;
-use function strtoupper;
 
 final class SimulateDml
 {
@@ -103,15 +103,15 @@ final class SimulateDml
 
         $orderAndLimit = '';
         if (! empty($statement->order)) {
-            $orderAndLimit .= ' ORDER BY '.Query::getClause($statement, $parser->list, 'ORDER BY');
+            $orderAndLimit .= ' ORDER BY ' . Query::getClause($statement, $parser->list, 'ORDER BY');
         }
 
         if (! empty($statement->limit)) {
-            $orderAndLimit .= ' LIMIT '.Query::getClause($statement, $parser->list, 'LIMIT');
+            $orderAndLimit .= ' LIMIT ' . Query::getClause($statement, $parser->list, 'LIMIT');
         }
 
-        return 'SELECT * FROM '.implode(', ', $tableReferences).
-            ' WHERE '.$where.$orderAndLimit;
+        return 'SELECT * FROM ' . implode(', ', $tableReferences) .
+            ' WHERE ' . $where . $orderAndLimit;
     }
 
     /**
@@ -136,24 +136,24 @@ final class SimulateDml
                 $notEqualOperator = ' IS NOT ';
             }
 
-            $diff[] = $set->column.$notEqualOperator.$set->value;
+            $diff[] = $set->column . $notEqualOperator . $set->value;
         }
 
         if (! empty($diff)) {
-            $where .= ' AND ('.implode(' OR ', $diff).')';
+            $where .= ' AND (' . implode(' OR ', $diff) . ')';
         }
 
         $orderAndLimit = '';
         if (! empty($statement->order)) {
-            $orderAndLimit .= ' ORDER BY '.Query::getClause($statement, $parser->list, 'ORDER BY');
+            $orderAndLimit .= ' ORDER BY ' . Query::getClause($statement, $parser->list, 'ORDER BY');
         }
 
         if (! empty($statement->limit)) {
-            $orderAndLimit .= ' LIMIT '.Query::getClause($statement, $parser->list, 'LIMIT');
+            $orderAndLimit .= ' LIMIT ' . Query::getClause($statement, $parser->list, 'LIMIT');
         }
 
-        return 'SELECT '.implode(', ', $columns).
-            ' FROM '.implode(', ', $tableReferences).
-            ' WHERE '.$where.$orderAndLimit;
+        return 'SELECT ' . implode(', ', $columns) .
+            ' FROM ' . implode(', ', $tableReferences) .
+            ' WHERE ' . $where . $orderAndLimit;
     }
 }

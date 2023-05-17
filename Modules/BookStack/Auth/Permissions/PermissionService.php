@@ -2,17 +2,17 @@
 
 namespace Modules\BookStack\Auth\Permissions;
 
-use Illuminate\Database\Connection;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Support\Collection;
-use Modules\BookStack\Auth\Permissions;
-use Modules\BookStack\Auth\Role;
-use Modules\BookStack\Entities\Book;
-use Modules\BookStack\Entities\Chapter;
-use Modules\BookStack\Entities\Entity;
-use Modules\BookStack\Entities\EntityProvider;
 use Modules\BookStack\Ownable;
+use Modules\BookStack\Auth\Role;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Connection;
+use Modules\BookStack\Entities\Book;
+use Modules\BookStack\Entities\Entity;
+use Modules\BookStack\Auth\Permissions;
+use Modules\BookStack\Entities\Chapter;
+use Illuminate\Database\Eloquent\Builder;
+use Modules\BookStack\Entities\EntityProvider;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class PermissionService
 {
@@ -54,11 +54,7 @@ class PermissionService
     /**
      * PermissionService constructor.
      *
-     * @param  JointPermission  $jointPermission
      * @param  EntityPermission  $entityPermission
-     * @param  Role  $role
-     * @param  Connection  $db
-     * @param  EntityProvider  $entityProvider
      */
     public function __construct(
         JointPermission $jointPermission,
@@ -76,8 +72,6 @@ class PermissionService
 
     /**
      * Set the database connection
-     *
-     * @param  Connection  $connection
      */
     public function setConnection(Connection $connection)
     {
@@ -105,7 +99,6 @@ class PermissionService
     /**
      * Get a book via ID, Checks local cache
      *
-     * @param $bookId
      * @return Book
      */
     protected function getBook($bookId)
@@ -125,7 +118,6 @@ class PermissionService
     /**
      * Get a chapter via ID, Checks local cache
      *
-     * @param $chapterId
      * @return \BookStack\Entities\Book
      */
     protected function getChapter($chapterId)
@@ -287,7 +279,6 @@ class PermissionService
     /**
      * Rebuild the entity jointPermissions for a collection of entities.
      *
-     * @param  Collection  $entities
      *
      * @throws \Throwable
      */
@@ -300,8 +291,6 @@ class PermissionService
 
     /**
      * Build the entity jointPermissions for a particular role.
-     *
-     * @param  Role  $role
      */
     public function buildJointPermissionForRole(Role $role)
     {
@@ -322,8 +311,6 @@ class PermissionService
 
     /**
      * Delete the entity jointPermissions attached to a particular role.
-     *
-     * @param  Role  $role
      */
     public function deleteJointPermissionsForRole(Role $role)
     {
@@ -346,7 +333,6 @@ class PermissionService
     /**
      * Delete the entity jointPermissions for a particular entity.
      *
-     * @param  Entity  $entity
      *
      * @throws \Throwable
      */
@@ -399,7 +385,7 @@ class PermissionService
         $entityRestrictedMap = [];
         $permissionFetch = $this->entityPermission->newQuery();
         foreach ($entities as $entity) {
-            $entityRestrictedMap[$entity->getMorphClass().':'.$entity->id] = boolval($entity->getRawAttribute('restricted'));
+            $entityRestrictedMap[$entity->getMorphClass() . ':' . $entity->id] = boolval($entity->getRawAttribute('restricted'));
             $permissionFetch->orWhere(function ($query) use ($entity) {
                 $query->where('restrictable_id', '=', $entity->id)->where('restrictable_type', '=', $entity->getMorphClass());
             });
@@ -409,8 +395,8 @@ class PermissionService
         // Create a mapping of explicit entity permissions
         $permissionMap = [];
         foreach ($permissions as $permission) {
-            $key = $permission->restrictable_type.':'.$permission->restrictable_id.':'.$permission->role_id.':'.$permission->action;
-            $isRestricted = $entityRestrictedMap[$permission->restrictable_type.':'.$permission->restrictable_id];
+            $key = $permission->restrictable_type . ':' . $permission->restrictable_id . ':' . $permission->role_id . ':' . $permission->action;
+            $isRestricted = $entityRestrictedMap[$permission->restrictable_type . ':' . $permission->restrictable_id];
             $permissionMap[$key] = $isRestricted;
         }
 
@@ -418,7 +404,7 @@ class PermissionService
         $rolePermissionMap = [];
         foreach ($roles as $role) {
             foreach ($role->permissions as $permission) {
-                $rolePermissionMap[$role->getRawAttribute('id').':'.$permission->getRawAttribute('name')] = true;
+                $rolePermissionMap[$role->getRawAttribute('id') . ':' . $permission->getRawAttribute('name')] = true;
             }
         }
 
@@ -461,8 +447,6 @@ class PermissionService
      * Create entity permission data for an entity and role
      * for a particular action.
      *
-     * @param  Entity  $entity
-     * @param  Role  $role
      * @param  string  $action
      * @param  array  $permissionMap
      * @param  array  $rolePermissionMap
@@ -470,9 +454,9 @@ class PermissionService
      */
     protected function createJointPermissionData(Entity $entity, Role $role, $action, $permissionMap, $rolePermissionMap)
     {
-        $permissionPrefix = (strpos($action, '-') === false ? ($entity->getType().'-') : '').$action;
-        $roleHasPermission = isset($rolePermissionMap[$role->getRawAttribute('id').':'.$permissionPrefix.'-all']);
-        $roleHasPermissionOwn = isset($rolePermissionMap[$role->getRawAttribute('id').':'.$permissionPrefix.'-own']);
+        $permissionPrefix = (strpos($action, '-') === false ? ($entity->getType() . '-') : '') . $action;
+        $roleHasPermission = isset($rolePermissionMap[$role->getRawAttribute('id') . ':' . $permissionPrefix . '-all']);
+        $roleHasPermissionOwn = isset($rolePermissionMap[$role->getRawAttribute('id') . ':' . $permissionPrefix . '-own']);
         $explodedAction = explode('-', $action);
         $restrictionAction = end($explodedAction);
 
@@ -516,15 +500,11 @@ class PermissionService
     /**
      * Check for an active restriction in an entity map.
      *
-     * @param $entityMap
-     * @param  Entity  $entity
-     * @param  Role  $role
-     * @param $action
      * @return bool
      */
     protected function mapHasActiveRestriction($entityMap, Entity $entity, Role $role, $action)
     {
-        $key = $entity->getMorphClass().':'.$entity->getRawAttribute('id').':'.$role->getRawAttribute('id').':'.$action;
+        $key = $entity->getMorphClass() . ':' . $entity->getRawAttribute('id') . ':' . $role->getRawAttribute('id') . ':' . $action;
 
         return isset($entityMap[$key]) ? $entityMap[$key] : false;
     }
@@ -534,10 +514,6 @@ class PermissionService
      * Used to build data for bulk insertion.
      *
      * @param  \BookStack\Entities\Entity  $entity
-     * @param  Role  $role
-     * @param $action
-     * @param $permissionAll
-     * @param $permissionOwn
      * @return array
      */
     protected function createJointPermissionDataArray(Entity $entity, Role $role, $action, $permissionAll, $permissionOwn)
@@ -556,8 +532,6 @@ class PermissionService
     /**
      * Checks if an entity has a restriction set upon it.
      *
-     * @param  Ownable  $ownable
-     * @param $permission
      * @return bool
      */
     public function checkOwnableUserAccess(Ownable $ownable, $permission)
@@ -572,8 +546,8 @@ class PermissionService
 
         // Handle non entity specific jointPermissions
         if (in_array($explodedPermission[0], $nonJointPermissions)) {
-            $allPermission = $this->currentUser() && $this->currentUser()->can($permission.'-all');
-            $ownPermission = $this->currentUser() && $this->currentUser()->can($permission.'-own');
+            $allPermission = $this->currentUser() && $this->currentUser()->can($permission . '-all');
+            $ownPermission = $this->currentUser() && $this->currentUser()->can($permission . '-own');
             $this->currentAction = 'view';
             $isOwner = $this->currentUser() && $this->currentUser()->id === $ownable->created_by;
 
@@ -595,7 +569,6 @@ class PermissionService
      * Checks if a user has the given permission for any items in the system.
      * Can be passed an entity instance to filter on a specific type.
      *
-     * @param  string  $permission
      * @param  string  $entityClass
      * @return bool
      */
@@ -631,7 +604,6 @@ class PermissionService
      * parent tree.
      *
      * @param  \BookStack\Entities\Entity  $entity
-     * @param $action
      * @return bool|mixed
      */
     public function checkIfRestrictionsSet(Entity $entity, $action)
@@ -650,7 +622,6 @@ class PermissionService
      * The general query filter to remove all entities
      * that the current user does not have access to.
      *
-     * @param $query
      * @return mixed
      */
     protected function entityRestrictionQuery($query)
@@ -744,7 +715,6 @@ class PermissionService
     /**
      * Filter items that have entities set as a polymorphic relation.
      *
-     * @param $query
      * @param  string  $tableName
      * @param  string  $entityIdColumn
      * @param  string  $entityTypeColumn
@@ -759,8 +729,8 @@ class PermissionService
         $q = $query->where(function ($query) use ($tableDetails) {
             $query->whereExists(function ($permissionQuery) use (&$tableDetails) {
                 $permissionQuery->select('id')->from('joint_permissions')
-                    ->whereRaw('joint_permissions.entity_id='.$tableDetails['tableName'].'.'.$tableDetails['entityIdColumn'])
-                    ->whereRaw('joint_permissions.entity_type='.$tableDetails['tableName'].'.'.$tableDetails['entityTypeColumn'])
+                    ->whereRaw('joint_permissions.entity_id=' . $tableDetails['tableName'] . '.' . $tableDetails['entityIdColumn'])
+                    ->whereRaw('joint_permissions.entity_type=' . $tableDetails['tableName'] . '.' . $tableDetails['entityTypeColumn'])
                     ->where('action', '=', $this->currentAction)
                     ->whereIn('role_id', $this->getRoles())
                     ->where(function ($query) {
@@ -780,10 +750,6 @@ class PermissionService
      * Add conditions to a query to filter the selection to related entities
      * where permissions are granted.
      *
-     * @param $entityType
-     * @param $query
-     * @param $tableName
-     * @param $entityIdColumn
      * @return mixed
      */
     public function filterRelatedEntity($entityType, $query, $tableName, $entityIdColumn)
@@ -797,7 +763,7 @@ class PermissionService
             $query->where(function ($query) use (&$tableDetails, $pageMorphClass) {
                 $query->whereExists(function ($permissionQuery) use (&$tableDetails, $pageMorphClass) {
                     $permissionQuery->select('id')->from('joint_permissions')
-                        ->whereRaw('joint_permissions.entity_id='.$tableDetails['tableName'].'.'.$tableDetails['entityIdColumn'])
+                        ->whereRaw('joint_permissions.entity_id=' . $tableDetails['tableName'] . '.' . $tableDetails['entityIdColumn'])
                         ->where('entity_type', '=', addslashes($pageMorphClass))
                         ->where('action', '=', $this->currentAction)
                         ->whereIn('role_id', $this->getRoles())

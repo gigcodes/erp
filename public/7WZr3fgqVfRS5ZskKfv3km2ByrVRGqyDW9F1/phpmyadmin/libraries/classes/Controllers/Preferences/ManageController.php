@@ -5,35 +5,35 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Preferences;
 
 use function __;
-use function array_merge;
 use function define;
-use function file_exists;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\File;
+use PhpMyAdmin\Util;
 use function is_array;
-use function is_uploaded_file;
-use function json_decode;
-use function json_encode;
-use const JSON_PRETTY_PRINT;
+use PhpMyAdmin\Config;
+use const PHP_URL_PATH;
 use function mb_strpos;
 use function mb_substr;
 use function parse_url;
-use const PHP_URL_PATH;
-use PhpMyAdmin\Config;
-use PhpMyAdmin\Config\ConfigFile;
-use PhpMyAdmin\Config\Forms\User\UserFormList;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\File;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\ThemeManager;
-use PhpMyAdmin\UserPreferences;
-use PhpMyAdmin\Util;
-use function str_replace;
-use const UPLOAD_ERR_OK;
 use function urlencode;
+use PhpMyAdmin\Message;
+use const UPLOAD_ERR_OK;
 use function var_export;
+use PhpMyAdmin\Template;
+use function array_merge;
+use function file_exists;
+use function json_decode;
+use function json_encode;
+use function str_replace;
+use const JSON_PRETTY_PRINT;
+use PhpMyAdmin\ThemeManager;
+use function is_uploaded_file;
+use PhpMyAdmin\UserPreferences;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Config\ConfigFile;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Config\Forms\User\UserFormList;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * User preferences management page.
@@ -74,7 +74,7 @@ class ManageController extends AbstractController
         if (isset($_POST['submit_export'], $_POST['export_type']) && $_POST['export_type'] === 'text_file') {
             // export to JSON file
             $this->response->disable();
-            $filename = 'phpMyAdmin-config-'.urlencode(Core::getenv('HTTP_HOST')).'.json';
+            $filename = 'phpMyAdmin-config-' . urlencode(Core::getenv('HTTP_HOST')) . '.json';
             Core::downloadHeader($filename, 'application/json');
             $settings = $this->userPreferences->load();
             echo json_encode($settings['config_data'], JSON_PRETTY_PRINT);
@@ -85,14 +85,14 @@ class ManageController extends AbstractController
         if (isset($_POST['submit_export'], $_POST['export_type']) && $_POST['export_type'] === 'php_file') {
             // export to JSON file
             $this->response->disable();
-            $filename = 'phpMyAdmin-config-'.urlencode(Core::getenv('HTTP_HOST')).'.php';
+            $filename = 'phpMyAdmin-config-' . urlencode(Core::getenv('HTTP_HOST')) . '.php';
             Core::downloadHeader($filename, 'application/php');
             $settings = $this->userPreferences->load();
-            echo '/* '.__('phpMyAdmin configuration snippet')." */\n\n";
-            echo '/* '.__('Paste it to your config.inc.php')." */\n\n";
+            echo '/* ' . __('phpMyAdmin configuration snippet') . " */\n\n";
+            echo '/* ' . __('Paste it to your config.inc.php') . " */\n\n";
             foreach ($settings['config_data'] as $key => $val) {
-                echo '$cfg[\''.str_replace('/', '\'][\'', $key).'\'] = ';
-                echo var_export($val, true).";\n";
+                echo '$cfg[\'' . str_replace('/', '\'][\'', $key) . '\'] = ';
+                echo var_export($val, true) . ";\n";
             }
 
             return;
@@ -264,7 +264,7 @@ class ManageController extends AbstractController
         echo $this->template->render('preferences/manage/main', [
             'error' => $error,
             'max_upload_size' => $GLOBALS['config']->get('max_upload_size'),
-            'exists_setup_and_not_exists_config' => @file_exists(ROOT_PATH.'setup/index.php')
+            'exists_setup_and_not_exists_config' => @file_exists(ROOT_PATH . 'setup/index.php')
                 && ! @file_exists(CONFIG_FILE),
         ]);
 

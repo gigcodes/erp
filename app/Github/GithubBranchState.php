@@ -8,16 +8,18 @@ class GithubBranchState extends Model
 {
     protected $primaryKey = ['repository_id', 'branch_name'];
 
-     protected $hidden = [
-        'created_at', 'updated_at'
+    protected $hidden = [
+        'created_at', 'updated_at',
     ];
 
     public $incrementing = false;
 
     protected $fillable = [
+        'github_organization_id',
         'repository_id',
         'branch_name',
         'ahead_by',
+        'status',
         'behind_by',
         'last_commit_author_username',
         'last_commit_time',

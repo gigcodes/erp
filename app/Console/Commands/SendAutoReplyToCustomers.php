@@ -3,15 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Brand;
+use App\Product;
 use App\Category;
+use App\Customer;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\Compositions;
 use App\CronJobReport;
-use App\Customer;
-use App\Product;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\LogHelper;
 
 class SendAutoReplyToCustomers extends Command
 {
@@ -50,11 +51,13 @@ class SendAutoReplyToCustomers extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
 
             $messagesIds = DB::table('chat_messages')
                 ->selectRaw('MAX(id) as id, customer_id')
@@ -67,9 +70,10 @@ class SendAutoReplyToCustomers extends Command
                 })
                 ->get();
 
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query finished."]);
             foreach ($messagesIds as $messagesId) {
                 $customer = Customer::where('id', $messagesId->customer_id)->whereNotNull('gender')->first();
-
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer query finished."]);
                 if (! $customer) {
                     continue;
                 }
@@ -81,7 +85,7 @@ class SendAutoReplyToCustomers extends Command
                             ->orWhereNull('user_id');
                     })
                     ->first();
-
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message query finished."]);
                 if (! $message) {
                     continue;
                 }
@@ -129,6 +133,7 @@ class SendAutoReplyToCustomers extends Command
                 }
 
                 $products = $products->where('is_without_image', 0)->take(25)->get();
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "Product query finished."]);
 
                 $messageToSend = ' ';
 
@@ -139,6 +144,7 @@ class SendAutoReplyToCustomers extends Command
                 $chatMessage->status = 10;
                 $chatMessage->approved = 0;
                 $chatMessage->save();
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message added."]);
 
                 foreach ($products as $product) {
                     $image = $product->getMedia(config('constants.media_tags'))->first();
@@ -148,11 +154,16 @@ class SendAutoReplyToCustomers extends Command
                     }
 
                     $chatMessage->attachMedia($image, config('constants.media_tags'));
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "in chat message was media atteched."]);
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

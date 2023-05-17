@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Setting;
-use App\StoreViewsGTMetrix;
-use App\WebsiteStoreView;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\WebsiteStoreView;
+use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class GTMetrixTestCMD extends Command
 {
@@ -90,7 +91,7 @@ class GTMetrixTestCMD extends Command
                 ->select('website_store_views.code', 'website_store_views.id', 'sw.website', 'sw.magento_url', 'sw.id as store_website_id')
                 ->get()->toArray();
 
-            \Log::info('GTMetrix :: store website =>'.count($storeViewList));
+            \Log::info('GTMetrix :: store website =>' . count($storeViewList));
 
             $request_too_many_pending = false;
 
@@ -128,15 +129,15 @@ class GTMetrixTestCMD extends Command
                     curl_close($curl);
                     //$create = array();
                     if ($err) {
-                        \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url'.$err);
-                        echo 'cURL Error #:'.$err;
+                        \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);
+                        echo 'cURL Error #:' . $err;
                     } else {
                         if (preg_match('/<html[^>]*>/', $response)) {
                             $siteData = [
 
                                 'store_view_id' => $value['id'],
                                 'status' => 'not_queued',
-                                'website_url' => $webiteUrl.'/'.$value['code'],
+                                'website_url' => $webiteUrl . '/' . $value['code'],
                             ];
 
                             $create[] = $siteData;
@@ -154,7 +155,7 @@ class GTMetrixTestCMD extends Command
 
                                     'store_view_id' => $value['id'],
                                     'status' => 'not_queued',
-                                    'website_url' => $webiteUrl.'/'.$value['code'],
+                                    'website_url' => $webiteUrl . '/' . $value['code'],
                                 ];
 
                                 \Log::info(print_r($siteData, true));
@@ -174,7 +175,7 @@ class GTMetrixTestCMD extends Command
                                 StoreViewsGTMetrix::create($value);
                             }
                         }
-                        \Log::info('-cUrl:'.json_encode($create)."\nMessage:  Fetch Succesfully");
+                        \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully");
                     }
                 }
             }
@@ -184,7 +185,9 @@ class GTMetrixTestCMD extends Command
             \Log::info('GTMetrix :: Daily run complete ');
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
-            \Log::error('GTMetrix :: '.$e->getMessage());
+            \Log::error('GTMetrix :: ' . $e->getMessage());
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

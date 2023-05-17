@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\CategoryController;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoryController;
 
 class UpdateMagentoProductStatus extends Command
 {
@@ -72,7 +72,7 @@ class UpdateMagentoProductStatus extends Command
 
                 $error_message = '';
                 $second_error_message = '';
-                $sku = $product->sku.$product->color;
+                $sku = $product->sku . $product->color;
 
                 try {
                     $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
@@ -132,7 +132,7 @@ class UpdateMagentoProductStatus extends Command
                             $error_message = '';
 
                             try {
-                                $simple_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku.'-'.$size)), true);
+                                $simple_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku . '-' . $size)), true);
                             } catch (\Exception $e) {
                                 $error_message = $e->getMessage();
                             }
@@ -176,7 +176,7 @@ class UpdateMagentoProductStatus extends Command
                                     ],
                                 ];
                                 // Creation of product simple
-                                $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku.'-'.$size, $productData);
+                                $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
                                 $new_variations = 1;
                             } else {
                                 // SIMPLE PRODUCT EXISTS
@@ -195,7 +195,7 @@ class UpdateMagentoProductStatus extends Command
                                 }
                             }
 
-                            $associated_skus[] = $sku.'-'.$size;
+                            $associated_skus[] = $sku . '-' . $size;
                         }
 
                         if ($new_variations == 1) {

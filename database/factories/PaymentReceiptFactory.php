@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\DeveloperTask;
 use App\Task;
 use App\User;
 use Carbon\Carbon;
+use App\DeveloperTask;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PaymentReceiptFactory extends Factory

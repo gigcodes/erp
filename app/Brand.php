@@ -8,9 +8,9 @@
 
 namespace App;
 
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -182,4 +182,28 @@ class Brand extends Model
     // {
     //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
     // }
+
+    public static function searchBrand1($keyWord)
+    {
+        // Get all Brands
+        $brands = self::where('name', 'LIKE', '%' . strtolower($keyWord) . '%');
+
+        // Create empty array to store brands
+        $brandsArray = [];
+
+        // Loop over brands
+        foreach ($brands as $brand) {
+            $brandsArray[$brand->id] = $brand->name;
+        }
+
+        // Sort array
+        asort($brandsArray);
+
+        // Return brands array
+        return $brandsArray;
+    }
+
+    public static function updateStatusIsHashtagsGenerated($brand_id_list) {
+        \DB::table('brands')->whereIn('id', $brand_id_list)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+    }
 }

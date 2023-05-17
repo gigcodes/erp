@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteProductScreenshot extends Model
 {

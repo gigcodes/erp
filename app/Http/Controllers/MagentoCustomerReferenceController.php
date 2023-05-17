@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\Helpers\InstantMessagingHelper;
-use App\Helpers\MagentoOrderHandleHelper;
-use App\MagentoCustomerReference;
 use App\Setting;
+use App\Customer;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\MagentoCustomerReference;
+use App\Helpers\InstantMessagingHelper;
+use App\Helpers\MagentoOrderHandleHelper;
 
 class MagentoCustomerReferenceController extends Controller
 {
@@ -45,9 +45,9 @@ class MagentoCustomerReferenceController extends Controller
         $newArray['items'][] = $order;
         $order = json_decode(json_encode($newArray));
 
-        if (isset($order->items[0]->website)) {
+        // if (isset($order->items[0]->website)) {
             $website = StoreWebsite::where('website', $order->items[0]->website)->first();
-            if ($website) {
+            // if ($website) {
                 $orderCreate = MagentoOrderHandleHelper::createOrder($order, $website);
                 if ($orderCreate == true) {
                     $message = $this->generate_erp_response('magento.order.success', 0, $default = 'Order create successfully', $lang_code);
@@ -57,10 +57,10 @@ class MagentoCustomerReferenceController extends Controller
                         'message' => $message,
                     ]);
                 }
-            } else {
-                \Log::error('Magento website not found');
-            }
-        }
+            // } else {
+            //     \Log::error('Magento website not found');
+            // }
+        // }
 
         $message = $this->generate_erp_response('magento.order.failed', 0, $default = 'Something went wrong, Please try again', $lang_code);
 
@@ -92,7 +92,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -193,7 +192,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function show(MagentoCustomerReference $magentoCustomerReference)
@@ -204,7 +202,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function edit(MagentoCustomerReference $magentoCustomerReference)
@@ -215,8 +212,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, MagentoCustomerReference $magentoCustomerReference)
@@ -227,7 +222,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoCustomerReference $magentoCustomerReference)

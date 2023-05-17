@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function array_merge;
-use function htmlspecialchars;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
 use PhpMyAdmin\Url;
+use function array_merge;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Provides common methods for all of the inline transformations plugins.
@@ -28,7 +28,7 @@ abstract class InlineTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'Displays a clickable thumbnail. The options are the maximum width'
-            .' and height in pixels. The original aspect ratio is preserved.'
+            . ' and height in pixels. The original aspect ratio is preserved.'
         );
     }
 
@@ -46,18 +46,18 @@ abstract class InlineTransformationsPlugin extends TransformationsPlugin
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['Inline']);
 
         if ($GLOBALS['config']->get('PMA_IS_GD2') === 1) {
-            return '<a href="'.Url::getFromRoute('/transformation/wrapper', $options['wrapper_params'])
-                .'" rel="noopener noreferrer" target="_blank"><img src="'
-                .Url::getFromRoute('/transformation/wrapper', array_merge($options['wrapper_params'], [
+            return '<a href="' . Url::getFromRoute('/transformation/wrapper', $options['wrapper_params'])
+                . '" rel="noopener noreferrer" target="_blank"><img src="'
+                . Url::getFromRoute('/transformation/wrapper', array_merge($options['wrapper_params'], [
                     'resize' => 'jpeg',
                     'newWidth' => (int) $options[0],
                     'newHeight' => (int) $options[1],
                 ]))
-                .'" alt="['.htmlspecialchars($buffer).']" border="0"></a>';
+                . '" alt="[' . htmlspecialchars($buffer) . ']" border="0"></a>';
         }
 
-        return '<img src="'.Url::getFromRoute('/transformation/wrapper', $options['wrapper_params'])
-            .'" alt="['.htmlspecialchars($buffer).']" width="320" height="240">';
+        return '<img src="' . Url::getFromRoute('/transformation/wrapper', $options['wrapper_params'])
+            . '" alt="[' . htmlspecialchars($buffer) . ']" width="320" height="240">';
     }
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */

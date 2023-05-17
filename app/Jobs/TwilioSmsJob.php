@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\ChatMessage;
-use App\Customer;
 use Exception;
+use App\Customer;
+use App\ChatMessage;
+use Twilio\Rest\Client;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Twilio\Rest\Client;
 
 class TwilioSmsJob implements ShouldQueue
 {
@@ -32,16 +32,19 @@ class TwilioSmsJob implements ShouldQueue
 
     public $backoff = 5;
 
+    public $orderId;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($receiverNumber, $message, $store_website_id)
+    public function __construct($receiverNumber, $message, $store_website_id, $orderId = null)
     {
-        $this->receiverNumber = '+'.$receiverNumber;
+        $this->receiverNumber = '+' . $receiverNumber;
         $this->message = $message;
         $this->store_website_id = $store_website_id;
+        $this->orderId = $orderId;
 
         $twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
             ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
@@ -77,7 +80,7 @@ class TwilioSmsJob implements ShouldQueue
                 'body' => $this->message,
             ]);
             $phone = str_replace('+', '', $this->receiverNumber);
-            $custId = Customer::where('phone', 'like', '%'.$phone.'%')->pluck('id')->first();
+            $custId = Customer::where('phone', 'like', '%' . $phone . '%')->pluck('id')->first();
             $chat = [
                 'message_application_id' => 3,
                 'message' => $this->message,
@@ -87,10 +90,11 @@ class TwilioSmsJob implements ShouldQueue
                 'approved' => 1,
                 'is_delivered' => 1,
                 'customer_id' => $custId,
+                'order_id' => $this->orderId
             ];
             ChatMessage::create($chat);
         } catch (Exception $e) {
-            \Log::info('Sending SMS issue #2215 ->'.$e->getMessage());
+            \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }

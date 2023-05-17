@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class DailyHubstaffActivityLevel extends Command
 {
@@ -40,6 +41,8 @@ class DailyHubstaffActivityLevel extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -62,7 +65,11 @@ class DailyHubstaffActivityLevel extends Command
                     'u.phone as phone_number',
                 ])->get();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'HubstaffActivity model query finished']);
+
             if (! $activities->isEmpty()) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'HubstaffActivity record found']);
+
                 foreach ($activities as $act) {
                     //STOPPED CERTAIN MESSAGES
                     /*$actualPercentage = (float) ($act->total_spent * 100) / $act->total_track;
@@ -85,6 +92,8 @@ class DailyHubstaffActivityLevel extends Command
                         'actual_percentage' => (float) ($act->total_spent * 100) / $act->total_track,
                     ]);
                     $hsn->save();
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved hubstaff activity notification record']);
                 }
 
                 //STOPPED CERTAIN MESSAGES
@@ -94,6 +103,8 @@ class DailyHubstaffActivityLevel extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

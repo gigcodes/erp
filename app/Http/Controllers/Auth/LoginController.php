@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\UserLoginIp;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
@@ -58,6 +58,7 @@ class LoginController extends Controller
             $this->validateLogin($request);
             $user = auth()->user();
             $user_ip = UserLoginIp::where('ip', $request->getClientIp())->where('user_id', $user->id)->orderBy('created_at', 'DESC')->first();
+
             if (is_null($user_ip)) {
                 $user_ip_add = new UserLoginIp();
                 $user_ip_add->user_id = $user->id;

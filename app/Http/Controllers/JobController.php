@@ -30,7 +30,7 @@ class JobController extends Controller
         }
 
         if ($request->payload != '') {
-            $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');
+            $jobs->Where('payload', 'LIKE', '%' . $request->payload . '%');
         }
 
         if ($request->reserved_date != '') {
@@ -47,7 +47,6 @@ class JobController extends Controller
 
             $jobs->where('available_at', '>=', $available_start)
                  ->where('available_at', '<', $available_end);
-
         }
 
         $checkbox = $jobs->pluck('id');

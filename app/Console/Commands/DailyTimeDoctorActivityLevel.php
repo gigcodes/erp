@@ -3,10 +3,9 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use App\TimeDoctor\TimeDoctorActivity;
 use App\TimeDoctor\TimeDoctorActivityNotification;
-use App\Library\TimeDoctor\Src\Timedoctor;
-use Illuminate\Console\Command;
 
 class DailyTimeDoctorActivityLevel extends Command
 {
@@ -53,7 +52,7 @@ class DailyTimeDoctorActivityLevel extends Command
             $activities = TimeDoctorActivity::join('time_doctor_members as hm', 'hm.time_doctor_user_id', 'time_doctor_activities.user_id')
                 ->join('users as u', 'u.id', 'hm.user_id')
                 ->whereDate('starts_at', $checkDate)
-                ->whereNotNull('hm.user_id')                
+                ->whereNotNull('hm.user_id')
                 ->groupBy('time_doctor_activities.user_id')
                 ->select([
                     \DB::raw('sum(time_doctor_activities.tracked) as total_track'),

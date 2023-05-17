@@ -3,17 +3,17 @@
 namespace App\Providers;
 
 use App\Brand;
-use App\Category;
 use App\Email;
+use App\Category;
+use App\ScrapedProducts;
+use Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
 use App\Observers\MediaObserver;
+use Illuminate\Support\Facades\Event;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\Observers\ScrappedProductCategoryMappingObserver;
-use App\ScrapedProducts;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use Plank\Mediable\Media;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -125,6 +125,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         'Illuminate\Mail\Events\MessageSending' => [
             \App\Listeners\AddSignatureToMail::class,
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\YouTube\YouTubeExtendSocialite::class . '@handle',
         ],
 
     ];

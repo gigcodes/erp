@@ -26,7 +26,7 @@ class Organization
      */
     public function __construct($accessToken)
     {
-        $this->accessToken = 'Bearer '.$accessToken;
+        $this->accessToken = 'Bearer ' . $accessToken;
 
         return $this;
     }
@@ -46,7 +46,7 @@ class Organization
             'offset' => $offset,
         ]);
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -72,7 +72,7 @@ class Organization
 
         $curl->get($url);
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -101,7 +101,7 @@ class Organization
         ]);
 
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -121,7 +121,7 @@ class Organization
         $curl->post($url, $params);
 
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -158,7 +158,7 @@ class Organization
         $curl->get($url, $params);
 
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);
@@ -190,7 +190,7 @@ class Organization
             print_r($curl);
             echo '</pre>';
             exit;
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);

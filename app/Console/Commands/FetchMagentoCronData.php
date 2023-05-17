@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\LogRequest;
-use App\MagentoCronData;
-use App\StoreWebsite;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\StoreWebsite;
+use App\MagentoCronData;
 use Illuminate\Console\Command;
 
 class FetchMagentoCronData extends Command
@@ -51,7 +51,7 @@ class FetchMagentoCronData extends Command
                 $web = strtolower($web);
                 $url = parse_url($web);
                 if (! isset($url['scheme'])) {
-                    $web = 'https://'.$web;
+                    $web = 'https://' . $web;
                 }
 
                 $api = "$web/default/rest/all/V1/cronbystatus/$status/createdat/$date";
@@ -73,7 +73,7 @@ class FetchMagentoCronData extends Command
                             ];
                             MagentoCronData::updateOrCreate($insert);
                         } else {
-                            $this->info('Log Not available at '.$api);
+                            $this->info('Log Not available at ' . $api);
                         }
                     }
                 }

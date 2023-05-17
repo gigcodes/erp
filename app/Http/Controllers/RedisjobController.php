@@ -42,7 +42,6 @@ class RedisjobController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -68,7 +67,7 @@ class RedisjobController extends Controller
     public function clearQue(Request $request)
     {
         try {
-            Artisan::call('queue:clear redis --queue='.$request->name);
+            Artisan::call('queue:clear redis --queue=' . $request->name);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
         } catch (\Exception $e) {
@@ -85,7 +84,7 @@ class RedisjobController extends Controller
     public function restartManagement(Request $request)
     {
         try {
-            Artisan::call('queue:retry --queue='.$request->name);
+            Artisan::call('queue:retry --queue=' . $request->name);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
         } catch (\Exception $e) {
@@ -96,7 +95,6 @@ class RedisjobController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Redisjob  $redisjob
      * @return \Illuminate\Http\Response
      */
     public function removeQue(Redisjob $redisjob, Request $request)

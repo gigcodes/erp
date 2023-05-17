@@ -4,43 +4,43 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function array_key_exists;
-use function array_shift;
-use function basename;
-use function bin2hex;
-use function count;
+use stdClass;
+use function ord;
+use const PHP_EOL;
 use function date;
-use const DIRECTORY_SEPARATOR;
-use DirectoryIterator;
-use function explode;
-use function fclose;
-use function file_exists;
-use function file_get_contents;
+use function trim;
+use function count;
 use function fopen;
 use function fread;
 use function fseek;
-use function function_exists;
-use function gzuncompress;
-use function implode;
-use function in_array;
+use function fclose;
 use function intval;
-use function is_bool;
 use function is_dir;
-use function is_file;
-use function json_decode;
-use function ord;
-use const PHP_EOL;
-use PhpMyAdmin\Utils\HttpRequest;
-use function preg_match;
-use stdClass;
-use function str_contains;
-use function str_replace;
 use function strlen;
 use function strpos;
-use function strtolower;
 use function substr;
-use function trim;
 use function unpack;
+use function bin2hex;
+use function explode;
+use function implode;
+use function is_bool;
+use function is_file;
+use DirectoryIterator;
+use function basename;
+use function in_array;
+use function preg_match;
+use function strtolower;
+use function array_shift;
+use function file_exists;
+use function json_decode;
+use function str_replace;
+use function gzuncompress;
+use function str_contains;
+use function function_exists;
+use const DIRECTORY_SEPARATOR;
+use function array_key_exists;
+use function file_get_contents;
+use PhpMyAdmin\Utils\HttpRequest;
 
 /**
  * Git class to manipulate Git data
@@ -94,7 +94,7 @@ class Git
         // or a .git file (--separate-git-dir)
         $git = '.git';
         if (is_dir($git)) {
-            if (! @is_file($git.'/config')) {
+            if (! @is_file($git . '/config')) {
                 $_SESSION['git_location'] = null;
                 $_SESSION['is_git_revision'] = false;
 
@@ -264,8 +264,8 @@ class Git
     {
         $commit = false;
 
-        $gitFileName = $gitFolder.'/objects/'
-            .substr($hash, 0, 2).'/'.substr($hash, 2);
+        $gitFileName = $gitFolder . '/objects/'
+            . substr($hash, 0, 2) . '/' . substr($hash, 2);
         if (@file_exists($gitFileName)) {
             $commit = @file_get_contents($gitFileName);
 
@@ -282,11 +282,11 @@ class Git
 
             $commit = explode("\0", $commitData, 2);
             $commit = explode("\n", $commit[1]);
-            $_SESSION['PMA_VERSION_COMMITDATA_'.$hash] = $commit;
+            $_SESSION['PMA_VERSION_COMMITDATA_' . $hash] = $commit;
         } else {
             $pack_names = [];
             // work with packed data
-            $packs_file = $gitFolder.'/objects/info/packs';
+            $packs_file = $gitFolder . '/objects/info/packs';
             $packs = '';
 
             if (@file_exists($packs_file)) {
@@ -316,7 +316,7 @@ class Git
                 // File missing. May be we can look in the .git/object/pack
                 // directory for all the .pack files and use that list of
                 // files instead
-                $dirIterator = new DirectoryIterator($gitFolder.'/objects/pack');
+                $dirIterator = new DirectoryIterator($gitFolder . '/objects/pack');
                 foreach ($dirIterator as $file_info) {
                     $file_name = $file_info->getFilename();
                     // if this is a .pack file
@@ -332,12 +332,12 @@ class Git
             foreach ($pack_names as $pack_name) {
                 $index_name = str_replace('.pack', '.idx', $pack_name);
 
-                $packOffset = $this->getPackOffset($gitFolder.'/objects/pack/'.$index_name, $hash);
+                $packOffset = $this->getPackOffset($gitFolder . '/objects/pack/' . $index_name, $hash);
                 if ($packOffset === null) {
                     continue;
                 }
 
-                $commit = $this->readPackFile($gitFolder.'/objects/pack/'.$pack_name, $packOffset);
+                $commit = $this->readPackFile($gitFolder . '/objects/pack/' . $pack_name, $packOffset);
                 if ($commit !== null) {
                     $commit = gzuncompress($commit);
                     if ($commit !== false) {
@@ -345,7 +345,7 @@ class Git
                     }
                 }
 
-                $_SESSION['PMA_VERSION_COMMITDATA_'.$hash] = $commit;
+                $_SESSION['PMA_VERSION_COMMITDATA_' . $hash] = $commit;
             }
         }
 
@@ -411,17 +411,17 @@ class Git
         $httpRequest = new HttpRequest();
 
         // check if commit exists in Github
-        if ($commit !== false && isset($_SESSION['PMA_VERSION_REMOTECOMMIT_'.$hash])) {
-            $isRemoteCommit = $_SESSION['PMA_VERSION_REMOTECOMMIT_'.$hash];
+        if ($commit !== false && isset($_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash])) {
+            $isRemoteCommit = $_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash];
 
             return null;
         }
 
-        $link = 'https://www.phpmyadmin.net/api/commit/'.$hash.'/';
+        $link = 'https://www.phpmyadmin.net/api/commit/' . $hash . '/';
         $is_found = $httpRequest->create($link, 'GET');
         if ($is_found === false) {
             $isRemoteCommit = false;
-            $_SESSION['PMA_VERSION_REMOTECOMMIT_'.$hash] = false;
+            $_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash] = false;
 
             return null;
         }
@@ -434,7 +434,7 @@ class Git
         }
 
         $isRemoteCommit = true;
-        $_SESSION['PMA_VERSION_REMOTECOMMIT_'.$hash] = true;
+        $_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash] = true;
         if ($commit === false) {
             // if no local commit data, try loading from Github
             return json_decode((string) $is_found);
@@ -460,7 +460,7 @@ class Git
             $branch = basename($refHead);
         }
 
-        $refFile = $gitFolder.'/'.$refHead;
+        $refFile = $gitFolder . '/' . $refHead;
         if (@file_exists($refFile)) {
             $hash = @file_get_contents($refFile);
             if ($hash === false) {
@@ -473,7 +473,7 @@ class Git
         }
 
         // deal with packed refs
-        $packedRefs = @file_get_contents($gitFolder.'/packed-refs');
+        $packedRefs = @file_get_contents($gitFolder . '/packed-refs');
         if ($packedRefs === false) {
             $this->hasGit = false;
 
@@ -514,11 +514,11 @@ class Git
 
     private function getCommonDirContents(string $gitFolder): ?string
     {
-        if (! is_file($gitFolder.'/commondir')) {
+        if (! is_file($gitFolder . '/commondir')) {
             return null;
         }
 
-        $commonDirContents = @file_get_contents($gitFolder.'/commondir');
+        $commonDirContents = @file_get_contents($gitFolder . '/commondir');
         if ($commonDirContents === false) {
             return null;
         }
@@ -539,7 +539,7 @@ class Git
             return null;
         }
 
-        $ref_head = @file_get_contents($gitFolder.'/HEAD');
+        $ref_head = @file_get_contents($gitFolder . '/HEAD');
 
         if (! $ref_head) {
             $this->hasGit = false;
@@ -549,7 +549,7 @@ class Git
 
         $commonDirContents = $this->getCommonDirContents($gitFolder);
         if ($commonDirContents !== null) {
-            $gitFolder .= DIRECTORY_SEPARATOR.$commonDirContents;
+            $gitFolder .= DIRECTORY_SEPARATOR . $commonDirContents;
         }
 
         [$hash, $branch] = $this->getHashFromHeadRef($gitFolder, $ref_head);
@@ -560,8 +560,8 @@ class Git
         $commit = false;
         if (! preg_match('/^[0-9a-f]{40}$/i', $hash)) {
             $commit = false;
-        } elseif (isset($_SESSION['PMA_VERSION_COMMITDATA_'.$hash])) {
-            $commit = $_SESSION['PMA_VERSION_COMMITDATA_'.$hash];
+        } elseif (isset($_SESSION['PMA_VERSION_COMMITDATA_' . $hash])) {
+            $commit = $_SESSION['PMA_VERSION_COMMITDATA_' . $hash];
         } elseif (function_exists('gzuncompress')) {
             $commit = $this->unPackGz($gitFolder, $hash);
             if ($commit === null) {
@@ -579,15 +579,15 @@ class Git
         $is_remote_branch = false;
         if ($is_remote_commit && $branch !== false) {
             // check if branch exists in Github
-            if (isset($_SESSION['PMA_VERSION_REMOTEBRANCH_'.$hash])) {
-                $is_remote_branch = $_SESSION['PMA_VERSION_REMOTEBRANCH_'.$hash];
+            if (isset($_SESSION['PMA_VERSION_REMOTEBRANCH_' . $hash])) {
+                $is_remote_branch = $_SESSION['PMA_VERSION_REMOTEBRANCH_' . $hash];
             } else {
                 $httpRequest = new HttpRequest();
-                $link = 'https://www.phpmyadmin.net/api/tree/'.$branch.'/';
+                $link = 'https://www.phpmyadmin.net/api/tree/' . $branch . '/';
                 $is_found = $httpRequest->create($link, 'GET', true);
                 if (is_bool($is_found)) {
                     $is_remote_branch = $is_found;
-                    $_SESSION['PMA_VERSION_REMOTEBRANCH_'.$hash] = $is_found;
+                    $_SESSION['PMA_VERSION_REMOTEBRANCH_' . $hash] = $is_found;
                 }
 
                 if ($is_found === null) {

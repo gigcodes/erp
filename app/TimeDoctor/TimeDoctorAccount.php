@@ -15,7 +15,6 @@ class TimeDoctorAccount extends Model
         'project_id',
         'organization_id',
         'auth_token',
-        'company_id'
+        'company_id',
     ];
-   
 }

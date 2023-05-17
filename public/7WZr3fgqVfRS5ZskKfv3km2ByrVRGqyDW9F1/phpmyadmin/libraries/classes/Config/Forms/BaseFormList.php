@@ -7,9 +7,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Config\Forms;
 
+use function in_array;
 use function array_merge;
 use function class_exists;
-use function in_array;
 use PhpMyAdmin\Config\ConfigFile;
 
 class BaseFormList
@@ -53,7 +53,7 @@ class BaseFormList
     {
         if (static::isValid($name)) {
             /** @var class-string<BaseForm> $class */
-            $class = static::$ns.$name.'Form';
+            $class = static::$ns . $name . 'Form';
 
             return $class;
         }

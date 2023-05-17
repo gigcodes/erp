@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
-use App\CronJobReport;
-use App\MessageQueue;
 use Carbon\Carbon;
+use App\MessageQueue;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class MonitorCronJobs extends Command

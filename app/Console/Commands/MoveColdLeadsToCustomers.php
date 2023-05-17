@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ColdLeads;
-use App\CronJobReport;
 use App\Customer;
+use App\ColdLeads;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -41,14 +42,17 @@ class MoveColdLeadsToCustomers extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report was added."]);
 
             // Get cold leads
             $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Cold leads query was finished."]);
 
             // Set count to 0 and maxcount to 50
             $count = 0;
@@ -77,6 +81,7 @@ class MoveColdLeadsToCustomers extends Command
                     if (! $coldLead->customer && ! $coldLead->whatsapp) {
                         // Check for existing customer
                         $customer = Customer::where('phone', $coldLead->platform_id)->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer query was finished."]);
 
                         // Nothing found?
                         if ($customer == null && ! empty($coldLead->name)) {
@@ -98,10 +103,12 @@ class MoveColdLeadsToCustomers extends Command
                             if (! empty($customer->id)) {
                                 $coldLead->customer_id = $customer->id;
                                 $coldLead->save();
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer saved."]);
                             }
                         } else {
                             $coldLead->customer_id = 1;
                             $coldLead->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer saved."]);
                         }
 
                         $count++;
@@ -110,7 +117,11 @@ class MoveColdLeadsToCustomers extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

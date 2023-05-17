@@ -19,10 +19,13 @@ class ContactBlogger extends Mailable
 
     public $message;
 
-    public function __construct(string $subject, string $message)
+    public $from_email;
+
+    public function __construct(string $subject, string $message, string $from_email)
     {
         $this->subject = $subject;
         $this->message = $message;
+        $this->from_email = $from_email;
     }
 
     /**
@@ -35,8 +38,7 @@ class ContactBlogger extends Mailable
         $this->withSwiftMessage(function ($swiftmessage) {
             Log::channel('customer')->info($swiftmessage->getId());
         });
-        $this->from('contact@sololuxury.co.in')
-            ->bcc('contact@sololuxury.co.in')
+        return $this->from($this->from_email)
             ->subject($this->subject)
             ->markdown('emails.customers.email');
     }

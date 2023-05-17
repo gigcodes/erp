@@ -5,10 +5,10 @@ namespace App\Jobs;
 use App\Product;
 use App\ScrapedProducts;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class UpdateSizeFromErp implements ShouldQueue
 {
@@ -54,7 +54,7 @@ class UpdateSizeFromErp implements ShouldQueue
     public function handle()
     {
         try {
-            self::putLog('Job update product sizes from erp start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job update product sizes from erp start time : ' . date('Y-m-d H:i:s'));
 
             $affectedProducts = ScrapedProducts::matchedSizes($this->from);
             //getting sku array
@@ -66,7 +66,7 @@ class UpdateSizeFromErp implements ShouldQueue
             //$sku = [];
             if (count($scrapedProductSkuArray) != 0) {
                 foreach ($scrapedProductSkuArray as $productSku) {
-                    self::putLog("Scrapeed Product {$productSku} update start time : ".date('Y-m-d H:i:s'));
+                    self::putLog("Scrapeed Product {$productSku} update start time : " . date('Y-m-d H:i:s'));
                     $oldProduct = Product::where('sku', $productSku)->first();
                     if ($oldProduct->size) {
                         //$sizes = explode(',', $oldProduct->size);
@@ -78,7 +78,7 @@ class UpdateSizeFromErp implements ShouldQueue
                         //        $newArray[] = $size;
                         //     }
                         // }
-                        $newSize = $oldProduct->size.','.$this->to;
+                        $newSize = $oldProduct->size . ',' . $this->to;
                     } elseif (empty($oldProduct->size)) {
                         $newSize = $this->to;
                     }
@@ -92,11 +92,11 @@ class UpdateSizeFromErp implements ShouldQueue
 
             //\Log::info(print_r($sku,true));
 
-            self::putLog('Job update product sizes from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job update product sizes from erp end time : ' . date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
-            self::putLog('Job update product sizes from erp end time  Error: '.date('Y-m-d H:i:s').' => '.$e->getMessage());
+            self::putLog('Job update product sizes from erp end time  Error: ' . date('Y-m-d H:i:s') . ' => ' . $e->getMessage());
             throw new \Exception($e->getMessage());
 
             return false;

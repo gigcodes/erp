@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Config\Forms\Page;
 
 use PhpMyAdmin\Config\Forms\BaseForm;
-use PhpMyAdmin\Config\Forms\User\FeaturesForm;
 use PhpMyAdmin\Config\Forms\User\MainForm;
+use PhpMyAdmin\Config\Forms\User\FeaturesForm;
 
 class EditForm extends BaseForm
 {

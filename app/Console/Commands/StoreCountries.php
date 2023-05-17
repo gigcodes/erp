@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use Http;
 use App\Models\Country;
 
-use Http;
+use Illuminate\Console\Command;
 
 class StoreCountries extends Command
 {
@@ -45,20 +45,17 @@ class StoreCountries extends Command
             'X-CSCAPI-KEY' => 'WUZWeG9GbFpXMnhEcmRBNUZzN0JIYXpuN1FlMTd3eG1YR2duRnlwRA==',
         ])->get('https://api.countrystatecity.in/v1/countries')->json();
 
-        if(!@$response['error']){
-            
-            foreach($response as $value){
-
-                $input = array(
-                    "name" => $value['name'],
-                    "code" => $value['iso2'],
-                );
+        if (! @$response['error']) {
+            foreach ($response as $value) {
+                $input = [
+                    'name' => $value['name'],
+                    'code' => $value['iso2'],
+                ];
 
                 Country::updateOrCreate($input);
 
-                $this->info("Stored country: ". $value['name']);
+                $this->info('Stored country: ' . $value['name']);
             }
-
         }
     }
 }

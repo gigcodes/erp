@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Export\Helpers;
 
+use function trim;
+use function strlen;
 use const ENT_COMPAT;
-use function htmlspecialchars;
 use function mb_strpos;
 use function mb_substr;
-use PhpMyAdmin\Plugins\Export\ExportCodegen;
 use function str_replace;
-use function strlen;
-use function trim;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\Export\ExportCodegen;
 
 /**
  * PhpMyAdmin\Plugins\Export\Helpers\TableProperty class
@@ -201,8 +201,8 @@ class TableProperty
     {
         if (strlen($this->key) > 0) {
             return 'index="'
-                .htmlspecialchars($this->name, ENT_COMPAT, 'UTF-8')
-                .'"';
+                . htmlspecialchars($this->name, ENT_COMPAT, 'UTF-8')
+                . '"';
         }
 
         return '';

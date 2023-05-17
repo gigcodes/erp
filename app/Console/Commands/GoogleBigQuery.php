@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\GoogleBigQueryData;
 use App\StoreWebsite;
-use Google\Cloud\BigQuery\BigQueryClient;
+use App\GoogleBigQueryData;
 use Illuminate\Console\Command;
+use Google\Cloud\BigQuery\BigQueryClient;
 
 class GoogleBigQuery extends Command
 {
@@ -45,12 +45,12 @@ class GoogleBigQuery extends Command
         foreach ($storewebsites as $storewebsite) {
             if ($storewebsite->key_file_path && $storewebsite->project_id) {
                 $config = [
-                    'keyFilePath' => public_path('bigData/'.$storewebsite->key_file_path),
+                    'keyFilePath' => public_path('bigData/' . $storewebsite->key_file_path),
                     'projectId' => $storewebsite->project_id,
                 ];
                 //dd($config);
                 $bigQuery = new BigQueryClient($config);
-                $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "'.date('Y-m-d').'"';
+                $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "' . date('Y-m-d') . '"';
                 $queryJobConfig = $bigQuery->query($query)
                 ->parameters([]);
                 $queryResults = $bigQuery->runQuery($queryJobConfig);

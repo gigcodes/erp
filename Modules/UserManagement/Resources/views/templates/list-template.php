@@ -116,9 +116,9 @@
                                                 <img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
                                             </button>
                                             {{if prop.id == <?php echo Auth::id(); ?>}}
-                                                <a class="btn btn-image" href="#"><img src="/images/view.png"/style="padding: 0px 1px;"></a>
+                                                <a class="btn btn-image" title="View User" href="#"><img src="/images/view.png"/style="padding: 0px 1px;"></a>
                                             {{else}}
-                                                <a class="btn btn-image" onclick="editUser({{>prop.id}})"style="padding: 0px 1px;"><img src="/images/edit.png"/></a>
+                                                <a class="btn btn-image" title="Edit User" onclick="editUser({{>prop.id}})"style="padding: 0px 1px;"><img src="/images/edit.png"/></a>
                                             {{/if}}
                                             <a href="/user-management/track/{{>prop.id}}"style="padding: 0px 1px;">Info</a>
                                             <a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"style="padding: 0px 1px;"></span></a>
@@ -130,7 +130,7 @@
                                         <!-- end -->
                                         <!-- <a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a> -->
                                         <a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-tasks" aria-hidden="true"></i></a>
-                                        <button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
+                                        <button type="button" title="Send Email" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
                                         {{if prop.team}}
                                             <span class="expand-row">
                                                 <span class="div-team-mini">

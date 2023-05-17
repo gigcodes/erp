@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Session;
 use App\ApiKey;
 use App\Setting;
 use Illuminate\Http\Request;
-use Session;
 
 class SettingController extends Controller
 {
@@ -21,13 +21,13 @@ class SettingController extends Controller
 
         $query = Setting::query();
         if ($request->name) {
-            $query = $query->where('name', 'LIKE', '%'.$request->name.'%');
+            $query = $query->where('name', 'LIKE', '%' . $request->name . '%');
         }
         if ($request->value) {
-            $query = $query->orWhere('val', 'LIKE', '%'.$request->value.'%');
+            $query = $query->orWhere('val', 'LIKE', '%' . $request->value . '%');
         }
         if ($request->type) {
-            $query = $query->orWhere('type', 'LIKE', '%'.$request->type.'%');
+            $query = $query->orWhere('type', 'LIKE', '%' . $request->type . '%');
         }
         $data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
         $settings = Setting::all();
@@ -136,7 +136,7 @@ class SettingController extends Controller
     {
         $setting = Setting::where('name', 'telescope_enabled')->first();
 
-        if(empty($setting)){
+        if (empty($setting)) {
             $setting = new Setting;
             $setting->name = 'telescope_enabled';
             $setting->type = 'tinyint';
@@ -144,6 +144,12 @@ class SettingController extends Controller
 
         $setting->val = $request->telescope_enabled;
         $setting->save();
+
+        \Storage::disk('public')->put('telescope.json', json_encode(
+            [
+                'telescope_enabled' => (! empty($setting) && $setting->val == 1 ? 1 : 0),
+            ]
+        ));
 
         return redirect()->back()->with('success', 'Success! Telescope setting has been updated.');
     }

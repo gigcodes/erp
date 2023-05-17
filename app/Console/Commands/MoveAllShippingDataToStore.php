@@ -43,11 +43,11 @@ class MoveAllShippingDataToStore extends Command
             foreach ($shipping as $s) {
                 $storeWebsite = $s->storeWebsiteDetails;
                 if ($storeWebsite) {
-                    $url = $storeWebsite->magento_url.'/default/rest/all/V1/shippingcost/';
+                    $url = $storeWebsite->magento_url . '/default/rest/all/V1/shippingcost/';
                     $api_key = $storeWebsite->api_token;
 
                     $headers = [
-                        'Authorization' => 'Bearer '.$api_key,
+                        'Authorization' => 'Bearer ' . $api_key,
                         'Content-Type' => 'application/json',
                     ];
 

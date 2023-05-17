@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Customer;
 use App\ImQueue;
+use App\Customer;
 use Carbon\Carbon;
+use App\ChatMessage;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Str;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class InstantMessagingController extends Controller
@@ -35,15 +35,13 @@ class InstantMessagingController extends Controller
     /**
      * Send Message Queue Result For API Call
      *
-     * @param $client
-     * @param $numberFrom
      * @return void
      */
     public function getMessage($client, $numberFrom, Request $request)
     {
         if ($client == 'whatsapp') {
             // Get client class
-            $clientClass = '\\App\\Marketing\\'.ucfirst($client).'Config';
+            $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
 
             // Check credentials
             $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
@@ -111,7 +109,7 @@ class InstantMessagingController extends Controller
             $queue = new \stdClass();
             $queue->id = rand(1000000, 9999999);
             $queue->number_to = '31629987287';
-            $queue->text = 'This is a random message id '.rand(1000000, 9999999);
+            $queue->text = 'This is a random message id ' . rand(1000000, 9999999);
             $queue->image = null;
             $queue->filename = null;
         }
@@ -235,7 +233,7 @@ class InstantMessagingController extends Controller
                                 $image = $message->Images;
                                 $image = str_replace('data:image/png;base64,', '', $image);
                                 $image = str_replace(' ', '+', $image);
-                                $imageName = Str::random(10).'.'.'png';
+                                $imageName = Str::random(10) . '.' . 'png';
                                 //Image
                                 $image = base64_decode($image);
 
@@ -251,7 +249,7 @@ class InstantMessagingController extends Controller
                                 $chatMessage = ChatMessage::create($params);
 
                                 // Upload media
-                                $media = MediaUploader::fromString($image)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/'.floor($chatMessage->id / config('constants.image_per_folder')))->upload();
+                                $media = MediaUploader::fromString($image)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/' . floor($chatMessage->id / config('constants.image_per_folder')))->upload();
                                 $chatMessage->attachMedia($media, config('constants.media_tags'));
                             }
                         }
@@ -287,7 +285,7 @@ class InstantMessagingController extends Controller
     public function updatePhoneStatus($client, $numberFrom, Request $request)
     {
         // Get client class
-        $clientClass = '\\App\\Marketing\\'.ucfirst($client).'Config';
+        $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
 
         // Check credentials
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();

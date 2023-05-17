@@ -5,7 +5,7 @@
 @include('partials.flash_messages')
 <style>
 .div-slot {
-	width: 75px;
+	min-width: 75px;
 	padding: 3px !important;
 }
 </style>

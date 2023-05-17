@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Task;
+use Carbon\Carbon;
 use App\ChatMessage;
+use App\TaskMessage;
 use App\CronJobReport;
 use App\DeveloperTask;
-use App\Task;
-use App\TaskMessage;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendDateTimeReminder extends Command
@@ -76,7 +76,7 @@ class SendDateTimeReminder extends Command
                     ->where('status', '<>', 'Done')
                     ->whereNull('estimate_time')
                     ->whereNull('estimate_minutes')
-                    ->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "'.$now.'") as diff_min')])
+                    ->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "' . $now . '") as diff_min')])
                     ->get();
 
                 if (! $tasks->isEmpty()) {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use Illuminate\Http\Request;
 use App\GoogleScrapperContent;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class GoogleScrapperController extends Controller
 {

@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function array_key_exists;
+use function md5;
+use function usort;
+use function uksort;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Index;
+use PhpMyAdmin\Table;
 use function array_keys;
+use function strtoupper;
+use PhpMyAdmin\Template;
 use function array_values;
 use function mb_strtoupper;
-use function md5;
+use function array_key_exists;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\ConfigStorage\Features\DisplayFeature;
 use PhpMyAdmin\ConfigStorage\Features\RelationFeature;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\ForeignKey;
-use function strtoupper;
-use function uksort;
-use function usort;
 
 /**
  * Display table relations for viewing and editing.
@@ -320,7 +320,7 @@ final class RelationController extends AbstractController
 
         if ($foreign) {
             $query = 'SHOW TABLE STATUS FROM '
-                .Util::backquote($_POST['foreignDb']);
+                . Util::backquote($_POST['foreignDb']);
             $tables_rs = $this->dbi->query($query);
 
             foreach ($tables_rs as $row) {
@@ -332,7 +332,7 @@ final class RelationController extends AbstractController
             }
         } else {
             $query = 'SHOW TABLES FROM '
-                .Util::backquote($_POST['foreignDb']);
+                . Util::backquote($_POST['foreignDb']);
             $tables_rs = $this->dbi->query($query);
             $tables = $tables_rs->fetchAllColumn();
         }

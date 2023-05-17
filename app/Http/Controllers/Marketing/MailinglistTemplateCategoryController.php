@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreMailingListTemplateCategoryRequest;
-use App\MailinglistTemplate;
-use App\MailinglistTemplateCategory;
 use App\StoreWebsite;
+use App\MailinglistTemplate;
+use App\Http\Controllers\Controller;
+use App\MailinglistTemplateCategory;
+use App\Http\Requests\StoreMailingListTemplateCategoryRequest;
 
 class MailinglistTemplateCategoryController extends Controller
 {

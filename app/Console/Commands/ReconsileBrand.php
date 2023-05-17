@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class ReconsileBrand extends Command
 {
@@ -39,13 +40,16 @@ class ReconsileBrand extends Command
      */
     public function handle()
     {
-        //
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was updated."]);
+
             $storeWebsites = \App\StoreWebsite::where('website_source', 'magento')->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "store website query was finished."]);
             if (! $storeWebsites->isEmpty()) {
                 foreach ($storeWebsites as $storeWebsite) {
                     $requestData = new Request();
@@ -56,7 +60,11 @@ class ReconsileBrand extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Response;
 use App\Setting;
 use App\SimplyDutyCategory;
 use Illuminate\Http\Request;
-use Response;
 
 class SimplyDutyCategoryController extends Controller
 {
@@ -53,7 +53,6 @@ class SimplyDutyCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -64,7 +63,6 @@ class SimplyDutyCategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SimplyDutyCategory  $simplyDutyCategory
      * @return \Illuminate\Http\Response
      */
     public function show(SimplyDutyCategory $simplyDutyCategory)
@@ -75,7 +73,6 @@ class SimplyDutyCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SimplyDutyCategory  $simplyDutyCategory
      * @return \Illuminate\Http\Response
      */
     public function edit(SimplyDutyCategory $simplyDutyCategory)
@@ -86,8 +83,6 @@ class SimplyDutyCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SimplyDutyCategory  $simplyDutyCategory
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SimplyDutyCategory $simplyDutyCategory)
@@ -98,7 +93,6 @@ class SimplyDutyCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SimplyDutyCategory  $simplyDutyCategory
      * @return \Illuminate\Http\Response
      */
     public function destroy(SimplyDutyCategory $simplyDutyCategory)

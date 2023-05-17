@@ -13,9 +13,6 @@ class ProductsImport implements ToCollection, WithHeadingRow
 {
     use Importable;
 
-    /**
-     * @param  Collection  $rows
-     */
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
@@ -23,8 +20,8 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $gender = $row['Gender'];
             $originalSku = explode(' ', $row['Description'])[0];
             $color = $row['Color'];
-            $category = $gender.', Sunglass';
-            $composition = $row['composition'].', '.$row['composition2'];
+            $category = $gender . ', Sunglass';
+            $composition = $row['composition'] . ', ' . $row['composition2'];
             $unit_price = 0;
 
             if ($brand == "TOD'S") {

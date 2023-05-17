@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\CronJobReport;
-use App\PrivateView;
 use App\User;
+use App\AutoReply;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\PrivateView;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SendDeliveryDetails extends Command
@@ -73,7 +73,7 @@ class SendDeliveryDetails extends Command
                     }
                 }
 
-                $address = $private_view->customer->address.', '.$private_view->customer->pincode.', '.$private_view->customer->city;
+                $address = $private_view->customer->address . ', ' . $private_view->customer->pincode . ', ' . $private_view->customer->city;
 
                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-details')->first();
 
@@ -86,7 +86,7 @@ class SendDeliveryDetails extends Command
                 $params['message'] = $auto_message;
 
                 foreach ($coordinators as $coordinator) {
-                    dump('Sending Message to Coordinator '.$coordinator->name);
+                    dump('Sending Message to Coordinator ' . $coordinator->name);
                     $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 

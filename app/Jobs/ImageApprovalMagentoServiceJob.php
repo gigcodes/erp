@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Library\Magento\MagentoService;
 use App\Product;
-use App\ProductPushErrorLog;
 use App\StoreWebsite;
+use App\ProductPushErrorLog;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use App\Library\Magento\MagentoService;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class ImageApprovalMagentoServiceJob implements ShouldQueue
 {
@@ -27,8 +27,6 @@ class ImageApprovalMagentoServiceJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  Product  $product
-     * @param  StoreWebsite  $website
      * @param  null  $log
      * @param  null  $mode
      */
@@ -59,7 +57,7 @@ class ImageApprovalMagentoServiceJob implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        $error_msg = 'ImageApprovalMagentoServiceJob failed for '.$product->name;
+        $error_msg = 'ImageApprovalMagentoServiceJob failed for ' . $product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;
@@ -67,9 +65,9 @@ class ImageApprovalMagentoServiceJob implements ShouldQueue
         }
         ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id);
     }
-    
+
     public function tags()
     {
-        return ['product_'.$this->_product->id];
+        return ['product_' . $this->_product->id];
     }
 }

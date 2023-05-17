@@ -49,7 +49,7 @@ class ProductCategoryController extends Controller
 
         if ($keywords) {
             $productCategory = $productCategory->where(function ($q) use ($keywords) {
-                $q->orWhere('p.id', 'like', '%'.$keywords.'%')->orWhere('p.name', 'like', '%'.$keywords.'%');
+                $q->orWhere('p.id', 'like', '%' . $keywords . '%')->orWhere('p.name', 'like', '%' . $keywords . '%');
             });
         }
 
@@ -97,7 +97,7 @@ class ProductCategoryController extends Controller
             }
 
             if ($request->comment != '') {
-                $message = "WORK ON {$categoryUpdate->supplier->supplier}: ".$request->comment;
+                $message = "WORK ON {$categoryUpdate->supplier->supplier}: " . $request->comment;
                 \App\ChatMessage::sendWithChatApi($categoryUpdate->user->phone, null, $message);
             }
 

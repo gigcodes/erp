@@ -135,6 +135,13 @@
                         </div>
                     </div>
 
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>TimeZone:</strong>
+                            {!! Form::select('timezone', config('constants.AVAILABLE_TIMEZONES'), $user->timezone, ['class' => 'form-control']); !!}
+                        </div>
+                    </div>
+
                     @if ($user->hasRole('Customer Care'))
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">

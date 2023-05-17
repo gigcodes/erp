@@ -7,8 +7,6 @@ use App\TargetLocation;
 class Location
 {
     /**
-     * @param $x
-     * @param $y
      * @return array
      * Check if the post's co-ordinates falls under the points that we have saved for a country
      */
@@ -39,9 +37,6 @@ class Location
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $item
      * @return array
      * Checks if the point is inside the country or not
      */

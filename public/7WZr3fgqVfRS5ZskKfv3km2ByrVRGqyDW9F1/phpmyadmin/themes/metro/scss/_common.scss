@@ -41,7 +41,7 @@ body#loginform {
 
     &::before {
       color: $body-bg;
-      background: url('../img/user.svg');/* The user avatar icon */
+      background: url("../img/user.svg"); /* The user avatar icon */
       content: "";
       float: left;
       margin-right: 20px;
