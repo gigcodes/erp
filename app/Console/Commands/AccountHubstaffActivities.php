@@ -9,6 +9,7 @@ use App\UserRate;
 use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
+use App\Helpers\LogHelper;
 
 class AccountHubstaffActivities extends Command
 {
@@ -45,9 +46,13 @@ class AccountHubstaffActivities extends Command
     {
         //
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             DB::beginTransaction();
             $firstUnaccountedActivity = HubstaffActivity::orderBy('starts_at')->first();
             if (! $firstUnaccountedActivity) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'No found any first unaccounted activity']);
+
                 return;
             }
 
@@ -73,6 +78,9 @@ class AccountHubstaffActivities extends Command
                 $userRatesForStartOfDayYesterday = UserRate::latestRatesBeforeTime($end);
                 $rateChangesForYesterday = UserRate::rateChangesForDate($start, $end);
                 $activities = HubstaffActivity::getActivitiesBetween($start, $end);
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting user rate & hubstuff activities']);
+
                 $userId = [];
                 if (! empty($activities)) {
                     foreach ($activities as $acts) {
@@ -83,6 +91,8 @@ class AccountHubstaffActivities extends Command
                 }
 
                 $users = User::whereIn('id', array_unique($userId))->get();
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting all the hubstuff users']);
 
                 // store accounting records for the calculation here
                 // user
@@ -229,7 +239,12 @@ class AccountHubstaffActivities extends Command
                     $paymentAccount->total_payout = ($entry['amount']) * 68;
                     $paymentAccount->ex_rate = 68;
                     $paymentAccount->save();
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved hubstaff payment account detail by ID:'.$paymentAccount->id]);
+
                     foreach ($entry['activityIds'] as $activityId) {
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update hubstaff activity detail by ID:'.$activityId]);
+
                         HubstaffActivity::where('id', $activityId)
                             ->update([
                                 'hubstaff_payment_account_id' => $paymentAccount->id,
@@ -246,6 +261,8 @@ class AccountHubstaffActivities extends Command
                                 if ($developerTask) {
                                     $developerTask->estimate_minutes += $task;
                                     $developerTask->save();
+
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update developer task estimation by ID:'. $developerTask->id]);
                                 }
                             }
                         }
@@ -261,6 +278,10 @@ class AccountHubstaffActivities extends Command
             DB::commit();
             echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . '=====FAILED====' . PHP_EOL;

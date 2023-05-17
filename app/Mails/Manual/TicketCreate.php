@@ -20,10 +20,12 @@ class TicketCreate extends Mailable
      */
     public $ticket;
 
+    public $fromMailer;
+
     public function __construct(Tickets $ticket)
     {
         $this->ticket = $ticket;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**

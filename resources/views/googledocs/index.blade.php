@@ -46,8 +46,8 @@
                                     </div>
                                     <div class="form-group px-2 googleDocCategory-container">
                                         <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
-                                            @foreach ($googleDocCategory as $key => $category)
-                                                <option value="{{$key}}">{{$category}}</option>
+                                            @foreach ($googleDocCategory as $key => $c)
+                                                <option value="{{$key}}">{{$c}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -98,6 +98,7 @@
                 <th>File Name</th>
                 <th>Category</th>
                 <th>Task</th>
+                <th>Created By</th>
                 <th>Created At</th>
                 <th>URL</th>
                 <th>Action</th>
@@ -127,8 +128,8 @@
                             </label>
                             <select class="w-100 js-example-basic-multiple js-states"
                                     id="remove_permission_write"  name="remove_permission">
-                                @foreach(App\User::all() as $val)
-                                    <option value="{{$val->email}}" class="form-control">{{$val->name}}</option>
+                                @foreach(App\User::whereNotNull('gmail')->get() as $val)
+                                    <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
                                 @endforeach
                             </select>
                         </div>

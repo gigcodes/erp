@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\VisitorLog;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class VisitorLogs extends Command
 {
@@ -41,7 +42,11 @@ class VisitorLogs extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
+
             $curl = curl_init();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the visitors detail this api: https://api.livechatinc.com/v2/visitors']);
 
             curl_setopt_array($curl, [
                 CURLOPT_URL => 'https://api.livechatinc.com/v2/visitors',
@@ -61,13 +66,19 @@ class VisitorLogs extends Command
             $err = curl_error($curl);
 
             if ($err) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'error found from curl request']);
+
                 echo 'cURL Error #:' . $err;
             } else {
                 $logs = json_decode($response);
                 if (count($logs) != 0) {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'visitor logs records found']);
+
                     foreach ($logs as $log) {
                         $logExist = VisitorLog::where('ip', $log->ip)->whereDate('last_visit', '<=', $log->last_visit)->first();
                         if ($logExist == null) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'No found any visior log using ip: '.$log->ip]);
+
                             $logSave = new VisitorLog();
                             $logSave->ip = $log->ip;
                             $logSave->browser = $log->browser;
@@ -82,11 +93,15 @@ class VisitorLogs extends Command
                             $logSave->chats = $log->chats;
                             $logSave->customer_name = $log->name;
                             $logSave->save();
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved visitor log by ID: '.$logSave->id]);
                         }
                     }
                 }
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

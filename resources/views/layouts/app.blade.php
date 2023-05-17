@@ -47,7 +47,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <script src="{{siteJs('site.js')}}" defer></script>
     <script>var BASE_URL = "{{config('app.url')}}";</script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -60,9 +59,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             z-index:9999999
         }
 
-        .select-multiple.cs-select-2 + .select2.select2-container{
+        .ipusersSelect{
             margin-top:-30px;
+            font-size: 14px;
         }
+        #select-user .select2-container--default {
+            display: inline-block;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
         #message-chat-data-box .p1[data-count]:after{
           position:absolute;
           right:10%;
@@ -123,6 +129,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     .modal {
         overflow-y: auto !important;
+    }
+    .shortcut-estimate-search-container .select2.select2-container{
+        width: 200px!important
     }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -442,6 +451,65 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             </td>
                                         </tr>
                                     @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- email-search Modal-->
+    <div id="menu-email-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_email_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Email Search" type="button" class="email_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="emailNameTable">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Sender</th>
+                                        <th>Receiver</th>
+                                        <th>Subject</th>
+                                        <th>Body</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="email_search_result">
+                                        @php
+                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                        @endphp
+                                        @foreach ($userEmails as $key => $userEmail)
+                                            <tr>
+                                                <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
+                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td>
+                                                    <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
+                                                        <i class="fa fa-copy"></i>
+                                                </a></td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -1372,6 +1440,9 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1382,7 +1453,7 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="" href="{{ route('store-website.all.status') }}" role="button"
-                                                aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                                aria-haspopup="true" aria-expanded="false">Magento order status<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1544,6 +1615,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}"
                                         role="button">Purchase</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('status-mapping.index') }}"
+                                        role="button">Status Mappings</a>
                                 </li>
                             </ul>
                         </li>
@@ -1982,7 +2057,7 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('\App\Http\Controllers\PinterestAccountAcontroller@index') }}">Accounts</a>
+                                                href="{{ route('pinterest.accounts') }}">Accounts</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2349,6 +2424,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.ad.index')}}">Social Ads</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('chatgpt.index') }}">Chat GPT</a>
                                 </li>
                                 @endif
                             </ul>
@@ -2732,6 +2810,11 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown ">
                                             <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-suites') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Suites</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
@@ -3646,6 +3729,19 @@ if (!empty($notifications)) {
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
                             </li>
+
+                            @php
+                                $route = request()->route()->getName();
+                            @endphp
+                            @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
+                                <li>
+                                    <a title="Time Estimations" type="button" class="quick-icon show-estimate-time" data-task="{{$route == "development.issue.index" ? "DEVTASK" : "TASK"}}">
+                                        <span>
+                                            <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <a title="Task & Activity" type="button" class="quick-icon menu-show-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
@@ -3657,6 +3753,10 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Email Search" type="button" class="quick-icon menu-email-search" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
@@ -3770,6 +3870,53 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
+        @php
+        $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
+            @php
+                $d_taskList = App\DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                $g_taskList = App\Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+            @endphp
+            {{-- @if ($route == "development.issue.index")
+            @else
+            @php
+                @endphp
+            @endif --}}
+            <div id="showLatestEstimateTime" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Estimation</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body shortcut-estimate-search-container">
+                            <div class="from-group ">
+                                <label>Search</label>
+                                <br>
+                                <select name="task_id" id="shortcut-estimate-search" class="form-control">
+                                    <option selected value>Select task</option>
+                                    @foreach ($d_taskList as $val)
+                                        <option value="DEVTASK-{{$val}}">DEVTASK-{{$val}}</option>
+                                    @endforeach
+                                    @foreach ($g_taskList as $val)
+                                        <option value="TASK-{{$val}}">TASK-{{$val}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="modal-table">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            @include('development.partials.estimate-shortcut')
+        @endif
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
@@ -4760,7 +4907,7 @@ if (!empty($notifications)) {
                         use App\User;
                         $userlist = [];
                         $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
-                        
+
                         $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh
                         -f list');
                         $final_array = [];
@@ -4774,10 +4921,10 @@ if (!empty($notifications)) {
                         }
                         }
                         @endphp
-                       
-                        <div class="select-user">
+
+                        <div id="select-user">
                             <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                            <select class="form-control col-md-2 ml-3 select-multiple cs-select-2" name="user_id" id="ipusers">
+                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="user_id" id="ipusers">
                                 <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -4791,9 +4938,9 @@ if (!empty($notifications)) {
                             <button class="btn-success btn addIp ml-3 mb-5">Add</button>
                             <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
                         </div>
-                       
-                       
-                      
+
+
+
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -4862,7 +5009,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
-   
+
 {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
@@ -4881,7 +5028,7 @@ if (!empty($notifications)) {
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
-        $('.select-user .select-multiple').select2({width: '20%'});
+        $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
@@ -5055,6 +5202,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
+    $(document).on("click", ".menu-email-search", function(e) {
+        e.preventDefault();
+        $("#menu-email-search-model").modal("show");
+    });
+
     $(document).on("click", ".sop_search_menu", function(e) {
         let $this = $('#menu_sop_search').val();
         var q = $this;
@@ -5075,6 +5227,35 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".email_search_menu", function(e) {
+        let $this = $('#menu_email_search').val();
+        var q = $this;
+        $.ajax({
+            url: '{{route('menu.email.search')}}',
+            type: 'GET',
+            data: {
+                search: q,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                $('.email_search_result').empty();
+                $('.email_search_result').append(response);
                 toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
@@ -5918,7 +6099,7 @@ if (!empty($notifications)) {
             },
             dataType: 'json',
             success: function(result) {
-                 
+
 
                  const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
 
@@ -6473,6 +6654,116 @@ if (!\Auth::guest()) {
             $('#sidebar').toggleClass('active');
         });
         $(".select2-vendor").select2({});
+
+        @php
+            $route = request()->route()->getName();
+        @endphp
+        @if (in_array($route, ["development.issue.index", "task.index", "development.summarylist", "chatbot.messages.list"]))
+            $(".show-estimate-time").click(function (e) {
+                e.preventDefault();
+                var tasktype = $(this).data('task');
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    // data: {
+                    //     task: tasktype
+                    // },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) {
+
+                    }
+
+                });
+            });
+            $("#shortcut-estimate-search").select2();
+
+            $("#shortcut-estimate-search").change(function (e) {
+                e.preventDefault();
+                let task_id = $(this).val();
+                @if ($route == "development.issue.index")
+                    var  tasktype = "DEVTASK";
+                @else
+                    var tasktype = "TASK";
+                @endif
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('task.estimate.list')}}",
+                    data: {
+                        task: tasktype,
+                        task_id
+                    },
+                    success: function (response) {
+                        $("#showLatestEstimateTime").modal('show');
+                        $("#showLatestEstimateTime .modal-table").html(response);
+                    },
+                    error: function (error) {
+                        toastr["error"]("Error while fetching data.");
+                    }
+
+                });
+            });
+        @endif
+
+        $('#showLatestEstimateTime').on('hide.bs.modal', function (e) {
+            $("#modalTaskInformationUpdates .modal-body .row").show()
+            $("#modalTaskInformationUpdates .modal-body hr").show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).show()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).show()
+        })
+
+
+        $(document).on("click", ".approveEstimateFromshortcutButton", function (event) {
+            event.preventDefault();
+            let type = $(this).data('type');
+            let task_id = $(this).data('task');
+            let history_id = $(this).data('id');
+            // console.log(type,
+            // task_id,
+            // history_id);
+            // return
+            if (type == "TASK") {
+                $.ajax({
+                url: "/task/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            } else {
+                $.ajax({
+                url: "/development/time/history/approve",
+                type: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    approve_time: history_id,
+                    developer_task_id: task_id,
+                    user_id: 0
+                },
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#showLatestEstimateTime").modal("hide");
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                },
+                });
+            }
+        });
     });
 
     $(document).on('click', '.save-meeting-zoom', function() {
@@ -6918,6 +7209,25 @@ if (!\Auth::guest()) {
 		});
 	}
 
+    function estimateFunTaskDetailHandler(elm) {
+        let tasktype = $(elm).data('task');
+        let taskid = $(elm).data('id');
+        if(tasktype == "DEVTASK") {
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
+        } else {
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
+            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
+            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            estimatefunTaskInformationModal(elm, taskid, tasktype)
+        }
+    }
 
     </script>
     @if ($message = Session::get('actSuccess'))

@@ -528,6 +528,10 @@ class TimeDoctorController extends Controller
         try {
             $logs = TimeDoctorLog::query()->with(['user']);
 
+            if(!auth()->user()->isAdmin()) {
+                $logs->where('user_id', auth()->user()->id);
+            }
+
             if ($request->search_url) {
                 $logs->where('url', 'like', "%$request->search_url%");
             }
@@ -561,6 +565,8 @@ class TimeDoctorController extends Controller
                     $query->orWhereIn('task_id', $general_task);
                 }
             });
+
+            // dd($logs->toSql());
 
             $logs = $logs->paginate(20);
 

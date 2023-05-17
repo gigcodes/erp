@@ -18,6 +18,7 @@ use App\Loggers\FlowLog;
 use App\Mail\ScheduledEmail;
 use Illuminate\Console\Command;
 use App\Loggers\FlowLogMessages;
+use App\Helpers\LogHelper;
 
 class ScheduleEmails extends Command
 {
@@ -54,166 +55,197 @@ class ScheduleEmails extends Command
      */
     public function handle()
     {
-        //dd("test");
-        $created_date = Carbon::now();
-        $modalType = '';
-        $leads = [];
+        try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
-        $leads_new = [];
+            //dd("test");
+            $created_date = Carbon::now();
+            $modalType = '';
+            $leads = [];
 
-        $flows = Flow::select('id', 'flow_name as name')->get();
-        // dd($flows);
-        //$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();
-        FlowLog::log(['flow_id' => 0, 'messages' => 'Flow action started to check and found total flows : ' . $flows->count()]);
+            $leads_new = [];
 
-        //$this->log[]="Flow action started to check and found total flows : ".$flows->count();
-        foreach ($flows as $flow) {
-            $flowconditions = FlowCondition::where('flow_name', $flow['name'])->where('status', 1)->get();
-            $allflowconditions = [];
-            if (! empty($flowconditions)) {
-                foreach ($flowconditions as $key => $flowcondition) {
-                    $allflowconditions[$key] = $flowcondition['condition_name'];
-                }
-            }
+            $flows = Flow::select('id', 'flow_name as name')->get();
+            // dd($flows);
+            //$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();
+            FlowLog::log(['flow_id' => 0, 'messages' => 'Flow action started to check and found total flows : ' . $flows->count()]);
 
-            $flowActions = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
-                ->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
-                ->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-                ->join('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
-                ->select('flows.store_website_id', 'flows.id', 'store_websites.website', 'flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
-                ->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
-                ->get();
-            $flowlog = FlowLog::log(['flow_id' => $flow['id'], 'messages' => $flow['name'] . ' has found total Action  : ' . $flowActions->count()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow model query was finished']);
 
-            if ($flowActions != null) {
-                $i = 0;
-                $created_date = Carbon::now();
-                foreach ($flowActions as $key => $flowAction) {
-                    if ($flowAction['type'] == 'Time Delay') {
-                        if ($flowAction['time_delay_type'] == 'days') {
-                            $created_date = $created_date->addDays($flowAction['time_delay']);
-                        } elseif ($flowAction['time_delay_type'] == 'hours') {
-                            $created_date = $created_date->addHours($flowAction['time_delay']);
-                        } elseif ($flowAction['time_delay_type'] == 'minutes') {
-                            $created_date = $created_date->addMinutes($flowAction['time_delay']);
-                        }
+            //$this->log[]="Flow action started to check and found total flows : ".$flows->count();
+            foreach ($flows as $flow) {
+                $flowconditions = FlowCondition::where('flow_name', $flow['name'])->where('status', 1)->get();
+                $allflowconditions = [];
+                if (! empty($flowconditions)) {
+                    foreach ($flowconditions as $key => $flowcondition) {
+                        $allflowconditions[$key] = $flowcondition['condition_name'];
                     }
+                }
 
-                    $leadsFlowArray = ['add_to_cart', 'add to cart', 'attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
+                $flowActions = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
+                    ->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
+                    ->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
+                    ->join('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
+                    ->select('flows.store_website_id', 'flows.id', 'store_websites.website', 'flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
+                    ->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
+                    ->get();
+                
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'FlowAction model query was finished']);
 
-                    // dd( $leadsFlowArray, $flow['name']);
-                    // dd(($key == 0 and (in_array($flow['name'], $leadsFlowArray))));
-                    if ($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
-                        $nameInDB = str_replace('_', '-', $flow['name']);
-                        $leads = ErpLeads::select(
-                            'erp_leads.id',
-                            'erp_leads.customer_id',
-                            'erp_leads.created_at as order_date',
-                            'customers.name as customer_name',
-                            'customers.email as customer_email',
-                            'customers.id as customer_id'
-                        )
-                            ->leftJoin('customers', 'erp_leads.customer_id', '=', 'customers.id')
-                            ->where('erp_leads.created_at', 'like', Carbon::now()->format('Y-m-d') . '%')
-                            ->where('customers.store_website_id', $flow['store_website_id'])
-                            ->whereIn('type', [$flow['name'], $nameInDB])
-                            ->whereNotNull('customers.email')
+                $flowlog = FlowLog::log(['flow_id' => $flow['id'], 'messages' => $flow['name'] . ' has found total Action  : ' . $flowActions->count()]);
+
+                if ($flowActions != null) {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow action records found']);
+
+                    $i = 0;
+                    $created_date = Carbon::now();
+                    foreach ($flowActions as $key => $flowAction) {
+                        if ($flowAction['type'] == 'Time Delay') {
+                            if ($flowAction['time_delay_type'] == 'days') {
+                                $created_date = $created_date->addDays($flowAction['time_delay']);
+                            } elseif ($flowAction['time_delay_type'] == 'hours') {
+                                $created_date = $created_date->addHours($flowAction['time_delay']);
+                            } elseif ($flowAction['time_delay_type'] == 'minutes') {
+                                $created_date = $created_date->addMinutes($flowAction['time_delay']);
+                            }
+                        }
+
+                        $leadsFlowArray = ['add_to_cart', 'add to cart', 'attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
+
+                        // dd( $leadsFlowArray, $flow['name']);
+                        // dd(($key == 0 and (in_array($flow['name'], $leadsFlowArray))));
+                        if ($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
+                            $nameInDB = str_replace('_', '-', $flow['name']);
+                            $leads = ErpLeads::select(
+                                'erp_leads.id',
+                                'erp_leads.customer_id',
+                                'erp_leads.created_at as order_date',
+                                'customers.name as customer_name',
+                                'customers.email as customer_email',
+                                'customers.id as customer_id'
+                            )
+                                ->leftJoin('customers', 'erp_leads.customer_id', '=', 'customers.id')
+                                ->where('erp_leads.created_at', 'like', Carbon::now()->format('Y-m-d') . '%')
+                                ->where('customers.store_website_id', $flow['store_website_id'])
+                                ->whereIn('type', [$flow['name'], $nameInDB])
+                                ->whereNotNull('customers.email')
+                                ->get();
+                            $i = 1;
+
+                            $modalType = ErpLeads::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'ErpLeads model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'wishlist') {
+                            $leads = \App\CustomerBasketProduct::join('customer_baskets as cb', 'cb.id', 'customer_basket_products.customer_basket_id');
+                            $leads = $leads->where('cb.store_website_id', $flow['store_website_id']);
+                            if (in_array('wishlist_customer_basket_products_created_at', $allflowconditions)) {
+                                $leads = $leads->where('customer_basket_products.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            }
+
+                            $leads = $leads->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
                             ->get();
-                        $i = 1;
+                            $modalType = CustomerBasketProduct::class;
 
-                        $modalType = ErpLeads::class;
-                    } elseif ($key == 0 and $flow['name'] == 'wishlist') {
-                        $leads = \App\CustomerBasketProduct::join('customer_baskets as cb', 'cb.id', 'customer_basket_products.customer_basket_id');
-                        $leads = $leads->where('cb.store_website_id', $flow['store_website_id']);
-                        if (in_array('wishlist_customer_basket_products_created_at', $allflowconditions)) {
-                            $leads = $leads->where('customer_basket_products.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
-                        }
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'CustomerBasketProduct model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'delivered') {
+                            // $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
+                            // 	->where("customers.store_website_id", $flow['store_website_id'])
+                            // 	->whereIn('orders.order_status', ['delivered', 'Delivered'])
+                            // 	->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+                            // 	->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
 
-                        $leads = $leads->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
-                        ->get();
-                        $modalType = CustomerBasketProduct::class;
-                    } elseif ($key == 0 and $flow['name'] == 'delivered') {
-                        // $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-                        // 	->where("customers.store_website_id", $flow['store_website_id'])
-                        // 	->whereIn('orders.order_status', ['delivered', 'Delivered'])
-                        // 	->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-                        // 	->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-
-                        $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
-                        $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
-                        if (in_array('delivered_order_orders_order_status', $allflowconditions)) {
-                            $leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
-                        }
-                        if (in_array('delivered_order_orders_date_of_delivery', $allflowconditions)) {
-                            $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
-                        }
-                        $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
-                        ->get();
-                        $modalType = Orders::class;
-                    } elseif ($key == 0 and $flow['name'] == 'newsletters') {
-                        $leads = \App\Mailinglist::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
-                            ->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id');
-                        $leads = $leads->where('mailinglists.website_id', $flow['store_website_id']);
-
-                        if (in_array('newsletters_list_contacts_created_at', $allflowconditions)) {
-                            $leads = $leads->$leads->where('list_contacts.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
-                        }
-                        if (in_array('newsletters_customers_newsletter', $allflowconditions)) {
-                            $leads = $leads->where('customers.newsletter', 1);
-                        }
-
-                        $leads = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-                        $modalType = Mailinglist::class;
-                    } elseif ($key == 0 and $flow['name'] == 'customer_win_back') {
-                        $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
-                        $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
-                        if (in_array('customer_win_back_orders_order_status', $allflowconditions)) {
-                            $leads = $leads->whereIn(\DB::raw('lower(orders.order_status)'), ['Follow up for advance', 'Prepaid']);
-                        }
-                        if (in_array('customer_win_back_orders_created_at', $allflowconditions)) {
-                            $leads = $leads->where('orders.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
-                        }
-
-                        $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
-                        ->get();
-                        $modalType = Orders::class;
-                    } elseif ($key == 0 and $flow['name'] == 'order_reviews') {
-                        $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
-                        if (in_array('order_reviews_customers_store_website_id', $allflowconditions)) {
+                            $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
                             $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
-                        }
-                        if (in_array('order_reviews_orders_order_status', $allflowconditions)) {
-                            $leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
-                        }
-                        if (in_array('order_reviews_orders_date_of_delivery', $allflowconditions)) {
-                            $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            if (in_array('delivered_order_orders_order_status', $allflowconditions)) {
+                                $leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+                            }
+                            if (in_array('delivered_order_orders_date_of_delivery', $allflowconditions)) {
+                                $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            }
+                            $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
+                            ->get();
+                            $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Order model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'newsletters') {
+                            $leads = \App\Mailinglist::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
+                                ->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id');
+                            $leads = $leads->where('mailinglists.website_id', $flow['store_website_id']);
+
+                            if (in_array('newsletters_list_contacts_created_at', $allflowconditions)) {
+                                $leads = $leads->$leads->where('list_contacts.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            }
+                            if (in_array('newsletters_customers_newsletter', $allflowconditions)) {
+                                $leads = $leads->where('customers.newsletter', 1);
+                            }
+
+                            $leads = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+                            $modalType = Mailinglist::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Mailinglist model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'customer_win_back') {
+                            $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+                            $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
+                            if (in_array('customer_win_back_orders_order_status', $allflowconditions)) {
+                                $leads = $leads->whereIn(\DB::raw('lower(orders.order_status)'), ['Follow up for advance', 'Prepaid']);
+                            }
+                            if (in_array('customer_win_back_orders_created_at', $allflowconditions)) {
+                                $leads = $leads->where('orders.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            }
+
+                            $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
+                            ->get();
+                            $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'order_reviews') {
+                            $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+                            if (in_array('order_reviews_customers_store_website_id', $allflowconditions)) {
+                                $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
+                            }
+                            if (in_array('order_reviews_orders_order_status', $allflowconditions)) {
+                                $leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+                            }
+                            if (in_array('order_reviews_orders_date_of_delivery', $allflowconditions)) {
+                                $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+                            }
+
+                            $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+                            $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
+                        } elseif ($key == 0 and $flow['name'] == 'customer_post_purchase') { //
+                            $leads = [];
+                            $modalType = Orders::class;
+                        } elseif ($key == 0 and $flow['name'] == 'task_pr') { //
+                            $leads = [];
+                            $modalType = DeveloperTask::class;
+                        } elseif ($key == 0 and $flow['name'] == 'site_dev') { //
+                            $leads = [];
+                            $modalType = Task::class;
+                        } elseif ($key == 0 and in_array($flow['name'], ['order received', 'product shipped to client', 'cancel', 'Refund to be processed', 'Refund Dispatched', 'Refund Credited'])) {
+                            //To manage For all the orders Status
+                            $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
+                                ->where('customers.store_website_id', $flow['store_website_id'])
+                                ->where('orders.order_status', $flow['name'])
+                                //->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+                                ->select('orders.id', 'orders.order_status', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+
+                            $modalType = Orders::class;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
                         }
 
-                        $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-                        $modalType = Orders::class;
-                    } elseif ($key == 0 and $flow['name'] == 'customer_post_purchase') { //
-                        $leads = [];
-                        $modalType = Orders::class;
-                    } elseif ($key == 0 and $flow['name'] == 'task_pr') { //
-                        $leads = [];
-                        $modalType = DeveloperTask::class;
-                    } elseif ($key == 0 and $flow['name'] == 'site_dev') { //
-                        $leads = [];
-                        $modalType = Task::class;
-                    } elseif ($key == 0 and in_array($flow['name'], ['order received', 'product shipped to client', 'cancel', 'Refund to be processed', 'Refund Dispatched', 'Refund Credited'])) {
-                        //To manage For all the orders Status
-                        $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-                            ->where('customers.store_website_id', $flow['store_website_id'])
-                            ->where('orders.order_status', $flow['name'])
-                            //->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-                            ->select('orders.id', 'orders.order_status', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-
-                        $modalType = Orders::class;
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Starting the process']);
+                        // dd($leads, "leads");
+                        $this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog['id'], 'customer', $allflowconditions, $flow);
                     }
-                    // dd($leads, "leads");
-                    $this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog['id'], 'customer', $allflowconditions, $flow);
                 }
             }
+        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 

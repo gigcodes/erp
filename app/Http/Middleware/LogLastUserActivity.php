@@ -77,6 +77,7 @@ class LogLastUserActivity
             $this->session->put('lastActivityTimeU', time());
         } elseif (time() - $this->session->get('lastActivityTimeU') > $this->getTimeOut()) {
             $this->session->forget('lastActivityTimeU');
+            $display=\Carbon\CarbonInterval::seconds($this->getTimeOut())->cascade()->forHumans();
             if ($user_login = UserLogin::where('user_id', Auth::id())->latest()->first()) {
                 if (Carbon::now()->diffInDays($user_login->logout_at) == 0) {
                     $user_login->update(['logout_at' => Carbon::now()]);
@@ -88,8 +89,8 @@ class LogLastUserActivity
                 }
             }
             Auth::logout();
-
-            return redirect('/login')->withErrors(['You have been inactive for 30 minutes']);
+            
+            return redirect('/login')->withErrors(['You have been inactive for '.$display.'']);
         }
         $this->session->put('lastActivityTimeU', time());
 

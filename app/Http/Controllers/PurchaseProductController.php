@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use File;
 use Excel;
 use Storage;
@@ -9,6 +10,9 @@ use App\User;
 use App\Brand;
 use App\Email;
 use App\Order;
+use App\OrderStatusHistory;
+use App\PurchaseStatus;
+use App\StatusMapping;
 use App\Helpers;
 use App\Product;
 use App\Setting;
@@ -691,7 +695,9 @@ class PurchaseProductController extends Controller
             $purchar_product_order = $purchar_product_order->select('purchase_product_orders.*', 'purchase_product_orders.status as purchase_status', 'suppliers.*', 'suppliers.id as supplier_id', 'purchase_product_orders.id as pur_pro_id', 'purchase_product_orders.created_at as created_at_date');
             $purchar_product_order = $purchar_product_order->orderBy('purchase_product_orders.id', 'DESC')->paginate(Setting::get('pagination'));
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all'));
+            $purchaseStatuses = PurchaseStatus::pluck('name', 'id')->all();
+
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses'));
         } catch (\Exception $e) {
         }
     }
@@ -962,6 +968,62 @@ class PurchaseProductController extends Controller
                 return response()->json(['messages' => 'Special Price Updated successfully', 'code' => 200, 'mrp_price' => $mrp_price, 'discount_price' => $discount_price, 'special_price' => $final_special_price, 'landed_cost' => $landed_cost]);
             }
         } catch (\Exception $e) {
+        }
+    }
+
+    public function purchaseStatusChange(Request $request)
+    {
+        try {
+            // Get purchase product orders
+            $purchaseProductOrder = PurchaseProductOrder::FindOrFail($request->purchase_product_orders_id);
+
+            if($purchaseProductOrder) {
+                // Get purchase status from request
+                $purchaseStatus = $request->purchase_status;
+
+                // Update the purchase status in purchase product order table.
+                $purchaseProductOrder->purchase_status_id = $purchaseStatus;
+                $purchaseProductOrder->save();
+
+                // Find mapped order status
+                $mappedStatus = StatusMapping::where("purchase_status_id", $purchaseStatus)->first();
+                if ($mappedStatus) {
+                    $orderStatusId = $mappedStatus->order_status_id;
+                    $orderStatus = $mappedStatus->orderStatus->status;
+
+                    $orderProductsOrderIds = json_decode($purchaseProductOrder->order_products_order_id, true);
+                    $orderProducts = OrderProduct::whereIn('id', $orderProductsOrderIds)->get();
+                    
+                    if($orderProducts) {
+                        // Loop all the order products one by one & update the status
+                        foreach($orderProducts as $orderProduct) {
+                            $orderProduct->order_product_status_id = $orderStatusId;
+                            $orderProduct->save();
+
+                            // $order = $orderProduct->order;
+                            // $oldStatus = $order->order_status_id;
+
+                            // $update = [
+                            //     'order_status' => $orderStatus,
+                            //     'order_status_id' => $orderStatusId,
+                            // ];
+
+                            // $order->update($update);
+
+                            // update the order history also
+                            // $history = new OrderStatusHistory;
+                            // $history->order_id = $orderProduct->order->id;
+                            // $history->old_status = $oldStatus;
+                            // $history->new_status = $orderStatusId;
+                            // $history->user_id = Auth::user()->id;
+                            // $history->save();
+                        }
+                    }
+                }
+                return response()->json(['messages' => 'Status Updated successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Purchase product order not found!'], 404);
         }
     }
 

@@ -1948,9 +1948,9 @@ class DevelopmentController extends Controller
         if(empty($organization)){
             return false;
         }
-        
+
         $githubClientObj = $this->connectGithubClient($organization->username, $organization->token);
-        
+
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
@@ -1965,7 +1965,7 @@ class DevelopmentController extends Controller
         // https://api.github.com/repositories/:repo/git/refs
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
         try {
-            $githubClientObj->post(
+            $this->githubClient->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([
@@ -4825,6 +4825,67 @@ class DevelopmentController extends Controller
             return response()->json([
                 'data' => view('development.partials.google-drive-list', ['result' => null])->render(),
             ]);
+        }
+    }
+
+    /**
+     * Show the hostory for task an dev task
+     */
+    public function showTaskEstimateTime(Request $request)
+    {
+        try {
+                
+                $developerTaskID = DeveloperTaskHistory::where([
+                    'model'=> DeveloperTask::class,
+                    'attribute' => "estimation_minute"
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                
+                $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
+                ->whereIn("developer_tasks_history.id", $developerTaskID)
+                ->where(function($query) use ($request) {
+                    if(isset($request->task_id)) {
+                        if(str_contains($request->task_id, "DEVTASK")){
+                            $query= $query->where('developer_tasks.id', trim($request->task_id, "DEVTASK-"));
+                        }
+                    }
+                    return $query;
+                })
+                ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->get();
+
+
+                    $t_developerTaskID = DeveloperTaskHistory::where([
+                        'model'=> Task::class,
+                        'attribute' => "estimation_minute"
+                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                    
+                    $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
+                    ->whereIn("developer_tasks_history.id", $t_developerTaskID)
+                    ->where(function($query) use ($request) {
+                        if(isset($request->task_id)) {
+                            if(!str_contains($request->task_id, "DEVTASK")){
+                                $query= $query->where('tasks.id', trim($request->task_id, "TASK-"));
+                            }
+                        }
+                        return $query;
+                    })
+                    ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->get();
+
+
+                if(isset($request->task_id)){
+                    if(str_contains($request->task_id, "DEVTASK")){
+                        $t_developerTaskHistory = [];
+                    }
+                    if(!str_contains($request->task_id, "DEVTASK")){
+                        $developerTaskHistory = [];
+                    }
+                }  
+                return view('development.partials.estimate-list', compact('developerTaskHistory', 't_developerTaskHistory'));
+                    // return view('task-module.partials.estimate-list', compact('t_developerTaskHistory'));
+
+            
+        } catch (Exception $e) {
+            dd($e);
+            return '';
         }
     }
 }

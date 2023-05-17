@@ -1,4 +1,3 @@
-<br>
 <button class="btn pr-0 btn-xs btn-image upload-ui-responsive-button" type="button" title="Uploaded Files" data-ui_check_id="{{$uiDevData->uicheck_id}}">
     <i class="fa fa-cloud-upload" aria-hidden="true"></i>
 </button>

@@ -16,6 +16,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\CreateGoogleSpreadsheet;
 use App\Models\GoogleDocsCategory;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GoogleDocController extends Controller
 {
@@ -66,17 +67,18 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
             'doc_name' => ['required', 'max:800'],
-            'doc_category' => ['required', 'max:191'],
+            // 'doc_category' => ['required', 'max:191'],
             'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
             'read' => ['sometimes'],
             'write' => ['sometimes'],
         ]);
-
+        
         DB::transaction(function () use ($data) {
             $googleDoc = new GoogleDoc();
             $googleDoc->type = $data['type'];
             $googleDoc->name = $data['doc_name'];
-            $googleDoc->category = $data['doc_category'];
+            $googleDoc->created_by = Auth::user()->id;
+            $googleDoc->category = $data['doc_category'] ?? null;
             if (isset($data['read'])) {
                 $googleDoc->read = implode(',', $data['read']);
             }
@@ -264,14 +266,41 @@ class GoogleDocController extends Controller
 
     public function permissionRemove(Request $request)
     {
-        $googledocs = GoogleDoc::get();
+        $googledocs = GoogleDoc::where(function($query) use ($request){
+            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
+            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
+        })->get();
 
         foreach ($googledocs as $googledoc) {
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($googledoc->docId, $parameters);
+            
+            // dd($permissions->getPermissions());
+
+            $is_already_have_permission = false;
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove old Permission
+                if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($googledoc->docId, $permission['id']);
+                }
+            }
+
             $read = explode(',', $googledoc->read);
 
             if (($key = array_search($request->remove_permission, $read)) !== false) {
                 unset($read[$key]);
             }
+
             $new_read_data = implode(',', $read);
             $googledoc->read = $new_read_data;
 
@@ -320,16 +349,16 @@ class GoogleDocController extends Controller
      */
     public function createDocumentOnTask(Request $request)
     {
+        $data = $this->validate($request, [
+            'doc_type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+            'doc_name' => ['required', 'max:800'],
+            // 'doc_category' => ['required', 'max:191'],
+            'task_id' => ['required'],
+            'task_type' => ['required'],
+        ]);
         try {
             $authUser = Auth::user();
 
-            $data = $this->validate($request, [
-                'doc_type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
-                'doc_name' => ['required', 'max:800'],
-                'doc_category' => ['required', 'max:191'],
-                'task_id' => ['required'],
-                'task_type' => ['required'],
-            ]);
 
             DB::transaction(function () use ($data, $authUser) {
                 $task = null;
@@ -347,7 +376,8 @@ class GoogleDocController extends Controller
                 $googleDoc = new GoogleDoc();
                 $googleDoc->type = $data['doc_type'];
                 $googleDoc->name = $data['doc_name'];
-                $googleDoc->category = $data['doc_category'];
+                $googleDoc->created_by = Auth::user()->id;
+                $googleDoc->category = $data['doc_category'] ?? null;
 
                 if ($authUser->isAdmin()) {
                     $googleDoc->read = null;
@@ -442,6 +472,137 @@ class GoogleDocController extends Controller
             return redirect()->back()->with('success', 'Category added successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error while creating category');
+        }
+    }
+
+    public function assignUserPermission(Request $request)
+    {
+        try {
+            
+            if(!isset($request->user_id)) {
+                throw new Exception("User Id required");
+            }
+            if(!isset($request->document_id)) {
+                throw new Exception("Please select Document");
+            }
+            
+            $user = User::find($request->user_id);
+            if(!$user) {
+                throw new Exception("User not found.");
+            }
+            $doc = GoogleDoc::find($request->document_id);
+            if(!$doc) {
+                throw new Exception("Document not found.");
+            }
+
+            $readPermission = [];
+            if($doc->read) {
+                $readPermission = explode(",", $doc->read);
+            }
+            $writePermission = [];
+            if($doc->read) {
+                $writePermission = explode(",", $doc->write);
+            }
+
+            
+            if(!isset($user->gmail) || $user->gmail == ""){
+                throw new Exception("User Email not found.");
+            }
+
+            
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($doc->docId, $parameters);
+            
+            // dd($permissions->getPermissions());
+
+            $is_already_have_permission = false;
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove old Permission
+                if ($permission['emailAddress'] == $user->gmail && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($doc->docId, $permission['id']);
+                    unset( $readPermission[array_search( $user->gmail, $readPermission )] );
+                    unset( $writePermission[array_search( $user->gmail, $writePermission )] );
+                }
+            }
+            
+            //assign permission based on requested data
+            $index = 1;
+            $driveService->getClient()->setUseBatch(true);
+
+            $batch = $driveService->createBatch();
+            $userPermission = new Drive\Permission([
+                'type' => 'user',
+                'role' => 'reader',
+                'emailAddress' => $user->gmail,
+            ]);
+
+            // dd([
+            //     'type' => 'user',
+            //     'role' => 'reader',
+            //     'emailAddress' => $user->gmail,
+            // ], $doc->docId);
+
+            $r_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
+            $batch->add($r_request, 'user' . rand(0, 999));
+            // $index++;
+            // foreach ($readData as $email) {
+            // }
+            $results = $batch->execute();
+            $readPermission[] = $user->gmail;
+            
+            $batch = $driveService->createBatch();
+            $userPermission = new Drive\Permission([
+                'type' => 'user',
+                'role' => 'writer',
+                'emailAddress' => $user->gmail,
+            ]);
+            
+            $w_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
+            $batch->add($w_request, 'user' . rand(0, 999));
+            // $index++;
+            // foreach ($writeData as $email) {
+            // }
+            $results = $batch->execute();
+            $writePermission[] = $user->gmail;
+
+            if($doc->belongable_id == null) {
+                $doc->belongable_id = $request->task_id;
+                $doc->belongable_type = ($request->task_type == "DEVTASK") ? DeveloperTask::class : Task::class;
+            }
+            $doc->read = ! empty($readPermission) ? implode(',', $readPermission) : null;
+            $doc->write = ! empty($writePermission) ? implode(',', $writePermission) : null;
+            $doc->save();
+
+            return redirect()->back()->withSuccess("Permission assigned successsfully");
+            
+            
+        } catch (Exception $e) {
+            return redirect()->back()->withError($e->getMessage());
+        }
+    }
+
+    public function getGoogleDocList(Request $request)
+    {
+        try {
+            $doc = GoogleDoc::select('id', "name as text")->get()->toArray();
+            return response()->json([
+                "status"=> true,
+                "docs" => $doc
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                "status"=> false
+            ]);
         }
     }
 }

@@ -31,7 +31,7 @@ class MessageController extends Controller
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id']); //Purpose : Add task_id - DEVTASK-4203
+            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -57,6 +57,22 @@ class MessageController extends Controller
             });
         }
 
+        if (request('message_type') != null) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                if(request('message_type')=='email'){
+                    $q->where('chat_messages.message_type', 'email');
+                }
+                if(request('message_type')=='task'){
+                    $q->orWhere('chat_messages.task_id', '>', 0);
+                }
+                if(request('message_type')=='dev_task'){
+                    $q->orWhere('chat_messages.developer_task_id', '>', 0);
+                }
+                if(request('message_type')=='ticket'){
+                    $q->orWhere('chat_messages.ticket_id', '>', 0);
+                }
+            });
+        }
         if (request('search_type') != null and count(request('search_type')) > 0) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
                 if (in_array('customer', request('search_type'))) {
@@ -83,7 +99,7 @@ class MessageController extends Controller
         AND bug_id IS NULL
         AND task_id IS NULL
         AND developer_task_id IS NULL
-        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
+        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');

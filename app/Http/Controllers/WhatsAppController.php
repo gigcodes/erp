@@ -56,6 +56,7 @@ use App\Helpers\MessageHelper;
 use GuzzleHttp\RequestOptions;
 use App\Hubstaff\HubstaffMember;
 use App\Marketing\WhatsappConfig;
+use App\Marketing\WhatsappBusinessAccounts;
 use App\Helpers\TranslationHelper;
 use Illuminate\Support\Facades\URL;
 use App\Mails\Manual\PurchaseExport;
@@ -5450,21 +5451,39 @@ class WhatsAppController extends FindByNumberController
 
         // Get configs
         $config = \Config::get('apiwha.instances');
+        $whatAppConfig = WhatsappConfig::where('number', $whatsapp_number)->where('status', 1)->first();
+        if (!$whatAppConfig) {
+            // check if number is set or not then call from the table
+            if (! isset($config[$whatsapp_number])) {
+                $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'wassenger')
+                    ->where('instance_id', '!=', '')
+                    ->where('token', '!=', '')
+                    ->where('status', 1)
+                    ->where('number', $whatsapp_number)
+                    ->first();
 
-        // check if number is set or not then call from the table
-        if (! isset($config[$whatsapp_number])) {
-            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'wassenger')
-                ->where('instance_id', '!=', '')
-                ->where('token', '!=', '')
-                ->where('status', 1)
-                ->where('number', $whatsapp_number)
-                ->first();
-
-            if ($whatsappRecord) {
+                if ($whatsappRecord) {
+                    $config[$whatsapp_number] = [
+                        'instance_id' => $whatsappRecord->instance_id,
+                        'token' => $whatsappRecord->token,
+                        'is_use_own' => $whatsappRecord->is_use_own,
+                    ];
+                }
+            }
+        } else {
+            if ($whatAppConfig->provicer == 'official-whatsapp') {
+                $whatsappAccount = WhatsappBusinessAccounts::where('id', $whatAppConfig->instance_id)->first();
                 $config[$whatsapp_number] = [
-                    'instance_id' => $whatsappRecord->instance_id,
-                    'token' => $whatsappRecord->token,
-                    'is_use_own' => $whatsappRecord->is_use_own,
+                    'provider' => 'official-whatsapp',
+                    'instance_id' => $whatsappAccount->id,
+                    'token' => $whatsappAccount->business_access_token,
+                    'is_use_own' => $whatAppConfig->is_use_own,
+                ];
+            } else {
+                $config[$whatsapp_number] = [
+                    'instance_id' => $whatAppConfig->instance_id,
+                    'token' => $whatAppConfig->token,
+                    'is_use_own' => $whatAppConfig->is_use_own,
                 ];
             }
         }
@@ -5534,6 +5553,32 @@ class WhatsAppController extends FindByNumberController
                 $array['device'] = $array['instanceId'];
                 unset($array['body']);
                 unset($array['instanceId']);
+            } else if (isset($config[$whatsapp_number]['provider']) && $config[$whatsapp_number]['provider'] == 'official-whatsapp') {
+                $apiCalled = true;
+                $whatsappApiController = new WhatsAppOfficialController($config[$whatsapp_number]['instance_id']);
+                $response = $whatsappApiController->sendMessage([
+                    'type' => 'text',
+                    'body' => $message,
+                    'preview_url' => true,
+                    'number' => $whatsapp_number
+                ]);
+                if ($response['status']) {
+                    if ($chatMessage) {
+                        $chatMessage->unique_id = $response['data']['messages'][0]['id'];
+                        $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_SUCCESS;
+                        $chatMessage->save();
+                    }
+                    \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') Message was sent to number '.$number.':'.$response['data']['messages'][0]['id'].' ['.json_encode($logDetail).'] ');
+                    return $response['data']['messages'][0];
+                } else {
+                    \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') cURL Error for number '.$number.': ['.json_encode($logDetail).'] ');
+                    if ($chatMessage) {
+                        $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
+                        $chatMessage->error_info = json_encode($response);
+                        $chatMessage->save();
+                    }
+                    return $response;
+                }
             } else {
                 $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
             }
@@ -5777,6 +5822,7 @@ class WhatsAppController extends FindByNumberController
                 'user_id' => $chat_message->user_id,
                 'number' => null,
                 'task_id' => $chat_message->task_id,
+                'developer_task_id' => $chat_message->developer_task_id,
                 'erp_user' => $chat_message->erp_user,
                 'contact_id' => $chat_message->contact_id,
                 'message' => $sending_message,
@@ -6345,5 +6391,77 @@ class WhatsAppController extends FindByNumberController
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+    }
+
+    public function webhookOfficial(Request $request) {
+        $entries = $request['entry'];
+        foreach ($entries as $entry) {
+            foreach ($entry['changes'] as $change) {
+                $businessAccount = WhatsappBusinessAccounts::where('business_phone_number_id', $change['value']['metadata']['phone_number_id'])->first();
+                if (isset($change['messages'])) {
+                    foreach ($change['messages'] as $message) {
+                        $supplier = $this->findSupplierByNumber($message['from']);
+                        $vendor = $this->findVendorByNumber($message['from']);
+                        $user = $this->findUserByNumber($message['from']);
+                        $dubbizle = $this->findDubbizleByNumber($message['from']);
+                        $contact = $this->findContactByNumber($message['from']);
+                        $customer = $this->findCustomerByNumber($message['from']);
+                        $params = [
+                            'unique_id' => $message['id'],
+                            'number' => $message['from'],
+                            'message_type' => $message['type'],
+                            'message' => isset($message['text']) ? $message['text']['body'] : '',
+                            'user_id' => $user != null ? $user->id: null,
+                            'contact_id' => $contact != null ? $contact->id : null,
+                            'supplier_id' => $supplier != null ? $supplier->id : null,
+                            'vendor_id' => $vendor != null ? $vendor->id : null,
+                            'dubbizle_id' => $dubbizle != null ? $dubbizle->id : null,
+                            'customer_id' => $customer != null ? $customer->id : null,
+                            'account_id' => $businessAccount->id
+                        ];
+                        ChatMessage::create($params);
+                    }
+                }
+                if (isset($change['statuses'])) {
+                    foreach ($change['statuses'] as $status) {
+                        $chatMessage = ChatMessage::where('unique_id', $status['id'])->first();
+                        if ($chatMessage) {
+                            if ($status['status'] === 'sent') {
+                                $chatMessage->sent = true;
+                                $chatMessage->save();
+                            }
+                            if ($status['status'] === 'delivered') {
+                                $chatMessage->is_delivered = true;
+                                $chatMessage->save();
+                            }
+                            if ($status['status'] === 'read') {
+                                $chatMessage->is_read = true;
+                                $chatMessage->save();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function webhookOfficialVerify(Request $request) {
+        $verifyToken = 'w59YnmcB4w1tzfxVYlPP';
+        $mode = $request->get('hub.mode');
+        $token = $request->get('hub.verify_token');
+        $challenge = $request->get("hub.challenge");
+
+        // Check if a token and mode were sent
+        if ($mode && $token) {
+            // Check the mode and token sent are correct
+            if ($mode === "subscribe" && $token === $verifyToken) {
+                // Respond with 200 OK and challenge token from the request
+                return response()->setStatusCode(200)->setContent($challenge)->send();
+            } else {
+                // Responds with '403 Forbidden' if verify tokens do not match
+                return response()->setStatusCode(403);
+            }
+        }
+        return response()->setStatusCode(403);
     }
 }

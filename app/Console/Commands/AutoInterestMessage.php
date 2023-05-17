@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Helpers\LogHelper;
 
 class AutoInterestMessage extends Command
 {
@@ -44,6 +45,8 @@ class AutoInterestMessage extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -60,6 +63,8 @@ class AutoInterestMessage extends Command
             }])->whereHas('Leads', function ($query) {
                 $query->whereNotNull('multi_brand')->orWhereNotNull('multi_category')->latest();
             })->get()->toArray();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'customer model query with leads was finished']);
 
             $customers_orders = Customer::with(['Orders' => function ($query) {
                 $query->with(['Order_Product' => function ($order_product_query) {
@@ -91,6 +96,8 @@ class AutoInterestMessage extends Command
                 });
             })->get()->toArray();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'customer model query with orders was finished']);
+
             foreach ($customers_leads as $customer) {
                 $brands = $customer['leads'][0]['multi_brand'] ? json_decode($customer['leads'][0]['multi_brand']) : [];
 
@@ -105,7 +112,11 @@ class AutoInterestMessage extends Command
 
                     $chat_message = ChatMessage::create($params);
 
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:'.$chat_message->id]);
+
                     foreach ($products as $product) {
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:'.$product->id]);
+
                         $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
                     }
                 }
@@ -136,6 +147,8 @@ class AutoInterestMessage extends Command
                             unset($category_children[$key]);
                         }
                     }
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get product category detail']);
                 }
 
                 if ($brand && $category != 1) {
@@ -151,7 +164,11 @@ class AutoInterestMessage extends Command
 
                     $chat_message = ChatMessage::create($params);
 
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:'.$chat_message->id]);
+
                     foreach ($products as $product) {
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:'.$product->id]);
+                        
                         $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
                     }
                 }
@@ -159,6 +176,8 @@ class AutoInterestMessage extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

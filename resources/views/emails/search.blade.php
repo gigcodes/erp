@@ -57,11 +57,7 @@
     <select class="form-control selecte2 email-category">
       <option  value="" >Please select</option>
       @foreach($email_categories as $email_category)
-      @if($email_category->id == (int)$email->email_category_id)
-      <option  value="{{ $email_category->id }}" data-id="{{$email->id}}"   selected>{{ $email_category->category_name }}</option>
-      @else
-      <option  value="{{ $email_category->id }}" data-id="{{$email->id}}" >{{$email_category->category_name }}</option>
-      @endif
+          <option  value="{{ $email_category->id }}" data-id="{{$email->id}}" {{ $email_category->id == $email->email_category_id ? 'selected' : '' }}>{{$email_category->category_name }}</option>
       @endforeach
     </select>
   </td>
@@ -113,6 +109,11 @@
     @if(empty($email->module_type) && $email->is_unknow_module == 1)
       <a style="padding:3px;" type="button" title="Assign Model" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openAssignModelPopup(this);"> <i class="fa fa-envelope" aria-hidden="true"></i> </a>
     @endif
+
+
+    <a style="padding:3px;" type="button" title="Email Category Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailCategoryChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
+
+    <a style="padding:3px;" type="button" title="Email Status Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailStatusChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
 
   </td>
 </tr>
