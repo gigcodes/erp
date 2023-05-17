@@ -10,6 +10,7 @@ use App\LogStoreWebsiteUser;
 use Illuminate\Http\Request;
 use App\ProductPushErrorLog;
 use App\StoreWebsiteUserHistory;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
@@ -25,9 +26,10 @@ class MagentoUserFromErpController extends Controller
             'store_websites.title',
             'store_website_users.website_mode',
             'store_websites.store_code_id',
-            'store_websites.created_at',
+            'store_website_users.created_at',
             'store_websites.magento_url',
             'store_website_users.user_role',
+            'store_website_users.user_role_name',
             'store_website_users.is_active',
             'store_website_users.id',
         )->join('store_websites', function ($q)  {
@@ -49,6 +51,10 @@ class MagentoUserFromErpController extends Controller
             $storeWebsites->where('store_website_users.username', $request->get('username'));
         }
 
+        //Apply role if exists
+        if($request->get('role')) {
+            $storeWebsites->where('store_website_users.user_role', $request->get('role'));
+        }
         //show 20 records per page
         $storeWebsites = $storeWebsites->paginate(20);
 
@@ -59,8 +65,11 @@ class MagentoUserFromErpController extends Controller
         ->pluck('website','id')
         ->toArray();
         
-        //For select role filter list 
-        $magentoRoles = [];
+        //For select role filter list
+        $magentoRoles = StoreWebsiteUsers::whereNotNull('user_role_name')
+        ->groupBy('user_role')
+        ->pluck( 'user_role_name' , 'user_role')
+        ->toArray();
 
         return view('magento-user-from-erp.index', compact('storeWebsites','magentoRoles', 'allStoreWebsites'));
     }
@@ -76,13 +85,13 @@ class MagentoUserFromErpController extends Controller
         
         $post = $request->all();
         $validator = Validator::make($post, [
-            'userName' => 'required',
+            'username' => 'required',
             'userEmail' => 'required|email',
             'firstName' => 'required',
             'lastName' => 'required',
-            'webSite' => 'required',
-            'userRole' => 'required',
-            'websiteMode' => 'required',
+            'website' => 'required',
+            'userrole' => 'required',
+            'websitemode' => 'required',
             'password' => 'required',
         ]);
 
@@ -98,27 +107,29 @@ class MagentoUserFromErpController extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $storeWebsites = StoreWebsite::where('id', '=', $post['webSite'])->orWhere('parent_id', '=', $post['webSite'])->get();
-        $count = 0;
-        foreach ($storeWebsites as $key => $storeWebsite) {
-            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['userName'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been created with specific roles.');
+        $storeWebsite = StoreWebsite::where([
+            ['website_source', '=', 'magento'],
+            ['id', '=', $post['website']],
+        ])->whereNotNull('magento_username')
+        ->whereNull('deleted_at')
+        ->first();
+        
+        if( !empty( $storeWebsite->id ) ){
+            
+            // Continue with the code for successful response (status code 200)
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been created with specific roles.');
 
             $checkUserNameExist = '';
-            if (! empty($post['store_website_userid'])) {
-                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
-                if (empty($checkUserExist)) {
-                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['userName'])->where('id', '<>', $post['store_website_userid'])->first();
-                }
-            } else {
-                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
-                if (empty($checkUserExist)) {
-                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['userName'])->first();
-                }
+            $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
+            
+            if (empty($checkUserExist)) {
+                $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->first();
             }
 
             if (! empty($checkUserExist)) {
                 return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
             }
+
             if (! empty($checkUserNameExist)) {
                 return response()->json(['code' => 500, 'error' => 'Username already exist!']);
             }
@@ -128,13 +139,14 @@ class MagentoUserFromErpController extends Controller
                 return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
             }
 
-            $params['username'] = $post['userName'];
+            $params['username'] = $post['username'];
             $params['email'] = $post['userEmail'];
             $params['first_name'] = $post['firstName'];
             $params['last_name'] = $post['lastName'];
-            $params['store_website_id'] = $post['webSite'];
-            $params['user_role'] = $post['userRole'];
-            $params['website_mode'] = $post['websiteMode'];
+            $params['store_website_id'] = $post['website'];
+            $params['user_role'] = $post['userrole'];
+            $params['user_role_name'] = $post['userRoleName'];
+            $params['website_mode'] = $post['websitemode'];
             $params['password'] = $post['password'];
             $params['is_active'] = 1;
 
@@ -159,12 +171,11 @@ class MagentoUserFromErpController extends Controller
                 'new_value' => 'new_added',
                 'user_id' => Auth::id(),
             ]);
-            $count++;
-        }
-        if ($count == $key + 1) {
-            return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
-        } else {
-            return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
+            
+            return response()->json(['code' => 200, 'messages' => 'User details saved successfully', 'error' => '']);
+
+        }else{
+            return response()->json(['code' => 200, 'messages' => '', 'error' => 'Store details not found.']);
         }
     }
 
@@ -208,50 +219,42 @@ class MagentoUserFromErpController extends Controller
 
         if( !empty ( $magento_url ) ){
 
-            $config = array(
-                'shop_url' => $magentStoreData['magento_url'],
+            $token_response = Http::post(rtrim($magento_url, '/') . '/rest/V1/integration/admin/token', [
                 'username' => $magentStoreData['magento_username'],
                 'password' => $magentStoreData['magento_password'],
-            );
-    
-            $url = $config['shop_url'] . "/rest/V1/integration/admin/token";
-    
-            $data = "{ \"username\": \"" . $config['username'] . "\", \"password\": \"" . $config['password'] . "\"}";
-    
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($httpcode != 200) {
-                ProductPushErrorLog::log($url, 0, $response, 'error', $magentStoreData['id']);
-            }
-            if (!$response) {
-    
-                return false;
-            }
-    
-            echo $token = str_ireplace('"', '', $response); die;
-
-            $client = new \GuzzleHttp\Client();
-            $endpoint = rtrim($magento_url, '/').'/rest/all/V1/adminroles';
-            $headers = [
-                'Authorization' => 'Bearer ' . $magentStoreData['api_token'],        
-                'Accept'        => 'application/json',
-            ];
-            $response = $client->request('GET', $endpoint, [
-                'headers' => $headers
             ]);
-            $content = $response->getBody();
-            echo "<pre>";print_r($content);die;
+
+            if(  $token_response->ok() ){
+                $generated_token = trim($token_response->body(),'"');
+                $magentStoreData->api_token = $generated_token;
+                $magentStoreData->save();
+
+                /* $client = new \GuzzleHttp\Client();
+                $response = $client->request('GET', rtrim($magento_url, '/').'/rest/all/V1/adminroles', [
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer '.$magentStoreData['api_token'],
+                        'Accept' => 'application/json'
+                    ]
+                ]); */
+                $role_response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer '.$magentStoreData['api_token'],
+                    'Accept' => 'application/json'
+                ])->get(rtrim($magento_url, '/').'/rest/all/V1/adminroles');
+
+                if(  $role_response->ok() ){
+                    return response()->json(['code' => 500, 'roles' => json_decode($role_response->body()), 'error' => '']);
+                }else{
+                    return response()->json(['code' => 500, 'roles' => '', 'error' => $role_response->json('message')]);
+                }
+
+            }else{
+                return response()->json(['code' => 200, 'roles' => '', 'error' => $token_response->json('message')]);
+            }
         }else{
-            return response()->json(['code' => 500, 'error' => 'Not found store url.']);
+            return response()->json(['code' => 500, 'roles' => '', 'error' => 'Not found store url.']);
         }
-        
-        return response()->json(['code' => 200, 'messages' => 'Store url', 'data' => $magentStoreData]);
     }
 
     /**
@@ -265,10 +268,32 @@ class MagentoUserFromErpController extends Controller
         $status = $request->get('status');
         $update_id = $request->get('update_id');
         $StoreWebsiteUsers = StoreWebsiteUsers::find($update_id);
-        $StoreWebsiteUsers->is_active = ($status == 'true') ? 1 : 0;
-        $StoreWebsiteUsers->save();
+        $store_website =  StoreWebsite::where([
+            ['website_source', '=', 'magento'],
+            ['id', '=', $StoreWebsiteUsers['store_website_id']],
+        ])
+        ->whereNotNull('magento_username')
+        ->whereNull('deleted_at')
+        ->first();
+        if( !empty( $store_website['magento_url'] ) ){
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', rtrim($store_website['magento_url'], '/').'/rest/V1/multistore/editadminuser',  [
+                'body' => json_encode( array('username' => $StoreWebsiteUsers['username'], 'is_active' => ($status == 'true') ? 1 : 0)),
+                'headers' => [
+                  'Content-Type' => 'application/json',
+                ]
+            ]);
 
-        return response()->json(['code' => 200, 'messages' => 'Status updated.']);
-
-    }
+            $account_status = json_decode(json_decode($response->getBody()->getContents()),true);
+            if( $account_status['status'] == 'error' ){
+                return response()->json(['code' => 200, 'messages' => '', 'error' => $account_status[0]]);
+            }else{
+             $StoreWebsiteUsers->is_active = ($status == 'true') ? 1 : 0;
+             $StoreWebsiteUsers->save();
+             return response()->json(['code' => 200, 'messages' => $account_status, 'error' => '']);
+            }
+        }else{
+            return response()->json(['code' => 200, 'messages' => '', 'error' => 'Store website not found.']);
+        }
+     }
 }

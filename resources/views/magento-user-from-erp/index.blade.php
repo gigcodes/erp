@@ -77,7 +77,7 @@
         @foreach ( $storeWebsites as $website)
           <tr>
             <td>{{ $pagrank++ }}</td>
-            <td>{{ date_format($website->created_at,"Y-m-d") }}</td>
+            <td>{{ date('d-m-Y', strtotime($website->created_at)) }}</td>
             <td>{{ $website->username }}</td>
             @if ($isAdmin)
               <td>{{ $website->password }}</td>
@@ -86,7 +86,7 @@
             <td>{{ $website->title }}</td>
             <td>{{ $website->website_mode }}</td>
             <td>{{ $website->magento_url }}</td>
-            <td>{{ $website->user_role }} </td>
+            <td>{{ $website->user_role_name }} </td>
             <td>
               <input value="{{ $website->id }}" class="change-status" type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" {{ $website->is_active ? 'checked' : ''}} >
             </td>
@@ -208,19 +208,29 @@
       url: "<?php echo url("/magento-users/roles"); ?>",
       beforeSend: function() {
         $("#loading-image-preview").show();
+        $('.submit-create-user').prop('disabled', true);
       },
       success: function(response) {
-        $("#loading-image-preview").hide();
         
-        if( response.data.length > 0 ){
-          console.log(response.data);
+        $('.submit-create-user').prop('disabled', false);
+        $("#loading-image-preview").hide();
+        if( response.roles.length > 0 ){
+          var roles = '';
+          $.each( response.roles, function( key, value ) {
+              roles += '<option value="'+value.role_id+'">'+value.role_name+'</option>';
+          });
+          if( roles.length > 0 ){
+              $('#magento_userRole').html(roles).attr("readonly", false);
+          }
         }else{
-          toastr["error"]("Error occured.please try again.");
+          toastr["error"](response.error);
         }
       },
       error: function(xhr) { // if error occured
         $("#loading-image-preview").hide();
-        toastr["error"]("Error occured.please try again.", "error");
+        $('.submit-create-user').prop('disabled', false);
+        toastr["error"]("Roles not found.", "error");
+        $('#magento_userRole').html('<option value="">Select website first</option>').attr("readonly", true);
       },
     });
   });
@@ -236,6 +246,7 @@
     var magento_userRole = $('#magento_userRole').val();
     var magento_websiteMode = $('#magento_websiteMode').val();
     var magento_password = $('#magento_password').val();
+    var user_role_name = $('#magento_userRole').find(":selected").text();
     $.ajax({
       headers: {
         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
@@ -243,14 +254,15 @@
       method: 'POST',
       dataType: 'json',
       data: {
-        userName: magento_username,
+        username: magento_username,
         userEmail: magento_userEmail,
         firstName: magento_firstName,
         lastName: magento_lastName,
-        webSite: magento_webSite,
-        userRole: magento_userRole,
-        websiteMode: magento_websiteMode,
+        website: magento_webSite,
+        userrole: magento_userRole,
+        websitemode: magento_websiteMode,
         password: magento_password,
+        userRoleName: user_role_name
       },
       url: "<?php echo url("/magento-users/create"); ?>",
       beforeSend: function() {
@@ -261,7 +273,7 @@
         if( response.error.length > 0 ){
           toastr["error"](response.error);
         }else{
-          window.location.reload();
+          location.reload();
         }
       },
       error: function(xhr) { // if error occured
@@ -293,8 +305,8 @@
       success: function(response) {
         $("#loading-image-preview").hide();
         
-        if( response.code != 200 ){
-          toastr["error"]("Error occured.please try again.");
+        if( response.error.length > 0 ){
+          toastr["error"](response.error);
         }
       },
       error: function(xhr) { // if error occured

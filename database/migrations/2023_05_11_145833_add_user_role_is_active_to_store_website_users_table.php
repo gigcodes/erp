@@ -15,6 +15,7 @@ class AddUserRoleIsActiveToStoreWebsiteUsersTable extends Migration
     {
         Schema::table('store_website_users', function (Blueprint $table) {
             $table->integer('user_role')->after('is_deleted')->nullable()->default(null);
+            $table->string('user_role_name')->after('is_deleted')->nullable()->default(null);
             $table->integer('is_active')->after('is_deleted')->nullable()->default(1);
         });
     }
@@ -28,6 +29,7 @@ class AddUserRoleIsActiveToStoreWebsiteUsersTable extends Migration
     {
         Schema::table('store_website_users', function (Blueprint $table) {
             $table->dropColumn('user_role');
+            $table->dropColumn('user_role_name');
             $table->dropColumn('is_active');
         });
     }

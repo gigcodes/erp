@@ -5064,6 +5064,7 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
     });
 });
 
+// Create magento user.
 Route::prefix('magento-users')->middleware('auth')->group(function () {
     Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
     Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
