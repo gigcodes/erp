@@ -393,6 +393,7 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
 
@@ -5171,4 +5172,12 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
     Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });
