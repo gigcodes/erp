@@ -38,7 +38,7 @@
         <div class="row">
             <div class="col-lg-12 margin-tb">
                 <div class="pull-left">
-                    <h2> Grand Permission To Users</h2>
+                    <h2> Permissions </h2>
                 </div>
 
                 <div class="pull-right">
@@ -158,6 +158,7 @@
         $('.search_user').select2({
             placeholder: 'Select User',
         });
+        $('.select2-search__field').css('width', '100%');
         // $(document).ready(function () {
         //     $('#dtHorizontalExample').DataTable({
         //         "scrollX": true,
