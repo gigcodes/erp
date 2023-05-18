@@ -1,23 +1,13 @@
-<form id="add-group-form" method="POST" action="{{route('google-chatbot-accounts.add')}}">
+<form id="add-group-form" method="POST" enctype="multipart/form-data" action="{{route('google-chatbot-accounts.add')}}">
     {{csrf_field()}}
     <div class="modal-body">
         <div class="form-group row">
-            <label for="headline1" class="col-sm-2 col-form-label">Client Id</label>
+            <label for="headline1" class="col-sm-2 col-form-label">Project Id</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="google_client_id" name="google_client_id"
-                       placeholder="Client Id" value="{{ old('google_client_id') }}">
-                @if ($errors->has('google_client_id'))
-                    <span class="text-danger">{{$errors->first('google_client_id')}}</span>
-                @endif
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="headline1" class="col-sm-2 col-form-label">Client Secret</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="google_client_secret" name="google_client_secret"
-                       placeholder="Client Secret" value="{{ old('google_client_secret') }}">
-                @if ($errors->has('google_client_secret'))
-                    <span class="text-danger">{{$errors->first('google_client_secret')}}</span>
+                <input type="text" class="form-control" id="project_id" name="project_id"
+                       placeholder="Project Id" value="{{ old('project_id') }}">
+                @if ($errors->has('project_id'))
+                    <span class="text-danger">{{$errors->first('project_id')}}</span>
                 @endif
             </div>
         </div>
@@ -30,6 +20,15 @@
                         <option value="{{$store_website->id}}">{{$store_website->title}}</option>
                     @endforeach
                 </select>
+                @if ($errors->has('site_id'))
+                    <span class="text-danger">{{$errors->first('site_id')}}</span>
+                @endif
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="headline1" class="col-sm-2 col-form-label">Service file</label>
+            <div class="col-sm-10">
+                <input type="file" accept="application/json" name="service_file"/>
                 @if ($errors->has('site_id'))
                     <span class="text-danger">{{$errors->first('site_id')}}</span>
                 @endif

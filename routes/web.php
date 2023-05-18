@@ -4479,9 +4479,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/account/get/{id}', [GoogleDialogFlowController::class, 'get'])->name('google-chatbot-accounts.get');
         Route::post('/account/update', [GoogleDialogFlowController::class, 'update'])->name('google-chatbot-accounts.update');
         Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');
-        Route::get('/accounts/connect/{id?}', [GoogleDialogFlowController::class, 'connectAccount'])->name('google-chatbot-account.connect');
-        Route::get('/accounts/disconnect/{id?}', [GoogleDialogFlowController::class, 'disconnectAccount'])->name('google-chatbot-account.disconnect');
-        Route::get('get-access-token', [GoogleDialogFlowController::class, 'googleLogin'])->name('google-chatbot-account.connect.login');
     });
 
     //subcategory route

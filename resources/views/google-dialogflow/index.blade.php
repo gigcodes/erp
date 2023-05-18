@@ -22,8 +22,7 @@
                     <tr>
                         <th style="width:5%;" class="text-center">Sl no</th>
                         <th style="width:15%;" class="text-center">Site</th>
-                        <th style="width:20%;" class="text-center">Client Id</th>
-                        <th style="width:20%;" class="text-center">Client Secret</th>
+                        <th style="width:15%;" class="text-center">Project Id</th>
                         <th style="width:5%;" class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -32,8 +31,7 @@
                         <tr>
                             <td>{{$key+1}}</td>
                             <td>{{ $google_dialog_account->storeWebsite->title }}</td>
-                            <td>{{ $google_dialog_account->google_client_id }}</td>
-                            <td>{{ $google_dialog_account->google_client_secret }}</td>
+                            <td>{{ $google_dialog_account->project_id }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a onclick="editData('{{ $google_dialog_account->id }}')" class="btn btn-sm edit_account"
@@ -47,46 +45,9 @@
                                        style="padding:3px;">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </a>
-                                    @if(!$google_dialog_account->accounts || count($google_dialog_account->accounts) <= 0)
-                                        <a href="{{ route('google-chatbot-account.connect', $google_dialog_account->id) }}" data-id="1"
-                                           class="btn btn-delete-template"
-                                           style="padding:3px;">
-                                            Connect
-                                        </a>
-                                    @endif
                                 </div>
                             </td>
                         </tr>
-                        @if($google_dialog_account->accounts && count($google_dialog_account->accounts) > 0)
-                            <tr>
-                                <td colspan="5">
-                                    <div>
-                                        <h5>Connected Accounts</h5>
-                                        <table style="width: 95%;margin: 0 auto;">
-                                            <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Name</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach($google_dialog_account->accounts as $accountKey => $account)
-                                                <tr>
-                                                    <td>{!! $accountKey + 1 !!}</td>
-                                                    <td>{!! $account->google_account !!}</td>
-                                                    <td>
-                                                        <a class="btn-image" href="{!! route('google-chatbot-account.disconnect', [$account->id]) !!}"
-                                                           title="Disconnect"><img src="/images/delete.png"/></a>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
                     @endforeach
                     </tbody>
                 </table>
@@ -140,9 +101,8 @@
                     } else {
                         $('#updateAccount').modal('show');
                         $('#updateAccount-group-form [name="account_id"]').val(id);
-                        $('#updateAccount-group-form [name="google_client_id"]').val(response.data.google_client_id);
-                        $('#updateAccount-group-form [name="google_client_secret"]').val(response.data.google_client_secret);
-                        $('#updateAccount-group-form [name="site_id"]').val(response.data.site_id);
+                        $('#updateAccount-group-form [name="edit_project_id"]').val(response.data.project_id);
+                        $('#updateAccount-group-form [name="edit_site_id"]').val(response.data.site_id);
                     }
                 }
             })

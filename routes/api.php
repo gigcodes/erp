@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api;
+use App\Http\Controllers\GoogleDialogFlowController;
 use App\Http\Controllers\Logging;
 use App\Http\Controllers\Products;
 use Illuminate\Support\Facades\Route;
@@ -328,3 +329,7 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 });
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
+
+Route::group(['prefix' => 'google-dialog'], function () {
+    Route::get('/intent', [GoogleDialogFlowController::class, 'createIntent'])->name('google-chatbot-api-intent');
+});

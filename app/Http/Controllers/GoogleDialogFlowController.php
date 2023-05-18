@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Library\Google\DialogFlow\DialogFlowService;
 use App\Models\GoogleDialogAccount;
-use App\Models\GoogleDialogAccountMails;
 use App\StoreWebsite;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Plank\Mediable\Facades\MediaUploader;
 
 class GoogleDialogFlowController extends Controller
 {
@@ -21,7 +21,7 @@ class GoogleDialogFlowController extends Controller
      */
     public function index(Request $request)
     {
-        $google_dialog_accounts = GoogleDialogAccount::with(['storeWebsite', 'accounts'])->orderBy('id', 'desc')->get();
+        $google_dialog_accounts = GoogleDialogAccount::with(['storeWebsite'])->orderBy('id', 'desc')->get();
         $store_websites = StoreWebsite::all();
         return view('google-dialogflow.index', compact('google_dialog_accounts', 'store_websites'));
     }
@@ -36,13 +36,19 @@ class GoogleDialogFlowController extends Controller
         try {
             $validator = \Validator::make($request->all(), [
                 'site_id' => 'required|integer',
-                'google_client_id' => 'required|string',
-                'google_client_secret' => 'required|string',
+                'project_id' => 'required|string',
+                'service_file' => 'required|mimes:json',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
             }
-            GoogleDialogAccount::create($request->all());
+            $serviceFile = MediaUploader::fromSource($request->file('service_file'))
+                ->toDirectory('googleDialogService/')->upload();
+            GoogleDialogAccount::create([
+                'service_file' => $serviceFile->getAbsolutePath(),
+                'site_id' => $request->get('site_id'),
+                'project_id' => $request->get('project_id')
+            ]);
             return Redirect::route('google-chatbot-accounts')->with('success', 'google dialog account added successfully!');
         } catch (\Exception $e) {
             return Redirect::route('google-chatbot-accounts')->with('error', $e->getMessage());
@@ -59,9 +65,9 @@ class GoogleDialogFlowController extends Controller
         try {
             $validator = \Validator::make($request->all(), [
                 'account_id' => 'required|integer',
-                'site_id' => 'required|integer',
-                'google_client_id' => 'required|string',
-                'google_client_secret' => 'required|string',
+                'edit_site_id' => 'required|integer',
+                'edit_project_id' => 'required|string',
+                'edit_service_file' => 'sometimes|mimes:json',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
@@ -70,9 +76,13 @@ class GoogleDialogFlowController extends Controller
             if (!$googleAccount) {
                 return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
             }
-            $googleAccount->site_id = $request->get('site_id');
-            $googleAccount->google_client_id = $request->get('google_client_id');
-            $googleAccount->google_client_secret = $request->get('google_client_secret');
+            $googleAccount->site_id = $request->get('edit_site_id');
+            $googleAccount->project_id = $request->get('edit_project_id');
+            if ($request->hasFile('edit_service_file')) {
+                $serviceFile = MediaUploader::fromSource($request->file('edit_service_file'))
+                    ->toDirectory('googleDialogService/')->upload();
+                $googleAccount->service_file = $serviceFile->getAbsolutePath();
+            }
             $googleAccount->save();
             return Redirect::route('google-chatbot-accounts')->with('success', 'google dialog account updated successfully!');
         } catch (\Exception $e) {
@@ -92,7 +102,6 @@ class GoogleDialogFlowController extends Controller
             if (!$googleAccount) {
                 return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
             }
-            GoogleDialogAccountMails::where('google_dialog_account_id', $id)->delete();
             $googleAccount->delete();
             return Redirect::route('google-chatbot-accounts')->with('success', 'google dialog account deleted successfully!');
         } catch (\Exception $e) {
@@ -118,64 +127,17 @@ class GoogleDialogFlowController extends Controller
         }
     }
 
-    /**
-     * Connect an account to create / access the dialogflow.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
-     */
-    public function connectAccount(Request $request, $id): RedirectResponse
-    {
-        $googleAccount = GoogleDialogAccount::findOrFail($id);
-        if (!$googleAccount) {
-            return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
-        }
-        \Cache::set('google_dialog_account_id', $id);
-        $googleDialogFlowService = new DialogFlowService($googleAccount);
-        $authUrl = $googleDialogFlowService->getAuthorizationUrl();
-        if ($authUrl) {
-            return Redirect::away($authUrl);
-        }
-        return Redirect::route('google-chatbot-accounts')->with('error', 'Something went wrong');
-    }
-
-    /**
-     * Connect google account
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function googleLogin(Request $request): RedirectResponse
-    {
-        try {
-            $id = \Cache::get('google_dialog_account_id');
-            $googleAccount = GoogleDialogAccount::findOrFail($id);
-            if (!$googleAccount) {
-                return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
-            }
-            $googleDialogFlowService = new DialogFlowService($googleAccount);
-            $googleDialogFlowService->getAccessToken($request->all());
-            return Redirect::route('google-chatbot-accounts')->with('success', 'Account connected successfully!');
-        } catch (\Exception $e) {
-            return Redirect::route('google-chatbot-accounts')->with('error', $e->getMessage());
-        }
-    }
-
-    /**
-     * Disconnect google account
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function disconnectAccount(Request $request, $id): RedirectResponse
-    {
-        try {
-            $googleAccount = GoogleDialogAccountMails::findOrFail($id);
-            if (!$googleAccount) {
-                return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
-            }
-            $googleAccount->delete();
-            return Redirect::route('google-chatbot-accounts')->with('success', 'Account disconnected successfully!');
-        } catch (\Exception $e) {
-            return Redirect::route('google-chatbot-accounts')->with('error', $e->getMessage());
-        }
+    public function createIntent(Request $request) {
+////        $name = explode('/', 'projects/gold-chassis-383310/agent/intents/22bea973-0ce5-4fac-88db-672031b3e8c7');
+////        _p($name[count($name) - 1]);die;
+//        $googleAccount = GoogleDialogAccount::first();
+//        $dialogService = new DialogFlowService($googleAccount);
+//        $response = $dialogService->createIntent([
+//            'questions' => ['What is the time?', 'Current time?', 'Tell me the time now?'],
+//            'reply' => ['Current time is test'],
+//            'name' => 'Time 2',
+//        ]);
+////        $response = $dialogService->deleteIntent(['intent_id' => '22bea973-0ce5-4fac-88db-672031b3e8c7']);
+//        _p([$request->all(), $response]);die;
     }
 }
