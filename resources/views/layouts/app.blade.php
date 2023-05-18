@@ -1441,7 +1441,7 @@ if (!empty($notifications)) {
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    href="{{ route('order.get.order.journey') }}">Order
                                                     journey</a>
                                             </ul>
                                         </li>
@@ -2931,6 +2931,9 @@ if (!empty($notifications)) {
 
                                         <li class="nav-item dropdown">
                                             <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a href="{{ route('google-chatbot-accounts') }}">Google Dialogflow Account Management</a>
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-submenu">

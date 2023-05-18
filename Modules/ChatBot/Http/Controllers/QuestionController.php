@@ -2,6 +2,7 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\StoreWebsite;
 use DB;
 use Auth;
 use App\Customer;
@@ -75,8 +76,9 @@ class QuestionController extends Controller
 
         $templates = MailinglistTemplate::all();
         $watson_accounts = WatsonAccount::all();
+        $store_websites = StoreWebsite::all();
 
-        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates'));
+        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites'));
     }
 
     public function create()
