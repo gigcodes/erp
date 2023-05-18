@@ -35,7 +35,7 @@ $auth = auth()->user();
                     <option value="2">Unapproved</option>
                 </select>
             </div>
-            @if($auth->hasRole(['Admin']))
+            @if($auth->hasRole(['Admin', 'Seo Head']))
                 <div class="col-md-2">
                     <label for="">Select user</label>
                     <select name="website_id" class="form-control userFilter">

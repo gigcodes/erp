@@ -394,6 +394,7 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
 
@@ -1752,6 +1753,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/records', [NewsletterController::class, 'records'])->name('newsletters.records');
         Route::post('/store', [NewsletterController::class, 'store'])->name('newsletters.store');
         Route::get('/image/{id}/{productId}/delete', [NewsletterController::class, 'deleteImage'])->name('newsletters.deleteImage');
+        Route::get('/review-translate/{language?}', [NewsletterController::class, 'reviewTranslate'])->name('newsletters.review.translate');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [NewsletterController::class, 'edit'])->name('newsletters.edit');
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
@@ -2976,7 +2978,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
-
+    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
+   
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -4155,7 +4160,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
@@ -5175,4 +5180,12 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
     Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });

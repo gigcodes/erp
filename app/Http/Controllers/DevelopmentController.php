@@ -519,7 +519,7 @@ class DevelopmentController extends Controller
             return  DeveloperModule::orderBy('name')->get();
         });
 
-        $usrlst = User::orderBy('name')->where('is_active', 1)->get();
+        $usrlst = User::orderBy('name')->get();
         $users = Helpers::getUserArray($usrlst);
 
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
@@ -2180,11 +2180,18 @@ class DevelopmentController extends Controller
             if ($teamUser) {
                 $team = $teamUser->team;
                 if ($team) {
-                    $task->team_lead_id = $team->user_id;
-                    $task->save();
+                    if(strlen($team->user_id) > 0 && $team->user_id > 0){
+                        $task->team_lead_id = $team->user_id;
+                        $task->save();
+                    }else if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                        $task->team_lead_id = $team->second_lead_id;
+                        $task->save();
+                    }
                 }
             } else {
-                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)->first();
+                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)
+                        ->orWhere('second_lead_id', $task->assigned_to)->first();
+
                 if ($isTeamLeader) {
                     $task->team_lead_id = $task->assigned_to;
                     $task->save();
@@ -3685,9 +3692,9 @@ class DevelopmentController extends Controller
         $status = 'ok';
         // Get all developers
         if (env('PRODUCTION', true)) {
-            $userlst = User::role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get(); // Production
+            $userlst = User::role('Developer')->orderby('name', 'asc')->get(); // Production
         } else {
-            $userlst = User::orderby('name', 'asc')->where('is_active', 1)->get(); // Local system
+            $userlst = User::orderby('name', 'asc')->get(); // Local system
         }
         $users = Helpers::getUserArray($userlst);
         //$users = Helpers::getUsersByRoleName('Developer');
@@ -4183,7 +4190,7 @@ class DevelopmentController extends Controller
         }
 
         $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
-        $usrlst = User::orderBy('name')->where('is_active', 1)->get();
+        $usrlst = User::orderBy('name')->get();
         $users = Helpers::getUserArray($usrlst);
         $issues = $issues->select('developer_tasks.*');
         $issues = $issues->paginate(20);
