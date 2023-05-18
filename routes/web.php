@@ -345,6 +345,7 @@ use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\StoreWebsiteAnalyticsController;
 use App\Http\Controllers\UsersFeedbackHrTicketController;
 use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
 use App\Http\Controllers\UnknownAttributeProductController;
@@ -2643,6 +2644,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('type', [TemplatesController::class, 'typeIndex'])->name('templates.type');
     });
 
+    Route::prefix('code-shortcuts')->middleware('auth')->group(function () {
+        Route::get('/', [CodeShortcutController::class, 'index'])->name('code-shortcuts');
+        Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
+        Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
+        Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
+    });
+
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
         Route::post('/store', [ErpEventController::class, 'store'])->name('erp-events.store');
@@ -2914,10 +2922,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
-        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
-
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
-
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
         Route::prefix('notification')->group(function () {
             Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
             Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
@@ -4290,7 +4296,6 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('google-campaign-location/states', [GoogleCampaignLocationController::class, 'states'])->name('google-campaign-location.states');
     Route::get('google-campaign-location/cities', [GoogleCampaignLocationController::class, 'cities'])->name('google-campaign-location.cities');
     Route::get('google-campaign-location/address', [GoogleCampaignLocationController::class, 'address'])->name('google-campaign-location.address');
-
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
     Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });

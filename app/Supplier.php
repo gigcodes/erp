@@ -5,8 +5,10 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\CodeShortcut;
 
 class Supplier extends Model
 {
@@ -73,17 +75,17 @@ class Supplier extends Model
     {
         parent::boot();
         self::updating(function ($model) {
-            if (! empty(\Auth::id())) {
+            if (!empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });
         self::saving(function ($model) {
-            if (! empty(\Auth::id())) {
+            if (!empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });
         self::creating(function ($model) {
-            if (! empty(\Auth::id())) {
+            if (!empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });
@@ -189,7 +191,8 @@ class Supplier extends Model
                 return $this->scraper->scraper_name;
             }
         }
-        $supplier_array = ['birba_excel', 'colognese_excel', 'cologneseSecond_excel', 'cologneseThird_excel',
+        $supplier_array = [
+            'birba_excel', 'colognese_excel', 'cologneseSecond_excel', 'cologneseThird_excel',
             'cologneseFourth_excel', 'distributionet_excel', 'gru_excel', 'ines_excel', 'le-lunetier_excel',
             'lidia_excel', 'maxim_gucci_excel', 'lidiafirst_excel', 'modes_excel', 'mv1_excel', 'tory_excel', 'valenti_excel', 'dna_excel', 'master',
         ];
@@ -235,4 +238,9 @@ class Supplier extends Model
         return $this->hasMany(\App\SupplierOrderInquiryData::class, 'supplier_id', 'id');
     }
     // END -DEVTASK-4048
+
+    public function supplier_detail()
+    {
+        return $this->belongsTo(CodeShortcut::class);
+    }
 }
