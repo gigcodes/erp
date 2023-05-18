@@ -4151,7 +4151,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
