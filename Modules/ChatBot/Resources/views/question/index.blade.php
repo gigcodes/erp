@@ -213,63 +213,7 @@
         </div>
     </div>
 </div>
-<!--Add Account Modal -->
-<div id="add_account" class="modal fade" role="dialog">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Add Google Chatbot Account</h4>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				<form class="addAccount" method="post" action="{{route('google-chatbot-accounts.add')}}">
-					@csrf
-					<input name="google_client_id" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ID (required)">
-					<input name="google_client_secret" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET (required)">
-					<div class="col-md-12">
-						<label class="mt-3">Website</label>
-						<select name="site_id" id="" class="form-control" required>
-							<option value="">Select</option>
-							@foreach($store_websites as $website)
-								<option value="{{$website->id}}">{{$website->title}}</option>
-							@endforeach
-						</select>
-					</div>
-					<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
 
-<div id="accounts" class="modal fade" role="dialog">
-	<div class="modal-dialog modal-lg"style="max-width: 100%;width: 90%;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Google Chatbot Accounts</h4>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				<table class="table fixed_header" id="latest-remark-records">
-					<thead>
-					<tr>
-						<th scope="col">#</th>
-						<th scope="col">GOOGLE CLIENT ID</th>
-						<th scope="col">WEBSITE NAME</th>
-						<th scope="col">Action</th>
-					</tr>
-					</thead>
-					<tbody class="show-list-records">
-
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
-
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
 	$(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -559,53 +503,6 @@
 	function remove_entity(ele) {
 		$(ele).parents('div.row').remove()
 	}
-
-	$(document).on("submit",".addAccount",function(e) {
-		if($('input[name="google_client_id"]').val() == ''){
-			toastr['error']('GOOGLE CLIENT ID is required', 'Error');
-			return false;
-		}
-		if($('input[name="google_client_secret"]').val() == ''){
-			toastr['error']('GOOGLE CLIENT SECRET is required', 'Error');
-			return false;
-		}
-	});
-
-	$(document).on("click",".accounts",function(e) {
-		var btn = $(this);
-		$.ajax({
-			url: "{{route('google-chatbot-accounts')}}",
-			type: 'GET',
-			dataType: 'json',
-			beforeSend: function () {
-				btn.prop('disabled',true);
-			},
-			success: function(result){
-				if(result.code == 200) {
-					var accountStr = '';
-					$.each(result.data,function(k,v) {
-						let url = '{!! route('google-chatbot-account.connect', [':id']) !!}';
-						url = url.replace(':id', v.id);
-						accountStr += `<tr><td>${v.id}</td>
-										<td>${v.google_client_id}</td>
-										<td>${v.store_website.title}</td>
-										<td><span><a href="${url}">Connect</a></span></td></tr>
-										<tr class="font-weight-bold"><td colspan="4">Connected Google Accounts</td></tr>`
-					});
-					if( accountStr == '' ){
-						accountStr = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-					}
-				}
-				$("#accounts").find(".show-list-records").html(accountStr);
-				$("#accounts").modal("show");
-				btn.prop('disabled',false);
-			},
-			error: function (){
-				btn.prop('disabled',false);
-				toastr['error']('Something went wrong', 'Error');
-			}
-		});
-	});
 
 </script>
 @endsection
