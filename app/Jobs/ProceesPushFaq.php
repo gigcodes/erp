@@ -112,11 +112,27 @@ class ProceesPushFaq implements ShouldQueue
                         $faqQuestion = $replyInfo->name;
 
                         $categoryId = $replyInfo->category_id;
+                        $parentCategoryId = $replyInfo->category->parent_id;
 
                         // $faqCategoryId  =   1;
 
                         if (! empty($url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
+                                $faqParentCategoryId = 0;
+                                if ($parentCategoryId) {
+                                    //get parent category ID
+                                    $faqParentCategoryId = (new \App\StoreWebsiteCategory)->getPlatformId($store_website_id, $parentCategoryId, $storeValue);
+
+                                    if (empty($faqParentCategoryId)) {
+                                        \Log::info('ParentCategory id not available');
+                                        $faqParentCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $parentCategoryId, $storeValue, $url, $api_token);
+                                    }
+
+                                    if (empty($faqParentCategoryId)) {
+                                        (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ parent category ID on ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
+                                    }
+                                }
+
                                 //get platform id of category
                                 $faqCategoryId = (new \App\StoreWebsiteCategory)->getPlatformId($store_website_id, $categoryId, $storeValue);
 
@@ -147,14 +163,16 @@ class ProceesPushFaq implements ShouldQueue
                                 }
 
                                 if (! empty($platform_id)) {
-                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"id\": \"$platform_id\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
+                                    $url    = $url . "/" . $storeValue . "/rest/V1/faq/" . $platform_id;
+                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"id\": \"$platform_id\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
                                 } else {
-                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
+                                    $url = $url . "/" . $storeValue . "/rest/V1/faq";
+                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
                                 }
 
                                 $ch = curl_init();
 
-                                curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faq');
+                                curl_setopt($ch, CURLOPT_URL, $url);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                 curl_setopt($ch, CURLOPT_POST, 1);
                                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);

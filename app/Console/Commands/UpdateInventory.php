@@ -39,6 +39,8 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+        
         \Log::info('Update Inventory');
         try {
             \Log::info('Update Inventory TRY');
@@ -59,11 +61,17 @@ class UpdateInventory extends Command
                 ->select('sp.last_inventory_at', 'sp.sku', 'sc.inventory_lifetime', 'suppliers.id as supplier_id', 'sp.id as sproduct_id', 'last_cron_check')
                 ->groupBy('sku')
                 ->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier model query finished.']);
+
             $skuProductArr = [];
             $skusArr = $products->pluck('sku')->toArray();
             $selectedProducts = \App\Product::select('id', 'isUploaded', 'color', 'sku')
                 ->whereIn('sku', $skusArr)
                 ->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product model query finished.']);
+
             foreach ($selectedProducts as $selected_prod_key => $selected_prod_value) {
                 $skuProductArr[$selected_prod_value->sku] = [
                     'product_id' => $selected_prod_value->id,
@@ -73,6 +81,8 @@ class UpdateInventory extends Command
             }
 //            $products = $products->chunk(500);
             if (! empty($products)) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Products records found']);
+
                 \Log::info('Update Inventory Products Found');
                 $sproductIdArr = [];
                 $statusHistory = [];
@@ -105,6 +115,8 @@ class UpdateInventory extends Command
                             }
                             if ($history) {
                                 $history->update(['in_stock' => $new_in_stock, 'prev_in_stock' => $prev_in_stock]);
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory status history updated']);
                                 \Log::info('StatusHistory updated for product: ' . $records['product_id']);
                             } else {
                                 $statusHistory[] = [
@@ -120,14 +132,18 @@ class UpdateInventory extends Command
                             $productId = $records['product_id'];
                         } else {
                             \Log::info('product_id or supplier_id is not found');
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'product_id or supplier_id is not found']);
                         }
                         if (is_null($records['last_inventory_at']) || strtotime($records['last_inventory_at']) < strtotime('-' . $inventoryLifeTime . ' days')) {
                             $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'] . '-' . $records['color']];
                             \Log::info('Last inventory condition is success');
 
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Last inventory condition is success']);
                             continue;
                         } else {
                             \Log::info('Last inventory condition is failed');
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Last inventory condition is failed']);
                         }
                         $hasInventory = true;
                         dump('Scraped Product updated : ' . $records['sproduct_id']);
@@ -151,6 +167,8 @@ class UpdateInventory extends Command
                 if (! empty($statusHistory)) {
                     \App\InventoryStatusHistory::insert($statusHistory);
                     \Log::info('********InventoryStatusHistory Bulk Insert********:' . json_encode($statusHistory));
+                    
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved inventory status history']);
                 }
                 if (! empty($needToCheck)) {
                     \Log::info('********needToCheck********:' . json_encode($needToCheck));
@@ -165,6 +183,8 @@ class UpdateInventory extends Command
                 }
             } else {
                 \Log::info('Update Inventory Products Not Found');
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update Inventory Products Not Found']);
             }
             \Log::info('TRY END**************');
             // TODO: Update stock in Magento

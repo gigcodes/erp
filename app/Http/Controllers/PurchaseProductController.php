@@ -991,29 +991,32 @@ class PurchaseProductController extends Controller
                     $orderStatusId = $mappedStatus->order_status_id;
                     $orderStatus = $mappedStatus->orderStatus->status;
 
-                    $orderProductsOrderIds = explode(',', $purchaseProductOrder->order_products_order_id);
+                    $orderProductsOrderIds = json_decode($purchaseProductOrder->order_products_order_id, true);
                     $orderProducts = OrderProduct::whereIn('id', $orderProductsOrderIds)->get();
                     
                     if($orderProducts) {
-                        // Loop all the order products one by one & update the order status
+                        // Loop all the order products one by one & update the status
                         foreach($orderProducts as $orderProduct) {
-                            $order = $orderProduct->order;
-                            $oldStatus = $order->order_status_id;
+                            $orderProduct->order_product_status_id = $orderStatusId;
+                            $orderProduct->save();
 
-                            $update = [
-                                'order_status' => $orderStatus,
-                                'order_status_id' => $orderStatusId,
-                            ];
+                            // $order = $orderProduct->order;
+                            // $oldStatus = $order->order_status_id;
 
-                            $order->update($update);
+                            // $update = [
+                            //     'order_status' => $orderStatus,
+                            //     'order_status_id' => $orderStatusId,
+                            // ];
+
+                            // $order->update($update);
 
                             // update the order history also
-                            $history = new OrderStatusHistory;
-                            $history->order_id = $orderProduct->order->id;
-                            $history->old_status = $oldStatus;
-                            $history->new_status = $orderStatusId;
-                            $history->user_id = Auth::user()->id;
-                            $history->save();
+                            // $history = new OrderStatusHistory;
+                            // $history->order_id = $orderProduct->order->id;
+                            // $history->old_status = $oldStatus;
+                            // $history->new_status = $orderStatusId;
+                            // $history->user_id = Auth::user()->id;
+                            // $history->save();
                         }
                     }
                 }

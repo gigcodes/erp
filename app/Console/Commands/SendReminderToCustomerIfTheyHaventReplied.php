@@ -45,11 +45,13 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was updated."]);
 
             $now = Carbon::now()->toDateTimeString();
 
@@ -64,9 +66,11 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                     $query->whereNotIn('status', [7, 8, 9, 10]);
                 })
                 ->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query was finished."]);
 
             foreach ($messagesIds as $messagesId) {
                 $customer = Customer::find($messagesId->customer_id);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "customer query finished."]);
                 if (! $customer) {
                     continue;
                 }
@@ -82,6 +86,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                     if ($customer->reminder_last_reply == 0) {
                         //sends messahe
                         $this->sendMessage($customer->id, $templateMessage);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "message sent."]);
                     } else {
                         // get the message if the interval is greater or equal to time which is set for this customer
                         $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
@@ -89,17 +94,21 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                             ->where('user_id', '>', '0')
                             ->where('approved', '1')
                             ->first();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query was finished."]);
 
                         if (! $message) {
                             continue;
                         }
                         $this->sendMessage($customer->id, $templateMessage);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
                     }
                     dump('saving...');
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report time was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

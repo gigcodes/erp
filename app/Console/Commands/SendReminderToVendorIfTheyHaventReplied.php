@@ -45,11 +45,13 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
 
             $now = Carbon::now()->toDateTimeString();
 
@@ -63,9 +65,11 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                     $query->whereNotIn('status', [7, 8, 9]);
                 })
                 ->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query finished."]);
 
             foreach ($messagesIds as $messagesId) {
                 $vendor = Vendor::find($messagesId->vendor_id);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "vendor query finished."]);
                 if (! $vendor) {
                     continue;
                 }
@@ -90,6 +94,7 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                             ->where('approved', '1')
                             ->first();
 
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message query finished."]);
                         if (! $message) {
                             continue;
                         }
@@ -101,6 +106,8 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

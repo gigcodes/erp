@@ -40,8 +40,10 @@ class MailingListSendMail extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $mailing_list = MailinglistEmail::orderBy('created_at', 'desc')->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Mail list query finished."]);
             $now = Carbon::now();
             foreach ($mailing_list as $mailing) {
                 $emails = $mailing->audience->listCustomers->pluck('email');
@@ -61,6 +63,7 @@ class MailingListSendMail extends Command
                         'subject' => 'test',
                         'htmlContent' => $htmlContent,
                     ];
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request started => https://api.sendinblue.com/v3/smtp/email"]);
                     $curl = curl_init();
                     curl_setopt_array($curl, [
                         CURLOPT_URL => 'https://api.sendinblue.com/v3/smtp/email',
@@ -78,10 +81,13 @@ class MailingListSendMail extends Command
                         ],
                     ]);
                     curl_close($curl);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request ended => https://api.sendinblue.com/v3/smtp/email"]);
                     $mailing->progress = 1;
                     $mailing->save();
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Mail saved."]);
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

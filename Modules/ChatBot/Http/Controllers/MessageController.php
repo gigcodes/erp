@@ -57,6 +57,22 @@ class MessageController extends Controller
             });
         }
 
+        if (request('message_type') != null) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                if(request('message_type')=='email'){
+                    $q->where('chat_messages.message_type', 'email');
+                }
+                if(request('message_type')=='task'){
+                    $q->orWhere('chat_messages.task_id', '>', 0);
+                }
+                if(request('message_type')=='dev_task'){
+                    $q->orWhere('chat_messages.developer_task_id', '>', 0);
+                }
+                if(request('message_type')=='ticket'){
+                    $q->orWhere('chat_messages.ticket_id', '>', 0);
+                }
+            });
+        }
         if (request('search_type') != null and count(request('search_type')) > 0) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
                 if (in_array('customer', request('search_type'))) {

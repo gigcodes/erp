@@ -46,6 +46,8 @@ class SendFcmNotification extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $fromdate = date('Y-m-d H:i:s');
             $newtimestamp = strtotime($fromdate . ' + 4 minute');
             $todate = date('Y-m-d H:i:s', $newtimestamp);
@@ -61,8 +63,14 @@ class SendFcmNotification extends Command
                 ->whereBetween('push_fcm_notifications.sent_at', [$fromdate, $todate])
                 ->get();
             \Log::info('fcm:send query was finished');
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'PushFcmNotification model query was finished']);
+
             if (! $Notifications->isEmpty()) {
                 \Log::info('fcm:send record was found');
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'notifications records was found']);
+
                 foreach ($Notifications as $Notification) {
                     $errorMessage = '';
                     $token = '';
@@ -118,21 +126,29 @@ class SendFcmNotification extends Command
                             \Log::info('fcm:send Message Sent Succesfully');
                             $Notification->status = 'Success';
                             $success = true;
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent successfully']);
                         } elseif ($downstreamResponse->numberFailure()) {
                             $Notification->status = 'Failed';
                             $this->info(json_encode($downstreamResponse->tokensWithError()));
                             $errorMessage = json_encode($downstreamResponse->tokensWithError());
                             \Log::info('fcm:send Message Error message =>' . $errorMessage);
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error'.$errorMessage]);
                         }
                     } catch (\Exception $e) {
                         $Notification->status = 'Failed';
                         $success = false;
                         $errorMessage = $e->getMessage();
                         \Log::info('fcm:send Exception Error message =>' . $errorMessage);
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error'.$errorMessage]);
                     }
 
                     $Notification->sent_on = date('Y-m-d H:i');
                     $Notification->save();
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'notification detail updated by ID'.$Notification->id]);
 
                     \App\PushFcmNotificationHistory::create([
                         'token' => $token,
@@ -140,8 +156,12 @@ class SendFcmNotification extends Command
                         'success' => $success,
                         'error_message' => $errorMessage,
                     ]);
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved notification history']);
                 }
             } else {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'No any pending notification found.']);
+
                 \Log::info('fcm:send Exception No notification available for sending at the moment');
                 $this->info('No notification available for sending at the moment');
             }

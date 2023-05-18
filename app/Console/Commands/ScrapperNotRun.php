@@ -43,7 +43,12 @@ class ScrapperNotRun extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('scraper_id', 'DESC')->groupBy('scraper_id')->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'ScraperProcess model query finished']);
+
             $scraper_proc = [];
             foreach ($scraper_process as $key => $sp) {
                 $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
@@ -58,10 +63,15 @@ class ScrapperNotRun extends Command
                 ->whereNotIn('id', $scraper_proc)
                 ->get();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraper model query finished']);
+
             foreach ($scrapers as $scrapperDetails) {
                 $hasAssignedIssue = \App\DeveloperTask::where('scraper_id', $scrapperDetails->id)
                     //->whereNotNull("assigned_to")
                     ->where('is_resolved', 0)->orderBy('id', 'desc')->first();
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'DeveloperTask model query finished']);
+                
                 if ($hasAssignedIssue != null and $hasAssignedIssue->assigned_to != null) {
                     $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                     $requestData = new Request();
@@ -77,16 +87,27 @@ class ScrapperNotRun extends Command
 
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr", 'reason' => $reason]);
 
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
+
                     //app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                     try {
                         app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'send message successfully.']);
+                        
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to " . $userName, 'reason' => $reason]);
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
                     } catch (\Exception $e) {
                         \Log::error($e);
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Coundn't send message to " . $userName . ' due to ' . $e->getMessage(), 'reason' => $reason]);
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
                     }
                 } else {
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => 'Not assigned to any user', 'reason' => 'Not assigned to any user']);
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
                 }
             }
         }catch(\Exception $e){

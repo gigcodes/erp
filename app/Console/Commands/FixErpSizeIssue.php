@@ -45,6 +45,8 @@ class FixErpSizeIssue extends Command
     public function handle()
     {
         try{
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
+
             // $kkkk
             $products = Product::join('scraped_products as sp', 'sp.product_id', 'products.id')->where('products.status_id', StatusHelper::$sizeVerifyCron)->where('products.supplier_id', '>', 0)
             ->where(function ($q) {
@@ -54,15 +56,26 @@ class FixErpSizeIssue extends Command
             })
             ->select('products.*')->get();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'product model query was finished.']);    
+
             if (! $products->isEmpty()) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'product record found.']);    
+                
                 foreach ($products as $product) {
                     $this->info('Started for product id :' . $product->id);
                     $scrapedProduct = ScrapedProducts::where('product_id', $product->id)->where(function ($q) {
                         $q->orWhereNotNull('size')->orWhere('size', '!=', '');
                     })->first();
+
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get scrapped product by product id:'.$product->id]);
+
                     if ($scrapedProduct) {
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'scrapped product record found']);
+
                         $this->info("Product being updated for {$product->sku} with {$scrapedProduct->size_system} and {$scrapedProduct->size}");
                         if (! empty($scrapedProduct->size)) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'product size data found']);
+                            
                             $sizes = explode(',', $scrapedProduct->size);
                             $euSize = [];
                             // Loop over sizes and redactText
@@ -73,16 +86,23 @@ class FixErpSizeIssue extends Command
                                 }
                             }
 
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Assign size to product']);
                             $product->size = implode(',', $allSize);
                             // get size system
                             $supplierSizeSystem = ProductSupplier::getSizeSystem($product->id, $product->supplier_id);
                             $euSize = ProductHelper::getEuSize($product, $allSize, ! empty($supplierSizeSystem) ? $supplierSizeSystem : $scrapedProduct->size_system);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'get product sizes of product id:'. $product->id]);
+
                             $product->size_eu = implode(',', $euSize);
                             ProductSizes::where('product_id', $product->id)->where('supplier_id', $product->supplier_id)->delete();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'delete product sizes of product id:'. $product->id]);
+
                             if (empty($euSize)) {
                                 $product->status_id = StatusHelper::$unknownSize;
                             } else {
                                 foreach ($euSize as $es) {
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved product size '.$es.' of product id:'. $product->id]);
+
                                     ProductSizes::updateOrCreate([
                                         'product_id' => $product->id, 'supplier_id' => $product->supplier_id, 'size' => $es,
                                     ], [
@@ -93,6 +113,7 @@ class FixErpSizeIssue extends Command
                             }
 
                             $product->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved product id:'. $product->id]);
 
                             $product->checkExternalScraperNeed();
                             $this->info('Saved product id :' . $product->id);
@@ -112,13 +133,16 @@ class FixErpSizeIssue extends Command
                             }
 
                             $product->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved product id:'. $product->id]);
                         } else {
                             $product->status_id = StatusHelper::$unknownSize;
                             $product->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved product id:'. $product->id]);
                         }
                     } else {
                         $product->status_id = StatusHelper::$unknownSize;
                         $product->save();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved product id:'. $product->id]);
                     }
                 }
             }
