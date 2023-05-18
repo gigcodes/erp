@@ -45,19 +45,24 @@ class TwillioMessagesCommand extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $date = Carbon::now();
             $date_added_hour = Carbon::now()->addHours(1);
             $services = SmsService::all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Service query finished."]);
             foreach ($services as $service) {
                 if (strtolower($service['name']) == 'twilio') {
                     $groups = MessagingGroup::where('service_id', $service['id'])->get();
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Message group query finished."]);
                     foreach ($groups as $group) {
                         $twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
                         ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
                         ->join('twilio_credentials', 'twilio_credentials.id', '=', 'twilio_active_numbers.twilio_credential_id')
                         ->where('store_website_twilio_numbers.store_website_id', $group->store_website_id)
                         ->first();
+
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Store website twilio number query finished."]);
     
                         if (isset($twilio_cred)) {
                             $account_sid = $twilio_cred->a_sid;
@@ -70,10 +75,12 @@ class TwillioMessagesCommand extends Command
                         }
     
                         $marketing_messages = MarketingMessage::where('message_group_id', $group->id)->where('is_sent', 0)->whereBetween('scheduled_at', [$date, $date_added_hour])->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Marketing message query finished."]);
                         //$marketing_messages = MarketingMessage::where('message_group_id', $group->id)->where('is_sent', 0)->get();
                         foreach ($marketing_messages as $index => $message) {
                             $marketingMessageCustomers = MarketingMessageCustomer::leftJoin('customers', 'customers.id', '=', 'marketing_message_customers.customer_id')
                             ->where('marketing_message_id', $message->id)->select('marketing_message_customers.*', 'customers.phone')->get();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Marketing message customer query finished."]);
                             foreach ($marketingMessageCustomers as $marketingMessageCustomer) {
                                 try {
                                     // Get APP_URL from env because in console Request is not available
@@ -90,9 +97,11 @@ class TwillioMessagesCommand extends Command
                                         'body' => $message['title'],
                                         'statusCallback' => $appUrl . 'twilio/handleMessageDeliveryStatus/' . $marketingMessageCustomer['customer_id'] . '/' . $marketingMessageCustomer['id'],
                                     ]);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Twillio message sended => " . "+" . $marketingMessageCustomer['phone'] ?? '']);
                                     MarketingMessageCustomer::where(['customer_id' => $marketingMessageCustomer['customer_id'], 'marketing_message_id' => $message->id])->update(['is_sent' => 1]);
                                 } catch (Exception $e) {
                                     \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Sending SMS issue #2215 ->' . $e->getMessage()]);
                                 }
                             }
                             $message->update(['is_sent' => 1]);
@@ -100,6 +109,8 @@ class TwillioMessagesCommand extends Command
                     }
                 }
             }
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

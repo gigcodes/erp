@@ -45,11 +45,13 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was updated."]);
 
             $now = Carbon::now()->toDateTimeString();
 
@@ -62,10 +64,11 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
                     $query->whereNotIn('status', [7, 8, 9]);
                 })
                 ->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query was finished."]);
 
             foreach ($messagesIds as $messagesId) {
                 $dubbizle = Dubbizle::find($messagesId->dubbizle_id);
-
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "dubbizle message query was finished."]);
                 if (! $dubbizle) {
                     continue;
                 }
@@ -80,6 +83,7 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
                     ->where('user_id', '>', '0')
                     ->where('approved', '1')
                     ->first();
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query was finished."]);
 
                 if (! $message) {
                     continue;
@@ -90,9 +94,12 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
                 $templateMessage = $dubbizle->reminder_message;
 
                 $this->sendMessage($dubbizle->id, $templateMessage);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "Message sent."]);
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was finished."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

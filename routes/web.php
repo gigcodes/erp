@@ -301,7 +301,6 @@ use App\Http\Controllers\GoogleShoppingAdsController;
 use App\Http\Controllers\KeywordToCategoryController;
 use App\Http\Controllers\MagentoModuleTypeController;
 use App\Http\Controllers\NotificationQueueController;
-use App\Http\Controllers\PinterestAccountAcontroller;
 use App\Http\Controllers\ProductSupervisorController;
 use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutySegmentController;
@@ -358,7 +357,11 @@ use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\Pinterest\PinterestAccountController;
+use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
+use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
+use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 
 Auth::routes();
 
@@ -390,6 +393,7 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
 
@@ -1343,6 +1347,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status-temp', [OrderController::class, 'prodctStatusChangeTemplate']);
     Route::post('order/change-status', [OrderController::class, 'statusChange']);
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
+    Route::post('order/order-product-status-change', [OrderController::class, 'orderProductStatusChange'])->name('order.order-product-status-change');
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
 
@@ -1392,6 +1397,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
+    Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
@@ -1746,6 +1752,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/records', [NewsletterController::class, 'records'])->name('newsletters.records');
         Route::post('/store', [NewsletterController::class, 'store'])->name('newsletters.store');
         Route::get('/image/{id}/{productId}/delete', [NewsletterController::class, 'deleteImage'])->name('newsletters.deleteImage');
+        Route::get('/review-translate/{language?}', [NewsletterController::class, 'reviewTranslate'])->name('newsletters.review.translate');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [NewsletterController::class, 'edit'])->name('newsletters.edit');
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
@@ -2965,7 +2972,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
-
+    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
+   
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -3090,7 +3100,63 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 });
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
-    Route::resource('accounts', PinterestAccountAcontroller::class);
+    Route::prefix('accounts')->group(function () {
+        Route::get('', [PinterestAccountController::class, 'index'])->name('pinterest.accounts');
+        Route::post('create', [PinterestAccountController::class, 'createAccount'])->name('pinterest.accounts.create');
+        Route::get('{id}', [PinterestAccountController::class, 'getAccount'])->name('pinterest.accounts.get');
+        Route::post('update/{id}', [PinterestAccountController::class, 'updateAccount'])->name('pinterest.accounts.update');
+        Route::post('delete/{id}', [PinterestAccountController::class, 'deleteAccount'])->name('pinterest.accounts.delete');
+        Route::get('connect/login', [PinterestAccountController::class, 'loginAccount'])->name('pinterest.accounts.connect.login');
+        Route::get('connect/{id}', [PinterestAccountController::class, 'connectAccount'])->name('pinterest.accounts.connect');
+        Route::get('refresh/{id}', [PinterestAccountController::class, 'refreshAccount'])->name('pinterest.accounts.refresh');
+        Route::get('disconnect/{id}', [PinterestAccountController::class, 'disconnectAccount'])->name('pinterest.accounts.disconnect');
+        Route::prefix('{id}')->group(function () {
+            Route::get('dashboard', [PinterestAdsAccountsController::class, 'dashboard'])->name('pinterest.accounts.dashboard');
+            Route::prefix('adsAccount')->group(function () {
+                Route::post('create', [PinterestAdsAccountsController::class, 'createAdsAccount'])->name('pinterest.accounts.adsAccount.create');
+            });
+            Route::prefix('boards')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardsIndex'])->name('pinterest.accounts.board.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoard'])->name('pinterest.accounts.board.create');
+                Route::get('get/{boardId}', [PinterestAdsAccountsController::class, 'getBoard'])->name('pinterest.accounts.board.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoard'])->name('pinterest.accounts.board.update');
+                Route::get('delete/{boardId}', [PinterestAdsAccountsController::class, 'deleteBoard'])->name('pinterest.accounts.board.delete');
+            });
+            Route::prefix('board-sections')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardSectionsIndex'])->name('pinterest.accounts.boardSections.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoardSections'])->name('pinterest.accounts.boardSections.create');
+                Route::get('get/{boardSectionId}', [PinterestAdsAccountsController::class, 'getBoardSection'])->name('pinterest.accounts.boardSections.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoardSection'])->name('pinterest.accounts.boardSections.update');
+                Route::get('delete/{boardSectionId}', [PinterestAdsAccountsController::class, 'deleteBoardSection'])->name('pinterest.accounts.boardSections.delete');
+            });
+            Route::prefix('pins')->group(function () {
+                Route::get('', [PinterestPinsController::class, 'pinsIndex'])->name('pinterest.accounts.pin.index');
+                Route::post('create', [PinterestPinsController::class, 'createPin'])->name('pinterest.accounts.pin.create');
+                Route::get('get/{pinId}', [PinterestPinsController::class, 'getPin'])->name('pinterest.accounts.pin.get');
+                Route::post('update', [PinterestPinsController::class, 'updatePin'])->name('pinterest.accounts.pin.update');
+                Route::get('delete/{pinId}', [PinterestPinsController::class, 'deletePin'])->name('pinterest.accounts.pin.delete');
+                Route::get('boards/{boardId}', [PinterestPinsController::class, 'getBoardSections'])->name('pinterest.accounts.pin.board.sections');
+            });
+            Route::prefix('campaigns')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'campaignsIndex'])->name('pinterest.accounts.campaign.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createCampaign'])->name('pinterest.accounts.campaign.create');
+                Route::get('get/{campaignId}', [PinterestCampaignsController::class, 'getCampaign'])->name('pinterest.accounts.campaign.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateCampaign'])->name('pinterest.accounts.campaign.update');
+            });
+            Route::prefix('ads-group')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsGroupIndex'])->name('pinterest.accounts.adsGroup.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAdsGroup'])->name('pinterest.accounts.adsGroup.create');
+                Route::get('get/{adsGroupId}', [PinterestCampaignsController::class, 'getAdsGroup'])->name('pinterest.accounts.adsGroup.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAdsGroup'])->name('pinterest.accounts.adsGroup.update');
+            });
+            Route::prefix('ads')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsIndex'])->name('pinterest.accounts.ads.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAds'])->name('pinterest.accounts.ads.create');
+                Route::get('get/{adsId}', [PinterestCampaignsController::class, 'getAds'])->name('pinterest.accounts.ads.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAds'])->name('pinterest.accounts.ads.update');
+            });
+        });
+    });
 });
 
 Route::prefix('database')->middleware('auth')->group(function () {
@@ -4088,7 +4154,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
@@ -5109,4 +5175,12 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
     Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });

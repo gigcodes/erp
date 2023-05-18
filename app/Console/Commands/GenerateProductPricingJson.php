@@ -40,18 +40,24 @@ class GenerateProductPricingJson extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report was added."]);
 
             $storeWebsite = \App\StoreWebsite::where('is_published', 1)->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Store website query finished."]);
             $countryGroups = \App\CountryGroup::all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Country group query finished."]);
             $dutyCountries = \App\CountryDuty::groupBy('destination')->get()->pluck('destination');
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Country duty query finished."]);
 
             // start pricing
             $products = \App\Product::where('status_id', StatusHelper::$finalApproval)->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Product query was finished."]);
             $priceReturn = [];
             if (! $products->isEmpty()) {
                 foreach ($products as $product) {
@@ -74,6 +80,8 @@ class GenerateProductPricingJson extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Product endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

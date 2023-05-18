@@ -78,6 +78,8 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
+use App\PurchaseProductOrder;
+use App\StatusMapping;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -2945,7 +2947,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
@@ -3104,6 +3106,27 @@ class OrderController extends Controller
                 return response()->json(['code' => 200, 'data' => $orderError]);
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any error Log']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is use for List Order SMS send Log
+     *
+     * @param  Request  $request Request
+     *  @return JsonReponse;
+     */
+    public function getOrderSmsSendLog($id)
+    {
+        try {
+            $smsSendLogs = ChatMessage::where('order_id', $id)->latest()->get();
+
+            if (count($smsSendLogs) > 0) {
+                return response()->json(['code' => 200, 'data' => $smsSendLogs]);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Could not find any Log']);
             }
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -4778,7 +4801,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
@@ -4839,6 +4862,39 @@ class OrderController extends Controller
         }
 
         return response()->json('Success', 200);
+    }
+
+    public function orderProductStatusChange(Request $request)
+    {
+        try {
+            // Get order product
+            $orderProduct = OrderProduct::FindOrFail($request->orderProductId);
+
+            if($orderProduct) {
+                // Get status from request
+                $orderProductStatusId = $request->orderProductStatusId;
+
+                // Update the order product status in order products table.
+                $orderProduct->order_product_status_id = $orderProductStatusId;
+                $orderProduct->save();
+
+                // Find mapped purchase status
+                $mappedStatus = StatusMapping::where("order_status_id", $orderProductStatusId)->first();
+                if ($mappedStatus) {
+                    $purchaseStatusId = $mappedStatus->purchase_status_id;
+                    if ($purchaseStatusId) {
+                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck("id")->toArray();
+                        if ($purchaseProductOrders) {
+                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id'=>$purchaseStatusId]);
+                        }
+                    }
+                }
+
+                return response()->json(['messages' => 'Order Product Status Updated Successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Order product not found!'], 404);
+        }
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)

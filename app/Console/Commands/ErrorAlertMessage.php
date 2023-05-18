@@ -51,12 +51,8 @@ class ErrorAlertMessage extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
-            $error = array();
-            $err = $error['eee'];
-            exit;
-
-
             $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
             $path = storage_path('logs');
@@ -74,6 +70,7 @@ class ErrorAlertMessage extends Command
                             $message .= ' | ' . $value;
                             $subject = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $hasAssignedIssue = DeveloperTask::where('subject', 'like', "%{$subject}%")->whereDate('created_at', date('Y-m-d'))->where('is_resolved', 0)->first();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "developer task query finished."]);
                             if (! $hasAssignedIssue) {
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
@@ -93,6 +90,7 @@ class ErrorAlertMessage extends Command
                 }
             }
             $this->output->write('Cron Done', true);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
