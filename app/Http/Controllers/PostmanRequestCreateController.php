@@ -10,6 +10,7 @@ use App\PostmanHistory;
 use App\PostmanResponse;
 use App\PostmanWorkspace;
 use App\PostmanCollection;
+use App\PostmanCollectionFolder;
 use App\PostmanEditHistory;
 use App\PostmanMultipleUrl;
 use Illuminate\Http\Request;
@@ -1154,5 +1155,98 @@ class PostmanRequestCreateController extends Controller
         curl_close($curl);
 
         return $response;
+    }
+    
+    public function getCollectionFolders(Request $request)
+    {
+        $folders = PostmanCollectionFolder::where('postman_collection_id', $request->collectionId)->get();
+
+        return $folders;
+    }
+
+    public function upsertCollectionFolder(Request $request)
+    {
+        try {
+            $collectionId = $request->collection_id;
+            $folderName = $request->folder_name;
+            $folderId = $request->folder_id;
+
+            $postmanCollection = PostmanCollection::find($collectionId);
+            
+            if ($request->folder_id) {
+                $collectionFolder = PostmanCollectionFolder::find($folderId);
+
+                $response = Http::withHeaders([
+                    'Accept' => 'application/vnd.postman.v2+json',
+                    'Content-Type' => 'application/json',
+                    'X-API-Key' => env('X_API_Key'),
+                ])->put('https://api.getpostman.com/collections/'.$postmanCollection->collection_id.'/folders/'.$collectionFolder->folder_id, [
+                    'name' => $folderName
+                ]);
+            } else {
+                $response = Http::withHeaders([
+                    'Accept' => 'application/vnd.postman.v2+json',
+                    'Content-Type' => 'application/json',
+                    'X-API-Key' => env('X_API_Key'),
+                ])->post('https://api.getpostman.com/collections/'.$postmanCollection->collection_id.'/folders', [
+                    'name' => $folderName
+                ]);
+            }
+            if ($response->ok()) {
+                if (isset($request->folder_id)) {
+                    $folder = $response->json()['data'];
+                    PostmanCollectionFolder::where('id', $request->folder_id)->update(['folder_id' => $folder['id'], 'folder_name' => $folder['name']]);
+                } else {
+                    $folder = $response->json()['data'];
+
+                    $table = new PostmanCollectionFolder();
+                    $table->postman_collection_id = $collectionId;
+                    $table->folder_id = $folder['id'];
+                    $table->folder_name = $folder['name'];
+                    $table->save();
+                }
+
+                return response()->json(['code' => 200, 'message' => 'successfully']);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Something went wrong']);
+            }
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Create Folder Error => ' . json_decode($e) . ' #id #' . $request->folder_id ?? '');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+       
+    }
+
+    public function deleteCollectionFolder(Request $request)
+    {
+        try {
+            $collectionId = $request->collection_id;
+            $folderId = $request->folder_id;
+            
+            $postmanCollection = PostmanCollection::find($collectionId);
+            
+            $collectionFolder = PostmanCollectionFolder::find($folderId);
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/vnd.postman.v2+json',
+                'Content-Type' => 'application/json',
+                'X-API-Key' => env('X_API_Key'),
+            ])->delete('https://api.getpostman.com/collections/'.$postmanCollection->collection_id.'/folders/'.$collectionFolder->folder_id);
+
+            if ($response->ok()) {
+                $collectionFolder->delete();
+
+                return response()->json(['code' => 200, 'message' => 'successfully']);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Something went wrong']);
+            }
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Delete Folder Error => ' . json_decode($e) . ' #id #' . $request->folder_id ?? '');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }
