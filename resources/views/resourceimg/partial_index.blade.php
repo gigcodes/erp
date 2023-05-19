@@ -15,7 +15,24 @@
         <td><a href="{{ $resources['url'] }}" title="View Url"
                 target="_blank">{{ isset($resources['url']) ? $resources['url'] : '-' }}</a>
         </td>
-        <td> @isset($resources['images'])
+        <td> 
+            @isset($allresources['image1'])
+    				<div class="col-md-6">
+		        		<img onclick="OpenModel(this.id)" 
+		        			 id="myImg1" class="myImg" src="{{URL::to('/category_images/'.$allresources['image1'])}}" 
+		        						alt="{{URL::to('/category_images/'.$allresources['image1'])}}" 
+		        						style="width: 50% !important;height: 50px !important;">
+		        	</div>
+		        	@endisset
+		        	@isset($allresources['image2'])
+		        	<div class="col-md-6">
+		        		<img onclick="OpenModel(this.id)" 
+		        			 id="myImg2" class="myImg" src="{{URL::to('/category_images/'.$allresources['image2'])}}" 
+		        						alt="{{URL::to('/category_images/'.$allresources['image2'])}}" 
+		        						style="width: 50% !important;height: 50px !important;">
+		        	</div>
+		        	@endisset
+            @isset($resources['images'])
                 @if ($resources['images'] != null)
                     @foreach (json_decode($resources['images']) as $image)
                         <div class="col-md-6" style="margin-top: 15px">
