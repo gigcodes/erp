@@ -64,20 +64,34 @@ class MagentoCommandController extends Controller
     public function store(Request $request)
     {
         try {
-            $created_user_permission = '';
+            $userPermissions = array_filter((!empty($request->user_permission) ? $request->user_permission : array()));
+            
             if (isset($request->id) && $request->id > 0) {
                 $mCom = MagentoCommand::where('id', $request->id)->first();
                 $type = 'Update';
+
+                if(!empty($mCom->user_permission)){
+                    $editUserPermissions = explode(',', $mCom->user_permission);
+                    
+                    $userPermissions = array_unique(array_merge($userPermissions, $editUserPermissions));
+                }
             } else {
                 $mCom = new MagentoCommand();
                 $type = 'Created';
+                $loginUserId = \Auth::user()->id ?? '';
+
+                if(strlen($loginUserId) > 0 && !in_array($loginUserId, $userPermissions)){
+                    array_push($userPermissions, $loginUserId);
+                }
             }
+        
             $mCom->user_id = \Auth::user()->id ?? '';
             $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
             $mCom->working_directory = $request->working_directory;
             $mCom->assets_manager_id = $request->assets_manager_id;
+            $mCom->user_permission = implode(',', array_filter($userPermissions));
             $mCom->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
@@ -215,6 +229,39 @@ class MagentoCommandController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function userPermission(Request $request)
+    {
+        try {
+            $magentoCommands = MagentoCommand::where('website_ids', 'like', '%,'.$request->persmission_website.',%')
+                ->orWhere('website_ids', 'like', '%,'.$request->persmission_website.'%')
+                ->orWhere('website_ids', 'like', '%'.$request->persmission_website.',%')
+                ->orWhere('website_ids', $request->persmission_website)
+                ->get();
+
+            foreach ($magentoCommands as $magentoCommand) {
+                $userPermissions = array_filter(explode(',', $magentoCommand->user_permission));
+
+                if(!in_array($request->persmission_user, $userPermissions)){
+                    array_push($userPermissions, $request->persmission_user);
+                }
+                $userPermissionFormatted = implode(',', array_filter($userPermissions));
+                
+                $isPermissionUpdated = MagentoCommand::where('id', '=', $magentoCommand->id)->update(
+                    [
+                        'user_permission' => $userPermissionFormatted,
+                    ]
+                );
+            }
+
+            return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Magento Command User permission Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
+            //$this->PostmanErrorLog($request->id ?? '', 'Postman User permission Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
