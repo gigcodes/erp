@@ -156,6 +156,8 @@ class ProductController extends Controller
 
     public function approveReview(Request $request)
     {
+        ini_set('memory_limit', '-1');
+
         $data = ['platform_id' => $request->platform_id, 'status' => 1];
         $data = json_encode($data);
         $url = $request->base_url . '/testimonial/index/statusupdate';
@@ -188,10 +190,13 @@ class ProductController extends Controller
         // dd(Setting::get('auto_push_product'));
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
-        $categories = Category::all();
+        $categories = Category::with('parent')->get();
         $category_tree = [];
         $categories_array = [];
+        $categories_paths_array = [];
+        $siteCroppedImages = [];
         $brands = Brand::getAll();
+        $storeWebsites = StoreWebsite::get();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -203,9 +208,16 @@ class ProductController extends Controller
                 ON suppliers.id = product_suppliers.supplier_id
         ');
 
-        foreach (Category::all() as $category) {
+        foreach ($categories as $category) {
+            $categoryPath = $category->title;
+
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
+
+                if ($parent !== null) {
+                    $categoryPath = $parent->title . ' > ' . $categoryPath;
+                }
+
                 if ($parent->parent_id != 0) {
                     if (! isset($category_tree[$parent->parent_id])) {
                         $category_tree[$parent->parent_id] = [];
@@ -217,11 +229,12 @@ class ProductController extends Controller
             }
 
             $categories_array[$category->id] = $category->parent_id;
+            $categories_paths_array[$category->id] = $categoryPath;
         }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-            $newProducts = Product::query();
+            $newProducts = Product::query()->with('categories.parent', 'cropApprover', 'cropOrderer', 'approver', 'log_scraper_vs_ai', 'croppedImages', 'brands', 'landingPageProduct');
         } else {
-            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->with('categories.parent', 'cropApprover', 'cropOrderer', 'approver', 'log_scraper_vs_ai', 'croppedImages', 'brands', 'landingPageProduct')->where('assigned_to', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {
@@ -442,14 +455,14 @@ class ProductController extends Controller
                 }
             }
         }
-        //here
-        if (! Setting::has('auto_push_product')) {
-            $auto_push_product = Setting::add('auto_push_product', 0, 'int');
-        } else {
-            $auto_push_product = Setting::get('auto_push_product');
-        }
 
         // checking here for the product which is cropped
+
+        if(count($newProducts) > 0){
+            $productIds = $newProducts->pluck('id')->toArray();
+
+            $siteCroppedImages = \App\SiteCroppedImages::select('product_id', DB::raw('group_concat(site_cropped_images.website_id) as website_ids'))->whereIn('product_id', $productIds)->groupBy('product_id')->pluck('website_ids', 'product_id')->toArray();
+        }
 
         if ($request->ajax()) {
             // view path for images
@@ -476,11 +489,13 @@ class ProductController extends Controller
                 'cropped' => $cropped,
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
-                'store_websites' => StoreWebsite::all(),
+                'store_websites' => $storeWebsites,
                 'type' => $pageType,
                 'auto_push_product' => $auto_push_product,
                 'user_id' => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
                 'request' => $request->all(),
+                'categories_paths_array' => $categories_paths_array,
+                'siteCroppedImages' => $siteCroppedImages
             ]);
         }
 
@@ -511,10 +526,12 @@ class ProductController extends Controller
             //            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
-            'store_websites' => StoreWebsite::all(),
+            'store_websites' => $storeWebsites,
             'pageType' => $pageType,
             'auto_push_product' => $auto_push_product,
             //'store_website_count' => StoreWebsite::count(),
+            'categories_paths_array' => $categories_paths_array,
+            'siteCroppedImages' => $siteCroppedImages
         ]);
     }
 

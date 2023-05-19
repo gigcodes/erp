@@ -630,7 +630,7 @@ class TaskModuleController extends Controller
         // dd($tasks_query);
         // $users = Helpers::getUserArray(User::all());
 
-        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['users'] = User::orderBy('name')->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // foreach ($data['task']['pending'] as $task) {
@@ -662,11 +662,11 @@ class TaskModuleController extends Controller
         $selected_user = $request->input('selected_user');
 
         if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
         } else {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         }
 
         $users = Helpers::getUserArray($usrlst);
@@ -1542,7 +1542,7 @@ class TaskModuleController extends Controller
             }
         }
         //task pending backup
-        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['users'] = User::orderBy('name')->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // Lead user process starts
@@ -1569,11 +1569,11 @@ class TaskModuleController extends Controller
         $selected_user = $request->input('selected_user');
 
         if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
         } else {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         }
 
         $users = Helpers::getUserArray($usrlst);

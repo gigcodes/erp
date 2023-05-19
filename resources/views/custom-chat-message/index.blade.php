@@ -97,6 +97,7 @@
         <div class="col-md-12">
             <div class="margin-tb custom-table" id="page-view-result">
                 <div class="table-responsive mt-3">
+                    <img class="custom-infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
                     <table class="table table-bordered" style="table-layout: fixed;">
                         <thead>
                           <tr>
@@ -234,7 +235,7 @@
 var isLoading = false;
 var page = 0;
 
-function loadMore(search = null) {
+function loadMore(search = null,isReload=false) {
     if (isLoading)
         return;
     isLoading = true;
@@ -247,13 +248,23 @@ function loadMore(search = null) {
         data: $('.form-search-data').serialize(),
         beforeSend: function() {
             $loader.show();
+            if(isReload){
+                $('.custom-infinite-scroll-products-loader').show();
+            }
         },
         success: function (response) {
             $loader.hide();
             var addProductTpl = $.templates("#template-result-block");
             var tplHtml       = addProductTpl.render(response);
             $(".count-text").html("("+response.total+")");
-            $("#page-view-result #chatmessagecontent").append(tplHtml);
+            if(isReload){
+                $("#page-view-result #chatmessagecontent").html(tplHtml);
+                $('.custom-infinite-scroll-products-loader').hide();
+            }else{
+                
+                $("#page-view-result #chatmessagecontent").append(tplHtml);
+            
+            }
             isLoading = false;
             $("#leaf-editor-model").modal('hide');
         },
@@ -266,6 +277,33 @@ function loadMore(search = null) {
 
         
 $(document).ready(function () {
+    $(document).on('click', '.custom-resend-message', function() {
+        var id = $(this).attr('data-id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('whatsapp') }}/" + id + "/resendMessage",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function() {
+          $(thiss).remove();
+          
+          page = 0;
+          loadMore('',true);
+        }).fail(function(response) {
+          $(thiss).text('Resend');
+
+          console.log(response);
+
+          alert('Could not resend message');
+        });
+      });
+
     loadMore();
     $(window).scroll(function() {
         if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {

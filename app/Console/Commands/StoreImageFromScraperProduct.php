@@ -38,6 +38,7 @@ class StoreImageFromScraperProduct extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $images = \App\Product::join('mediables as med', function ($q) {
                 $q->on('med.mediable_id', 'products.id');
@@ -50,18 +51,21 @@ class StoreImageFromScraperProduct extends Command
             ->havingRaw('media_id is null')
             ->groupBy('products.id')
             ->get();
-    
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Product query finished."]);
             if (! $images->isEmpty()) {
                 foreach ($images as $im) {
                     \Log::info('Product started => ' . $im->id);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product started => ' . $im->id]);
                     $this->info('Product started => ' . $im->id);
                     $scrapedProducts = \App\ScrapedProducts::where('sku', $im->sku)->orWhere('product_id', $im->id)->first();
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Scraped product query finished"]);
                     if ($scrapedProducts) {
                         // delete image which is original
                         \DB::table('mediables')->where('mediable_type', \App\Product::class)->where('mediable_id', $im->id)->where('tag', 'original')->delete();
                         $listOfImages = $scrapedProducts->images;
                         if (! empty($listOfImages) && is_array($listOfImages)) {
                             $this->info('Product images found => ' . count($listOfImages));
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product images found => ' . count($listOfImages)]);
                             $im->attachImagesToProduct($listOfImages);
                         }
                         if (in_array($im->status_id, [9, 12])) {
@@ -72,8 +76,10 @@ class StoreImageFromScraperProduct extends Command
     
                     $im->is_cron_check = 1;
                     $im->save();
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Image saved. => " . $im->id]);
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron job ended."]);
         } catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

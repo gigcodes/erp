@@ -31,7 +31,7 @@ class MessageController extends Controller
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id']); //Purpose : Add task_id - DEVTASK-4203
+            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -57,6 +57,23 @@ class MessageController extends Controller
             });
         }
 
+        if (request('message_type') != null) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                if(request('message_type')=='email'){
+                    $q->where('chat_messages.message_type', 'email');
+                    $q->orWhere('chat_messages.is_email', '>', 0);
+                }
+                if(request('message_type')=='task'){
+                    $q->orWhere('chat_messages.task_id', '>', 0);
+                }
+                if(request('message_type')=='dev_task'){
+                    $q->orWhere('chat_messages.developer_task_id', '>', 0);
+                }
+                if(request('message_type')=='ticket'){
+                    $q->orWhere('chat_messages.ticket_id', '>', 0);
+                }
+            });
+        }
         if (request('search_type') != null and count(request('search_type')) > 0) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
                 if (in_array('customer', request('search_type'))) {
@@ -77,20 +94,21 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0) OR (customer_id IS NULL
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0 or email_id > 0) OR (customer_id IS NULL
         AND vendor_id IS NULL
         AND supplier_id IS NULL
         AND bug_id IS NULL
         AND task_id IS NULL
         AND developer_task_id IS NULL
-        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
+        AND email_id IS NULL
+        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer',
             'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name'])
-            ->orderBy('cr.id', 'DESC')
+            ->orderByRaw("cr.id DESC, chat_messages.id DESC")
             ->paginate(20);
 
         // dd($pendingApprovalMsg);

@@ -54,6 +54,15 @@
                                     </option>
                                 </select>
                             </div>
+                            <div class="col">
+                                <select style="width: 200px !important" name="message_type" class="chatboat-message-type form-control">
+                                    <option value="">Select Message Type</option>
+                                    <option value="email" {{request()->get('message_type') == 'email' ? 'selected' : ''}}>Email</option>
+                                    <option value="task" {{request()->get('message_type') == 'task' ? 'selected' : ''}}>Task</option>
+                                    <option value="dev_task" {{request()->get('message_type') == 'dev_task' ? 'selected' : ''}}>Dev Task</option>
+                                    <option value="ticket" {{request()->get('message_type') == 'ticket' ? 'selected' : ''}}>Ticket</option>
+                                </select>
+                            </div>
 
                             <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
                             <div style="display: flex;align-items: center">
@@ -99,7 +108,7 @@
                     </form>
 
 
-                    <form method="post">
+                    <form method="post" class="pt-3">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>
                         <button type="submit" style="display: inline-block;width: 10%"

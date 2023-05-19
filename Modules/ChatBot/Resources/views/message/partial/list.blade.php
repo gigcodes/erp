@@ -57,6 +57,7 @@ padding: 3px 2px;
     <tr>
         <th width="2%">Name</th>
         <th width="2%">Website</th>
+        <th width="2%">Message Type</th>
         <th width="8%">User input</th>
         <th width="8%">Bot Replied</th>
         <th width="30%">Message Box </th>
@@ -123,7 +124,27 @@ padding: 3px 2px;
                 @else
                     <td>{{ $pam->website_title }}</td>
                 @endif
-
+        <!-- DEVTASK-23479 display message type -->
+        <td>
+            @if($pam->message_type!='')
+                {{ucfirst($pam->message_type)}}
+            @elseif ($pam->is_email>0)
+                {{'Email'}}
+            @elseif ($pam->task_id>0)
+                {{'Task'}}
+            @elseif ($pam->developer_task_id>0)
+                {{'Dev Task'}}
+            @elseif ($pam->ticket_id>0)
+                {{'Ticket'}}
+            @elseif ($pam->user_id > 0)
+                {{'User'}}
+            @elseif ($pam->supplier_id > 0)
+                {{'Supplier'}}
+            @elseif ($pam->customer_id > 0)
+                {{'Customer'}}
+            @endif
+        </td>
+        <!-- DEVTASK-23479 display message type -->
         <!-- Purpose : Add question - DEVTASK-4203 -->
         @if (strlen($pam->question) > 10)
             <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
@@ -242,9 +263,17 @@ padding: 3px 2px;
               <div class="col-6 d-inline form-inline p-0">
                   <div style="float:left;width: calc(100% - 5px)">
                       <select name="quickCategory" class="form-control mb-2 quickCategory select-quick-category">
-                          <option value="">Select Category</option>
-                          @foreach($reply_categories as $category)
-                              <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                            <option value="">Select Category</option>
+                            @foreach($reply_categories as $category)
+                                @if(!empty($pam->vendor_id) && $category->default_for=='vendors')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @elseif (!empty($pam->customer_id) && $category->default_for=='customers')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @elseif (!empty($pam->user_id) && $category->default_for=='users')
+                                    <option value="{{ $category->approval_leads }}" selected data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @else
+                                    <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                @endif
                           @endforeach
                       </select>
                   </div>

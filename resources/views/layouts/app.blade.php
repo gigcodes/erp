@@ -1058,6 +1058,9 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+											<a class="dropdown-item" 
+												href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
+												Node Code Shortcut</a>
                                             <a class="dropdown-item"
                                                 href="{{ action('\App\Http\Controllers\ProductController@productStats') }}">Product
                                                 Statistics</a>
@@ -1439,6 +1442,9 @@ if (!empty($notifications)) {
                                                     order</a>
                                                 <a class="dropdown-item"
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
+                                                    journey</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('order.get.order.journey') }}">Order 
                                                     journey</a>
                                             </ul>
                                         </li>
@@ -2054,7 +2060,7 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('\App\Http\Controllers\PinterestAccountAcontroller@index') }}">Accounts</a>
+                                                href="{{ route('pinterest.accounts') }}">Accounts</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2522,6 +2528,51 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item"
                                                 href="{{ route('newsletters.index') }}">Newsletters</a>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre="">Review Newsletters Translate<span
+                                                class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="twilioDropdown">
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate') }}">Review Arabic Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','English') }}">Review English Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Chinese') }}">Review Chinese Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Japanese') }}">Review Japanese Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Korean') }}">Review Korean Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Urdu') }}">Review Urdu Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Russian') }}">Review Russian Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Italian') }}">Review Italian Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','French') }}">Review French Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Spanish') }}">Review Spanish Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Dutch') }}">Review Dutch Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','German') }}">Review German Newsletters Translate </a>
+                                                    </li>
+
+                                                </ul>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ route('store-website.price-override.index') }}">Price
@@ -2807,6 +2858,11 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown ">
                                             <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-suites') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Suites</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast

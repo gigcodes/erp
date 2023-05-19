@@ -38,8 +38,10 @@ class FetchStoreWebsiteOrder extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             $storeWebsite = \App\StoreWebsite::all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Store webiste query finished."]);
             foreach ($storeWebsite as $sW) {
                 // if site is in magento the fetch orders
                 if ($sW->website_source == 'magento') {
@@ -48,6 +50,7 @@ class FetchStoreWebsiteOrder extends Command
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         }catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

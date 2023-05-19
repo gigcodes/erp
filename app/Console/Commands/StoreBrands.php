@@ -41,8 +41,10 @@ class StoreBrands extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $supplierBrands = Supplier::select('brands')->whereNotNull('brands')->get()->all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Supplier query finished."]);
             $brandsArray = [];
             $brandsTableArray = [];
             foreach ($supplierBrands as $key => $value) {
@@ -50,6 +52,7 @@ class StoreBrands extends Command
             }
             $brands = array_filter(str_replace('"', '', array_unique(array_map('strtolower', array_reduce($brandsArray, 'array_merge', [])))));
             $brandsInBrands = Brand::select('name')->whereNotNull('name')->get()->all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "Brand query finished."]);
             foreach ($brandsInBrands as $key => $value) {
                 array_push($brandsTableArray, trim($value->name));
             }
@@ -63,8 +66,10 @@ class StoreBrands extends Command
                     ];
                     $brandsTable[] = $value;
                     Brand::create($params);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Brand added."]);
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch(\Exception $e){
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

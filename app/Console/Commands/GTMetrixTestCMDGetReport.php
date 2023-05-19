@@ -46,6 +46,8 @@ class GTMetrixTestCMDGetReport extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             \Log::info('GTMetrix :: Report cron start ');
 
             $report = CronJobReport::create([
@@ -59,10 +61,14 @@ class GTMetrixTestCMDGetReport extends Command
                 ->orderBY('id', 'desc')
                 ->get();
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'StoreViewsGTMetrix model query was finished']);
+
             $Api_key = env('PAGESPEEDONLINE_API_KEY1');
 
             foreach ($storeViewList as $value) {
                 if ($Api_key == '') {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'API Key not found']);
+
                     $this->GTMatrixError($value->id, 'pagespeed', 'API Key not found', 'API Key not found');
                 }
                 $curl = curl_init();
@@ -86,6 +92,8 @@ class GTMetrixTestCMDGetReport extends Command
 
                 curl_close($curl);
                 if ($err) {
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting error from curl request']);
+
                     $this->GTMatrixError($value->id, 'pagespeed', 'API response error', $err);
                     \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err);
                     echo 'cURL Error #:' . $err;
@@ -172,6 +180,8 @@ class GTMetrixTestCMDGetReport extends Command
                         $client->setAPIKey($password);
                         $client->getLocations();
                         $client->getBrowsers();
+                        
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to GTMetrixClient']);
                     } else {
                         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
                         $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id', 'desc')->get();
@@ -208,6 +218,8 @@ class GTMetrixTestCMDGetReport extends Command
                                 $client->setAPIKey($password);
                                 $client->getLocations();
                                 $client->getBrowsers();
+
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to GTMetrixClient']);
                             }
                         }
                     }
@@ -229,10 +241,14 @@ class GTMetrixTestCMDGetReport extends Command
                             //'pdf_file'        => $fileName,
                         ]);
 
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'StoreViewsGTMetrix model update query finished']);
+
                         $resources = $test->getResources();
                         \Log::info(print_r(['Resource started', $resources], true));
 
                         if (! empty($resources['report_pdf'])) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report pdf detail found']);
+
                             $ch = curl_init($resources['report_pdf']);
                             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
@@ -269,6 +285,8 @@ class GTMetrixTestCMDGetReport extends Command
                         }
 
                         if (! empty($resources['pagespeed'])) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'page speed detail found']);
+
                             $ch = curl_init($resources['pagespeed']);
                             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
@@ -315,6 +333,8 @@ class GTMetrixTestCMDGetReport extends Command
                             }
                         }
                         if (! empty($resources['yslow'])) {
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'yslow detail found']);
+
                             $ch = curl_init($resources['yslow']);
                             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
@@ -361,6 +381,8 @@ class GTMetrixTestCMDGetReport extends Command
                             }
                         }
                     } catch (\Exception $e) {
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Got the error: '.$e->getMessage()]);
+
                         $value->status = 'error';
                         $value->error = $e->getMessage();
                         $value->save();
