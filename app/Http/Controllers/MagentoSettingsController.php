@@ -624,6 +624,7 @@ class MagentoSettingsController extends Controller
                         $entity = MagentoSetting::where('path', $c)->get();
                         if (! $entity->isEmpty()) {
                             foreach ($entity as $m_setting) {
+                                $allOutput  = [];
                                 if ($m_setting->scope === 'default') {
                                     $storeWebsite = $m_setting->website;
                                     if ($storeWebsite) {
@@ -642,17 +643,17 @@ class MagentoSettingsController extends Controller
 
                                             //BASE SCRIPT
                                             if (! empty($git_repository)) {
+                                                // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'dbschema.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
                                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
+                                                exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                                                $status = $response == 0 ? "Success" : "Error";
+                                                // $status = 'Error';
+                                                // for ($i = 0; $i < count($allOutput); $i++) {
+                                                //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                                                //         $status = 'Success';
+                                                //         break;
+                                                //     }
+                                                // }
                                                 $m_setting->status = $status;
                                                 $m_setting->save();
                                                 MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
@@ -682,7 +683,7 @@ class MagentoSettingsController extends Controller
                                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
                                                 $allOutput = [];
                                                 $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
+                                                $result = exec($cmd, $allOutput, $return_var); //Execute command
                                                 $status = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
                                                     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
