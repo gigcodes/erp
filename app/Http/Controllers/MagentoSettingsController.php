@@ -462,7 +462,7 @@ class MagentoSettingsController extends Controller
 
             foreach ($websiteStoresViews as $websiteStoresView) {
                 $allOutput  = [];
-                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
+                $git_repository = isset($websiteStoresView->websiteStore->website->storeWebsite->repository) ? $websiteStoresView->websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                 $server_name = config('database.connections.' . $git_repository . '.host');
                 if ($magento_url != null) {
