@@ -530,7 +530,6 @@ class MagentoSettingsController extends Controller
         if ($settings != '') {
             $filePath = public_path() . '/uploads/temp-sync.txt';
             $myfile = fopen($filePath, 'w') or exit('Unable to open file!');
-            dd($settings);
             fwrite($myfile, $settings);
             fclose($myfile);
 
