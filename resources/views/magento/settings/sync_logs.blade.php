@@ -3,15 +3,17 @@
 @section('title', 'Magento Settings')
 
 @section('content')
-<link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-<div class="row m-0">
-    <div class="col-12 p-0">
-<style>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+<style type="text/css">
 .checkbox input {
     height: unset;
 }
 </style>
+
+<div class="row m-0">
+    <div class="col-12 p-0">
+
+
         <h2 class="page-heading">Magento Settings Logs ({{$counter}})</h2>
     </div>
     @if($errors->any())
@@ -42,6 +44,9 @@
                            @endforeach
                         </select>
                      </div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <input placeholder="Date" type="text" class="form-control estimate-date_picker" name="date" id="date_picker">
+                    </div>
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <?php $base_url = URL::to('/');?> 
                         <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -100,4 +105,11 @@
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script> 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
+</script>
+<script>
+    $('#date_picker').datetimepicker({
+        format: "YYYY-MM-DD"
+    });
+</script>
 @endsection

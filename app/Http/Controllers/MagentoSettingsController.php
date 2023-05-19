@@ -119,11 +119,17 @@ class MagentoSettingsController extends Controller
         if($request->website){
             $pushLogs->where('store_website_id',$request->website);
         }
+        if($request->date){
+            $pushLogs->whereDate('magento_setting_push_logs.created_at',$request->date);
+        }
         $pushLogs = $pushLogs->paginate(25)->withQueryString();
 
         $counter = MagentoSettingPushLog::select('*');
         if($request->website){
             $counter->where('store_website_id',$request->website);
+        }
+        if($request->date){
+            $counter->whereDate('magento_setting_push_logs.created_at',$request->date);
         }
         $counter = $counter->count();
 
