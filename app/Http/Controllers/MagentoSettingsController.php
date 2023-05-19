@@ -747,7 +747,7 @@ class MagentoSettingsController extends Controller
                                                 $status = $response == 0 ? "Success" : "Error";
                                                 $m_setting->status = $status;
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                                                MagentoSettingPushLog::create(['store_website_id' => $storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
                                                 \Log::info(print_r(['Command Output', $allOutput], true));
                                             }
                                         }
