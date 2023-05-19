@@ -31,7 +31,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+            ->select('store_websites.website',  'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
 
         if (is_array($request->website)) {
             foreach ($request->website as $website) {
@@ -108,6 +108,31 @@ class MagentoSettingsController extends Controller
                 'counter' => $counter,
             ]);
         }
+    }
+
+
+    public function getLogs(Request $request){
+        $storeWebsites = StoreWebsite::get();
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website','magento_setting_push_logs.id','magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')
+        ->orderBy('magento_setting_push_logs.id', 'DESC');
+        if($request->website){
+            $pushLogs->where('store_website_id',$request->website);
+        }
+        $pushLogs = $pushLogs->paginate(2);
+
+        $counter = MagentoSettingPushLog::select('*');
+        if($request->website){
+            $counter->where('store_website_id',$request->website);
+        }
+        $counter = $counter->count();
+
+        return view('magento.settings.sync_logs', [
+            'pushLogs' => $pushLogs,
+            'storeWebsites' => $storeWebsites,
+            'counter' => $counter
+        ]);
+
     }
 
     public function magentoSyncLogSearch(Request $request)
@@ -505,6 +530,7 @@ class MagentoSettingsController extends Controller
         if ($settings != '') {
             $filePath = public_path() . '/uploads/temp-sync.txt';
             $myfile = fopen($filePath, 'w') or exit('Unable to open file!');
+            dd($settings);
             fwrite($myfile, $settings);
             fclose($myfile);
 

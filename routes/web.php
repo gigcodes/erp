@@ -544,6 +544,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
     Route::get('magento-admin-settings', [MagentoSettingsController::class, 'index'])->name('magento.setting.index');
+    Route::get('magento-admin-settings/logs', [MagentoSettingsController::class, 'getLogs'])->name('magento.setting.sync-logs');
     Route::get('magento-get-sync-data', [MagentoSettingsController::class, 'magentoSyncLogSearch'])->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', [MagentoSettingsController::class, 'magentoPushLogs'])->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', [MagentoSettingsController::class, 'create'])->name('magento.setting.create');
