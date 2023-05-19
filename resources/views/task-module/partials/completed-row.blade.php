@@ -96,12 +96,18 @@
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
             @if (isset($task->message))
                 <div class="d-flex">
+                    @if($task->is_audio)
+                        <p style="width:85%" class="td-full-container">
+                        <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
+                        </p>
+                    @else
                     <p style="width:85%" class="td-mini-container">
                         {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
                     </p>
                     <p style="width:85%" class="td-full-container hidden">
                         {{ $task->message }}
                     </p>
+                    @endif
                     <button type="button" class="btn btn-xs btn-image load-communication-modal pull-right" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
                     <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
                         <i class="fa fa-cloud-upload" aria-hidden="true"></i>

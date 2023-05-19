@@ -121,13 +121,16 @@
         @if (isset($task->message))
         <div style="margin-bottom:10px;width: 100%;">
             <div class="d-flex justify-content-between">
+                @if($task->is_audio)
+                    <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio> 
+                @else
                 <span class="td-mini-container">
                     {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
                 </span>
                 <span class="td-full-container hidden">
                     {{ $task->message }}
                 </span>
-
+                @endif
             </div>
         </div>
         @endif

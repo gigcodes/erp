@@ -1,8 +1,14 @@
 <script type="text/x-jsrender" id="template-result-block">
 	{{props data}}
       <tr>
-      	<td>{{:prop.created_at}}</td>
-            <td class="show_chat_message" data-content="{{:prop.message}}">{{:prop.message}}</td>
+      	<td>{{:prop.id}}:{{:prop.created_at}}</td>
+            
+				{{if prop.is_audio==1}}
+				<td class="show_chat_message" data-content='<audio controls="" src="{{:prop.message}}"></audio>'><audio controls="" src="{{:prop.message}}"></audio>
+				{{else}}
+				<td class="show_chat_message" data-content="{{:prop.message}}">{{:prop.message}}
+				{{/if}}
+			</td>
       	<td>{{:prop.sender}}</td>
       	<td>{{:prop.sender_name}}</td>
       	<td>

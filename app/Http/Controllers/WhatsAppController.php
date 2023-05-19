@@ -2214,6 +2214,7 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'task') {
                 $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
                 $data['task_id'] = $request->task_id;
+                $data['is_audio'] = $request->get('is_audio',0);
                 $task = Task::find($request->task_id);
 
                 if ($task->is_statutory != 1) {
@@ -2521,6 +2522,7 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'issue') {
                     $sendTo = $request->get('sendTo', 'to_developer');
                     $params['issue_id'] = $request->get('issue_id');
+                    $params['is_audio'] = $request->get('is_audio',0);
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId = $issue->assigned_to;

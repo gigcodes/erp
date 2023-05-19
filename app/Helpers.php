@@ -425,5 +425,17 @@ class Helpers
         }
         return config('env.MAIL_FROM_ADDRESS');
     }
+    public static function getAudioUrl($messages){
+        $reg_exUrl = '/\b(https?|ftp|file|http):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i';
+        // The Text you want to filter for urls
+        $text = "The text you want to filter goes here. http://example.com";
+
+        if(preg_match($reg_exUrl, $messages, $url)) {
+
+            return array_shift($url);
+
+        } 
+        return $messages;
+    }
      
 }

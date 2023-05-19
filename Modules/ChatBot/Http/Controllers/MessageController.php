@@ -8,6 +8,7 @@ use App\SuggestedProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
@@ -105,6 +106,7 @@ class MessageController extends Controller
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer',
+            'cm1.is_audio as answer_is_audio',
             'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name'])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
@@ -189,6 +191,22 @@ class MessageController extends Controller
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Image has been removed now']);
     }
 
+    public function uploadAudio(Request $request)
+    {
+        if($request->hasFile('audio_data')){
+            $audio_data = $request->file('audio_data');
+            $fileOriginalName=$audio_data->getClientOriginalName();
+            $path = Storage::disk('uploads')->putFileAs('audio-message', $audio_data,$fileOriginalName);
+            $exists_file = Storage::disk('uploads')->exists($path);
+            if($exists_file){
+                $path = Storage::disk('uploads')->url($path);
+                return response()->json(['success' => true, 'message' => '', 'url'=> $path]);
+            }else{
+                return response()->json(['success' => false, 'message' => 'The file can not upload to the server' ]);
+            }
+        }
+        return response()->json(['success' => false, 'message' => 'Requested audio data is not found!' ]);
+    }
     public function attachImages(Request $request)
     {
         $id = $request->get('chat_id', 0);

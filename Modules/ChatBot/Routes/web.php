@@ -129,6 +129,7 @@ Route::group([
         Route::get('/resend-to-bot', [MessageController::class, 'resendToBot'])->name('chatbot.messages.resend-to-bot');
         Route::post('/update-read-status', [MessageController::class, 'updateReadStatus'])->name('chatbot.messages.update-read-status');
         Route::get('/update-emailaddress', [MessageController::class, 'updateEmailAddress']);
+        Route::post('/upload-audio', [MessageController::class, 'uploadAudio'])->name('upload-audio');
     });
 
     Route::group(['prefix' => 'rest/dialog'], function () {

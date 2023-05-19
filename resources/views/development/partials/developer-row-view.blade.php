@@ -48,8 +48,12 @@
         </div-->
 
         <!-- class="expand-row" -->
+        @if($issue->is_audio)
+            <audio controls="" src="{{\App\Helpers::getAudioUrl($issue->message)}}"></audio>
+        @else
         <span class="{{ ($issue->message && $issue->message_status == 0) ||$issue->message_is_reminder == 1 ||($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0)? 'text-danger': '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
-        <textarea class="form-control send-message-textbox" data-id="{{ $issue->id }}" id="send_message_{{ $issue->id }}" name="send_message_{{ $issue->id }}" style="margin-bottom:5px" rows="3" cols="20"></textarea>
+        @endif
+        <textarea class="form-control send-message-textbox" data-id="{{ $issue->id }}" id="send_message_{{ $issue->id }}" name="send_message_{{ $issue->id }}" style="margin-top:5px;margin-bottom:5px;" rows="3" cols="20"></textarea>
         <?php echo Form::select(
             'send_message_' . $issue->id,
             [
@@ -61,10 +65,14 @@
             null,
             ['class' => 'form-control send-message-number', 'style' => 'width:85% !important;display: inline;']
         ); ?>
-        <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{ $issue->id }}"><img src="/images/filled-sent.png" /></button>
+        <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message_{{ $issue->id }}" data-id="{{ $issue->id }}"><img src="/images/filled-sent.png" /></button>
 
 
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top: 2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        
+        <input type="hidden" name="is_audio" id="is_audio_{{$issue->id}}" class="is_audio" value="0" >
+        <button type="button" class="btn btn-xs btn-image btn-trigger-rvn-modal" data-id="{{$issue->id}}" data-tid="{{$issue->id}}" title="Record & Send Voice Message" style="margin-top: 2%;"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
+        
         <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top: 2%;">
         <img width="2px;" src="/images/google-drive.png"/>
         </a>
