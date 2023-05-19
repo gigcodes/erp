@@ -119,7 +119,7 @@ class MagentoSettingsController extends Controller
         if($request->website){
             $pushLogs->where('store_website_id',$request->website);
         }
-        $pushLogs = $pushLogs->paginate(2);
+        $pushLogs = $pushLogs->paginate(25)->withQueryString();
 
         $counter = MagentoSettingPushLog::select('*');
         if($request->website){

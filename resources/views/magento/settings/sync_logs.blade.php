@@ -45,6 +45,7 @@
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <?php $base_url = URL::to('/');?> 
                         <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                        <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                      </div> 
                  </form>
 
