@@ -62,22 +62,22 @@
                             <tr>
                                 <th width="5%">ID </th>
                                 <th width="15%">Website </th>
-                                <th width="10%">Synced on</th>
+                                <th width="8%">Synced on</th>
                                 <th width="30%">Command</th>
-                                <th width="30%">Command Output</th>
-                                <th width="10%">Error Status</th>
+                                <th width="35%">Command Output</th>
+                                <th width="7%">Error Status</th>
                             </tr>
                         </thead>
     
                         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                             @foreach ($pushLogs as $log) 
                                 <tr>
-                                    <td width="5%">{{ $log->id }}</td>
-                                    <td width="20%">{{ $log->website }}</td>
-                                    <td width="20%">{{ $log->created_at }}</td>
-                                    <td width="25%">{{ $log->command }}</td>
-                                    <td width="25%">{{ $log->command_output }}</td>
-                                    <td width="5%">{{ $log->status }}</td>
+                                    <td >{{ $log->id }}</td>
+                                    <td>{{ $log->website }}</td>
+                                    <td>{{ $log->created_at }}</td>
+                                    <td>{{ $log->command }}</td>
+                                    <td>{{ $log->command_output }}</td>
+                                    <td>{{ $log->status }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
