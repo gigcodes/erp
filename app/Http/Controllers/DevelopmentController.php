@@ -2180,8 +2180,13 @@ class DevelopmentController extends Controller
             if ($teamUser) {
                 $team = $teamUser->team;
                 if ($team) {
-                    $task->team_lead_id = (strlen($team->user_id) > 0 && $team->user_id > 0 ? $team->user_id : $team->second_lead_id);
-                    $task->save();
+                    if(strlen($team->user_id) > 0 && $team->user_id > 0){
+                        $task->team_lead_id = $team->user_id;
+                        $task->save();
+                    }else if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                        $task->team_lead_id = $team->second_lead_id;
+                        $task->save();
+                    }
                 }
             } else {
                 $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)

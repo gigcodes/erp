@@ -229,7 +229,7 @@
           if(response.code === 200) {
             $('#loading-image').hide();
             $('#addPostmanFolder').modal('hide');
-            toastr['success']('Folder added successfully!!!', 'success'); 
+            toastr['success']('Workspace added successfully!!!', 'success'); 
            location.reload();
           } else {
             toastr['error'](response.message, 'error');
