@@ -69,7 +69,7 @@ class ZabbixStore extends Command
                     }
                 }
                 if (count($hostItems)) {
-                    HostItem::create($hostItems);
+                    HostItem::Insert($hostItems);
                 }
             }
         }
