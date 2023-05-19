@@ -8,6 +8,15 @@ class MagentoSetting extends Model
 {
     protected $fillable = ['scope', 'scope_id', 'store_website_id', 'website_store_id', 'website_store_view_id', 'data_type', 'name', 'path', 'value', 'value_on_magento', 'created_by', 'status'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($magentoSetting) {
+            $magentoSetting->created_by = auth()->id();
+        });
+    }
+
     /** Stores */
     public function storeview()
     {
