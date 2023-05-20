@@ -448,7 +448,7 @@ class ReplyController extends Controller
         if ($is_flagged == '1') {
             $record = \App\Reply::find($id);
             if ($record) {
-                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('reply_translation');
+                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('replytranslation');
 
                 $record->is_flagged = 1;
                 $record->save();
