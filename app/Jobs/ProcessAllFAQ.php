@@ -51,7 +51,7 @@ class ProcessAllFAQ implements ShouldQueue
 
                     $replyInformation = \App\Reply::find($value->id);
 
-                    ProcessTranslateReply::dispatch($replyInformation, $user_id)->onQueue('reply_translation');   //set for translation
+                    ProcessTranslateReply::dispatch($replyInformation, $user_id)->onQueue('replytranslation');   //set for translation
 
                     ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
                 }

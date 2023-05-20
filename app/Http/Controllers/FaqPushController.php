@@ -29,7 +29,7 @@ class FaqPushController extends Controller
             if (! empty($replyInfo->is_translate)) {   //if FAQ translate is  available then send for FAQ
                 ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
             } else {   //If FAQ transation is not available then first set for translation
-                ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('reply_translation');   //set for translation
+                ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('replytranslation');   //set for translation
 
                 ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
             }
