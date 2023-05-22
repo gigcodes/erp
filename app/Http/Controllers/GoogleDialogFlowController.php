@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Google\DialogFlow\DialogFlowService;
 use App\Models\GoogleDialogAccount;
 use App\StoreWebsite;
 use Illuminate\Http\JsonResponse;
@@ -125,19 +124,5 @@ class GoogleDialogFlowController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
-    }
-
-    public function createIntent(Request $request) {
-////        $name = explode('/', 'projects/gold-chassis-383310/agent/intents/22bea973-0ce5-4fac-88db-672031b3e8c7');
-////        _p($name[count($name) - 1]);die;
-//        $googleAccount = GoogleDialogAccount::first();
-//        $dialogService = new DialogFlowService($googleAccount);
-//        $response = $dialogService->createIntent([
-//            'questions' => ['What is the time?', 'Current time?', 'Tell me the time now?'],
-//            'reply' => ['Current time is test'],
-//            'name' => 'Time 2',
-//        ]);
-////        $response = $dialogService->deleteIntent(['intent_id' => '22bea973-0ce5-4fac-88db-672031b3e8c7']);
-//        _p([$request->all(), $response]);die;
     }
 }

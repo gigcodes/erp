@@ -4475,7 +4475,7 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'google-dialog'], function () {
         Route::get('/accounts', [GoogleDialogFlowController::class, 'index'])->name('google-chatbot-accounts');
-        Route::post('/account', [GoogleDialogFlowController::class, 'store'])->name('google-chatbot-accounts.add');
+        Route::post('/account/create', [GoogleDialogFlowController::class, 'store'])->name('google-chatbot-accounts.add');
         Route::get('/account/get/{id}', [GoogleDialogFlowController::class, 'get'])->name('google-chatbot-accounts.get');
         Route::post('/account/update', [GoogleDialogFlowController::class, 'update'])->name('google-chatbot-accounts.update');
         Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');

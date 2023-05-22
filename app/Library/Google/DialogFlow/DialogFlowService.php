@@ -86,7 +86,7 @@ class DialogFlowService
         // create entity
         $response = $entityTypesClient->batchCreateEntities($parent, [$entity]);
         $entityTypesClient->close();
-        return $response;
+        return $response->getName();
     }
 
     public function deleteEntity($projectId, $entityTypeId, $entityValue)
@@ -111,7 +111,7 @@ class DialogFlowService
         // create entity type
         $response = $entityTypesClient->createEntityType($parent, $entityType);
         $entityTypesClient->close();
-        return $response;
+        return $response->getName();
     }
 
     public function deleteEntityType($entityTypeId)
@@ -131,5 +131,9 @@ class DialogFlowService
         $response = $agentsClient->trainAgent($parent);
         $agentsClient->close();
         return $response;
+    }
+
+    static public function deleteQuestion($question) {
+
     }
 }

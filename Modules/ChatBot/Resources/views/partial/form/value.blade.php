@@ -2,7 +2,7 @@
     <div class="col">
         <div class="form-group">
             <label for="value">Type</label>
-            <select name="keyword_or_question" id="" class="form-control view_details_div">
+            <select name="keyword_or_question" id="keyword_or_question" class="form-control view_details_div" onchange="checkType()">
                 <option value="intent">Intent</option>
                 <option value="entity">Entity</option>
                 <option value="simple">Simple Text</option>
@@ -67,6 +67,24 @@
     <div class="form-group">
         <label for="value">User Entity</label>
         <?php echo Form::text("value_name", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter user entity"]); ?>
+    </div>
+    <div class="form-row align-items-end">
+        <div class="form-group col-md-4">
+            <label for="type">Entity types</label>
+            <?php echo Form::select("entity_type", $allEntityType, null, ["class" => "form-control", "id" => "types"]); ?>
+        </div>
+        <div class="form-group col-md-4">
+            <div class="row align-items-end" id="typeValue_1">
+                <div class="col-md-9">
+                    <?php echo Form::text("entity_types[]", null, ["class" => "form-control", "id" => "type", "placeholder" => "Enter value", "maxLength" => 64]); ?>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-md-2" id="add-type-value-btn2">
+            <a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn2">
+                <span class="glyphicon glyphicon-plus"></span>
+            </a>
+        </div>
     </div>
     <div class="form-row align-items-end">
         <div class="form-group col-md-4">
@@ -137,15 +155,6 @@
 <div class="row">
     <div class="col">
         <div class="form-group">
-            <label for="value">Push to</label>
-            <select name="erp_or_watson" id="" class="form-control">
-                <option value="watson">Watson</option>
-                <option value="erp">ERP</option>
-            </select>
-        </div>
-    </div>
-    <div class="col">
-        <div class="form-group">
             <label for="value">Select watson account</label>
             <select name="watson_account" class="form-control" required>
                 <option value="0">All account </option>
@@ -157,6 +166,20 @@
             </select>
         </div>
     </div>
- </div>   
+
+    <div class="col" id="google_account">
+        <div class="form-group">
+            <label for="value">Select goggle account</label>
+            <select name="google_account" class="form-control" required>
+                <option value="0">All account </option>
+                @if(!empty($google_accounts))
+                    @foreach($google_accounts as $acc)
+                        <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+    </div>
+ </div>
 
 
