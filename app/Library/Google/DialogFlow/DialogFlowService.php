@@ -105,7 +105,7 @@ class DialogFlowService
         // prepare entity type
         $parent = $entityTypesClient->agentName($this->googleAccount->project_id);
         $entityType = new EntityType();
-        $entityType->setDisplayName($displayName);
+        $entityType->setDisplayName(preg_replace('/\s+/', '_', $displayName));
         $entityType->setKind($kind);
 
         // create entity type

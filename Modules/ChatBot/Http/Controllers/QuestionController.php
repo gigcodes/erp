@@ -66,7 +66,7 @@ class QuestionController extends Controller
             }
         }
 
-        $allEntityType = DialogflowEntityType::all()->pluck('name', 'id');
+        $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
 
         $task_category = DB::table('task_categories')->select('*')->get();
         $userslist = DB::table('users')->select('*')->get();
@@ -171,25 +171,21 @@ class QuestionController extends Controller
 
         if (array_key_exists('entity_type', $params) && $params['entity_type'] != null && array_key_exists('entity_types', $params) && $params['entity_types'] != null) {
             $chatbotQuestionExample = null;
-            if (!empty($params['value_name']) && !$chatbotQuestionExample) {
+            if (!empty($params['value_name'])) {
                 $chatbotQuestionExample = new ChatbotQuestionExample;
                 $chatbotQuestionExample->question = $params['value_name'];
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                 $chatbotQuestionExample->types = $params['entity_type'];
                 $chatbotQuestionExample->save();
             }
-
-            if ($chatbotQuestionExample) {
-                $valueType = [];
-                $valueType['chatbot_keyword_value_id'] = $chatbotQuestionExample->id;
-                if (!empty($params['entity_types'])) {
-                    foreach ($params['entity_types'] as $value) {
-                        if ($value != null) {
-                            $valueType['type'] = $value;
-                            $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
-                            $chatbotKeywordValueTypes->fill($valueType);
-                            $chatbotKeywordValueTypes->save();
-                        }
+            if (!empty($params['entity_types'])) {
+                foreach ($params['entity_types'] as $value) {
+                    if ($value != null) {
+                        $chatbotQuestionExample = new ChatbotQuestionExample;
+                        $chatbotQuestionExample->question = $value;
+                        $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                        $chatbotQuestionExample->types = $params['entity_type'];
+                        $chatbotQuestionExample->save();
                     }
                 }
             }
@@ -1033,36 +1029,43 @@ class QuestionController extends Controller
         }
         if ($chatBotQuestion) {
             if ($chatBotQuestion->google_account_id > 0) {
-                $googleAccount = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
-                if (!empty($googleAccount)) {
-                    $dialogService = new DialogFlowService($googleAccount);
-                    if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
-                        $response = $dialogService->createIntent([
-                            'questions' => $questionArr,
-                            'reply' => explode($chatBotQuestion['suggested_reply'], ','),
-                            'name' => $chatBotQuestion['value'],
-                        ]);
-                        if ($response) {
-                            $name = explode('/', $response);
-                            $chatBotQuestion->google_response_id = $name;
-                            $chatBotQuestion->save();
-                        }
-                    } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
-                        $entityType = DialogflowEntityType::where('id', $chatBotQuestion->chatbotQuestionExamples[0]->types)->first();
-                        $entityId = $entityType->response_id;
-                        if (!$entityType->response_id) {
-                            $entityId = $dialogService->createEntityType($entityType->display_name, $entityType->type);
-                            $entityId = explode('/', $entityId);
-                            $entityType->response_id = $entityId;
-                            $entityType->save();
-                        }
-                        $keywords = ChatbotKeywordValueTypes::where('chatbot_keyword_value_id', $chatBotQuestion->id)->get()->pluck('type');
-                        $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
-                        if ($response) {
-                            $name = explode('/', $response);
-                            $chatBotQuestion->google_response_id = $name;
-                            $chatBotQuestion->save();
-                        }
+                $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
+            } else {
+                $googleAccounts = GoogleDialogAccount::all();
+            }
+
+            foreach ($googleAccounts as $googleAccount) {
+                $dialogService = new DialogFlowService($googleAccount);
+                if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
+                    $response = $dialogService->createIntent([
+                        'questions' => $questionArr,
+                        'reply' => explode($chatBotQuestion['suggested_reply'], ','),
+                        'name' => $chatBotQuestion['value'],
+                    ]);
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->save();
+                    }
+                } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
+                    $entityType = DialogflowEntityType::where('id', $chatBotQuestion->chatbotQuestionExamples[0]->types)->first();
+                    $entityId = $entityType->response_id;
+                    if (!$entityType->response_id) {
+                        $responseE = $dialogService->createEntityType($entityType->display_name, $entityType->kind);
+                        $responseE = explode('/', $responseE);
+                        $entityType->response_id = $responseE[count($responseE) - 1];
+                        $entityId = $responseE[count($responseE) - 1];
+                        $entityType->save();
+                    }
+                    $keywords = $chatBotQuestion->chatbotQuestionExamples->pluck('question')->toArray();
+                    if ($entityType->kind == '2') {
+                        $keywords = [$chatBotQuestion['value']];
+                    }
+                    $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->save();
                     }
                 }
             }

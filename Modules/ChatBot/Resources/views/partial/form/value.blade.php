@@ -2,7 +2,8 @@
     <div class="col">
         <div class="form-group">
             <label for="value">Type</label>
-            <select name="keyword_or_question" id="keyword_or_question" class="form-control view_details_div" onchange="checkType()">
+            <select name="keyword_or_question" id="keyword_or_question" class="form-control view_details_div"
+                    onchange="checkType()">
                 <option value="intent">Intent</option>
                 <option value="entity">Entity</option>
                 <option value="simple">Simple Text</option>
@@ -70,8 +71,8 @@
     </div>
     <div class="form-row align-items-end">
         <div class="form-group col-md-4">
-            <label for="type">Entity types</label>
-            <?php echo Form::select("entity_type", $allEntityType, null, ["class" => "form-control", "id" => "types"]); ?>
+            <label for="type">Entity types (Google)</label>
+            <?php echo Form::select("entity_type", ["" => "Please select"] + $allEntityType, null, ["class" => "form-control", "id" => "types"]); ?>
         </div>
         <div class="form-group col-md-4">
             <div class="row align-items-end" id="typeValue_1">
@@ -88,8 +89,8 @@
     </div>
     <div class="form-row align-items-end">
         <div class="form-group col-md-4">
-            <label for="type">Type</label>
-            <?php echo Form::select("types", ["synonyms" => "synonyms", "patterns" => "patterns"], null, ["class" => "form-control", "id" => "types"]); ?>
+            <label for="type">Type (Watson)</label>
+            <?php echo Form::select("types", ["" => "Please select", "synonyms" => "synonyms", "patterns" => "patterns"], null, ["class" => "form-control", "id" => "types"]); ?>
         </div>
         <div class="form-group col-md-4">
             <div class="row align-items-end" id="typeValue_1">
@@ -157,10 +158,10 @@
         <div class="form-group">
             <label for="value">Select watson account</label>
             <select name="watson_account" class="form-control" required>
-                <option value="0">All account </option>
+                <option value="0">All account</option>
                 @if(!empty($watson_accounts))
                     @foreach($watson_accounts as $acc)
-                        <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
                     @endforeach
                 @endif
             </select>
@@ -171,15 +172,15 @@
         <div class="form-group">
             <label for="value">Select goggle account</label>
             <select name="google_account" class="form-control" required>
-                <option value="0">All account </option>
+                <option value="0">All account</option>
                 @if(!empty($google_accounts))
                     @foreach($google_accounts as $acc)
-                        <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
                     @endforeach
                 @endif
             </select>
         </div>
     </div>
- </div>
+</div>
 
 

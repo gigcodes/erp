@@ -22,9 +22,9 @@
                         <label for="value">Kind (Indicates the kind of entity type.)</label>
                         <select name="kind_name" id="" class="form-control">
                             <option value="">Select</option>
-                            <option value="KIND_MAP">KIND_MAP</option>
-                            <option value="KIND_LIST">KIND_LIST</option>
-                            <option value="KIND_REGEXP">KIND_REGEXP</option>
+                            <option value="1">KIND_MAP</option>
+                            <option value="2">KIND_LIST</option>
+                            <option value="3">KIND_REGEXP</option>
                         </select>
                     </div>
                 </div>
