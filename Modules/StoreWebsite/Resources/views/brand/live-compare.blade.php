@@ -1,6 +1,6 @@
 <div class="modal-content">
     <div class="modal-header">
-      <h4 class="modal-title">Brand Missing ({{$availableBrands->count()}})</h4>
+      <h4 class="modal-title">{{$heading}} ({{$availableBrands->count()}})</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
     </div>
     <div class="modal-body">
