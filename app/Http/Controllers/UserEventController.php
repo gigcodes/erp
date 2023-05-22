@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;
 use Auth;
 use App\User;
 use App\Learning;
@@ -45,6 +46,56 @@ class UserEventController extends Controller
 
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
+        
+        $c_start = Carbon::parse($start);
+        $c_end = Carbon::parse($end);
+
+        $assetsmanager = AssetsManager::where([
+            "user_name"=> $userId,
+            "active" => 1,
+            "payment_cycle" => "Monthly",
+        ])->whereNotNull('due_date')->get();
+        
+        if(count($assetsmanager) > 0) {
+            foreach ($assetsmanager as $key => $val) {
+                $c_due_date = Carbon::parse($val->due_date);
+                if($c_due_date->lte($c_start)) {
+                    $arr = explode('-', $val->due_date);
+                    if($c_end->month - $c_start->month){
+
+                    }
+                    for ($i=0; $i < 2; $i++) {
+                        $arr[1] = $c_start->month + $i;
+                        $arr[0] = $c_start->year;
+                        if($arr[1] == 13) {
+                            $arr[1] = 1;
+                            $arr[0]++;
+                        }
+                        $c_due_date = implode("-", $arr);
+                        $c_due_date = Carbon::parse($c_due_date);
+                        
+                        if ($c_start->lte($c_due_date) && $c_end->gte($c_due_date)) {
+    
+                            $exist = UserEvent::where('asset_manager_id', $val->id)->where('date', $c_due_date->format("Y-m-d"))->count();
+                            
+                            if($exist == 0) {
+                                $userEvent = new UserEvent;
+                                $userEvent->user_id = $val->user_name;
+                                $userEvent->subject = "Payment Due";
+                                $userEvent->description = "";
+                                $userEvent->date = $c_due_date;
+                                $userEvent->start = $c_due_date;
+                                $userEvent->end = $c_due_date;
+                                $userEvent->asset_manager_id = $val->id;
+                                $userEvent->save();
+                            }
+    
+                        }
+                    }
+                } 
+                // $c_start->month
+            }
+        }
 
         $events = UserEvent::with(['attendees'])
             ->where('start', '>=', $start)
