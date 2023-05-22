@@ -126,6 +126,11 @@
 		}
 		window.open(urlToOpen, '_blank');
 	}
-	
+    $( document ).ready(function() {
+        $(document).on('click', '.open-page-content-modal', function () {
+            var id=$(this).attr("data-id");
+            $("#page-content-modal-"+id).modal('show');
+        });
+    });
 </script>
 @endsection 
