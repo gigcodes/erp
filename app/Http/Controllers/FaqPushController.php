@@ -27,11 +27,11 @@ class FaqPushController extends Controller
             $replyInfo = Reply::find($data['id']);
 
             if (! empty($replyInfo->is_translate)) {   //if FAQ translate is  available then send for FAQ
-                ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
+                ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
             } else {   //If FAQ transation is not available then first set for translation
-                ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('reply_translation');   //set for translation
+                ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('replytranslation');   //set for translation
 
-                ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
+                ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'FAQ added in queue']);
@@ -56,7 +56,7 @@ class FaqPushController extends Controller
             return response()->json(['code' => 400, 'data' => [], 'message' => 'No Record Found']);
         }
 
-        ProcessAllFAQ::dispatch($replyInfo, \Auth::id())->onQueue('faq_push');
+        ProcessAllFAQ::dispatch($replyInfo, \Auth::id())->onQueue('faq');
 
         //get all reply with translate and set in chunks
         $replyInfo = $Reply->select('replies.id', 'magento_url', 'api_token', 'replies.is_translate')
@@ -72,7 +72,7 @@ class FaqPushController extends Controller
             foreach ($replyInfo as $key => $value) {
                 $insertArray = $value->pluck('id');
                 $reqType = 'pushFaqAll';
-                ProceesPushFaq::dispatch($insertArray->toArray(), $reqType)->onQueue('faq_push');
+                ProceesPushFaq::dispatch($insertArray->toArray(), $reqType)->onQueue('faq');
             }
         }
 

@@ -93,7 +93,7 @@ class ZabbixHostItems extends Command
                 }
             }
             if (count($historyRows)) {
-                ZabbixHistory::create($historyRows);
+                ZabbixHistory::Insert($historyRows);
             }
         }
     }

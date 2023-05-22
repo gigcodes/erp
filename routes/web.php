@@ -345,6 +345,7 @@ use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\StoreWebsiteAnalyticsController;
 use App\Http\Controllers\UsersFeedbackHrTicketController;
 use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
 use App\Http\Controllers\UnknownAttributeProductController;
@@ -394,6 +395,7 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
 
@@ -544,6 +546,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
     Route::get('magento-admin-settings', [MagentoSettingsController::class, 'index'])->name('magento.setting.index');
+    Route::get('magento-admin-settings/logs', [MagentoSettingsController::class, 'getLogs'])->name('magento.setting.sync-logs');
     Route::get('magento-get-sync-data', [MagentoSettingsController::class, 'magentoSyncLogSearch'])->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', [MagentoSettingsController::class, 'magentoPushLogs'])->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', [MagentoSettingsController::class, 'create'])->name('magento.setting.create');
@@ -1752,6 +1755,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/records', [NewsletterController::class, 'records'])->name('newsletters.records');
         Route::post('/store', [NewsletterController::class, 'store'])->name('newsletters.store');
         Route::get('/image/{id}/{productId}/delete', [NewsletterController::class, 'deleteImage'])->name('newsletters.deleteImage');
+        Route::get('/review-translate/{language?}', [NewsletterController::class, 'reviewTranslate'])->name('newsletters.review.translate');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [NewsletterController::class, 'edit'])->name('newsletters.edit');
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
@@ -2642,6 +2646,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('type', [TemplatesController::class, 'typeIndex'])->name('templates.type');
     });
 
+    Route::prefix('code-shortcuts')->middleware('auth')->group(function () {
+        Route::get('/', [CodeShortcutController::class, 'index'])->name('code-shortcuts');
+        Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
+        Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
+        Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
+    });
+
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
         Route::post('/store', [ErpEventController::class, 'store'])->name('erp-events.store');
@@ -2913,10 +2924,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
-        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
-
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
-
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
         Route::prefix('notification')->group(function () {
             Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
             Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
@@ -2971,7 +2980,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
-
+    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
+   
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -4150,7 +4162,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
@@ -4286,7 +4298,6 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('google-campaign-location/states', [GoogleCampaignLocationController::class, 'states'])->name('google-campaign-location.states');
     Route::get('google-campaign-location/cities', [GoogleCampaignLocationController::class, 'cities'])->name('google-campaign-location.cities');
     Route::get('google-campaign-location/address', [GoogleCampaignLocationController::class, 'address'])->name('google-campaign-location.address');
-
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
     Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
@@ -5186,4 +5197,12 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
     Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });

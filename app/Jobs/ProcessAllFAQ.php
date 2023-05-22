@@ -44,16 +44,16 @@ class ProcessAllFAQ implements ShouldQueue
                     $insertArray = [];
                     $insertArray[] = $value->id;
 
-                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
+                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 } else {   //If FAQ transation is not available then first set for translation
                     $insertArray = [];
                     $insertArray[] = $value->id;
 
                     $replyInformation = \App\Reply::find($value->id);
 
-                    ProcessTranslateReply::dispatch($replyInformation, $user_id)->onQueue('reply_translation');   //set for translation
+                    ProcessTranslateReply::dispatch($replyInformation, $user_id)->onQueue('replytranslation');   //set for translation
 
-                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
+                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 }
             }
         } catch (Exception $e) {

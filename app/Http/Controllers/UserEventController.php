@@ -478,7 +478,7 @@ class UserEventController extends Controller
 
         $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
         if ($result) {
-            $result->attendees()->delete();
+            // $result->attendees()->delete(); // No need to delete this, Because now softdelete logic is using in user_events. 
             $result->delete();
 
             return response()->json([

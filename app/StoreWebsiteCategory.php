@@ -42,12 +42,17 @@ class StoreWebsiteCategory extends Model
 
         $faqCategoryName = $categoryDetails->name ?? 'Question?';
 
+        $faqParentCategoryId = 0;
+        if ($categoryDetails->parent_id) {
+            $faqParentCategoryId = $this->getPlatformId($store_website_id, $categoryDetails->parent_id, $storeValue);
+        }
+
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faqcategory');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
 
         $headers = [];
         $headers[] = 'Authorization: Bearer ' . $api_token;

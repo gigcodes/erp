@@ -12,7 +12,7 @@ class ContentStatusController extends Controller
 
     public function index(Request $request)
     {
-        $status = SeoProcessStatus::query();
+        $status = SeoProcessStatus::query()->orderBy('id','desc');
 
         if(!empty($request->type)) {
             $status = $status->where('type', $request->type);
