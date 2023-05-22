@@ -31,7 +31,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+            ->select('store_websites.website',  'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
 
         if (is_array($request->website)) {
             foreach ($request->website as $website) {
@@ -72,7 +72,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
         }
 
-        $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
@@ -108,6 +108,37 @@ class MagentoSettingsController extends Controller
                 'counter' => $counter,
             ]);
         }
+    }
+
+
+    public function getLogs(Request $request){
+        $storeWebsites = StoreWebsite::get();
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website','magento_setting_push_logs.id','magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')
+        ->orderBy('magento_setting_push_logs.id', 'DESC');
+        if($request->website){
+            $pushLogs->where('store_website_id',$request->website);
+        }
+        if($request->date){
+            $pushLogs->whereDate('magento_setting_push_logs.created_at',$request->date);
+        }
+        $pushLogs = $pushLogs->paginate(25)->withQueryString();
+
+        $counter = MagentoSettingPushLog::select('*');
+        if($request->website){
+            $counter->where('store_website_id',$request->website);
+        }
+        if($request->date){
+            $counter->whereDate('magento_setting_push_logs.created_at',$request->date);
+        }
+        $counter = $counter->count();
+
+        return view('magento.settings.sync_logs', [
+            'pushLogs' => $pushLogs,
+            'storeWebsites' => $storeWebsites,
+            'counter' => $counter
+        ]);
+
     }
 
     public function magentoSyncLogSearch(Request $request)
@@ -311,6 +342,7 @@ class MagentoSettingsController extends Controller
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
 
             foreach ($storeWebsites as $storeWebsite) {
+                $allOutput  = [];
                 $git_repository = $storeWebsite->repository;
                 $magento_url = $storeWebsite->magento_url;
                 $server_name = config('database.connections.' . $git_repository . '.host');
@@ -341,19 +373,21 @@ class MagentoSettingsController extends Controller
                     //BASE SCRIPT
                     if (! empty($git_repository)) {
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
+                        // $allOutput = [];
+                        // $allOutput[] = $cmd;
+                        // $result = exec($cmd, $allOutput); //Execute command
+                        // $status = 'Error';
+                        // for ($i = 0; $i < count($allOutput); $i++) {
+                        //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                        //         $status = 'Success';
+                        //         break;
+                        //     }
+                        // }
+                        exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                        $status = $response == 0 ? "Success" : "Error";
                         $m_setting->status = $status;
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($result), 'status' => $status]);
+                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
                         \Log::info(print_r(['Command Output', $allOutput], true));
                     } else {
                         return response()->json(['code' => 500, 'message' => 'Request has been failed on stage server please check laravel log']);
@@ -370,6 +404,7 @@ class MagentoSettingsController extends Controller
             })->orWhere('id', $entity->scope_id)->get();
 
             foreach ($websiteStores as $websiteStore) {
+                $allOutput  = [];
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
                 $server_name = config('database.connections.' . $git_repository . '.host');
@@ -400,16 +435,18 @@ class MagentoSettingsController extends Controller
                     //BASE SCRIPT
                     if (! empty($git_repository)) {
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
+                        // $allOutput = [];
+                        // $allOutput[] = $cmd;
+                        // $result = exec($cmd, $allOutput); //Execute command
+                        // $status = 'Error';
+                        // for ($i = 0; $i < count($allOutput); $i++) {
+                        //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                        //         $status = 'Success';
+                        //         break;
+                        //     }
+                        // }
+                        exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                        $status = $response == 0 ? "Success" : "Error";
                         $m_setting->status = $status;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
@@ -430,7 +467,8 @@ class MagentoSettingsController extends Controller
             })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
             foreach ($websiteStoresViews as $websiteStoresView) {
-                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
+                $allOutput  = [];
+                $git_repository = isset($websiteStoresView->websiteStore->website->storeWebsite->repository) ? $websiteStoresView->websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                 $server_name = config('database.connections.' . $git_repository . '.host');
                 if ($magento_url != null) {
@@ -460,16 +498,18 @@ class MagentoSettingsController extends Controller
                     //BASE SCRIPT
                     if (! empty($git_repository)) {
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
+                        // $allOutput = [];
+                        // $allOutput[] = $cmd;
+                        // $result = exec($cmd, $allOutput); //Execute command
+                        // $status = 'Error';
+                        // for ($i = 0; $i < count($allOutput); $i++) {
+                        //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                        //         $status = 'Success';
+                        //         break;
+                        //     }
+                        // }
+                        exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                        $status = $response == 0 ? "Success" : "Error";
                         $m_setting->status = $status;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
@@ -503,18 +543,21 @@ class MagentoSettingsController extends Controller
             $settings .= $magentoSetting['scope'] . ',' . $scopeId . ',' . $magentoSetting['path'] . ',' . $magentoSetting['value'] . PHP_EOL;
         }
         if ($settings != '') {
+            $allOutput  = [];
             $filePath = public_path() . '/uploads/temp-sync.txt';
             $myfile = fopen($filePath, 'w') or exit('Unable to open file!');
             fwrite($myfile, $settings);
             fclose($myfile);
 
             $cmd = 'bash ' . 'magento-config-deployment.sh -r ' . $storeWebsiteDetails['repo_name'] . " -f '" . $filePath . "'";
-            $allOutput = [];
-            $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput); //Execute command
+            // $allOutput = [];
+            // $allOutput[] = $cmd;
+            // $result = exec($cmd, $allOutput); //Execute command
+            exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+            $status = $response == 0 ? "Success" : "Error";
 
             \Log::info(print_r(['Command Output', $allOutput], true));
-            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $magentoSetting['id'], 'command_output' => json_encode($allOutput)]);
+            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $magentoSetting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
         }
 
         return redirect(route('magento.setting.index'));
@@ -571,7 +614,7 @@ class MagentoSettingsController extends Controller
 
     public function magentoPushLogs($settingId)
     {
-        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->get();
+        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->orderBy('id','desc')->get();
         $data = '';
         foreach ($logs as $log) {
             $cmdOutputs = json_decode($log['command_output']);
@@ -599,6 +642,7 @@ class MagentoSettingsController extends Controller
                         $entity = MagentoSetting::where('path', $c)->get();
                         if (! $entity->isEmpty()) {
                             foreach ($entity as $m_setting) {
+                                $allOutput  = [];
                                 if ($m_setting->scope === 'default') {
                                     $storeWebsite = $m_setting->website;
                                     if ($storeWebsite) {
@@ -618,16 +662,15 @@ class MagentoSettingsController extends Controller
                                             //BASE SCRIPT
                                             if (! empty($git_repository)) {
                                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
+                                                exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                                                $status = $response == 0 ? "Success" : "Error";
+                                                // $status = 'Error';
+                                                // for ($i = 0; $i < count($allOutput); $i++) {
+                                                //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                                                //         $status = 'Success';
+                                                //         break;
+                                                //     }
+                                                // }
                                                 $m_setting->status = $status;
                                                 $m_setting->save();
                                                 MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
@@ -655,19 +698,23 @@ class MagentoSettingsController extends Controller
                                             //BASE SCRIPT
                                             if (! empty($git_repository)) {
                                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
+                                                // $allOutput = [];
+                                                // $allOutput[] = $cmd;
+                                                // $result = exec($cmd, $allOutput, $return_var); //Execute command
+                                                // $status = 'Error';
+                                                // for ($i = 0; $i < count($allOutput); $i++) {
+                                                //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                                                //         $status = 'Success';
+                                                //         break;
+                                                //     }
+                                                // }
+
+                                                exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                                                $status = $response == 0 ? "Success" : "Error";
+
                                                 $m_setting->status = $status;
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                                                MagentoSettingPushLog::create(['store_website_id' => $storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
                                                 \Log::info(print_r(['Command Output', $allOutput], true));
                                             }
                                         }
@@ -692,19 +739,21 @@ class MagentoSettingsController extends Controller
                                             //BASE SCRIPT
                                             if (! empty($git_repository)) {
                                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
+                                                // $allOutput = [];
+                                                // $allOutput[] = $cmd;
+                                                // $result = exec($cmd, $allOutput); //Execute command
+                                                // $status = 'Error';
+                                                // for ($i = 0; $i < count($allOutput); $i++) {
+                                                //     if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
+                                                //         $status = 'Success';
+                                                //         break;
+                                                //     }
+                                                // }
+                                                exec($cmd. " 2>&1", $allOutput , $response); //Execute command
+                                                $status = $response == 0 ? "Success" : "Error";
                                                 $m_setting->status = $status;
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                                                MagentoSettingPushLog::create(['store_website_id' => $storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
                                                 \Log::info(print_r(['Command Output', $allOutput], true));
                                             }
                                         }
