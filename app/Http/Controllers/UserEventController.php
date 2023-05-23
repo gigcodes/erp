@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
 use App\DailyActivitiesHistories;
+use App\Event;
+use App\Models\EventSchedule;
 use App\UserEvent\UserEventAttendee;
 use App\UserEvent\UserEventParticipant;
 

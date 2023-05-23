@@ -357,6 +357,7 @@ use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
@@ -5190,3 +5191,8 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
     Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
     Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });
+
+
+Route::get('{username}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
+Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
+Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
