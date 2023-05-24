@@ -2602,6 +2602,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
+    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name("assets-manager.update-status");
     Route::post('assets-manager/payment-history', [AssetsManagerController::class, 'paymentHistory'])->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', [AssetsManagerController::class, 'assetManamentLog'])->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', [AssetsManagerController::class, 'getMagentoDevScriptUpdatesLogs']);

@@ -141,6 +141,9 @@
                       <button type="button" class="btn btn-xs send-assets-email" data-toggle="modal" data-assetid="{{$asset->id}}" data-target="#assetsSendEmailModal" title="Send Email" ><i class="fa fa-envelope"></i></button>
                       <button type="button" class="btn btn-xs assets-manager-record-permission" data-toggle="modal" data-assetid="{{$asset->id}}" data-target="#assetsPermissionModal" title="Record Permission" ><i class="fa fa-lock"></i></button>
                     @endif
+                    <button type="button" title="Update status" data-id="{{$asset->id}}" onclick="updateUserActiveForAssetManager(this)" class="btn" style="padding: 0px 1px;">
+                      <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
+                    </button>
                 </td>
             </tr>
             @endforeach
@@ -718,5 +721,46 @@
       $("#asset_user_name").select2({
         placeholder: 'Select Users'
       });
+
+      var active_btn = null;
+      function updateUserActiveForAssetManager(ele) {
+        active_btn = jQuery(ele);
+        let asset_id = active_btn.data("id");
+        // let is_task_planned = btn.data("is_task_planned");
+      
+        if (
+          confirm("Are you sure want to update?")
+        ) {
+          jQuery.ajax({
+            headers: {
+              "X-CSRF-TOKEN": jQuery('meta[name="csrf-token"]').attr("content"),
+            },
+            url: "{{route('assets-manager.update-status')}}",
+            type: "POST",
+            data: {
+              asset_id,
+            },
+            dataType: "json",
+            beforeSend: function () {
+              jQuery("#loading-image").show();
+            },
+            success: function (res) {
+              toastr["success"](res.message);
+              jQuery("#loading-image").hide();
+              if(active_btn.find(".fa").hasClass("fa-toggle-on")) {
+                active_btn.find(".fa").removeClass("fa-toggle-on").addClass("fa-toggle-off");
+              } else {
+                active_btn.find(".fa").removeClass("fa-toggle-off").addClass("fa-toggle-on");
+              }
+            },
+            error: function (res) {
+              if (res.responseJSON != undefined) {
+                toastr["error"](res.responseJSON.message);
+              }
+              jQuery("#loading-image").hide();
+            },
+          });
+        }
+      }
   </script>
 @endsection
