@@ -5199,6 +5199,6 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 });
 
 
-Route::get('{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
+Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
