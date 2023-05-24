@@ -172,7 +172,7 @@ class DialogFlowService
         $queryInput->setText($textInput);
         $response = $sessionsClient->detectIntent($session, $queryInput);
         $sessionsClient->close();
-        return $response->getQueryResult()->getFulfillmentText();
+        return $response->getQueryResult();
     }
 
     public function trainAgent()

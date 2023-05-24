@@ -1099,7 +1099,8 @@ class QuestionController extends Controller
         return view('chatbot::google-chatbot.chatbot', compact('google_accounts'));
     }
 
-    public function botReply(Request $request) {
+    public function botReply(Request $request)
+    {
         try {
             $session = \Cache::get('chatbot-session');
             if (!$session) {
@@ -1125,9 +1126,44 @@ class QuestionController extends Controller
             $dialogFlowService = new DialogFlowService($googleAccount);
             $response = $dialogFlowService->detectIntent(null, $request->question);
 
-            return response()->json(['code' => 200, 'data' => $response]);
+            $intentName = $response->getIntent()->getName();
+            $intentName = explode('/', $intentName);
+            $intentName = $intentName[count($intentName) - 1];
+
+            $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
+            if (!$question) {
+                $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
+                if (!$question) {
+                    $question = ChatbotQuestion::create([
+                        'keyword_or_question' => 'intent',
+                        'is_active' => true,
+                        'google_account_id' => $googleAccount->id,
+                        'google_status' => 'google sended',
+                        'google_response_id' => $intentName,
+                        'value' => $response->getIntent()->getDisplayName(),
+                        'suggested_reply' => $response->getFulfillmentText()
+                    ]);
+                }
+            }
+            $questionsE = ChatbotQuestionExample::where('question', 'like', '%' . $response->getQueryText() . '%')->first();
+            if (!$questionsE) {
+                ChatbotQuestionExample::create([
+                    'chatbot_question_id' => $question->id,
+                    'question' => $response->getQueryText()
+                ]);
+            }
+
+            $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
+            if (!$questionsR) {
+                $chatRply = new  ChatbotQuestionReply();
+                $chatRply->suggested_reply = $response->getFulfillmentText();
+                $chatRply->store_website_id = $googleAccount->site_id;
+                $chatRply->chatbot_question_id = $question->id;
+                $chatRply->save();
+            }
+            return response()->json(['code' => 200, 'data' => $response->getFulfillmentText()]);
         } catch (\Exception $e) {
-            return response()->json(['code' => 40, 'data' => $e->getMessage()]);
+            return response()->json(['code' => 400, 'data' => $e->getMessage()]);
         }
     }
 }
