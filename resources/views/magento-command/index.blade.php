@@ -64,7 +64,7 @@
                       $ops = 'id';
                     ?>
                         @foreach($websites as $website)
-                        <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                            <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -102,8 +102,41 @@
         </div>
     </form>
     <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
-
 </div>
+
+@php $isPermissionCommandRun = 0; @endphp
+
+@if(auth()->user()->isAdmin())
+    @php $isPermissionCommandRun = 1; @endphp
+
+    <div class="col-12">
+        <h3>Assign Permission to User</h3>
+        <form class="form-inline" id="update_user_permission" action="/magento/command/permission/user" method="POST">
+        @csrf
+        <div class="form-group">
+            <div class="input-group">
+            <select name="persmission_website" class="form-control" id="persmission_website" required>
+                <option value="">--select website for Permission--</option>
+                    @foreach($websites as $website)
+                        <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                    @endforeach
+            </select>
+            </div>
+        </div> &nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <div class="input-group">
+            <select name="persmission_user" class="form-control" id="persmission_user" required>
+                <option value="">--select user for Permission--</option>
+                @foreach ($users as $key => $user)
+                    <option @if($user->id == request('user_id')) selected @endif value="{{$user->id}}">{{$user->name}}</option>
+                @endforeach
+            </select>
+            </div>
+        </div> &nbsp;&nbsp;
+        <button type="submit" class="btn custom-button update-userpermission">Update User Permission</button>
+        </form>
+    </div>
+@endif
 
 </br>
 <div class="row m-0">
@@ -145,13 +178,27 @@
                             <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                         </td>
                         <td>
-                            <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
-                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                            </a>
+                            @php 
+                                $isPerCommandRunCheck = $isPermissionCommandRun; 
+
+                                if($isPerCommandRunCheck == 0 && !empty($magentoCom->user_permission)){
+                                    $userPermissions = explode(',', $magentoCom->user_permission);
+
+                                    if(in_array(auth()->user()->id, $userPermissions)){
+                                        $isPerCommandRunCheck = 1;
+                                    }
+                                }
+                            @endphp
+
+                            @if($isPerCommandRunCheck == 1)
+                                <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
+                                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                </a>
+                            @endif
+
                             <a class="btn btn-image edit-magentoCom-btn" data-id="{{ $magentoCom->id }}"><img data-id="{{ $magentoCom->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
                             <a class="btn delete-magentoCom-btn" data-id="{{ $magentoCom->id }}" href="#"><img data-id="{{ $magentoCom->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
                             <a title="Preview Response" data-id="{{ $magentoCom->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
-
                         </td>
                     </tr>
                     @endforeach
@@ -252,8 +299,21 @@
                     <div class="modal-body">
                         <form id="magentoForm" method="post">
                             @csrf
+
                             <div class="form-row">
                                 <input type="hidden" id="command_id" name="id" value="" />
+
+                                @if(auth()->user()->isAdmin())
+                                    <div class="form-group col-md-12">
+                                        <label for="title">User Name</label>
+                                        <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
+                                            <option>--Users--</option>
+                                            @foreach ($users as $key => $user)
+                                                <option value="{{$user->id}}">{{$user->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div> 
+                                @endif
 
                                 <div class="form-group col-md-12">
                                     <label for="title">Website</label>
@@ -439,7 +499,18 @@
     $(document).on("click", ".submit-form", function(e) {
         e.preventDefault();
         var $this = $(this);
+
+        <?php if(auth()->user()->isAdmin()){ ?>
+            if($("#user_permission").val().length == 0){
+                toastr['error']('Please Select User Permission', 'error');
+                return '';
+            }
+        <?php } ?>
         
+        if($("#websites_ids").val()=='--Website--'){
+            toastr['error']('Please Select Website', 'error');
+            return '';
+        }
         if($("#websites_ids").val()=='--Website--'){
             toastr['error']('Please Select Website', 'error');
             return '';
@@ -539,6 +610,12 @@
                             // $("#websites_ids option[value='" + e + "']").prop("selected", true);
                         });
                     }
+
+                    <?php if(auth()->user()->isAdmin()){ ?>
+                        if (key == "user_permission") {
+                            $('#user_permission').val(v.split(',')).trigger('change');
+                        }
+                    <?php } ?>
                 });
                 $('#addPostman').modal('show');
                 toastr['success']('Command Listed successfully!!!', 'success');
@@ -704,5 +781,46 @@
         $(".dropdown-mul-1").select2({});
     });
 
+    $('#update_user_permission').submit(function(e){
+        e.preventDefault();
+        var persmission_website = $('#persmission_website').val();
+        var persmission_user = $('#persmission_user').val();
+
+        if (persmission_website && persmission_user) {
+            $.ajax({
+                url: "{{ route('magento.command.user.permission') }}",
+                type: "post",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    persmission_website: persmission_website,
+                    persmission_user: persmission_user
+                }
+
+            }).done(function(response) {
+                $('#loading-image').hide();
+                if (response.code = '200') {
+                    toastr['success'](response.message, 'success');
+                    location.reload();
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        } else {
+            if (persmission_website.length > 0){
+                $('#persmission_website').addClass("alert alert-danger");
+
+                toastr['error']("Please Select Required fileds", 'error');
+            }else if(persmission_user.length > 0){
+                $('#persmission_user').addClass("alert alert-danger");
+
+                toastr['error']("Please Select Required fileds", 'error');
+            }
+        }
+    });
 </script>
 @endsection

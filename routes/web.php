@@ -4864,6 +4864,7 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/magento_product_today_common_err_report', [MagentoProductPushErrors::class, 'groupErrorMessageReport'])->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
 //Magento Command
+Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
