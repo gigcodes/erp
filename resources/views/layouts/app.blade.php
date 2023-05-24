@@ -1770,6 +1770,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="/calendar">Calendar</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/event">Event</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

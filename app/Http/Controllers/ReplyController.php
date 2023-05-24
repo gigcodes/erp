@@ -636,16 +636,16 @@ class ReplyController extends Controller
         $record_history['approved_by_user_id'] = \Auth::user()->id;
         $record_history->update();
 
-        function show_logs(Request $request, \App\Models\ReplyLog $ReplyLog)
-        {
-            $data = $request->all();
-
-            $data = $ReplyLog->where('reply_id', $data['id'])->orderby('created_at', 'desc')->paginate(20);
-            $paginateHtml = $data->links()->render();
-
-            return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
-        }
-
         return response()->json(['status' => 200]);
+    }
+
+    public function show_logs(Request $request, \App\Models\ReplyLog $ReplyLog)
+    {
+        $data = $request->all();
+
+        $data = $ReplyLog->where('reply_id', $data['id'])->orderby('created_at', 'desc')->paginate(20);
+        $paginateHtml = $data->links()->render();
+
+        return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
     }
 }

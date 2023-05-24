@@ -21,8 +21,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         </div>
     @endif
     @if (session('success'))
-        <div class="row m-2">
+        <div class="col-12">
           <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="col-12">
+          <div class="alert alert-danger">{{session('error')}}</div>
         </div>
     @endif
      <div class="row m-0">
@@ -612,8 +617,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         var settingId = $(this).data('id');
         $.ajax({
             url: 'magento-admin-settings/pushLogs/' + $(this).data('id'),
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
             success: function (data) {
                 console.log(data);
+                $("#loading-image").hide();
                 $('#settingsPushLogs').html(data);
                 $('#settingsPushLogsModal').modal('show');
             },
