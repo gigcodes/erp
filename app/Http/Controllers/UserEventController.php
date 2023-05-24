@@ -59,7 +59,8 @@ class UserEventController extends Controller
         if(count($assetsmanager) > 0) {
             foreach ($assetsmanager as $key => $val) {
                 $c_due_date = Carbon::parse($val->due_date);
-                if($c_due_date->lte($c_start)) {
+                // dd($c_due_date, $c_start);
+                if($c_due_date->lte($c_start) || $c_due_date->between($c_start, $c_end)) {
                     $arr = explode('-', $val->due_date);
                     if($c_end->month - $c_start->month){
 
