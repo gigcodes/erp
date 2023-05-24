@@ -15,11 +15,18 @@ class CalendarController extends Controller
 {
     //
 
-    public function showUserEvent($username, $event_slug, Request $request)
+    public function showUserEvent($userid, $event_slug, Request $request)
     {
         
         try {
-            $user = User::where('name', $username)->first();
+            $userstring = base64_decode($userid);
+            $userArray = explode(":", $userstring);
+
+            if(count($userArray) < 2){
+                throw new Exception("User not found");
+            }
+            $userid = $userArray[1];
+            $user = User::where('id', $userid)->first();
             $event = Event::with('eventAvailabilities')->where('slug', $event_slug)->first();
             if($user == null) {
                 throw new Exception("User not found");
