@@ -12,6 +12,7 @@ use Google\Service\Drive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\UploadGoogleDriveScreencast;
+use Exception;
 
 class GoogleScreencastController extends Controller
 {
@@ -162,9 +163,28 @@ class GoogleScreencastController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $data = $this->validate($request, [
+            'id' => ['required'],
+            'file_name' => ['required'],
+            'file_id' => ['required'],
+            'file_remark' => ['required']
+        ]);
+
+        try {
+            $googlescreencast = GoogleScreencast::find(request('id'));
+            $googlescreencast->file_name = $request->file_name;
+            $googlescreencast->google_drive_file_id = $request->file_id;
+            $googlescreencast->remarks = $request->file_remark;
+            $googlescreencast->save();
+            
+            return back()->with('success', 'Data updated successfully.');
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error while updating data.');
+
+        }
     }
 
     public function driveFilePermissionUpdate(Request $request)

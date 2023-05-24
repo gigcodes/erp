@@ -3850,7 +3850,8 @@
                         doc_type,
                         doc_name,
                         task_id,
-                        task_type: "TASK"
+                        task_type: "TASK",
+                        attach_task_detail: true
                     },
                     beforeSend: function() {
                         $("#loading-image").show();
