@@ -23,11 +23,14 @@ class MagentoCommandController extends Controller
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
             $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
             $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
+            $allMagentoCommandListArray = MagentoCommand::select(
+                \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"),'id','command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command','id')->toArray();
+            
             $assetsmanager = AssetsManager::all();
             $websites = StoreWebsite::all();
             $users = User::all();
 
-            return view('magento-command.index', compact('magentoCommand', 'websites', 'users','magentoCommandListArray','assetsmanager'));
+            return view('magento-command.index', compact('magentoCommand', 'websites', 'users','magentoCommandListArray','assetsmanager','allMagentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -52,8 +55,10 @@ class MagentoCommandController extends Controller
         $magentoCommand = $magentoCommand->paginate($limit);
         $users = User::all();
         $websites = StoreWebsite::all();
+        $allMagentoCommandListArray = MagentoCommand::select(
+            \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"),'id','command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command','id')->toArray();
         $assetsmanager = AssetsManager::all();
-        return view('magento-command.index', compact('magentoCommandListArray','magentoCommand', 'websites', 'users','assetsmanager'));
+        return view('magento-command.index', compact('magentoCommandListArray','magentoCommand', 'websites', 'users','assetsmanager','allMagentoCommandListArray'));
     }
 
     /**
@@ -106,6 +111,21 @@ class MagentoCommandController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+    
+    public function runOnMultipleWebsite(Request $request)
+    {
+        $command_id= $request->command_id;
+        $websites_ids= $request->websites_ids;
+        try {
+            $comd = \Artisan::call('command:MagentoRunCommandOnMultipleWebsite', ['id' => $command_id,'websites_ids' => $websites_ids] );
+
+            return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully! Please check the command\'s preview response for more information']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -145,7 +165,12 @@ class MagentoCommandController extends Controller
             foreach($postHis as $logs){
                 if($logs->website_ids !='' && $logs->job_id!=''){
                     $magCom = MagentoCommand::find($logs->command_id);
-                    $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
+                    if($magCom->website_ids==$logs->website_ids){
+                        $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
+                    }else{
+                        $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                    }
+                    
                     if($assetsmanager && $assetsmanager->client_id!=''){
                         $client_id=$assetsmanager->client_id;
                         $job_id=$logs->job_id;

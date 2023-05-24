@@ -102,6 +102,7 @@
         </div>
     </form>
     <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#rcmw_runCommand">Run Command</button>
 
 </div>
 
@@ -323,7 +324,56 @@
         </div>
     </div>
 </div>
-
+<div id="rcmw_runCommand" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Run Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="title">Websites</label>
+                                <div class="dropdown-sin-1">
+                                    <?php $websites = \App\StoreWebsite::get(); ?>
+                                    <select name="rcmw_websites_ids[]" class="rcmw_websites_ids form-control dropdown-mul-1" style="width: 100%;" id="rcmw_websites_ids" multiple>
+                                        <option>--Websites--</option>
+                                        <option value="ERP">ERP</option>
+                                        <?php
+                                            foreach($websites as $website){
+                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="rcmw_command_id">Command</label>
+                                <select name="rcmw_command_id" class="form-control" id="rcmw_command_id" style="width: 100%" required>
+                                    <option value="">--Select Command--</option>
+                                    @foreach ($allMagentoCommandListArray as $id => $comType)
+                                    <option value="{{$id}}">{{$comType}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                                
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="rcmw-run-command-btn" class="btn btn-secondary">Run Command</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -591,6 +641,57 @@
             $("#postmanHistory").hide();
             toastr['error'](errObj.message, 'error');
         });
+    });
+    
+    $(document).on("click", "#rcmw-run-command-btn", function(e) {
+        e.preventDefault();
+        var websites_ids=$("#rcmw_websites_ids").val();
+        var command_id=$("#rcmw_command_id").val();
+        if(command_id==''){
+            toastr['error']('Please select Command', 'error');
+            return;
+        }
+        if(typeof websites_ids == 'undefined' ||  websites_ids.length == 0){
+            toastr['error']('Please select Website', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: "/magento/command/run-on-multiple-website"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                command_id: command_id,
+                websites_ids: websites_ids
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code = '200') {
+                toastr['success'](response.message, 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+            $("#rcmw_command_id").val('');
+            $("#rcmw_websites_ids").val('').trigger('change')
+            $("#rcmw_runCommand").modal('hide');
+            
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            if (errObj ?.responseJSON ?.message) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+                return;
+            }
+            toastr['error'](errObj.message, 'error');
+            $("#rcmw_command_id").val('');
+            $("#rcmw_websites_ids").val('').trigger('change')
+            $("#rcmw_runCommand").modal('hide');
+        });
+        
     });
 
     $(document).on("click", ".magentoCom-run-btn", function(e) {
