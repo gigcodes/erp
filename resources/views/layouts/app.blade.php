@@ -1058,7 +1058,7 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-											<a class="dropdown-item" 
+											<a class="dropdown-item"
 												href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
 												Node Code Shortcut</a>
                                             <a class="dropdown-item"
@@ -2182,6 +2182,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot-simulator')}}">Simulator</a>
                                         </li>
                                     </ul>
                                 </li>

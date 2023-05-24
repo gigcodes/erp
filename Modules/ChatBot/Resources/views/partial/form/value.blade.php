@@ -172,7 +172,7 @@
         <div class="form-group">
             <label for="value">Select goggle account</label>
             <select name="google_account" class="form-control" required>
-                <option value="0">All account</option>
+                <option value="">Select google account</option>
                 @if(!empty($google_accounts))
                     @foreach($google_accounts as $acc)
                         <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>

@@ -81,6 +81,8 @@ Route::group([
         });
     });
 
+    Route::get('/bot-simulator', [QuestionController::class, 'simulator'])->name('chatbot-simulator');
+
     Route::group(['prefix' => 'dialog'], function () {
         Route::get('/', [DialogController::class, 'index'])->name('chatbot.dialog.list');
         Route::post('/', [DialogController::class, 'save'])->name('chatbot.dialog.save');

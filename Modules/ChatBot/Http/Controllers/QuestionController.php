@@ -129,7 +129,7 @@ class QuestionController extends Controller
                 return response()->json(['code' => 500, 'error' => $validator->errors()]);
             }
         }
-
+        $params['erp_or_watson'] = 'erp';
         $chatbotQuestion = ChatbotQuestion::create($params);
         if (!empty($params['question'])) {
             foreach ($params['question'] as $qu) {
@@ -232,11 +232,7 @@ class QuestionController extends Controller
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
         }
-        if ($params['google_account'] > 0) {
-            $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
-        } else {
-            $gogole_account_ids = GoogleDialogAccount::all();
-        }
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
 
         foreach ($gogole_account_ids as $id) {
             if (!in_array($id->site_id, $storeWebsites)) {
@@ -263,7 +259,11 @@ class QuestionController extends Controller
                 ChatbotQuestionExample::where('chatbot_question_id', $id)->delete();
                 $chatbotQuestion->delete();
                 WatsonManager::deleteQuestion($chatbotQuestion->id);
-                DialogFlowService::deleteQuestion($chatbotQuestion->id);
+                $googleAccount = GoogleDialogAccount::where('id', $chatbotQuestion->google_account_id)->get();
+                if ($googleAccount) {
+                    $dialgflowService = new DialogFlowService($googleAccount);
+                    $dialgflowService->deleteQuestion($chatbotQuestion);
+                }
 
                 return redirect()->back();
             }
@@ -813,11 +813,7 @@ class QuestionController extends Controller
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
         }
-        if ($params['google_account'] > 0) {
-            $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
-        } else {
-            $gogole_account_ids = GoogleDialogAccount::all();
-        }
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
 
         foreach ($gogole_account_ids as $id) {
             if (!in_array($id->site_id, $storeWebsites)) {
@@ -875,11 +871,7 @@ class QuestionController extends Controller
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
         }
-        if ($params['google_account'] > 0) {
-            $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
-        } else {
-            $gogole_account_ids = GoogleDialogAccount::all();
-        }
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
 
         foreach ($gogole_account_ids as $id) {
             if (!in_array($id->site_id, $storeWebsites)) {
@@ -1021,34 +1013,35 @@ class QuestionController extends Controller
     public function syncGoogle($id)
     {
         $chatBotQuestion = ChatbotQuestion::where('id', $id)->first();
-        $chatBotQuestion->google_status = 'Pending watson send';
+        $chatBotQuestion->google_status = 'Pending google send';
         $chatBotQuestion->save();
         $questionArr = [];
         foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
             $questionArr[] = $question->question;
         }
         if ($chatBotQuestion) {
-            if ($chatBotQuestion->google_account_id > 0) {
-                $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
-            } else {
-                $googleAccounts = GoogleDialogAccount::all();
-            }
+            $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
 
             foreach ($googleAccounts as $googleAccount) {
                 $dialogService = new DialogFlowService($googleAccount);
                 if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
                     $response = $dialogService->createIntent([
                         'questions' => $questionArr,
-                        'reply' => explode($chatBotQuestion['suggested_reply'], ','),
+                        'reply' => explode(',', $chatBotQuestion['suggested_reply']),
                         'name' => $chatBotQuestion['value'],
-                    ]);
+                    ], $chatBotQuestion->google_response_id ?: null);
                     if ($response) {
                         $name = explode('/', $response);
                         $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->google_status = 'google sended';
                         $chatBotQuestion->save();
                     }
                 } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
-                    $entityType = DialogflowEntityType::where('id', $chatBotQuestion->chatbotQuestionExamples[0]->types)->first();
+                    $ids = [];
+                    foreach ($chatBotQuestion->chatbotQuestionExamples as $qu) {
+                        $ids[] = $qu->types;
+                    }
+                    $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
                     $entityId = $entityType->response_id;
                     if (!$entityType->response_id) {
                         $responseE = $dialogService->createEntityType($entityType->display_name, $entityType->kind);
@@ -1061,13 +1054,19 @@ class QuestionController extends Controller
                     if ($entityType->kind == '2') {
                         $keywords = [$chatBotQuestion['value']];
                     }
-                    $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    if ($chatBotQuestion->google_response_id) {
+                        $response = $dialogService->updateEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    } else {
+                        $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    }
                     if ($response) {
                         $name = explode('/', $response);
                         $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->google_status = 'google sended';
                         $chatBotQuestion->save();
                     }
                 }
+                $dialogService->trainAgent();
             }
             return response()->json(['code' => 200, 'data' => [], 'message' => 'send successfully']);
         }
@@ -1092,5 +1091,43 @@ class QuestionController extends Controller
         $entity_type = DialogflowEntityType::create($params);
         $route = route('chatbot.question.list');
         return response()->json(['code' => 200, 'data' => $entity_type, 'redirect' => $route]);
+    }
+
+    public function simulator()
+    {
+        $google_accounts = GoogleDialogAccount::all();
+        return view('chatbot::google-chatbot.chatbot', compact('google_accounts'));
+    }
+
+    public function botReply(Request $request) {
+        try {
+            $session = \Cache::get('chatbot-session');
+            if (!$session) {
+                $session = uniqid();
+                \Cache::set('chatbot-session', $session);
+            }
+            $googleAccount = GoogleDialogAccount::where('id', $request->googleAccount)->first();
+            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
+                ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                ->where('chatbot_questions.google_account_id', $request->googleAccount)
+                ->where('chatbot_questions.keyword_or_question', 'intent')
+                ->where('chatbot_questions.value', 'like', '%' . $request->question . '%')->orWhere('cqe.question', 'like', '%' . $request->question . '%')
+                ->groupBy('chatbot_questions.id')
+                ->orderBy('chatbot_questions.id', 'desc')
+                ->first();
+
+            if ($chatQuestions) {
+                if ($chatQuestions->auto_approve) {
+                    return response()->json(['code' => 200, 'data' => $chatQuestions->suggested_reply]);
+                }
+            }
+            $dialogFlowService = new DialogFlowService($googleAccount);
+            $response = $dialogFlowService->detectIntent(null, $request->question);
+
+            return response()->json(['code' => 200, 'data' => $response]);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 40, 'data' => $e->getMessage()]);
+        }
     }
 }

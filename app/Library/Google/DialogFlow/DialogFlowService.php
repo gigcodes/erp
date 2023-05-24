@@ -2,6 +2,7 @@
 
 namespace App\Library\Google\DialogFlow;
 
+use App\Models\DialogflowEntityType;
 use Google\Cloud\Dialogflow\V2\AgentsClient;
 use Google\Cloud\Dialogflow\V2\EntityType;
 use Google\Cloud\Dialogflow\V2\EntityType\Entity;
@@ -13,6 +14,9 @@ use Google\Cloud\Dialogflow\V2\Intent\Message\Text;
 use Google\Cloud\Dialogflow\V2\Intent\TrainingPhrase;
 use Google\Cloud\Dialogflow\V2\Intent\TrainingPhrase\Part;
 use Google\Cloud\Dialogflow\V2\IntentsClient;
+use Google\Cloud\Dialogflow\V2\QueryInput;
+use Google\Cloud\Dialogflow\V2\SessionsClient;
+use Google\Cloud\Dialogflow\V2\TextInput;
 
 class DialogFlowService
 {
@@ -25,11 +29,15 @@ class DialogFlowService
         $this->credentials = ['credentials' => $googleAccount->service_file];
     }
 
-    public function createIntent($parameters)
+    public function createIntent($parameters, $updateId)
     {
         // Create Intents
         $intentClient = new IntentsClient($this->credentials);
-        $parent = $intentClient->agentName($this->googleAccount->project_id);
+        if ($updateId) {
+            $parent = $intentClient->intentName($this->googleAccount->project_id, $updateId);
+        } else {
+            $parent = $intentClient->agentName($this->googleAccount->project_id);
+        }
 
         // Training Phrase
         $trainingPhrases = [];
@@ -51,7 +59,12 @@ class DialogFlowService
             ->setTrainingPhrases($trainingPhrases)
             ->setMessages($messages);
 
-        $response = $intentClient->createIntent($parent, $intent);
+        if ($updateId) {
+            $intent->setName($parent);
+            $response = $intentClient->updateIntent($intent);
+        } else {
+            $response = $intentClient->createIntent($parent, $intent);
+        }
         $intentClient->close();
         return $response->getName();
     }
@@ -89,10 +102,32 @@ class DialogFlowService
         return $response->getName();
     }
 
-    public function deleteEntity($projectId, $entityTypeId, $entityValue)
+    public function updateEntity($entityTypeId, $entityValue, $synonyms = [])
+    {
+        // synonyms must be exactly [$entityValue] if the entityTypes'
+        // kind is KIND_LIST
+        if (!$synonyms) {
+            $synonyms = [$entityValue];
+        }
+
+        $entityTypesClient = new EntityTypesClient($this->credentials);
+        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
+
+        // prepare entity
+        $entity = new Entity();
+        $entity->setValue($entityValue);
+        $entity->setSynonyms($synonyms);
+
+        // create entity
+        $response = $entityTypesClient->batchCreateEntities($parent, [$entity]);
+        $entityTypesClient->close();
+        return $response->getName();
+    }
+
+    public function deleteEntity($entityTypeId, $entityValue)
     {
         $entityTypesClient = new EntityTypesClient($this->credentials);
-        $parent = $entityTypesClient->entityTypeName($projectId, $entityTypeId);
+        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
         $response = $entityTypesClient->batchDeleteEntities($parent, [$entityValue]);
         $entityTypesClient->close();
         return $response;
@@ -123,6 +158,23 @@ class DialogFlowService
         return $response;
     }
 
+    public function detectIntent($sessionId, $text)
+    {
+        $sessionsClient = new SessionsClient($this->credentials);
+        $session = $sessionsClient->sessionName($this->googleAccount->project_id, $sessionId ?: uniqid());
+
+        $textInput = new TextInput();
+        $textInput->setText($text);
+        $textInput->setLanguageCode('en-US');
+
+        // create query input
+        $queryInput = new QueryInput();
+        $queryInput->setText($textInput);
+        $response = $sessionsClient->detectIntent($session, $queryInput);
+        $sessionsClient->close();
+        return $response->getQueryResult()->getFulfillmentText();
+    }
+
     public function trainAgent()
     {
         $agentsClient = new AgentsClient($this->credentials);
@@ -133,7 +185,17 @@ class DialogFlowService
         return $response;
     }
 
-    static public function deleteQuestion($question) {
-
+    public function deleteQuestion($question)
+    {
+        if ($question->keyword_or_question === 'intent') {
+            $this->deleteIntent($question->google_response_id);
+        } else if ($question->keyword_or_question === 'entity') {
+            $ids = [];
+            foreach ($question->chatbotQuestionExamples as $qu) {
+                $ids[] = $qu->types;
+            }
+            $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
+            $this->deleteEntity($entityType->response_id, $question->value);
+        }
     }
 }
