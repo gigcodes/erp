@@ -4887,8 +4887,13 @@ class TaskModuleController extends Controller
         try {
             foreach ($data['file'] as $file) {
                 DB::transaction(function () use ($file, $data) {
+                    $task = Task::find($data['task_id']);
                     $googleScreencast = new GoogleScreencast();
+                    
                     $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->file_name .= " (TASK-$task->id ".($task->task_subject ?? "-").")";
+                    // dd($googleScreencast->file_name);
+
                     $googleScreencast->extension = $file->extension();
                     $googleScreencast->user_id = Auth::id();
 
