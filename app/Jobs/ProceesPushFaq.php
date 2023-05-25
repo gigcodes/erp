@@ -105,7 +105,7 @@ class ProceesPushFaq implements ShouldQueue
                         \Log::info($stores);
 
                         //get the Magento URL and token
-                        $url = $replyInfo->magento_url;
+                        // $url = $replyInfo->magento_url;
                         $api_token = $replyInfo->api_token;
 
                         //create a payload for API
@@ -116,8 +116,11 @@ class ProceesPushFaq implements ShouldQueue
 
                         // $faqCategoryId  =   1;
 
-                        if (! empty($url) && ! empty($api_token) && ! empty($stores)) {
+                        if (! empty($replyInfo->magento_url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
+                                $url = "";
+                                $url = $replyInfo->magento_url;
+
                                 $faqParentCategoryId = 0;
                                 if ($parentCategoryId) {
                                     //get parent category ID
