@@ -164,10 +164,24 @@ $(document).on('click', '.filepermissionupdate', function (e) {
     $(document).on("click",".showFullMessage", function () {
         let title = $(this).data('title');
         let message = $(this).data('message');
-
+        
         $("#showFullMessageModel .modal-body").html(message);
         $("#showFullMessageModel .modal-title").html(title);
         $("#showFullMessageModel").modal("show");
+    });
+    
+    $(document).on("click",".filedetailupdate", function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        let fileid = $(this).data('fileid');
+        let fileremark = $(this).data('file_remark');
+        let filename = $(this).data('file_name');
+
+        $("#updateUploadedFileDetailModal .id").val(id);
+        $("#updateUploadedFileDetailModal .file_id").val(fileid);
+        $("#updateUploadedFileDetailModal .file_remark").val(fileremark);
+        $("#updateUploadedFileDetailModal .file_name").val(filename);
+
     });
     </script>
 @endsection

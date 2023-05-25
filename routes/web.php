@@ -395,6 +395,7 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoUserFromErpController;
 
 Auth::routes();
@@ -2601,6 +2602,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
+    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name("assets-manager.update-status");
     Route::post('assets-manager/payment-history', [AssetsManagerController::class, 'paymentHistory'])->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', [AssetsManagerController::class, 'assetManamentLog'])->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', [AssetsManagerController::class, 'getMagentoDevScriptUpdatesLogs']);
@@ -4160,6 +4162,8 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+
+    Route::resource('event', EventController::class);
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
@@ -4863,10 +4867,12 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/magento_product_today_common_err_report', [MagentoProductPushErrors::class, 'groupErrorMessageReport'])->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
 //Magento Command
+Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
+Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
@@ -5035,6 +5041,7 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+    Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
 });
 
 //Queue Management::

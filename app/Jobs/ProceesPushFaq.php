@@ -163,16 +163,16 @@ class ProceesPushFaq implements ShouldQueue
                                 }
 
                                 if (! empty($platform_id)) {
-                                    $url    = $url . "/" . $storeValue . "/rest/V1/faq/" . $platform_id;
+                                    $urlFAQ    = $url . "/" . $storeValue . "/rest/V1/faq/" . $platform_id;
                                     $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"id\": \"$platform_id\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
                                 } else {
-                                    $url = $url . "/" . $storeValue . "/rest/V1/faq";
+                                    $urlFAQ = $url . "/" . $storeValue . "/rest/V1/faq";
                                     $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
                                 }
 
                                 $ch = curl_init();
 
-                                curl_setopt($ch, CURLOPT_URL, $url);
+                                curl_setopt($ch, CURLOPT_URL, $urlFAQ);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                 curl_setopt($ch, CURLOPT_POST, 1);
                                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);

@@ -52,6 +52,7 @@ class StoreWebsiteCategory extends Model
         curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faqcategory');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
 
         $headers = [];
@@ -62,6 +63,7 @@ class StoreWebsiteCategory extends Model
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
+            return false;
         }
         curl_close($ch);
 
