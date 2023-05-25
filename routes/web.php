@@ -4160,6 +4160,7 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+    Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
 Route::prefix('calendar/public')->group(function () {
@@ -4605,6 +4606,7 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
 
 // auth not applied
 Route::post('/common/sendEmail', [CommonController::class, 'sendCommonEmail'])->name('common.send.email');
+Route::post('/common/sendEmail', [CommonController::class, 'sendClanaderLinkEmail'])->name('common.send.clanaderLinkEmail');
 Route::get('/common/getmailtemplate', [CommonController::class, 'getMailTemplate'])->name('common.getmailtemplate');
 
 //Google file translator

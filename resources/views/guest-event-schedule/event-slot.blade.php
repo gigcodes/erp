@@ -6,14 +6,16 @@
             <div class="from-group">
                 <label for="">Slot</label>
                 <div class="row">
-                    @foreach ($slots as $slot)
-                        <div class="col-3">
-                            <div class="form-group d-flex align-items-center">
-                                <input type="radio" class="m-0" name="schedule-slot" value="{{$slot}}" id="schedule-slot-{{$slot}}" {{in_array($slot, $occupiedSlot) ? "disabled" : ""}} required>
-                                <label for="schedule-slot-{{$slot}}">&nbsp;&nbsp; {{$slot}}</label>
-                            </div>
-                        </div>
-                    @endforeach
+                    <div class="col-12 d-flex flex-wrap">
+                        @foreach ($slots as $slot)
+                            {{-- <div class="col-3"> --}}
+                                <div class="form-group custom-radio d-flex align-items-center">
+                                    <input type="radio" class="m-0" name="schedule-slot" value="{{$slot}}" id="schedule-slot-{{$slot}}" {{in_array($slot, $occupiedSlot) ? "disabled" : ""}} required>
+                                    <label for="schedule-slot-{{$slot}}">{{$slot}}</label>
+                                </div>
+                            {{-- </div> --}}
+                        @endforeach
+                    </div>
                 </div>
             </div>
             <div class="from-group">

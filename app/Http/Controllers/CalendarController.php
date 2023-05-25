@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Charity;
+use App\Customer;
 use App\Event;
 use App\EventAvailability;
 use App\Models\EventSchedule;
+use App\Supplier;
 use App\User;
 use App\UserEvent\UserEvent;
+use App\Vendor;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -107,7 +111,11 @@ class CalendarController extends Controller
                 
                 $userEvent->save();
                 
-                return redirect()->back()->withSuccess("You are scheduled with ".$event->user->name);
+                return redirect()->back()->with("success_data" , [
+                    "message" => "You are scheduled with ".$event->user->name,
+                    "userEvent" => $userEvent,
+                    "eventschedule" => $eventschedule
+                ]);
 
             } else {
                 throw new Exception("Event not found");
@@ -115,6 +123,32 @@ class CalendarController extends Controller
             
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors('Something went wrong');
+        }
+    }
+
+    public function getEmailOftheSelectedObject(Request $request)
+    {
+        try {
+            $objects = [
+                "vendor"=> Vendor::class,
+                "user"=> User::class,
+                "supplier"=> Supplier::class,
+                "customer"=> Customer::class,
+                "charity"=> Charity::class,
+            ];
+            $multi_email = [];
+            if(isset($request->object)){
+                $multi_email = $objects[$request->object]::whereNotNull('email')->distinct()->select('email', 'id')->get()->map(function($email){
+                    // dd($email);
+                    return [
+                        "id"=> $email->email,
+                        "text"=> $email->email,
+                    ];
+                });
+            }
+            return response()->json(["status" => true, "data"=> $multi_email->toArray()]);
+        } catch (\Throwable $th) {
+            return response()->json(["status" => false]);
         }
     }
 }

@@ -19,7 +19,8 @@ class UserEventController extends Controller
     public function index()
     {
         $userId = Auth::user()->id;
-        $link = base64_encode('soloerp:' . $userId);
+        $expireTime = Carbon::now()->addMinutes(30)->toDateTimeString();
+        $link = base64_encode('soloerp:' . $userId .":$expireTime");
 
         return view(
             'user-event.index',
@@ -510,7 +511,9 @@ class UserEventController extends Controller
     {
         $calendarId = base64_decode($id);
         $calendarUserId = explode(':', $calendarId)[1];
-
+        if(!Carbon::parse(explode(':', $calendarId, 3)[2])->gte(Carbon::now())) {
+            abort(404, "Link expired");
+        }
         $user = User::find($calendarUserId, ['name']);
 
         return view(

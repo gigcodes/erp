@@ -16,16 +16,35 @@
         <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Schedule event</h2>
         </div>
-        <div class="col-md-4 col-6">
+        <div class="col-12" style="text-align: center">
+            @if (\Session::has('success_data'))
+                @php
+                    $data = \Session::get('success_data');
+                    // $data = [];
+                    // $data['eventschedule'] = App\Models\EventSchedule::first();
+                    // $data['eventschedule'] = App\Models\EventSchedule::first();
+                    // $data['eventschedule']['schedule_date'] = Carbon\Carbon::now();
+                @endphp
+                <div id="success-mesage-box" class="mb-3 display-inline">
+                    <h4 class="mt-0 mb-2">{{$data["message"] ?? "-"}}</h4>
+                    <p class="m-0">
+                        {{$data['eventschedule']["start_at"] ?? ""}} - {{$data['eventschedule']["end_at"] ?? ""}}, 
+                        {{$data['eventschedule']['schedule_date']->format('l') ?? ""}},
+                        {{$data['eventschedule']['schedule_date']->format('M d, Y') ?? ""}}
+                    </p>
+                </div>
+            @endif
+        </div>
+        <div class="col-md-4 col-6 m-auto">
             <div class="from-group">
-                <label for="">Select Event date:</label>
-                <input type="text" name="" class="form-control" id="event-date" autocomplete="off">
+                <label for="" class="text-center w-100">Select Event date:</label>
+                <div id="event-date" class="d-flex justify-content-center"></div>
+                {{-- <input type="text" name="" class="form-control" autocomplete="off"> --}}
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
-
 
     <div class="modal fade" id="guest-schedule-event" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
@@ -55,7 +74,37 @@
             </div>
         </div>
     </div>
-
+    <style>
+        .ui-datepicker{
+            font-size: 22px
+        }
+        .custom-radio input[type=radio]{
+            position: absolute;
+            left: -999px;
+        }
+        .custom-radio input[type=radio] + label{
+            cursor: pointer;
+            display: inline-block;
+            margin-right: 10px;
+            background: rgb(220, 220, 220);
+            border-radius: 2px;
+            padding: 5px 10px;
+        }
+        .custom-radio input[type=radio]:checked + label{
+            background: rgb(154, 154, 154);
+        }
+        .custom-radio input[type=radio]:disabled + label{
+            background: rgb(255, 255, 255);
+        }
+        #success-mesage-box{
+            padding: 10px;
+            border: 1px solid grey;
+            border-radius: 5px;
+            display: inline-block;
+            background: #ebebeb;
+            margin-top: 15px
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -66,6 +115,7 @@
                 minDate: new Date("{{$event->start_date}}"),
                 maxDate: new Date("{{$event->end_date}}"),
                 dateFormat: 'yy-mm-dd',
+                autoclose: false,
                 onSelect: function(date) {
                     let scheduleDate = date;
                     $('#guest-schedule-event').modal('hide');
@@ -95,6 +145,8 @@
                         return [false, ''];
                     }
                 },
+                beforeShow: function(){     
+                }
             });
         });
     </script>
