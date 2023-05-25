@@ -119,7 +119,7 @@ class ProceesPushFaq implements ShouldQueue
                         if (! empty($replyInfo->magento_url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
                                 $url = "";
-                                $url = $replyInfo->magento_url;
+                                $url = rtrim($replyInfo->magento_url, "/");
 
                                 $faqParentCategoryId = 0;
                                 if ($parentCategoryId) {
