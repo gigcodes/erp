@@ -4165,6 +4165,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 
     Route::resource('event', EventController::class);
+    Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
 Route::prefix('calendar/public')->group(function () {
@@ -4625,6 +4626,7 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
 
 // auth not applied
 Route::post('/common/sendEmail', [CommonController::class, 'sendCommonEmail'])->name('common.send.email');
+Route::post('/common/sendEmail', [CommonController::class, 'sendClanaderLinkEmail'])->name('common.send.clanaderLinkEmail');
 Route::get('/common/getmailtemplate', [CommonController::class, 'getMailTemplate'])->name('common.getmailtemplate');
 
 //Google file translator
