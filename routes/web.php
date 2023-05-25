@@ -355,6 +355,7 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\GoogleDialogFlowController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 use App\Http\Controllers\CalendarController;
@@ -4480,6 +4481,21 @@ Route::middleware('auth')->group(function () {
     Route::post('missing-brands/automatic-merge', [MissingBrandController::class, 'automaticMerge'])->name('missing-brands.automatic-merge');
 
     Route::get('twilio/accept', [TwilioController::class, 'incomingCall'])->name('twilio-accept-call');
+
+    Route::get('watson/accounts', [WatsonController::class, 'index'])->name('watson-accounts');
+    Route::post('watson/account', [WatsonController::class, 'store'])->name('watson-accounts.add');
+    Route::get('watson/account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
+    Route::post('watson/account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
+    Route::get('watson/delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
+    Route::post('watson/add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+
+    Route::group(['prefix' => 'google-dialog'], function () {
+        Route::get('/accounts', [GoogleDialogFlowController::class, 'index'])->name('google-chatbot-accounts');
+        Route::post('/account/create', [GoogleDialogFlowController::class, 'store'])->name('google-chatbot-accounts.add');
+        Route::get('/account/get/{id}', [GoogleDialogFlowController::class, 'get'])->name('google-chatbot-accounts.get');
+        Route::post('/account/update', [GoogleDialogFlowController::class, 'update'])->name('google-chatbot-accounts.update');
+        Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');
+    });
 
     //subcategory route
 });

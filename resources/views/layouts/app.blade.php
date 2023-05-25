@@ -1058,7 +1058,7 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-											<a class="dropdown-item" 
+											<a class="dropdown-item"
 												href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
 												Node Code Shortcut</a>
                                             <a class="dropdown-item"
@@ -1444,7 +1444,7 @@ if (!empty($notifications)) {
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    href="{{ route('order.get.order.journey') }}">Order
                                                     journey</a>
                                             </ul>
                                         </li>
@@ -2185,6 +2185,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot-simulator')}}">Simulator</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2982,6 +2985,9 @@ if (!empty($notifications)) {
 
                                         <li class="nav-item dropdown">
                                             <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a href="{{ route('google-chatbot-accounts') }}">Google Dialogflow Account Management</a>
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-submenu">

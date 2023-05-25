@@ -68,6 +68,7 @@
         </div>
         <div class="col-md-5">
             <div class="form-inline pull-right">
+                <button type="button" class="btn btn-xs btn-secondary ml-3" id="add-entity-type-btn">Entity Type</button>
                 <button type="button" class="btn btn-xs btn-secondary ml-3" id="repeat-bulk-option">Repeat</button>
                 <button type="button" class="btn btn-xs btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
                 <button type="button" class="btn btn-xs btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
@@ -115,7 +116,7 @@
 							$listOfQuestions = explode(",", $chatQuestion->questions);
 						?>
 						<td class="expand-row-msg" data-name="listOfQuestions" data-id="{{$chatQuestion->id}}">
-							<?php 
+							<?php
 							//echo implode("</br>",$listOfQuestions);
 							if(count($listOfQuestions) > 0){
 								$listOfQuestion= $listOfQuestions[0];
@@ -134,8 +135,8 @@
 											</div>
 											<div class="modal-body">
 												<ul class="list-group">
-												<?php 
-												//echo implode("</br>",$listOfQuestions); 
+												<?php
+												//echo implode("</br>",$listOfQuestions);
 												foreach ($chatQuestion->chatbotQuestionExamples as $key => $value) {
 												?>
 													<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -154,7 +155,7 @@
 							}else{
 								$listOfQuestion='';
 							}
-							
+
 							?>
 						</td>
 						<td>
@@ -163,7 +164,7 @@
 						<td>
 							<i class="text-secondary fa fa-comments show-response-by-website"></i>
 							@if(request('store_website_id'))
-									<?php 
+									<?php
 									$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
 									if($reply) {
 										$r = $reply->suggested_reply;
@@ -190,6 +191,8 @@
 							<a title="Delete" class="btn btn-xs text-secondary delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><i class="fa fa-trash"></i></a>
 							<a title="Show" class="btn btn-xs text-secondary show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><i class="fa fa-clipboard"></i></a>
 							<a title="Repeat" class="btn btn-xs text-secondary repeat-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><i class="fa fa-repeat"></i></a>
+							<a title="Sync watson" class="btn btn-xs text-secondary sync-watson-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);">WSync</a>
+							<a title="Sync google" class="btn btn-xs text-secondary sync-google-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);">GSync</a>
 						</td>
 					</tr>
 				<?php } ?>
@@ -198,7 +201,7 @@
 	    </div>
 	    <div class="col-lg-12 margin-tb">
 	    	<?php echo $chatQuestions->links(); ?>
-	    </div>	
+	    </div>
 	</div>
 </div>
 @include('chatbot::partial.question_log')
@@ -207,12 +210,14 @@
 @include('chatbot::partial.create_dynamic_reply')
 @include('chatbot::partial.autoreply-create-modal')
 @include('partials.chat-history')
+@include('chatbot::partial.form.create_entity_type')
 <div class="modal" id="create-chatbot-reply" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-        </div>    
-    </div>    
+        </div>
+    </div>
 </div>
+
 <script type="text/javascript">
 	$(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -232,9 +237,23 @@
 		$("#create-dynamic-reply").modal("show");
 	});
 
+	$("#add-entity-type-btn").on("click",function() {
+		$("#add-entity-type").modal("show");
+	});
+
+	function checkType() {
+		var selectElement = document.getElementById("keyword_or_question");
+		var selectedOption = selectElement.options[selectElement.selectedIndex].value;
+		let divElement = $('#google_account');
+		if (selectedOption == 'simple' || selectedOption == 'priority-customer') {
+			divElement.css("display", "none");
+		} else {
+			divElement.css("display", "");
+		}
+	}
 	$('.show-button').on('click',function(e){
-		
-		
+
+
 		//$('.spinner-border').show();
 		$.ajax({
 			type: "POST",
@@ -249,22 +268,22 @@
                if(response.code == 200) {
 				//$('.spinner-border').hide();
 				$('#question_log_table_body').html('');
-				$.each(response.data, function (key, value) 
-				{	
+				$.each(response.data, function (key, value)
+				{
 					let action = "";
 					if(value.response_type == "error"){
 						action = '<a class="btn btn-image edit-data-button" data-id="'+value.id+'"><img src="/images/edit.png" style="cursor: nwse-resize;"></a>';
 					}
-					
+
 					let id = key+1;
 				   $('#question_log_table_body').append('<tr><td>'+id+'</td> <td>' + value.response + '</td>  <td class="'+value.response_type+'">' + value.response_type + '</td><td>'+value.type+'</td><td>'+action+'</td></tr>');
 				})
 				$('#question-log-dialog').modal("show");
                }else{
-				   
+
 				errorMessage = response.error ? response.error.value : 'data is not found!';
                	toastr['error'](errorMessage);
-               } 
+               }
             },
             error: function (error) {
 				console.log(error);
@@ -287,10 +306,10 @@
                	  toastr['success']('data updated successfully!');
                	  window.location.replace(response.redirect);
                }else{
-				   
+
 				errorMessage = response.error ? response.error.value : 'data is not correct or duplicate!';
                	toastr['error'](errorMessage);
-               } 
+               }
             },
             error: function (error) {
 				console.log(error);
@@ -298,6 +317,32 @@
             }
         });
 	});
+
+	$(".add-entity-type-btn").on("click", function (e) {
+		e.preventDefault();
+		var form = $(this).closest("form");
+		$.ajax({
+			type: form.attr("method"),
+			url: form.attr("action"),
+			data: form.serialize(),
+			dataType : "json",
+			success: function (response) {
+				//location.reload();
+				if(response.code == 200) {
+					toastr['success']('data updated successfully!');
+					window.location.replace(response.redirect);
+				}else{
+
+					errorMessage = response.error ? response.error.value : 'data is not correct or duplicate!';
+					toastr['error'](errorMessage);
+				}
+			},
+			error: function (error) {
+				console.log(error);
+				toastr['error']('Could not send this request please refresh browser if the page is idel for while!');
+			}
+		});
+	})
 
 	$("#repeat-bulk-option").on("click",function(e) {
 		e.preventDefault();
@@ -311,7 +356,7 @@
 			toastr['error']('Please select row.');
 			return false;
 		}
-		
+
 		$.ajax({
 			type: 'POST',
             url: 'question/repeat-watson',
@@ -322,7 +367,7 @@
 					toastr['success'](response.message);
 				}else{
 					toastr['error'](response.message);
-				} 
+				}
             },
             error: function () {
                toastr['error']('Could not change module!');
@@ -345,12 +390,50 @@
 					toastr['success'](response.message);
 				}else{
 					toastr['error'](response.message);
-				} 
+				}
             },
             error: function () {
                toastr['error']('Could not change module!');
             }
         });
+	});
+
+	$(".sync-watson-button").on("click",function(e) {
+		let chatBotQuestionId = $(this).data("id");
+
+		$.ajax({
+			type: 'GET',
+			url: `question/${chatBotQuestionId}/sync-watson`,
+			success: function (response) {
+				if(response.code == 200) {
+					toastr['success'](response.message);
+				}else{
+					toastr['error'](response.message);
+				}
+			},
+			error: function () {
+				toastr['error']('Could not change module!');
+			}
+		});
+	});
+
+	$(".sync-google-button").on("click",function(e) {
+		let chatBotQuestionId = $(this).data("id");
+
+		$.ajax({
+			type: 'GET',
+			url: `question/${chatBotQuestionId}/sync-google`,
+			success: function (response) {
+				if(response.code == 200) {
+					toastr['success'](response.message);
+				}else{
+					toastr['error'](response.message);
+				}
+			},
+			error: function () {
+				toastr['error']('Could not change module!');
+			}
+		});
 	});
 
 	$(".form-task-btn").on("click",function(e) {
@@ -368,9 +451,9 @@
                location.reload();
 
                }else{
-				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+				errorMessage = 'Please fill all filed';
                	toastr['error'](errorMessage);
-               } 
+               }
             },
             error: function (error) {
                toastr['error'](error.responseJSON.message);
@@ -408,7 +491,7 @@
                     };
                 }
             }
-        });	
+        });
 
 		$(document).on('change', '.question-category', function () {
             var id = $(this).data("id");
@@ -428,7 +511,7 @@
                     toastr["error"](error.responseJSON.message);
                 }
             });
-        });	
+        });
 		// $('#intent_details').hide();
 		$('#entity_details').hide();
 		$('#erp_details').hide();
@@ -491,6 +574,20 @@
 			idValue--;
 		}
 	});
+
+	var idValue2=1;
+	$(".add-more-condition-btn2").on("click", function(e){
+		idValue2++;
+		var removeBtnId = '#typeValue2_'+(idValue2-1);
+		var selectedType = $(this).closest("form").find("select[name = 'entity_type']").val();
+		if ( selectedType == "synonyms" || idValue2<=5 ){
+			$(removeBtnId).append('<input type="button" value="-" class="btn btn-secondary" onclick="remove_entity2(this)"/>');
+		    $("<div class='form-group col-md-4' ><div class='row align-items-end' id='typeValue2_"+idValue2+"' ><div class='col-md-9'><label for='type'>&nbsp</label><input type='text' name='entity_types[]' class='form-control' placeholder='Enter value' maxLength = 64/><div/></div></div>").insertBefore('#add-type-value-btn2')
+		} else {
+			alert("maximum pattern value limit reached : 5")
+			idValue2--;
+		}
+	});
 	$("#types").on("change", function(e) {
 		var typeValueCount = $(this).closest("form").find("input[name = 'type[]']").length;
 		if(e.target.value == 'patterns' && typeValueCount>5) {
@@ -502,5 +599,9 @@
 	function remove_entity(ele) {
 		$(ele).parents('div.row').remove()
 	}
+	function remove_entity2(ele) {
+		$(ele).parents('div.row').remove()
+	}
+
 </script>
 @endsection

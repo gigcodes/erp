@@ -69,6 +69,8 @@ Route::group([
             Route::get('/edit', [QuestionController::class, 'edit'])->name('chatbot.question.edit');
             Route::post('/edit', [QuestionController::class, 'update'])->name('chatbot.question.update');
             Route::get('/delete', [QuestionController::class, 'destroy'])->name('chatbot.question.delete');
+            Route::get('/sync-watson', [QuestionController::class, 'syncWatson'])->name('chatbot.question.sync.watson');
+            Route::get('/sync-google', [QuestionController::class, 'syncGoogle'])->name('chatbot.question.sync.google');
             Route::group(['prefix' => 'values/{valueId}'], function () {
                 Route::get('/delete', [QuestionController::class, 'destroyValue'])->name('chatbot.question-example.delete');
             });
@@ -78,6 +80,8 @@ Route::group([
             Route::post('/save', [QuestionController::class, 'saveAutoreply'])->name('chatbot.question.autoreply.save');
         });
     });
+
+    Route::get('/bot-simulator', [QuestionController::class, 'simulator'])->name('chatbot-simulator');
 
     Route::group(['prefix' => 'dialog'], function () {
         Route::get('/', [DialogController::class, 'index'])->name('chatbot.dialog.list');
@@ -104,6 +108,8 @@ Route::group([
     Route::group(['prefix' => 'dialog-grid'], function () {
         Route::get('/', [DialogController::class, 'dialogGrid'])->name('chatbot.dialog-grid.list');
     });
+
+    Route::post('/add-entity-type', [QuestionController::class, 'addEntityType'])->name('chatbot.entity.type.create');
 
     // Route::prefix('rest/dialog-grid')->group(function () {
     //     Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
