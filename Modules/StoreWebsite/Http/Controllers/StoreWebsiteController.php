@@ -22,6 +22,7 @@ use App\StoreWebsiteBrand;
 use App\StoreWebsiteColor;
 use App\StoreWebsiteImage;
 use App\StoreWebsiteUsers;
+use App\StoreWebsitesApiTokenLog;
 use Illuminate\Support\Str;
 use App\BuildProcessHistory;
 use App\LogStoreWebsiteUser;
@@ -52,7 +53,7 @@ use App\StoreWebsiteProductScreenshot;
 use App\MagentoSettingUpdateResponseLog;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-
+use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class StoreWebsiteController extends Controller
@@ -76,6 +77,164 @@ class StoreWebsiteController extends Controller
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
+    }
+
+    public function apiToken()
+    {
+        $title = 'Api Token | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+        
+        return view('storewebsite::index-api-token', compact('title',  'storeWebsites',  'storeWebsiteUsers'));
+    }
+    public function getApiTokenLogs(Request $request)
+    {
+        $logs = StoreWebsitesApiTokenLog::with(['storeWebsite','StoreWebsiteUsers','user'])->where('store_website_id', $request->store_website_id)->orderBy('id','desc')->get();
+        //dd($logs);
+        $data='';
+        if($logs->isNotEmpty()){
+            foreach($logs as $log){
+                $data.='<tr>';
+                    $data.='<td>';
+                        $data.=$log->id;
+                    $data.='</td>';
+                    $data.='<td>';
+                        if($log->user)
+                            $data.=$log->user->name;
+                    $data.='</td>';
+                    $data.='<td>';
+                        if($log->storeWebsite)
+                            $data.=$log->storeWebsite->title;
+                    $data.='</td>';
+                    $data.='<td>';
+                    if($log->StoreWebsiteUsers)
+                        $data.=$log->StoreWebsiteUsers->first_name.' '.$log->StoreWebsiteUsers->last_name.' ('.$log->StoreWebsiteUsers->email.')';
+                    $data.='</td>';
+                    $data.='<td>';
+                        $data.=$log->response;
+                    $data.='</td>';
+                    $data.='<td>';
+                        $data.=$log->status_code;
+                    $data.='</td>';
+                    $data.='<td>';
+                        $data.=$log->status;
+                    $data.='</td>';
+                    $data.='<td>';
+                        $data.=$log->created_at;
+                    $data.='</td>';
+                    
+                $data.='</tr>';
+            }
+        }else{
+            $data.='<tr><td>No Data found!</td></tr>';
+        }
+        
+        return response()->json(['code' => 200, 'data' => $data]);
+    }
+
+    public function testApiToken(Request $request){
+        if($request->has('store_website_id') && $request->store_website_id==''){
+            return response()->json(['success' => false, 'message' => 'The request parameter store website is missing']);
+        }
+        $storeWebsite=StoreWebsite::where('id', $request->store_website_id)->first();
+        if($storeWebsite){
+            $magento_url = $storeWebsite->magento_url;
+            $api_token = $storeWebsite->api_token;
+            if( !empty ( $magento_url ) ){
+                
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer '.$api_token,
+                ])->post(rtrim($magento_url, '/') . '/rest/V1/categories?fields=id,parent_id,name', [
+                    'category' =>[
+                        "name" => "Default Category"
+                    ]
+                ]);
+                if($response->ok())
+                {
+                    StoreWebsitesApiTokenLog::create([
+                        'user_id' => Auth::id(),
+                        'store_website_id' => $storeWebsite->id,
+                        'response' => 'API Token Test:- '.$response->json('message'),
+                        'status_code' => $response->status(),
+                        'status' => 'Success',
+                    ]);
+                    return response()->json(['success' => true, 'message' =>'API Token Test Success!' ]);
+                }else{
+                    StoreWebsitesApiTokenLog::create([
+                        'user_id' => Auth::id(),
+                        'store_website_id' => $storeWebsite->id,
+                        'response' => 'API Token Test:- '.$response->json('message'),
+                        'status_code' => $response->status(),
+                        'status' => 'Error',
+                    ]);
+                    return response()->json(['success' => false, 'message' => 'API Token Test failed. Please check logs for more details']);
+                }
+
+            }
+            return response()->json(['success' => false, 'message' => 'The store website URL is not found.']);
+        }
+        return response()->json(['success' => false, 'message' => 'The Store Website data not found']);
+    }
+
+    public function apiTokenGenerate(Request $request)
+    {
+        if($request->has('store_website_id') && $request->store_website_id==''){
+            return response()->json(['success' => false, 'message' => 'The request parameter store_website_id is missing']);
+        }
+        if($request->has('store_website_users_id') && $request->store_website_users_id==''){
+            return response()->json(['success' => false, 'message' => 'The request parameter store_website_users_id is missing']);
+        }
+        $storeWebsite=StoreWebsite::where('id', $request->store_website_id)->first();
+        $StoreWebsiteUser=StoreWebsiteUsers::where('id', $request->store_website_users_id)->first();
+        if($storeWebsite && $StoreWebsiteUser){
+
+            $magento_url = $storeWebsite->magento_url;
+            if( !empty ( $magento_url ) ){
+
+                //$url=$magento_url."/rest/V1/integration/admin/token";
+                
+                $token_response = Http::post(rtrim($magento_url, '/') . '/rest/V1/integration/admin/token', [
+                    'username' => $StoreWebsiteUser->username, 
+                    'password' => $StoreWebsiteUser->password,
+                ]);
+               
+                if($token_response->ok())
+                {
+                    $generated_token = trim($token_response->body(),'"');
+                    $storeWebsite->api_token = $generated_token;
+                    $storeWebsite->save();
+                    StoreWebsitesApiTokenLog::create([
+                        'user_id' => Auth::id(),
+                        'store_website_id' => $storeWebsite->id,
+                        'store_website_users_id' => $StoreWebsiteUser->id,
+                        'response' => 'API Token updated successfully!',
+                        'status_code' => $token_response->status(),
+                        'status' => 'Success',
+                    ]);
+                    return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
+                }else{
+                    StoreWebsitesApiTokenLog::create([
+                        'user_id' => Auth::id(),
+                        'store_website_id' => $storeWebsite->id,
+                        'store_website_users_id' => $StoreWebsiteUser->id,
+                        'response' => $token_response->json('message'),
+                        'status_code' => $token_response->status(),
+                        'status' => 'Error',
+                    ]);
+                    return response()->json(['success' => false, 'message' => $token_response->json('message')]);
+                }
+            }
+            StoreWebsitesApiTokenLog::create([
+                'user_id' => Auth::id(),
+                'store_website_id' => $storeWebsite->id,
+                'store_website_users_id' => $StoreWebsiteUser->id,
+                'response' => 'The store website URL is not found.',
+                'status_code' => '404',
+                'status' => 'Error',
+            ]);
+            return response()->json(['success' => false, 'message' => 'The store website URL is not found.']);
+        }
+        return response()->json(['success' => false, 'message' => 'The Store Website and User not found']);
     }
 
     public function logWebsiteUsers($id)
