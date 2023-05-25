@@ -4279,6 +4279,7 @@ class DevelopmentController extends Controller
 
             return respJson(200, '', [
                 'data' => $single,
+                'user'=> $single->assignedUser ?? null
             ]);
         } catch (\Throwable $th) {
             return respException($th);
@@ -4845,7 +4846,7 @@ class DevelopmentController extends Controller
                 $developerTaskID = DeveloperTaskHistory::where([
                     'model'=> DeveloperTask::class,
                     'attribute' => "estimation_minute"
-                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
                 
                 $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
                 ->whereIn("developer_tasks_history.id", $developerTaskID)
@@ -4863,7 +4864,7 @@ class DevelopmentController extends Controller
                     $t_developerTaskID = DeveloperTaskHistory::where([
                         'model'=> Task::class,
                         'attribute' => "estimation_minute"
-                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
                     
                     $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
                     ->whereIn("developer_tasks_history.id", $t_developerTaskID)

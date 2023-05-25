@@ -4703,6 +4703,7 @@ class TaskModuleController extends Controller
             return respJson(
                 200, '', [
                     'data' => $single,
+                    'user'=> $single->assignedTo ?? null
                 ]
             );
         } catch(\Throwable $th) {
