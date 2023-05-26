@@ -72,7 +72,7 @@
     <div class="form-row align-items-end">
         <div class="form-group col-md-4">
             <label for="type">Entity types (Google)</label>
-            <?php echo Form::select("entity_type", ["" => "Please select"] + $allEntityType, null, ["class" => "form-control", "id" => "types"]); ?>
+            <?php echo Form::select("entity_type", ["" => "Please select"] + ($allEntityType ?? []), null, ["class" => "form-control", "id" => "types"]); ?>
         </div>
         <div class="form-group col-md-4">
             <div class="row align-items-end" id="typeValue_1">
