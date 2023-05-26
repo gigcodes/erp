@@ -1153,7 +1153,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
+    Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
 
+    
     Route::resource('benchmark', BenchmarkController::class);
 
     // adding lead routes
