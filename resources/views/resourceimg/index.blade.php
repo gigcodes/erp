@@ -13,22 +13,39 @@
             <div class="col-lg-12 margin-tb">
                 <h2 class="page-heading">List Resources Center (<span
                         id="translation_count">{{ $allresources->total() }}</span>)</h2>
-                <div class="pull-left">
+                <div class="">
                     <br>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-2">
+                                <label for="">Keyword</label>
                                 <input name="term" type="text" class="form-control"
-                                    value="{{ isset($term) ? $term : '' }}" placeholder="Search Referral Program"
+                                    value="{{ isset($term) ? $term : '' }}" placeholder="Search keyword"
                                     id="term">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="">Category</label>
+                                <select name="category" id="filter_category">
+                                    @foreach ($categories as $category)
+                                        <option value="{{$category->id}}">{{$category->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="">Sub Category</label>
+                                <select name="category" id="filter_sub_category">
+                                    @foreach ($sub_categories as $s_category)
+                                        <option value="{{$s_category->id}}">{{$s_category->title}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-image" id='submitSearch'><img
                                         src="/images/filter.png" /></button>
-                            </div>
-                            <div class="col-md-2">
                                 <button type="button" class="btn btn-image" id="resetFilter"><img
                                         src="/images/resend2.png" /></button>
+                            </div>
+                            <div class="col-md-2">
                             </div>
                         </div>
                     </div>
@@ -83,18 +100,20 @@
 
 
             <div class="col-lg-12 margin-tb">
-                @if ($message = Session::get('success'))
+                {{-- @if ($message = Session::get('success'))
                     <div class="alert alert-success alert-block">
                         <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                     </div>
-                @endif
+                @endif --}}
                 @if ($message = Session::get('danger'))
                     <div class="alert alert-danger alert-block">
                         <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                     </div>
                 @endif
+
+                @include('partials.flash_messages')
 
                 <div class="table-responsive col-md-12" style="margin-top : 30px;">
                     <table class="table table-striped table-bordered" id='tblImageResource' style="border: 1px solid #ddd;">
@@ -142,45 +161,78 @@
         $('#filter-date').datetimepicker({
             format: 'YYYY-MM-DD'
         });
+        $("#filter_sub_category").select2({width: "100%", placeholder: "Select Subcategory", multiple: true})
+        $("#filter_category").select2({width: "100%", placeholder: "Select Category", multiple: true})
+        $("#filter_sub_category, #filter_category").val(null).trigger('change')
         $(document).ready(function() {
-            $('#category_id').multiselect({
-                nonSelectedText: 'Select Category',
-                buttonWidth: '300px',
-                includeSelectAllOption: true,
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true,
+            $('#category_id').select2({ width: "100%" });
+            $('#category_id').val(null).trigger('change');
+            $('#category_id').change(function (e) { 
+                e.preventDefault();
+                $('#sub_cat_id').html('');
+                // $('#sub_cat_id').multiselect('rebuild');
+                // console.log($(this).val());
+                // return
+                var selected = $(this).val();
+                if (selected.length > 0) {
+                    $.ajax({
+                        url: "{{ url('/api/values-as-per-category') }}",
+                        method: "POST",
+                        data: {
+                            selected: selected,
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(data) {
 
-                onChange: function(option, checked) {
-
-                    $('#sub_cat_id').html('');
-                    $('#sub_cat_id').multiselect('rebuild');
-
-                    var selected = this.$select.val();
-                    if (selected.length > 0) {
-                        $.ajax({
-                            url: "{{ url('/api/values-as-per-category') }}",
-                            method: "POST",
-                            data: {
-                                selected: selected,
-                                '_token': '{{ csrf_token() }}'
-                            },
-                            success: function(data) {
-
-                                $('#sub_cat_id').html(data);
-                                $('#sub_cat_id').multiselect('rebuild');
-
-                            }
-                        })
-                    }
+                            $('#sub_cat_id').html(data);
+                            // $('#sub_cat_id').multiselect('rebuild');
+                            $("#sub_cat_id").select2("destroy").select2({width: "100%"});
+                            $("#sub_cat_id").val(null).trigger('change');
+                        }
+                    })
                 }
             });
-            $('#sub_cat_id').multiselect({
-                nonSelectedText: 'Please Sub Category',
-                buttonWidth: '300px',
-                includeSelectAllOption: true,
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true,
+            // $('#category_id').multiselect({
+            //     nonSelectedText: 'Select Category',
+            //     buttonWidth: '300px',
+            //     includeSelectAllOption: true,
+            //     enableFiltering: true,
+            //     enableCaseInsensitiveFiltering: true,
+
+            //     onChange: function(option, checked) {
+
+            //         $('#sub_cat_id').html('');
+            //         $('#sub_cat_id').multiselect('rebuild');
+
+            //         var selected = this.$select.val();
+            //         if (selected.length > 0) {
+            //             $.ajax({
+            //                 url: "{{ url('/api/values-as-per-category') }}",
+            //                 method: "POST",
+            //                 data: {
+            //                     selected: selected,
+            //                     '_token': '{{ csrf_token() }}'
+            //                 },
+            //                 success: function(data) {
+
+            //                     $('#sub_cat_id').html(data);
+            //                     $('#sub_cat_id').multiselect('rebuild');
+
+            //                 }
+            //             })
+            //         }
+            //     }
+            // });
+            $('#sub_cat_id').select2({
+                width: "100%"    
             });
+            // $('#sub_cat_id').multiselect({
+            //     nonSelectedText: 'Please Sub Category',
+            //     buttonWidth: '300px',
+            //     includeSelectAllOption: true,
+            //     enableFiltering: true,
+            //     enableCaseInsensitiveFiltering: true,
+            // });
 
             $(document).on('click', '#myShowImg', function() {
                 $.ajaxSetup({
@@ -204,11 +256,15 @@
             $(document).on('click', '#submitSearch', function() {
                 //term = $("#term").val();
                  term =  $("input[name='term']").val();
+                 category =  $("#filter_category").val();
+                 sub_category =  $("#filter_sub_category").val();
                 $.ajax({
                     url: "{{ url('resourceimg') }}",
                     dataType: "json",
                     data: {
                         term: term,
+                        sub_category,
+                        category
                     },
                     beforeSend: function() {
                         $("#loading-image").show();

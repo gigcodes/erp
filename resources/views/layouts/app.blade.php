@@ -3812,6 +3812,10 @@ if (!empty($notifications)) {
                                             class="fa fa-calendar-o fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="Create Resource" type="button" class="quick-icon" data-toggle="modal" data-target="#shortcut_addresource" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -4394,6 +4398,7 @@ if (!empty($notifications)) {
         @include('passwords.search-password')
         @include('user-management.search-user-schedule')
         @include('partials.modals.shortcut-user-event-modal')
+        @include('resourceimg.partials.short-cut-modal-create-resource-center')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
