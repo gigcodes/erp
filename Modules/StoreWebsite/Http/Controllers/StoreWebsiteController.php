@@ -142,19 +142,22 @@ class StoreWebsiteController extends Controller
             $api_token = $storeWebsite->api_token;
             if( !empty ( $magento_url ) ){
                 
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer '.$api_token,
-                ])->post(rtrim($magento_url, '/') . '/rest/V1/categories?fields=id,parent_id,name', [
+                
+                $response = Http::withBody(json_encode([
                     'category' =>[
                         "name" => "Default Category"
                     ]
-                ]);
+                ]), 'application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer '.$api_token,
+                ])->get(rtrim($magento_url, '/') . '/rest/V1/categories?fields=id,parent_id,name');
+                    
                 if($response->ok())
                 {
                     StoreWebsitesApiTokenLog::create([
                         'user_id' => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
-                        'response' => 'API Token Test:- '.$response->json('message'),
+                        'response' => 'API Token Test:- '.$response->body(),
                         'status_code' => $response->status(),
                         'status' => 'Success',
                     ]);
