@@ -4,6 +4,7 @@ namespace Modules\ChatBot\Http\Controllers;
 
 use App\ChatMessage;
 use App\ChatbotCategory;
+use App\Models\DialogflowEntityType;
 use App\SuggestedProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -129,8 +130,10 @@ class MessageController extends Controller
             return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
         }
 
+        $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
+
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType'));
     }
 
     public function approve()
