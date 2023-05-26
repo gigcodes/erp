@@ -7,9 +7,9 @@ namespace PhpMyAdmin\Http;
 use function is_array;
 use function is_object;
 use function property_exists;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ServerRequest implements ServerRequestInterface
 {

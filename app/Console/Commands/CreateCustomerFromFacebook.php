@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
-use App\FacebookMessages;
-use App\Services\Facebook\Facebook;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\FacebookMessages;
 use Illuminate\Console\Command;
+use App\Services\Facebook\Facebook;
 
 class CreateCustomerFromFacebook extends Command
 {

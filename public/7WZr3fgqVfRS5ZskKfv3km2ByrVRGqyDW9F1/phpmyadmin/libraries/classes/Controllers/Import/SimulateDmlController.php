@@ -7,15 +7,15 @@ namespace PhpMyAdmin\Controllers\Import;
 use function __;
 use function count;
 use function explode;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Import\SimulateDml;
 use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\Import\SimulateDml;
+use PhpMyAdmin\SqlParser\Utils\Query;
+use PhpMyAdmin\Controllers\AbstractController;
 use PhpMyAdmin\SqlParser\Statements\DeleteStatement;
 use PhpMyAdmin\SqlParser\Statements\UpdateStatement;
-use PhpMyAdmin\SqlParser\Utils\Query;
-use PhpMyAdmin\Template;
 
 final class SimulateDmlController extends AbstractController
 {

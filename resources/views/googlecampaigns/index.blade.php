@@ -1,7 +1,19 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
+
 @section('styles')
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
 <style type="text/css">
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+
+    .status-selection .multiselect {
+        width: 100%;
+    }
+
     #loading-image {
             position: fixed;
             top: 50%;
@@ -9,7 +21,7 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
-    #create-compaign .modal-dialog {
+    #create-compaign .modal-dialog, #create-remarketing-campaign .modal-dialog, #update-remarketing-campaign .modal-dialog {
         max-width: 1024px !important;
         width: 1024px !important;
     }
@@ -27,6 +39,7 @@
 
 </style>
 @endsection
+
 @section('content')
     <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)
 
@@ -37,11 +50,11 @@
     <div>
         <div class="form-group" style="margin-bottom: 10px;">
             <div class="row m-0">
-                
+
                 <div class="col-md-1 pl-3">
                     <input name="googlecampaign_id" type="text" class="form-control" value="{{ isset($googlecampaign_id) ? $googlecampaign_id : '' }}" placeholder="Campaign Id" id="googlecampaign_id">
                 </div>
-                
+
                 <div class="col-md-2 pl-0">
                     <input name="googlecampaign_name" type="text" class="form-control" value="{{ isset($googlecampaign_name) ? $googlecampaign_name : '' }}" placeholder="Campaign Name" id="googlecampaign_name">
                 </div>
@@ -76,11 +89,19 @@
                     <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
                 </div>
 
-                <div class="col-md-2 pl-0">
-                    <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
-                        <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
-                        <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
-                    </form>
+                <div class="col-md-12">
+                    <div class="col-md-3 pl-0 float-right">
+                        <form method="get" data-toggle="modal" data-target="#create-remarketing-campaign">
+                            <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
+                            <button type="button" class="float-right mb-3 btn-secondary">New Remarketing Campaign</button>
+                        </form>
+                    </div>
+                    <div class="col-md-2 pl-0 float-right">
+                        <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
+                            <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
+                            <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
+                        </form>
+                    </div>
                 </div>
 
             </div>
@@ -123,13 +144,20 @@
                               <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/adgroups">
                                   <button type="submit" class="btn btn-sm btn-link">Ad Groups</button>
                               </form>
+                              @if ($campaign->type != 'remarketing' && $campaign->channel_type !== 'SHOPPING')
+                                  <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/google-campaign-location">
+                                      <button type="submit" class="btn btn-sm btn-link">Location</button>
+                                  </form>
+                              @endif
                               {!! Form::open(['method' => 'DELETE','route' => ['googlecampaigns.deleteCampaign',$campaign['google_campaign_id']],'style'=>'display:inline']) !!}
                               <input type="hidden" id="delete_account_id" name="delete_account_id" value='{{$campaign->account_id}}'/>
                               <button type="submit" class="btn-image"><img src="{{asset('/images/delete.png')}}"></button>
                               {!! Form::close() !!}
-
-                              <button type="button" onclick="editDetails('{{$campaign->google_campaign_id}}')" class="btn-image" data-toggle="modal" data-target="#updateCampaignModal"><img src="{{asset('/images/edit.png')}}"></button>
-
+                              @if($campaign->type == 'remarketing')
+                                  <button type="button" onclick="editRemarketing('{{$campaign->google_campaign_id}}')" class="btn-image" data-toggle="modal" data-target="#update-remarketing-campaign"><img src="{{asset('/images/edit.png')}}"></button>
+                              @else
+                                  <button type="button" onclick="editDetails('{{$campaign->google_campaign_id}}')" class="btn-image" data-toggle="modal" data-target="#updateCampaignModal"><img src="{{asset('/images/edit.png')}}"></button>
+                              @endif
                           </td>
                       </tr>
                   @endforeach
@@ -141,7 +169,45 @@
 
     </div>
 
-    <div class="modal" id="create-compaign" tabindex="-1" role="dialog">
+    <div class="modal" id="create-remarketing-campaign" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 style="font-size: 20px" class="modal-title">Create Remarketing Campaign</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-0">
+                    @include('googlecampaigns.remarketing-campaign.remarketing-create')
+                </div>
+                <div class="modal-footer" style="padding: 0;border-top:none;">
+                    <button style="position: absolute;bottom: 22px;right: 26px" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="update-remarketing-campaign" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 style="font-size: 20px" class="modal-title">Update Remarketing Campaign</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-0">
+                    @include('googlecampaigns.remarketing-campaign.remarketing-edit')
+                </div>
+                <div class="modal-footer" style="padding: 0;border-top:none;">
+                    <button style="position: absolute;bottom: 22px;right: 26px" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="create-compaign" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -248,6 +314,7 @@
                                 @endif
                             </div>
                         </div>
+
                         <div class="form-group row">
                             <label for="start-date" class="col-sm-2 col-form-label">End Date</label>
                             <div class="col-sm-6">
@@ -255,6 +322,17 @@
                                 @if ($errors->has('end_date'))
                                     <span class="text-danger">{{$errors->first('end_date')}}</span>
                                 @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="start-date" class="col-sm-2 col-form-label">Target Languages</label>
+                            <div class="col-sm-6 status-selection">
+                                <select class="form-control multiselect" id="edit_target_languages" name="target_languages[]" style="height: auto" multiple>
+                                    @foreach(\App\Models\GoogleLanguageConstant::whereIsTargetable(true)->orderBy('name', 'ASC')->get() as $lang)
+                                        <option value="{{ $lang->google_language_constant_id }}">{{ $lang->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
@@ -267,6 +345,7 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="form-group row">
                             <div class="col-sm-8">
                                 <button type="button" class="btn btn-secondary float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
@@ -281,8 +360,9 @@
 @endsection
 
 @section('scripts')
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+
 <script type="text/javascript">
     $('.select-multiple').select2({width: '100%'});
 
@@ -325,7 +405,7 @@
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });
-        
+
     }
 
     function resetSearch(){
@@ -335,8 +415,8 @@
             url: src,
             dataType: "json",
             data: {
-               
-               blank : blank, 
+
+               blank : blank,
 
             },
             beforeSend: function () {
@@ -366,9 +446,38 @@
         });
     }
 
+    function editRemarketing(id) {
+        let url = "{{ route('googlecampaigns.updatePage', [":id"]) }}";
+        url = url.replace(':id', id);
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: "json",
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function (data) {
+                $('#update-remarketing-campaign [name="campaignId"]').val(data.google_campaign_id);
+                $('#update-remarketing-campaign [name="campaignName"]').val(data.campaign_name);
+                $('#update-remarketing-campaign [name="budgetAmount"]').val(data.budget_amount);
+                $('#update-remarketing-campaign [name="start_date"]')[0].min = data.start_date;
+                $('#update-remarketing-campaign [name="end_date"]')[0].min = data.start_date;
+                $('#update-remarketing-campaign [name="start_date"]').val(data.start_date);
+                $('#update-remarketing-campaign [name="end_date"]').val(data.end_date);
+                if (data.status == "ENABLED") {
+                    $('#update-remarketing-campaign [name="campaignStatus"] option:eq(0)').prop('selected', true).change();
+                } else {
+                    $('#update-remarketing-campaign [name="campaignStatus"] option:eq(1)').prop('selected', true).change();
+                }
+                $('#update-remarketing-campaign').show();
+            }
+        });
+    }
     // Start Update Model
     function editDetails(id) {
         $('#updateCampaignModal').hide();
+
+        $('#edit_target_languages').multiselect('deselectAll', false);
+        $('#edit_target_languages').multiselect('updateButtonText');
+
         var url = "{{ route('googlecampaigns.updatePage', [":id"]) }}";
         url = url.replace(':id', id);
         $.ajax({
@@ -384,11 +493,11 @@
                 $('#updateCampaignModal [name="budgetAmount"]').val(data.budget_amount);
                 $('#updateCampaignModal [name="start_date"]').val(data.start_date);
                 $('#updateCampaignModal [name="end_date"]').val(data.end_date);
-                
+
                 $('#updateCampaignModal [name="txt_target_cpa"]').val(data.target_cpa_value);
                 $('#updateCampaignModal [name="txt_target_roas"]').val(data.target_roas_value);
                 $('#updateCampaignModal [name="maximize_clicks"]').val(data.maximize_clicks);
-                
+
                 if(data.status == "ENABLED"){
                     $('#updateCampaignModal [name="campaignStatus"] option:eq(0)').prop('selected', true).change();
                 }else{
@@ -398,14 +507,14 @@
                 $("#edit_maindiv_for_target").hide();
                 $("#edit_div_html_append_1").hide();
                 $("#edit_target_cost_per_action").prop('checked',false);
-                
+
                 $("#edit_div_roas").hide();
                 $("#edit_div_targetspend").hide();
 
                 biddingFocusBaseStrategyEdit();
 
                 $('#updateCampaignModal [name="biddingStrategyType"] option[value="'+ data.bidding_strategy_type+'"]').prop('selected', true).change();
-                
+
                 if(data.bidding_strategy_type == "TARGET_CPA"){
                     $("#edit_target_cost_per_action").prop('checked', true);
                     $("#edit_maindiv_for_target").show();
@@ -419,11 +528,21 @@
                     $("#edit_div_targetspend").show();
                 }
 
+                if(data.target_languages.length){
+                    $.each(data.target_languages, function(index, val) {
+                        $("#edit_target_languages").find('option[value="'+val.google_language_constant_id+'"]').prop('selected', true);
+                    });
+                    $("#edit_target_languages").multiselect('refresh');
+                }else{
+                    $("#edit_target_languages").multiselect('selectAll', false);
+                    $("#edit_target_languages").multiselect('updateButtonText');
+                }
+
                 $('#updateCampaignModal').show();
             }
         });
     }
-        
+
     function biddingFocusBaseStrategyEdit(){
         /* var biddingStrategyArray= '<?php //echo json_encode(array_keys($biddingStrategyTypes)); ?>';
         biddingStrategyArray=JSON.parse(biddingStrategyArray); */
@@ -440,7 +559,7 @@
         // if(bidding_focus_on_val=="conversions"){
             biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
         // }
-        
+
         if($("#updateCampaignModal [name='channel_type']").val()=="MULTI_CHANNEL"){
             biddingStrategyArray=['TARGET_CPA'];
         }
@@ -473,23 +592,23 @@
             $("#edit_div_targetspend").show();
         }
     });
-    
+
     $("#edit_target_cost_per_action").click(function(){
         if($("#edit_target_cost_per_action").is(":checked")){
             $("#edit_div_html_append_1").show();
         }else{
             $("#edit_div_html_append_1").hide();
-        } 
+        }
     });
 
     $("#edit_directiBiddingSelect").click(function(){
         $("#edit_maindiv_for_target").hide();
         $("#edit_div_html_append_1").hide();
         $("#edit_target_cost_per_action").prop('checked',false);
-        
+
         $("#edit_div_roas").hide();
         $("#edit_div_targetspend").hide();
-       
+
         var bidding_focus_on_val=$("#updateCampaignModal [name='bidding_focus_on']").val();
         if(bidding_focus_on_val=="conversions"){
             var biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
@@ -506,26 +625,32 @@
         }
         $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
     });
-    
+
     $("#edit_resetBiddingSection").click(function(){
         $("#updateCampaignModal [name='biddingStrategyType']").removeAttr('selected');
         $("#updateCampaignModal [name='biddingStrategyType'] option").hide();
-        
+
         var biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
 
         if($("#updateCampaignModal [name='channel_type']").val()=="MULTI_CHANNEL"){
             biddingStrategyArray=['TARGET_CPA'];
         }
-       
+
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
                 $("#updateCampaignModal [name='biddingStrategyType'] option[value=" + v + "]").show();
             });
         }
         $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
-
     });
 
+    $("#edit_target_languages").multiselect({
+        allSelectedText: 'All',
+        includeSelectAllOption: true,
+        selectAllName: 'all_target_languages',
+        enableFiltering: true,
+        includeFilterClearBtn: false
+    });
 
     // End Update Model
 </script>

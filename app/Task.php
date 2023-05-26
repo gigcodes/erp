@@ -6,15 +6,17 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use Auth;
+use Exception;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Plank\Mediable\Mediable;
 use App\Hubstaff\HubstaffMember;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Tasks\TaskDueDateHistoryLog;
 use App\Models\Tasks\TaskHistoryForStartDate;
-use Auth;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Mediable;
 
 class Task extends Model
 {
@@ -143,6 +145,39 @@ class Task extends Model
     const TASK_STATUS_REOPEN = 19;
 
     const TASK_STATUS_APPROVED = 20;
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            try{
+                // Check the assinged user in any team ?
+                if ($model->assign_to > 0 && (empty($model->master_user_id) ||empty($model->second_master_user_id))) {
+                    $teamUser = \App\TeamUser::where('user_id', $model->assign_to)->first();
+                    if ($teamUser) {
+                        $team = $teamUser->team;
+                        if ($team) {
+                            $model->master_user_id = $team->user_id;
+
+                            if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                                $model->second_master_user_id = $team->second_lead_id;
+                            }
+                        }
+                    } else {
+                        $isTeamLeader = \App\Team::where('user_id', $model->assign_to)
+                                ->orWhere('second_lead_id', $model->assign_to)->first();
+                        if ($isTeamLeader) {
+                            $model->master_user_id = $model->assign_to;
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e){
+                //
+            }
+        });
+    }
 
     public static function hasremark($id)
     {
@@ -282,9 +317,9 @@ class Task extends Model
             $created = 1;
             $assignedUserId = $task->assign_to;
             if ($task->is_statutory != 1) {
-                $message = '#'.$task->id.'. '.$task->task_subject.'. '.$task->task_details;
+                $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
             } else {
-                $message = $task->task_subject.'. '.$task->task_details;
+                $message = $task->task_subject . '. ' . $task->task_details;
             }
 
             $params = [
@@ -392,6 +427,14 @@ class Task extends Model
     {
         $old = $this->start_date;
 
+        if (isset($this->due_date) && $this->due_date != '0000-00-00 00:00:00' && isset($new)) {
+            $newStartDate = Carbon::parse($new);
+            $estimateDate = Carbon::parse($this->due_date);
+            if ($newStartDate->gte($estimateDate)) {
+                throw new Exception('Start date must be less then Estimate date.');
+            }
+        }
+
         $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
         if ($count) {
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
@@ -406,6 +449,14 @@ class Task extends Model
     {
         $old = $this->due_date;
 
+        if (isset($this->start_date) && $this->start_date != '0000-00-00 00:00:00' && isset($new)) {
+            $startDate = Carbon::parse($this->start_date);
+            $newEstimateDate = Carbon::parse($new);
+            if ($newEstimateDate->lte($startDate)) {
+                throw new Exception('Estimate date must be greater then start date.');
+            }
+        }
+
         $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
         if ($count) {
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
@@ -418,6 +469,6 @@ class Task extends Model
 
     public static function getMessagePrefix($obj)
     {
-        return '#TASK-'.$obj->id.'-'.$obj->task_subject.' => ';
+        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
     }
 }

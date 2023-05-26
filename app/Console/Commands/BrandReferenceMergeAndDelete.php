@@ -38,11 +38,11 @@ class BrandReferenceMergeAndDelete extends Command
      */
     public function handle()
     {
-        echo 'Starting to add from here'.PHP_EOL;
+        echo 'Starting to add from here' . PHP_EOL;
 
         $count = Brand::count();
 
-        echo 'Total brand found :'.$count.PHP_EOL;
+        echo 'Total brand found :' . $count . PHP_EOL;
 
         for ($i = 0; $i < $count; $i++) {
             if ($i == 0) {
@@ -68,7 +68,7 @@ class BrandReferenceMergeAndDelete extends Command
                                     $p->brand = $brand->id;
                                     $p->last_brand = $lastBrandId;
                                     $p->save();
-                                    \Log::channel('productUpdates')->info("{$brand->id} updated with product".$p->sku);
+                                    \Log::channel('productUpdates')->info("{$brand->id} updated with product" . $p->sku);
                                 }
                             }
                             $similarBrand->delete();

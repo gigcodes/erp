@@ -2,26 +2,25 @@
 
 namespace App\Imports;
 
+use Validator;
 use App\Customer;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Validator;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class CustomerImport implements ToModel, WithHeadingRow, WithBatchInserts, WithChunkReading, WithValidation, SkipsOnError, SkipsOnFailure, ShouldQueue
 {
     use Importable, SkipsErrors, SkipsFailures;
 
     /**
-     * @param  array  $row
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
@@ -65,9 +64,6 @@ class CustomerImport implements ToModel, WithHeadingRow, WithBatchInserts, WithC
         return 10;
     }
 
-    /**
-     * @return int
-     */
     public function chunkSize(): int
     {
         return 10;

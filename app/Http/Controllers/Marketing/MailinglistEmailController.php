@@ -2,27 +2,44 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\GmailData;
-use App\Http\Controllers\Controller;
 use App\Image;
 use App\Mailinglist;
+use App\GmailDataList;
 use App\MailinglistEmail;
 use App\MailinglistTemplate;
 use App\MailingTemplateFile;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class MailinglistEmailController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $audience = Mailinglist::all();
         $templates = MailinglistTemplate::all();
         $images = Image::all();
-        $images_gmail = GmailData::all();
-        $mailings = MailinglistEmail::with('audience', 'template')->orderBy('created_at', 'desc')->get();
+        $images_gmail = GmailDataList::all();
+        $query = MailinglistEmail::with('audience', 'template');
+        $term = $request->term;
+        $date = $request->date;
+        if ($request->term != null) {
+            $query = $query->where(function ($q) use ($request) {
+                $q->where('subject', 'like', '%' . $request->term . '%')
+                    ->orWhere('html', 'like', '%' . $request->term . '%');
+            });
+        }
 
-        return view('marketing.mailinglist.sending-email.index', compact('audience', 'templates', 'images', 'images_gmail', 'mailings'));
+        if (! empty($request->date)) {
+            $query = $query->where(function ($q) use ($request) {
+                $q->where('created_at', 'like', '%' . $request->date . '%')
+                    ->orWhere('scheduled_date', 'like', '%' . $request->date . '%');
+            });
+        }
+
+        $mailings = $query->orderBy('created_at', 'desc')->get();
+
+        return view('marketing.mailinglist.sending-email.index', compact('audience', 'templates', 'images', 'images_gmail', 'mailings', 'term', 'date'));
     }
 
     public function ajaxIndex(Request $request)
@@ -77,7 +94,7 @@ class MailinglistEmailController extends Controller
 
                     curl_setopt_array($curl, [
                         //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                        CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/'.$list->remote_id.'?api_token='.config('env.ACELLE_MAIL_API_TOKEN'),
+                        CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -118,7 +135,7 @@ class MailinglistEmailController extends Controller
                             CURLOPT_POSTFIELDS => json_encode($data),
                             CURLOPT_HTTPHEADER => [
                                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                                'api-key: '.$api_key,
+                                'api-key: ' . $api_key,
                                 'Content-Type: application/json',
                             ],
                         ]);

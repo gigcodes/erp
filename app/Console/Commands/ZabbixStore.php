@@ -45,6 +45,7 @@ class ZabbixStore extends Command
         if ($auth_key != 0) {
             $hosts = $this->host_api($auth_key);
             if (! empty($hosts)) {
+                $hostItems = [];
                 foreach ($hosts as $host) {
                     $check_if_host_id_exist = Host::where('hostid', $host->hostid)->first();
                     if (! is_null($check_if_host_id_exist)) {
@@ -61,12 +62,14 @@ class ZabbixStore extends Command
                             'host' => $host->host,
                         ];
                         $last_host_id = Host::create($hostarray);
-                        $hostitems = [
+                        $hostItems[] = [
                             'host_id' => $last_host_id->id,
                             'hostid' => $host->hostid,
                         ];
-                        HostItem::create($hostitems);
                     }
+                }
+                if (count($hostItems)) {
+                    HostItem::Insert($hostItems);
                 }
             }
         }
@@ -75,7 +78,7 @@ class ZabbixStore extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -98,7 +101,7 @@ class ZabbixStore extends Command
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
-            \Log::channel('general')->info(Carbon::now().$results[0]->error->data);
+            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
             return 0;
         }
@@ -107,7 +110,7 @@ class ZabbixStore extends Command
     public function host_api($auth_key)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'host.get',
@@ -131,7 +134,7 @@ class ZabbixStore extends Command
     public function item_api($auth_key, $hostid)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'item.get',

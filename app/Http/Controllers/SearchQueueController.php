@@ -113,8 +113,8 @@ class SearchQueueController extends Controller
                         foreach ($item['links'] as $key => $link) {
                             $is_valid_type = $this->get_file_extension($link);
                             if ($is_valid_type != false) {
-                                $upload_filename = $queue->id.$key.'_'.time().'.'.$is_valid_type;
-                                $upload_path = public_path().'/'.$item['upload_path'];
+                                $upload_filename = $queue->id . $key . '_' . time() . '.' . $is_valid_type;
+                                $upload_path = public_path() . '/' . $item['upload_path'];
 
                                 $upload_image = new $queue->model_name;
                                 $upload_response = $upload_image->saveFromSearchQueues($upload_path, $link, $upload_filename);
@@ -140,14 +140,14 @@ class SearchQueueController extends Controller
             return response()->json($response, 500);
         }
         $response['success'] = true;
-        $response['message'] = $count.' files uploaded successfuly';
+        $response['message'] = $count . ' files uploaded successfuly';
 
         return response()->json($response, 200);
     }
 
     private function validate_upload_path($path)
     {
-        $path = public_path().'/'.$path;
+        $path = public_path() . '/' . $path;
         if (! File::exists($path)) {
             $result = File::makeDirectory($path, $mode = 0755, true, true);
             if ($result) {

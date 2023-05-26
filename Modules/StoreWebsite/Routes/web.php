@@ -1,25 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\StoreWebsite\Http\Controllers\BrandController;
-use Modules\StoreWebsite\Http\Controllers\CategoryController;
-use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
-use Modules\StoreWebsite\Http\Controllers\ColorController;
-use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
+use Modules\StoreWebsite\Http\Controllers\SeoController;
 use Modules\StoreWebsite\Http\Controllers\GoalController;
 use Modules\StoreWebsite\Http\Controllers\PageController;
-use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
-use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
-use Modules\StoreWebsite\Http\Controllers\SeoController;
+use Modules\StoreWebsite\Http\Controllers\BrandController;
+use Modules\StoreWebsite\Http\Controllers\ColorController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteController;
+use Modules\StoreWebsite\Http\Controllers\CategoryController;
 use Modules\StoreWebsite\Http\Controllers\SiteAssetController;
+use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
+use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
+use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
+use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
 use Modules\StoreWebsite\Http\Controllers\SiteAttributesControllers;
 use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentController;
-use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
-use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
-use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
-use Modules\StoreWebsite\Http\Controllers\WebsiteController;
-use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
 use Modules\StoreWebsite\Http\Controllers\WebsiteStoreViewController;
+use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +37,10 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
+    Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
+    Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
+    Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
+    Route::post('api-token/test-api-token/{id}', [StoreWebsiteController::class, 'testApiToken'])->name('store-website.testApiToken');
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);
     Route::post('generate-api-token', [StoreWebsiteController::class, 'generateApiToken']);
     Route::get('get-api-token', [StoreWebsiteController::class, 'getApiToken']);
@@ -60,11 +64,11 @@ Route::group([
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
 
     // Create Tags for multiple website
-    Route::get('list-tag',     [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
-    Route::post('create-tag',    [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
-    Route::post('attach-tag',    [StoreWebsiteController::class, 'attach_tags'])->name('store-website.attach_tags');
+    Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
+    Route::post('create-tag', [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
+    Route::post('attach-tag', [StoreWebsiteController::class, 'attach_tags'])->name('store-website.attach_tags');
 
-    Route::get('attach-tag-store',    [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
+    Route::get('attach-tag-store', [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
 
     Route::group([
         'prefix' => '{id}',
@@ -257,8 +261,10 @@ Route::group([
     });
     Route::group(['prefix' => 'page'], function () {
         Route::get('/', [PageController::class, 'index'])->name('store-website.page.index');
+        Route::get('/review-translate/{language?}', [PageController::class, 'reviewTranslate'])->name('store-website.page.review.translate');
         Route::get('/meta-title-keywords', [PageController::class, 'pageMetaTitleKeywords'])->name('store-website.page.keywords');
         Route::get('/records', [PageController::class, 'records'])->name('store-website.page.records');
+        Route::get('/getReviewTranslateRecords', [PageController::class, 'getReviewTranslateRecords'])->name('store-website.page.review.translate.records');
         Route::post('save', [PageController::class, 'store'])->name('store-website.page.save');
         Route::get('/{id}/edit', [PageController::class, 'edit'])->name('store-website.page.edit');
         Route::get('/{id}/delete', [PageController::class, 'delete'])->name('store-website.page.delete');
@@ -349,6 +355,9 @@ Route::middleware('auth')->group(function () {
                 Route::post('/', [SiteDevelopmentController::class, 'saveRemarks'])->name('site-development.saveRemarks');
             });
         });
+        Route::get('/store-website/category', [SiteDevelopmentController::class, 'storeWebsiteCategory'])->name('site-development.store-website-category');
+        Route::post('/store-website/category/save', [SiteDevelopmentController::class, 'updateMasterCategory'])->name('site-development.update-category');
+        Route::post('/store-website/category/savebulk', [SiteDevelopmentController::class, 'updateBulkMasterCategory'])->name('site-development.update-category-bulk');
     });
 
     Route::group(['prefix' => 'site-development-status'], function () {

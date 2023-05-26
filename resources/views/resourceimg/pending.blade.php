@@ -14,8 +14,26 @@
 	<div class="col-md-12">
 		<div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">List Resources Center</h2>
+            <h2 class="page-heading">List Resources Center (<span
+                id="translation_count">{{ $allresources->total() }}</span>)</h2>
             <div class="pull-left">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input name="term" type="text" class="form-control"
+                                value="{{ isset($term) ? $term : '' }}" placeholder="Search Referral Program"
+                                id="term">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-image" id='submitSearch'><img
+                                    src="/images/filter.png" /></button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-image" id="resetFilter"><img
+                                    src="/images/resend2.png" /></button>
+                        </div>
+                    </div>
+                </div>
                 <br>
                <!--  <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
@@ -74,7 +92,7 @@
                 @endif
 		      
 		        <div class="table-responsive col-md-12">
-		          <table class="table table-striped table-bordered" style="border: 1px solid #ddd;">
+		          <table class="table table-striped table-bordered" id='tblImageResource' style="border: 1px solid #ddd;">
 		            <thead>
 		              <tr>
   		              	<th style="width: 2%;">#</th>
@@ -88,24 +106,7 @@
   		              </tr>
 		            </thead>
 		            <tbody>
-		            	 @if(count($allresources) > 0)
-				            @foreach($allresources as $key => $resources)
-				                <tr>
-				                	<td>{{($key+1)}}</td>
-                                    <td><input type="checkbox" value="{{ $resources->id }}" name="id" class="checkBoxClass">
-					                <td>{{!empty($resources->category->title)?$resources->category->title:""}}</td>
-					                <td>{{!empty($resources->category->childs->title)?$resources->category->childs->title:""}}</td>
-					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
-					                <td><a href="{{ action([\App\Http\Controllers\ResourceImgController::class, 'imagesResource'], $resources['id']) }}" title="View Images">View</a></td>
-		    		                <td>{{date("l, d/m/Y",strtotime($resources['updated_at']))}}</td>
-		    		                <td>{{ucwords($resources['created_by'])}}</td>
-		    		            </tr>
-				            @endforeach
-				         @else
-				        	<tr>
-				        		<td class="text-center" colspan="8">No Record found.</td>
-				        	</tr>
-				        @endif
+                        @include('resourceimg.partial_pending')
 		            </tbody>
 		          </table>
 		        </div>
@@ -118,7 +119,8 @@
 
 	@include('resourceimg.partials.modal-create-resource-center')
 	@include('resourceimg.partials.modal-create-edit-category')
-
+    <input type="hidden" name='hiddenShowImage' id='hiddenShowImage'data-target="#showresource" data-toggle="modal">
+    <div id='modelShowImage'></div>
 			
 @endsection
 @section('scripts')
@@ -171,6 +173,79 @@
                 includeSelectAllOption: true,
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true,
+            });
+            $(document).on('click', '#myShowImg', function() {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: "{{ url('show-images/resource') }}",
+                    method: "POST",
+                    data: {
+                        id: $(this).attr("img-id")
+                    },
+                    success: function(data) {
+                        $("#modelShowImage").html(data.html);
+                        $("#hiddenShowImage").click();
+                    }
+                })
+            });
+            $(document).on('click', '#submitSearch', function() {
+                //term = $("#term").val();
+                 term =  $("input[name='term']").val();
+                $.ajax({
+                    url: "{{ url('resourceimg/pending/1') }}",
+                    dataType: "json",
+                    data: {
+                        term: term,
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function(data) {
+                    $("#loading-image").hide();
+                    $("#tblImageResource tbody").empty().html(data.tbody);
+                    $("#translation_count").text(data.count);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+
+                }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            });
+            $(document).on('click', '#resetFilter', function() {
+                blank = '';
+                $.ajax({
+                    url: "{{ url('resourceimg/pending/1') }}",
+                    dataType: "json",
+                    data: {
+                        blank: blank,
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function(data) {
+                    $("#loading-image").hide();
+                    $('#term').val('')
+                    $('#translation-select').val('')
+                    $("#tblImageResource tbody").empty().html(data.tbody);
+                    $("#translation_count").text(data.count);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+
+                }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
             });
         });
 

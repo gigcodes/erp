@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 
 class Product_translation extends Model
@@ -19,6 +20,8 @@ class Product_translation extends Model
      * @SWG\Property(property="site_id",type="interger")
      * @SWG\Property(property="is_rejected",type="boolean")
      */
+    use Mediable;
+
     protected $fillable = [
         'product_id',
         'locale',

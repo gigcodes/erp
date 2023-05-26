@@ -21,8 +21,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         </div>
     @endif
     @if (session('success'))
-        <div class="row m-2">
+        <div class="col-12">
           <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="col-12">
+          <div class="alert alert-danger">{{session('error')}}</div>
         </div>
     @endif
      <div class="row m-0">
@@ -111,7 +116,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                     </div> 
 					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#push_logs">Sync Logs</button>
+                        <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-image" id=""  target="_blank"><button type="button" class="btn btn-default">Sync Logs</button></a>
                     </div>
                 </form>
                 <div class="pull-left cls_filter_box">
@@ -612,8 +617,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         var settingId = $(this).data('id');
         $.ajax({
             url: 'magento-admin-settings/pushLogs/' + $(this).data('id'),
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
             success: function (data) {
                 console.log(data);
+                $("#loading-image").hide();
                 $('#settingsPushLogs').html(data);
                 $('#settingsPushLogsModal').modal('show');
             },

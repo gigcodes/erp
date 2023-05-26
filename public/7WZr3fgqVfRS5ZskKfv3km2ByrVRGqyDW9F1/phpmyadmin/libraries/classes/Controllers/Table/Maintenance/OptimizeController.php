@@ -7,17 +7,17 @@ namespace PhpMyAdmin\Controllers\Table\Maintenance;
 use function __;
 use function count;
 use PhpMyAdmin\Config;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\TableName;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Http\ServerRequest;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\Maintenance;
 use PhpMyAdmin\Template;
 use Webmozart\Assert\Assert;
+use PhpMyAdmin\Dbal\TableName;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Dbal\DatabaseName;
+use PhpMyAdmin\Table\Maintenance;
+use PhpMyAdmin\Http\ServerRequest;
 use Webmozart\Assert\InvalidArgumentException;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class OptimizeController extends AbstractController
 {

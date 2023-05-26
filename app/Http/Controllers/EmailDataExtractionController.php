@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\DigitalMarketingPlatform;
+use DB;
+use Auth;
+use Mail;
 use App\Email;
 use App\EmailLog;
-use App\EmailRemark;
-use App\Mails\Manual\ForwardEmail;
-use App\Mails\Manual\PurchaseEmail;
-use App\Mails\Manual\ReplyToEmail;
 use App\Wetransfer;
-use Auth;
-use DB;
+use App\EmailRemark;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Mail;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\DigitalMarketingPlatform;
+use App\Mails\Manual\ForwardEmail;
+use App\Mails\Manual\ReplyToEmail;
 use Webklex\PHPIMAP\ClientManager;
+use App\Mails\Manual\PurchaseEmail;
+use Illuminate\Support\Facades\Validator;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class EmailDataExtractionController extends Controller
 {
@@ -65,13 +65,13 @@ class EmailDataExtractionController extends Controller
         if (count($usernames) > 0) {
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('from', 'like', '%'.$_uname.'%');
+                    $query->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $query = $query->orWhere(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $query->orWhere('to', 'like', '%'.$_uname.'%');
+                    $query->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
@@ -101,22 +101,22 @@ class EmailDataExtractionController extends Controller
         }
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from', 'like', '%'.$term.'%')
-                    ->orWhere('to', 'like', '%'.$term.'%')
-                    ->orWhere('subject', 'like', '%'.$term.'%')
-                    ->orWhere('message', 'like', '%'.$term.'%');
+                $query->where('from', 'like', '%' . $term . '%')
+                    ->orWhere('to', 'like', '%' . $term . '%')
+                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('message', 'like', '%' . $term . '%');
             });
         }
 
         if (! $term) {
             if ($sender) {
                 $query = $query->where(function ($query) use ($sender) {
-                    $query->orWhere('from', 'like', '%'.$sender.'%');
+                    $query->orWhere('from', 'like', '%' . $sender . '%');
                 });
             }
             if ($receiver) {
                 $query = $query->where(function ($query) use ($receiver) {
-                    $query->orWhere('to', 'like', '%'.$receiver.'%');
+                    $query->orWhere('to', 'like', '%' . $receiver . '%');
                 });
             }
             if ($status) {
@@ -133,7 +133,7 @@ class EmailDataExtractionController extends Controller
 
         if (! empty($mailbox)) {
             $query = $query->where(function ($query) use ($mailbox) {
-                $query->orWhere('to', 'like', '%'.$mailbox.'%');
+                $query->orWhere('to', 'like', '%' . $mailbox . '%');
             });
         }
 
@@ -157,13 +157,13 @@ class EmailDataExtractionController extends Controller
             if (count($usernames) > 0) {
                 $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('from', 'like', '%'.$_uname.'%');
+                        $query->orWhere('from', 'like', '%' . $_uname . '%');
                     }
                 });
 
                 $query = $query->orWhere(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
-                        $query->orWhere('to', 'like', '%'.$_uname.'%');
+                        $query->orWhere('to', 'like', '%' . $_uname . '%');
                     }
                 });
 
@@ -205,13 +205,13 @@ class EmailDataExtractionController extends Controller
         if (count($usernames) > 0) {
             $sender_drpdwn = $sender_drpdwn->where(function ($sender_drpdwn) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $sender_drpdwn->orWhere('from', 'like', '%'.$_uname.'%');
+                    $sender_drpdwn->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $sender_drpdwn = $sender_drpdwn->orWhere(function ($sender_drpdwn) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $sender_drpdwn->orWhere('to', 'like', '%'.$_uname.'%');
+                    $sender_drpdwn->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
@@ -223,13 +223,13 @@ class EmailDataExtractionController extends Controller
         if (count($usernames) > 0) {
             $receiver_drpdwn = $receiver_drpdwn->where(function ($receiver_drpdwn) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $receiver_drpdwn->orWhere('from', 'like', '%'.$_uname.'%');
+                    $receiver_drpdwn->orWhere('from', 'like', '%' . $_uname . '%');
                 }
             });
 
             $receiver_drpdwn = $receiver_drpdwn->orWhere(function ($receiver_drpdwn) use ($usernames) {
                 foreach ($usernames as $_uname) {
-                    $receiver_drpdwn->orWhere('to', 'like', '%'.$_uname.'%');
+                    $receiver_drpdwn->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
         }
@@ -269,7 +269,6 @@ class EmailDataExtractionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -302,7 +301,6 @@ class EmailDataExtractionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -420,7 +418,6 @@ class EmailDataExtractionController extends Controller
     /**
      * Handle the email reply
      *
-     * @param  Request  $request
      * @return json
      */
     public function submitReply(Request $request)
@@ -437,11 +434,11 @@ class EmailDataExtractionController extends Controller
         $replyPrefix = 'Re: ';
         $subject = substr($email->subject, 0, 4) === $replyPrefix
             ? $email->subject
-            : $replyPrefix.$email->subject;
+            : $replyPrefix . $email->subject;
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
-        $message_to_store = $originalEmailInfo.'<br/>'.$request->message.'<br/>'.$email->message;
+        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
@@ -465,7 +462,6 @@ class EmailDataExtractionController extends Controller
     /**
      * Handle the email forward
      *
-     * @param  Request  $request
      * @return json
      */
     public function submitForward(Request $request)
@@ -715,7 +711,7 @@ class EmailDataExtractionController extends Controller
         $data['intent'] = 'entire_transfer';
         $data['security_hash'] = $securityhash;
 
-        $curlURL = $WETRANSFER_API_URL.$transferId.'/download';
+        $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
         $cookie = 'cookie.txt';
         $url = 'https://wetransfer.com/';
@@ -723,8 +719,8 @@ class EmailDataExtractionController extends Controller
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-        curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/' . $cookie);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/' . $cookie);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -744,7 +740,7 @@ class EmailDataExtractionController extends Controller
         }
 
         $headers[] = 'Content-Type: application/json';
-        $headers[] = 'X-CSRF-Token:'.$token;
+        $headers[] = 'X-CSRF-Token:' . $token;
 
         curl_setopt($ch, CURLOPT_URL, $curlURL);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -774,7 +770,7 @@ class EmailDataExtractionController extends Controller
 
             $storagePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
 
-            $path = $storagePath.'/'.$filename;
+            $path = $storagePath . '/' . $filename;
 
             $get = \Storage::get($filename);
 
@@ -838,7 +834,7 @@ class EmailDataExtractionController extends Controller
 
     public function getEmailAttachedFileData($fileName = '')
     {
-        $file = fopen(storage_path('app/files/email-attachments/'.$fileName), 'r');
+        $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
         $skiprowupto = 1; //skip first line
         $rowincrement = 1;
@@ -930,7 +926,7 @@ class EmailDataExtractionController extends Controller
                             ])->save();
                         }
                     } catch (\Exception $e) {
-                        \Log::error('Error from the dhl invoice : '.$e->getMessage());
+                        \Log::error('Error from the dhl invoice : ' . $e->getMessage());
                     }
                 }
             }
@@ -945,10 +941,10 @@ class EmailDataExtractionController extends Controller
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<'.$originId.'>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+            $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<' . $originId . '>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
         }
         foreach ($events as $event) {
-            $eventData .= '<tr><td>'.$event['timestamp'].'</td><td>'.$event['event'].'</td></tr>';
+            $eventData .= '<tr><td>' . $event['timestamp'] . '</td><td>' . $event['event'] . '</td></tr>';
         }
         if ($eventData == '') {
             $eventData = '<tr><td>No data found.</td></tr>';
@@ -967,7 +963,7 @@ class EmailDataExtractionController extends Controller
         $emailLogData = '';
 
         foreach ($emailLogs as $emailLog) {
-            $emailLogData .= '<tr><td>'.$emailLog['created_at'].'</td><td>'.$emailLog['email_log'].'</td><td>'.$emailLog['message'].'</td></tr>';
+            $emailLogData .= '<tr><td>' . $emailLog['created_at'] . '</td><td>' . $emailLog['email_log'] . '</td><td>' . $emailLog['message'] . '</td></tr>';
         }
         if ($emailLogData == '') {
             $emailLogData = '<tr><td>No data found.</td></tr>';

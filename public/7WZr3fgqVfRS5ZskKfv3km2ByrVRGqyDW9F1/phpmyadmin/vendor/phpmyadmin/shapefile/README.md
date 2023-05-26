@@ -1,4 +1,5 @@
 # shapefile
+
 ShapeFile library for PHP
 
 ![Test-suite](https://github.com/phpmyadmin/shapefile/workflows/Run%20tests/badge.svg?branch=master)
@@ -23,7 +24,7 @@ Please use [Composer][1] to install:
 composer require phpmyadmin/shapefile
 ```
 
-To be able to read and write the associated DBF file, you need ``dbase``
+To be able to read and write the associated DBF file, you need `dbase`
 extension:
 
 ```sh
@@ -53,5 +54,4 @@ years and slowly developed there. At one point people started to use our
 version rather than the original library and that was the point we decided to
 make it separate package.
 
-[1]:https://getcomposer.org/
-
+[1]: https://getcomposer.org/

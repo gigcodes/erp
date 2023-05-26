@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ScrapRemark;
-use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use App\Services\Whatsapp\ChatApi\ChatApi;
+use App\Helpers\LogHelper;
 
 class CheckScrapersLog extends Command
 {
@@ -40,6 +41,7 @@ class CheckScrapersLog extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $yesterdayDate = date('d', strtotime('-1 days'));
             // $root          = env('SCRAP_LOGS_FOLDER');
@@ -51,17 +53,19 @@ class CheckScrapersLog extends Command
                 if (isset($needed[1])) {
                     $day = explode('.', $needed[1]);
                     if ($day[0] === $yesterdayDate) {
-                        $filePath = $root.'/'.$file->getRelativePath().'/'.$needed[0].'-'.$day[0].'.'.$day[1];
+                        $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
                         $result = File::get($filePath);
                         if (empty($result) ||
                             (strpos($result, 'exception') || strpos($result, 'Exception')) ||
                             (strpos($result, 'error') || strpos($result, 'Error'))) {
                             $suplier = \App\Scraper::where('scraper_name', $needed[0])->first();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Scraper query finished."]);
                             if (! is_null($suplier)) {
                                 $user = \App\User::where('id', $suplier->scraper_made_by)->first();
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => "User query finished."]);
                                 if (! is_null($user)) {
                                     $whatsappNumber = $user->phone;
-                                    $message = 'scraper log file '.$filePath.' has issue.';
+                                    $message = 'scraper log file ' . $filePath . ' has issue.';
                                     $data = [
                                         'phone' => $whatsappNumber, // Receivers phone
                                         'body' => $message, // Message
@@ -73,13 +77,17 @@ class CheckScrapersLog extends Command
                                         'module_type' => '',
                                         'remark' => $message,
                                     ]);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Scrap remark was added."]);
                                 }
                             }
                         }
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

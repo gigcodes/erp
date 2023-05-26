@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\CronJob;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Helpers\LogHelper;
 
 class ScheduleList extends Command
 {
@@ -19,8 +20,6 @@ class ScheduleList extends Command
 
     /**
      * ScheduleList constructor.
-     *
-     * @param  Schedule  $schedule
      */
     public function __construct(Schedule $schedule)
     {
@@ -36,6 +35,7 @@ class ScheduleList extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $events = array_map(function ($event) {
                 return [
@@ -58,11 +58,15 @@ class ScheduleList extends Command
                             $cron->schedule = $schedule;
                             $cron->error_count = 0;
                             $cron->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was saved."]);
                         }
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
@@ -70,7 +74,6 @@ class ScheduleList extends Command
     /**
      * If it's an artisan command, strip off the PHP
      *
-     * @param $command
      * @return string
      */
     protected static function fixupCommand($command)

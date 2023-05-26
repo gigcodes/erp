@@ -169,7 +169,7 @@ return [
         Nestable\NestableServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Thujohn\Twitter\TwitterServiceProvider::class,
+//        Thujohn\Twitter\TwitterServiceProvider::class,
         // BookStack replacement service providers (Extends Laravel)
         Modules\BookStack\Providers\PaginationServiceProvider::class,
         Modules\BookStack\Providers\TranslationServiceProvider::class,
@@ -260,7 +260,7 @@ return [
         'Input' => Illuminate\Support\Facades\Request::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+//        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
 
         // Custom Modules\BookStack
         'Activity' => Modules\BookStack\Facades\Activity::class,
@@ -282,6 +282,29 @@ return [
         'UnsplashUsers' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashUsersFacade::class,
         'UnsplashPhotos' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashPhotosFacade::class,
         'UnsplashCollections' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashCollectionsFacade::class,
+    ],
+
+    'failed_email_addresses' => [
+        'Mailer-Daemon@se1.mailspamprotection.com',
+        'Mailer-Daemon@se2.mailspamprotection.com',
+        'Mailer-Daemon@se3.mailspamprotection.com',
+        'Mailer-Daemon@se4.mailspamprotection.com',
+        'Mailer-Daemon@se5.mailspamprotection.com',
+        'Mailer-Daemon@se6.mailspamprotection.com',
+        'Mailer-Daemon@se7.mailspamprotection.com',
+        'Mailer-Daemon@se8.mailspamprotection.com',
+        'Mailer-Daemon@se9.mailspamprotection.com',
+        'Mailer-Daemon@se10.mailspamprotection.com',
+        'Mailer-Daemon@se11.mailspamprotection.com',
+        'Mailer-Daemon@se12.mailspamprotection.com',
+        'Mailer-Daemon@se13.mailspamprotection.com',
+        'Mailer-Daemon@se14.mailspamprotection.com',
+        'Mailer-Daemon@se15.mailspamprotection.com',
+        'Mailer-Daemon@se16.mailspamprotection.com',
+        'Mailer-Daemon@se17.mailspamprotection.com',
+        'Mailer-Daemon@se18.mailspamprotection.com',
+        'Mailer-Daemon@se19.mailspamprotection.com',
+        'Mailer-Daemon@se20.mailspamprotection.com',
     ],
 
 ];

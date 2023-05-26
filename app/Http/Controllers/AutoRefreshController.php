@@ -12,7 +12,7 @@ class AutoRefreshController extends Controller
         $pages = \App\AutoRefreshPage::query();
 
         if ($request->term) {
-            $pages = $pages->where('page', 'like', '%'.$request->term.'%');
+            $pages = $pages->where('page', 'like', '%' . $request->term . '%');
         }
 
         $pages = $pages->paginate(10);

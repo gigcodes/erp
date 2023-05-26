@@ -31,7 +31,7 @@ class SocialHelper
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
-     //   curl_setopt($ch, CURLOPT_USERPWD, $user_cred);
+        //   curl_setopt($ch, CURLOPT_USERPWD, $user_cred);
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
             //echo 'Error:' . curl_error($ch);

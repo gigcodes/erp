@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\WebsiteStoreView;
-use App\WebsiteStoreViewsWebmasterHistory;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
+use App\WebsiteStoreView;
 use Illuminate\Console\Command;
+use App\WebsiteStoreViewsWebmasterHistory;
 
 class SubmitSiteToGoogleWebmaster extends Command
 {
@@ -56,8 +57,8 @@ class SubmitSiteToGoogleWebmaster extends Command
                     ->get()->toArray();
 
             foreach ($fetchStores as $key => $value) {
-                $websiter = urlencode(utf8_encode($value['website'].'/'.$value['code']));
-                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+                $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
+                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
                 $token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
 
                 $curl = curl_init();
@@ -73,7 +74,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                     CURLOPT_HTTPHEADER => [
                         'Accept: application/json',
                         'Content-length: 0',
-                        'authorization: Bearer '.$token,
+                        'authorization: Bearer ' . $token,
                     ],
                 ]);
                 $response = curl_exec($curl);
@@ -81,9 +82,9 @@ class SubmitSiteToGoogleWebmaster extends Command
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
-                    \Log::info($this->signature.' Request URL::'.$url_for_sites);
-                    \Log::info($this->signature.' Request Token::'.$token);
-                    \Log::error($this->signature.' Error Msg::'.$error_msg);
+                    \Log::info($this->signature . ' Request URL::' . $url_for_sites);
+                    \Log::info($this->signature . ' Request Token::' . $token);
+                    \Log::error($this->signature . ' Error Msg::' . $error_msg);
                 }
 
                 curl_close($curl);
@@ -96,23 +97,24 @@ class SubmitSiteToGoogleWebmaster extends Command
 
                     WebsiteStoreViewsWebmasterHistory::insert($history);
 
-                    \Log::info($this->signature.' Request URL::'.$url_for_sites);
-                    \Log::info($this->signature.' Request Token::'.$token);
-                    \Log::error($this->signature.' Error Msg::'.$response->error->message);
+                    \Log::info($this->signature . ' Request URL::' . $url_for_sites);
+                    \Log::info($this->signature . ' Request Token::' . $token);
+                    \Log::error($this->signature . ' Error Msg::' . $response->error->message);
                 } else {
                     \App\WebmasterLog::create([
                         'user_name' => Auth::user()->name,
                         'name' => 'Resubmit Site',
                         'status' => 'Success',
-                        'message' => 'Site submit successfully Website Store View id is '.$value['id'],
+                        'message' => 'Site submit successfully Website Store View id is ' . $value['id'],
                     ]);
 
                     WebsiteStoreView::where('id', $value['id'])->update(['site_submit_webmaster' => 1]);
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
-            \Log::error($this->signature.' Error Msg::'.$e->getMessage());
+        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

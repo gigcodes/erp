@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use DB;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\Helpers\HubstaffTrait;
-use Carbon\Carbon;
-use DB;
 use Illuminate\Console\Command;
 
 class SendReportHourlyUserTask extends Command
@@ -59,7 +59,7 @@ class SendReportHourlyUserTask extends Command
                     ->whereDate('starts_at', date('Y-m-d'))
                     ->groupBy('user_id')
                     ->orderBy('id', 'desc')->get();
-            \Log::info('Hubstaff task not select Total user : '.count($users));
+            \Log::info('Hubstaff task not select Total user : ' . count($users));
             foreach ($users as $key => $user) {
                 if ($user->whatsapp_number) {
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Please select task on hubstaff', true);
@@ -70,7 +70,7 @@ class SendReportHourlyUserTask extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
-            \Log::error('Hubstaff task not select Total user : '.$e->getMessage());
+            \Log::error('Hubstaff task not select Total user : ' . $e->getMessage());
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

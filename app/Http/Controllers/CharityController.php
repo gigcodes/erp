@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use App\User;
 use App\Charity;
 use App\CharityOrderHistory;
 use App\CharityStatusMaster;
-use App\CustomerOrderCharities;
-use App\User;
-use Auth;
 use Illuminate\Http\Request;
+use App\CustomerOrderCharities;
 
 class CharityController extends Controller
 {
@@ -50,7 +50,7 @@ class CharityController extends Controller
             $query = Charity::query();
 
             if ($request->search) {
-                $query = $query->where('name', 'LIKE', '%'.$request->search.'%')->orWhere('email', 'LIKE', '%'.$request->search.'%');
+                $query = $query->where('name', 'LIKE', '%' . $request->search . '%')->orWhere('email', 'LIKE', '%' . $request->search . '%');
             }
             $charityData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
         } else {
@@ -60,7 +60,7 @@ class CharityController extends Controller
                 $query->where('assign_to', $currentUserId);
             }
             if ($request->search) {
-                $query = $query->where('name', 'LIKE', '%'.$request->search.'%')->orWhere('email', 'LIKE', '%'.$request->search.'%');
+                $query = $query->where('name', 'LIKE', '%' . $request->search . '%')->orWhere('email', 'LIKE', '%' . $request->search . '%');
             }
             $charityData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
         }

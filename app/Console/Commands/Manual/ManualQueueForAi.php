@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
-use App\Jobs\ProductAi;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Jobs\ProductAi;
 use Illuminate\Console\Command;
 
 class ManualQueueForAi extends Command
@@ -52,7 +52,7 @@ class ManualQueueForAi extends Command
             // Loop over products
             foreach ($products as $product) {
                 // Output product ID
-                echo $product->id."\n";
+                echo $product->id . "\n";
 
                 // Queue for AI
                 ProductAi::dispatch($product)->onQueue('product');

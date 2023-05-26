@@ -1,3 +1,25 @@
+<style>
+	.multiselect-container > li > a,
+	.multiselect-container > li > a:focus {
+		outline: 0;
+		outline-offset: 0;
+	}
+	.multiselect-container > li  > a > label.radio{
+		position: relative;
+		padding: 8px 10px;
+	}
+	.multiselect-container > li  > a > label.radio input[type="radio"]{
+		opacity: 0;
+		margin: 0;
+		outline: 0;
+		outline-offset: 0;
+		visibility: hidden;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+</style>
 <div class="modal fade" id="addresource" tabindex="-1" role="dialog">
 	   	<div class="modal-dialog modal-lg">
 		    <div class="modal-content">

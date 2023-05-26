@@ -2,42 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
-use App\ChatMessage;
-use App\Email;
-use App\Helpers;
-use App\Mail\PurchaseEmail;
-use App\Marketing\WhatsappConfig;
-use App\Product;
-use App\ProductQuicksellGroup;
-use App\QuickSellGroup;
-use App\ReadOnly\SoloNumbers;
-use App\ReplyCategory;
-use App\Setting;
-use App\Supplier;
-use App\SupplierBrandCount;
-use App\SupplierBrandCountHistory;
-use App\SupplierCategory;
-use App\SupplierCategoryCount;
-use App\SupplierPriceRange;
-use App\SupplierSize;
-use App\SupplierStatus;
-use App\SupplierSubCategory;
-use App\SupplierPriority;
-use App\User;
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\User;
+use App\Brand;
+use App\Email;
 use Validator;
 use DataTables;
+use App\Helpers;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Supplier;
+use App\ChatMessage;
+use App\SupplierSize;
+use App\ReplyCategory;
+use App\QuickSellGroup;
+use App\SupplierStatus;
+use App\SupplierCategory;
+use App\SupplierPriority;
+use App\Mail\PurchaseEmail;
+use App\SupplierBrandCount;
+use App\SupplierPriceRange;
+use App\SupplierSubCategory;
+use Illuminate\Http\Request;
+use App\ReadOnly\SoloNumbers;
+use App\ProductQuicksellGroup;
+use App\SupplierCategoryCount;
+use App\Marketing\WhatsappConfig;
+use App\SupplierBrandCountHistory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Helpers\SupplierPriorityTrait;
+use Illuminate\Pagination\LengthAwarePaginator;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SupplierController extends Controller
 {
+    use SupplierPriorityTrait;
+
     const DEFAULT_FOR = 3; //For Supplier
 
     /**
@@ -91,28 +94,28 @@ class SupplierController extends Controller
         }*/
 
         if ($supplier_price_range_id != '') {
-            $typeWhereClause .= ' AND supplier_price_range_id in ('.$supplier_price_range_id.')';
+            $typeWhereClause .= ' AND supplier_price_range_id in (' . $supplier_price_range_id . ')';
         }
 
         if ($supplier_category_id != '') {
-            $typeWhereClause .= ' AND supplier_category_id in ('.$supplier_category_id.')';
+            $typeWhereClause .= ' AND supplier_category_id in (' . $supplier_category_id . ')';
         }
         if ($supplier_status_id != '') {
-            $typeWhereClause .= ' AND supplier_status_id in ('.$supplier_status_id.')';
+            $typeWhereClause .= ' AND supplier_status_id in (' . $supplier_status_id . ')';
         }
         if ($scrappertype != '') {
-            $typeWhereClause .= ' AND suppliers.scrapper in ('.$scrappertype.')';
+            $typeWhereClause .= ' AND suppliers.scrapper in (' . $scrappertype . ')';
         }
         if ($updated_by != '') {
-            $typeWhereClause .= ' AND updated_by in ('.$updated_by.')';
+            $typeWhereClause .= ' AND updated_by in (' . $updated_by . ')';
         }
 
         if ($request->status) {
-            $typeWhereClause .= ' AND suppliers.status in ('.$request->status.')';
+            $typeWhereClause .= ' AND suppliers.status in (' . $request->status . ')';
         }
 
         if ($supplier_filter) {
-            $typeWhereClause .= ' AND suppliers.id IN ('.implode(',', $supplier_filter).')';
+            $typeWhereClause .= ' AND suppliers.id IN (' . implode(',', $supplier_filter) . ')';
         }
         if (! empty($request->brand)) {
             $brands = [];
@@ -129,21 +132,21 @@ class SupplierController extends Controller
             $filterBrands = implode('|', $brands);
             $filterReferences = str_replace(';', '|', implode('|', $references));
             if (! empty($filterBrands)) {
-                $typeWhereClause .= ' AND (brands RLIKE "'.$filterBrands.'"';
-                $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterBrands.'"';
-                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterBrands.'")';
+                $typeWhereClause .= ' AND (brands RLIKE "' . $filterBrands . '"';
+                $typeWhereClause .= 'OR scraped_brands RLIKE "' . $filterBrands . '"';
+                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "' . $filterBrands . '")';
             }
             if (! empty($filterReferences)) {
-                $typeWhereClause .= ' OR (brands RLIKE "'.$filterReferences.'"';
-                $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterReferences.'"';
-                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterReferences.'")';
+                $typeWhereClause .= ' OR (brands RLIKE "' . $filterReferences . '"';
+                $typeWhereClause .= 'OR scraped_brands RLIKE "' . $filterReferences . '"';
+                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "' . $filterReferences . '")';
             }
         } else {
             if (! empty($request->scrapedBrand)) {
                 $scrapedBrands = implode('|', $request->scrapedBrand);
-                $typeWhereClause .= ' AND (brands RLIKE "'.$scrapedBrands.'"';
-                $typeWhereClause .= 'OR scraped_brands RLIKE "'.$scrapedBrands.'"';
-                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$scrapedBrands.'")';
+                $typeWhereClause .= ' AND (brands RLIKE "' . $scrapedBrands . '"';
+                $typeWhereClause .= 'OR scraped_brands RLIKE "' . $scrapedBrands . '"';
+                $typeWhereClause .= 'OR scraped_brands_raw RLIKE "' . $scrapedBrands . '")';
             }
         }
 
@@ -198,16 +201,16 @@ class SupplierController extends Controller
                   left join users as u on u.id = suppliers.updated_by
                   WHERE (
 
-                  source LIKE "%'.$source.'%" AND
+                  source LIKE "%' . $source . '%" AND
                   (sc.parent_id IS NULL AND
-                  (supplier LIKE "%'.$term.'%" OR
-                  suppliers.phone LIKE "%'.$term.'%" OR
-                  suppliers.email LIKE "%'.$term.'%" OR
-                  suppliers.address LIKE "%'.$term.'%" OR
-                  suppliers.social_handle LIKE "%'.$term.'%" OR
-                  sc.scraper_name LIKE "%'.$term.'%" OR
-                  brands LIKE "%'.$term.'%" OR
-                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%'.$term.'%" OR phone LIKE "%'.$term.'%" OR email LIKE "%'.$term.'%")))))'.$typeWhereClause.'
+                  (supplier LIKE "%' . $term . '%" OR
+                  suppliers.phone LIKE "%' . $term . '%" OR
+                  suppliers.email LIKE "%' . $term . '%" OR
+                  suppliers.address LIKE "%' . $term . '%" OR
+                  suppliers.social_handle LIKE "%' . $term . '%" OR
+                  sc.scraper_name LIKE "%' . $term . '%" OR
+                  brands LIKE "%' . $term . '%" OR
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
               ');
         }
@@ -315,7 +318,6 @@ class SupplierController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -350,7 +352,7 @@ class SupplierController extends Controller
         if (empty($data['whatsapp_number'])) {
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
-                ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
+                ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
                 ->first();
 
             if ($task_info) {
@@ -446,7 +448,6 @@ class SupplierController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -716,21 +717,21 @@ class SupplierController extends Controller
         })->get();*/
         } else {
             if ($supplier_category_id != '') {
-                $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+                $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
             }
             if ($supplier_status_id != '') {
-                $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+                $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
             }
 
             if ($filter != '') {
-                $typeWhereClause .= ' AND supplier like "'.$filter.'%"';
+                $typeWhereClause .= ' AND supplier like "' . $filter . '%"';
             }
-            $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" '.$typeWhereClause.'');
+            $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" ' . $typeWhereClause . '');
         }
 
         if (count($suppliers_all) > 0) {
             foreach ($suppliers_all as $supplier) {
-                $data .= '<option value="'.$supplier->id.'">'.$supplier->supplier.' - '.$supplier->default_email.' / '.$supplier->email.'</option>';
+                $data .= '<option value="' . $supplier->id . '">' . $supplier->supplier . ' - ' . $supplier->default_email . ' / ' . $supplier->email . '</option>';
             }
         }
 
@@ -777,43 +778,43 @@ class SupplierController extends Controller
             $sup = '';
             foreach ($supplier_list as $v) {
                 if ($v->id == $supplier->supplier_id) {
-                    $sup .= '<option value="'.$v->id.'" selected>'.$v->supplier.'</option>';
+                    $sup .= '<option value="' . $v->id . '" selected>' . $v->supplier . '</option>';
                 } else {
-                    $sup .= '<option value="'.$v->id.'">'.$v->supplier.'</option>';
+                    $sup .= '<option value="' . $v->id . '">' . $v->supplier . '</option>';
                 }
             }
 
             $cat = '';
             foreach ($category_parent as $c) {
                 if ($c->id == $supplier->category_id) {
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
                 } else {
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
                     if ($c->childs) {
                         foreach ($c->childs as $categ) {
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
                         }
                     }
                 }
             }
             foreach ($category_child as $c) {
                 if ($c->id == $supplier->category_id) {
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
                 } else {
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
                     if ($c->childs) {
                         foreach ($c->childs as $categ) {
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
                         }
                     }
                 }
             }
 
             $sub_array = [];
-            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="'.$supplier['id'].'">'.$sup.'</select>';
-            $sub_array[] = '<select class="form-control update" data-id="'.$supplier['id'].'" data-column="category_id">'.$cat.'</select>';
-            $sub_array[] = '<input type="number"  data-id="'.$supplier['id'].'" data-column="cnt" value="'.$supplier['cnt'].'"  class="form-control update">';
-            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="'.$supplier['id'].'">Delete</button>';
+            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="' . $supplier['id'] . '">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control update" data-id="' . $supplier['id'] . '" data-column="category_id">' . $cat . '</select>';
+            $sub_array[] = '<input type="number"  data-id="' . $supplier['id'] . '" data-column="cnt" value="' . $supplier['cnt'] . '"  class="form-control update">';
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier['id'] . '">Delete</button>';
             $data[] = $sub_array;
         }
         if (! empty($data)) {
@@ -916,18 +917,18 @@ class SupplierController extends Controller
 
             foreach ($supplier_list as $v) {
                 if ($v->id == $supplier->supplier_id) {
-                    $sup .= '<option value="'.$v->id.'" selected>'.$v->supplier.'</option>';
+                    $sup .= '<option value="' . $v->id . '" selected>' . $v->supplier . '</option>';
                 } else {
-                    $sup .= '<option value="'.$v->id.'">'.$v->supplier.'</option>';
+                    $sup .= '<option value="' . $v->id . '">' . $v->supplier . '</option>';
                 }
             }
 
             $brands = '';
             foreach ($brand_list as $v) {
                 if ($v->id == $supplier->brand_id) {
-                    $brands .= '<option value="'.$v->id.'" selected>'.$v->name.'</option>';
+                    $brands .= '<option value="' . $v->id . '" selected>' . $v->name . '</option>';
                 } else {
-                    $brands .= '<option value="'.$v->id.'">'.$v->name.'</option>';
+                    $brands .= '<option value="' . $v->id . '">' . $v->name . '</option>';
                 }
             }
 
@@ -935,36 +936,36 @@ class SupplierController extends Controller
             $cat .= '<option>Select Category</option>';
             foreach ($category_parent as $c) {
                 if ($c->id == $supplier->category_id) {
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
                 } else {
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
                     if ($c->childs) {
                         foreach ($c->childs as $categ) {
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
                         }
                     }
                 }
             }
             foreach ($category_child as $c) {
                 if ($c->id == $supplier->category_id) {
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
                 } else {
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
                     if ($c->childs) {
                         foreach ($c->childs as $categ) {
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
                         }
                     }
                 }
             }
 
             $sub_array = [];
-            $sub_array[] = '<select disabled class="form-control">'.$sup.'</select>';
-            $sub_array[] = '<select class="form-control" disabled>'.$cat.'</select>';
-            $sub_array[] = '<select disabled class="form-control">'.$brands.'</select>';
-            $sub_array[] = '<input type="number"  data-id="'.$supplier['id'].'" data-column="cnt" value="'.$supplier['cnt'].'"  class="form-control update">';
+            $sub_array[] = '<select disabled class="form-control">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control" disabled>' . $cat . '</select>';
+            $sub_array[] = '<select disabled class="form-control">' . $brands . '</select>';
+            $sub_array[] = '<input type="number"  data-id="' . $supplier['id'] . '" data-column="cnt" value="' . $supplier['cnt'] . '"  class="form-control update">';
             $sub_array[] = $supplier['url'];
-            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="'.$supplier['id'].'">Delete</button>';
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier['id'] . '">Delete</button>';
             $data[] = $sub_array;
         }
 
@@ -1056,17 +1057,17 @@ class SupplierController extends Controller
                 $createdProducts = [];
                 foreach ($images as $image) {
                     if ($image != null) {
-                        $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL'.date('yz').'%')->orderBy('id', 'desc')->first();
+                        $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                         if ($product) {
                             $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
                         } else {
-                            $number = date('yz').sprintf('%02d', 1);
+                            $number = date('yz') . sprintf('%02d', 1);
                         }
 
                         $product = new Product;
 
                         $product->name = 'QUICKSELL';
-                        $product->sku = 'QuickSell'.$number;
+                        $product->sku = 'QuickSell' . $number;
                         $product->size = '';
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
@@ -1112,7 +1113,7 @@ class SupplierController extends Controller
                     }
                 }
                 if (count($createdProducts) > 0) {
-                    $message = count($createdProducts).' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $message = count($createdProducts) . ' Product(s) has been created successfully, id\'s are ' . json_encode($createdProducts);
                     $code = 200;
                 } else {
                     $message = 'No Images selected';
@@ -1171,7 +1172,7 @@ class SupplierController extends Controller
                     }
                 }
                 if (count($createdProducts) > 0) {
-                    $message = count($createdProducts).' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $message = count($createdProducts) . ' Product(s) has been created successfully, id\'s are ' . json_encode($createdProducts);
                     $code = 200;
                 } else {
                     $message = 'No Images selected';
@@ -1225,16 +1226,16 @@ class SupplierController extends Controller
                 foreach ($images as $image) {
                     //Getting the last created QUICKSELL
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
-                    $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL'.date('yz').'%')->orderBy('id', 'desc')->first();
+                    $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
                         $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
                     } else {
-                        $number = date('yz').sprintf('%02d', 1);
+                        $number = date('yz') . sprintf('%02d', 1);
                     }
                     $product = new Product;
 
                     $product->name = 'QUICKSELL';
-                    $product->sku = 'QuickSell'.$number;
+                    $product->sku = 'QuickSell' . $number;
                     $product->size = '';
                     $product->brand = $request->brand;
                     $product->color = '';
@@ -1293,7 +1294,7 @@ class SupplierController extends Controller
                     }
                 }
                 if (count($createdProducts) > 0) {
-                    $message = count($createdProducts).' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $message = count($createdProducts) . ' Product(s) has been created successfully, id\'s are ' . json_encode($createdProducts);
                     $code = 200;
                 } else {
                     $message = 'No Images selected';
@@ -1360,7 +1361,6 @@ class SupplierController extends Controller
     /**
      * Get scraped brand and scraped brands raw of a supplier
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response with brand and brand raw
      */
     public function getScrapedBrandAndBrandRaw(Request $request)
@@ -1390,7 +1390,6 @@ class SupplierController extends Controller
     /**
      * Update scraped brand from scrapped brands raw for a supplier
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response with update status
      */
     public function updateScrapedBrandFromBrandRaw(Request $request)
@@ -1438,7 +1437,7 @@ class SupplierController extends Controller
 
                 $path = storage_path('app/files/email-attachments/file/');
                 $file->move($path, $file->getClientOriginalName());
-                $filePath = '/file/'.$file->getClientOriginalName();
+                $filePath = '/file/' . $file->getClientOriginalName();
                 $supplier = Supplier::find($request->id);
                 if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                     $excel = $supplier->getSupplierExcelFromSupplierEmail();
@@ -1457,7 +1456,6 @@ class SupplierController extends Controller
     /**
      * Remove particular scraped brand from scrapped brands for a supplier
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response with status, updated brand list, raw brand list
      */
     public function removeScrapedBrand(Request $request)
@@ -1543,7 +1541,6 @@ class SupplierController extends Controller
     /**
      * copy selected scraped brands to brand for a supplier
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return json response with update status, brands
      */
     public function copyScrapedBrandToBrand(Request $request)
@@ -1558,10 +1555,10 @@ class SupplierController extends Controller
             $selectedScrapedBrand = ($supplier->scraped_brands) ? $supplier->scraped_brands : '';
             if ($selectedScrapedBrand != '') {
                 //We have got selected scraped brands, now store that in brands
-                $supplier->brands = '"['.$selectedScrapedBrand.']"';
+                $supplier->brands = '"[' . $selectedScrapedBrand . ']"';
                 $supplier->save();
 
-                $miniScrapedBrand = strlen($selectedScrapedBrand) > 10 ? substr($selectedScrapedBrand, 0, 10).'...' : $selectedScrapedBrand;
+                $miniScrapedBrand = strlen($selectedScrapedBrand) > 10 ? substr($selectedScrapedBrand, 0, 10) . '...' : $selectedScrapedBrand;
 
                 return response()->json(['success' => 'Supplier brand updated', 'mini' => $miniScrapedBrand, 'full' => $selectedScrapedBrand], 200);
             } else {
@@ -1874,28 +1871,43 @@ class SupplierController extends Controller
         return response()->json(['code' => 200, 'data' => $list]);
     }
 
-    public function getPrioritiesList(Request $request){
-        if($request->ajax()){
+    public function getPrioritiesList(Request $request)
+    {
+        $priorities = SupplierPriority::get();
+        if ($request->ajax()) {
             $suppliers = \App\Supplier::query();
             $suppliers->with('supplier_category');
-             return Datatables::of($suppliers)
-             ->addIndexColumn()
-             ->addColumn('supplier_category_name', function($row){
-                $supplier_category_name = ($row->supplier_category) ? $row->supplier_category->name : "N/A";
+            if (isset($request->supplier) && ! empty($request->supplier)) {
+                $suppliers = $suppliers->where('supplier', $request->supplier);
+            }
+            if (isset($request->priority) && ! empty($request->priority)) {
+                $suppliers = $suppliers->where('priority', $request->priority);
+            }
+            if (isset($request->priority) && ($request->priority == 0)) {
+                $suppliers = $suppliers->where('priority', null);
+            }
+
+            $suppliers->orderBy('created_at', 'desc');
+
+            return Datatables::of($suppliers)
+            ->addIndexColumn()
+            ->addColumn('supplier_category_name', function ($row) {
+                $supplier_category_name = ($row->supplier_category) ? $row->supplier_category->name : 'N/A';
+
                 return $supplier_category_name;
-             })
-             ->addColumn('action', function($row){
-                 $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" data-product-id="'.$row->product_id.'" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
-                 return $actionBtn;
-             })
-             ->rawColumns(['action', 'supplier_category_id'])
-             ->make(true);
-         } 
+            })
+            ->addColumn('action', function ($row) {
+                $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="update-supplier-priority btn btn-warning btn-sm"><i class="fa fa-edit fa-sm"></i></a>&nbsp;';
 
+                return $actionBtn;
+            })
+            ->rawColumns(['action', 'supplier_category_id'])
+            ->make(true);
+        }
 
-        return view('suppliers.supplier_category_priority');
+        return view('suppliers.supplier_category_priority', compact('priorities'));
     }
-    
+
     public function addNewPriority(Request $request)
     {
         $validateArr['priority'] = 'required|numeric|unique:supplier_priority,priority';
@@ -1909,19 +1921,48 @@ class SupplierController extends Controller
             ]);
             $return = ['code' => 200, 'message' => 'Supplier priority created!'];
         }
-        
+
         return response()->json($return);
     }
-    
+
     public function getSupplierPriorityList(Request $request)
     {
         $supplier_priority_list = \App\SupplierPriority::get();
-        if(isset($supplier_priority_list) && count($supplier_priority_list)) {
-            $show_history = (string)view('suppliers.ajax_priority_list',compact('supplier_priority_list'));
-            $return = ['code' => 200, 'message' => 'Success','html'=> $show_history];
+        if (isset($supplier_priority_list) && count($supplier_priority_list)) {
+            $show_history = (string) view('suppliers.ajax_priority_list', compact('supplier_priority_list'));
+            $return = ['code' => 200, 'message' => 'Success', 'html' => $show_history];
         } else {
             $return = ['code' => 500, 'message' => 'No Results Found.'];
         }
+
         return response()->json($return);
     }
+
+    public function getSupplierForPriority(Request $request)
+    {
+        $supplier = Supplier::with('supplier_category')->where('id', $request->id)->first();
+        $supplier_priority_list = \App\SupplierPriority::get();
+        if ($supplier) {
+            $category = $supplier->supplier_category ? $supplier->supplier_category->name : "N\A";
+            $return = ['code' => 200, 'success' => true, 'message' => 'Success', 'supplier' => $supplier, 'category' => $category, 'supplier_priority_list' => $supplier_priority_list];
+        } else {
+            $return = ['code' => 500, 'success' => false,  'message' => 'No Results Found.'];
+        }
+
+        return response()->json($return);
+    }
+
+     public function updateSupplierPriority(Request $request)
+     {
+         $supplier_id = $request->id;
+         $priority = $request->priority;
+         $updatedPriority = $this->updatePriority($supplier_id, $priority);
+         if ($updatedPriority) {
+             $response = ['code' => 200, 'success' => true, 'message' => 'Supplier priority updated!'];
+         } else {
+             $response = ['code' => 500, 'success' => false,  'message' => 'No Results Found.'];
+         }
+
+         return response()->json($response);
+     }
 }

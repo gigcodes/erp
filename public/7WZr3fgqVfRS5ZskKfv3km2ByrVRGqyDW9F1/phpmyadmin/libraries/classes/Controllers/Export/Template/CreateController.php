@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Export\Template;
 
 use function is_array;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\Export\TemplateModel;
 use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\Controllers\AbstractController;
 use PhpMyAdmin\Export\Template as ExportTemplate;
-use PhpMyAdmin\Export\TemplateModel;
-use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 
 final class CreateController extends AbstractController
 {

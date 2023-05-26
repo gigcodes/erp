@@ -8,13 +8,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Setup;
 
 use function __;
-use function htmlspecialchars;
-use function is_array;
-use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\Version;
-use PhpMyAdmin\VersionInformation;
-use function sprintf;
 use function uniqid;
+use function sprintf;
+use function is_array;
+use PhpMyAdmin\Version;
+use PhpMyAdmin\Sanitize;
+use function htmlspecialchars;
+use PhpMyAdmin\VersionInformation;
 
 /**
  * PhpMyAdmin\Setup\Index class
@@ -174,7 +174,7 @@ class Index
                 $message_id,
                 __('Version check'),
                 sprintf(__('A newer version of phpMyAdmin is available and you should consider upgrading.'
-                    .' The newest version is %s, released on %s.'), $version, $date)
+                    . ' The newest version is %s, released on %s.'), $version, $date)
             );
         } else {
             if ($version_local % 100 == 0) {
@@ -183,7 +183,7 @@ class Index
                     $message_id,
                     __('Version check'),
                     Sanitize::sanitizeMessage(sprintf(__('You are using Git version, run [kbd]git pull[/kbd]'
-                        .' :-)[br]The latest stable version is %s, released on %s.'), $version, $date))
+                        . ' :-)[br]The latest stable version is %s, released on %s.'), $version, $date))
                 );
             } else {
                 self::messagesSet(

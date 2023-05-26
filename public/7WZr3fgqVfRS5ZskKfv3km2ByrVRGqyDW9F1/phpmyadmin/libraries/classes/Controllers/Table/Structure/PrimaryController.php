@@ -6,15 +6,15 @@ namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
 use function count;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\Table\AbstractController;
+use PhpMyAdmin\Controllers\Table\StructureController;
 
 final class PrimaryController extends AbstractController
 {
@@ -79,7 +79,7 @@ final class PrimaryController extends AbstractController
         }
 
         if ($mult_btn === __('Yes')) {
-            $sql_query = 'ALTER TABLE '.Util::backquote($table);
+            $sql_query = 'ALTER TABLE ' . Util::backquote($table);
             if (! empty($primary)) {
                 $sql_query .= ' DROP PRIMARY KEY,';
             }
@@ -117,7 +117,7 @@ final class PrimaryController extends AbstractController
     {
         $this->dbi->selectDb($this->db);
         $result = $this->dbi->query(
-            'SHOW KEYS FROM '.Util::backquote($this->table).';'
+            'SHOW KEYS FROM ' . Util::backquote($this->table) . ';'
         );
         $primary = '';
         foreach ($result as $row) {
@@ -126,7 +126,7 @@ final class PrimaryController extends AbstractController
                 continue;
             }
 
-            $primary .= $row['Column_name'].', ';
+            $primary .= $row['Column_name'] . ', ';
         }
 
         return $primary;

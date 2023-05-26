@@ -22,7 +22,6 @@ class ModelNameController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class ModelNameController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ModelName  $modelName
      * @return \Illuminate\Http\Response
      */
     public function edit(ModelName $modelName, Request $request)
@@ -58,8 +56,6 @@ class ModelNameController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ModelName  $modelName
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ModelName $modelName)
@@ -77,7 +73,6 @@ class ModelNameController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ModelName  $modelName
      * @return \Illuminate\Http\Response
      */
     public function destroy(ModelName $modelName, Request $request)

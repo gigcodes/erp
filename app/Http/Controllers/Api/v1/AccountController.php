@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Customer;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class AccountController extends Controller
 {
@@ -36,7 +36,7 @@ class AccountController extends Controller
             $customer = new Customer;
         }
 
-        $customer->name = trim($request->get('firstname').' '.$request->get('lastname'));
+        $customer->name = trim($request->get('firstname') . ' ' . $request->get('lastname'));
         $customer->email = $request->get('email');
         $customer->store_website_id = $request->get('store_website_id');
         $customer->save();

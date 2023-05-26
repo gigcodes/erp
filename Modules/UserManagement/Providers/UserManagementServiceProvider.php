@@ -2,8 +2,8 @@
 
 namespace Modules\UserManagement\Providers;
 
-use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Factory;
 
 class UserManagementServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class UserManagementServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 
     /**
@@ -39,10 +39,10 @@ class UserManagementServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('usermanagement.php'),
+            __DIR__ . '/../Config/config.php' => config_path('usermanagement.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'usermanagement'
+            __DIR__ . '/../Config/config.php', 'usermanagement'
         );
     }
 
@@ -55,14 +55,14 @@ class UserManagementServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/usermanagement');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
             $sourcePath => $viewPath,
         ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path.'/modules/usermanagement';
+            return $path . '/modules/usermanagement';
         }, \Config::get('view.paths')), [$sourcePath]), 'usermanagement');
     }
 
@@ -78,7 +78,7 @@ class UserManagementServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'usermanagement');
         } else {
-            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'usermanagement');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'usermanagement');
         }
     }
 
@@ -90,7 +90,7 @@ class UserManagementServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(__DIR__.'/../Database/factories');
+            app(Factory::class)->load(__DIR__ . '/../Database/factories');
         }
     }
 

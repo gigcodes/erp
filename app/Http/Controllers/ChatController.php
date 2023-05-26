@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Chat;
 use App\User;
 use Illuminate\Http\Request;
+use Pusher\Laravel\Facades\Pusher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Pusher\Laravel\Facades\Pusher;
 
 class ChatController extends Controller
 {
@@ -38,12 +38,12 @@ class ChatController extends Controller
             $sent = date('F j, Y, g:i a', strtotime($message['created_at']));
             if ((Auth::id() == $message['sourceid'] and $userid == $message['userid']) or ($message['sourceid'] == $userid and $message['userid'] == Auth::id())) {
                 $chat_converstaion[] = '
-                  <tr class="msg-row-container '.$style.'" >
+                  <tr class="msg-row-container ' . $style . '" >
                     <td>
                       <div class="msg-row">
-                        <div class="avatar"><img src="https://ui-avatars.com/api/?name='.$user_name.'" width="32px"/></div>
+                        <div class="avatar"><img src="https://ui-avatars.com/api/?name=' . $user_name . '" width="32px"/></div>
                         <div class="message">
-                          <span class="user-label"><a href="#" style="color: #6D84B4;">'.$user_name.'</a> <span class="msg-time">'.$sent.'</span></span><br/>'.$msg.'
+                          <span class="user-label"><a href="#" style="color: #6D84B4;">' . $user_name . '</a> <span class="msg-time">' . $sent . '</span></span><br/>' . $msg . '
                         </div>
                       </div>
                     </td>
@@ -67,7 +67,6 @@ class ChatController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -114,7 +113,6 @@ class ChatController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

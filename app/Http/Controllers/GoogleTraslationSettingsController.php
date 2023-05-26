@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\googleTraslationSettings;
 use Illuminate\Http\Request;
+use App\googleTraslationSettings;
 
 class GoogleTraslationSettingsController extends Controller
 {
@@ -12,9 +12,29 @@ class GoogleTraslationSettingsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $settings = googleTraslationSettings::all();
+        $settings = googleTraslationSettings::query();
+        // $settings = googleTraslationSettings::all();
+
+        if ($request->term) {
+            $settings->where(function ($q) use ($request) {
+                $q = $q->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('account_json', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('last_note', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('project_id', 'LIKE', '%' . $request->term . '%');
+            });
+        }
+
+        $settings = $settings->get();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googleTraslationSettings.list', compact('settings'))->render(),
+                // 'links' => (string) $data->render(),
+                // 'count' => $data->total(),
+            ], 200);
+        }
 
         return view('googleTraslationSettings.index', compact('settings'));
     }
@@ -32,16 +52,24 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         try {
+            $this->validate($request, [
+                'email' => 'required|email',
+                'last_note' => 'required',
+                'status' => 'required|boolean',
+                'account_json' => 'required',
+                'project_id' => 'required',
+            ]);
+
             $email = $request->email;
             $account_json = $request->account_json;
             $status = $request->status;
             $last_note = $request->last_note;
+            $project_id = $request->project_id;
 
             $googleTraslationSettings = new googleTraslationSettings;
 
@@ -49,6 +77,7 @@ class GoogleTraslationSettingsController extends Controller
             $googleTraslationSettings->account_json = $account_json;
             $googleTraslationSettings->status = $status;
             $googleTraslationSettings->last_note = $last_note;
+            $googleTraslationSettings->project_id = $project_id;
             $googleTraslationSettings->save();
 
             $msg = 'Setting Add Successfully';
@@ -62,7 +91,6 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function show(googleTraslationSettings $googleTraslationSettings)
@@ -73,7 +101,6 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function edit($id, googleTraslationSettings $googleTraslationSettings)
@@ -86,18 +113,24 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, googleTraslationSettings $googleTraslationSettings)
     {
+        $this->validate($request, [
+            'email' => 'required|email',
+            'last_note' => 'required',
+            'status' => 'required|boolean',
+            'account_json' => 'required',
+            'project_id' => 'required',
+        ]);
         try {
             $id = $request->id;
             $email = $request->email;
             $account_json = $request->account_json;
             $status = $request->status;
             $last_note = $request->last_note;
+            $project_id = $request->project_id;
 
             $googleTraslationSettings = new googleTraslationSettings;
             $googleTraslationSettings->where('id', $id)
@@ -107,6 +140,7 @@ class GoogleTraslationSettingsController extends Controller
                 'account_json' => $account_json,
                 'status' => $status,
                 'last_note' => $last_note,
+                'project_id' => $project_id,
             ]);
 
             return redirect()->route('google-traslation-settings.index')->with('success', 'Setting Update Successfully');

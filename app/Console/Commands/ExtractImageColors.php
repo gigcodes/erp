@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ColorNamesReference;
 use App\Colors;
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use ColorThief\ColorThief;
+use App\ColorNamesReference;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
 use ourcodeworld\NameThatColor\ColorInterpreter as NameThatColor;
@@ -94,7 +94,7 @@ class ExtractImageColors extends Command
                     $product->color = $color;
                     $product->save();
 
-                    dump('Saved: '.$color);
+                    dump('Saved: ' . $color);
                 }
             });
 

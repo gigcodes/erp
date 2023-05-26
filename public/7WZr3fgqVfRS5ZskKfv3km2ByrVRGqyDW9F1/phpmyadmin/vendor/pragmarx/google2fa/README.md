@@ -21,54 +21,54 @@ Google2FA is a PHP implementation of the Google Two-Factor Authentication Module
 
 ## Menu
 
-  - [Version Compatibility](#version-compatibility)
-  - [Google Two-Factor Authentication for PHP Package](#google-two-factor-authentication-for-php-package)
-  - [Laravel bridge](#laravel-bridge)
-  - [Demos, Example & Playground](#demos--example---playground)
-  - [Requirements](#requirements)
-  - [Installing](#installing)
-  - [Usage](#using-it)
-  - [How To Generate And Use Two Factor Authentication](#how-to-generate-and-use-two-factor-authentication)
-  - [Generating QRCodes](#generating-qrcodes)
-  - [QR Code Packages](#qr-code-packages)
-  - [Examples of Usage](#examples-of-usage)
-  - [HMAC Algorithms](#hmac-algorithms)
-  - [Server Time](#server-time)
-  - [Validation Window](#validation-window)
-  - [Using a Bigger and Prefixing the Secret Key](#using-a-bigger-and-prefixing-the-secret-key)
-  - [Google Authenticator secret key compatibility](#google-authenticator-secret-key-compatibility)
-  - [Google Authenticator Apps:](#google-authenticator-apps-)
-  - [Deprecation Warning](#deprecation-warning)
-  - [Tests](#tests)
-  - [Authors](#authors)
-  - [License](#license)
-  - [Contributing](#contributing)
+- [Version Compatibility](#version-compatibility)
+- [Google Two-Factor Authentication for PHP Package](#google-two-factor-authentication-for-php-package)
+- [Laravel bridge](#laravel-bridge)
+- [Demos, Example & Playground](#demos--example---playground)
+- [Requirements](#requirements)
+- [Installing](#installing)
+- [Usage](#using-it)
+- [How To Generate And Use Two Factor Authentication](#how-to-generate-and-use-two-factor-authentication)
+- [Generating QRCodes](#generating-qrcodes)
+- [QR Code Packages](#qr-code-packages)
+- [Examples of Usage](#examples-of-usage)
+- [HMAC Algorithms](#hmac-algorithms)
+- [Server Time](#server-time)
+- [Validation Window](#validation-window)
+- [Using a Bigger and Prefixing the Secret Key](#using-a-bigger-and-prefixing-the-secret-key)
+- [Google Authenticator secret key compatibility](#google-authenticator-secret-key-compatibility)
+- [Google Authenticator Apps:](#google-authenticator-apps-)
+- [Deprecation Warning](#deprecation-warning)
+- [Tests](#tests)
+- [Authors](#authors)
+- [License](#license)
+- [Contributing](#contributing)
 
 ## Version Compatibility
 
- PHP    | Google2FA
-:-------|:----------
- 5.4    | 7.x LTS 
- 5.5    | 7.x LTS 
- 5.6    | 7.x LTS 
- 7.1    | 8.x
- 7.2    | 8.x
- 7.3    | 8.x
- 7.4    | 8.x
- 
+| PHP | Google2FA |
+| :-- | :-------- |
+| 5.4 | 7.x LTS   |
+| 5.5 | 7.x LTS   |
+| 5.6 | 7.x LTS   |
+| 7.1 | 8.x       |
+| 7.2 | 8.x       |
+| 7.3 | 8.x       |
+| 7.4 | 8.x       |
+
 ## Laravel bridge
 
 This package is agnostic, but there's a [Laravel bridge](https://github.com/antonioribeiro/google2fa-laravel).
-  
+
 ## About QRCode generation
 
 This package does not generate QRCodes for 2FA.
 
-If you are looking for Google Two-Factor Authentication, but also need to generate QRCode for it, you can use the [Google2FA QRCode package](https://github.com/antonioribeiro/google2fa-qrcode), which integrates this package and also generates QRCodes using the BaconQRCode library, or check options on how to do it yourself [here in the docs](#qr-code-packages). 
+If you are looking for Google Two-Factor Authentication, but also need to generate QRCode for it, you can use the [Google2FA QRCode package](https://github.com/antonioribeiro/google2fa-qrcode), which integrates this package and also generates QRCodes using the BaconQRCode library, or check options on how to do it yourself [here in the docs](#qr-code-packages).
 
 ## Demos, Example & Playground
 
-Please check the [Google2FA Package Playground](http://pragmarx.com/playground/google2fa). 
+Please check the [Google2FA Package Playground](http://pragmarx.com/playground/google2fa).
 
 ![playground](docs/playground.jpg)
 
@@ -87,7 +87,7 @@ Use Composer to install it:
     composer require pragmarx/google2fa
 
 To generate inline QRCodes, you'll need to install a QR code generator, e.g. [BaconQrCode](https://github.com/Bacon/BaconQrCode):
-  
+
     composer require bacon/bacon-qr-code
 
 ## Usage
@@ -96,9 +96,9 @@ To generate inline QRCodes, you'll need to install a QR code generator, e.g. [Ba
 
 ```php
 use PragmaRX\Google2FA\Google2FA;
-    
+
 $google2fa = new Google2FA();
-    
+
 return $google2fa->generateSecretKey();
 ```
 
@@ -113,7 +113,7 @@ $user->google2fa_secret = $google2fa->generateSecretKey();
 ## Generating QRCodes
 
 The securer way of creating QRCode is to do it yourself or using a library. First you have to install a QR code generator e.g. BaconQrCode, as stated above, then you just have to generate the QR code url using:
- 
+
 ```php
 $qrCodeUrl = $google2fa->getQRCodeUrl(
     $companyName,
@@ -141,13 +141,13 @@ $secret = $request->input('secret');
 $valid = $google2fa->verifyKey($user->google2fa_secret, $secret);
 ```
 
-## QR Code Packages  
+## QR Code Packages
 
-This package suggests the use of [Bacon/QRCode](https://github.com/Bacon/BaconQrCode) because 
-it is known as a good QR Code package, but you can use it with any other package, for 
-instance [Google2FA QRCode](https://github.com/antonioribeiro/google2fa-qrcode), 
-[Simple QrCode](https://www.simplesoftware.io/docs/simple-qrcode) 
-or [Endroid QR Code](https://github.com/endroid/qr-code), all of them use 
+This package suggests the use of [Bacon/QRCode](https://github.com/Bacon/BaconQrCode) because
+it is known as a good QR Code package, but you can use it with any other package, for
+instance [Google2FA QRCode](https://github.com/antonioribeiro/google2fa-qrcode),
+[Simple QrCode](https://www.simplesoftware.io/docs/simple-qrcode)
+or [Endroid QR Code](https://github.com/endroid/qr-code), all of them use
 [Bacon/QRCode](https://github.com/Bacon/BaconQrCode) to produce QR Codes.
 
 Usually you'll need a 2FA URL, so you just have to use the URL generator:
@@ -161,7 +161,7 @@ $google2fa->getQRCodeUrl($companyName, $companyEmail, $secretKey)
 ### [Google2FA QRCode](https://github.com/antonioribeiro/google2fa-qrcode)
 
 Get a QRCode to be used inline:
- 
+
 ```php
 $google2fa = (new \PragmaRX\Google2FAQRCode\Google2FA());
 
@@ -172,7 +172,7 @@ $inlineUrl = $google2fa->getQRCodeInline(
 );
 ```
 
-And use in your template: 
+And use in your template:
 
 ```php
 <img src="{{ $inlineUrl }}">
@@ -197,7 +197,7 @@ $qrCode = new \Endroid\QrCode\QrCode($value);
 $qrCode->setSize(100);
 $google2fa_url = $qrCode->writeDataUri();
 ```
-   
+
 And in your view
 
 ```php
@@ -242,11 +242,11 @@ And show it as an image:
 <img src="data:image/png;base64, <?php echo $qrcode_image; ?> "/>
 ```
 
-## HMAC Algorithms 
+## HMAC Algorithms
 
 To comply with [RFC6238](https://tools.ietf.org/html/rfc6238), this package supports SHA1, SHA256 and SHA512. It defaults to SHA1, so to use a different algorithm you just have to use the method `setAlgorith()`:
 
-``` php
+```php
 $google2fa->setAlgorithm(Constants::SHA512);
 ```
 
@@ -293,7 +293,7 @@ Note that `$timestamp` either `false` (if the key is invalid or has been used be
 ## Using a Bigger and Prefixing the Secret Key
 
 Although the probability of collision of a 16 bytes (128 bits) random string is very low, you can harden it by:
- 
+
 #### Use a bigger key
 
 ```php
@@ -324,7 +324,7 @@ The Window property defines how long a OTP will work, or how many cycles it will
 $secretKey = $google2fa->setWindow(4);
 ```
 
-But you can also set the window while checking the key. If you need to set a window of 4 during key verification, this is how you do: 
+But you can also set the window while checking the key. If you need to set a window of 4 during key verification, this is how you do:
 
 ```php
 $isValid = $google2fa->verifyKey($seed, $key, 4);
@@ -341,12 +341,12 @@ $google2fa->setKeyRegeneration(40);
 ## Google Authenticator secret key compatibility
 
 To be compatible with Google Authenticator, your (converted to base 32) secret key length must be at least 8 chars and be a power of 2: 8, 16, 32, 64...
-  
+
 So, to prevent errors, you can do something like this while generating it:
-  
+
 ```php
 $secretKey = '123456789';
-  
+
 $secretKey = str_pad($secretKey, pow(2,ceil(log(strlen($secretKey),2))), 'X');
 ```
 
@@ -356,7 +356,7 @@ And it will generate
 123456789XXXXXXX
 ```
 
-By default, this package will enforce compatibility, but, if Google Authenticator is not a target, you can disable it by doing  
+By default, this package will enforce compatibility, but, if Google Authenticator is not a target, you can disable it by doing
 
 ```php
 $google2fa->setEnforceGoogleAuthenticatorCompatibility(false);
@@ -366,14 +366,14 @@ $google2fa->setEnforceGoogleAuthenticatorCompatibility(false);
 
 To use the two factor authentication, your user will have to install a Google Authenticator compatible app, those are some of the currently available:
 
-* [Authy for iOS, Android, Chrome, OS X](https://www.authy.com/)
-* [FreeOTP for iOS, Android and Pebble](https://apps.getpebble.com/en_US/application/52f1a4c3c4117252f9000bb8)
-* [Google Authenticator for iOS](https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8)
-* [Google Authenticator for Android](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
-* [Google Authenticator (port) on Windows Store](https://www.microsoft.com/en-us/store/p/google-authenticator/9wzdncrdnkrf)
-* [Microsoft Authenticator for Windows Phone](https://www.microsoft.com/en-us/store/apps/authenticator/9wzdncrfj3rj)
-* [LastPass Authenticator for iOS, Android, OS X, Windows](https://lastpass.com/auth/)
-* [1Password for iOS, Android, OS X, Windows](https://1password.com)
+- [Authy for iOS, Android, Chrome, OS X](https://www.authy.com/)
+- [FreeOTP for iOS, Android and Pebble](https://apps.getpebble.com/en_US/application/52f1a4c3c4117252f9000bb8)
+- [Google Authenticator for iOS](https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8)
+- [Google Authenticator for Android](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
+- [Google Authenticator (port) on Windows Store](https://www.microsoft.com/en-us/store/p/google-authenticator/9wzdncrdnkrf)
+- [Microsoft Authenticator for Windows Phone](https://www.microsoft.com/en-us/store/apps/authenticator/9wzdncrfj3rj)
+- [LastPass Authenticator for iOS, Android, OS X, Windows](https://lastpass.com/auth/)
+- [1Password for iOS, Android, OS X, Windows](https://1password.com)
 
 ## Deprecation Warning
 
@@ -385,15 +385,15 @@ The package tests were written with [PHPUnit](https://phpunit.de/). There are so
 
 PHPUnit:
 
-````
+```
 composer test
-````
+```
 
 PHPStan analysis:
 
-````
+```
 composer analyse
-````
+```
 
 ## Authors
 

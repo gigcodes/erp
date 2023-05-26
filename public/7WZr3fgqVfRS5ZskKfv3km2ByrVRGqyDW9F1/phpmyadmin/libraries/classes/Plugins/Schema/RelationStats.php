@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema;
 
 use function abs;
-use function array_search;
 use function min;
+use function array_search;
 
 /**
  * Relations preferences/statistics
@@ -17,8 +17,6 @@ use function min;
  * This class fetches the table master and foreign fields positions
  * and helps in generating the Table references and then connects
  * master table's master field to foreign table's foreign key.
- *
- * @abstract
  */
 abstract class RelationStats
 {

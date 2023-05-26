@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use DB;
 use App\Scraper;
 use App\ScrapLog;
-use DB;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class FetchScrapeMissing extends Command
 {
@@ -82,14 +82,14 @@ class FetchScrapeMissing extends Command
                 'created_at' => date('Y-m-d H:m'),
             ];
 
-            $missingdata .= 'Total Product - '.$d->total_product.', ';
-            $missingdata .= 'Missing Category - '.$d->missing_category.', ';
-            $missingdata .= 'Missing Color - '.$d->missing_color.', ';
-            $missingdata .= 'Missing Composition - '.$d->missing_composition.', ';
-            $missingdata .= 'Missing Name - '.$d->missing_name.', ';
-            $missingdata .= 'Missing Short Description - '.$d->missing_short_description.', ';
-            $missingdata .= 'Missing Price - '.$d->missing_price.', ';
-            $missingdata .= 'Missing Size - '.$d->missing_size.', ';
+            $missingdata .= 'Total Product - ' . $d->total_product . ', ';
+            $missingdata .= 'Missing Category - ' . $d->missing_category . ', ';
+            $missingdata .= 'Missing Color - ' . $d->missing_color . ', ';
+            $missingdata .= 'Missing Composition - ' . $d->missing_composition . ', ';
+            $missingdata .= 'Missing Name - ' . $d->missing_name . ', ';
+            $missingdata .= 'Missing Short Description - ' . $d->missing_short_description . ', ';
+            $missingdata .= 'Missing Price - ' . $d->missing_price . ', ';
+            $missingdata .= 'Missing Size - ' . $d->missing_size . ', ';
 
             $scrapers = Scraper::where('scraper_name', $d->website)->get();
             foreach ($scrapers as $scrapperDetails) {
@@ -103,9 +103,9 @@ class FetchScrapeMissing extends Command
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata]);
                     try {
                         app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
-                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata.' and message sent to '.$userName]);
+                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata . ' and message sent to ' . $userName]);
                     } catch (\Exception $e) {
-                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Coundn't send message to ".$userName]);
+                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Coundn't send message to " . $userName]);
                     }
                 } else {
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => 'Not assigned to any user']);

@@ -2,18 +2,18 @@
 
 namespace App\Jobs;
 
-use App\CashFlow;
 use App\Email;
-use App\EmailRunHistories;
+use App\CashFlow;
 use Carbon\Carbon;
-use EmailReplyParser\Parser\EmailParser;
+use App\EmailRunHistories;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Webklex\PHPIMAP\ClientManager;
+use Illuminate\Queue\SerializesModels;
+use EmailReplyParser\Parser\EmailParser;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class FetchEmail implements ShouldQueue
 {
@@ -49,7 +49,7 @@ class FetchEmail implements ShouldQueue
             $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => $emailAddress->host,
-                'port' => 993,
+                'port' => $emailAddress->port,
                 'encryption' => 'ssl',
                 'validate_cert' => false,
                 'username' => $emailAddress->username,
@@ -72,6 +72,7 @@ class FetchEmail implements ShouldQueue
                 ],
             ];
 
+            $is_module_available = 0;
             $available_models = [
                 'supplier' => \App\Supplier::class, 'vendor' => \App\Vendor::class,
                 'customer' => \App\Customer::class, 'users' => \App\User::class,
@@ -82,7 +83,7 @@ class FetchEmail implements ShouldQueue
             }
 
             foreach ($types as $type) {
-                dump('Getting emails for: '.$type['type']);
+                dump('Getting emails for: ' . $type['type']);
 
                 $inbox = $imap->getFolder($type['inbox_name']);
                 if ($type['type'] == 'incoming') {
@@ -93,7 +94,7 @@ class FetchEmail implements ShouldQueue
 
                 $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
 
-                dump('Last received at: '.($latest_email_date ?: 'never'));
+                dump('Last received at: ' . ($latest_email_date ?: 'never'));
                 // Uncomment below just for testing purpose
                 //                    $latest_email_date = Carbon::parse('2020-01-01');
 
@@ -102,203 +103,235 @@ class FetchEmail implements ShouldQueue
                 } else {
                     $emails = ($inbox) ? $inbox->messages() : '';
                 }
-                if($emails){
-                $emails = $emails->all()->get();
-                foreach ($emails as $email) {
-                    try
-                    {
-                    $reference_id = $email->references;
+                if ($emails) {
+                    $emails = $emails->all()->get();
+                    foreach ($emails as $email) {
+                        try {
+                            $reference_id = $email->references;
                     //                        dump($reference_id);
-                    $origin_id = $email->message_id;
+                            $origin_id = $email->message_id;
 
-                    // Skip if message is already stored
-                    if (Email::where('origin_id', $origin_id)->count() > 0) {
-                        continue;
-                    }
+                            // Skip if message is already stored
+                            if (Email::where('origin_id', $origin_id)->count() > 0) {
+                                continue;
+                            }
 
-                    // check if email has already been received
+                            // check if email has already been received
 
-                    $textContent = $email->getTextBody();
-                    if ($email->hasHTMLBody()) {
-                        $content = $email->getHTMLBody();
-                    } else {
-                        $content = $email->getTextBody();
-                    }
+                            $textContent = $email->getTextBody();
+                            if ($email->hasHTMLBody()) {
+                                $content = $email->getHTMLBody();
+                            } else {
+                                $content = $email->getTextBody();
+                            }
 
-                    $email_subject = $email->getSubject();
-                    \Log::channel('customer')->info('Subject  => '.$email_subject);
+                            $email_subject = $email->getSubject();
+                            \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
-                    //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
-                    $attachments_array = [];
-                    $attachments = $email->getAttachments();
-                    $fromThis = $email->getFrom()[0]->mail;
-                    $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
-                        $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                        file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                        $path = 'email-attachments/'.$attachment->name;
+                            //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
+                            $attachments_array = [];
+                            $attachments = $email->getAttachments();
+                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
+                                $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                $path = 'email-attachments/' . $attachment->name;
 
-                        $attachments_array[] = $path;
+                                $attachments_array[] = $path;
 
-                        /*start 3215 attachment fetch from DHL mail */
-                        \Log::channel('customer')->info('Match Start  => '.$email_subject);
+                                /*start 3215 attachment fetch from DHL mail */
+                                \Log::channel('customer')->info('Match Start  => ' . $email_subject);
 
-                        $findFromEmail = explode('@', $fromThis);
-                        if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
-                            \Log::channel('customer')->info('Match Found  => '.$email_subject);
-                            $this->getEmailAttachedFileData($attachment->name);
-                        }
-                        /*end 3215 attachment fetch from DHL mail */
-                    });
+                                $findFromEmail = explode('@', $fromThis);
+                                if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
+                                    \Log::channel('customer')->info('Match Found  => ' . $email_subject);
+                                    $this->getEmailAttachedFileData($attachment->name);
+                                }
+                                /*end 3215 attachment fetch from DHL mail */
+                            });
 
-                    $from = $email->getFrom()[0]->mail;
-                    $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            $from = $email->getFrom()[0]->mail;
+                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
-                    // Model is sender if its incoming else its receiver if outgoing
-                    if ($type['type'] == 'incoming') {
-                        $model_email = $from;
-                    } else {
-                        $model_email = $to;
-                    }
+                            // Model is sender if its incoming else its receiver if outgoing
+                            if ($type['type'] == 'incoming') {
+                                $model_email = $from;
+                            } else {
+                                $model_email = $to;
+                            }
 
-                    // Get model id and model type
+                            // Get model id and model type
 
-                    extract($this->getModel($model_email, $email_list));
-                    /**
-                     * @var $model_id
-                     * @var $model_type
-                     */
-                    $subject = explode('#', $email_subject);
-                    if (isset($subject[1]) && ! empty($subject[1])) {
-                        $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
-                        if ($findTicket) {
-                            $model_id = $findTicket->id;
-                            $model_type = \App\Tickets::class;
-                        }
-                    }
+                            extract($this->getModel($model_email, $email_list));
 
-                    $params = [
-                        'model_id' => $model_id,
-                        'model_type' => $model_type,
-                        'origin_id' => $origin_id,
-                        'reference_id' => $reference_id,
-                        'type' => $type['type'],
-                        'seen' => isset($email->getFlags()['seen'])?$email->getFlags()['seen']:0,
-                        'from' => $email->getFrom()[0]->mail,
-                        'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                        'subject' => $email->getSubject(),
-                        'message' => $content,
-                        'template' => 'customer-simple',
-                        'additional_data' => json_encode(['attachment' => $attachments_array]),
-                        'created_at' => $email->getDate(),
-                    ];
+                            $subject = explode('#', $email_subject);
+                            if (isset($subject[1]) && ! empty($subject[1])) {
+                                $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
+                                if ($findTicket) {
+                                    $model_id = $findTicket->id;
+                                    $model_type = \App\Tickets::class;
+                                }
+                            }
+
+                            $mailData = explode('@', $from);
+                            $name = $mailData['0'];
+
+                            $params = [
+                                'model_id' => $model_id,
+                                'model_type' => $model_type,
+                                'origin_id' => $origin_id,
+                                'reference_id' => $reference_id,
+                                'type' => $type['type'],
+                                'seen' => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
+                                'from' => $email->getFrom()[0]->mail,
+                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject' => $email->getSubject(),
+                                'message' => $content,
+                                'template' => 'customer-simple',
+                                'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                'created_at' => $email->getDate(),
+                                'name' => $name,
+                            ];
                     //                            dump("Received from: ". $email->getFrom()[0]->mail);
-                    $email_id = Email::insertGetId($params);
+                            $email_id = Email::insertGetId($params);
 
-                    if ($type['type'] == 'incoming') {
-                        $message = trim($textContent);
+                            if ($type['type'] == 'incoming') {
+                                $message = trim($textContent);
 
-                        $reply = (new EmailParser())->parse($message);
+                                $reply = (new EmailParser())->parse($message);
 
-                        $fragment = current($reply->getFragments());
+                                $fragment = current($reply->getFragments());
 
-                        $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
+                                $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
 
-                        $reply = strip_tags($fragment);
+                                $reply = strip_tags($fragment);
 
-                        $reply = preg_replace($pattern, ' ', $reply);
+                                $reply = preg_replace($pattern, ' ', $reply);
 
-                        $mailFound = false;
-                        if ($reply) {
-                            $customer = \App\Customer::where('email', $from)->first();
-                            if (! empty($customer)) {
-                                // store the main message
-                                $params = [
-                                    'number' => $customer->phone,
-                                    'message' => $reply,
-                                    'media_url' => null,
-                                    'approved' => 0,
-                                    'status' => 0,
-                                    'contact_id' => null,
-                                    'erp_user' => null,
-                                    'supplier_id' => null,
-                                    'task_id' => null,
-                                    'dubizzle_id' => null,
-                                    'vendor_id' => null,
-                                    'customer_id' => $customer->id,
-                                    'is_email' => 1,
-                                    'from_email' => $from,
-                                    'to_email' => $to,
-                                    'email_id' => $email_id,
-                                ];
-                                $messageModel = \App\ChatMessage::create($params);
-                                \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
-                                \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
-                                $mailFound = true;
-                            }
+                                $mailFound = false;
+                                if ($reply) {
+                                    $customer = \App\Customer::where('email', $from)->first();
+                                    if (! empty($customer)) {
+                                        // store the main message
+                                        $params = [
+                                            'number' => $customer->phone,
+                                            'message' => $reply,
+                                            'media_url' => null,
+                                            'approved' => 0,
+                                            'status' => 0,
+                                            'contact_id' => null,
+                                            'erp_user' => null,
+                                            'supplier_id' => null,
+                                            'task_id' => null,
+                                            'dubizzle_id' => null,
+                                            'vendor_id' => null,
+                                            'customer_id' => $customer->id,
+                                            'is_email' => 1,
+                                            'from_email' => $from,
+                                            'to_email' => $to,
+                                            'email_id' => $email_id,
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                        \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
+                                        $mailFound = true;
+                                        $is_module_available = 1;
+                                    }
 
-                            if (! $mailFound) {
-                                $vandor = \App\Vendor::where('email', $from)->first();
-                                if ($vandor) {
-                                    $params = [
-                                        'number' => $vandor->phone,
-                                        'message' => $reply,
-                                        'media_url' => null,
-                                        'approved' => 0,
-                                        'status' => 0,
-                                        'contact_id' => null,
-                                        'erp_user' => null,
-                                        'supplier_id' => null,
-                                        'task_id' => null,
-                                        'dubizzle_id' => null,
-                                        'vendor_id' => $vandor->id,
-                                        'is_email' => 1,
-                                        'from_email' => $from,
-                                        'to_email' => $to,
-                                        'email_id' => $email_id,
-                                    ];
-                                    $messageModel = \App\ChatMessage::create($params);
-                                    $mailFound = true;
+                                    if (! $mailFound) {
+                                        $vandor = \App\Vendor::where('email', $from)->first();
+                                        if ($vandor) {
+                                            $params = [
+                                                'number' => $vandor->phone,
+                                                'message' => $reply,
+                                                'media_url' => null,
+                                                'approved' => 0,
+                                                'status' => 0,
+                                                'contact_id' => null,
+                                                'erp_user' => null,
+                                                'supplier_id' => null,
+                                                'task_id' => null,
+                                                'dubizzle_id' => null,
+                                                'vendor_id' => $vandor->id,
+                                                'is_email' => 1,
+                                                'from_email' => $from,
+                                                'to_email' => $to,
+                                                'email_id' => $email_id,
+                                            ];
+                                            $messageModel = \App\ChatMessage::create($params);
+                                            $mailFound = true;
+                                            $is_module_available = 1;
+                                        }
+                                    }
+
+                                    if (! $mailFound) {
+                                        $supplier = \App\Supplier::where('email', $from)->first();
+                                        if ($supplier) {
+                                            $params = [
+                                                'number' => $supplier->phone,
+                                                'message' => $reply,
+                                                'media_url' => null,
+                                                'approved' => 0,
+                                                'status' => 0,
+                                                'contact_id' => null,
+                                                'erp_user' => null,
+                                                'supplier_id' => $supplier->id,
+                                                'task_id' => null,
+                                                'dubizzle_id' => null,
+                                                'is_email' => 1,
+                                                'from_email' => $from,
+                                                'to_email' => $to,
+                                                'email_id' => $email_id,
+                                            ];
+                                            $messageModel = \App\ChatMessage::create($params);
+                                            $mailFound = true;
+                                            $is_module_available = 1;
+                                        }
+                                    }
+
+                                    // add entry in chat message even if email is from any other modules
+                                    if (! $mailFound) {
+                                        $params = [
+                                            'number' => null,
+                                            'message' => $reply,
+                                            'media_url' => null,
+                                            'approved' => 0,
+                                            'status' => 0,
+                                            'contact_id' => null,
+                                            'erp_user' => null,
+                                            'supplier_id' => null,
+                                            'task_id' => null,
+                                            'dubizzle_id' => null,
+                                            'is_email' => 1,
+                                            'from_email' => $from,
+                                            'to_email' => $to,
+                                            'email_id' => $email_id,
+                                            'message_type' => 'email',
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        $mailFound = true;
+
+                                        \Log::info('Incoming Email is not in our sysetm : ' . $from);
+                                    }
+
+                                    if ($is_module_available == 0) {
+                                        $email = Email::where('id', $email_id)->first();
+                                        $email->is_unknow_module = 1;
+                                        $email->save();
+                                    }
                                 }
                             }
-
-                            if (! $mailFound) {
-                                $supplier = \App\Supplier::where('email', $from)->first();
-                                if ($supplier) {
-                                    $params = [
-                                        'number' => $supplier->phone,
-                                        'message' => $reply,
-                                        'media_url' => null,
-                                        'approved' => 0,
-                                        'status' => 0,
-                                        'contact_id' => null,
-                                        'erp_user' => null,
-                                        'supplier_id' => $supplier->id,
-                                        'task_id' => null,
-                                        'dubizzle_id' => null,
-                                        'is_email' => 1,
-                                        'from_email' => $from,
-                                        'to_email' => $to,
-                                        'email_id' => $email_id,
-                                    ];
-                                    $messageModel = \App\ChatMessage::create($params);
-                                    $mailFound = true;
-                                }
-                            }
+                        } catch (\Exception $e) {
+                            \Log::error('error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage());
+                            $historyParam = [
+                                'email_address_id' => $emailAddress->id,
+                                'is_success' => 0,
+                                'message' => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
+                            ];
+                            EmailRunHistories::create($historyParam);
                         }
                     }
-
-                } catch (\Exception $e) {
-                    \Log::error('error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage());
-                    $historyParam = [
-                        'email_address_id' => $emailAddress->id,
-                        'is_success' => 0,
-                        'message' => 'error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage(),
-                    ];
-                    EmailRunHistories::create($historyParam);
                 }
-                }
-
-            }
             }
 
             $historyParam = [
@@ -347,7 +380,7 @@ class FetchEmail implements ShouldQueue
 
     public function getEmailAttachedFileData($fileName = '')
     {
-        $file = fopen(storage_path('app/files/email-attachments/'.$fileName), 'r');
+        $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
         $skiprowupto = 1; //skip first line
         $rowincrement = 1;
@@ -368,7 +401,7 @@ class FetchEmail implements ShouldQueue
             exit; */
             if ($rowincrement > $skiprowupto) {
                 //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
-                if (isset($data[0]) && !empty($data[0])) {
+                if (isset($data[0]) && ! empty($data[0])) {
                     try {
                         $due_date = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = [
@@ -452,7 +485,7 @@ class FetchEmail implements ShouldQueue
                             ])->save();
                         }
                     } catch (\Exception $e) {
-                        \Log::error('Error from the dhl invoice : '.$e->getMessage());
+                        \Log::error('Error from the dhl invoice : ' . $e->getMessage());
                     }
                 }
             }

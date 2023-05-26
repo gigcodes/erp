@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -57,9 +57,9 @@ class UpdateGnbImages extends Command
                         $images = $scraped_product->images;
 
                         foreach ($images as $image_name) {
-                            $path = public_path('uploads').'/social-media/'.$image_name;
+                            $path = public_path('uploads') . '/social-media/' . $image_name;
                             $media = MediaUploader::fromSource($path)
-                                ->toDirectory('product/'.floor($scraped_product->product->id / config('constants.image_per_folder')))
+                                ->toDirectory('product/' . floor($scraped_product->product->id / config('constants.image_per_folder')))
                                 ->upload();
                             $scraped_product->product->attachMedia($media, config('constants.media_tags'));
                         }

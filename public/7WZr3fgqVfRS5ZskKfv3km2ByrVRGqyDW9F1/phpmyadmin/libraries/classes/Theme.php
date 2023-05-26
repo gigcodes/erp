@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use const DIRECTORY_SEPARATOR;
-use const E_USER_ERROR;
-use function file_exists;
-use function file_get_contents;
-use function filemtime;
+use function trim;
+use function is_dir;
+use function sprintf;
 use function filesize;
 use function in_array;
 use function is_array;
-use function is_dir;
+use const E_USER_ERROR;
+use function filemtime;
+use function file_exists;
 use function is_readable;
 use function json_decode;
-use function sprintf;
 use function trigger_error;
-use function trim;
 use function version_compare;
+use const DIRECTORY_SEPARATOR;
+use function file_get_contents;
 
 /**
  * handles theme
@@ -67,7 +67,7 @@ class Theme
      */
     public function loadInfo(): bool
     {
-        $infofile = $this->getFsPath().'theme.json';
+        $infofile = $this->getFsPath() . 'theme.json';
         if (! @file_exists($infofile)) {
             return false;
         }
@@ -141,19 +141,19 @@ class Theme
     public function checkImgPath(): bool
     {
         // try current theme first
-        if (is_dir($this->getFsPath().'img'.DIRECTORY_SEPARATOR)) {
-            $this->setImgPath($this->getPath().'/img/');
-            $this->setImgPathFs($this->getFsPath().'img'.DIRECTORY_SEPARATOR);
+        if (is_dir($this->getFsPath() . 'img' . DIRECTORY_SEPARATOR)) {
+            $this->setImgPath($this->getPath() . '/img/');
+            $this->setImgPathFs($this->getFsPath() . 'img' . DIRECTORY_SEPARATOR);
 
             return true;
         }
 
         // try fallback theme
-        $fallbackFsPathThemeDir = ThemeManager::getThemesFsDir().ThemeManager::FALLBACK_THEME
-                                  .DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR;
+        $fallbackFsPathThemeDir = ThemeManager::getThemesFsDir() . ThemeManager::FALLBACK_THEME
+                                  . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR;
         if (is_dir($fallbackFsPathThemeDir)) {
-            $fallbackUrl = ThemeManager::getThemesDir().ThemeManager::FALLBACK_THEME
-                        .'/img/';
+            $fallbackUrl = ThemeManager::getThemesDir() . ThemeManager::FALLBACK_THEME
+                        . '/img/';
             $this->setImgPath($fallbackUrl);
             $this->setImgPathFs($fallbackFsPathThemeDir);
 
@@ -318,14 +318,14 @@ class Theme
             return $this->imgPath;
         }
 
-        if (is_readable($this->imgPathFs.$file)) {
-            return $this->imgPath.$file;
+        if (is_readable($this->imgPathFs . $file)) {
+            return $this->imgPath . $file;
         }
 
         if ($fallback !== null) {
             return $this->getImgPath($fallback);
         }
 
-        return './themes/'.ThemeManager::FALLBACK_THEME.'/img/'.$file;
+        return './themes/' . ThemeManager::FALLBACK_THEME . '/img/' . $file;
     }
 }

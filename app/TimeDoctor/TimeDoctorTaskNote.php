@@ -12,7 +12,6 @@ class TimeDoctorTaskNote extends Model
     protected $fillable = [
         'task_id',
         'notes',
-        'date'
+        'date',
     ];
-   
 }

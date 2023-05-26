@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\GoogleDoc;
 use Exception;
+use App\GoogleDoc;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
 use Google_Service_Sheets_Spreadsheet;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateGoogleSpreadsheet
 {
@@ -17,14 +17,17 @@ class CreateGoogleSpreadsheet
 
     private $googleDoc;
 
+    private $permissionForAll;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(GoogleDoc $googleDoc)
+    public function __construct(GoogleDoc $googleDoc, $permissionForAll = null)
     {
         $this->googleDoc = $googleDoc;
+        $this->permissionForAll = $permissionForAll;
     }
 
     /**
@@ -47,7 +50,7 @@ class CreateGoogleSpreadsheet
             $this->googleDoc->save();
         } catch (Exception $e) {
             // TODO(developer) - handle error appropriately
-            echo 'Message: '.$e->getMessage();
+            echo 'Message: ' . $e->getMessage();
             dd($e);
         }
     }
@@ -73,7 +76,7 @@ class CreateGoogleSpreadsheet
 
             return $file->parents;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
         }
     }
 
@@ -95,41 +98,61 @@ class CreateGoogleSpreadsheet
             ]);
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
-            $batch = $driveService->createBatch();
-            $googleDocUsersRead = explode(',', $googleDocUsersRead);
-
-            foreach ($googleDocUsersRead as $email) {
+            if ($this->permissionForAll == 'anyone') {
+                $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
+                    'type' => 'anyone',
                     'role' => 'reader',
-                    'emailAddress' => $email,
                 ]);
-
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user'.$index);
-                $index++;
-            }
-            $results = $batch->execute();
+                $batch->add($request, 'full-access');
+                $results = $batch->execute();
 
-            $batch = $driveService->createBatch();
-            $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
-
-            foreach ($googleDocUsersWrite as $email) {
+                $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
+                    'type' => 'anyone',
                     'role' => 'writer',
-                    'emailAddress' => $email,
                 ]);
-
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user'.$index);
-                $index++;
+                $batch->add($request, 'full-access');
+                $results = $batch->execute();
+            } else {
+                $batch = $driveService->createBatch();
+                $googleDocUsersRead = explode(',', $googleDocUsersRead);
+
+                foreach ($googleDocUsersRead as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'reader',
+                        'emailAddress' => $email,
+                    ]);
+
+                    $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user' . $index);
+                    $index++;
+                }
+                $results = $batch->execute();
+
+                $batch = $driveService->createBatch();
+                $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
+
+                foreach ($googleDocUsersWrite as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'writer',
+                        'emailAddress' => $email,
+                    ]);
+
+                    $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user' . $index);
+                    $index++;
+                }
+                $results = $batch->execute();
             }
-            $results = $batch->execute();
 
             return $file;
         } catch (Exception $e) {
-            echo 'Error Message: '.$e;
+            echo 'Error Message: ' . $e;
             dd($e);
         }
     }

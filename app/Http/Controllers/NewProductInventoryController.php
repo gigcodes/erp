@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\ColorReference;
-use App\Library\Product\ProductSearch;
-use App\Services\Scrap\GoogleImageScraper;
 use App\Stage;
+use App\Category;
 use App\Supplier;
 use App\UpteamLog;
+use App\ColorReference;
 use Illuminate\Http\Request;
+use App\Library\Product\ProductSearch;
+use App\Services\Scrap\GoogleImageScraper;
 
 class NewProductInventoryController extends Controller
 {
@@ -93,11 +93,11 @@ class NewProductInventoryController extends Controller
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
             $childs = $category->childs;
             foreach ($childs as $child) {
-                $categoryArray[] = ['id' => $child->id, 'value' => $category->title.' > '.$child->title];
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
                 $grandChilds = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
-                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title.' > '.$child->title.' > '.$grandChild->title];
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
                     }
                 }
             }
@@ -114,9 +114,9 @@ class NewProductInventoryController extends Controller
     public function upteamLogs(Request $request)
     {
         if (($request->upteam_log && $request->upteam_log != null) && ($request->from_date != '' && $request->to_date != '')) {
-            $logs = UpteamLog::where('log_description', 'LIKE', '%'.$request->upteam_log.'%')->whereBetween('created_at', [$request->from_date, $request->to_date])->orderBy('id', 'desc')->paginate(30);
+            $logs = UpteamLog::where('log_description', 'LIKE', '%' . $request->upteam_log . '%')->whereBetween('created_at', [$request->from_date, $request->to_date])->orderBy('id', 'desc')->paginate(30);
         } elseif ($request->upteam_log && $request->upteam_log != '') {
-            $logs = UpteamLog::where('log_description', 'LIKE', '%'.$request->upteam_log.'%')->orderBy('id', 'desc')->paginate(30);
+            $logs = UpteamLog::where('log_description', 'LIKE', '%' . $request->upteam_log . '%')->orderBy('id', 'desc')->paginate(30);
         } elseif ($request->from_date != '' && $request->to_date != '') {
             $logs = UpteamLog::whereBetween('created_at', [$request->from_date, $request->to_date])->orderBy('id', 'desc')->paginate(30);
         } else {

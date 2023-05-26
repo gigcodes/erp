@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function defined;
 use function md5;
+use function defined;
 use function str_contains;
 
 /**
@@ -101,7 +101,7 @@ class Scripts
      */
     public function addCode(string $code): void
     {
-        $this->code .= $code."\n";
+        $this->code .= $code . "\n";
     }
 
     /**

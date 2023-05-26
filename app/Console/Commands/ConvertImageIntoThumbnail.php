@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Exception;
-use Illuminate\Console\Command;
 use Plank\Mediable\Media;
+use Illuminate\Console\Command;
 
 class ConvertImageIntoThumbnail extends Command
 {
@@ -57,14 +57,14 @@ class ConvertImageIntoThumbnail extends Command
 
                     $file_info = pathinfo($m_url);
 
-                    $thumb_file_name = $file_info['filename'].'_thumb.'.$file_info['extension'];
-                    $thumb_folder = $file_info['dirname'].'/thumbnail';
+                    $thumb_file_name = $file_info['filename'] . '_thumb.' . $file_info['extension'];
+                    $thumb_folder = $file_info['dirname'] . '/thumbnail';
 
                     if (! is_dir($thumb_folder)) {
                         mkdir($thumb_folder);
                     }
 
-                    $thumb_file_path = $thumb_folder.'/'.$thumb_file_name;
+                    $thumb_file_path = $thumb_folder . '/' . $thumb_file_name;
 
                     [$original_width, $original_height] = getimagesize($m_url);
                     $thumbnail_width = 150;

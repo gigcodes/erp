@@ -71,6 +71,14 @@
               <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Link:</strong>
+            <input type="text" name="link"  class="form-control" value="{{ old('link') }}">
+
+            @if ($errors->has('link'))
+              <div class="alert alert-danger">{{$errors->first('link')}}</div>
+            @endif
+          </div>
           
           <div class="form-group">
             <strong>Folder Name:</strong>
@@ -166,7 +174,7 @@
             <strong>Category:</strong>
             <select class="form-control" name="category_id" id="category_id">
                 <option value="">Select</option>
-                @foreach($category as $cat)
+                @foreach($assets_category as $cat)
                   <option value="{{$cat->id}}" {{ $cat->id == old('category_id') ? 'selected' : '' }}>{{$cat->cat_name}}</option>
                 @endforeach
                 <option value="-1" {{ old('category_id') == '-1'? 'selected' : '' }}>Other</option>
@@ -221,7 +229,7 @@
 
           <div class="form-group">
             <strong>Amount:</strong>
-            <input type="number" name="amount" class="form-control" value="{{ old('amount') }}">
+            <input type="number" name="amount" class="form-control" value="{{ old('amount') }}" step=".01">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
@@ -263,7 +271,14 @@
               <div class="alert alert-danger">{{$errors->first('usage')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Client Id:</strong>
+            <input type="text" name="client_id" class="form-control" value="{{ old('client_id') }}">
 
+            @if ($errors->has('client_id'))
+              <div class="alert alert-danger">{{$errors->first('client_id')}}</div>
+            @endif
+          </div>
 
         </div>
         <div class="modal-footer">
@@ -445,6 +460,14 @@
           </div>
 
           <div class="form-group">
+            <strong>Link:</strong>
+            <div class="addUpdIpName">
+              <input type="text" name="link" id="link" class="form-control" value="{{ old('link') }}">
+            </div>
+            {{-- <a href="javascript:void(0);" class="updIpNamebtn">Add Name</a> --}}
+          </div>
+
+          <div class="form-group">
             <strong>Folder Name:</strong>
             <input type="hidden" class="getServerUpdCount" value="0"/>
             <div class="addServerUpdate">
@@ -543,7 +566,7 @@
             <strong>Category:</strong>
             <select class="form-control" name="category_id" id="category_id2">
                 <option value="">Select</option>
-                @foreach($category as $cat)
+                @foreach($assets_category as $cat)
                   <option value="{{$cat->id}}" {{ $cat->id == old('category_id') ? 'selected' : '' }}>{{$cat->cat_name}}</option>
                 @endforeach
                 <option value="-1" {{ old('category_id') == '-1'? 'selected' : '' }}>Other</option>
@@ -597,7 +620,7 @@
 
           <div class="form-group">
             <strong>Amount:</strong>
-            <input type="number" name="amount" id="asset_amount" class="form-control" value="{{ old('amount') }}">
+            <input type="number" name="amount" id="asset_amount" class="form-control" value="{{ old('amount') }}" step=".01">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
@@ -638,6 +661,14 @@
 
             @if ($errors->has('usage'))
               <div class="alert alert-danger">{{$errors->first('usage')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Client Id:</strong>
+            <input type="text" id="client_id" name="client_id" class="form-control" value="{{ old('client_id') }}">
+
+            @if ($errors->has('client_id'))
+              <div class="alert alert-danger">{{$errors->first('client_id')}}</div>
             @endif
           </div>
 

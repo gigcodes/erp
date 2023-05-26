@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
+use App\Stage;
 use App\Product;
 use App\Setting;
-use App\Stage;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,7 +51,7 @@ class ProductSearcherController extends Controller
     public function update(Request $request, Product $productsearcher, Stage $stage)
     {
         $validations = [
-            'sku' => 'required_without:dnf|unique:products,sku,'.$productsearcher->id,
+            'sku' => 'required_without:dnf|unique:products,sku,' . $productsearcher->id,
         ];
 
         if ($request->input('oldImage') != 0) {
@@ -96,7 +96,7 @@ class ProductSearcherController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('product/'.floor($productsearcher->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/' . floor($productsearcher->id / config('constants.image_per_folder')))
                                         ->upload();
                 $productsearcher->attachMedia($media, config('constants.media_tags'));
             }

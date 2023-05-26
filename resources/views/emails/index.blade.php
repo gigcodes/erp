@@ -63,7 +63,7 @@
         <?php
           foreach ($email_status as $status) { ?>
         <option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
-        <?php } 
+        <?php }
           ?>
       </select>
     </div>
@@ -144,7 +144,7 @@
             <?php
               foreach ($email_status as $status) { ?>
             <option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
-            <?php } 
+            <?php }
               ?>
           </select>
         </div>
@@ -154,11 +154,11 @@
             <?php
               foreach ($email_categories as $category) { ?>
             <option value="<?php echo $category->id;?>" <?php if($category->id == Request::get('category')) echo "selected"; ?>><?php echo $category->category_name;?></option>
-            <?php } 
+            <?php }
               ?>
           </select>
         </div>
-        <div class="form-group px-2">
+        <div class="form-group px-2 mt-4">
           <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
             @foreach($emailModelTypes as $m => $module)
             <option value="{{$m}}">{{$module}}</option>
@@ -167,11 +167,16 @@
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
-        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+        <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
 </div>
+
+
+<button type="button" class="btn  custom-button" data-toggle="modal" data-target="#newModelColor">Model Color</button>
+
+<a href="{{ url('email/category/mappings') }}" class="btn custom-button float-right mb-2">View Category Mappings</a>
 <div class="table-responsive mt-3" style="margin-top:20px;">
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
@@ -188,6 +193,7 @@
         <th width="1%">Draft</th>
         <th width="6%">Error <br> Message</th>
         <th width="8%">Category</th>
+        <th width="8%">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -222,6 +228,18 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div id="reply-mail-content">
+      </div>
+    </div>
+  </div>
+</div>
+<div id="replyAllMail" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email reply all</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div id="reply-all-mail-content">
       </div>
     </div>
   </div>
@@ -278,8 +296,29 @@
         @csrf
         <div class="modal-body">
           <div class="form-group">
-            <input type="text" name="category_name" value="{{ old('category_name') }}" class="form-control" placeholder="Category Name">
+            <input type="text" name="category_name" value="{{ old('category_name') }}" class="form-control" placeholder="Category Name" required>
           </div>
+
+          <div class="form-group">
+            <select class="form-control" id="category_priority" name="priority">
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+                <option value="UNDEFINED">Undefined</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <select class="form-control" id="category_type" name="type">
+                <option value="read">Read</option>
+                <option value="unread">Unread</option>
+                <option value="sent">Sent</option>
+                <option value="trash">Trash</option>
+                <option value="draft">Draft</option>
+                <option value="queue">Queue</option>
+            </select>
+          </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Create</button>
@@ -341,7 +380,7 @@
                 @endfor
               </ul>
               @endif
-              @endif            
+              @endif
             </tbody>
           </table>
         </div>
@@ -364,6 +403,18 @@
           <div class="form-group">
             <input type="text" name="email_status" value="{{ old('email_status') }}" class="form-control" placeholder="Status">
           </div>
+
+          <div class="form-group">
+            <select class="form-control" id="status_type" name="type">
+                <option value="read">Read</option>
+                <option value="unread">Unread</option>
+                <option value="sent">Sent</option>
+                <option value="trash">Trash</option>
+                <option value="draft">Draft</option>
+                <option value="queue">Queue</option>
+            </select>
+          </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Create</button>
@@ -391,7 +442,7 @@
               <?php
                 foreach ($email_status as $status) { ?>
               <option value="<?php echo $status->id;?>"><?php echo $status->email_status;?></option>
-              <?php } 
+              <?php }
                 ?>
             </select>
           </div>
@@ -401,7 +452,7 @@
               <?php
                 foreach ($email_categories as $category) { ?>
               <option value="<?php echo $category->id;?>"><?php echo $category->category_name;?></option>
-              <?php } 
+              <?php }
                 ?>
             </select>
           </div>
@@ -463,7 +514,7 @@
           <!-- <div class="form-group">
             <label for="Status">Sub Platform</label>
             <select name="sub-platform" class="form-control">
-              
+
             </select>
             </div> -->
           <div class="modal-footer">
@@ -566,6 +617,165 @@
     </div>
   </div>
 </div>
+<div id="addReceiverReplyModal" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Receiver Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="post" id="addReceiverReplyForm">
+          @csrf
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody id="replyReceiverEmailBody">
+                  <tr id="reply_receiver_email_row_id_1">
+                    <td><input type="email" id="reply_receiver_email_id_1"  name="reply_receiver_emails[]" class="form-control" required></td>
+                    <td><button type="button" class="btn btn-primary" data-reply-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
+                  </tr>
+              </tbody>
+            </table>
+
+            <button class="btn btn-primary" type="submit">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="addReceiverReplyAllModal" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Receiver Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="post" id="addReceiverReplyAllForm">
+          @csrf
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody id="replyAllReceiverEmailBody">
+                  <tr id="reply_all_receiver_email_row_id_1">
+                    <td><input type="email" id="reply_all_receiver_email_id_1"  name="reply_all_receiver_emails[]" class="form-control" required></td>
+                    <td><button type="button" class="btn btn-primary" data-reply-all-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
+                  </tr>
+              </tbody>
+            </table>
+
+            <button class="btn btn-primary" type="submit">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- #DEVTASK - 23369 --}}
+<div id="assignModel" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Assign Model To Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <select name="model_name" class="form-control" id="model_name">
+          <option value="">Select a model</option>
+          <option value="customer">Customer</option>
+          <option value="vendor">Vendor</option>
+          <option value="supplier">Supplier</option>
+          <option value="user">User</option>
+        </select>
+        <input type="hidden" id="assign_model_email_id" value="">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary" onclick="assignModel()">Assign</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="newModelColor" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Model Color</h4>
+              {{-- <input type="text" id="searchModel" value="" placeholder="Search Model"> --}}
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <form action="{{ route('updateModelColor') }}" method="POST">
+              <?php echo csrf_field(); ?>
+              {{--                <div class="modal-content">--}}
+              <div class="form-group col-md-12">
+                  <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                      <th>
+                          <td class="text-center"><b>Model Name</b></td>
+                          <td class="text-center"><b>Color Code</b></td>
+                          <td class="text-center"><b>Color</b></td>
+                      </th>
+
+                      <tbody class="tbody">
+                      <?php
+                      foreach ($modelColors as $bugstatus) { ?>
+                      <tr>
+                          <td>&nbsp;&nbsp;&nbsp;<?php echo $bugstatus->model_name; ?></td>
+                          <td class="text-center"><?php echo $bugstatus->color_code; ?></td>
+                          <td class="text-center"><input type="color" name="color_name[<?php echo $bugstatus->id; ?>]" class="form-control" data-id="<?php echo $bugstatus->id; ?>" id="color_name_<?php echo $bugstatus->id; ?>" value="<?php echo $bugstatus->color_code; ?>" style="height:30px;padding:0px;"></td>
+                      </tr>
+                      <?php } ?>
+                      </tbody>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-secondary">Save changes</button>
+              </div>
+          </form>
+      </div>
+
+  </div>
+</div>
+{{-- END HERE --}}
+
+{{-- #DEVTASK - 23409 --}}
+
+<div id="categoryLog" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email Category Change Logs</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body emailCategoryLogs">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="statusLog" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email Status Change Logs</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body emailStatusLogs">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- END Here --}}
+
 @include('partials.modals.remarks')
 @endsection
 @section('scripts')
@@ -596,6 +806,127 @@
   $('.select_category').select2({
       placeholder:"Select Category",
   });
+
+  $('.select2-search__field').css('width', '100%')
+
+  $(document).on('click', '[data-reply-add-receiver-btn]', function (){
+    $('.reply-row-receiver-items').remove();
+
+    $('#addReceiverReplyModal').modal('show');
+  });
+
+  var replyReceiverCount = 1;
+
+  $(document).on('click', '[data-reply-add-receiver-email-btn]', function (){
+    replyReceiverCount += 1;
+    var receiverHtml = '<tr class="reply-row-receiver-items" id="reply_receiver_email_row_id_'+replyReceiverCount+'">';
+    receiverHtml += '<td><input type="email" id="reply_receiver_email_id_'+replyReceiverCount+'" name="reply_receiver_emails[]" class="form-control" required></td>';
+    receiverHtml += '<td><button type="button" class="btn btn-danger" data-reply-remove-receiver-email-btn row-id="'+replyReceiverCount+'"><i class="fa fa-close"></i></button></td>';
+    receiverHtml += '</tr>';
+
+    $('#replyReceiverEmailBody').append(receiverHtml);
+  });
+
+  $(document).on('click', '[data-reply-remove-receiver-email-btn]', function (){
+    var rowId = Number($(this).attr('row-id'));
+
+    $('#reply_receiver_email_row_id_'+rowId).remove();
+  });
+
+  //option A
+  $("#addReceiverReplyForm").submit(function(e){
+    e.preventDefault();
+
+    var receiverEmails = [];
+
+    $("input[name='reply_receiver_emails[]']").each(function (){
+      var receiverEmail = $(this).val();
+
+      receiverEmails.push(receiverEmail);
+    });
+
+    var currentReceiverEmails = $('#reply_receiver_email').val();
+    var currentReceiverEmailsArr = currentReceiverEmails.split('');
+
+    if(currentReceiverEmailsArr[0] == '['){
+      currentReceiverEmails = currentReceiverEmails.replace(/'/g, '"');
+      currentReceiverEmails = JSON.parse(currentReceiverEmails);
+    }else{
+      currentReceiverEmails = currentReceiverEmails.split(',');
+    }
+
+    if(receiverEmails.length > 0){
+      $.each(receiverEmails, function (k, v){
+        currentReceiverEmails.push(v);
+      });
+    }
+
+    $('#reply_receiver_email').val("[" + currentReceiverEmails.map(value => `"${value}"`).join(',') + "]");
+
+    $('#addReceiverReplyModal').modal('hide');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  $(document).on('click', '[data-reply-all-add-receiver-btn]', function (){
+    $('.reply-all-row-receiver-items').remove();
+
+    $('#addReceiverReplyAllModal').modal('show');
+  });
+
+  var replyAllReceiverCount = 1;
+
+  $(document).on('click', '[data-reply-all-add-receiver-email-btn]', function (){
+    replyAllReceiverCount += 1;
+    var receiverHtml = '<tr class="reply-all-row-receiver-items" id="reply_all_receiver_email_row_id_'+replyAllReceiverCount+'">';
+    receiverHtml += '<td><input type="email" id="reply_all_receiver_email_id_'+replyAllReceiverCount+'" name="reply_all_receiver_emails[]" class="form-control" required></td>';
+    receiverHtml += '<td><button type="button" class="btn btn-danger" data-reply-all-remove-receiver-email-btn row-id="'+replyAllReceiverCount+'"><i class="fa fa-close"></i></button></td>';
+    receiverHtml += '</tr>';
+
+    $('#replyAllReceiverEmailBody').append(receiverHtml);
+  });
+
+  $(document).on('click', '[data-reply-all-remove-receiver-email-btn]', function (){
+    var rowId = Number($(this).attr('row-id'));
+
+    $('#reply_all_receiver_email_row_id_'+rowId).remove();
+  });
+
+  //option A
+  $("#addReceiverReplyAllForm").submit(function(e){
+    e.preventDefault();
+
+    var receiverEmails = [];
+
+    $("input[name='reply_all_receiver_emails[]']").each(function (){
+      var receiverEmail = $(this).val();
+
+      receiverEmails.push(receiverEmail);
+    });
+
+    var currentReceiverEmails = $('#reply_all_receiver_email').val();
+    var currentReceiverEmailsArr = currentReceiverEmails.split('');
+
+    if(currentReceiverEmailsArr[0] == '['){
+      currentReceiverEmails = currentReceiverEmails.replace(/'/g, '"');
+      currentReceiverEmails = JSON.parse(currentReceiverEmails);
+    }else{
+      currentReceiverEmails = currentReceiverEmails.split(',');
+    }
+
+    if(receiverEmails.length > 0){
+      $.each(receiverEmails, function (k, v){
+        currentReceiverEmails.push(v);
+      });
+    }
+
+    $('#reply_all_receiver_email').val("[" + currentReceiverEmails.map(value => `"${value}"`).join(',') + "]");
+
+    $('#addReceiverReplyAllModal').modal('hide');
+  });
+
+  /////////////////////////////////////////////////////////////////////////////
+
   $(document).on('click', '.expand-row', function() {
       var selection = window.getSelection();
       if (selection.toString().length === 0) {
@@ -603,10 +934,10 @@
           $(this).find('.td-full-container').toggleClass('hidden');
       }
   });
-  
+
   $(".pagination-custom").on("click", ".page-link", function (e) {
           e.preventDefault();
-  
+
           var activePage = $(this).closest(".pagination").find(".active").text();
           var clickedPage = $(this).text();
           console.log(activePage+'--'+clickedPage);
@@ -616,9 +947,9 @@
           } else {
               get_data_pagination($(this).attr("href"));
           }
-  
+
       });
-  
+
   function get_data_pagination(url){
    console.log(window.url);
       $.ajax({
@@ -631,12 +962,12 @@
         $("#loading-image").hide();
           $("#email-table tbody").empty().append(response.tbody);
           $(".pagination-custom").html(response.links);
-  
+
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });
   }
-  
+
   function fetchEvents(originId) {
   if(originId == ''){
   $('#emailEventData').html('<tr><td>No Data Found.</td></tr>');
@@ -649,7 +980,7 @@
   });
   }
   }
-  
+
   function fetchEmailLog(email_id) {
   if(email_id == ''){
   $('#emailLogsData').html('<tr><td>No Data Found.</td></tr>');
@@ -662,12 +993,12 @@
   });
   }
   }
-  
+
       //$("#unread-tab").trigger("click");
-  
+
       var searchSuggestions = {!! json_encode(array_values($search_suggestions), true) !!};
       var _parentElement = $("#forwardMail")
-  
+
       // Limit dropdown to 10 emails and use appenTo to view dropdown on top of modal window.
       var options = {
           source: function (request, response) {
@@ -676,26 +1007,26 @@
               },
           appendTo : _parentElement
       };
-  
+
       // Following is required to load autocomplete on dynamic DOM
       var selector = '#forward-email';
       $(document).on('keydown.autocomplete', selector, function() {
           $(this).autocomplete(options);
       });
-  
+
       $(document).ready(function() {
         $('#email-datetime').datetimepicker({
             format: 'YYYY-MM-DD'
         });
         $("select[name='platform']").select2();
       });
-  
-  
+
+
   $(document).on('click', '.search-btn', function(e) {
     e.preventDefault();
     get_data();
   });
-  
+
   function get_data(){
     var term = $("#term").val();
     var date = $("#date").val();
@@ -712,7 +1043,7 @@
     var mail_box_name = $("#mail_box").val();
     var mail_box = mail_box_name.toString();
     var email_model_type = $('#email_model_type').val().toString();
-  
+
    console.log(window.url);
       $.ajax({
         url: 'email',
@@ -736,16 +1067,16 @@
         $("#loading-image").hide();
           $("#email-table tbody").empty().html(response.tbody);
           $(".pagination-custom").html(response.links);
-  
+
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });
   }
-  
+
   $(document).ready(function() {
     getEmailFilterOptions();
   });
-  
+
   function getEmailFilterOptions(){
     $.ajax({
       headers: {
@@ -759,17 +1090,17 @@
     }).done( function(response) {
       var sender = '@php echo Request::get('sender'); @endphp';
       var senderDropdownHtml = '';
-  
+
       $.each(response.senderDropdown, function(k, v){
         senderDropdownHtml += "<option value='"+v.from+"' "+(sender == v.from ? 'selected' : '')+">"+v.from+"</option>";
       });
       $('[data-email-sender-dropdown]').append(senderDropdownHtml);
-  
+
       var receiverName = '@php echo $receiver; @endphp';
       var from = '@php echo $from; @endphp';
       var receiver = '@php echo Request::get('receiver'); @endphp';
       var receiverDropdownHtml = '';
-  
+
       $.each(response.receiverDropdown, function(k, v){
         if(receiverName.length != 0 && from == 'order_data'){
           receiverDropdownHtml += "<option value='"+v.to+"' "+(receiverName == v.to ? 'selected' : '')+">"+v.to+"</option>";
@@ -778,27 +1109,36 @@
         }
       });
       $('[data-email-receiver-dropdown]').append(receiverDropdownHtml);
-  
+
       var mailBox = '@php echo Request::get('mail_box'); @endphp';
       var mailboxDropdownHtml = '';
-  
+
       $.each(response.mailboxDropdown, function(k, v){
         mailboxDropdownHtml += "<option value='"+v+"' "+(mailBox == v ? 'selected' : '')+">"+v+"</option>";
       });
       $('[data-email-mailbox-dropdown]').append(mailboxDropdownHtml);
-  
-      $('[data-email-sender-dropdown]').trigger('change.select2');
-      $('[data-email-receiver-dropdown]').trigger('change.select2');
-      $('[data-email-mailbox-dropdown]').trigger('change.select2');
-  
+
+      $('[data-email-sender-dropdown]').select2('destroy').select2({
+        placeholder:"Select sender"
+      });
+
+      $('[data-email-receiver-dropdown]').select2('destroy').select2({
+        placeholder:"Select Receiver"
+      });
+
+      $('[data-email-mailbox-dropdown]').select2('destroy').select2({
+        placeholder:"Select Mailbox"
+      });
+
+      $('.select2-search__field').css('width', '100%')
       // toastr['success'](response.message);
       // $("#loading-image").hide();
     }).fail(function(errObj) {
       // $("#loading-image").hide();
     });
   }
-  
-  
+
+
   $(document).on('click', '.resend-email-btn', function(e) {
     e.preventDefault();
     var $this = $(this);
@@ -822,7 +1162,7 @@
         $("#loading-image").hide();
       });
   });
-  
+
   $(document).on('click', '.reply-email-btn', function(e) {
     e.preventDefault();
     var $this = $(this);
@@ -843,7 +1183,30 @@
         $("#loading-image").hide();
       });
   });
-  
+
+  $(document).on('click', '.reply-all-email-btn', function(e) {
+    e.preventDefault();
+    var $this = $(this);
+      $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: '/email/replyAllMail/'+$this.data("id"),
+        type: 'get',
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+      }).done( function(response) {
+        $("#loading-image").hide();
+        // toastr['success'](response.message);
+        $("#reply-all-mail-content").html(response);
+      }).fail(function(errObj) {
+        $("#loading-image").hide();
+      });
+  });
+
+
+
   $(document).on('click', '.forward-email-btn', function(e) {
     e.preventDefault();
     var $this = $(this);
@@ -862,11 +1225,14 @@
         // $("#loading-image").hide();
       });
   });
-  
+
   $(document).on('click', '.submit-reply', function(e) {
     e.preventDefault();
+    var receiverEmail = $("#reply_receiver_email").val();
+    var replySubject = $("#reply_subject").val();
     var message = $("#reply-message").val();
     var reply_email_id = $("#reply_email_id").val();
+
       $.ajax({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -874,6 +1240,8 @@
         url: '/email/replyMail',
         type: 'post',
         data: {
+          'receiver_email': receiverEmail,
+          'subject': replySubject,
           'message': message,
           'reply_email_id': reply_email_id
         },
@@ -888,10 +1256,43 @@
         $("#replyMail").modal('hide');
         $("#loading-image").hide();
         toastr['error'](response.errors[0]);
-  
+
       });
   });
-  
+
+  $(document).on('click', '.submit-reply-all', function(e) {
+    e.preventDefault();
+    var receiverEmail = $("#reply_all_receiver_email").val();
+    var replySubject = $("#reply_all_subject").val();
+    var message = $("#reply-all-message").val();
+    var reply_email_id = $("#reply_all_email_id").val();
+
+      $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: '/email/replyAllMail',
+        type: 'post',
+        data: {
+          'receiver_email': receiverEmail,
+          'subject': replySubject,
+          'message': message,
+          'reply_email_id': reply_email_id
+        },
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+      }).done( function(response) {
+        $("#replyAllMail").modal('hide');
+        $("#loading-image").hide();
+        toastr['success'](response.message);
+      }).fail(function(errObj) {
+        $("#replyAllMail").modal('hide');
+        $("#loading-image").hide();
+        toastr['error'](response.errors[0]);
+      });
+  });
+
   $(document).on('click', '.submit-forward', function(e) {
     e.preventDefault();
     email = $("#forward-email").val();
@@ -913,21 +1314,21 @@
         $("#forwardMail").modal('hide');
         $("#loading-image").hide();
         toastr['success'](response.message);
-  
+
       }).fail(function(errObj) {
         $("#forwardMail").modal('hide');
         $("#loading-image").hide();
         toastr['error'](response.errors[0]);
-  
-  
+
+
       });
   });
-  
+
   $(document).on('click', '.mailupdate', function (e) {
-  
+
   $("#UpdateMail #email_category").val("").trigger('change');
   $("#UpdateMail #email_status").val("").trigger('change');
-  
+
   var email_id = $(this).data('id');
   var status = $(this).data('status');
   var category = $(this).data('category');
@@ -939,22 +1340,22 @@
   {
   $("#UpdateMail #email_status").val(status).trigger('change');
   }
-  
+
   $('#email_id').val(email_id);
-  
+
   });
-  
-  
+
+
   $(document).on('click', '.make-remark', function (e) {
           e.preventDefault();
-  
+
           var email_id = $(this).data('id');
-  
+
           console.log(email_id)
-  
+
           $('#add-remark input[name="id"]').val(email_id);
-         
-  
+
+
           $.ajax({
               type: 'GET',
               headers: {
@@ -981,11 +1382,11 @@
             toastr['error'](response.errors[0]);
           });;
       });
-  
+
       $('#addRemarkButton').on('click', function () {
           var id = $('#add-remark input[name="id"]').val();
           var remark = $('#add-remark').find('textarea[name="remark"]').val();
-  
+
           $.ajax({
               type: 'POST',
               headers: {
@@ -1004,9 +1405,9 @@
           }).fail(function (response) {
               alert('Could not fetch remarks');
           });
-  
+
       });
-  
+
       $(document).on('click', '.bin-email-btn', function(e) {
         e.preventDefault();
         var $this = $(this);
@@ -1020,10 +1421,10 @@
                   $("#loading-image").show();
               },
           }).done( function(response) {
-  
+
             // Delete current row from UI
             $('#'+$this.data("id")+"-email-row").remove()
-  
+
             $("#loading-image").hide();
             toastr['success'](response.message);
           }).fail(function(errObj) {
@@ -1031,7 +1432,7 @@
             toastr['error'](response.errors[0]);
           });
       });
-  
+
   $(document).on('click', '.cronEmailPage', function(e) {
       var page = $(this).attr('data-id');
       $.ajax({
@@ -1051,13 +1452,13 @@
         $('.cronEmailPagination li').removeClass('active');
         $('.cronEmailActive'+page).addClass('active');
         $('#getCronEmailModal').modal('show');
-  
+
         $("#loading-image").hide();
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });
   });
-  
+
   $(document).on('click', '.readmore', function() {
       $(this).parent('.lesstext').hide();
       $(this).parent('.lesstext').next('.alltext').show();
@@ -1066,48 +1467,48 @@
       $(this).parent('.alltext').hide();
       $(this).parent('.alltext').prev('.lesstext').show();
   });
-  
+
   $(document).on('change','.status',function(e){
-      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
-          $.ajax({
-                headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type : "POST",
-                url : "{{ route('changeStatus') }}",
-                data : {
-                  status_id : $('option:selected', this).val(),
-                  email_id : $('option:selected', this).attr('data-id')
-                },
-                success : function (response){
-                      location.reload();
-                },
-                error : function (response){
-  
-                }
-          })
-      }
+    if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+      $.ajax({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type : "POST",
+        url : "{{ route('changeStatus') }}",
+        data : {
+          status_id : $('option:selected', this).val(),
+          email_id : $('option:selected', this).attr('data-id')
+        },
+        success : function (response){
+          location.reload();
+        },
+        error : function (response){
+          //
+        }
+      })
+    }
   });
-  
+
   $(document).on('change','.email-category',function(e){
       if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
-          $.ajax({
-                headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type : "POST",
-                url : "{{ route('changeEmailCategory') }}",
-                data : {
-                  category_id : $('option:selected', this).val(),
-                  email_id : $('option:selected', this).attr('data-id')
-                },
-                success : function (response){
-                     location.reload();
-                },
-                error : function (response){
-  
-                }
-          })
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('changeEmailCategory') }}",
+          data : {
+            category_id : $('option:selected', this).val(),
+            email_id : $('option:selected', this).attr('data-id')
+          },
+          success : function (response){
+             location.reload();
+          },
+          error : function (response){
+            //
+          }
+        })
       }
   });
   // To set the iframe height based on content
@@ -1162,32 +1563,32 @@
             url: '/email/'+email.id+'/mark-as-read',
             type: 'put'
           }).done( function(response) {
-  
+
           }).fail(function(errObj) {
-  
+
           });
     }
-  
+
   }
-  
+
   function markEmailRead(email_id){
-  
+
   }
-  
+
   function load_data(type,seen){
     $('#type').val(type);
     $('#seen').val(seen);
-  
+
     get_data();
   }
-  
+
   function excelImporter(id) {
       $('#excel_import_email_id').val(id)
       $('#excelImporter').modal('toggle');
   }
-  
+
   function showFilesStatus(id) {
-  
+
       if( id ){
   $.ajax({
   headers: {
@@ -1196,7 +1597,7 @@
   data : {id},
   url: '/email/'+id+'/get-file-status',
   type: 'post',
-  
+
   beforeSend: function () {
   		$("#loading-image").show();
   	},
@@ -1207,7 +1608,7 @@
   	}else{
   		alert('Something went wrong')
   	}
-  	
+
   	$("#loading-image").hide();
   }).fail(function(errObj) {
   	$("#loading-image").hide();
@@ -1216,10 +1617,10 @@
   }else{
   alert('Something went wrong')
   }
-  
+
       // $('#excelImporter').modal('toggle');
   }
-  
+
   function importExcel() {
       id = $('#excel_import_email_id').val()
       supplier = $('#supplier_excel_import option:selected').val()
@@ -1243,17 +1644,17 @@
           });
       }else{
         alert('Please Select Supplier')
-        
+
       }
   }
-  
+
   function bulkAction(ele,type){
     let action_type = type;
     var val = [];
     $(':checkbox:checked').each(function(i){
       val[i] = $(this).val();
     });
-    
+
     if(val.length > 0){
         $.ajax({
           headers: {
@@ -1270,14 +1671,14 @@
                 location.reload();
           },
           error : function (response){
-  
+
           }
         })
-        
+
     }
-      
+
   }
-  
+
   function opnModal(message){
       console.log(message);
     $(document).find('#more-content').html(message);
@@ -1286,5 +1687,204 @@
     event.preventDefault();
     $('.labeling-form input[name="id"]').val($(this).data('id'));
   })
+
+  function Showactionbtn(id){
+    $(".action-btn-tr-"+id).toggleClass('d-none')
+  }
+
+  function openAssignModelPopup(ele){
+    var emailId = $(ele).data('id');
+    $('#assign_model_email_id').val(emailId);
+    $('#assignModel').modal();
+  }
+
+  function assignModel(){
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('assignModel') }}",
+          data : {
+              email_id : $('#assign_model_email_id').val(),
+              model_name : $('#model_name').val()
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  alert("User - ( " + $('#model_name').val() + " ) has been successfully created.");
+                }
+                location.reload();
+          },
+          error : function (response){
+
+          }
+        })
+  }
+
+  $('#searchModel').keypress(function(){
+    let modelname = $(this).val();
+
+    if(modelname.length > 3){
+      $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getModelNames') }}",
+          data : {
+              model_name : modelname
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.tbody').html('');
+                  $('.tbody').append(response.html);
+                }
+          },
+          error : function (response){
+
+          }
+        })
+    }
+  });
+
+
+  $(document).ready(function() {
+    let $emailContents = $(document).find('.emailBodyContent');
+
+    $emailContents.each(function() {
+      let $iframe = $(this).find('iframe');
+      let body = $(this).attr('data-body');
+      $($iframe).contents().find("body").html(body);
+    });
+  })
+
+  function openEmailCategoryChangeLogModelPopup(ele){
+    var email_id = $(ele).data('id');
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getEmailCategoryChangeLogs') }}",
+          data : {
+              email_id : email_id,
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.emailCategoryLogs').html('');
+                  $('.emailCategoryLogs').append(response.html);
+                  $('#categoryLog').modal();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function openEmailStatusChangeLogModelPopup(ele){
+    var email_id = $(ele).data('id');
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getEmailStatusChangeLogs') }}",
+          data : {
+              email_id : email_id,
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.emailStatusLogs').html('');
+                  $('.emailStatusLogs').append(response.html);
+                  $('#statusLog').modal();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function displayReplyCategory(ele){
+    let replyType = $(ele).val();
+    if(replyType == 'reply'){
+      $('#reply-category-div').show();
+      $('#store-website-div').hide();
+      $('#parent-category-div').hide();
+      $('#category-div').hide();
+      $('#sub-category-div').hide();
+      $('#reply-list-reply-div').hide();
+    }else{
+      $('#reply-category-div').hide();
+      $('#store-website-div').show();
+      $('#parent-category-div').show();
+      $('#category-div').show();
+      $('#sub-category-div').show();
+      $('#reply-list-reply-div').show();
+    }
+  }
+
+  function displayReplayList(ele){
+    let categoryId = $(ele).val();
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getReplyListByCategory') }}",
+          data : {
+              category_id : categoryId,
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.reply-div').html('');
+                  $('.reply-div').append(response.html);
+                  $('.reply-div').show();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function displayReplayListFromQuickReply(ele){
+    let storeWebsiteId = $('#storeWebsite').val();
+    let parentCategoryId = $('#parentCategory').val();
+    let categoryId = $('#categoryDrpDwn').val();
+    let subCategoryId = $(ele).val();
+
+    $.ajax({
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('getReplyListFromQuickReply') }}",
+          data : {
+            storeWebsiteId : storeWebsiteId,
+            parentCategoryId : parentCategoryId,
+            categoryId : categoryId,
+            subCategoryId : subCategoryId
+          },
+          success : function (response){
+                if(response.type == 'success'){
+                  $('.reply-div').html('');
+                  $('.reply-div').append(response.html);
+                  $('.reply-div').show();
+                }
+          },
+          error : function (response){
+
+          }
+    })
+  }
+
+  function setAsReply(ele){
+    var reply = $(ele).val();
+    $('.reply-message-textarea').text('')
+    $('.reply-message-textarea').text(reply);
+  }
+
 </script>
 @endsection

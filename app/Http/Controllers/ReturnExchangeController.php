@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\AutoReply;
-use App\Customer;
-use App\Email;
-use App\EmailAddress;
-use App\Events\RefundDispatched;
-use App\Http\Requests\CreateCouponRequest;
-use App\Jobs\UpdateReturnStatusMessageTpl;
-use App\MailinglistTemplate;
-use App\MailinglistTemplateCategory;
-use App\Order;
-use App\Product;
-use App\Reply;
-use App\ReturnExchange;
-use App\ReturnExchangeHistory;
-use App\ReturnExchangeStatus;
-use App\ReturnExchangeStatusLog;
 use Auth;
+use App\Email;
+use App\Order;
+use App\Reply;
+use Exception;
+use App\Product;
+use App\Customer;
+use App\AutoReply;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
-use Exception;
+use App\EmailAddress;
+use App\ReturnExchange;
+use App\MailinglistTemplate;
 use Illuminate\Http\Request;
+use App\ReturnExchangeStatus;
+use App\ReturnExchangeHistory;
+use App\Events\RefundDispatched;
+use App\ReturnExchangeStatusLog;
+use App\MailinglistTemplateCategory;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\CreateCouponRequest;
+use App\Jobs\UpdateReturnStatusMessageTpl;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class ReturnExchangeController extends Controller
@@ -60,7 +60,6 @@ class ReturnExchangeController extends Controller
      * save the exchange result
      *
      * @param Request
-     * @param $id
      *
      **/
     public function save(Request $request, $id)
@@ -215,11 +214,11 @@ class ReturnExchangeController extends Controller
             ->leftJoin('return_exchange_statuses as stat', 'stat.id', 'return_exchanges.status')
             ->latest('return_exchanges.created_at');
         if (! empty($params['customer_name'])) {
-            $returnExchange = $returnExchange->where('c.name', 'like', '%'.$params['customer_name'].'%');
+            $returnExchange = $returnExchange->where('c.name', 'like', '%' . $params['customer_name'] . '%');
         }
 
         if (! empty($params['customer_email'])) {
-            $returnExchange = $returnExchange->where('c.email', 'like', '%'.$params['customer_email'].'%');
+            $returnExchange = $returnExchange->where('c.email', 'like', '%' . $params['customer_email'] . '%');
         }
 
         if (! empty($params['customer_id'])) {
@@ -248,14 +247,14 @@ class ReturnExchangeController extends Controller
 
         if (! empty($params['product'])) {
             $returnExchange = $returnExchange->where(function ($q) use ($params) {
-                $q->orWhere('p.name', 'like', '%'.$params['product'].'%')
-                    ->orWhere('p.id', 'like', '%'.$params['product'].'%')
-                    ->orWhere('p.sku', 'like', '%'.$params['product'].'%');
+                $q->orWhere('p.name', 'like', '%' . $params['product'] . '%')
+                    ->orWhere('p.id', 'like', '%' . $params['product'] . '%')
+                    ->orWhere('p.sku', 'like', '%' . $params['product'] . '%');
             });
         }
 
         if (! empty($params['website'])) {
-            $returnExchange = $returnExchange->where('w.title', 'like', '%'.$params['website'].'%');
+            $returnExchange = $returnExchange->where('w.title', 'like', '%' . $params['website'] . '%');
         }
 
         $loggedInUser = auth()->user();
@@ -318,7 +317,6 @@ class ReturnExchangeController extends Controller
     /**
      * This function is used for update retuen Exchange status Log
      *
-     * @param  Request  $request
      * @return JsonResponce
      */
     public function updateExchangeStatuses(Request $request)
@@ -336,7 +334,7 @@ class ReturnExchangeController extends Controller
             if (empty($mailing_item_cat)) {
                 \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  -> Please add caregory Status Return exchange');
 
-                return response()->json(['code' => 500, 'message' => 'Please add caregory "Status Return exchange ExchangeID : #"'.$request->id]);
+                return response()->json(['code' => 500, 'message' => 'Please add caregory "Status Return exchange ExchangeID : #"' . $request->id]);
             }
 
             $mailing_item = MailinglistTemplate::select('html_text')->where('category_id', $mailing_item_cat->id)->where('html_text', '!=', '')->first();
@@ -348,16 +346,16 @@ class ReturnExchangeController extends Controller
                 if ($emailAddress) {
                     $from = $emailAddress->from_address;
                 } else {
-                    return response()->json(['code' => 500, 'message' => 'Cannot Find Email address ExchangeID : #"'.$request->id]);
+                    return response()->json(['code' => 500, 'message' => 'Cannot Find Email address ExchangeID : #"' . $request->id]);
                 }
             } else {
-                return response()->json(['code' => 500, 'message' => 'Website Id not found ExchangeID : #"'.$request->id]);
+                return response()->json(['code' => 500, 'message' => 'Website Id not found ExchangeID : #"' . $request->id]);
             }
 
             //dd($data->customer->email, '=='.$mailing_item->html_text. '==='.$data.'==='.$data->returnExchangeProducts. '==='.$from );
             $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, $mailing_item->html_text, $data, $from))->build();
             if ($emailClass == 'Template not found') {
-                return response()->json(['code' => 500, 'message' => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
+                return response()->json(['code' => 500, 'message' => 'Email priview not found. Please check e-mail template ExchangeID : #"' . $request->id]);
             }
 
             $preview = '';
@@ -365,24 +363,24 @@ class ReturnExchangeController extends Controller
             if ($emailClass != null) {
                 $preview = $emailClass->render();
             } else {
-                return response()->json(['code' => 500, 'message' => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
+                return response()->json(['code' => 500, 'message' => 'Email priview not found. Please check e-mail template ExchangeID : #"' . $request->id]);
             }
 
             $preview = "<table>
                     <tr>
                     <td>To</td><td>
-                    <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='".$data->customer->email."' >
+                    <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $data->customer->email . "' >
                     </td></tr><tr>
                     <td>From </td> <td>
-                    <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='".$from."' >
+                    <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                     </td></tr><tr>
-                    <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$preview.'</textarea></td>
+                    <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . '</textarea></td>
                     </tr>
             </table>';
 
             return response()->json(['code' => 200, 'data' => compact('data', 'preview', 'template')]);
         } catch (\Exception $e) {
-            \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  ->'.$e->getMessage());
+            \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  ->' . $e->getMessage());
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
@@ -394,7 +392,7 @@ class ReturnExchangeController extends Controller
         $id = $request->id;
         $returnExchange = \App\ReturnExchange::find($id);
         if (isset($request->status) && $request->status != '') {
-            $code = 'REFUND-'.date('Ym').'-'.rand(1000, 9999);
+            $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
 
             $requestData = new Request();
             $requestData->setMethod('POST');
@@ -422,7 +420,7 @@ class ReturnExchangeController extends Controller
                     'from' => $request->from_mail,
                     'to' => $request->to_mail,
                     'subject' => $request->message,
-                    'message' => 'Your refund coupon :'.$code.$request->custom_email_content,
+                    'message' => 'Your refund coupon :' . $code . $request->custom_email_content,
                     'template' => 'refund-coupon',
                     'additional_data' => $returnExchange->id,
                     'status' => 'pre-send',
@@ -434,7 +432,7 @@ class ReturnExchangeController extends Controller
 
                 //\App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
-                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :'.$code, $returnExchange->customer->storeWebsite->id);
+                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :' . $code, $returnExchange->customer->storeWebsite->id);
 
                 $response = json_decode($response->getContent());
                 if ($response->type == 'error') {
@@ -462,7 +460,7 @@ class ReturnExchangeController extends Controller
                         'from' => $request->from_mail,
                         'to' => $request->to_mail,
                         'subject' => $request->message,
-                        'message' => 'Your refund coupon :'.$code.$request->custom_email_content,
+                        'message' => 'Your refund coupon :' . $code . $request->custom_email_content,
                         'template' => 'refund-request',
                         'additional_data' => $returnExchange->id,
                         'status' => 'pre-send',
@@ -515,7 +513,7 @@ class ReturnExchangeController extends Controller
                     \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                 }
             } catch (\Exception $e) {
-                \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #158 ->'.$e->getMessage());
+                \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #158 ->' . $e->getMessage());
             }
         }
 
@@ -525,7 +523,6 @@ class ReturnExchangeController extends Controller
     /**
      * This function is used for List retuen Exchange status Log
      *
-     * @param  Request  $request
      * @return JsonResponce
      */
     public function listExchangeStatusesLog(Request $request)
@@ -586,7 +583,7 @@ class ReturnExchangeController extends Controller
                 $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
                 // dd($returnExchange->customer->storeWebsite->id);
 
-                $code = 'REFUND-'.date('Ym').'-'.rand(1000, 9999);
+                $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
@@ -614,7 +611,7 @@ class ReturnExchangeController extends Controller
                         'from' => $emailClass->fromMailer,
                         'to' => $returnExchange->customer->email,
                         'subject' => $emailClass->subject,
-                        'message' => 'Your refund coupon :'.$code,
+                        'message' => 'Your refund coupon :' . $code,
                         'template' => 'refund-coupon',
                         'additional_data' => $returnExchange->id,
                         'status' => 'pre-send',
@@ -624,7 +621,7 @@ class ReturnExchangeController extends Controller
 
                     $receiverNumber = $returnExchange->customer->phone;
 
-                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :'.$code, $returnExchange->customer->storeWebsite->id);
+                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :' . $code, $returnExchange->customer->storeWebsite->id);
 
                     $response = json_decode($response->getContent());
                     if ($response->type == 'error') {
@@ -704,7 +701,7 @@ class ReturnExchangeController extends Controller
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                     }
                 } catch (\Exception $e) {
-                    \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #158 ->'.$e->getMessage());
+                    \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #158 ->' . $e->getMessage());
                 }
             }
 
@@ -719,7 +716,7 @@ class ReturnExchangeController extends Controller
         $returnExchange = \App\ReturnExchange::find($id);
         $requestData = new CreateCouponRequest();
         $requestData->setMethod('POST');
-        $code = 'REFUND-'.date('Ym').'-'.rand(1000, 9999);
+        $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
 
         $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
 
@@ -849,7 +846,7 @@ class ReturnExchangeController extends Controller
             }
         }
 
-        return response()->json(['code' => 200, 'html' => $response]);
+        return response()->json(['code' => 200, 'html' => $response ?? 'Product not found.']);
     }
 
     public function product(Request $request, $id)
@@ -1103,7 +1100,7 @@ class ReturnExchangeController extends Controller
                 if ($replies) {
                     $html .= "<option value=''>Select Order Status</option>";
                     foreach ($replies as $reply) {
-                        $html .= '<option value="'.$reply->id.'">'.$reply->reply.'</option>';
+                        $html .= '<option value="' . $reply->id . '">' . $reply->reply . '</option>';
                     }
                 }
 
@@ -1177,7 +1174,7 @@ class ReturnExchangeController extends Controller
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
                 }
             } catch (\Exception $e) {
-                \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #694 ->'.$e->getMessage());
+                \Log::channel('productUpdates')->info('Sending mail issue at the returnexchangecontroller #694 ->' . $e->getMessage());
             }
         }
 
@@ -1189,7 +1186,7 @@ class ReturnExchangeController extends Controller
         $status = ReturnExchangeStatus::query();
         $websites = \App\StoreWebsite::all();
         if ($request->search != null) {
-            $status = $status->where('status_name', 'like', '%'.$request->search.'%');
+            $status = $status->where('status_name', 'like', '%' . $request->search . '%');
         }
 
         $status = $status->get();

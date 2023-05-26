@@ -165,36 +165,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-
-    <div class="modal fade" id="ajaxModelexaview" tabindex="-1" aria-labelledby="ModalLabel"  aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Edit</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12">
-                            <div class="form-group">
-                                <strong>Name:</strong>
-                                <p class="view_role_name"></p>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12">
-                            <div class="form-group">
-                                <strong>Permission:</strong>
-                                <br/>
-                                <div class="view_permission" style="word-break: break-all; font-size: 18px;"></div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-=======
     <div id="newCreateRole" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -237,7 +207,6 @@
                     <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
                 </div>
                 {!! Form::close() !!}
->>>>>>> 75f724c53 (roles in pop up)
             </div>
         </div>
     </div>
@@ -405,35 +374,31 @@
                 $('.permissions').html(data);
             });
         });
-<<<<<<< HEAD
-    </script>
-=======
-    }
+    
 
-    $('.search_role').on('keyup',function(){
-        var search_role = $('.search_role').val();
-        $.ajax({
-            url: "{{route('search_role')}}",
-            dataType: "json",
-            data: {search_role: search_role},
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
+        $('.search_role').on('keyup',function(){
+            var search_role = $('.search_role').val();
+            $.ajax({
+                url: "{{route('search_role')}}",
+                dataType: "json",
+                data: {search_role: search_role},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
 
-        }).done(function (data) {
-            $("#loading-image").hide();
-            var html = '<strong>Permission:</strong><br/>';
-            $.each(data, function(k, v) {
-                html +='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'+ k.id +'"><span style="padding-left: 4px;">'+ v.name+ '</span></label><br/>';
+            }).done(function (data) {
+                $("#loading-image").hide();
+                var html = '<strong>Permission:</strong><br/>';
+                $.each(data, function(k, v) {
+                    html +='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'+ k.id +'"><span style="padding-left: 4px;">'+ v.name+ '</span></label><br/>';
+                });
+                console.log(html);
+                $('.permissions').html(html);
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
             });
-            console.log(html);
-            $('.permissions').html(html);
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
         });
-    });
 </script>
->>>>>>> 75f724c53 (roles in pop up)
 
 @endsection

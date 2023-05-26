@@ -21,11 +21,14 @@ class PurchaseExport extends Mailable
 
     public $message;
 
+    public $fromMailer;
+
     public function __construct(string $path, string $subject, string $message)
     {
         $this->path = $path;
         $this->subject = $subject;
         $this->message = $message;
+        $this->fromMailer=\App\Helpers::getFromEmail();
     }
 
     /**
@@ -36,7 +39,7 @@ class PurchaseExport extends Mailable
     public function build()
     {
         return $this
-                    ->bcc('customercare@sololuxury.co.in')
+                    ->bcc($this->fromMailer)
                     ->subject($this->subject)
                     ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])
                     ->attachFromStorageDisk('files', $this->path);

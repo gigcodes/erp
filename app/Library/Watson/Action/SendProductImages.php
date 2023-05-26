@@ -3,8 +3,8 @@
 namespace App\Library\Watson\Action;
 
 use App\Brand;
-use App\Category;
 use App\Product;
+use App\Category;
 
 class SendProductImages
 {

@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
 use PhpMyAdmin\Url;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Provides common methods for all of the link transformations plugins.
@@ -42,7 +42,7 @@ abstract class ImageLinkTransformationsPlugin extends TransformationsPlugin
         // https://wiki.phpmyadmin.net/pma/Page_loader#Bypassing_the_page_loader
         $link = '<a class="disableAjax" target="_blank" rel="noopener noreferrer" href="';
         $link .= Url::getFromRoute('/transformation/wrapper', $options['wrapper_params']);
-        $link .= '" alt="['.htmlspecialchars($buffer);
+        $link .= '" alt="[' . htmlspecialchars($buffer);
         $link .= ']">[BLOB]</a>';
 
         return $link;

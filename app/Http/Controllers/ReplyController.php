@@ -2,29 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use App\Reply;
+use App\Setting;
+use App\ReplyCategory;
+use App\WatsonAccount;
 use App\ChatbotQuestion;
-use App\ChatbotQuestionExample;
+use App\StoreWebsitePage;
+use App\TranslateReplies;
+use App\ReplyUpdateHistory;
+use Illuminate\Http\Request;
 use App\ChatbotQuestionReply;
+use App\ChatbotQuestionExample;
+use Illuminate\Support\Facades\DB;
+use App\Jobs\ProcessTranslateReply;
+use function GuzzleHttp\json_encode;
+use Illuminate\Support\Facades\Auth;
 use App\Models\QuickRepliesPermissions;
 use App\Models\RepliesTranslatorHistory;
-use App\Reply;
-use App\ReplyCategory;
-use App\ReplyUpdateHistory;
-use App\Setting;
-use App\StoreWebsitePage;
-use App\User;
-use App\WatsonAccount;
-use App\GoogleFiletranslatorFile;
-use App\GoogleTranslate;
-use App\Language;
-use App\Translations;
-use App\TranslateReplies;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use function GuzzleHttp\json_encode;
-use App\Jobs\ProcessTranslateReply;
-
 
 class ReplyController extends Controller
 {
@@ -35,13 +30,12 @@ class ReplyController extends Controller
 
     public function index(Request $request)
     {
-
         $reply_categories = ReplyCategory::all();
 
         $replies = Reply::oldest();
 
         if (! empty($request->keyword)) {
-            $replies->where('reply', 'LIKE', '%'.$request->keyword.'%');
+            $replies->where('reply', 'LIKE', '%' . $request->keyword . '%');
         }
 
         if (! empty($request->category_id)) {
@@ -73,7 +67,6 @@ class ReplyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request, Reply $reply)
@@ -95,6 +88,21 @@ class ReplyController extends Controller
         return redirect()->route('reply.index')->with('success', 'Quick Reply added successfully');
     }
 
+    public function categorySetDefault(Request $request)
+    {
+        if($request->has('model') && $request->has('cat_id')){
+            $model=$request->model;
+            $cat_id=$request->cat_id;
+            $ReplyCategory=\App\ReplyCategory::find($cat_id);
+            if ($ReplyCategory) {
+                $ReplyCategory->default_for=$model;
+                $ReplyCategory->save();
+                return response()->json(['success' => true, 'message' => 'Category Assignments Successfully']);
+            }
+            return response()->json(['success' => false, 'message' => 'The Reply Category data was not found']);
+        }
+        return response()->json(['success' => false, 'message' => 'The requested data was not found']);
+    }
     public function categoryStore(Request $request)
     {
         $this->validate($request, [
@@ -137,7 +145,6 @@ class ReplyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -148,12 +155,12 @@ class ReplyController extends Controller
             'model' => 'required',
         ]);
 
-        $data               =   $request->except('_token', '_method');
+        $data = $request->except('_token', '_method');
 
-        $reply->is_pushed   =   0;
+        $reply->is_pushed = 0;
         $reply->update($data);
 
-        (new \App\Models\ReplyLog)->addToLog($reply->id, 'System updated FAQ', 'Updated' );
+        (new \App\Models\ReplyLog)->addToLog($reply->id, 'System updated FAQ', 'Updated');
 
         return redirect()->route('reply.index')->with('success', 'Quick Reply updated successfully');
     }
@@ -174,45 +181,40 @@ class ReplyController extends Controller
         return redirect()->route('reply.index')->with('success', 'Quick Reply Deleted successfully');
     }
 
-    public function removepermissions(Request $request){
-        if($request->type == 'remove_permission')
-        {
-            $edit_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->edit_lang_name)->where('action','edit')->get();
-            $view_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->view_lang_name)->where('action','view')->get();
+    public function removepermissions(Request $request)
+    {
+        if ($request->type == 'remove_permission') {
+            $edit_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id', $request->edit_lang_name)->where('action', 'edit')->get();
+            $view_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id', $request->view_lang_name)->where('action', 'view')->get();
 
-            foreach($edit_data as $edit_lang)
-            {
+            foreach ($edit_data as $edit_lang) {
                 $edit_lang->delete();
             }
 
-            foreach($view_data as $view_lang)
-            {
+            foreach ($view_data as $view_lang) {
                 $view_lang->delete();
             }
 
             return redirect()->back()->with('success', 'Remove Permission successfully');
-
-        }else{
+        } else {
             $checkExists = QuickRepliesPermissions::where('user_id', $request->id)->get();
             $edit_lang = [];
             $view_lang = [];
-            foreach($checkExists as $checkExist)
-            {
-                if($checkExist->action == 'edit')
-                {
+            foreach ($checkExists as $checkExist) {
+                if ($checkExist->action == 'edit') {
                     $edit_lang[] = $checkExist->lang_id;
                 }
-                if($checkExist->action == 'view')
-                {
+                if ($checkExist->action == 'view') {
                     $view_lang[] = $checkExist->lang_id;
                 }
             }
 
             $data = [
-                'edit_lang' => $edit_lang ,
+                'edit_lang' => $edit_lang,
                 'view_lang' => $view_lang,
                 'status' => '200',
             ];
+
             return $data;
         }
     }
@@ -299,7 +301,7 @@ class ReplyController extends Controller
 
         if (! empty($keyword)) {
             $replies = $replies->where(function ($q) use ($keyword) {
-                $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
+                $q->orWhere('reply_categories.name', 'LIKE', '%' . $keyword . '%')->orWhere('replies.reply', 'LIKE', '%' . $keyword . '%');
             });
         }
         if (! empty($parent_category)) {
@@ -396,14 +398,14 @@ class ReplyController extends Controller
                     foreach ($topParents as $topParent) {
                         $faqToPush .= '<div class="cls_shipping_panelsub">
 						<div id="shopPlaceOrder" class="accordion_head" role="tab">
-							<h4 class="panel-title"><a role="button" href="javascript:;" class="cls_abtn"> '.$topParent['name'].' </a><span class="plusminus">-</span></h4>
+							<h4 class="panel-title"><a role="button" href="javascript:;" class="cls_abtn"> ' . $topParent['name'] . ' </a><span class="plusminus">-</span></h4>
 						</div> <div class="accordion_body" style="display: block;">';
                         $questions = \App\ReplyCategory::where('parent_id', $topParent['id'])->get();
                         foreach ($questions as $question) {
                             $answer = Reply::where('category_id', $question['id'])->first();
                             if ($answer != null) {
-                                $faqToPush .= '<p class="md-paragraph"><strong>'.$question['name'].'</strong></p>
-									<p class="md-paragraph"> '.$answer['reply'].' </p>';
+                                $faqToPush .= '<p class="md-paragraph"><strong>' . $question['name'] . '</strong></p>
+									<p class="md-paragraph"> ' . $answer['reply'] . ' </p>';
                             }
                         }
                         $faqToPush .= '</div></div>';
@@ -427,44 +429,41 @@ class ReplyController extends Controller
     public function getReplyedHistory(Request $request)
     {
         $id = $request->id;
-        $reply_histories = DB::select(DB::raw('SELECT reply_update_histories.id,reply_update_histories.reply_id,reply_update_histories.user_id,reply_update_histories.last_message,reply_update_histories.created_at,users.name FROM `reply_update_histories` JOIN `users` ON users.id = reply_update_histories.user_id where reply_update_histories.reply_id = '.$id));
+        $reply_histories = DB::select(DB::raw('SELECT reply_update_histories.id,reply_update_histories.reply_id,reply_update_histories.user_id,reply_update_histories.last_message,reply_update_histories.created_at,users.name FROM `reply_update_histories` JOIN `users` ON users.id = reply_update_histories.user_id where reply_update_histories.reply_id = ' . $id));
 
         return response()->json(['histories' => $reply_histories]);
     }
 
     public function replyTranslate(Request $request)
     {
-
         $id = $request->reply_id;
         $is_flagged_request = $request->is_flagged;
 
-        if($is_flagged_request == '1'){
+        if ($is_flagged_request == '1') {
             $is_flagged = 0;
         } else {
             $is_flagged = 1;
         }
-       
-        if($is_flagged == '1') {  
-            $record     =   \App\Reply::find($id);           
-            if ($record) {  
 
-                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('reply_translation');
+        if ($is_flagged == '1') {
+            $record = \App\Reply::find($id);
+            if ($record) {
+                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('replytranslation');
 
-                $record->is_flagged     =   1;
+                $record->is_flagged = 1;
                 $record->save();
-                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Set For Translatation']);                              
-            }    
+
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Set For Translatation']);
+            }
 
             return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
-           
         } else {
-            $res_rec = \App\Reply::find($id);  
+            $res_rec = \App\Reply::find($id);
             $res_rec->is_flagged = 0;
             $res_rec->save();
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Translation off successfully']);
-
         }
-
     }
 
     public function replyTranslateList(Request $request)
@@ -476,7 +475,7 @@ class ReplyController extends Controller
         ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
         ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
         ->where('model', 'Store Website')->where('replies.is_flagged', '1')
-        ->select(['replies.*','translate_replies.status','translate_replies.replies_id as replies_id','replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id','translate_replies.id as id','translate_replies.translate_from','translate_replies.translate_to','translate_replies.translate_text','translate_replies.created_at','translate_replies.updated_at']);
+        ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
 
         if ($storeWebsite > 0) {
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
@@ -484,7 +483,7 @@ class ReplyController extends Controller
 
         if (! empty($keyword)) {
             $replies = $replies->where(function ($q) use ($keyword) {
-                $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
+                $q->orWhere('reply_categories.name', 'LIKE', '%' . $keyword . '%')->orWhere('replies.reply', 'LIKE', '%' . $keyword . '%');
             });
         }
 
@@ -495,10 +494,9 @@ class ReplyController extends Controller
         $ids = [];
         $translate_text = [];
         foreach ($replies as  $replie) {
-            if(!in_array($replie->replies_id ,$ids))
-            {
+            if (! in_array($replie->replies_id, $ids)) {
                 $ids[] = $replie->replies_id;
-                $translate_text[$replie->replies_id] =  [
+                $translate_text[$replie->replies_id] = [
                     'id' => $replie->id,
                     'website' => $replie->website,
                     'category_name' => $replie->category_name,
@@ -511,22 +509,21 @@ class ReplyController extends Controller
                     'created_at' => $replie->created_at,
                     'updated_at' => $replie->updated_at,
                 ];
-            }else{
-                array_push($translate_text[$replie->replies_id]['translate_text'],[$replie->translate_to => $replie->translate_text]);
+            } else {
+                array_push($translate_text[$replie->replies_id]['translate_text'], [$replie->translate_to => $replie->translate_text]);
                 array_push($translate_text[$replie->replies_id]['translate_lang'], $replie->translate_to);
                 array_push($translate_text[$replie->replies_id]['translate_id'], $replie->id);
                 array_push($translate_text[$replie->replies_id]['translate_status'], $replie->status);
             }
 
-           if(!in_array($replie->translate_to , $lang))
-           {
+            if (! in_array($replie->translate_to, $lang)) {
                 $lang[$replie->id] = $replie['translate_to'];
-           }
+            }
         }
 
         $replies = json_encode($translate_text);
 
-        return view('reply.translate-list', compact('replies','lang'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('reply.translate-list', compact('replies', 'lang'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function quickRepliesPermissions(Request $request)
@@ -550,10 +547,9 @@ class ReplyController extends Controller
     {
         $record = TranslateReplies::find($request->record_id);
         $oldRecord = $request->lang_id;
-        if($record)
-        {
-            $record->updated_by_user_id = !empty($request->update_by_user_id) ? $request->update_by_user_id : '';
-            $record->translate_text = !empty($request->update_record)?$request->update_record:"";
+        if ($record) {
+            $record->updated_by_user_id = ! empty($request->update_by_user_id) ? $request->update_by_user_id : '';
+            $record->translate_text = ! empty($request->update_record) ? $request->update_record : '';
             $record->status = 'new';
             $record->update();
 
@@ -567,7 +563,7 @@ class ReplyController extends Controller
             RepliesTranslatorHistory::insert($historyData);
 
             return redirect()->back()->with(['success' => 'Successfully Updated']);
-        }else{
+        } else {
             return redirect()->back()->withErrors('Something Wrong');
         }
     }
@@ -576,14 +572,13 @@ class ReplyController extends Controller
     {
         $key = $request->key;
         $language = $request->language;
-        if($request->type == 'all_view')
-        {
+        if ($request->type == 'all_view') {
             $history = RepliesTranslatorHistory::whereRaw('status is not null')->get();
-        }else{
+        } else {
             $history = RepliesTranslatorHistory::where([
-                                                   'translate_replies_id' => $request->id,
-                                                   'lang' => $language,
-                                               ])->whereRaw('status is not null')->get();
+                'translate_replies_id' => $request->id,
+                'lang' => $language,
+            ])->whereRaw('status is not null')->get();
         }
         if (count($history) > 0) {
             foreach ($history as $key => $historyData) {
@@ -591,39 +586,39 @@ class ReplyController extends Controller
                 $history[$key]['approver'] = User::where('id', $historyData['approved_by_user_id'])->pluck('name')->first();
             }
         }
-        $html ='';
-        foreach($history as $key => $value){
-                $ar = ($value->lang == 'ar') ? $value->translate_text:'';
-                $en = ($value->lang == 'en') ? $value->translate_text:'';
-                $zh = ($value->lang == 'zh-CN') ? $value->translate_text:'';
-                $ja = ($value->lang == 'ja') ? $value->translate_text:'';
-                $ko = ($value->lang == 'ko') ? $value->translate_text:'';
-                $ur = ($value->lang == 'ur') ? $value->translate_text:'';
-                $ru = ($value->lang == 'ru') ? $value->translate_text:'';
-                $it = ($value->lang == 'it') ? $value->translate_text:'';
-                $fr = ($value->lang == 'fr') ? $value->translate_text:'';
-                $es = ($value->lang == 'es') ? $value->translate_text:'';
-                $nl = ($value->lang == 'nl') ? $value->translate_text:'';
-                $de = ($value->lang == 'de') ? $value->translate_text:'';
+        $html = '';
+        foreach ($history as $key => $value) {
+            $ar = ($value->lang == 'ar') ? $value->translate_text : '';
+            $en = ($value->lang == 'en') ? $value->translate_text : '';
+            $zh = ($value->lang == 'zh-CN') ? $value->translate_text : '';
+            $ja = ($value->lang == 'ja') ? $value->translate_text : '';
+            $ko = ($value->lang == 'ko') ? $value->translate_text : '';
+            $ur = ($value->lang == 'ur') ? $value->translate_text : '';
+            $ru = ($value->lang == 'ru') ? $value->translate_text : '';
+            $it = ($value->lang == 'it') ? $value->translate_text : '';
+            $fr = ($value->lang == 'fr') ? $value->translate_text : '';
+            $es = ($value->lang == 'es') ? $value->translate_text : '';
+            $nl = ($value->lang == 'nl') ? $value->translate_text : '';
+            $de = ($value->lang == 'de') ? $value->translate_text : '';
 
-                        $html .= '<tr><td>'.$value->id.'</td>';
-                        $html .= '<td>scrollToSeeMoreImages</td>';
-                        $html .= '<td>'.$ar.'</td>';
-                        $html .= '<td>'.$en.'</td>';
-                        $html .= '<td>'.$zh.'</td>';
-                        $html .= '<td>'.$ja.'</td>';
-                        $html .= '<td>'.$ko.'</td>';
-                        $html .= '<td>'.$ur.'</td>';
-                        $html .= '<td>'.$ru.'</td>';
-                        $html .= '<td>'.$it.'</td>';
-                        $html .= '<td>'.$fr.'</td>';
-                        $html .= '<td>'.$es.'</td>';
-                        $html .= '<td>'.$nl.'</td>';
-                        $html .= '<td>'.$de.'</td>';
-                        $html .= '<td>'.$value->updater.'</td>';
-                        $html .= '<td>'.$value->approver.'</td>';
-                        $html .= '<td>'.$value->created_at.'</td>';
-                        $html .='</tr>';
+            $html .= '<tr><td>' . $value->id . '</td>';
+            $html .= '<td>scrollToSeeMoreImages</td>';
+            $html .= '<td>' . $ar . '</td>';
+            $html .= '<td>' . $en . '</td>';
+            $html .= '<td>' . $zh . '</td>';
+            $html .= '<td>' . $ja . '</td>';
+            $html .= '<td>' . $ko . '</td>';
+            $html .= '<td>' . $ur . '</td>';
+            $html .= '<td>' . $ru . '</td>';
+            $html .= '<td>' . $it . '</td>';
+            $html .= '<td>' . $fr . '</td>';
+            $html .= '<td>' . $es . '</td>';
+            $html .= '<td>' . $nl . '</td>';
+            $html .= '<td>' . $de . '</td>';
+            $html .= '<td>' . $value->updater . '</td>';
+            $html .= '<td>' . $value->approver . '</td>';
+            $html .= '<td>' . $value->created_at . '</td>';
+            $html .= '</tr>';
         }
 
         return response()->json(['status' => 200, 'data' => $html]);
@@ -636,21 +631,21 @@ class ReplyController extends Controller
         $record['approved_by_user_id'] = \Auth::user()->id;
         $record->update();
 
-        $record_history = RepliesTranslatorHistory::where('translate_replies_id', $request->id)->where('lang',$request->lang)->orderBy('id', 'desc')->first();
+        $record_history = RepliesTranslatorHistory::where('translate_replies_id', $request->id)->where('lang', $request->lang)->orderBy('id', 'desc')->first();
         $record_history['status'] = $request->status;
         $record_history['approved_by_user_id'] = \Auth::user()->id;
         $record_history->update();
 
-        function show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
-
-            $data   =   $request->all();
-
-            $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
-            $paginateHtml   =   $data->links()->render();
-            return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
-
-        }
-      
         return response()->json(['status' => 200]);
+    }
+
+    public function show_logs(Request $request, \App\Models\ReplyLog $ReplyLog)
+    {
+        $data = $request->all();
+
+        $data = $ReplyLog->where('reply_id', $data['id'])->orderby('created_at', 'desc')->paginate(20);
+        $paginateHtml = $data->links()->render();
+
+        return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
     }
 }

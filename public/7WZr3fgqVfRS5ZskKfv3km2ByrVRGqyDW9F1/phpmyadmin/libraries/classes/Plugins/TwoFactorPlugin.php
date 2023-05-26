@@ -8,14 +8,14 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins;
 
 use function __;
+use function strlen;
+use PhpMyAdmin\Core;
+use function sprintf;
 use function is_array;
 use function parse_url;
-use PhpMyAdmin\Core;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\TwoFactor;
-use function sprintf;
-use function strlen;
 
 /**
  * Two factor authentication plugin class
@@ -170,7 +170,7 @@ class TwoFactorPlugin
         if ($return_url) {
             $port = '';
             if (isset($parsed['port'])) {
-                $port = ':'.$parsed['port'];
+                $port = ':' . $parsed['port'];
             }
 
             return sprintf('%s://%s%s', $parsed['scheme'], $parsed['host'], $port);

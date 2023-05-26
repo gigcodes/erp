@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\BulkCustomerRepliesKeyword;
-use App\CronJobReport;
 use App\Customer;
-use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\BulkCustomerRepliesKeyword;
+use App\Services\BulkCustomerMessage\KeywordsChecker;
+use App\Helpers\LogHelper;
 
 class MakeKeywordAndCustomersIndex extends Command
 {
@@ -29,8 +30,6 @@ class MakeKeywordAndCustomersIndex extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @param  KeywordsChecker  $checker
      */
     public function __construct(KeywordsChecker $checker)
     {
@@ -47,6 +46,8 @@ class MakeKeywordAndCustomersIndex extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
@@ -57,15 +58,22 @@ class MakeKeywordAndCustomersIndex extends Command
                 $this->checker->assignCustomerAndKeyword($keywords, $customers);
             });
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'BulkCustomerRepliesKeyword model query finished']);
+
             $keywords = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
             $customers = Customer::all();
             $this->checker->assignCustomerAndKeyword($keywords, $customers);
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Assign customers and keyword process was finished']);
+
             BulkCustomerRepliesKeyword::where('is_processed', 0)->update([
                 'is_processed' => 1,
             ]);
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

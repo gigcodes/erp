@@ -3,23 +3,18 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Illuminate\Http\Request;
+use App\Helpers\GoogleAdsHelper;
+use Google\Ads\GoogleAds\V12\Resources\Ad;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
-use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
-use Google\Ads\GoogleAds\V12\Common\ResponsiveSearchAdInfo;
-use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
-use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
-use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
-use Google\Ads\GoogleAds\V12\Resources\Ad;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
-use Illuminate\Http\Request;
+use Google\Ads\GoogleAds\V12\Common\ResponsiveSearchAdInfo;
+use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
 
-use App\Helpers\GoogleAdsHelper;
+use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
 
 class GoogleAdsController extends Controller
 {
@@ -31,9 +26,9 @@ class GoogleAdsController extends Controller
     public function getstoragepath($account_id)
     {
         $result = \App\GoogleAdsAccount::find($account_id);
-        if (\Storage::disk('adsapi')->exists($account_id.'/'.$result->config_file_path)) {
-            $storagepath = \Storage::disk('adsapi')->url($account_id.'/'.$result->config_file_path);
-            $storagepath = storage_path('app/adsapi/'.$account_id.'/'.$result->config_file_path);
+        if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
+            $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
+            $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
             /* echo $storagepath; exit;
         echo storage_path('adsapi_php.ini'); exit; */
             /* echo '<pre>' . print_r($result, true) . '</pre>';
@@ -77,25 +72,25 @@ class GoogleAdsController extends Controller
 
         if ($request->headline) {
             $query = $query->where(function ($q) use ($request) {
-                $q->where('headline1', 'LIKE', '%'.$request->headline.'%')->orWhere('headline2', 'LIKE', '%'.$request->headline.'%')
-                    ->orWhere('headline3', 'LIKE', '%'.$request->headline.'%');
+                $q->where('headline1', 'LIKE', '%' . $request->headline . '%')->orWhere('headline2', 'LIKE', '%' . $request->headline . '%')
+                    ->orWhere('headline3', 'LIKE', '%' . $request->headline . '%');
             });
         }
 
         if ($request->description) {
             $query = $query->where(function ($q) use ($request) {
-                $q->where('description1', 'LIKE', '%'.$request->description.'%')->orWhere('description2', 'LIKE', '%'.$request->description.'%');
+                $q->where('description1', 'LIKE', '%' . $request->description . '%')->orWhere('description2', 'LIKE', '%' . $request->description . '%');
             });
         }
 
         if ($request->path) {
             $query = $query->where(function ($q) use ($request) {
-                $q->where('path1', 'LIKE', '%'.$request->path.'%')->orWhere('path2', 'LIKE', '%'.$request->path.'%');
+                $q->where('path1', 'LIKE', '%' . $request->path . '%')->orWhere('path2', 'LIKE', '%' . $request->path . '%');
             });
         }
 
         if ($request->final_url) {
-            $query = $query->where('final_url', 'LIKE', '%'.$request->final_url.'%');
+            $query = $query->where('final_url', 'LIKE', '%' . $request->final_url . '%');
         }
 
         if ($request->ads_status) {
@@ -114,12 +109,12 @@ class GoogleAdsController extends Controller
 
         $totalEntries = $adsInfo->total();
 
-        // Insert google ads log 
-        $input = array(
-                    'type' => 'SUCCESS',
-                    'module' => 'Ad',
-                    'message' => "Viewed ad listing for ". $groupDetail->ad_group_name
-                );
+        // Insert google ads log
+        $input = [
+            'type' => 'SUCCESS',
+            'module' => 'Ad',
+            'message' => 'Viewed ad listing for ' . $groupDetail->ad_group_name,
+        ];
         insertGoogleAdsLog($input);
 
         return view('googleads.index', ['ads' => $adsInfo, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'adGroupId' => $adGroupId, 'groupname' => @$groupDetail->ad_group_name]);
@@ -193,12 +188,12 @@ class GoogleAdsController extends Controller
     {
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
-        // Insert google ads log 
-        $input = array(
-                    'type' => 'SUCCESS',
-                    'module' => 'Ad',
-                    'message' => "Viewed ad create for ". $groupDetail->ad_group_name
-                );
+        // Insert google ads log
+        $input = [
+            'type' => 'SUCCESS',
+            'module' => 'Ad',
+            'message' => 'Viewed ad create for ' . $groupDetail->ad_group_name,
+        ];
         insertGoogleAdsLog($input);
 
         return view('googleads.create', ['campaignId' => $campaignId, 'adGroupId' => $adGroupId]);
@@ -249,7 +244,7 @@ class GoogleAdsController extends Controller
         $adsArray['path1'] = $path1;
         $adsArray['path2'] = $path2;
         $adsArray['status'] = $adStatus;
-        
+
         try {
             // Generate a refreshable OAuth2 credential for authentication.
             $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
@@ -267,19 +262,19 @@ class GoogleAdsController extends Controller
                     ],
                     'descriptions' => [
                         self::createAdTextAsset($description1, ServedAssetFieldType::DESCRIPTION_1),
-                        self::createAdTextAsset($description2, ServedAssetFieldType::DESCRIPTION_2)
+                        self::createAdTextAsset($description2, ServedAssetFieldType::DESCRIPTION_2),
                     ],
                     'path1' => $path1 ?? null,
-                    'path2' => $path2 ?? null
+                    'path2' => $path2 ?? null,
                 ]),
-                'final_urls' => [$finalUrl]
+                'final_urls' => [$finalUrl],
             ]);
 
             // Creates an ad group ad to hold the above ad.
             $adGroupAd = new AdGroupAd([
                 'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
                 'status' => self::getAdStatus($adStatus),
-                'ad' => $ad
+                'ad' => $ad,
             ]);
 
             // Creates an ad group ad operation.
@@ -293,30 +288,30 @@ class GoogleAdsController extends Controller
             $createdAdGroupAd = $response->getResults()[0];
             $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
-            $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, "~") + 1);
+            $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, '~') + 1);
             $adsArray['ads_response'] = json_encode($createdAdGroupAd);
             \App\GoogleAd::create($adsArray);
 
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'SUCCESS',
-                        'module' => 'Ad',
-                        'message' => "Created ad for ". $groupDetail->ad_group_name,
-                        'response' => json_encode($adsArray)
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'SUCCESS',
+                'module' => 'Ad',
+                'message' => 'Created ad for ' . $groupDetail->ad_group_name,
+                'response' => json_encode($adsArray),
+            ];
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads created successfully');
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads created successfully');
         } catch (Exception $e) {
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'ERROR',
-                        'module' => 'Ad',
-                        'message' => 'Create new ad > '. $e->getMessage(),
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'ERROR',
+                'module' => 'Ad',
+                'message' => 'Create new ad > ' . $e->getMessage(),
+            ];
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads/create')->with('actError', $this->exceptionError);
         }
     }
 
@@ -363,45 +358,44 @@ class GoogleAdsController extends Controller
 
             $ad = \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->first();
 
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'SUCCESS',
-                        'module' => 'Ad',
-                        'message' => "Deleted ad for ". $groupDetail->ad_group_name,
-                        'response' => json_encode($ad)
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'SUCCESS',
+                'module' => 'Ad',
+                'message' => 'Deleted ad for ' . $groupDetail->ad_group_name,
+                'response' => json_encode($ad),
+            ];
 
             $ad->delete();
-            
+
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads deleted successfully');
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');
         } catch (Exception $e) {
-
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'ERROR',
-                        'module' => 'Ad',
-                        'message' => 'Delete ad > ' . $e->getMessage(),
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'ERROR',
+                'module' => 'Ad',
+                'message' => 'Delete ad > ' . $e->getMessage(),
+            ];
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actError', $this->exceptionError);
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actError', $this->exceptionError);
         }
     }
-
 
     //Creates an ad text asset with the specified text and pin field enum value.
     private function createAdTextAsset(string $text, int $pinField = null)
     {
         $adTextAsset = new AdTextAsset(['text' => $text]);
-        if (!is_null($pinField)) {
+        if (! is_null($pinField)) {
             $adTextAsset->setPinnedField($pinField);
         }
+
         return $adTextAsset;
     }
 
-    //get ad status  
+    //get ad status
     private function getAdStatus($v)
     {
         switch ($v) {

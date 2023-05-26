@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Host;
 use App\HostItem;
-use App\ZabbixHistory;
 use Carbon\Carbon;
+use App\ZabbixHistory;
 use Illuminate\Console\Command;
 
 class ZabbixHostItems extends Command
@@ -44,52 +44,56 @@ class ZabbixHostItems extends Command
         $auth_key = $this->login_api();
         $get_hosts = Host::get();
         if (! is_null($get_hosts)) {
+            $historyRows = [];
             foreach ($get_hosts as $host) {
                 $item_interrupt = $this->item_api($auth_key, $host->hostid, 'Interrupts per second');
                 if (! empty($item_interrupt)) {
                     HostItem::where('hostid', $host->hostid)->update(['interrupts_per_second' => $item_interrupt->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'interrupts_per_second' => $item_interrupt->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'interrupts_per_second' => $item_interrupt->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_free_inode = $this->item_api($auth_key, $host->hostid, 'Free inodes in');
                 if (! empty($item_free_inode)) {
                     HostItem::where('hostid', $host->hostid)->update(['free_inode_in' => $item_free_inode->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'free_inode_in' => $item_free_inode->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'free_inode_in' => $item_free_inode->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_space_utilization = $this->item_api($auth_key, $host->hostid, 'Space Utilization');
                 if (! empty($item_space_utilization)) {
                     HostItem::where('hostid', $host->hostid)->update(['space_utilization' => $item_space_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'space_utilization' => $item_space_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'space_utilization' => $item_space_utilization->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_total_space = $this->item_api($auth_key, $host->hostid, 'Total Space');
                 if (! empty($item_total_space)) {
                     HostItem::where('hostid', $host->hostid)->update(['total_space' => $item_total_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'total_space' => $item_total_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'total_space' => $item_total_space->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_used_space = $this->item_api($auth_key, $host->hostid, 'Used Space');
                 if (! empty($item_used_space)) {
                     HostItem::where('hostid', $host->hostid)->update(['used_space' => $item_used_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'used_space' => $item_used_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'used_space' => $item_used_space->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_available_memory = $this->item_api($auth_key, $host->hostid, 'Available Memory');
                 if (! empty($item_available_memory)) {
                     HostItem::where('hostid', $host->hostid)->update(['available_memory' => $item_available_memory->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'available_memory' => $item_available_memory->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'available_memory' => $item_available_memory->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_available_memory_in = $this->item_api($auth_key, $host->hostid, 'Available Memory in');
                 if (! empty($item_available_memory_in)) {
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'available_memory_in' => $item_available_memory_in->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'available_memory_in' => $item_available_memory_in->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
                 $item_cpu_idle_time = $this->item_api($auth_key, $host->hostid, 'CPU Idle Time');
                 if (! empty($item_cpu_idle_time)) {
                     HostItem::where('hostid', $host->hostid)->update(['cpu_idle_time' => $item_cpu_idle_time->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'cpu_idle_time' => $item_cpu_idle_time->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'cpu_idle_time' => $item_cpu_idle_time->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
 
                 $item_cpu_utilization = $this->item_api($auth_key, $host->hostid, 'CPU Utilizatio');
                 if (! empty($item_cpu_utilization)) {
                     HostItem::where('hostid', $host->hostid)->update(['cpu_utilization' => $item_cpu_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
-                    ZabbixHistory::create(['host_id' => $host->hostid, 'cpu_utilization' => $item_cpu_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
+                    $historyRows[] = ['host_id' => $host->hostid, 'cpu_utilization' => $item_cpu_utilization->lastvalue, 'item_id' => $item_interrupt->itemid];
                 }
+            }
+            if (count($historyRows)) {
+                ZabbixHistory::Insert($historyRows);
             }
         }
     }
@@ -97,7 +101,7 @@ class ZabbixHostItems extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -119,7 +123,7 @@ class ZabbixHostItems extends Command
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
-            \Log::channel('general')->info(Carbon::now().$results[0]->error->data);
+            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
             return 0;
         }
@@ -128,7 +132,7 @@ class ZabbixHostItems extends Command
     public function item_api($auth_key, $hostid, $name)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'item.get',

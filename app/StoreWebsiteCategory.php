@@ -23,62 +23,64 @@ class StoreWebsiteCategory extends Model
         'category_id', 'remote_id', 'store_website_id', 'created_at', 'updated_at', 'category_name',
     ];
 
+    public function getPlatformId($storeId, $categoryId, $store_code)
+    {
+        $result = $this->where(['store_website_id' => $storeId, 'category_id' => $categoryId, 'store_code' => $store_code])->first();
 
-    function    getPlatformId($storeId, $categoryId, $store_code){
-        $result     =   $this->where(['store_website_id' => $storeId, 'category_id' => $categoryId, 'store_code' => $store_code])->first();
-
-        if(!empty($result)){
+        if (! empty($result)) {
             return $result->remote_id;
         }
+
         return false;
     }
 
+    public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token)
+    {
+        // \Log::info('Category Id generating');
 
-    function    storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token){
+        $categoryDetails = \App\ReplyCategory::find($categoryId);
 
-        \Log::info('Category Id generating');
+        $faqCategoryName = $categoryDetails->name ?? 'Question?';
 
-        $categoryDetails    =   \App\ReplyCategory::find($categoryId);
-
-        $faqCategoryName    =   $categoryDetails->name ?? 'Question?';
+        $faqParentCategoryId = 0;
+        if ($categoryDetails->parent_id) {
+            $faqParentCategoryId = $this->getPlatformId($store_website_id, $categoryDetails->parent_id, $storeValue);
+        }
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $url. "/" . $storeValue .'/rest/V1/faqcategory');
+        curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faqcategory');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
 
-
-        $headers = array();
-        $headers[] = 'Authorization: Bearer '.$api_token;
+        $headers = [];
+        $headers[] = 'Authorization: Bearer ' . $api_token;
         $headers[] = 'Content-Type: application/json';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
+            return false;
         }
         curl_close($ch);
 
-        try{
+        try {
             $result = json_decode($result);
             $result = json_decode($result);
 
             //save store website category
-            $this->category_id          =   $categoryId;
-            $this->remote_id            =   $result->category_id;
-            $this->store_website_id     =   $store_website_id;
-            $this->store_code           =   $storeValue;
+            $this->category_id = $categoryId;
+            $this->remote_id = $result->category_id;
+            $this->store_website_id = $store_website_id;
+            $this->store_code = $storeValue;
             $this->save();
 
-
             return $result->category_id;
+        } catch(\Exception $e) {
+            return false;
         }
-        catch(\Exception $e){
-            return false;   
-        }
-
-        
     }
 }

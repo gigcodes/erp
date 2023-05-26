@@ -11,349 +11,400 @@
 |
  */
 
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\ActivityConroller;
-use App\Http\Controllers\AdsController;
-use App\Http\Controllers\AffiliateResultController;
-use App\Http\Controllers\AgentController;
-use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ApiResponseMessageController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\AssetsManagerController;
-use App\Http\Controllers\AttributeReplacementController;
-use App\Http\Controllers\AutoCommentHistoryController;
-use App\Http\Controllers\AutoRefreshController;
-use App\Http\Controllers\AutoReplyController;
-use App\Http\Controllers\AutoReplyHashtagsController;
-use App\Http\Controllers\BackLinkController;
-use App\Http\Controllers\BenchmarkController;
-use App\Http\Controllers\BloggerController;
-use App\Http\Controllers\BloggerEmailTemplateController;
-use App\Http\Controllers\BloggerPaymentController;
-use App\Http\Controllers\BloggerProductController;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\BrandReviewController;
-use App\Http\Controllers\BrandSizeChartController;
-use App\Http\Controllers\BrandTaggedPostsController;
-use App\Http\Controllers\BroadcastController;
-use App\Http\Controllers\BroadcastMessageController;
-use App\Http\Controllers\BrokenLinkCheckerController;
-use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\BugTrackingController;
-use App\Http\Controllers\BulkCustomerRepliesController;
-use App\Http\Controllers\CaseController;
-use App\Http\Controllers\CaseReceivableController;
-use App\Http\Controllers\CashFlowController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CategorySegmentController;
-use App\Http\Controllers\ChangeDescriptionController;
-use App\Http\Controllers\CharityController;
-use App\Http\Controllers\ChatBotController;
-use App\Http\Controllers\ChatbotMessageLogsController;
-use App\Http\Controllers\ChatbotTypeErrorLogController;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\ChatMessagesController;
-use App\Http\Controllers\CheckListController;
-use App\Http\Controllers\ColdLeadBroadcastsController;
-use App\Http\Controllers\ColdLeadsController;
-use App\Http\Controllers\ColorReferenceController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\CommonController;
-use App\Http\Controllers\CompetitorPageController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\CompositionsController;
-use App\Http\Controllers\ContactBloggerController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\ContentManagementController;
-use App\Http\Controllers\ConversionRateController;
-use App\Http\Controllers\CountryDutyController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\CourierController;
+use App\Email;
+use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
-use App\Http\Controllers\CronController;
-use App\Http\Controllers\CroppedImageReferenceController;
-use App\Http\Controllers\CsvTranslatorController;
-use App\Http\Controllers\CustomerCategoryController;
-use App\Http\Controllers\CustomerCharityController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DailyActivityController;
-use App\Http\Controllers\DailyCashFlowController;
-use App\Http\Controllers\DailyPlannerController;
-use App\Http\Controllers\DatabaseController;
-use App\Http\Controllers\DatabaseTableController;
-use App\Http\Controllers\DBQueryController;
-use App\Http\Controllers\DeliveryApprovalController;
-use App\Http\Controllers\DesignerController;
-use App\Http\Controllers\DetailsController;
-use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\DevelopmentController;
-use App\Http\Controllers\DigitalMarketingController;
-use App\Http\Controllers\DirectMessageController;
-use App\Http\Controllers\DiscountSalePriceController;
-use App\Http\Controllers\DocuemntCategoryController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\DomainSearchKeywordController;
-use App\Http\Controllers\DubbizleController;
-use App\Http\Controllers\EmailAddressesController;
-use App\Http\Controllers\EmailContentHistoryController;
-use App\Http\Controllers\EmailController;
-use App\Http\Controllers\EmailDataExtractionController;
-use App\Http\Controllers\EncryptController;
+use App\Http\Controllers\Mail;
+use App\Http\Controllers\Github;
+use App\Http\Controllers\Social;
+use App\Http\Controllers\Logging;
+use App\Http\Controllers\Meeting;
+use App\Http\Controllers\gtmetrix;
+use App\Http\Controllers\Hubstaff;
+use App\Http\Controllers\Products;
+use App\Http\Controllers\Marketing;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdsController;
 use App\Http\Controllers\EnvController;
-use App\Http\Controllers\ErpEventController;
+use App\Http\Controllers\GoogleAddWord;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\OldController;
+use App\Http\Controllers\product_price;
+use App\Http\Controllers\SkuController;
+use App\Http\Controllers\SopController;
+use App\Http\Controllers\TmpController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CaseController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CronController;
+use App\Http\Controllers\FlowController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LogsController;
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\scrapperPhyhon;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\ImageController;
+use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PleskController;
+use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\ScrapController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\TasksController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CommonController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ErpLogController;
 use App\Http\Controllers\ExotelController;
-use App\Http\Controllers\FacebookController;
-use App\Http\Controllers\FacebookPostController;
-use App\Http\Controllers\FailedJobController;
-use App\Http\Controllers\FcmNotificationController;
-use App\Http\Controllers\FlowController;
-use App\Http\Controllers\FlowLogController;
-use App\Http\Controllers\Github;
-use App\Http\Controllers\GmailDataController;
-use App\Http\Controllers\GoogleAddWord;
-use App\Http\Controllers\GoogleAdGroupController;
-use App\Http\Controllers\GoogleAdsAccountController;
-use App\Http\Controllers\GoogleAdsController;
-use App\Http\Controllers\GoogleAffiliateController;
-use App\Http\Controllers\GoogleBigQueryDataController;
-use App\Http\Controllers\GoogleCampaignsController;
-use App\Http\Controllers\GoogleDocController;
-use App\Http\Controllers\GoogleScreencastController;
-use App\Http\Controllers\GoogleDeveloperController;
-use App\Http\Controllers\GoogleDeveloperLogsController;
-use \App\Http\Controllers\GoogleDriveController;
-
-use App\Http\Controllers\GoogleFileTranslator;
-use App\Http\Controllers\GoogleScrapperController;
-use App\Http\Controllers\GoogleSearchController;
-use App\Http\Controllers\GoogleSearchImageController;
-use App\Http\Controllers\GoogleServerController;
-use App\Http\Controllers\GoogleTranslateController;
-use App\Http\Controllers\GoogleTraslationSettingsController;
-use App\Http\Controllers\GoogleWebMasterController;
-use App\Http\Controllers\GTMatrixErrorLogController;
-use App\Http\Controllers\gtmetrix;
-use App\Http\Controllers\HashtagController;
-use App\Http\Controllers\HashtagPostCommentController;
-use App\Http\Controllers\HashtagPostsController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HsCodeController;
-use App\Http\Controllers\Hubstaff;
-use App\Http\Controllers\HubstaffActivitiesController;
-use App\Http\Controllers\HubstaffController;
-use App\Http\Controllers\HubstaffPaymentController;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\InfluencersController;
-use App\Http\Controllers\InstagramAutoCommentsController;
-use App\Http\Controllers\InstagramAutomatedMessagesController;
-use App\Http\Controllers\InstagramController;
-use App\Http\Controllers\InstagramPostsController;
-use App\Http\Controllers\InstagramProfileController;
-use App\Http\Controllers\InstructionController;
-use App\Http\Controllers\JobController;
-use App\Http\Controllers\KeywordassignController;
-use App\Http\Controllers\KeywordInstructionController;
-use App\Http\Controllers\KeywordsController;
-use App\Http\Controllers\KeywordToCategoryController;
-use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\LaravelLogController;
 use App\Http\Controllers\LawyerController;
-use App\Http\Controllers\LeadOrderController;
-use App\Http\Controllers\LeadsController;
-use App\Http\Controllers\LearningCategoryController;
-use App\Http\Controllers\LearningModuleController;
-use App\Http\Controllers\ListingHistoryController;
-use App\Http\Controllers\ListingPaymentsController;
-use App\Http\Controllers\LiveChatController;
-use App\Http\Controllers\Logging;
-use App\Http\Controllers\LogsController;
-use App\Http\Controllers\LogScraperVsAiController;
-use App\Http\Controllers\MagentoCommandController;
-use App\Http\Controllers\MagentoController;
-use App\Http\Controllers\MagentoModuleApiHistoryController;
-use App\Http\Controllers\MagentoModuleCategoryController;
-use App\Http\Controllers\MagentoModuleController;
-use App\Http\Controllers\MagentoModuleCronJobHistoryController;
-use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
-use App\Http\Controllers\MagentoModuleHistoryController;
-use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
-use App\Http\Controllers\MagentoModuleTypeController;
-use App\Http\Controllers\MagentoProductPushErrors;
-use App\Http\Controllers\MagentoSettingsController;
-use App\Http\Controllers\Mail;
-use App\Http\Controllers\ManageModulesController;
-use App\Http\Controllers\ManageTaskCategoryController;
-use App\Http\Controllers\Marketing;
-use App\Http\Controllers\MasterControlController;
-use App\Http\Controllers\MasterDevTaskController;
-use App\Http\Controllers\MediaController;
-use App\Http\Controllers\Meeting;
-use App\Http\Controllers\MemoryUsesController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\MessageQueueHistoryController;
-use App\Http\Controllers\MissingBrandController;
-use App\Http\Controllers\ModelNameController;
-use App\Http\Controllers\MonetaryAccountController;
-use App\Http\Controllers\NegativeCouponResponseController;
-use App\Http\Controllers\NewDevTaskController;
-use App\Http\Controllers\NewProductInventoryController;
-use App\Http\Controllers\NewsletterController;
-use App\Http\Controllers\NotificaitonContoller;
-use App\Http\Controllers\NotificationQueueController;
-use App\Http\Controllers\OldController;
-use App\Http\Controllers\OldIncomingController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderReportController;
-use App\Http\Controllers\PageNotesCategoriesController;
-use App\Http\Controllers\PageNotesController;
-use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PictureColorsController;
-use App\Http\Controllers\PinterestAccountAcontroller;
-use App\Http\Controllers\PlanController;
-use App\Http\Controllers\PleskController;
-use App\Http\Controllers\PositionController;
-use App\Http\Controllers\PostmanRequestCreateController;
-use App\Http\Controllers\PreAccountController;
-use App\Http\Controllers\product_price;
-use App\Http\Controllers\ProductApproverController;
-use App\Http\Controllers\ProductAttributeController;
-use App\Http\Controllers\ProductCategoryController;
-use App\Http\Controllers\ProductColorController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductCropperController;
-use App\Http\Controllers\ProductInventoryController;
-use App\Http\Controllers\ProductListerController;
-use App\Http\Controllers\ProductLocationController;
-use App\Http\Controllers\Products;
-use App\Http\Controllers\ProductSearcherController;
-use App\Http\Controllers\ProductSelectionController;
-use App\Http\Controllers\ProductSupervisorController;
-use App\Http\Controllers\ProductTemplatesController;
-use App\Http\Controllers\ProjectFileManagerController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\PurchaseProductController;
-use App\Http\Controllers\PurchaseStatusController;
-use App\Http\Controllers\PushNotificationController;
-use App\Http\Controllers\QuickCustomerController;
-use App\Http\Controllers\QuickReplyController;
-use App\Http\Controllers\QuickSellController;
-use App\Http\Controllers\RedisjobController;
-use App\Http\Controllers\RedisQueueController;
-use App\Http\Controllers\ReferFriendController;
-use App\Http\Controllers\ReferralProgramController;
 use App\Http\Controllers\RefundController;
-use App\Http\Controllers\ReplyController;
-use App\Http\Controllers\ResourceImgController;
-use App\Http\Controllers\ReturnExchangeController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoutesController;
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SalesItemController;
-use App\Http\Controllers\ScrapController;
-use App\Http\Controllers\ScrapLogsController;
-use App\Http\Controllers\ScrappedFacebookUserController;
-use App\Http\Controllers\scrapperPhyhon;
-use App\Http\Controllers\ScrapStatisticsController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SocialController;
+use App\Http\Controllers\ThreadController;
+use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\WatsonController;
+use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ActivityConroller;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BloggerController;
+use App\Http\Controllers\CharityController;
+use App\Http\Controllers\ChatBotController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CourierController;
+use App\Http\Controllers\DBQueryController;
+use App\Http\Controllers\DetailsController;
+use App\Http\Controllers\EncryptController;
+use App\Http\Controllers\FaqPushController;
+use App\Http\Controllers\FlowLogController;
+use App\Http\Controllers\HashtagController;
+use App\Http\Controllers\MagentoController;
+use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Select2Controller;
 use App\Http\Controllers\SemrushController;
-use App\Http\Controllers\SEOAnalyticsController;
 use App\Http\Controllers\SeoToolController;
-use App\Http\Controllers\SERankingController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\ShipmentController;
-use App\Http\Controllers\SimplyDutyCalculationController;
-use App\Http\Controllers\SimplyDutyCategoryController;
-use App\Http\Controllers\SimplyDutyCountryController;
-use App\Http\Controllers\SimplyDutyCurrencyController;
-use App\Http\Controllers\SimplyDutySegmentController;
-use App\Http\Controllers\SitejabberQAController;
-use App\Http\Controllers\SizeController;
-use App\Http\Controllers\SkuController;
-use App\Http\Controllers\SkuFormatController;
-use App\Http\Controllers\Social;
-use App\Http\Controllers\SocialAccountCommentController;
-use App\Http\Controllers\SocialAccountController;
-use App\Http\Controllers\SocialAccountPostController;
-use App\Http\Controllers\SocialController;
-use App\Http\Controllers\SocialTagsController;
-use App\Http\Controllers\SopController;
-use App\Http\Controllers\SopShortcutCreateController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\StoreGTMetrixAccountController;
-use App\Http\Controllers\StoreSocialContentStatusController;
-use App\Http\Controllers\StoreWebsiteAnalyticsController;
-use App\Http\Controllers\StoreWebsiteCountryShippingController;
-use App\Http\Controllers\SupplierCategoryController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\SystemSizeController;
-use App\Http\Controllers\TargetLocationController;
-use App\Http\Controllers\TaskCategoriesController;
-use App\Http\Controllers\TaskCategoryController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\TaskHistoryController;
-use App\Http\Controllers\TaskModuleController;
-use App\Http\Controllers\TasksController;
-use App\Http\Controllers\TaskTypesController;
-use App\Http\Controllers\TemplatesController;
-use App\Http\Controllers\TestCaseController;
 use App\Http\Controllers\TestingController;
-use App\Http\Controllers\TestSuitesController;
-use App\Http\Controllers\ThreadController;
-use App\Http\Controllers\TmpController;
 use App\Http\Controllers\TmpTaskController;
-use App\Http\Controllers\TodoListController;
-use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\TwiliochatController;
-use App\Http\Controllers\TwilioController;
-use App\Http\Controllers\TwillioMessageController;
 use App\Http\Controllers\UicheckController;
-use App\Http\Controllers\UpdateLogController;
-use App\Http\Controllers\UserActionsController;
-use App\Http\Controllers\UserAvaibilityController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserEventController;
 use App\Http\Controllers\UserLogController;
-use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\UsersAutoCommentHistoriesController;
-use App\Http\Controllers\UsersFeedbackHrTicketController;
-use App\Http\Controllers\VendorCategoryController;
-use App\Http\Controllers\VendorController;
-use App\Http\Controllers\VendorPaymentController;
-use App\Http\Controllers\VendorResumeController;
-use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VoucherController;
-use App\Http\Controllers\VoucherCouponController;
-use App\Http\Controllers\WatsonController;
-use App\Http\Controllers\WebNotificationController;
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\BackLinkController;
+use App\Http\Controllers\CashFlowController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DatabaseController;
+use App\Http\Controllers\DesignerController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DubbizleController;
+use App\Http\Controllers\ErpEventController;
+use App\Http\Controllers\FacebookController;
+use App\Http\Controllers\HubstaffController;
+use App\Http\Controllers\KeywordsController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LiveChatController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PurchaseController;
+
+use App\Http\Controllers\RedisjobController;
+use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TestCaseController;
+use App\Http\Controllers\TodoListController;
+use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\AutoReplyController;
+use App\Http\Controllers\BenchmarkController;
+use App\Http\Controllers\BroadcastController;
+use App\Http\Controllers\CheckListController;
+use App\Http\Controllers\ColdLeadsController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\FailedJobController;
+use App\Http\Controllers\GmailDataController;
+use App\Http\Controllers\GoogleAdsController;
+use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\InstagramController;
+use App\Http\Controllers\LeadOrderController;
+use App\Http\Controllers\ModelNameController;
+use App\Http\Controllers\PageNotesController;
+use App\Http\Controllers\QuickSellController;
+use App\Http\Controllers\SalesItemController;
+use App\Http\Controllers\ScrapLogsController;
+use App\Http\Controllers\SentryLogController;
+use App\Http\Controllers\SERankingController;
+use App\Http\Controllers\SkuFormatController;
+use App\Http\Controllers\TaskTypesController;
+use App\Http\Controllers\TemplatesController;
+use App\Http\Controllers\UpdateLogController;
+use App\Http\Controllers\UserEventController;
+use App\Http\Controllers\GoogleFileTranslator;
+use App\Http\Controllers\LaravelLogController;
+use App\Http\Controllers\MemoryUsesController;
+use App\Http\Controllers\NewDevTaskController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PreAccountController;
+use App\Http\Controllers\QuickReplyController;
+use App\Http\Controllers\RedisQueueController;
+use App\Http\Controllers\SocialTagsController;
+use App\Http\Controllers\SystemSizeController;
+use App\Http\Controllers\TaskModuleController;
+use App\Http\Controllers\TestSuitesController;
+use App\Http\Controllers\TimeDoctorController;
+use App\Http\Controllers\TwiliochatController;
 use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
-use App\Http\Controllers\WhatsAppController;
-use App\Http\Controllers\ZabbixController;
-use App\Http\Controllers\SentryLogController;
-use App\Http\Controllers\FaqPushController;
-use App\Http\Controllers\GoogleAdsLogController;
-use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\AutoRefreshController;
+use App\Http\Controllers\BrandReviewController;
+use App\Http\Controllers\BugTrackingController;
+use App\Http\Controllers\CountryDutyController;
+use App\Http\Controllers\DevelopmentController;
 use App\Http\Controllers\GoogleAppAdController;
-use App\Http\Controllers\GoogleAdGroupKeywordController;
-use App\Http\Controllers\GoogleAdReportController;
-use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\GoogleDriveController;
+use App\Http\Controllers\InfluencersController;
+use App\Http\Controllers\InstructionController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\NotificaitonContoller;
+use App\Http\Controllers\OldIncomingController;
+use App\Http\Controllers\OrderReportController;
+use App\Http\Controllers\ReferFriendController;
+use App\Http\Controllers\ResourceImgController;
+use App\Http\Controllers\TaskHistoryController;
+use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\UserActionsController;
+use App\Http\Controllers\ChatMessagesController;
+use App\Http\Controllers\CompositionsController;
 use App\Http\Controllers\CropRejectedController;
-use App\Http\Controllers\AppConnect\AppConnectController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TimeDoctorController;
+use App\Http\Controllers\DailyPlannerController;
+use App\Http\Controllers\FacebookPostController;
+use App\Http\Controllers\GoogleAdsLogController;
+use App\Http\Controllers\GoogleSearchController;
+use App\Http\Controllers\GoogleServerController;
+use App\Http\Controllers\HashtagPostsController;
+use App\Http\Controllers\MissingBrandController;
+use App\Http\Controllers\ProductColorController;
+use App\Http\Controllers\SEOAnalyticsController;
+use App\Http\Controllers\SitejabberQAController;
+use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\VendorResumeController;
+use App\Http\Controllers\AssetsManagerController;
+use App\Http\Controllers\BingWebMasterController;
+use App\Http\Controllers\CsvTranslatorController;
+use App\Http\Controllers\DailyActivityController;
+use App\Http\Controllers\DailyCashFlowController;
+use App\Http\Controllers\DatabaseTableController;
+use App\Http\Controllers\DirectMessageController;
+use App\Http\Controllers\GoogleAdGroupController;
+use App\Http\Controllers\KeywordassignController;
+use App\Http\Controllers\MagentoModuleController;
+use App\Http\Controllers\ManageModulesController;
+use App\Http\Controllers\MasterControlController;
+use App\Http\Controllers\MasterDevTaskController;
+use App\Http\Controllers\PictureColorsController;
+use App\Http\Controllers\ProductListerController;
+use App\Http\Controllers\QuickCustomerController;
+use App\Http\Controllers\SocialAccountController;
+use App\Http\Controllers\VendorPaymentController;
+use App\Http\Controllers\VoucherCouponController;
+use App\Http\Controllers\BloggerPaymentController;
+use App\Http\Controllers\BloggerProductController;
+use App\Http\Controllers\BrandSizeChartController;
+use App\Http\Controllers\CaseReceivableController;
+use App\Http\Controllers\ColorReferenceController;
+use App\Http\Controllers\CompetitorPageController;
+use App\Http\Controllers\ContactBloggerController;
+use App\Http\Controllers\ConversionRateController;
+use App\Http\Controllers\EmailAddressesController;
+use App\Http\Controllers\GoogleAdReportController;
+use App\Http\Controllers\GoogleScrapperController;
+use App\Http\Controllers\InstagramPostsController;
+use App\Http\Controllers\KeywordVariantController;
+use App\Http\Controllers\LearningModuleController;
+use App\Http\Controllers\ListingHistoryController;
+use App\Http\Controllers\LogScraperVsAiController;
+use App\Http\Controllers\MagentoCommandController;
+use App\Http\Controllers\MagentoProductPushErrors;
+use App\Http\Controllers\ProductCropperController;
+use App\Http\Controllers\PurchaseStatusController;
+use App\Http\Controllers\ReturnExchangeController;
+use App\Http\Controllers\TargetLocationController;
+use App\Http\Controllers\TaskCategoriesController;
+use App\Http\Controllers\TwillioMessageController;
+use App\Http\Controllers\UserAvaibilityController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\VendorCategoryController;
+use App\Http\Controllers\VendorSupplierController;
+use App\Http\Controllers\AffiliateResultController;
+use App\Http\Controllers\CategorySegmentController;
+use App\Http\Controllers\CustomerCharityController;
+use App\Http\Controllers\FcmNotificationController;
+use App\Http\Controllers\GoogleAffiliateController;
+use App\Http\Controllers\GoogleCampaignsController;
+use App\Http\Controllers\GoogleDeveloperController;
+use App\Http\Controllers\GoogleTranslateController;
+use App\Http\Controllers\GoogleWebMasterController;
+use App\Http\Controllers\HubstaffPaymentController;
+use App\Http\Controllers\ListingPaymentsController;
+use App\Http\Controllers\MagentoSettingsController;
+use App\Http\Controllers\MonetaryAccountController;
+use App\Http\Controllers\ProductApproverController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductLocationController;
+use App\Http\Controllers\ProductSearcherController;
+use App\Http\Controllers\PurchaseProductController;
+use App\Http\Controllers\ReferralProgramController;
+use App\Http\Controllers\ScrapStatisticsController;
+use App\Http\Controllers\WebNotificationController;
+use App\Http\Controllers\BrandTaggedPostsController;
+use App\Http\Controllers\BroadcastMessageController;
+use App\Http\Controllers\CustomerCategoryController;
+use App\Http\Controllers\DeliveryApprovalController;
+use App\Http\Controllers\DigitalMarketingController;
+use App\Http\Controllers\DocuemntCategoryController;
+use App\Http\Controllers\GoogleAdsAccountController;
+use App\Http\Controllers\GoogleScreencastController;
+use App\Http\Controllers\GTMatrixErrorLogController;
+use App\Http\Controllers\InstagramProfileController;
+use App\Http\Controllers\LearningCategoryController;
+use App\Http\Controllers\ProductAttributeController;
+use App\Http\Controllers\ProductInventoryController;
+use App\Http\Controllers\ProductSelectionController;
+use App\Http\Controllers\ProductTemplatesController;
+use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\SupplierCategoryController;
+use App\Http\Controllers\AutoReplyHashtagsController;
+use App\Http\Controllers\BrokenLinkCheckerController;
+use App\Http\Controllers\ChangeDescriptionController;
+use App\Http\Controllers\ContentManagementController;
+use App\Http\Controllers\DiscountSalePriceController;
+use App\Http\Controllers\GoogleSearchImageController;
+use App\Http\Controllers\GoogleShoppingAdsController;
+use App\Http\Controllers\KeywordToCategoryController;
+use App\Http\Controllers\MagentoModuleTypeController;
+use App\Http\Controllers\NotificationQueueController;
+use App\Http\Controllers\ProductSupervisorController;
+use App\Http\Controllers\SimplyDutyCountryController;
+use App\Http\Controllers\SimplyDutySegmentController;
+use App\Http\Controllers\SocialAccountPostController;
+use App\Http\Controllers\SopShortcutCreateController;
+use App\Http\Controllers\ApiResponseMessageController;
+use App\Http\Controllers\AutoCommentHistoryController;
+use App\Http\Controllers\ChatbotMessageLogsController;
+use App\Http\Controllers\ColdLeadBroadcastsController;
+use App\Http\Controllers\GoogleBigQueryDataController;
+use App\Http\Controllers\HashtagPostCommentController;
+use App\Http\Controllers\HubstaffActivitiesController;
+use App\Http\Controllers\KeywordInstructionController;
+use App\Http\Controllers\ManageTaskCategoryController;
+use App\Http\Controllers\ProjectFileManagerController;
+use App\Http\Controllers\SimplyDutyCategoryController;
+use App\Http\Controllers\SimplyDutyCurrencyController;
+use App\Http\Controllers\BulkCustomerRepliesController;
+use App\Http\Controllers\ChatbotTypeErrorLogController;
+use App\Http\Controllers\DomainSearchKeywordController;
+use App\Http\Controllers\EmailContentHistoryController;
+use App\Http\Controllers\EmailDataExtractionController;
+use App\Http\Controllers\GoogleDeveloperLogsController;
+use App\Http\Controllers\MessageQueueHistoryController;
+use App\Http\Controllers\NewProductInventoryController;
+use App\Http\Controllers\PageNotesCategoriesController;
+use App\Http\Controllers\AttributeReplacementController;
+use App\Http\Controllers\BloggerEmailTemplateController;
+use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdsRemarketingController;
+use App\Http\Controllers\MagentoModuleHistoryController;
+use App\Http\Controllers\PostmanRequestCreateController;
+use App\Http\Controllers\ScrappedFacebookUserController;
+use App\Http\Controllers\SocialAccountCommentController;
+use App\Http\Controllers\StoreGTMetrixAccountController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
-
+use App\Http\Controllers\AppConnect\AppConnectController;
+use App\Http\Controllers\CroppedImageReferenceController;
+use App\Http\Controllers\InstagramAutoCommentsController;
+use App\Http\Controllers\MagentoModuleCategoryController;
+use App\Http\Controllers\SimplyDutyCalculationController;
+use App\Http\Controllers\StoreWebsiteAnalyticsController;
+use App\Http\Controllers\UsersFeedbackHrTicketController;
+use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\CodeShortcutController;
+use App\Http\Controllers\NegativeCouponResponseController;
+use App\Http\Controllers\MagentoModuleApiHistoryController;
+use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\GoogleTraslationSettingsController;
+use App\Http\Controllers\StoreSocialContentStatusController;
+use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\UsersAutoCommentHistoriesController;
+use App\Http\Controllers\InstagramAutomatedMessagesController;
+use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\GoogleDialogFlowController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\Pinterest\PinterestAccountController;
+use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
+use App\Http\Controllers\Pinterest\PinterestPinsController;
+use App\Http\Controllers\ChatGPT\ChatGPTController;
+use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 
 Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+    Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+    Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+    Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+    Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+    Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+    Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+    Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+
+    Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+    Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+
+    Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+    Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+});
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+
+use App\Http\Controllers\StatusMappingController;
+use App\Http\Controllers\StoreWebsiteCountryShippingController;
+use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
+use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
+use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoUserFromErpController;
+
+Auth::routes();
+
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
+Route::get('/get-env-description', [EnvController::class, 'getDescription'])->name('get-env-description');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
@@ -363,6 +414,8 @@ Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAut
 
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
 Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
+Route::get('totem/cron-history/{name}', [TasksController::class, 'cronHistory']);
+
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
@@ -391,6 +444,19 @@ Route::get('criteria/get/{id}', [PositionController::class, 'list'])->name('get.
 
 Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])->name('vendors.create.cv');
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
+
+Route::prefix('blog')->middleware('auth')->group(function () {
+    Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
+    Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
+    Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
+    Route::post('/update/{id}', [BlogController::class, 'update'])->name('update-blog.submit');
+    Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
+    Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
+    Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
+    Route::get('/contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
@@ -482,6 +548,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
     Route::get('magento-admin-settings', [MagentoSettingsController::class, 'index'])->name('magento.setting.index');
+    Route::get('magento-admin-settings/logs', [MagentoSettingsController::class, 'getLogs'])->name('magento.setting.sync-logs');
     Route::get('magento-get-sync-data', [MagentoSettingsController::class, 'magentoSyncLogSearch'])->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', [MagentoSettingsController::class, 'magentoPushLogs'])->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', [MagentoSettingsController::class, 'create'])->name('magento.setting.create');
@@ -500,6 +567,7 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('get-site-submit-hitory', [GoogleWebMasterController::class, 'getSiteSubmitHitory'])->name('googlewebmaster.get.history');
     Route::post('re-submit-site', [GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster'])->name('googlewebmaster.re-submit.site.webmaster');
     Route::get('submit-site', [GoogleWebMasterController::class, 'SubmitSiteToWebmaster'])->name('googlewebmaster.submit.site.webmaster');
+    Route::post('delete-site', [GoogleWebMasterController::class, 'deleteSiteFromWebmaster'])->name('googlewebmaster.delete.site.webmaster');
     Route::get('get-access-token', [GoogleWebMasterController::class, 'googleLogin'])->name('googlewebmaster.get-access-token');
     Route::get('/index', [GoogleWebMasterController::class, 'index'])->name('googlewebmaster.index');
 
@@ -511,6 +579,17 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('/get-account-notifications', [GoogleWebMasterController::class, 'getAccountNotifications'])->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', [GoogleWebMasterController::class, 'allRecords'])->name('googlewebmaster.get.records');
 });
+//Bing web master routes
+Route::prefix('bing-webmaster')->middleware('auth')->group(function () {
+    Route::get('/index', [BingWebMasterController::class, 'index'])->name('bingwebmaster.index');
+    Route::post('/add-account', [BingWebMasterController::class, 'addAccount'])->name('bingwebmaster.account.add');
+    Route::get('/get-accounts', [BingWebMasterController::class, 'getAccounts'])->name('bingwebmaster.get.accounts');
+    Route::get('/accounts/connect/{id}', [BingWebMasterController::class, 'connectAccount'])->name('bingwebmaster.account.connect');
+    Route::get('get-access-token', [BingWebMasterController::class, 'bingLogin'])->name('bingwebmaster.get-access-token');
+    Route::get('/accounts/disconnect/{id}', [BingWebMasterController::class, 'disconnectAccount'])->name('bingwebmaster.account.disconnect');
+    Route::get('/all-records', [BingWebMasterController::class, 'allRecords'])->name('bingwebmaster.get.records');
+    Route::post('delete-site', [BingWebMasterController::class, 'deleteSiteFromWebmaster'])->name('bingwebmaster.delete.site.webmaster');
+});
 Route::prefix('product')->middleware('auth')->group(function () {
     Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
     Route::resource('manual-crop', Products\ManualCroppingController::class);
@@ -520,6 +599,7 @@ Route::prefix('product')->middleware('auth')->group(function () {
     Route::post('store-website-description', [ProductController::class, 'storeWebsiteDescription'])->name('product.store.website.description');
     Route::post('test', [ProductController::class, 'test'])->name('product.test.template');
 });
+
 Route::prefix('logging')->middleware('auth')->group(function () {
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
@@ -658,12 +738,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
-    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
-    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
-    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class, 'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class, 'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class, 'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class, 'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -703,6 +783,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('users/add-system-ip', [UserController::class, 'addSystemIp']);
     Route::post('users/add-system-ip-from-text', [UserController::class, 'addSystemIpFromText']);
     Route::get('users/delete-system-ip', [UserController::class, 'deleteSystemIp']);
+    Route::get('users/bulk-delete-system-ip', [UserController::class, 'bulkDeleteSystemIp']);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
     Route::get('userlogs', [UserLogController::class, 'index'])->name('userlogs.index');
     Route::get('userlogs/{$id}', [UserLogController::class, 'index']);
@@ -903,12 +984,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+    Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
+    Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
     Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
+    Route::get('email/search-ajax', [EmailController::class, 'ajaxsearch'])->name('menu.email.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -927,6 +1011,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     //  Route::resource('activity','ActivityConroller');
 
+    Route::get('brand/list', [BrandController::class, 'show'])->name('brand.list'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/get_all_images', [BrandController::class, 'get_all_images'])->name('brand.get_all_images'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/logo_data', [BrandController::class, 'fetchlogos'])->name('brand.logo_data'); //Purpose : Get Brand Logo - DEVTASK-4278
     Route::post('brand/uploadlogo', [BrandController::class, 'uploadlogo'])->name('brand.uploadlogo'); //Purpose : upload logo - DEVTASK-4278
@@ -958,6 +1043,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
     Route::get('reply-list', [ReplyController::class, 'replyList'])->name('reply.replyList');
@@ -1067,7 +1153,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
+    Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
 
+    
     Route::resource('benchmark', BenchmarkController::class);
 
     // adding lead routes
@@ -1266,6 +1354,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status-temp', [OrderController::class, 'prodctStatusChangeTemplate']);
     Route::post('order/change-status', [OrderController::class, 'statusChange']);
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
+    Route::post('order/order-product-status-change', [OrderController::class, 'orderProductStatusChange'])->name('order.order-product-status-change');
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
 
@@ -1303,6 +1392,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
     Route::get('order/{id}/get-invoice-customer-email', [OrderController::class, 'getInvoiceCustomerEmail'])->name('get.invoice.customer.email');
+
+    Route::get('order/get-invoice-customer-email-selected', [OrderController::class, 'getInvoiceCustomerEmailSelected']);
+    Route::get('order/mail-invoice-multi-select', [OrderController::class, 'mailInvoiceMultiSelect']);
+    Route::get('order/get-order-invoice-users', [OrderController::class, 'GetInvoiceOrderUsers']);
+
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
@@ -1310,13 +1404,18 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
+    Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
+    Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
     Route::post('order/change-return-status', [OrderController::class, 'returnStatus'])->name('order.change_return_status');
 
     Route::resource('order', OrderController::class);
+
+    Route::resource('status-mapping', StatusMappingController::class);
 
     Route::post('order/payment-history', [OrderController::class, 'paymentHistory'])->name('order.paymentHistory');
     Route::post('order/magento-log-list', [OrderController::class, 'getOrderMagentoErrorLogList'])->name('order.magento.log.list');
@@ -1328,8 +1427,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/status/flag', [OrderReportController::class, 'setFlag'])->name('order.status.flag');
 
     //emails
+    Route::post('email/reply-list-by-category',[EmailController::class,'getReplyListByCategory'])->name('getReplyListByCategory');
+    Route::post('email/reply-from-quick-reply',[EmailController::class,'getReplyListFromQuickReply'])->name('getReplyListFromQuickReply');
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
+
+    Route::get('email/replyAllMail/{id}', [EmailController::class, 'replyAllMail']);
+    Route::post('email/replyAllMail', [EmailController::class, 'submitReplyAll'])->name('email.submit-reply-all');
 
     Route::get('email/forwardMail/{id}', [EmailController::class, 'forwardMail']);
     Route::post('email/forwardMail', [EmailController::class, 'submitForward'])->name('email.submit-forward');
@@ -1338,12 +1442,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('email/{id}/mark-as-read', [EmailController::class, 'markAsRead']);
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
+
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
+    Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
@@ -1351,6 +1457,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/category', [EmailController::class, 'category']);
     Route::post('email/status', [EmailController::class, 'status']);
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
+    Route::resource('mailbox', MailBoxController::class);
+
+    Route::post('email/assign-modal', [EmailController::class, 'assignModel'])->name('assignModel');
+    Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
+    Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
+
+    Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
+
+    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -1483,6 +1598,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
+    Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
+    Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -1642,11 +1759,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/records', [NewsletterController::class, 'records'])->name('newsletters.records');
         Route::post('/store', [NewsletterController::class, 'store'])->name('newsletters.store');
         Route::get('/image/{id}/{productId}/delete', [NewsletterController::class, 'deleteImage'])->name('newsletters.deleteImage');
+        Route::get('/review-translate/{language?}', [NewsletterController::class, 'reviewTranslate'])->name('newsletters.review.translate');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [NewsletterController::class, 'edit'])->name('newsletters.edit');
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
             Route::get('change-store', [NewsletterController::class, 'changeStore'])->name('newsletters.change.store');
             Route::get('preview', [NewsletterController::class, 'preview'])->name('newsletters.preview');
+            Route::post('translate', [NewsletterController::class, 'translate'])->name('newsletters.translate');
         });
     });
 
@@ -1689,6 +1808,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('customer/priority-points', [CustomerController::class, 'customerPriorityPoints'])->name('customer.priority.points');
     Route::get('customer/add-priority-points', [CustomerController::class, 'addCustomerPriorityPoints'])->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', [CustomerController::class, 'getCustomerPriorityPoints'])->name('customer.get.priority.points');
+    Route::post('customer/websites', [CustomerController::class, 'getWebsiteCustomers']);
 
     Route::get('customer/priority-range-points/', [CustomerController::class, 'getCustomerPriorityRangePoints'])->name('customer.get.priority.range.points');
     Route::get('customer/priority-all-range-points/{id?}', [CustomerController::class, 'selectCustomerPriorityRangePoints'])->name('customer.all.select.priority.range.points');
@@ -1845,6 +1965,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('purchaseproductorders/list', [PurchaseProductController::class, 'purchaseproductorders'])->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', [PurchaseProductController::class, 'purchaseproductorders_update'])->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/purchase-status-change', [PurchaseProductController::class, 'purchaseStatusChange'])->name('purchaseproductorders.purchase-status-change'); //Purpose : Add Route - DEVTASK-23362
     Route::get('purchaseproductorders/logs', [PurchaseProductController::class, 'purchaseproductorders_logs'])->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/flows', [PurchaseProductController::class, 'purchaseproductorders_flows'])->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
@@ -2088,6 +2209,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
             Route::post('approve', [DevelopmentController::class, 'historyApproveSubmit'])->name('development-task.history.approve');
             Route::get('approve/history', [DevelopmentController::class, 'historyApproveList'])->name('development-task.history.approve-history');
         });
+
+        Route::post('upload-file', [DevelopmentController::class, 'uploadFile'])->name('development.upload-file');
+        Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
+
+        Route::get('task/show-estimate', [DevelopmentController::class, 'showTaskEstimateTime'])->name('task.estimate.list');
     });
 
     /*Routes For Social */
@@ -2148,6 +2274,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+
+    Route::get('password/search', [PasswordController::class, 'passwordsSearch'])->name('password.search');
+    Route::post('password/show/edit-data', [PasswordController::class, 'passwordsShowEditdata'])->name('password.show.edit-data');
+
     Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
     Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
 
@@ -2158,6 +2288,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('language/delete', [LanguageController::class, 'delete'])->name('language.delete');
 
     // Documents Manager
+    Route::get('development/document/list', [DocumentController::class, 'documentList'])->name('development.document.list');
     Route::get('documents', [DocumentController::class, 'index'])->name('document.index');
     Route::get('documents-email', [DocumentController::class, 'email'])->name('document.email');
     Route::post('document/store', [DocumentController::class, 'store'])->name('document.store');
@@ -2387,6 +2518,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('supplier-priority', [SupplierController::class, 'getPrioritiesList'])->name('supplier-priority.list');
     Route::post('supplier/add_new_priority', [SupplierController::class, 'addNewPriority'])->name('supplier.add_new_priority');
+    Route::get('supplier/get-supplier', [SupplierController::class, 'getSupplierForPriority'])->name('supplier.get_supplier');
+    Route::post('supplier/update_priority', [SupplierController::class, 'updateSupplierPriority'])->name('supplier.update_priority');
     Route::get('supplier/getSupplierPriorityList', [SupplierController::class, 'getSupplierPriorityList'])->name('supplier.get_supplier_priority_list');
 
     Route::get('supplier/brandcount', [SupplierController::class, 'addSupplierBrandCount'])->name('supplier.brand.count');
@@ -2422,6 +2555,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
+    Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -2471,12 +2605,16 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
+    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name("assets-manager.update-status");
     Route::post('assets-manager/payment-history', [AssetsManagerController::class, 'paymentHistory'])->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', [AssetsManagerController::class, 'assetManamentLog'])->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', [AssetsManagerController::class, 'getMagentoDevScriptUpdatesLogs']);
     Route::post('assets-manager/magento-dev-script-update', [AssetsManagerController::class, 'magentoDevScriptUpdate']);
     Route::post('assets-manager/userchanges/history', [AssetsManagerController::class, 'userChangesHistoryLog'])->name('assetsmanager.userchange.history');
     Route::post('assets-manager/plateform/add', [AssetsManagerController::class, 'plateFormStore'])->name('asset.manage.plateform.add');
+    Route::post('assets-manager/send/email', [AssetsManagerController::class, 'assetsManagerSendEmail'])->name('asset.manage.send.email');
+    Route::post('assets-manager/records/permission', [AssetsManagerController::class, 'assetsManagerRecordPermission'])->name('asset.manage.records.permission');
+    Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -2511,6 +2649,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('destroy/{id}', [TemplatesController::class, 'destroy']);
         Route::get('generate-template-category-branch', [TemplatesController::class, 'generateTempalateCategoryBrand']);
         Route::get('type', [TemplatesController::class, 'typeIndex'])->name('templates.type');
+    });
+
+    Route::prefix('code-shortcuts')->middleware('auth')->group(function () {
+        Route::get('/', [CodeShortcutController::class, 'index'])->name('code-shortcuts');
+        Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
+        Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
+        Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -2558,6 +2703,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::prefix('user-avaibility')->group(function () {
+        Route::get('search', [UserAvaibilityController::class, 'search'])->name('user-avaibility.search');
         Route::get('list', [UserAvaibilityController::class, 'index'])->name('user-avaibility.index');
         Route::post('save', [UserAvaibilityController::class, 'save'])->name('user-avaibility.save');
 
@@ -2579,13 +2725,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
-
 /**
-* This route will push the FAQ to series of website with help of API
-*/
+ * This route will push the FAQ to series of website with help of API
+ */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
-	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
+    Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -2633,7 +2778,7 @@ Route::any('twilio/store-complete-task-record', [TwilioController::class, 'store
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
 
-Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
@@ -2709,6 +2854,8 @@ Route::post('whatsapp/incoming', [WhatsAppController::class, 'incomingMessage'])
 Route::post('whatsapp/incomingNew', [WhatsAppController::class, 'incomingMessageNew']);
 Route::post('whatsapp/outgoingProcessed', [WhatsAppController::class, 'outgoingProcessed']);
 Route::post('whatsapp/webhook', [WhatsAppController::class, 'webhook']);
+Route::post('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficial']);
+Route::get('whatsapp/webhook-official', [WhatsAppController::class, 'webhookOfficialVerify']);
 
 Route::get('whatsapp/pullApiwha', [WhatsAppController::class, 'pullApiwha']);
 
@@ -2751,9 +2898,8 @@ Route::middleware('auth')->group(function () {
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
 
-
-    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2768,6 +2914,14 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/refresh_task_by_id', [TimeDoctorController::class, 'refreshTasksById'])->name('time-doctor.refresh-task-by-id');
     Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
     Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
+    Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
+    Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
+    Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
+
+    Route::prefix('time-doctor/task-creation-logs')->group(function () {
+        Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
+        Route::get('/records', [TimeDoctorController::class, 'listTaskCreationLogs'])->name('time-doctor.task_creation_logs.records');
+    });
 
     Route::prefix('time-doctor-activities')->group(function () {
         Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
@@ -2776,7 +2930,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
-
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
         Route::prefix('notification')->group(function () {
             Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
             Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
@@ -2802,10 +2956,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/approved/payment', [TimeDoctorActivitiesController::class, 'submitPaymentRequest'])->name('time-doctor-acitivties.payment-request.submit');
             Route::post('/add-efficiency', [TimeDoctorActivitiesController::class, 'AddEfficiency'])->name('time-doctor-acitivties.efficiency.save');
             Route::get('/task-activity', [TimeDoctorActivitiesController::class, 'taskActivity'])->name('time-doctor-acitivties.acitivties.task-activity');
-            Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
+            Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
-    
 
     /***
      * use for Postman
@@ -2819,12 +2972,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
+    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+
     Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
     Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
+    Route::post('/postman/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
-
+    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
+   
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -2854,6 +3018,8 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
     Route::get('bug-tracking/edit/{id}', [BugTrackingController::class, 'edit'])->name('bug-tracking.edit');
     Route::post('bug-tracking/update', [BugTrackingController::class, 'update'])->name('bug-tracking.update');
+    Route::post('bug-tracking/upload-file', [BugTrackingController::class, 'uploadFile'])->name('bug-tracking.upload-file');
+    Route::get('bug-tracking/files/record', [BugTrackingController::class, 'getBugFilesList'])->name('bug-tracking.files.record');
     Route::post('bug-tracking/assign_user', [BugTrackingController::class, 'assignUser'])->name('bug-tracking.assign_user');
     Route::post('bug-tracking/change_bug_type', [BugTrackingController::class, 'changeBugType'])->name('bug-tracking.change_bug_type');
     Route::post('bug-tracking/change_module_type', [BugTrackingController::class, 'changeModuleType'])->name('bug-tracking.change_module_type');
@@ -2899,6 +3065,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
+    Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -2946,7 +3113,63 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 });
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
-    Route::resource('accounts', PinterestAccountAcontroller::class);
+    Route::prefix('accounts')->group(function () {
+        Route::get('', [PinterestAccountController::class, 'index'])->name('pinterest.accounts');
+        Route::post('create', [PinterestAccountController::class, 'createAccount'])->name('pinterest.accounts.create');
+        Route::get('{id}', [PinterestAccountController::class, 'getAccount'])->name('pinterest.accounts.get');
+        Route::post('update/{id}', [PinterestAccountController::class, 'updateAccount'])->name('pinterest.accounts.update');
+        Route::post('delete/{id}', [PinterestAccountController::class, 'deleteAccount'])->name('pinterest.accounts.delete');
+        Route::get('connect/login', [PinterestAccountController::class, 'loginAccount'])->name('pinterest.accounts.connect.login');
+        Route::get('connect/{id}', [PinterestAccountController::class, 'connectAccount'])->name('pinterest.accounts.connect');
+        Route::get('refresh/{id}', [PinterestAccountController::class, 'refreshAccount'])->name('pinterest.accounts.refresh');
+        Route::get('disconnect/{id}', [PinterestAccountController::class, 'disconnectAccount'])->name('pinterest.accounts.disconnect');
+        Route::prefix('{id}')->group(function () {
+            Route::get('dashboard', [PinterestAdsAccountsController::class, 'dashboard'])->name('pinterest.accounts.dashboard');
+            Route::prefix('adsAccount')->group(function () {
+                Route::post('create', [PinterestAdsAccountsController::class, 'createAdsAccount'])->name('pinterest.accounts.adsAccount.create');
+            });
+            Route::prefix('boards')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardsIndex'])->name('pinterest.accounts.board.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoard'])->name('pinterest.accounts.board.create');
+                Route::get('get/{boardId}', [PinterestAdsAccountsController::class, 'getBoard'])->name('pinterest.accounts.board.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoard'])->name('pinterest.accounts.board.update');
+                Route::get('delete/{boardId}', [PinterestAdsAccountsController::class, 'deleteBoard'])->name('pinterest.accounts.board.delete');
+            });
+            Route::prefix('board-sections')->group(function () {
+                Route::get('', [PinterestAdsAccountsController::class, 'boardSectionsIndex'])->name('pinterest.accounts.boardSections.index');
+                Route::post('create', [PinterestAdsAccountsController::class, 'createBoardSections'])->name('pinterest.accounts.boardSections.create');
+                Route::get('get/{boardSectionId}', [PinterestAdsAccountsController::class, 'getBoardSection'])->name('pinterest.accounts.boardSections.get');
+                Route::post('update', [PinterestAdsAccountsController::class, 'updateBoardSection'])->name('pinterest.accounts.boardSections.update');
+                Route::get('delete/{boardSectionId}', [PinterestAdsAccountsController::class, 'deleteBoardSection'])->name('pinterest.accounts.boardSections.delete');
+            });
+            Route::prefix('pins')->group(function () {
+                Route::get('', [PinterestPinsController::class, 'pinsIndex'])->name('pinterest.accounts.pin.index');
+                Route::post('create', [PinterestPinsController::class, 'createPin'])->name('pinterest.accounts.pin.create');
+                Route::get('get/{pinId}', [PinterestPinsController::class, 'getPin'])->name('pinterest.accounts.pin.get');
+                Route::post('update', [PinterestPinsController::class, 'updatePin'])->name('pinterest.accounts.pin.update');
+                Route::get('delete/{pinId}', [PinterestPinsController::class, 'deletePin'])->name('pinterest.accounts.pin.delete');
+                Route::get('boards/{boardId}', [PinterestPinsController::class, 'getBoardSections'])->name('pinterest.accounts.pin.board.sections');
+            });
+            Route::prefix('campaigns')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'campaignsIndex'])->name('pinterest.accounts.campaign.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createCampaign'])->name('pinterest.accounts.campaign.create');
+                Route::get('get/{campaignId}', [PinterestCampaignsController::class, 'getCampaign'])->name('pinterest.accounts.campaign.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateCampaign'])->name('pinterest.accounts.campaign.update');
+            });
+            Route::prefix('ads-group')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsGroupIndex'])->name('pinterest.accounts.adsGroup.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAdsGroup'])->name('pinterest.accounts.adsGroup.create');
+                Route::get('get/{adsGroupId}', [PinterestCampaignsController::class, 'getAdsGroup'])->name('pinterest.accounts.adsGroup.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAdsGroup'])->name('pinterest.accounts.adsGroup.update');
+            });
+            Route::prefix('ads')->group(function () {
+                Route::get('', [PinterestCampaignsController::class, 'adsIndex'])->name('pinterest.accounts.ads.index');
+                Route::post('create', [PinterestCampaignsController::class, 'createAds'])->name('pinterest.accounts.ads.create');
+                Route::get('get/{adsId}', [PinterestCampaignsController::class, 'getAds'])->name('pinterest.accounts.ads.get');
+                Route::post('update', [PinterestCampaignsController::class, 'updateAds'])->name('pinterest.accounts.ads.update');
+            });
+        });
+    });
 });
 
 Route::prefix('database')->middleware('auth')->group(function () {
@@ -2977,6 +3200,7 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', [InstagramPostsController::class, 'instagramUserLogs'])->name('instagram.logs');
 Route::post('instagram/history', [InstagramPostsController::class, 'history'])->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', [HashtagController::class, 'addmailinglist']);
+
 Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('inbox', [SocialAccountController::class, 'inbox'])->name('social.direct-message');
     Route::post('send-message', [SocialAccountController::class, 'sendMessage'])->name('social.message.send');
@@ -3532,6 +3756,15 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
+
+    Route::prefix('whatsapp-business-account')->group(function () {
+        Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
+        Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
+        Route::post('update', [WhatsappBusinessAccountController::class, 'updateAccount'])->name('whatsapp.business.account.update');
+        Route::post('delete/{id}', [WhatsappBusinessAccountController::class, 'deleteAccount'])->name('whatsapp.business.account.delete');
+        Route::get('get/{id}', [WhatsappBusinessAccountController::class, 'getAccount'])->name('whatsapp.business.account.get');
+    });
+
     // Whats App Config
     Route::get('whatsapp-config', [Marketing\WhatsappConfigController::class, 'index'])->name('whatsapp.config.index');
     Route::get('whatsapp-history/{id}', [Marketing\WhatsappConfigController::class, 'history'])->name('whatsapp.config.history');
@@ -3778,15 +4011,32 @@ Route::middleware('auth')->group(function () {
     Route::post('/uicheck/create/dev/attachment', [UicheckController::class, 'saveDevDocuments'])->name('uicheck.create.dev.attachment');
     Route::get('uicheck/get/dev/attachment', [UicheckController::class, 'devListDocuments'])->name('uicheck.get.dev.attachment');
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
+    Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
+
+    Route::prefix('variant')->group(function () {
+        Route::post('/', [KeywordVariantController::class, 'create'])->name('add.keyword.variant');
+        Route::get('/', [KeywordVariantController::class, 'index'])->name('list.keyword.variant');
+        Route::delete('/{id}', [KeywordVariantController::class, 'delete'])->name('delete.keyword.variant');
+    });
+
+    Route::get('brand/search', [GoogleSearchController::class, 'searchBrand1'])->name('search.brand');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
+        Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
         Route::post('get/translator/status/history', [UicheckController::class, 'translatorStatusHistory'])->name('get.translator.status.history');
+        Route::post('assign-user', [UicheckController::class, 'assignNewUser'])->name('uicheck.assignNewuser');
+        Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
+        Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
+        Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
+        Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
+        Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
+        Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -3801,13 +4051,16 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
-     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
-     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+    Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('/get-keywords', [GoogleSearchController::class, 'index'])->name('google.search-keyword.list');
     Route::resource('/search/keyword', GoogleSearchController::class);
+    Route::post('/search/generate-keyword', [GoogleSearchController::class, 'generateKeywords'])->name('keyword.generate');
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
     Route::get('/search/results', [GoogleSearchController::class, 'searchResults'])->name('google.search.results');
     Route::get('/search/scrap', [GoogleSearchController::class, 'callScraper'])->name('google.search.keyword.scrap');
+    Route::post('/search/delete/{id?}', [GoogleSearchController::class, 'destroy'])->name('google.search.keyword.delete');
 
     Route::resource('/affiliate/keyword', GoogleAffiliateController::class);
     Route::get('/affiliate/keyword', [GoogleAffiliateController::class, 'index'])->name('google.affiliate.keyword');
@@ -3819,15 +4072,15 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
     //Google Developer API
-// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+    // Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
 
-Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
-// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
-Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+    Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+    // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+    Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
-Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
-	
-     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
+    Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+
+    Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3854,13 +4107,20 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
-        Route::get('/repos', [Github\RepositoryController::class, 'listRepositories']);
-        Route::get('/repos/{name}/users', [Github\UserController::class, 'listUsersOfRepository']);
-        Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
+        Route::resource('/organizations', Github\OrganizationController::class);
+        Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
+        Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
+        Route::get('/repos/{id}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
         Route::get('/repos/{id}/branches', [Github\RepositoryController::class, 'getRepositoryDetails']);
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
+        Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
+        Route::get('/repos/{id}/actions', [Github\RepositoryController::class, 'actionWorkflows']);
+        Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
+        Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
+        Route::post('/repos/{id}', [Github\RepositoryController::class, 'deleteNumberOfBranchesFromRepo']);
+        Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
         Route::get('/users/{userId}', [Github\UserController::class, 'userDetails']);
@@ -3869,7 +4129,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/groups/repositories/add', [Github\GroupController::class, 'addRepository']);
         Route::get('/groups/{groupId}', [Github\GroupController::class, 'groupDetails']);
         Route::get('/groups/{groupId}/repos/{repoId}/remove', [Github\GroupController::class, 'removeRepositoryFromGroup']);
-        Route::get('/groups/{groupId}/users/{userId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
+        Route::get('/groups/{groupId}/users/{userId}/organization/{organizationId}/remove', [Github\GroupController::class, 'removeUsersFromGroup']);
         Route::get('/groups/{groupId}/users/add', [Github\GroupController::class, 'addUserForm']);
         Route::get('/groups/{groupId}/repositories/add', [Github\GroupController::class, 'addRepositoryForm']);
         Route::get('/sync', [Github\SyncController::class, 'index']);
@@ -3879,6 +4139,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
+        Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
+        Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
     });
 });
 
@@ -3903,9 +4165,12 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+
+    Route::resource('event', EventController::class);
+    Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
@@ -3946,6 +4211,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
     Route::post('/savegroup', [AdsController::class, 'savegroup'])->name('ads.savegroup');
     Route::get('/getgroups', [AdsController::class, 'getgroups'])->name('ads.getgroups');
     Route::post('/adsstore', [AdsController::class, 'adsstore'])->name('ads.adsstore');
+});
+
+Route::prefix('google-remarketing-campaigns')->middleware('auth')->group(function () {
+    Route::post('create', [GoogleAdsRemarketingController::class, 'createCampaign'])->name('googleremarketingcampaigns.createCampaign');
+    Route::post('update', [GoogleAdsRemarketingController::class, 'updateCampaign'])->name('googleremarketingcampaigns.updateCampaign');
 });
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
@@ -4016,9 +4286,26 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                 });
             });
 
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
+                });
+            });
+        });
+
+        Route::prefix('google-campaign-location')->group(function () {
+            Route::get('/', [GoogleCampaignLocationController::class, 'index'])->name('google-campaign-location.index');
+            Route::post('/create', [GoogleCampaignLocationController::class, 'createLocation'])->name('google-campaign-location.createLocation');
+            Route::delete('/delete/{locationId}', [GoogleCampaignLocationController::class, 'deleteLocation'])->name('google-campaign-location.deleteLocation');
         });
     });
 
+    Route::get('google-campaign-location/countries', [GoogleCampaignLocationController::class, 'countries'])->name('google-campaign-location.countries');
+    Route::get('google-campaign-location/states', [GoogleCampaignLocationController::class, 'states'])->name('google-campaign-location.states');
+    Route::get('google-campaign-location/cities', [GoogleCampaignLocationController::class, 'cities'])->name('google-campaign-location.cities');
+    Route::get('google-campaign-location/address', [GoogleCampaignLocationController::class, 'address'])->name('google-campaign-location.address');
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
     Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
@@ -4198,6 +4485,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('twilio/accept', [TwilioController::class, 'incomingCall'])->name('twilio-accept-call');
 
+    Route::get('watson/accounts', [WatsonController::class, 'index'])->name('watson-accounts');
+    Route::post('watson/account', [WatsonController::class, 'store'])->name('watson-accounts.add');
+    Route::get('watson/account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
+    Route::post('watson/account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
+    Route::get('watson/delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
+    Route::post('watson/add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+
+    Route::group(['prefix' => 'google-dialog'], function () {
+        Route::get('/accounts', [GoogleDialogFlowController::class, 'index'])->name('google-chatbot-accounts');
+        Route::post('/account/create', [GoogleDialogFlowController::class, 'store'])->name('google-chatbot-accounts.add');
+        Route::get('/account/get/{id}', [GoogleDialogFlowController::class, 'get'])->name('google-chatbot-accounts.get');
+        Route::post('/account/update', [GoogleDialogFlowController::class, 'update'])->name('google-chatbot-accounts.update');
+        Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');
+    });
+
     //subcategory route
 });
 
@@ -4326,6 +4628,7 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
 
 // auth not applied
 Route::post('/common/sendEmail', [CommonController::class, 'sendCommonEmail'])->name('common.send.email');
+Route::post('/common/sendclanaderLinkEmail', [CommonController::class, 'sendClanaderLinkEmail'])->name('common.send.clanaderLinkEmail');
 Route::get('/common/getmailtemplate', [CommonController::class, 'getMailTemplate'])->name('common.getmailtemplate');
 
 //Google file translator
@@ -4343,7 +4646,9 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', [TranslationController::class, 'index'])->name('translation.list');
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
+    Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');
@@ -4413,6 +4718,7 @@ Route::middleware('auth')->group(function () {
     // DEV MANISH
     Route::get('google-keyword-search', [GoogleAddWord\googleAddsController::class, 'index'])->name('google-keyword-search');
     Route::get('google-keyword-search-v6', [GoogleAddWord\googleAddsV6Controller::class, 'main'])->name('google-keyword-search-v6');
+    Route::get('google-keyword-search-v2', [GoogleAddWord\googleAddsController::class, 'generatekeywordidea'])->name('google-keyword-search-v2');
 
     Route::resource('google-traslation-settings', GoogleTraslationSettingsController::class);
 });
@@ -4423,7 +4729,7 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4527,9 +4833,14 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::get('/', [TasksController::class, 'index'])->name('totem.tasks.all');
         Route::get('{task}', [TasksController::class, 'view'])->name('totem.task.view');
         Route::post('{task}/delete', [TasksController::class, 'destroy'])->name('totem.task.delete');
+        Route::post('{task}/edit', [TasksController::class, 'update'])->name('totem.task.update');
+        Route::post('create', [TasksController::class, 'store'])->name('totem.task.create');
         Route::post('{task}/status', [TasksController::class, 'status'])->name('totem.task.status');
         Route::get('{task}/development-task', [TasksController::class, 'developmentTask'])->name('totem.task.developmentTask');
         Route::post('{task}/get-error', [TasksController::class, 'totemCommandError'])->name('totem.task.get-error');
+        Route::post('enable-disable', [TasksController::class, 'enableDisableCron'])->name('totem.task.enable-disable');
+        Route::post('assign-users', [TasksController::class, 'assignUsers'])->name('totem.task.assign-users');
+        Route::post('bulk-assign', [TasksController::class, 'bulkAssign'])->name('totem.task.bulk-assign');
     });
 });
 
@@ -4574,10 +4885,12 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/magento_product_today_common_err_report', [MagentoProductPushErrors::class, 'groupErrorMessageReport'])->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
 //Magento Command
+Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
+Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
@@ -4726,8 +5039,18 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::post('/permission-remove', [GoogleDocController::class, 'permissionRemove'])->name('.permission.remove');
+    Route::post('/permission-view', [GoogleDocController::class, 'permissionView'])->name('.permission.view');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
+    Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
+    Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
+    Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
+    Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
+    Route::post('category/update', [GoogleDocController::class, 'updateGoogleDocCategory'])->name('.category.update');
+    Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
+    Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
+    Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
@@ -4736,7 +5059,7 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
-
+    Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
 });
 
 //Queue Management::
@@ -4752,28 +5075,151 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::prefix('content')->group(function () {
+        Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
+        Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
+        Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
+        Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
+        Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
+        Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
+    });
+
+    Route::prefix('content-status')->group(function() {
+        Route::get('', [Seo\ContentStatusController::class, 'index'])->name('seo.content-status.index');
+        Route::get('create', [Seo\ContentStatusController::class, 'create'])->name('seo.content-status.create');
+        Route::post('store', [Seo\ContentStatusController::class, 'store'])->name('seo.content-status.store');
+        Route::get('{id}/edit', [Seo\ContentStatusController::class, 'edit'])->name('seo.content-status.edit');
+        Route::post('{id}/update', [Seo\ContentStatusController::class, 'update'])->name('seo.content-status.update');
+    });
+
+    Route::prefix('company')->group(function () {
+        Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
+        Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
+        Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
+        Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
+        Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+    });
+
+    Route::prefix('company-type')->group(function () {
+        Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
+        Route::get('create', [Seo\CompanyTypeController::class, 'create'])->name('seo.company-type.create');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.company-type.store');
+        Route::get('edit/{id}', [Seo\CompanyTypeController::class, 'edit'])->name('seo.company-type.edit');
+        Route::post('update/{id}', [Seo\CompanyTypeController::class, 'update'])->name('seo.company-type.update');
+        Route::post('destroy/{id}', [Seo\CompanyTypeController::class, 'destroy'])->name('seo.company-type.destroy');
+    });
+});
+
 // Task Summary::
 Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksSummary');
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
-
-
 Route::prefix('appconnect')->middleware('auth')->group(function () {
-Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
- });
+    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+});
+
+Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
+    Route::prefix('providers')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
+        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
+    });
+
+    Route::prefix('provider-accounts')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
+        Route::post('create', [AffiliateMarketingController::class, 'createProviderAccount'])->name('affiliate-marketing.createProviderAccount');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderAccount'])->name('affiliate-marketing.updateProviderAccount');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderAccount'])->name('affiliate-marketing.deleteProviderAccount');
+    });
+
+    Route::prefix('provider-details')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'index'])->name('affiliate-marketing.provider.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'createAffiliateGroup'])->name('affiliate-marketing.provider.createGroup');
+        Route::post('update/{id}', [AffiliateMarketingDataController::class, 'updateAffiliateGroup'])->name('affiliate-marketing.provider.updateGroup');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'getAffiliateGroup'])->name('affiliate-marketing.provider.getGroup');
+        Route::post('sync', [AffiliateMarketingDataController::class, 'syncData'])->name('affiliate-marketing.provider.syncData');
+    });
+
+    Route::prefix('programs')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
+    });
+
+    Route::prefix('commissions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'commissionIndex'])->name('affiliate-marketing.provider.commission.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'commissionGet'])->name('affiliate-marketing.provider.commission.get');
+        Route::post('update', [AffiliateMarketingDataController::class, 'commissionUpdate'])->name('affiliate-marketing.provider.commission.update');
+        Route::post('approve/{id}', [AffiliateMarketingDataController::class, 'commissionApproveDisapprove'])->name('affiliate-marketing.provider.commission.approveDisapprove');
+        Route::post('commission-sync', [AffiliateMarketingDataController::class, 'commissionSync'])->name('affiliate-marketing.provider.commission.sync');
+    });
+
+    Route::prefix('affiliates')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'affiliateIndex'])->name('affiliate-marketing.provider.affiliate.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'affiliateGet'])->name('affiliate-marketing.provider.affiliate.get');
+        Route::post('create', [AffiliateMarketingDataController::class, 'affiliateCreate'])->name('affiliate-marketing.provider.affiliate.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'affiliateDelete'])->name('affiliate-marketing.provider.affiliate.delete');
+        Route::get('payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliatePayoutMethods'])->name('affiliate-marketing.provider.affiliate.payoutMethods');
+        Route::post('update/payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliateUpdatePayoutMethod'])->name('affiliate-marketing.provider.affiliate.updatePayoutMethods');
+        Route::post('add-to-programme', [AffiliateMarketingDataController::class, 'affiliateAddToProgramme'])->name('affiliate-marketing.provider.affiliate.addToProgramme');
+        Route::post('affiliate-sync', [AffiliateMarketingDataController::class, 'affiliateSync'])->name('affiliate-marketing.provider.affiliate.sync');
+    });
+
+    Route::prefix('payments')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'paymentsIndex'])->name('affiliate-marketing.provider.payments.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'paymentsCreate'])->name('affiliate-marketing.provider.payments.create');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'paymentsCancel'])->name('affiliate-marketing.provider.payments.cancel');
+        Route::post('payments-sync', [AffiliateMarketingDataController::class, 'paymentsSync'])->name('affiliate-marketing.provider.payments.sync');
+    });
+
+    Route::prefix('conversions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'conversionIndex'])->name('affiliate-marketing.provider.conversion.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'conversionCreate'])->name('affiliate-marketing.provider.conversion.create');
+        Route::post('update', [AffiliateMarketingDataController::class, 'conversionUpdate'])->name('affiliate-marketing.provider.conversion.update');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'conversionDelete'])->name('affiliate-marketing.provider.conversion.delete');
+        Route::post('add-commission', [AffiliateMarketingDataController::class, 'conversionAddCommission'])->name('affiliate-marketing.provider.conversion.addCommission');
+        Route::post('conversion-sync', [AffiliateMarketingDataController::class, 'conversionSync'])->name('affiliate-marketing.provider.conversion.sync');
+    });
+
+    Route::prefix('customer')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'customerIndex'])->name('affiliate-marketing.provider.customer.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'customerCreate'])->name('affiliate-marketing.provider.customer.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'customerDelete'])->name('affiliate-marketing.provider.customer.delete');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
+        Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
+    });
+});
+
+Route::prefix('chat-gpt')->middleware('auth')->group(function () {
+    Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
+    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
+});
 
 
-   
+Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
+Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
+Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');

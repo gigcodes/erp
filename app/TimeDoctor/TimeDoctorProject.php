@@ -14,17 +14,16 @@ class TimeDoctorProject extends Model
         'time_doctor_account_id',
         'time_doctor_company_id',
         'time_doctor_project_name',
-        'time_doctor_project_description'
+        'time_doctor_project_description',
     ];
 
     public function account()
     {
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class,'time_doctor_account_id');
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class, 'time_doctor_account_id');
     }
 
     public function account_detail()
     {
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class,'time_doctor_account_id');
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorAccount::class, 'time_doctor_account_id');
     }
-   
 }

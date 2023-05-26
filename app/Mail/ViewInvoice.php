@@ -28,6 +28,7 @@ class ViewInvoice extends Mailable
     public $duty_tax;
 
     public $param;
+
     /**
      * Create a new message instance.
      *
@@ -142,11 +143,11 @@ class ViewInvoice extends Mailable
                 foreach ($order->order_product as $products) {
                     if ($products->product) {
                         $string .= '<tr>
-                                    <td>'.$products->product->name.' '.$products->product->short_description.'</td>
-                                    <td>'.$products->made_in.'</td>
-                                    <td>'.$products->qty.'</td>
+                                    <td>' . $products->product->name . ' ' . $products->product->short_description . '</td>
+                                    <td>' . $products->made_in . '</td>
+                                    <td>' . $products->qty . '</td>
                                     <td>INR</td>
-                                    <td>INR '.$products->product_price.'</td>
+                                    <td>INR ' . $products->product_price . '</td>
                                     </tr>';
                     }
                     $this->orderTotal += $products->product_price;

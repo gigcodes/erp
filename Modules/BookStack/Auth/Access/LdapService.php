@@ -2,12 +2,12 @@
 
 namespace Modules\BookStack\Auth\Access;
 
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Builder;
-use Modules\BookStack\Auth\Access;
 use Modules\BookStack\Auth\Role;
 use Modules\BookStack\Auth\User;
+use Modules\BookStack\Auth\Access;
 use Modules\BookStack\Auth\UserRepo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Modules\BookStack\Exceptions\LdapException;
 
 /**
@@ -82,7 +82,6 @@ class LdapService
      * Get the details of a user from LDAP using the given username.
      * User found via configurable user filter.
      *
-     * @param $userName
      * @return array|null
      *
      * @throws LdapException
@@ -112,9 +111,6 @@ class LdapService
      * Get a property from an LDAP user response fetch.
      * Handles properties potentially being part of an array.
      *
-     * @param  array  $userDetails
-     * @param  string  $propertyKey
-     * @param $defaultValue
      * @return mixed
      */
     protected function getUserResponseProperty(array $userDetails, string $propertyKey, $defaultValue)
@@ -127,7 +123,6 @@ class LdapService
     }
 
     /**
-     * @param  Authenticatable  $user
      * @param  string  $username
      * @param  string  $password
      * @return bool
@@ -159,7 +154,6 @@ class LdapService
      * Bind the system user to the LDAP connection using the given credentials
      * otherwise anonymous access is attempted.
      *
-     * @param $connection
      *
      * @throws LdapException
      */
@@ -226,7 +220,6 @@ class LdapService
      * Parse a LDAP server string and return the host and port for
      * a connection. Is flexible to formats such as 'ldap.example.com:8069' or 'ldaps://ldap.example.com'
      *
-     * @param $serverString
      * @return array
      */
     protected function parseServerString($serverString)
@@ -249,14 +242,13 @@ class LdapService
      * Build a filter string by injecting common variables.
      *
      * @param  string  $filterString
-     * @param  array  $attrs
      * @return string
      */
     protected function buildFilter($filterString, array $attrs)
     {
         $newAttrs = [];
         foreach ($attrs as $key => $attrText) {
-            $newKey = '${'.$key.'}';
+            $newKey = '${' . $key . '}';
             $newAttrs[$newKey] = $this->ldap->escape($attrText);
         }
 
@@ -335,7 +327,7 @@ class LdapService
         $baseDn = $this->config['base_dn'];
         $groupsAttr = strtolower($this->config['group_attribute']);
 
-        $groupFilter = 'CN='.$this->ldap->escape($groupName);
+        $groupFilter = 'CN=' . $this->ldap->escape($groupName);
         $groups = $this->ldap->searchAndGetEntries($ldapConnection, $baseDn, $groupFilter, [$groupsAttr]);
         if ($groups['count'] === 0) {
             return [];
@@ -350,7 +342,6 @@ class LdapService
      * Filter out LDAP CN and DN language in a ldap search return
      * Gets the base CN (common name) of the string
      *
-     * @param  array  $userGroupSearchResponse
      * @return array
      */
     protected function groupFilter(array $userGroupSearchResponse)
@@ -377,7 +368,6 @@ class LdapService
      * Sync the LDAP groups to the user roles for the current user
      *
      * @param  \BookStack\Auth\User  $user
-     * @param  string  $username
      *
      * @throws LdapException
      */
@@ -401,7 +391,6 @@ class LdapService
      * Match an array of group names from LDAP to BookStack system roles.
      * Formats LDAP group names to be lower-case and hyphenated.
      *
-     * @param  array  $groupNames
      * @return \Illuminate\Support\Collection
      */
     protected function matchLdapGroupsToSystemsRoles(array $groupNames)
@@ -413,7 +402,7 @@ class LdapService
         $roles = Role::query()->where(function (Builder $query) use ($groupNames) {
             $query->whereIn('name', $groupNames);
             foreach ($groupNames as $groupName) {
-                $query->orWhere('external_auth_id', 'LIKE', '%'.$groupName.'%');
+                $query->orWhere('external_auth_id', 'LIKE', '%' . $groupName . '%');
             }
         })->get();
 
@@ -429,7 +418,6 @@ class LdapService
      * Checked against role 'external_auth_id' if set otherwise the name of the role.
      *
      * @param  \BookStack\Auth\Role  $role
-     * @param  array  $groupNames
      * @return bool
      */
     protected function roleMatchesGroupNames(Role $role, array $groupNames)

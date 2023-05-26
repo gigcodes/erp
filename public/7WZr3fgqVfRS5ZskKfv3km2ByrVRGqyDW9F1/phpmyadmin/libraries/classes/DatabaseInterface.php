@@ -8,65 +8,65 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_column;
-use function array_diff;
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function array_multisort;
-use function array_reverse;
-use function array_shift;
-use function array_slice;
-use function basename;
-use function closelog;
-use function count;
-use function defined;
-use const E_USER_WARNING;
-use function explode;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_int;
-use function is_string;
-use const LOG_INFO;
-use const LOG_NDELAY;
 use const LOG_PID;
+use const LOG_INFO;
 use const LOG_USER;
-use function mb_strtolower;
-use function microtime;
-use function openlog;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Database\DatabaseList;
-use PhpMyAdmin\Dbal\DatabaseName;
-use PhpMyAdmin\Dbal\DbalInterface;
-use PhpMyAdmin\Dbal\DbiExtension;
-use PhpMyAdmin\Dbal\DbiMysqli;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Dbal\Warning;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Query\Cache;
-use PhpMyAdmin\Query\Compatibility;
-use PhpMyAdmin\Query\Generator as QueryGenerator;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\SqlParser\Context;
-use PhpMyAdmin\Utils\SessionCache;
-use function reset;
 use const SORT_ASC;
-use const SORT_DESC;
-use function sprintf;
-use function str_contains;
-use function str_starts_with;
-use function stripos;
-use function strlen;
-use function strtolower;
-use function strtoupper;
+use function count;
+use function reset;
 use function strtr;
+use function usort;
+use const SORT_DESC;
+use function is_int;
+use function strlen;
 use function substr;
 use function syslog;
-use function trigger_error;
 use function uasort;
 use function uksort;
-use function usort;
+use const LOG_NDELAY;
+use function defined;
+use function explode;
+use function implode;
+use function openlog;
+use function sprintf;
+use function stripos;
+use function basename;
+use function closelog;
+use function in_array;
+use function is_array;
+use function array_map;
+use function is_string;
+use function microtime;
+use function array_diff;
+use function array_keys;
+use function strtolower;
+use function strtoupper;
+use const E_USER_WARNING;
+use function array_merge;
+use function array_shift;
+use function array_slice;
+use function array_column;
+use function str_contains;
+use function array_reverse;
+use function mb_strtolower;
+use function trigger_error;
+use PhpMyAdmin\Query\Cache;
+use PhpMyAdmin\Dbal\Warning;
+use function array_multisort;
+use function str_starts_with;
+use PhpMyAdmin\Dbal\DbiMysqli;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\Dbal\DatabaseName;
+use PhpMyAdmin\Dbal\DbiExtension;
+use PhpMyAdmin\SqlParser\Context;
+use PhpMyAdmin\Dbal\DbalInterface;
+use PhpMyAdmin\Utils\SessionCache;
+use PhpMyAdmin\Query\Compatibility;
+use PhpMyAdmin\Dbal\ResultInterface;
+use PhpMyAdmin\Database\DatabaseList;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Query\Generator as QueryGenerator;
 
 /**
  * Main interface for database interactions
@@ -332,7 +332,7 @@ class DatabaseInterface implements DbalInterface
         }
 
         $tables = $this->fetchResult(
-            'SHOW TABLES FROM '.Util::backquote($database).';',
+            'SHOW TABLES FROM ' . Util::backquote($database) . ';',
             null,
             0,
             $link
@@ -412,10 +412,10 @@ class DatabaseInterface implements DbalInterface
             $sql = QueryGenerator::getSqlForTablesFull([$this->escapeString($database)], $sql_where_table);
 
             // Sort the tables
-            $sql .= ' ORDER BY '.$sort_by.' '.$sort_order;
+            $sql .= ' ORDER BY ' . $sort_by . ' ' . $sort_order;
 
             if ($limit_count) {
-                $sql .= ' LIMIT '.$limit_count.' OFFSET '.$limit_offset;
+                $sql .= ' LIMIT ' . $limit_count . ' OFFSET ' . $limit_offset;
             }
 
             $tables = $this->fetchResult(
@@ -488,14 +488,14 @@ class DatabaseInterface implements DbalInterface
         // information_schema does not return any table info for any database
         // this is why we fall back to SHOW TABLE STATUS even for MySQL >= 50002
         if ($tables === []) {
-            $sql = 'SHOW TABLE STATUS FROM '.Util::backquote($database);
+            $sql = 'SHOW TABLE STATUS FROM ' . Util::backquote($database);
             if ($table || ($tbl_is_group === true) || $table_type) {
                 $sql .= ' WHERE';
                 $needAnd = false;
                 if ($table || ($tbl_is_group === true)) {
                     if (is_array($table)) {
                         $sql .= ' `Name` IN (\''
-                            .implode(
+                            . implode(
                                 '\', \'',
                                 array_map(
                                     [
@@ -505,11 +505,11 @@ class DatabaseInterface implements DbalInterface
                                     $table,
                                     $link
                                 )
-                            ).'\')';
+                            ) . '\')';
                     } else {
                         $sql .= " `Name` LIKE '"
-                            .$this->escapeMysqlLikeString($table, $link)
-                            ."%'";
+                            . $this->escapeMysqlLikeString($table, $link)
+                            . "%'";
                     }
 
                     $needAnd = true;
@@ -647,7 +647,6 @@ class DatabaseInterface implements DbalInterface
      * @param  int  $limit_offset starting offset for LIMIT
      * @param  bool|int  $limit_count  row count for LIMIT or true
      *                                  for $GLOBALS['cfg']['MaxDbList']
-     * @return array
      *
      * @todo    move into ListDatabase?
      */
@@ -677,7 +676,7 @@ class DatabaseInterface implements DbalInterface
             $limit = '';
             if (! $GLOBALS['cfg']['NaturalOrder']) {
                 if ($limit_count) {
-                    $limit = ' LIMIT '.$limit_count.' OFFSET '.$limit_offset;
+                    $limit = ' LIMIT ' . $limit_count . ' OFFSET ' . $limit_offset;
                 }
 
                 $apply_limit_and_order_manual = false;
@@ -687,7 +686,7 @@ class DatabaseInterface implements DbalInterface
             $sqlWhereSchema = '';
             if ($database !== null) {
                 $sqlWhereSchema = 'WHERE `SCHEMA_NAME` LIKE \''
-                    .$this->escapeString($database, $link).'\'';
+                    . $this->escapeString($database, $link) . '\'';
             }
 
             $sql = QueryGenerator::getInformationSchemaDatabasesFullRequest(
@@ -737,7 +736,7 @@ class DatabaseInterface implements DbalInterface
 
                 $res = $this->query(
                     'SHOW TABLE STATUS FROM '
-                    .Util::backquote($database_name).';'
+                    . Util::backquote($database_name) . ';'
                 );
 
                 while ($row = $res->fetchAssoc()) {
@@ -788,7 +787,6 @@ class DatabaseInterface implements DbalInterface
      *
      * @param  string  $sql_query    target SQL query to get columns
      * @param  array  $view_columns alias for columns
-     * @return array
      *
      * @psalm-return list<array<string, mixed>>
      */
@@ -829,7 +827,6 @@ class DatabaseInterface implements DbalInterface
      * @param  string|null  $table    name of table to retrieve columns from
      * @param  string|null  $column   name of specific column
      * @param  mixed  $link     mysql link resource
-     * @return array
      */
     public function getColumnsFull(
         ?string $database = null,
@@ -866,9 +863,9 @@ class DatabaseInterface implements DbalInterface
         }
 
         $sql = 'SHOW FULL COLUMNS FROM '
-            .Util::backquote($database).'.'.Util::backquote($table);
+            . Util::backquote($database) . '.' . Util::backquote($table);
         if ($column !== null) {
-            $sql .= " LIKE '".$this->escapeString($column, $link)."'";
+            $sql .= " LIKE '" . $this->escapeString($column, $link) . "'";
         }
 
         $columns = $this->fetchResult($sql, 'Field', null, $link);
@@ -1010,7 +1007,6 @@ class DatabaseInterface implements DbalInterface
      * @param  string  $database name of database
      * @param  string  $table    name of the table whose indexes are to be retrieved
      * @param  mixed  $link     mysql link resource
-     * @return array
      */
     public function getTableIndexes(
         string $database,
@@ -1047,7 +1043,7 @@ class DatabaseInterface implements DbalInterface
                 $modifier = '';
         }
 
-        return $this->fetchValue('SHOW'.$modifier.' VARIABLES LIKE \''.$var.'\';', 1, $link);
+        return $this->fetchValue('SHOW' . $modifier . ' VARIABLES LIKE \'' . $var . '\';', 1, $link);
     }
 
     /**
@@ -1067,7 +1063,7 @@ class DatabaseInterface implements DbalInterface
             return true;
         }
 
-        return (bool) $this->query('SET '.$var.' = '.$value.';', $link);
+        return (bool) $this->query('SET ' . $var . ' = ' . $value . ';', $link);
     }
 
     /**
@@ -1107,24 +1103,24 @@ class DatabaseInterface implements DbalInterface
         /* Locale for messages */
         $locale = LanguageManager::getInstance()->getCurrentLanguage()->getMySQLLocale();
         if ($locale) {
-            $this->query("SET lc_messages = '".$locale."';");
+            $this->query("SET lc_messages = '" . $locale . "';");
         }
 
         // Set timezone for the session, if required.
         if ($GLOBALS['cfg']['Server']['SessionTimeZone'] != '') {
-            $sql_query_tz = 'SET '.Util::backquote('time_zone').' = '
-                .'\''
-                .$this->escapeString($GLOBALS['cfg']['Server']['SessionTimeZone'])
-                .'\'';
+            $sql_query_tz = 'SET ' . Util::backquote('time_zone') . ' = '
+                . '\''
+                . $this->escapeString($GLOBALS['cfg']['Server']['SessionTimeZone'])
+                . '\'';
 
             if (! $this->tryQuery($sql_query_tz)) {
                 $error_message_tz = sprintf(
                     __(
                         'Unable to use timezone "%1$s" for server %2$d. '
-                        .'Please check your configuration setting for '
-                        .'[em]$cfg[\'Servers\'][%3$d][\'SessionTimeZone\'][/em]. '
-                        .'phpMyAdmin is currently using the default time zone '
-                        .'of the database server.'
+                        . 'Please check your configuration setting for '
+                        . '[em]$cfg[\'Servers\'][%3$d][\'SessionTimeZone\'][/em]. '
+                        . 'phpMyAdmin is currently using the default time zone '
+                        . 'of the database server.'
                     ),
                     $GLOBALS['cfg']['Server']['SessionTimeZone'],
                     $GLOBALS['server'],
@@ -1136,7 +1132,7 @@ class DatabaseInterface implements DbalInterface
         }
 
         /* Loads closest context to this version. */
-        Context::loadClosest(($this->isMariaDb ? 'MariaDb' : 'MySql').$this->versionInt);
+        Context::loadClosest(($this->isMariaDb ? 'MariaDb' : 'MySql') . $this->versionInt);
 
         /**
          * the DatabaseList class as a stub for the ListDatabase class
@@ -1154,13 +1150,13 @@ class DatabaseInterface implements DbalInterface
         $charset = $GLOBALS['charset_connection'];
         /* Automatically adjust collation if not supported by server */
         if ($charset === 'utf8' && str_starts_with($collation, 'utf8mb4_')) {
-            $collation = 'utf8_'.substr($collation, 8);
+            $collation = 'utf8_' . substr($collation, 8);
         }
 
         $result = $this->tryQuery(
             "SET collation_connection = '"
-            .$this->escapeString($collation)
-            ."';"
+            . $this->escapeString($collation)
+            . "';"
         );
 
         if ($result === false) {
@@ -1453,7 +1449,7 @@ class DatabaseInterface implements DbalInterface
         string $which,
         $link = self::CONNECT_USER
     ): array {
-        $shows = $this->fetchResult('SHOW '.$which.' STATUS;', null, null, $link);
+        $shows = $this->fetchResult('SHOW ' . $which . ' STATUS;', null, null, $link);
         $result = [];
         foreach ($shows as $one_show) {
             if ($one_show['Db'] != $db || $one_show['Type'] != $which) {
@@ -1487,9 +1483,9 @@ class DatabaseInterface implements DbalInterface
             'EVENT' => 'Create Event',
             'VIEW' => 'Create View',
         ];
-        $query = 'SHOW CREATE '.$which.' '
-            .Util::backquote($db).'.'
-            .Util::backquote($name);
+        $query = 'SHOW CREATE ' . $which . ' '
+            . Util::backquote($db) . '.'
+            . Util::backquote($name);
         $result = $this->fetchValue($query, $returned_field[$which], $link);
 
         return is_string($result) ? $result : null;
@@ -1521,10 +1517,10 @@ class DatabaseInterface implements DbalInterface
 
             if ($which === 'FUNCTION' || $which == null) {
                 $query = 'SHOW FUNCTION STATUS'
-                    ." WHERE `Db` = '".$this->escapeString($db)."'";
+                    . " WHERE `Db` = '" . $this->escapeString($db) . "'";
                 if ($name) {
                     $query .= " AND `Name` = '"
-                        .$this->escapeString($name)."'";
+                        . $this->escapeString($name) . "'";
                 }
 
                 $routines = $this->fetchResult($query);
@@ -1532,10 +1528,10 @@ class DatabaseInterface implements DbalInterface
 
             if ($which === 'PROCEDURE' || $which == null) {
                 $query = 'SHOW PROCEDURE STATUS'
-                    ." WHERE `Db` = '".$this->escapeString($db)."'";
+                    . " WHERE `Db` = '" . $this->escapeString($db) . "'";
                 if ($name) {
                     $query .= " AND `Name` = '"
-                        .$this->escapeString($name)."'";
+                        . $this->escapeString($name) . "'";
                 }
 
                 $routines = array_merge($routines, $this->fetchResult($query));
@@ -1575,10 +1571,10 @@ class DatabaseInterface implements DbalInterface
                 empty($name) ? null : $this->escapeString($name)
             );
         } else {
-            $query = 'SHOW EVENTS FROM '.Util::backquote($db);
+            $query = 'SHOW EVENTS FROM ' . Util::backquote($db);
             if ($name) {
                 $query .= " WHERE `Name` = '"
-                    .$this->escapeString($name)."'";
+                    . $this->escapeString($name) . "'";
             }
         }
 
@@ -1617,9 +1613,9 @@ class DatabaseInterface implements DbalInterface
                 empty($table) ? null : $this->escapeString($table)
             );
         } else {
-            $query = 'SHOW TRIGGERS FROM '.Util::backquote($db);
+            $query = 'SHOW TRIGGERS FROM ' . Util::backquote($db);
             if ($table) {
-                $query .= " LIKE '".$this->escapeString($table)."';";
+                $query .= " LIKE '" . $this->escapeString($table) . "';";
             }
         }
 
@@ -1647,14 +1643,14 @@ class DatabaseInterface implements DbalInterface
             // definition into another schema will work
             $one_result['full_trigger_name'] = Util::backquote($trigger['TRIGGER_NAME']);
             $one_result['drop'] = 'DROP TRIGGER IF EXISTS '
-                .$one_result['full_trigger_name'];
+                . $one_result['full_trigger_name'];
             $one_result['create'] = 'CREATE TRIGGER '
-                .$one_result['full_trigger_name'].' '
-                .$trigger['ACTION_TIMING'].' '
-                .$trigger['EVENT_MANIPULATION']
-                .' ON '.Util::backquote($trigger['EVENT_OBJECT_TABLE'])
-                ."\n".' FOR EACH ROW '
-                .$trigger['ACTION_STATEMENT']."\n".$delimiter."\n";
+                . $one_result['full_trigger_name'] . ' '
+                . $trigger['ACTION_TIMING'] . ' '
+                . $trigger['EVENT_MANIPULATION']
+                . ' ON ' . Util::backquote($trigger['EVENT_OBJECT_TABLE'])
+                . "\n" . ' FOR EACH ROW '
+                . $trigger['ACTION_STATEMENT'] . "\n" . $delimiter . "\n";
 
             $result[] = $one_result;
         }
@@ -2154,10 +2150,10 @@ class DatabaseInterface implements DbalInterface
     public function getKillQuery(int $process): string
     {
         if ($this->isAmazonRds()) {
-            return 'CALL mysql.rds_kill('.$process.');';
+            return 'CALL mysql.rds_kill(' . $process . ');';
         }
 
-        return 'KILL '.$process.';';
+        return 'KILL ' . $process . ';';
     }
 
     /**
@@ -2196,8 +2192,8 @@ class DatabaseInterface implements DbalInterface
         if (! $GLOBALS['cfg']['Server']['DisableIS']) {
             // this is slow with thousands of databases
             $sql = 'SELECT DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA'
-                .' WHERE SCHEMA_NAME = \''.$this->escapeString($db)
-                .'\' LIMIT 1';
+                . ' WHERE SCHEMA_NAME = \'' . $this->escapeString($db)
+                . '\' LIMIT 1';
 
             return (string) $this->fetchValue($sql);
         }

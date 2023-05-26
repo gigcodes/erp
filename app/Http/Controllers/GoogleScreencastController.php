@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleScreencast;
-use App\DeveloperTask;
-use App\User;
 use Auth;
-use App\Jobs\UploadGoogleDriveScreencast;
+use App\Task;
+use App\User;
 use Google\Client;
+use App\DeveloperTask;
+use App\GoogleScreencast;
 use Google\Service\Drive;
-use Google\Service\Drive\DriveFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use App\Jobs\UploadGoogleDriveScreencast;
+use Exception;
 
 class GoogleScreencastController extends Controller
 {
@@ -24,17 +24,22 @@ class GoogleScreencastController extends Controller
     public function index(Request $request)
     {
         //get file list
-        $data = GoogleScreencast::orderBy('id', 'desc');
+        $data = GoogleScreencast::with(['user' => function ($query) {
+            return $query->select('id', 'name');
+        }])->orderBy('id', 'desc');
         //fetch task list
-        $taskList = DeveloperTask::where('task_type_id',1)->orderBy('id', 'desc');
-        if(!Auth::user()->isAdmin())
-        {
+        $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+        $generalTask = Task::orderBy('id', 'desc');
+        if (! Auth::user()->isAdmin()) {
             $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $generalTask = $generalTask->where('assign_to', Auth::id());
         }
-        $tasks = $taskList->select('id','subject')->get();
+        $tasks = $taskList->select('id', 'subject')->get();
+        $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
+
         $taskIds = $taskList->pluck('id');
         //print"<pre>";print_r($taskIds);exit;
-        $users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
+        $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('file_name', 'LIKE', "%$keyword%");
@@ -47,21 +52,20 @@ class GoogleScreencastController extends Controller
         }
         if ($keyword = request('task_id')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->where('developer_task_id',$keyword);
+                $q->where('developer_task_id', $keyword);
             });
         }
         if ($keyword = request('user_gmail')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->whereRaw("find_in_set('".$keyword."',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('".$keyword."',google_drive_screencast_upload.write)");
+                $q->whereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.write)");
             });
         }
-        if(empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && !Auth::user()->isAdmin())
-        {
-            $data->whereIn('developer_task_id',$taskIds)->orWhere('user_id',Auth::id())->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.write)");
+        if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {
+            $data->whereIn('developer_task_id', $taskIds)->orWhere('user_id', Auth::id())->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.write)");
         }
         $data = $data->get();
 
-        return view('googledrivescreencast.index', compact('data','tasks','users'))
+        return view('googledrivescreencast.index', compact('data', 'tasks', 'users', 'generalTask'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -81,9 +85,17 @@ class GoogleScreencastController extends Controller
             'file_write' => ['sometimes'],
             'remarks' => ['sometimes'],
         ]);
-        foreach($data['file'] as $file)
-        {
-            DB::transaction(function () use ($file,$data) {
+        foreach ($data['file'] as $file) {
+            $class = '';
+
+            if (str_contains($data['task_id'], 'TASK-')) {
+                $class = Task::class;
+                $data['task_id'] = trim($data['task_id'], 'TASK-');
+            } else {
+                $class = DeveloperTask::class;
+            }
+
+            DB::transaction(function () use ($file, $data, $class) {
                 $googleScreencast = new GoogleScreencast();
                 $googleScreencast->file_name = $file->getClientOriginalName();
                 $googleScreencast->extension = $file->extension();
@@ -96,21 +108,26 @@ class GoogleScreencastController extends Controller
                 }
                 $googleScreencast->remarks = $data['remarks'];
                 $googleScreencast->file_creation_date = $data['file_creation_date'];
-                $googleScreencast->developer_task_id = $data['task_id'];
+
+                if ($class == "App\DeveloperTask") {
+                    $googleScreencast->developer_task_id = $data['task_id'];
+                }
+                if ($class == "App\Task") {
+                    $googleScreencast->belongable_id = $data['task_id'];
+                    $googleScreencast->belongable_type = $class;
+                }
+
                 $googleScreencast->save();
-                UploadGoogleDriveScreencast::dispatchNow($googleScreencast,$file);
-                
+                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
-    
         }
-        
-        return back()->with('success', "File is Uploaded to Google Drive.");
+
+        return back()->with('success', 'File is Uploaded to Google Drive.');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -143,45 +160,62 @@ class GoogleScreencastController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $data = $this->validate($request, [
+            'id' => ['required'],
+            'file_name' => ['required'],
+            'file_id' => ['required'],
+            'file_remark' => ['required']
+        ]);
+
+        try {
+            $googlescreencast = GoogleScreencast::find(request('id'));
+            $googlescreencast->file_name = $request->file_name;
+            $googlescreencast->google_drive_file_id = $request->file_id;
+            $googlescreencast->remarks = $request->file_remark;
+            $googlescreencast->save();
+            
+            return back()->with('success', 'Data updated successfully.');
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error while updating data.');
+
+        }
     }
+
     public function driveFilePermissionUpdate(Request $request)
     {
         $fileId = request('file_id');
         $fileData = GoogleScreencast::find(request('id'));
         $readData = request('read');
         $writeData = request('write');
-        $permissionEmails=[];
+        $permissionEmails = [];
         $client = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
         $driveService = new Drive($client);
         // Build a parameters array
-        $parameters = array();
-        // Specify what fields you want 
-        $parameters['fields'] = "permissions(*)";
+        $parameters = [];
+        // Specify what fields you want
+        $parameters['fields'] = 'permissions(*)';
         // Call the endpoint to fetch the permissions of the file
         $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
-        
-        foreach ($permissions->getPermissions() as $permission){
+
+        foreach ($permissions->getPermissions() as $permission) {
             $permissionEmails[] = $permission['emailAddress'];
             //Remove Permission
-            if($permission['role']!='owner' && $permission['emailAddress'] != (env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID')))
-            {
+            if ($permission['role'] != 'owner' && $permission['emailAddress'] != (env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
                 $driveService->permissions->delete($fileId, $permission['id']);
             }
         }
         //assign permission based on requested data
         $index = 1;
         $driveService->getClient()->setUseBatch(true);
-        if(!empty($readData))
-        {
+        if (! empty($readData)) {
             $batch = $driveService->createBatch();
             foreach ($readData as $email) {
                 $userPermission = new Drive\Permission([
@@ -191,13 +225,12 @@ class GoogleScreencastController extends Controller
                 ]);
 
                 $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user'.$index);
+                $batch->add($request, 'user' . $index);
                 $index++;
             }
             $results = $batch->execute();
         }
-        if(!empty($writeData))
-        {
+        if (! empty($writeData)) {
             $batch = $driveService->createBatch();
             foreach ($writeData as $email) {
                 $userPermission = new Drive\Permission([
@@ -207,15 +240,16 @@ class GoogleScreencastController extends Controller
                 ]);
 
                 $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user'.$index);
+                $batch->add($request, 'user' . $index);
                 $index++;
             }
             $results = $batch->execute();
         }
-        $fileData->read = !empty($readData)?implode(',',$readData):NULL;
-        $fileData->write = !empty($writeData)?implode(',',$writeData):NULL;
+        $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+        $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
         $fileData->save();
-        return back()->with('success', "Permission successfully updated.");
+
+        return back()->with('success', 'Permission successfully updated.');
     }
 
     /**
@@ -233,12 +267,13 @@ class GoogleScreencastController extends Controller
         try {
             $driveService->files->delete($id);
         } catch (Exception $e) {
-            print "An error occurred: " . $e->getMessage();
+            echo 'An error occurred: ' . $e->getMessage();
         }
         GoogleScreencast::where('google_drive_file_id', $id)->delete();
+
         return redirect()->back()->with('success', 'Your File has been deleted successfuly!');
     }
-    
+
     /**
      * Get drive files for requested task
      */
@@ -249,7 +284,7 @@ class GoogleScreencastController extends Controller
         $driveFileData = '';
 
         foreach ($driveFiles as $driveFile) {
-            $driveFileData .= '<tr><td>'.$driveFile['file_name'].'</td><td>'.$driveFile['file_creation_date'].'</td><td><input class="fileUrl" type="text" value="'.env('GOOGLE_DRIVE_FILE_URL').$driveFile['google_drive_file_id'].'/view?usp=share_link" /><button class="copy-button btn btn-secondary" data-message="'.env('GOOGLE_DRIVE_FILE_URL').$driveFile['google_drive_file_id'].'/view?usp=share_link">Copy</button></td><td>'.$driveFile['remarks'].'</td></tr>';
+            $driveFileData .= '<tr><td>' . $driveFile['file_name'] . '</td><td>' . $driveFile['file_creation_date'] . '</td><td><input class="fileUrl" type="text" value="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" /><button class="copy-button btn btn-secondary" data-message="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link">Copy</button></td><td>' . $driveFile['remarks'] . '</td></tr>';
         }
         if ($driveFileData == '') {
             $driveFileData = '<tr><td colspan="4">No data found.</td></tr>';

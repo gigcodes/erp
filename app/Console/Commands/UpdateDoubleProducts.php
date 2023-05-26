@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\Category;
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
 use App\Setting;
+use App\Category;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdateDoubleProducts extends Command

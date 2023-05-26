@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Entities;
 
-use Illuminate\Support\Arr;
 use Illuminate\View\View;
+use Illuminate\Support\Arr;
 
 class BreadcrumbsViewComposer
 {
@@ -11,8 +11,6 @@ class BreadcrumbsViewComposer
 
     /**
      * BreadcrumbsViewComposer constructor.
-     *
-     * @param  EntityContextManager  $entityContextManager
      */
     public function __construct(EntityContextManager $entityContextManager)
     {
@@ -21,8 +19,6 @@ class BreadcrumbsViewComposer
 
     /**
      * Modify data when the view is composed.
-     *
-     * @param  View  $view
      */
     public function compose(View $view)
     {

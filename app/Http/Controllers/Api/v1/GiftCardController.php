@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Coupon;
 use App\GiftCard;
-use App\Http\Controllers\Controller;
-use App\Mail\AddGiftCard;
 use App\StoreWebsite;
+use App\Mail\AddGiftCard;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class GiftCardController extends Controller
@@ -54,7 +54,6 @@ class GiftCardController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -141,7 +140,6 @@ class GiftCardController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -219,8 +217,8 @@ class GiftCardController extends Controller
             $email = \App\Email::create([
                 'model_id' => $data['model_id'],
                 'model_type' => $data['model_class'],
-                'from' => 'customercare@sololuxury.co.in',
-                'to' => $order->customer->email,
+                'from' => $data['receiver_email'],
+                'to' => $data['sender_email'] ,
                 'subject' => $emailClass->subject,
                 'message' => $emailClass->render(),
                 'template' => 'gift-card',

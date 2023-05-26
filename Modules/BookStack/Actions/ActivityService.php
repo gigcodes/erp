@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Actions;
 
-use Modules\BookStack\Auth\Permissions\PermissionService;
-use Modules\BookStack\Entities\Entity;
 use Session;
+use Modules\BookStack\Entities\Entity;
+use Modules\BookStack\Auth\Permissions\PermissionService;
 
 class ActivityService
 {
@@ -18,7 +18,6 @@ class ActivityService
      * ActivityService constructor.
      *
      * @param  \BookStack\Actions\Activity  $activity
-     * @param  PermissionService  $permissionService
      */
     public function __construct(Activity $activity, PermissionService $permissionService)
     {
@@ -30,8 +29,6 @@ class ActivityService
     /**
      * Add activity data to database.
      *
-     * @param  Entity  $entity
-     * @param    $activityKey
      * @param  int  $bookId
      * @param  bool  $extra
      */
@@ -51,7 +48,6 @@ class ActivityService
     /**
      * Adds a activity history with a message & without binding to a entity.
      *
-     * @param    $activityKey
      * @param  int  $bookId
      * @param  bool|false  $extra
      */
@@ -72,7 +68,6 @@ class ActivityService
      * and instead uses the 'extra' field with the entities name.
      * Used when an entity is deleted.
      *
-     * @param  Entity  $entity
      * @return mixed
      */
     public function removeEntity(Entity $entity)
@@ -137,7 +132,6 @@ class ActivityService
      * Get latest activity for a user, Filtering out similar
      * items.
      *
-     * @param $user
      * @param  int  $count
      * @param  int  $page
      * @return array
@@ -179,12 +173,10 @@ class ActivityService
 
     /**
      * Flashes a notification message to the session if an appropriate message is available.
-     *
-     * @param $activityKey
      */
     protected function setNotification($activityKey)
     {
-        $notificationTextKey = 'book_activities.'.$activityKey.'_notification';
+        $notificationTextKey = 'book_activities.' . $activityKey . '_notification';
         if (trans()->has($notificationTextKey)) {
             $message = trans($notificationTextKey);
             Session::flash('success', $message);

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleFiletranslatorFile;
-use App\GoogleTranslate;
+use File;
+use Exception;
 use App\Language;
 use App\Translations;
-use File;
+use App\GoogleTranslate;
 use Illuminate\Http\Request;
+use App\GoogleFiletranslatorFile;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GoogleFileTranslator extends Controller
@@ -21,7 +22,7 @@ class GoogleFileTranslator extends Controller
     {
         $query = GoogleFiletranslatorFile::query();
         if ($request->term) {
-            $query = $query->where('name', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('name', 'LIKE', '%' . $request->term . '%');
         }
 
         $data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
@@ -52,7 +53,6 @@ class GoogleFileTranslator extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -61,24 +61,43 @@ class GoogleFileTranslator extends Controller
             'tolanguage' => 'required',
             'file' => 'required|max:10000|mimes:csv,txt',
         ]);
-        $this->getMediaPathSave();
-        $filename = $request->file('file');
-        $ext = $filename->getClientOriginalExtension();
-        //$filenameNew = md5($filename).'.'.$ext;
-        $filenameNew = $filename->getClientOriginalName();
-        $media = MediaUploader::fromSource($request->file('file'))
-        ->toDestination('uploads', 'google-file-translator')
-        ->upload();
-        $input = $request->all();
-        $input['name'] = $filenameNew;
-        $insert = GoogleFiletranslatorFile::create($input);
-        $path = public_path().'/uploads/google-file-translator/';
-        $languageData = Language::where('id', $insert->tolanguage)->first();
-        if (file_exists($path.$insert->name)) {
-            $this->translateFile($path.$insert->name, $languageData->locale, ',');
-        }
+        try {
+            $this->getMediaPathSave();
+            $filename = $request->file('file');
+            $ext = $filename->getClientOriginalExtension();
+            //$filenameNew = md5($filename).'.'.$ext;
+            $filenameNew = null;
+            $media = MediaUploader::fromSource($request->file('file'))
+            ->toDestination('uploads', 'google-file-translator')
+            ->upload();
 
-        return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
+            if (isset($media) && isset($media->filename) && isset($media->extension)) {
+                $filenameNew = $media->filename . '.' . $media->extension;
+            } else {
+                throw new Exception('Error while uploading file.');
+            }
+            $input = $request->all();
+            $input['name'] = $filenameNew;
+            $insert = GoogleFiletranslatorFile::create($input);
+
+            $path = public_path() . '/uploads/google-file-translator/';
+            $languageData = Language::where('id', $insert->tolanguage)->first();
+            if (file_exists($path . $insert->name)) {
+                try {
+                    $result = $this->translateFile($path . $insert->name, $languageData->locale, ',');
+                } catch (\Exception $e) {
+                    return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
+                }
+            } else {
+                throw new Exception('File not found');
+            }
+
+            return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
+        } catch (\Exception $e) {
+            \Log::error($e);
+
+            return redirect()->route('googlefiletranslator.list')->with('error', 'Error while uploading file. Please try again.');
+        }
     }
 
     /**
@@ -105,7 +124,6 @@ class GoogleFileTranslator extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -122,9 +140,9 @@ class GoogleFileTranslator extends Controller
     public function destroy($id)
     {
         $GoogleFiletranslatorFile = GoogleFiletranslatorFile::find($id);
-        $path = public_path().'/uploads/google-file-translator/';
-        if (file_exists($path.$GoogleFiletranslatorFile->name)) {
-            unlink($path.$GoogleFiletranslatorFile->name);
+        $path = public_path() . '/uploads/google-file-translator/';
+        if (file_exists($path . $GoogleFiletranslatorFile->name)) {
+            unlink($path . $GoogleFiletranslatorFile->name);
         }
         $GoogleFiletranslatorFile->delete();
 
@@ -134,19 +152,19 @@ class GoogleFileTranslator extends Controller
 
     public function download($file)
     {
-        $path = public_path().'/uploads/google-file-translator/';
-        if (file_exists($path.$file)) {
+        $path = public_path() . '/uploads/google-file-translator/';
+        if (file_exists($path . $file)) {
             $headers = [
                 'Content-Type: text/csv',
             ];
 
-            return response()->download($path.$file, $file, $headers);
+            return response()->download($path . $file, $file, $headers);
         }
     }
 
     public function getMediaPathSave()
     {
-        $path = public_path().'/uploads/google-file-translator/';
+        $path = public_path() . '/uploads/google-file-translator/';
         File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
 
         return $path;
@@ -158,6 +176,7 @@ class GoogleFileTranslator extends Controller
             return false;
         }
         $newCsvData = [];
+        $keywordToTranslate = [];
         if (($handle = fopen($path, 'r')) !== false) {
             while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 // Check translation SEPARATE LINE exists or not
@@ -165,26 +184,63 @@ class GoogleFileTranslator extends Controller
                 if ($checkTranslationTable) {
                     $data[] = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
                 } else {
-                    try {
-                        $googleTranslate = new GoogleTranslate();
-                        $translationString = $googleTranslate->translate($language, $data[0]);
-
-                        // Devtask-2893 : Added model to save individual line translation
-                        Translations::addTranslation($data[0], $translationString, 'en', $language);
-                        $data[] = htmlspecialchars_decode($translationString, ENT_QUOTES);
-                    } catch (\Exception $e) {
-                        \Log::channel('errorlog')->error($e);
-                    }
+                    $keywordToTranslate[] = $data[0];
+                    $data[] = $data[0];
                 }
                 $newCsvData[] = $data;
             }
             fclose($handle);
         }
-        $handle = fopen($path, 'r+');
 
-        foreach ($newCsvData as $line) {
-            fputcsv($handle, $line, $delimiter, $enclosure = '"');
+        $translateKeyPair = [];
+        if (isset($keywordToTranslate) && count($keywordToTranslate) > 0) {
+            // Max 128 lines supports for translation per request
+            $keywordToTranslateChunk = array_chunk($keywordToTranslate, 100);
+            $translationString = [];
+            foreach ($keywordToTranslateChunk as $key => $chunk) {
+                try {
+                    $googleTranslate = new GoogleTranslate();
+                    $result = $googleTranslate->translate($language, $chunk, true);
+                } catch (\Exception $e) {
+                    \Log::channel('errorlog')->error($e);
+                    throw new Exception($e->getMessage());
+                }
+                // $translationString = [...$translationString, ...$result];
+                array_push($translationString, ...$result);
+            }
+
+            $insertData = [];
+            if (isset($translationString) && count($translationString) > 0) {
+                foreach ($translationString as $key => $value) {
+                    $translateKeyPair[$value['input']] = $value['text'];
+                    $insertData[] = [
+                        'text_original' => $value['input'],
+                        'text' => $value['text'],
+                        'from' => 'en',
+                        'to' => $language,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            if (! empty($insertData)) {
+                Translations::insert($insertData);
+            }
         }
-        fclose($handle);
+
+        // Update the csv with Translated data
+        if (isset($newCsvData) && count($newCsvData) > 0) {
+            for ($i = 0; $i < count($newCsvData); $i++) {
+                $last = array_pop($newCsvData[$i]);
+                array_push($newCsvData[$i], htmlspecialchars_decode($translateKeyPair[$last] ?? $last));
+            }
+
+            $handle = fopen($path, 'r+');
+            foreach ($newCsvData as $line) {
+                fputcsv($handle, $line, $delimiter, $enclosure = '"');
+            }
+            fclose($handle);
+        }
     }
 }

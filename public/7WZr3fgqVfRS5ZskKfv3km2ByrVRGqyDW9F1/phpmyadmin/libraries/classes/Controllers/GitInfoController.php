@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\Config;
 use PhpMyAdmin\Git;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Config;
 use function strtotime;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 
 final class GitInfoController extends AbstractController
 {

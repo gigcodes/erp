@@ -6,7 +6,7 @@
 
 @section("styles")
   <style>
-    #coupon_rules_table_length select, input{
+    #coupon_rules_table_length select{
       height: 14px;
     }
   </style>
@@ -46,7 +46,7 @@
             </div>
             <div class="col-md-3 col-sm-12">
               <div class="form-group mr-3">
-                <select class="form-control select-multiple" name="user[]" multiple>
+                <select class="form-control" name="user[]" id="user_list_id" multiple>
                   @foreach ($users as $index => $name)
                     <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
                   @endforeach
@@ -93,7 +93,7 @@
               @php
               $status_color = \App\TaskStatus::where('id',$task->status)->first();
               @endphp
-              <tr style="background-color: {{$status_color->task_color}}!important;">
+              <tr style="background-color: {{$status_color->task_color ?? ""}}!important;">
                 <td>{{ $task->id }}</td>
                 <td>{{ \Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                 <td>{{ $categories[$task->category] ?? '' }}</td>
@@ -190,6 +190,16 @@
                   <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
                   <span> | </span>
                   <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
+                  <br>
+                  <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages">
+                    <img src="/images/chat.png" alt="" style="cursor: nwse-resize;">
+                  </button>
+                  <button class="btn btn-xs btn-image view-google-drive-button p-2" type="button" title="View Uploaded Files" data-object='task' data-task_id="{{ $task->id }}">
+                    <img src="/images/google-drive.png" style="cursor: default; width: 10px;">
+                  </button>
+                  <button class="btn btn-xs btn-image  mt-2 show-google-document" title="Show created document" data-object='task' data-id="{{ $task->id }}">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                  </button>
                 </td>
               </tr>
             @endforeach
@@ -294,6 +304,16 @@
                     <a href class="add-task" data-toggle="modal" data-target="#devaddRemarkModal" data-id="{{ $task->id }}">Add</a>
                     <span> | </span>
                     <a href class="devview-remark" data-toggle="modal" data-target="#devviewRemarkModal" data-id="{{ $task->id }}">View</a>
+                    <br>
+                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $task->id }}" title="Load messages">
+                      <img src="/images/chat.png" alt="" style="cursor: nwse-resize;">
+                    </button>
+                    <button class="btn btn-xs btn-image view-google-drive-button p-2" type="button" title="View Uploaded Files" data-object='developer_task' data-task_id="{{ $task->id }}">
+                      <img src="/images/google-drive.png" style="cursor: default; width: 10px;">
+                    </button>
+                    <button class="btn btn-xs btn-image  mt-2 show-google-document" title="Show created document" data-object='developer_task' data-id="{{ $task->id }}">
+                      <i class="fa fa-list" aria-hidden="true"></i>
+                    </button>
                   </td>
                 </tr>
               @endforeach
@@ -400,6 +420,68 @@
       </div>
     </div>
     @include("task-module.partials.modal-status-color")
+
+    <div id="displayGoogleFileUpload" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-xl">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Google Drive Uploaded files</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+    
+          <div class="modal-body">
+            <div class="table-responsive mt-3">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Filename</th>
+                    <th>File Creation Date</th>
+                    <th>URL</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="googleDriveUploadedData">
+                  
+                </tbody>
+              </table>
+            </div>
+           </div>
+    
+    
+        </div>
+    
+      </div>
+    </div>
+    <div id="googleTaskDocumentModel" class="modal fade" role="dialog" style="display: none;">
+      <div class="modal-dialog modal-lg">
+  
+          <!-- Modal content-->
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Google Documents list</h4>
+                  <button type="button" class="close" data-dismiss="modal">×</button>
+              </div>
+              <div class="modal-body">
+                  <table class="table table-sm table-bordered">
+                      <thead>
+                      <tr>
+                          <th width="5%">ID</th>
+                          <th width="5%">File Name</th>
+                          <th width="5%">Created Date</th>
+                          <th width="10%">URL</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+  
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+  
+      </div>
+  </div>
 @endsection
 
 @section('scripts')
@@ -602,11 +684,13 @@
 
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       
        $('.instruction-start-time').datetimepicker({
          format: 'YYYY-MM-DD HH:mm'
        });
-    });
 
+       $("#user_list_id").select2();
+    });
 
     $('.add-task').on('click', function(e) {
       e.preventDefault();
@@ -796,5 +880,68 @@
 
       $('#verifySelectedForm').submit();
     });
+
+    var object = "";
+    $(document).on("click", ".view-google-drive-button", function (e) {
+        e.preventDefault();
+        let task_id = $(this).data("task_id");
+        object = $(this).data("object");
+        
+        if(object == "task") {
+          route = "{{route('task.files.record')}}";
+          data = {
+            task_id
+          }
+        } else {
+          route = "{{url('google-drive-screencast/task-files')}}/"+task_id;
+          data = {}
+        }
+        
+
+        $.ajax({
+            type: "get",
+            url: route,
+            data: data,
+            success: function (response) {
+              if(object == "task") {
+                $("#googleDriveUploadedData").html(response.data);
+              } else {
+                $("#googleDriveUploadedData").html(response);
+              }
+              $("#displayGoogleFileUpload").modal("show")
+            },
+            error: function (response) {
+                toastr['error']("Something went wrong!");
+            }
+        });
+    });
+    $(document).on('click', ".show-google-document", function () {
+        let task_id = $(this).data('id');
+        object = $(this).data('object');
+        if(task_id != "") {
+            $.ajax({
+                type: "GET",
+                url: "{{route('google-docs.task.show')}}",
+                data: {
+                    task_id,
+                    task_type: (object == 'task') ? "TASK" : "DEVTASK"
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#googleTaskDocumentModel tbody").html(response.data);
+                    $("#googleTaskDocumentModel").modal('show');
+                },
+                error: function(response) {
+                    toastr["error"]("Something went wrong!");
+                    $("#loading-image").hide();
+                }
+            });
+        } else {
+            toastr["error"]("Task id not found.");
+        }
+      });
   </script>
 @endsection

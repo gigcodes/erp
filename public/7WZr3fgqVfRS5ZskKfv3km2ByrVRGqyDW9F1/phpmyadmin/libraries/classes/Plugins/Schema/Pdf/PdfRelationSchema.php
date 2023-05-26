@@ -8,21 +8,21 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Pdf;
 
 use function __;
-use function ceil;
-use function getcwd;
-use function in_array;
-use function intval;
 use function max;
 use function min;
-use PhpMyAdmin\Pdf as PdfLib;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Util;
-use function rsort;
+use function ceil;
 use function sort;
+use function rsort;
+use function getcwd;
+use function intval;
+use PhpMyAdmin\Util;
 use function sprintf;
-use function str_replace;
+use function in_array;
 use function strtotime;
+use function str_replace;
+use PhpMyAdmin\Pdf as PdfLib;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 // phpcs:disable PSR1.Files.SideEffects
 /**
@@ -428,7 +428,7 @@ class PdfRelationSchema extends ExportRelationSchema
                 ($l * $gridSize + $topSpace - $this->topMargin)
                 * $this->scale + $this->yMin
             );
-            $this->diagram->Cell($labelWidth, $labelHeight, ' '.$label);
+            $this->diagram->Cell($labelWidth, $labelHeight, ' ' . $label);
         }
 
         // Draws vertical lines
@@ -492,7 +492,7 @@ class PdfRelationSchema extends ExportRelationSchema
             $this->diagram->Cell(
                 0,
                 6,
-                __('Page number:').' {'.sprintf('%02d', $i).'}',
+                __('Page number:') . ' {' . sprintf('%02d', $i) . '}',
                 0,
                 0,
                 'R',
@@ -503,7 +503,7 @@ class PdfRelationSchema extends ExportRelationSchema
             $this->diagram->Cell(
                 0,
                 6,
-                $i.' '.$table,
+                $i . ' ' . $table,
                 0,
                 1,
                 'L',
@@ -526,7 +526,7 @@ class PdfRelationSchema extends ExportRelationSchema
         $this->diagram->Cell(
             0,
             6,
-            __('Page number:').' {00}',
+            __('Page number:') . ' {00}',
             0,
             0,
             'R',
@@ -537,7 +537,7 @@ class PdfRelationSchema extends ExportRelationSchema
         $this->diagram->Cell(
             0,
             6,
-            $i.' '.__('Relational schema'),
+            $i . ' ' . __('Relational schema'),
             0,
             1,
             'L',
@@ -551,7 +551,7 @@ class PdfRelationSchema extends ExportRelationSchema
             $this->diagram->AddPage($this->orientation);
             $this->diagram->Bookmark($table);
             $this->diagram->setAlias(
-                '{'.sprintf('%02d', $z).'}',
+                '{' . sprintf('%02d', $z) . '}',
                 $this->diagram->PageNo()
             );
             $this->diagram->customLinks['RT'][$table]['-'] = $this->diagram->AddLink();
@@ -560,7 +560,7 @@ class PdfRelationSchema extends ExportRelationSchema
             $this->diagram->Cell(
                 0,
                 8,
-                $z.' '.$table,
+                $z . ' ' . $table,
                 1,
                 1,
                 'C',
@@ -615,7 +615,7 @@ class PdfRelationSchema extends ExportRelationSchema
                 $this->diagram->Cell(
                     0,
                     3,
-                    __('Table comments:').' '.$show_comment,
+                    __('Table comments:') . ' ' . $show_comment,
                     0,
                     1
                 );
@@ -626,7 +626,7 @@ class PdfRelationSchema extends ExportRelationSchema
                 $this->diagram->Cell(
                     0,
                     3,
-                    __('Creation:').' '.$create_time,
+                    __('Creation:') . ' ' . $create_time,
                     0,
                     1
                 );
@@ -637,7 +637,7 @@ class PdfRelationSchema extends ExportRelationSchema
                 $this->diagram->Cell(
                     0,
                     3,
-                    __('Last update:').' '.$update_time,
+                    __('Last update:') . ' ' . $update_time,
                     0,
                     1
                 );
@@ -648,7 +648,7 @@ class PdfRelationSchema extends ExportRelationSchema
                 $this->diagram->Cell(
                     0,
                     3,
-                    __('Last check:').' '.$check_time,
+                    __('Last check:') . ' ' . $check_time,
                     0,
                     1
                 );
@@ -731,15 +731,15 @@ class PdfRelationSchema extends ExportRelationSchema
                 if ($foreigner) {
                     $linksTo = '-> ';
                     if ($foreigner['foreign_db'] != $this->db) {
-                        $linksTo .= $foreigner['foreign_db'].'.';
+                        $linksTo .= $foreigner['foreign_db'] . '.';
                     }
 
                     $linksTo .= $foreigner['foreign_table']
-                        .'.'.$foreigner['foreign_field'];
+                        . '.' . $foreigner['foreign_field'];
 
                     if (isset($foreigner['on_update'])) { // not set for internal
-                        $linksTo .= "\n".'ON UPDATE '.$foreigner['on_update'];
-                        $linksTo .= "\n".'ON DELETE '.$foreigner['on_delete'];
+                        $linksTo .= "\n" . 'ON UPDATE ' . $foreigner['on_update'];
+                        $linksTo .= "\n" . 'ON DELETE ' . $foreigner['on_delete'];
                     }
                 }
 

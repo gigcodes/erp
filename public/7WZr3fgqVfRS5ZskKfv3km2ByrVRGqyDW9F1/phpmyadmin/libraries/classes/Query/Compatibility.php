@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Query;
 
-use function in_array;
-use function is_string;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Util;
 use function strlen;
 use function strpos;
-use function strtoupper;
 use function substr;
+use PhpMyAdmin\Util;
+use function in_array;
+use function is_string;
+use function strtoupper;
+use PhpMyAdmin\DatabaseInterface;
 
 /**
  * Handles data compatibility from SQL query results

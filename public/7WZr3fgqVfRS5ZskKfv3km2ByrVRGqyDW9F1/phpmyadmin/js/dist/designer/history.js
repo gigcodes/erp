@@ -31,24 +31,51 @@ DesignerHistory.detail = function (index) {
   var type = historyArray[index].getType();
   var str;
 
-  if (type === 'Where') {
-    str = 'Where ' + historyArray[index].getColumnName() + historyArray[index].getObj().getRelationOperator() + historyArray[index].getObj().getQuery();
-  } else if (type === 'Rename') {
-    str = 'Rename ' + historyArray[index].getColumnName() + ' To ' + historyArray[index].getObj().getRenameTo();
-  } else if (type === 'Aggregate') {
-    str = 'Select ' + historyArray[index].getObj().getOperator() + '( ' + historyArray[index].getColumnName() + ' )';
-  } else if (type === 'GroupBy') {
-    str = 'GroupBy ' + historyArray[index].getColumnName();
-  } else if (type === 'OrderBy') {
-    str = 'OrderBy ' + historyArray[index].getColumnName() + ' ' + historyArray[index].getObj().getOrder();
-  } else if (type === 'Having') {
-    str = 'Having ';
+  if (type === "Where") {
+    str =
+      "Where " +
+      historyArray[index].getColumnName() +
+      historyArray[index].getObj().getRelationOperator() +
+      historyArray[index].getObj().getQuery();
+  } else if (type === "Rename") {
+    str =
+      "Rename " +
+      historyArray[index].getColumnName() +
+      " To " +
+      historyArray[index].getObj().getRenameTo();
+  } else if (type === "Aggregate") {
+    str =
+      "Select " +
+      historyArray[index].getObj().getOperator() +
+      "( " +
+      historyArray[index].getColumnName() +
+      " )";
+  } else if (type === "GroupBy") {
+    str = "GroupBy " + historyArray[index].getColumnName();
+  } else if (type === "OrderBy") {
+    str =
+      "OrderBy " +
+      historyArray[index].getColumnName() +
+      " " +
+      historyArray[index].getObj().getOrder();
+  } else if (type === "Having") {
+    str = "Having ";
 
-    if (historyArray[index].getObj().getOperator() !== 'None') {
-      str += historyArray[index].getObj().getOperator() + '( ' + historyArray[index].getColumnName() + ' )';
-      str += historyArray[index].getObj().getRelationOperator() + historyArray[index].getObj().getQuery();
+    if (historyArray[index].getObj().getOperator() !== "None") {
+      str +=
+        historyArray[index].getObj().getOperator() +
+        "( " +
+        historyArray[index].getColumnName() +
+        " )";
+      str +=
+        historyArray[index].getObj().getRelationOperator() +
+        historyArray[index].getObj().getQuery();
     } else {
-      str = 'Having ' + historyArray[index].getColumnName() + historyArray[index].getObj().getRelationOperator() + historyArray[index].getObj().getQuery();
+      str =
+        "Having " +
+        historyArray[index].getColumnName() +
+        historyArray[index].getObj().getRelationOperator() +
+        historyArray[index].getObj().getQuery();
     }
   }
 
@@ -64,7 +91,6 @@ DesignerHistory.detail = function (index) {
  * @param {number} finit last index of unsorted array
  * @return {string}
  */
-
 
 DesignerHistory.display = function (init, finit) {
   var str;
@@ -91,50 +117,101 @@ DesignerHistory.display = function (init, finit) {
     }
   } // this part generates HTML code for history tab.adds delete,edit,and/or and detail features with objects.
 
-
-  str = ''; // string to store Html code for history tab
+  str = ""; // string to store Html code for history tab
 
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
     temp = historyArray[i].getTab(); // + '.' + historyArray[i].getObjNo(); for Self JOIN
 
-    str += '<h3 class="tiger"><a href="#">' + temp + '</a></h3>';
+    str += '<h3 class="tiger"><a href="#">' + temp + "</a></h3>";
     str += '<div class="toggle_container">\n';
 
     while (historyArray[i].getTab() === temp) {
       // + '.' + historyArray[i].getObjNo()) === temp) {
       str += '<div class="block"> <table class="table table-sm w-auto mb-0">';
-      str += '<thead><tr><td>';
+      str += "<thead><tr><td>";
 
       if (historyArray[i].getAndOr()) {
-        str += '<img src="' + themeImagePath + 'designer/or_icon.png" onclick="DesignerHistory.andOr(' + i + ')" title="OR"></td>';
+        str +=
+          '<img src="' +
+          themeImagePath +
+          'designer/or_icon.png" onclick="DesignerHistory.andOr(' +
+          i +
+          ')" title="OR"></td>';
       } else {
-        str += '<img src="' + themeImagePath + 'designer/and_icon.png" onclick="DesignerHistory.andOr(' + i + ')" title="AND"></td>';
+        str +=
+          '<img src="' +
+          themeImagePath +
+          'designer/and_icon.png" onclick="DesignerHistory.andOr(' +
+          i +
+          ')" title="AND"></td>';
       }
 
-      str += '<td style="padding-left: 5px;" class="text-end">' + Functions.getImage('b_sbrowse', Messages.strColumnName) + '</td>' + '<td width="175" style="padding-left: 5px">' + $('<div/>').text(historyArray[i].getColumnName()).html() + '<td>';
+      str +=
+        '<td style="padding-left: 5px;" class="text-end">' +
+        Functions.getImage("b_sbrowse", Messages.strColumnName) +
+        "</td>" +
+        '<td width="175" style="padding-left: 5px">' +
+        $("<div/>").text(historyArray[i].getColumnName()).html() +
+        "<td>";
 
-      if (historyArray[i].getType() === 'GroupBy' || historyArray[i].getType() === 'OrderBy') {
-        var detailDescGroupBy = $('<div/>').text(DesignerHistory.detail(i)).html();
-        str += '<td class="text-center">' + Functions.getImage('s_info', DesignerHistory.detail(i)) + '</td>' + '<td title="' + detailDescGroupBy + '">' + historyArray[i].getType() + '</td>' + '<td onclick=DesignerHistory.historyDelete(' + i + ')>' + Functions.getImage('b_drop', Messages.strDelete) + '</td>';
+      if (
+        historyArray[i].getType() === "GroupBy" ||
+        historyArray[i].getType() === "OrderBy"
+      ) {
+        var detailDescGroupBy = $("<div/>")
+          .text(DesignerHistory.detail(i))
+          .html();
+        str +=
+          '<td class="text-center">' +
+          Functions.getImage("s_info", DesignerHistory.detail(i)) +
+          "</td>" +
+          '<td title="' +
+          detailDescGroupBy +
+          '">' +
+          historyArray[i].getType() +
+          "</td>" +
+          "<td onclick=DesignerHistory.historyDelete(" +
+          i +
+          ")>" +
+          Functions.getImage("b_drop", Messages.strDelete) +
+          "</td>";
       } else {
-        var detailDesc = $('<div/>').text(DesignerHistory.detail(i)).html();
-        str += '<td class="text-center">' + Functions.getImage('s_info', DesignerHistory.detail(i)) + '</td>' + '<td title="' + detailDesc + '">' + historyArray[i].getType() + '</td>' + '<td onclick=DesignerHistory.historyEdit(' + i + ')>' + Functions.getImage('b_edit', Messages.strEdit) + '</td>' + '<td onclick=DesignerHistory.historyDelete(' + i + ')>' + Functions.getImage('b_drop', Messages.strDelete) + '</td>';
+        var detailDesc = $("<div/>").text(DesignerHistory.detail(i)).html();
+        str +=
+          '<td class="text-center">' +
+          Functions.getImage("s_info", DesignerHistory.detail(i)) +
+          "</td>" +
+          '<td title="' +
+          detailDesc +
+          '">' +
+          historyArray[i].getType() +
+          "</td>" +
+          "<td onclick=DesignerHistory.historyEdit(" +
+          i +
+          ")>" +
+          Functions.getImage("b_edit", Messages.strEdit) +
+          "</td>" +
+          "<td onclick=DesignerHistory.historyDelete(" +
+          i +
+          ")>" +
+          Functions.getImage("b_drop", Messages.strDelete) +
+          "</td>";
       }
 
-      str += '</tr></thead>';
+      str += "</tr></thead>";
       i++;
 
       if (i >= historyArrayLength) {
         break;
       }
 
-      str += '</table></div>';
+      str += "</table></div>";
     }
 
     i--;
-    str += '</div>';
+    str += "</div>";
   }
 
   return str;
@@ -147,7 +224,6 @@ DesignerHistory.display = function (init, finit) {
  * @return {void}
  */
 
-
 DesignerHistory.andOr = function (index) {
   if (historyArray[index].getAndOr()) {
     historyArray[index].setAndOr(0);
@@ -155,9 +231,9 @@ DesignerHistory.andOr = function (index) {
     historyArray[index].setAndOr(1);
   }
 
-  var existingDiv = document.getElementById('ab');
+  var existingDiv = document.getElementById("ab");
   existingDiv.innerHTML = DesignerHistory.display(0, 0);
-  $('#ab').accordion('refresh');
+  $("#ab").accordion("refresh");
 };
 /**
  * Deletes entry in historyArray
@@ -165,7 +241,6 @@ DesignerHistory.andOr = function (index) {
  * @param {number} index of historyArray[] which is to be deleted
  * @return {void}
  */
-
 
 DesignerHistory.historyDelete = function (index) {
   var fromArrayLength = fromArray.length;
@@ -178,24 +253,23 @@ DesignerHistory.historyDelete = function (index) {
   }
 
   historyArray.splice(index, 1);
-  var existingDiv = document.getElementById('ab');
+  var existingDiv = document.getElementById("ab");
   existingDiv.innerHTML = DesignerHistory.display(0, 0);
-  $('#ab').accordion('refresh');
+  $("#ab").accordion("refresh");
 };
 /**
  * @param {string} elementId
  * @return {void}
  */
 
-
 DesignerHistory.changeStyle = function (elementId) {
   var element = document.getElementById(elementId);
-  element.style.left = '530px';
-  element.style.top = '130px';
-  element.style.position = 'absolute';
-  element.style.zIndex = '103';
-  element.style.visibility = 'visible';
-  element.style.display = 'block';
+  element.style.left = "530px";
+  element.style.top = "130px";
+  element.style.position = "absolute";
+  element.style.zIndex = "103";
+  element.style.visibility = "visible";
+  element.style.display = "block";
 };
 /**
  * To show where,rename,aggregate,having forms to edit a object
@@ -204,26 +278,39 @@ DesignerHistory.changeStyle = function (elementId) {
  * @return {void}
  */
 
-
 DesignerHistory.historyEdit = function (index) {
   gIndex = index;
   var type = historyArray[index].getType();
 
-  if (type === 'Where') {
-    document.getElementById('eQuery').value = historyArray[index].getObj().getQuery();
-    document.getElementById('erel_opt').value = historyArray[index].getObj().getRelationOperator();
-    DesignerHistory.changeStyle('query_where');
-  } else if (type === 'Having') {
-    document.getElementById('hQuery').value = historyArray[index].getObj().getQuery();
-    document.getElementById('hrel_opt').value = historyArray[index].getObj().getRelationOperator();
-    document.getElementById('hoperator').value = historyArray[index].getObj().getOperator();
-    DesignerHistory.changeStyle('query_having');
-  } else if (type === 'Rename') {
-    document.getElementById('e_rename').value = historyArray[index].getObj().getRenameTo();
-    DesignerHistory.changeStyle('query_rename_to');
-  } else if (type === 'Aggregate') {
-    document.getElementById('e_operator').value = historyArray[index].getObj().getOperator();
-    DesignerHistory.changeStyle('query_Aggregate');
+  if (type === "Where") {
+    document.getElementById("eQuery").value = historyArray[index]
+      .getObj()
+      .getQuery();
+    document.getElementById("erel_opt").value = historyArray[index]
+      .getObj()
+      .getRelationOperator();
+    DesignerHistory.changeStyle("query_where");
+  } else if (type === "Having") {
+    document.getElementById("hQuery").value = historyArray[index]
+      .getObj()
+      .getQuery();
+    document.getElementById("hrel_opt").value = historyArray[index]
+      .getObj()
+      .getRelationOperator();
+    document.getElementById("hoperator").value = historyArray[index]
+      .getObj()
+      .getOperator();
+    DesignerHistory.changeStyle("query_having");
+  } else if (type === "Rename") {
+    document.getElementById("e_rename").value = historyArray[index]
+      .getObj()
+      .getRenameTo();
+    DesignerHistory.changeStyle("query_rename_to");
+  } else if (type === "Aggregate") {
+    document.getElementById("e_operator").value = historyArray[index]
+      .getObj()
+      .getOperator();
+    DesignerHistory.changeStyle("query_Aggregate");
   }
 };
 /**
@@ -234,42 +321,61 @@ DesignerHistory.historyEdit = function (index) {
  * @return {void}
  */
 
-
 DesignerHistory.edit = function (type) {
-  if (type === 'Rename') {
-    if (document.getElementById('e_rename').value !== '') {
-      historyArray[gIndex].getObj().setRenameTo(document.getElementById('e_rename').value);
-      document.getElementById('e_rename').value = '';
+  if (type === "Rename") {
+    if (document.getElementById("e_rename").value !== "") {
+      historyArray[gIndex]
+        .getObj()
+        .setRenameTo(document.getElementById("e_rename").value);
+      document.getElementById("e_rename").value = "";
     }
 
-    document.getElementById('query_rename_to').style.visibility = 'hidden';
-  } else if (type === 'Aggregate') {
-    if (document.getElementById('e_operator').value !== '---') {
-      historyArray[gIndex].getObj().setOperator(document.getElementById('e_operator').value);
-      document.getElementById('e_operator').value = '---';
+    document.getElementById("query_rename_to").style.visibility = "hidden";
+  } else if (type === "Aggregate") {
+    if (document.getElementById("e_operator").value !== "---") {
+      historyArray[gIndex]
+        .getObj()
+        .setOperator(document.getElementById("e_operator").value);
+      document.getElementById("e_operator").value = "---";
     }
 
-    document.getElementById('query_Aggregate').style.visibility = 'hidden';
-  } else if (type === 'Where') {
-    if (document.getElementById('erel_opt').value !== '--' && document.getElementById('eQuery').value !== '') {
-      historyArray[gIndex].getObj().setQuery(document.getElementById('eQuery').value);
-      historyArray[gIndex].getObj().setRelationOperator(document.getElementById('erel_opt').value);
+    document.getElementById("query_Aggregate").style.visibility = "hidden";
+  } else if (type === "Where") {
+    if (
+      document.getElementById("erel_opt").value !== "--" &&
+      document.getElementById("eQuery").value !== ""
+    ) {
+      historyArray[gIndex]
+        .getObj()
+        .setQuery(document.getElementById("eQuery").value);
+      historyArray[gIndex]
+        .getObj()
+        .setRelationOperator(document.getElementById("erel_opt").value);
     }
 
-    document.getElementById('query_where').style.visibility = 'hidden';
-  } else if (type === 'Having') {
-    if (document.getElementById('hrel_opt').value !== '--' && document.getElementById('hQuery').value !== '') {
-      historyArray[gIndex].getObj().setQuery(document.getElementById('hQuery').value);
-      historyArray[gIndex].getObj().setRelationOperator(document.getElementById('hrel_opt').value);
-      historyArray[gIndex].getObj().setOperator(document.getElementById('hoperator').value);
+    document.getElementById("query_where").style.visibility = "hidden";
+  } else if (type === "Having") {
+    if (
+      document.getElementById("hrel_opt").value !== "--" &&
+      document.getElementById("hQuery").value !== ""
+    ) {
+      historyArray[gIndex]
+        .getObj()
+        .setQuery(document.getElementById("hQuery").value);
+      historyArray[gIndex]
+        .getObj()
+        .setRelationOperator(document.getElementById("hrel_opt").value);
+      historyArray[gIndex]
+        .getObj()
+        .setOperator(document.getElementById("hoperator").value);
     }
 
-    document.getElementById('query_having').style.visibility = 'hidden';
+    document.getElementById("query_having").style.visibility = "hidden";
   }
 
-  var existingDiv = document.getElementById('ab');
+  var existingDiv = document.getElementById("ab");
   existingDiv.innerHTML = DesignerHistory.display(0, 0);
-  $('#ab').accordion('refresh');
+  $("#ab").accordion("refresh");
 };
 /**
  * history object closure
@@ -281,7 +387,6 @@ DesignerHistory.edit = function (type) {
  * @param nType         type of object
  *
  */
-
 
 DesignerHistory.HistoryObj = function (nColumnName, nObj, nTab, nObjNo, nType) {
   var andOr;
@@ -358,7 +463,6 @@ DesignerHistory.HistoryObj = function (nColumnName, nObj, nTab, nObjNo, nType) {
  *
  */
 
-
 DesignerHistory.Where = function (nRelationOperator, nQuery) {
   var relationOperator;
   var query;
@@ -388,7 +492,6 @@ DesignerHistory.Where = function (nRelationOperator, nQuery) {
  * @param nOrder order, ASC or DESC
  */
 
-
 DesignerHistory.OrderBy = function (nOrder) {
   var order;
 
@@ -409,7 +512,6 @@ DesignerHistory.OrderBy = function (nOrder) {
  * @param nQuery             stores value of value/sub-query
  * @param nOperator          operator
  */
-
 
 DesignerHistory.Having = function (nRelationOperator, nQuery, nOperator) {
   var relationOperator;
@@ -451,7 +553,6 @@ DesignerHistory.Having = function (nRelationOperator, nQuery, nOperator) {
  *
  */
 
-
 DesignerHistory.Rename = function (nRenameTo) {
   var renameTo;
 
@@ -472,7 +573,6 @@ DesignerHistory.Rename = function (nRenameTo) {
  *
  */
 
-
 DesignerHistory.Aggregate = function (nOperator) {
   var operator;
 
@@ -492,7 +592,6 @@ DesignerHistory.Aggregate = function (nOperator) {
  * @param arrayName array from which duplicate elem are to be removed.
  * @return unique array
  */
-
 
 DesignerHistory.unique = function (arrayName) {
   var newArray = [];
@@ -519,7 +618,6 @@ DesignerHistory.unique = function (arrayName) {
  * @param value  value which is to be searched in the array
  */
 
-
 DesignerHistory.found = function (arrayName, value) {
   var arrayNameLength = arrayName.length;
 
@@ -540,7 +638,6 @@ DesignerHistory.found = function (arrayName, value) {
  * @return {obj[]}
  */
 
-
 DesignerHistory.addArray = function (add, arr) {
   var addLength = add.length;
 
@@ -559,7 +656,6 @@ DesignerHistory.addArray = function (add, arr) {
  * @return {obj[]}
  *
  */
-
 
 DesignerHistory.removeArray = function (rem, arr) {
   var remLength = rem.length;
@@ -581,15 +677,14 @@ DesignerHistory.removeArray = function (rem, arr) {
  * @return {string}
  */
 
-
 DesignerHistory.queryGroupBy = function () {
   var i;
-  var str = '';
+  var str = "";
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    if (historyArray[i].getType() === 'GroupBy') {
-      str += '`' + historyArray[i].getColumnName() + '`, ';
+    if (historyArray[i].getType() === "GroupBy") {
+      str += "`" + historyArray[i].getColumnName() + "`, ";
     }
   }
 
@@ -601,27 +696,38 @@ DesignerHistory.queryGroupBy = function () {
  * @return {string}
  */
 
-
 DesignerHistory.queryHaving = function () {
   var i;
-  var and = '(';
+  var and = "(";
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    if (historyArray[i].getType() === 'Having') {
-      if (historyArray[i].getObj().getOperator() !== 'None') {
-        and += historyArray[i].getObj().getOperator() + '(`' + historyArray[i].getColumnName() + '`) ' + historyArray[i].getObj().getRelationOperator();
-        and += ' ' + historyArray[i].getObj().getQuery() + ', ';
+    if (historyArray[i].getType() === "Having") {
+      if (historyArray[i].getObj().getOperator() !== "None") {
+        and +=
+          historyArray[i].getObj().getOperator() +
+          "(`" +
+          historyArray[i].getColumnName() +
+          "`) " +
+          historyArray[i].getObj().getRelationOperator();
+        and += " " + historyArray[i].getObj().getQuery() + ", ";
       } else {
-        and += '`' + historyArray[i].getColumnName() + '` ' + historyArray[i].getObj().getRelationOperator() + ' ' + historyArray[i].getObj().getQuery() + ', ';
+        and +=
+          "`" +
+          historyArray[i].getColumnName() +
+          "` " +
+          historyArray[i].getObj().getRelationOperator() +
+          " " +
+          historyArray[i].getObj().getQuery() +
+          ", ";
       }
     }
   }
 
-  if (and === '(') {
-    and = '';
+  if (and === "(") {
+    and = "";
   } else {
-    and = and.substr(0, and.length - 2) + ')';
+    and = and.substr(0, and.length - 2) + ")";
   }
 
   return and;
@@ -631,15 +737,19 @@ DesignerHistory.queryHaving = function () {
  * @return {string}
  */
 
-
 DesignerHistory.queryOrderBy = function () {
   var i;
-  var str = '';
+  var str = "";
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    if (historyArray[i].getType() === 'OrderBy') {
-      str += '`' + historyArray[i].getColumnName() + '` ' + historyArray[i].getObj().getOrder() + ', ';
+    if (historyArray[i].getType() === "OrderBy") {
+      str +=
+        "`" +
+        historyArray[i].getColumnName() +
+        "` " +
+        historyArray[i].getObj().getOrder() +
+        ", ";
     }
   }
 
@@ -651,39 +761,52 @@ DesignerHistory.queryOrderBy = function () {
  * @return {string}
  */
 
-
 DesignerHistory.queryWhere = function () {
   var i;
-  var and = '(';
-  var or = '(';
+  var and = "(";
+  var or = "(";
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    if (historyArray[i].getType() === 'Where') {
+    if (historyArray[i].getType() === "Where") {
       if (historyArray[i].getAndOr() === 0) {
-        and += '( `' + historyArray[i].getColumnName() + '` ' + historyArray[i].getObj().getRelationOperator() + ' ' + historyArray[i].getObj().getQuery() + ')';
-        and += ' AND ';
+        and +=
+          "( `" +
+          historyArray[i].getColumnName() +
+          "` " +
+          historyArray[i].getObj().getRelationOperator() +
+          " " +
+          historyArray[i].getObj().getQuery() +
+          ")";
+        and += " AND ";
       } else {
-        or += '( `' + historyArray[i].getColumnName() + '` ' + historyArray[i].getObj().getRelationOperator() + ' ' + historyArray[i].getObj().getQuery() + ')';
-        or += ' OR ';
+        or +=
+          "( `" +
+          historyArray[i].getColumnName() +
+          "` " +
+          historyArray[i].getObj().getRelationOperator() +
+          " " +
+          historyArray[i].getObj().getQuery() +
+          ")";
+        or += " OR ";
       }
     }
   }
 
-  if (or !== '(') {
-    or = or.substring(0, or.length - 4) + ')';
+  if (or !== "(") {
+    or = or.substring(0, or.length - 4) + ")";
   } else {
-    or = '';
+    or = "";
   }
 
-  if (and !== '(') {
-    and = and.substring(0, and.length - 5) + ')';
+  if (and !== "(") {
+    and = and.substring(0, and.length - 5) + ")";
   } else {
-    and = '';
+    and = "";
   }
 
-  if (or !== '') {
-    and = and + ' OR ' + or + ' )';
+  if (or !== "") {
+    and = and + " OR " + or + " )";
   }
 
   return and;
@@ -694,14 +817,19 @@ DesignerHistory.checkAggregate = function (idThis) {
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    var temp = '`' + historyArray[i].getTab() + '`.`' + historyArray[i].getColumnName() + '`';
+    var temp =
+      "`" +
+      historyArray[i].getTab() +
+      "`.`" +
+      historyArray[i].getColumnName() +
+      "`";
 
-    if (temp === idThis && historyArray[i].getType() === 'Aggregate') {
-      return historyArray[i].getObj().getOperator() + '(' + idThis + ')';
+    if (temp === idThis && historyArray[i].getType() === "Aggregate") {
+      return historyArray[i].getObj().getOperator() + "(" + idThis + ")";
     }
   }
 
-  return '';
+  return "";
 };
 
 DesignerHistory.checkRename = function (idThis) {
@@ -709,22 +837,26 @@ DesignerHistory.checkRename = function (idThis) {
   var historyArrayLength = historyArray.length;
 
   for (i = 0; i < historyArrayLength; i++) {
-    var temp = '`' + historyArray[i].getTab() + '`.`' + historyArray[i].getColumnName() + '`';
+    var temp =
+      "`" +
+      historyArray[i].getTab() +
+      "`.`" +
+      historyArray[i].getColumnName() +
+      "`";
 
-    if (temp === idThis && historyArray[i].getType() === 'Rename') {
-      return ' AS `' + historyArray[i].getObj().getRenameTo() + '`';
+    if (temp === idThis && historyArray[i].getType() === "Rename") {
+      return " AS `" + historyArray[i].getObj().getRenameTo() + "`";
     }
   }
 
-  return '';
+  return "";
 };
 /**
-  * This function builds from clause of query
-  * makes automatic joins.
-  *
-  * @return {string}
-  */
-
+ * This function builds from clause of query
+ * makes automatic joins.
+ *
+ * @return {string}
+ */
 
 DesignerHistory.queryFrom = function () {
   var i;
@@ -732,8 +864,8 @@ DesignerHistory.queryFrom = function () {
   var tabUsed = [];
   var tTabLeft = [];
   var temp;
-  var query = '';
-  var quer = '';
+  var query = "";
+  var quer = "";
   var parts = [];
   var tArray = [];
   tArray = fromArray;
@@ -754,7 +886,7 @@ DesignerHistory.queryFrom = function () {
   fromArray = DesignerHistory.unique(fromArray);
   tabLeft = fromArray;
   temp = tabLeft.shift();
-  quer = '`' + temp + '`';
+  quer = "`" + temp + "`";
   tabUsed.push(temp); // if master table (key2) matches with tab used get all keys and check if tab_left matches
   // after this check if master table (key2) matches with tab left then check if any foreign matches with master .
 
@@ -764,21 +896,31 @@ DesignerHistory.queryFrom = function () {
         // contr name
         for (key2 in contr[K][key]) {
           // table name
-          parts = key2.split('.');
+          parts = key2.split(".");
 
           if (DesignerHistory.found(tabUsed, parts[1]) > 0) {
             for (key3 in contr[K][key][key2]) {
-              parts1 = contr[K][key][key2][key3][0].split('.');
+              parts1 = contr[K][key][key2][key3][0].split(".");
 
               if (DesignerHistory.found(tabLeft, parts1[1]) > 0) {
                 if (DesignerHistory.found(constraintsAdded, key) > 0) {
-                  query += ' AND ' + '`' + parts[1] + '`.`' + key3 + '` = ';
-                  query += '`' + parts1[1] + '`.`' + contr[K][key][key2][key3][1] + '` ';
+                  query += " AND " + "`" + parts[1] + "`.`" + key3 + "` = ";
+                  query +=
+                    "`" +
+                    parts1[1] +
+                    "`.`" +
+                    contr[K][key][key2][key3][1] +
+                    "` ";
                 } else {
-                  query += '\n' + 'LEFT JOIN ';
-                  query += '`' + parts[1] + '` ON ';
-                  query += '`' + parts1[1] + '`.`' + contr[K][key][key2][key3][1] + '` = ';
-                  query += '`' + parts[1] + '`.`' + key3 + '` ';
+                  query += "\n" + "LEFT JOIN ";
+                  query += "`" + parts[1] + "` ON ";
+                  query +=
+                    "`" +
+                    parts1[1] +
+                    "`.`" +
+                    contr[K][key][key2][key3][1] +
+                    "` = ";
+                  query += "`" + parts[1] + "`.`" + key3 + "` ";
                   constraintsAdded.push(key);
                 }
 
@@ -800,21 +942,31 @@ DesignerHistory.queryFrom = function () {
       for (key in contr[K]) {
         for (key2 in contr[K][key]) {
           // table name
-          parts = key2.split('.');
+          parts = key2.split(".");
 
           if (DesignerHistory.found(tabLeft, parts[1]) > 0) {
             for (key3 in contr[K][key][key2]) {
-              parts1 = contr[K][key][key2][key3][0].split('.');
+              parts1 = contr[K][key][key2][key3][0].split(".");
 
               if (DesignerHistory.found(tabUsed, parts1[1]) > 0) {
                 if (DesignerHistory.found(constraintsAdded, key) > 0) {
-                  query += ' AND ' + '`' + parts[1] + '`.`' + key3 + '` = ';
-                  query += '`' + parts1[1] + '`.`' + contr[K][key][key2][key3][1] + '` ';
+                  query += " AND " + "`" + parts[1] + "`.`" + key3 + "` = ";
+                  query +=
+                    "`" +
+                    parts1[1] +
+                    "`.`" +
+                    contr[K][key][key2][key3][1] +
+                    "` ";
                 } else {
-                  query += '\n' + 'LEFT JOIN ';
-                  query += '`' + parts[1] + '` ON ';
-                  query += '`' + parts1[1] + '`.`' + contr[K][key][key2][key3][1] + '` = ';
-                  query += '`' + parts[1] + '`.`' + key3 + '` ';
+                  query += "\n" + "LEFT JOIN ";
+                  query += "`" + parts[1] + "` ON ";
+                  query +=
+                    "`" +
+                    parts1[1] +
+                    "`.`" +
+                    contr[K][key][key2][key3][1] +
+                    "` = ";
+                  query += "`" + parts[1] + "`.`" + key3 + "` ";
                   constraintsAdded.push(key);
                 }
 
@@ -833,7 +985,7 @@ DesignerHistory.queryFrom = function () {
   }
 
   for (k in tabLeft) {
-    quer += ' , `' + tabLeft[k] + '`';
+    quer += " , `" + tabLeft[k] + "`";
   }
 
   query = quer + query;
@@ -850,9 +1002,8 @@ DesignerHistory.queryFrom = function () {
  * @uses DesignerHistory.queryOrderBy()
  */
 
-
 DesignerHistory.buildQuery = function () {
-  var qSelect = 'SELECT ';
+  var qSelect = "SELECT ";
   var temp;
   var selectFieldLength = selectField.length;
 
@@ -860,65 +1011,65 @@ DesignerHistory.buildQuery = function () {
     for (var i = 0; i < selectFieldLength; i++) {
       temp = DesignerHistory.checkAggregate(selectField[i]);
 
-      if (temp !== '') {
+      if (temp !== "") {
         qSelect += temp;
         temp = DesignerHistory.checkRename(selectField[i]);
-        qSelect += temp + ', ';
+        qSelect += temp + ", ";
       } else {
         temp = DesignerHistory.checkRename(selectField[i]);
-        qSelect += selectField[i] + temp + ', ';
+        qSelect += selectField[i] + temp + ", ";
       }
     }
 
     qSelect = qSelect.substring(0, qSelect.length - 2);
   } else {
-    qSelect += '* ';
+    qSelect += "* ";
   }
 
-  qSelect += '\nFROM ' + DesignerHistory.queryFrom();
+  qSelect += "\nFROM " + DesignerHistory.queryFrom();
   var qWhere = DesignerHistory.queryWhere();
 
-  if (qWhere !== '') {
-    qSelect += '\nWHERE ' + qWhere;
+  if (qWhere !== "") {
+    qSelect += "\nWHERE " + qWhere;
   }
 
   var qGroupBy = DesignerHistory.queryGroupBy();
 
-  if (qGroupBy !== '') {
-    qSelect += '\nGROUP BY ' + qGroupBy;
+  if (qGroupBy !== "") {
+    qSelect += "\nGROUP BY " + qGroupBy;
   }
 
   var qHaving = DesignerHistory.queryHaving();
 
-  if (qHaving !== '') {
-    qSelect += '\nHAVING ' + qHaving;
+  if (qHaving !== "") {
+    qSelect += "\nHAVING " + qHaving;
   }
 
   var qOrderBy = DesignerHistory.queryOrderBy();
 
-  if (qOrderBy !== '') {
-    qSelect += '\nORDER BY ' + qOrderBy;
+  if (qOrderBy !== "") {
+    qSelect += "\nORDER BY " + qOrderBy;
   }
 
-  $('#buildQuerySubmitButton').on('click', function () {
+  $("#buildQuerySubmitButton").on("click", function () {
     if (vqbEditor) {
-      var $elm = $('#buildQueryModal').find('textarea');
+      var $elm = $("#buildQueryModal").find("textarea");
       vqbEditor.save();
       $elm.val(vqbEditor.getValue());
     }
 
-    $('#vqb_form').trigger('submit');
+    $("#vqb_form").trigger("submit");
   });
-  $('#buildQueryModal').modal('show');
-  $('#buildQueryModalLabel').first().text('SELECT');
-  $('#buildQueryModal').on('shown.bs.modal', function () {
+  $("#buildQueryModal").modal("show");
+  $("#buildQueryModalLabel").first().text("SELECT");
+  $("#buildQueryModal").on("shown.bs.modal", function () {
     // Attach syntax highlighted editor to query dialog
 
     /**
      * @var $elm jQuery object containing the reference
      *           to the query textarea.
      */
-    var $elm = $('#buildQueryModal').find('textarea');
+    var $elm = $("#buildQueryModal").find("textarea");
 
     if (!vqbEditor) {
       vqbEditor = Functions.getSqlEditor($elm);
@@ -929,35 +1080,35 @@ DesignerHistory.buildQuery = function () {
       vqbEditor.focus();
     } else {
       $elm.val(qSelect);
-      $elm.trigger('focus');
+      $elm.trigger("focus");
     }
   });
 };
 
-AJAX.registerTeardown('designer/history.js', function () {
+AJAX.registerTeardown("designer/history.js", function () {
   vqbEditor = null;
   historyArray = [];
   selectField = [];
-  $('#ok_edit_rename').off('click');
-  $('#ok_edit_having').off('click');
-  $('#ok_edit_Aggr').off('click');
-  $('#ok_edit_where').off('click');
+  $("#ok_edit_rename").off("click");
+  $("#ok_edit_having").off("click");
+  $("#ok_edit_Aggr").off("click");
+  $("#ok_edit_where").off("click");
 });
-AJAX.registerOnload('designer/history.js', function () {
-  $('#ok_edit_rename').on('click', function () {
-    DesignerHistory.edit('Rename');
+AJAX.registerOnload("designer/history.js", function () {
+  $("#ok_edit_rename").on("click", function () {
+    DesignerHistory.edit("Rename");
   });
-  $('#ok_edit_having').on('click', function () {
-    DesignerHistory.edit('Having');
+  $("#ok_edit_having").on("click", function () {
+    DesignerHistory.edit("Having");
   });
-  $('#ok_edit_Aggr').on('click', function () {
-    DesignerHistory.edit('Aggregate');
+  $("#ok_edit_Aggr").on("click", function () {
+    DesignerHistory.edit("Aggregate");
   });
-  $('#ok_edit_where').on('click', function () {
-    DesignerHistory.edit('Where');
+  $("#ok_edit_where").on("click", function () {
+    DesignerHistory.edit("Where");
   });
-  $('#ab').accordion({
+  $("#ab").accordion({
     collapsible: true,
-    active: 'none'
+    active: "none",
   });
 });

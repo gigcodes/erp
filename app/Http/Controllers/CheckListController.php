@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Subject;
 use App\Checklist;
 use App\ChecklistSubject;
-use App\ChecklistSubjectRemarkHistory;
-use App\Subject;
 use Illuminate\Http\Request;
+use App\ChecklistSubjectRemarkHistory;
 
 class CheckListController extends Controller
 {
@@ -30,11 +30,11 @@ class CheckListController extends Controller
             $items = Checklist::with('subjects');
 
             if (isset($request->category_name) && ! empty($request->category_name)) {
-                $items->where('checklist.category_name', 'Like', '%'.$request->category_name.'%');
+                $items->where('checklist.category_name', 'Like', '%' . $request->category_name . '%');
             }
 
             if (isset($request->sub_category_name) && ! empty($request->sub_category_name)) {
-                $items->where('checklist.sub_category_name', 'Like', '%'.$request->sub_category_name.'%');
+                $items->where('checklist.sub_category_name', 'Like', '%' . $request->sub_category_name . '%');
             }
             if (isset($request->subjects) && ! empty($request->subjects)) {
                 // $items->whereRaw("find_in_set('".$request->subjects."',checklist.subjects)");
@@ -136,7 +136,6 @@ class CheckListController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -205,7 +204,6 @@ class CheckListController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

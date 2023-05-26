@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
 use App\Vendor;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
+use App\Helpers\LogHelper;
 
 class SendReminderToVendorIfTheyHaventReplied extends Command
 {
@@ -44,11 +45,13 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
 
             $now = Carbon::now()->toDateTimeString();
 
@@ -62,9 +65,11 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                     $query->whereNotIn('status', [7, 8, 9]);
                 })
                 ->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message query finished."]);
 
             foreach ($messagesIds as $messagesId) {
                 $vendor = Vendor::find($messagesId->vendor_id);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => "vendor query finished."]);
                 if (! $vendor) {
                     continue;
                 }
@@ -75,7 +80,7 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                 }
 
                 if ($vendor->reminder_from == '0000-00-00 00:00' || strtotime($vendor->reminder_from) >= strtotime('now')) {
-                    dump('here'.$vendor->name);
+                    dump('here' . $vendor->name);
                     $templateMessage = $vendor->reminder_message;
                     if ($vendor->reminder_last_reply == 0) {
                         //sends messahe
@@ -83,12 +88,13 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                         dump('saving...');
                     } else {
                         // get the message if the interval is greater or equal to time which is set for this customer
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
                             ->where('id', $messagesId->id)
                             ->where('user_id', '>', '0')
                             ->where('approved', '1')
                             ->first();
 
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message query finished."]);
                         if (! $message) {
                             continue;
                         }
@@ -100,13 +106,16 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 
     /**
-     * @param $vendorId
      * @param $message
      * create chat message entry and then approve the message and send the message...
      */

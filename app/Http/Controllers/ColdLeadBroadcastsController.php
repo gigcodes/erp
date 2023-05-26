@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\ColdLeadBroadcasts;
-use App\ColdLeads;
-use App\CompetitorPage;
-//use InstagramAPI\Instagram;
 use App\ImQueue;
+use App\ColdLeads;
 use Carbon\Carbon;
+//use InstagramAPI\Instagram;
+use App\CompetitorPage;
+use App\ColdLeadBroadcasts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -62,7 +62,6 @@ class ColdLeadBroadcastsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -99,7 +98,7 @@ class ColdLeadBroadcastsController extends Controller
 
         if (! empty($competitor)) {
             $comp = CompetitorPage::find($competitor);
-            $query = $query->where('because_of', 'LIKE', '%via '.$comp->name.'%');
+            $query = $query->where('because_of', 'LIKE', '%via ' . $comp->name . '%');
         }
 
         if (! empty($request->gender)) {
@@ -245,7 +244,6 @@ class ColdLeadBroadcastsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ColdLeadBroadcasts  $coldLeadBroadcasts
      * @return \Illuminate\Http\Response
      */
     public function show(ColdLeadBroadcasts $coldLeadBroadcasts)
@@ -256,7 +254,6 @@ class ColdLeadBroadcastsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ColdLeadBroadcasts  $coldLeadBroadcasts
      * @return \Illuminate\Http\Response
      */
     public function edit(ColdLeadBroadcasts $coldLeadBroadcasts)
@@ -267,8 +264,6 @@ class ColdLeadBroadcastsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ColdLeadBroadcasts  $coldLeadBroadcasts
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ColdLeadBroadcasts $coldLeadBroadcasts)
@@ -279,7 +274,6 @@ class ColdLeadBroadcastsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ColdLeadBroadcasts  $coldLeadBroadcasts
      * @return \Illuminate\Http\Response
      */
     public function destroy(ColdLeadBroadcasts $coldLeadBroadcasts)

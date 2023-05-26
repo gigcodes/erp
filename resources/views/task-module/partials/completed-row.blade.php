@@ -103,6 +103,12 @@
                         {{ $task->message }}
                     </p>
                     <button type="button" class="btn btn-xs btn-image load-communication-modal pull-right" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                    <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
+                        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                    </button>
+                    <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
+                        <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                    </button>
                 </div>
             @endif
         @else
@@ -130,6 +136,13 @@
                 @csrf
                 <button type="submit" class="btn btn-image pd-5"><img src="/images/archive.png"/></button>
             </form>
+            
+            <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </button>
         </div>
     </td>
 </tr>

@@ -13,11 +13,11 @@
 
 namespace App\Http\Controllers\Meeting;
 
-use App\Http\Controllers\Controller;
-use App\Meetings\ZoomMeetings;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Meetings\ZoomMeetings;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Response;
 use seo2websites\LaravelZoom\LaravelZoom;
 
@@ -38,7 +38,6 @@ class ZoomMeetingController extends Controller
         $this->zoomkey = env('ZOOM_API_KEY');
         $this->zoomsecret = env('ZOOM_API_SECRET');
         $this->zoomuser = env('ZOOM_USER');
-        
     }
 
    /**
@@ -104,10 +103,10 @@ class ZoomMeetingController extends Controller
            'timezone' => $input['timezone'],
        ];
        // Calling model calss
-       $meetings = new ZoomMeetings();       
+       $meetings = new ZoomMeetings();
        $zoomKey = $this->zoomkey;
-       $zoomSecret = $this->zoomsecret;              
-       
+       $zoomSecret = $this->zoomsecret;
+
        $createMeeting = $meetings->createMeeting($zoomKey, $zoomSecret, $data);
        // dd($createMeeting);
        if ($createMeeting) {
@@ -123,8 +122,8 @@ class ZoomMeetingController extends Controller
                $getUserDetails = $meetings->getUserDetails($input['user_id'], $input['user_type']);
                if (! empty($getUserDetails)) {
                    $phonenumber = isset($getUserDetails->number) ? $getUserDetails->number : $getUserDetails->phone;
-                   $msg = 'New meeting has been scheduled for you. Kindly find below the link to join the meeting. '.$input['join_meeting_url'];
-                   $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='".$input['join_meeting_url']."' target='_blank'>".$input['join_meeting_url'].'</a>';
+                   $msg = 'New meeting has been scheduled for you. Kindly find below the link to join the meeting. ' . $input['join_meeting_url'];
+                   $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='" . $input['join_meeting_url'] . "' target='_blank'>" . $input['join_meeting_url'] . '</a>';
                    if (! empty($phonenumber)) {
                        $message = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($phonenumber, $getUserDetails->whatsapp_number, $msg);
                    }

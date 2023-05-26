@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Providers;
 
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -13,14 +13,14 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        SocialiteWasCalled::class => [
-            'SocialiteProviders\Slack\SlackExtendSocialite@handle',
-            'SocialiteProviders\Azure\AzureExtendSocialite@handle',
-            'SocialiteProviders\Okta\OktaExtendSocialite@handle',
-            'SocialiteProviders\GitLab\GitLabExtendSocialite@handle',
-            'SocialiteProviders\Twitch\TwitchExtendSocialite@handle',
-            'SocialiteProviders\Discord\DiscordExtendSocialite@handle',
-        ],
+        // SocialiteWasCalled::class => [
+        //     'SocialiteProviders\Slack\SlackExtendSocialite@handle',
+        //     'SocialiteProviders\Azure\AzureExtendSocialite@handle',
+        //     'SocialiteProviders\Okta\OktaExtendSocialite@handle',
+        //     'SocialiteProviders\GitLab\GitLabExtendSocialite@handle',
+        //     'SocialiteProviders\Twitch\TwitchExtendSocialite@handle',
+        //     'SocialiteProviders\Discord\DiscordExtendSocialite@handle',
+        // ],
     ];
 
     /**

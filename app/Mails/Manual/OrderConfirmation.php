@@ -19,11 +19,12 @@ class OrderConfirmation extends Mailable
      * @return void
      */
     public $order;
+    public $fromMailer;
 
     public function __construct(Order $order)
     {
         $this->order = $order;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail($order->customer->id);
     }
 
     /**
@@ -33,14 +34,13 @@ class OrderConfirmation extends Mailable
      */
     public function build()
     {
-        $subject = 'New Order # '.$this->order->order_id;
+        $subject = 'New Order # ' . $this->order->order_id;
         $order = $this->order;
         $customer = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
-
+        
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
 

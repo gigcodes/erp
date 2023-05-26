@@ -111,6 +111,12 @@
             @if (isset($task->message))
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
             @endif
+            <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
+                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
+                <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+            </button>
         </div>
         @if (isset($task->message))
         <div style="margin-bottom:10px;width: 100%;">
@@ -169,6 +175,12 @@
             @endif
             <button type="button" title="Recurring history" class="btn recurring-history-btn btn-xs pull-left" data-id="<?php echo $task->id; ?>">
                 <i class="fa fa-history"></i>
+            </button>
+            <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                <i class="fa fa-list" aria-hidden="true"></i>
             </button>
         </div>
     </td>

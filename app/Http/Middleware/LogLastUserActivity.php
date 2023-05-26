@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\UserLogin;
 use Auth;
 use Cache;
-use Carbon\Carbon;
 use Closure;
+use App\UserLogin;
+use Carbon\Carbon;
 use Illuminate\Session\Store;
 
 class LogLastUserActivity
@@ -24,14 +24,13 @@ class LogLastUserActivity
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
             $expiresAt = Carbon::now()->addMinutes(5);
-            $cacheKey = 'user-is-online-'.Auth::user()->id;
+            $cacheKey = 'user-is-online-' . Auth::user()->id;
 
             // cache with 5 min expiry.
             $lastLogin = Cache::has($cacheKey, true, $expiresAt);
@@ -78,6 +77,7 @@ class LogLastUserActivity
             $this->session->put('lastActivityTimeU', time());
         } elseif (time() - $this->session->get('lastActivityTimeU') > $this->getTimeOut()) {
             $this->session->forget('lastActivityTimeU');
+            $display=\Carbon\CarbonInterval::seconds($this->getTimeOut())->cascade()->forHumans();
             if ($user_login = UserLogin::where('user_id', Auth::id())->latest()->first()) {
                 if (Carbon::now()->diffInDays($user_login->logout_at) == 0) {
                     $user_login->update(['logout_at' => Carbon::now()]);
@@ -89,8 +89,8 @@ class LogLastUserActivity
                 }
             }
             Auth::logout();
-
-            return redirect('/login')->withErrors(['You have been inactive for 30 minutes']);
+            
+            return redirect('/login')->withErrors(['You have been inactive for '.$display.'']);
         }
         $this->session->put('lastActivityTimeU', time());
 

@@ -27,7 +27,6 @@ class CommentRepo
     /**
      * Get a comment by ID.
      *
-     * @param $id
      * @return \BookStack\Actions\Comment|\Illuminate\Database\Eloquent\Model
      */
     public function getById($id)
