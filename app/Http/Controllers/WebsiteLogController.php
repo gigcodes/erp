@@ -297,18 +297,19 @@ class WebsiteLogController extends Controller
     public function searchWebsiteLogStoreView(Request $request)
     {
         try {
+            
             $dataArr = new WebsiteLog();
-            if ($request->sql_query) {
-                $dataArr = $dataArr->where('sql_query', 'LIKE', '%' . $request->sql_query . '%');
+            if ($request->search_error) {
+                $dataArr = $dataArr->where('error', 'LIKE', '%' . $request->search_error . '%');
             }
-            if ($request->time) {
-                $dataArr = $dataArr->where('time', 'LIKE', '%' . $request->time . '%');
+            if ($request->search_type) {
+                $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
             }
             $dataArr = $dataArr->get();
-            $sqlQuery = $request->sql_query;
-            $time = $request->time;
+            $search_error = $request->search_error;
+            $search_type = $request->search_type;
 
-            return view('website-logs.website-log-view', compact('dataArr', 'sqlQuery', 'time'));
+            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
