@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\DailyActivity;
+use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
 
 class DailyActivityController extends Controller
@@ -37,6 +38,21 @@ class DailyActivityController extends Controller
             }
         }
         // general category store end
+
+        // Save the data in user event
+        $schedultDate = Carbon::parse($request->for_date);
+        $timeSlotArr = explode("-", $request->time_slot);
+        $c_start_at = Carbon::parse("$request->for_date ".$timeSlotArr[0]);
+        $c_end_at = Carbon::parse("$request->for_date ".$timeSlotArr[1]);
+        
+        $userEvent = new UserEvent();
+        $userEvent->user_id = $request->user_id;
+        $userEvent->description = trim($timeSlotArr[0])."-".trim($timeSlotArr[1]).', '.$schedultDate->format('l').", ".$schedultDate->toDateString();
+        $userEvent->subject = $request->activity;
+        $userEvent->date = $schedultDate;
+        $userEvent->start = $c_start_at->toDateTime();
+        $userEvent->end = $c_end_at->toDateTime();
+        $userEvent->save();
 
         $activity = DailyActivity::create($data);
 
