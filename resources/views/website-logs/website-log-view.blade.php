@@ -27,9 +27,10 @@
 				<input class="form-control" type="text" id="time" placeholder="Search time" name="time" value="{{ $time ?? '' }}">
 			</div>
 			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+				<button type="submit" style="" class="btn btn-image pl-0"><img src="/images/filter.png"></button>
 				<a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-				<button type="submit" style="" class="btn btn-image pl-0"><img src="http://erp.local:8080/images/filter.png"></button>
-				</div>
+				
+			</div>
 		</form>
 	</div>
 	<div class="mt-3 col-md-12">
@@ -37,17 +38,21 @@
 		    <thead>
 			    <tr>
 			    	<th width="3%">ID</th>
+			    	<th width="3%">Website</th>
 			        <th width="30%">SQL</th>
 			        <th width="30%">Time</th>
 			        <th width="10%">File Path</th>
+			        <th width="10%">Date</th>
                 </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
                         <tr>
                             <td>{{$data->id}}</td>
+                            <td>{{$data->website_id}}</td>
 							<td>{{$data->sql_query}}</td>
 							<td>{{$data->time}}</td>
 							<td>{{$data->module}}</td>
+							<td>{{$data->created_at}}</td>
 						</tr>                        
                     @endforeach
 		    	</tbody>

@@ -52,6 +52,7 @@
 				<th width="10%">File Name</th>
 				<th width="10%">Website</th>
 				<th width="30%">Folder Path</th>
+				<th width="15%">Date</th>
 				<th width="10%">Action</th>
 			</tr>
 		<tbody>
@@ -61,6 +62,7 @@
 				<td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
 				<td>{{$data['Website']}}</td>
 				<td>{{$data['File_Path']}}</td>
+				<td>{{$data['date']}}</td>
 				<td><a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="4" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a></td>
 			</tr>
 			@endforeach
