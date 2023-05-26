@@ -1956,9 +1956,9 @@
 
     <script>
         $(document).on('click', '.show-time-history-task', function() {
-            var data = $(this).data('history');
-            var userId = $(this).data('user_id');
-            var issueId = $(this).data('id');
+            var data = $(this).attr('data-history');
+            var userId = $(this).attr('data-user_id');
+            var issueId = $(this).attr('data-id');
             $('#time_history_div table tbody').html('');
 
             //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
