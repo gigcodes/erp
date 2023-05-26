@@ -49,7 +49,7 @@
 				                <div class="row">
 	        	                	<div class="col-12">
 	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
-	        			                    
+												{!! Form::label('Select Sub Category:') !!}
 					  		                	<select id="sub_cat_id" name="sub_cat_id" class="form-control">
 												</select>
 	        			                </div>
