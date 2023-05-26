@@ -15,7 +15,7 @@
 </div>
 @include('partials.flash_messages')
 <p class="text-secondary">Calendar link:</p>
-<div class="border border-light p-2 my-3 text-info">
+<div class="border border-light p-2 my-3">
     {{ URL::to('calendar/public/'.$link) }}  
     <button class="btn btn-secondary"  data-toggle="modal" data-target="#calanderCommonEmailModal">
         Send Email
@@ -106,6 +106,22 @@
 
     </div>
 </div>
+<style>
+    .fc-button{
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    .fc-button-primary:not(:disabled).fc-button-active ,.fc-button:hover{
+        background-color: #5a6268;
+        border-color: #5a6268;
+        color: #333;
+    }
+    .fc-event, .fc-event-dot {
+        background-color: #6c757d;
+        color: white!important;
+        border: 1px solid #6c757d;
+    }
+</style>
 @include('partials.modals.user-event-modal')
 
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
