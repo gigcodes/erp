@@ -21,10 +21,10 @@
 				<b>Search</b> 
 			</div>
 			<div class="col-lg-2">
-				<input class="form-control" type="text" id="sql_query" placeholder="Search SQL query" name="sql_query" value="{{ $sqlQuery ?? '' }}">
+				<input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $search_error ?? '' }}">
 			</div>
 			<div class="col-lg-2">
-				<input class="form-control" type="text" id="time" placeholder="Search time" name="time" value="{{ $time ?? '' }}">
+				<input class="form-control" type="text" id="search_type" placeholder="Search type" name="search_type" value="{{ $search_type ?? '' }}">
 			</div>
 			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
 				<button type="submit" style="" class="btn btn-image pl-0"><img src="/images/filter.png"></button>
@@ -39,8 +39,8 @@
 			    <tr>
 			    	<th width="3%">ID</th>
 			    	<th width="3%">Website</th>
-			        <th width="30%">SQL</th>
-			        <th width="30%">Time</th>
+			        <th width="30%">Error</th>
+			        <th width="10%">Type</th>
 			        <th width="10%">File Path</th>
 			        <th width="10%">Date</th>
                 </tr>
@@ -49,9 +49,9 @@
                         <tr>
                             <td>{{$data->id}}</td>
                             <td>{{$data->website_id}}</td>
-							<td>{{$data->sql_query}}</td>
-							<td>{{$data->time}}</td>
-							<td>{{$data->module}}</td>
+							<td>{{$data->error}}</td>
+							<td>{{$data->type}}</td>
+							<td>{{$data->file_path}}</td>
 							<td>{{$data->created_at}}</td>
 						</tr>                        
                     @endforeach
