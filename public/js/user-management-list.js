@@ -1239,8 +1239,8 @@ $(document).on("keypress", ".priority-no-field-change", function (e) {
 });
 
 $(document).on("click", ".show-time-history", function () {
-  var issueId = $(this).data("id");
-  var type = $(this).data("type");
+  var issueId = $(this).attr("data-id");
+  var type = $(this).attr("data-type");
   $("#time_history_div table tbody").html("");
   $("#hidden_task_type").val(type);
 
