@@ -81,6 +81,7 @@ class WebsiteLogController extends Controller
                     'Website' => '',
                     'Website' => $website,
                     'File_Path' => $filePath,
+                    'date' => date ("F d Y H:i:s.", filemtime($filePath)),
                 ];
             }
         }
