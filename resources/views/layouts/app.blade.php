@@ -3808,6 +3808,10 @@ if (!empty($notifications)) {
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="Create Event" type="button" class="quick-icon" data-toggle="modal" data-target="#shortcut-user-event-model" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-calendar-o fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -4389,6 +4393,7 @@ if (!empty($notifications)) {
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
         @include('user-management.search-user-schedule')
+        @include('partials.modals.shortcut-user-event-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
