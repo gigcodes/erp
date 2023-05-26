@@ -51,6 +51,7 @@ use App\Jobs\UploadGoogleDriveScreencast;
 use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\UserEvent\UserEvent;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -1217,11 +1218,31 @@ class TaskModuleController extends Controller
 
     public function plan(Request $request, $id)
     {
+        $user = auth()->user();
         $task = Task::find($id);
         $task->time_slot = $request->time_slot;
         $task->planned_at = $request->planned_at;
         $task->general_category_id = $request->get('general_category_id', null);
         $task->save();
+
+        // Save the data in user event
+        $schedultDate = Carbon::parse($request->planned_at);
+        $timeSlotArr = explode("-", $request->time_slot);
+        $c_start_at = Carbon::parse("$request->planned_at ".$timeSlotArr[0]);
+        $c_end_at = Carbon::parse("$request->planned_at ".$timeSlotArr[1]);
+        
+        // Delete old event of plan task task
+        UserEvent::where('subject', "LIKE", "%Planned task $task->id%")->delete();
+
+        $userEvent = new UserEvent();
+        $userEvent->user_id = $user->id;
+        $userEvent->description = trim($timeSlotArr[0])."-".trim($timeSlotArr[1]).', '.$schedultDate->format('l').", ".$schedultDate->toDateString();
+        $userEvent->subject = "Planned task $task->id ($task->task_subject)";
+        $userEvent->date = $schedultDate;
+        $userEvent->start = $c_start_at->toDateTime();
+        $userEvent->end = $c_end_at->toDateTime();
+        $userEvent->save();
+
 
         return response()->json(
             [
