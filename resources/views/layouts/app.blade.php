@@ -2496,8 +2496,10 @@ if (!empty($notifications)) {
                                         </li>
 
                                         <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('store-website.index') }}">Store
-                                                Website</a>
+                                            <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
@@ -3744,6 +3746,9 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('order/invoices/saveLaterList') }}">Save Later Invoices</a>
                                     </li>
                                 </ul>
                             </li>
