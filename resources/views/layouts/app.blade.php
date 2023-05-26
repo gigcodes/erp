@@ -3747,6 +3747,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('order/invoices/saveLaterList') }}">Save Later Invoices</a>
+                                    </li>
                                 </ul>
                             </li>
                             </ul>
