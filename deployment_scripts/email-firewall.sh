@@ -4,16 +4,13 @@
 ## FILE FORMAT
 #DB_USERNAME=username
 #DB_PASSWORD=password
-#DB_HOST=hostor IP
+#DB_HOST=host or IP
 
 ## END file
 
 MY_CREDS=/opt/etc/mysql-creds.conf
 source $MY_CREDS
 
-echo "user $DB_USERNAME"
-echo "user $DB_PASSWORD"
-echo "Host $DB_HOST"
 email_whitelisted=`mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -e "select email from users where is_whitelisted='1'"`
 
 echo p | mail > /tmp/mail
@@ -21,6 +18,10 @@ ip=`grep 'Subject: ' /tmp/mail|cut -d' ' -f2|cut -d'-' -f2`
 comment=`grep 'Subject: ' /tmp/mail|cut -d' ' -f2|cut -d'-' -f1`
 fromaddress=`grep 'From: ' /tmp/mail|cut -d' ' -f2`
 email=`grep 'From: ' /tmp/mail|cut -d'<' -f2|cut -d'>' -f1`
+
+echo "Checking for new emails.........."
+echo "Email: $email"
+echo "IP Address : $ip"
 
 ##### Check if sending mail account exist in our database whitelist ####
 if [ ! -z $email ]
