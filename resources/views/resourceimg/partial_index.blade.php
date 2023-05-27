@@ -34,13 +34,16 @@
 		        	@endisset
             @isset($resources['images'])
                 @if ($resources['images'] != null)
+                <div class="" style="margin-top: 15px">
                     @foreach (json_decode($resources['images']) as $image)
-                        <div class="col-md-6" style="margin-top: 15px">
+                        {{-- @php
+                            dd($image)
+                        @endphp --}}
                             <img id="myShowImg" img-id='{{ $resources['id'] }}'
                                 src="{{ URL::to('/category_images/' . $image) }}"
-                                style="width: 50% !important;height: 50px !important;">
-                        </div>
+                                style="width: auto% !important;height: 50px !important;">
                     @endforeach
+                </div>
                 @endif
             @endisset
         </td>

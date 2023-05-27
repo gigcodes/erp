@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Auth;
 use App\ResourceImage;
 use App\ResourceCategory;
+use Exception;
 use GPBMetadata\Google\Api\Log as ApiLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,18 +20,30 @@ class ResourceImgController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
         $categories = ResourceCategory::where('parent_id', '=', 0)->get();
+        $sub_categories = ResourceCategory::where('parent_id', '!=', 0)->get();
+
         $query = ResourceImage::where('is_pending', '=', 0);
         if ($request->id) {
             $query = $query->where('id', $request->id);
         }
         \DB::enableQueryLog();
 
-        Log::info("termmmm" . $request->term);
-        if ($request->term) {
-            $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
-        }
+        // Log::info("termmmm" . $request->term);
+        $query->where(function($query) use ($request) {
+                if ($request->term) {
+                    $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+                }
+                if ($request->category) {
+                    $query = $query->orwhereIn('cat_id', $request->category);
+                }
+                if ($request->sub_category) {
+                    $query = $query->orwhereIn('sub_cat_id', $request->sub_category);
+                }
+                return $query;
+            });
+
         $allresources = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->except(['page']));
 
         if ($request->ajax()) {
@@ -38,12 +51,12 @@ class ResourceImgController extends Controller
             LOG::info(\DB::getQueryLog());
 
             return response()->json([
-                'tbody' => view('resourceimg.partial_index', compact('allresources', 'Categories', 'categories'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('resourceimg.partial_index', compact('allresources', 'Categories', 'categories', 'sub_categories'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $allresources->render(),
                 'count' => $allresources->total(),
             ], 200);
         } else {
-            return view('resourceimg.index', compact('Categories', 'categories', 'allresources'))
+            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories'))
                 ->with('i', ($request->input('page', 1) - 1) * 5);
         }
     }
@@ -110,25 +123,50 @@ class ResourceImgController extends Controller
     public function addResource(Request $request)
     {
         $input = $request->all();
-
-        if ($request->input('cat_id') == 1) {
-            return back()->with('danger', 'Please Select Category.');
-        }
-        if ($request->hasFile('image')) {
-            $images = $request->file('image');
-            foreach ($images as $image) {
-                $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
-                $destinationPath = public_path('/category_images');
-                $image->move($destinationPath, $name);
-                $input['images'][] = $name;
+        // dd($request->all());
+        $request->validate([
+            'cat_id' => 'required',
+            'sub_cat_id' => 'required',
+            'url' => 'sometimes',
+            'description' => 'required',
+            'image' => 'sometimes',
+            'image2' => 'sometimes',
+        ]);
+        // if ($request->input('cat_id') == 1) {
+        //     return back()->with('danger', 'Please Select Category.');
+        // }
+        try {
+            if ($request->hasFile('image')) {
+                $images = $request->file('image');
+                foreach ($images as $image) {
+                    $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
+                    $destinationPath = public_path('/category_images');
+                    $image->move($destinationPath, $name);
+                    $input['images'][] = $name;
+                }
             }
-        }
-        $input['images'] = $request->hasFile('image') ? json_encode($input['images']) : '';
 
-        if (ResourceImage::create($input)) {
-            return back()->with('success', 'New Resource image added successfully.');
-        } else {
-            return back()->with('danger', 'Something went wrong,Please try again.');
+            if($request->image2) {
+                $image = $request->image2;  // your base64 encoded
+                $image = str_replace('data:image/png;base64,', '', $image);
+                $image = str_replace(' ', '+', $image);
+                $imageName = uniqid() . time().'.'.'png';
+                $destinationPath = public_path('/category_images');
+                // dd();
+                \File::put($destinationPath."/".$imageName, base64_decode($image));
+                $input['images'][] = $imageName;
+                
+            }
+            $input['images'] = ($request->hasFile('image') || $request->image2) ? json_encode($input['images']) : '';
+    
+            if (ResourceImage::create($input)) {
+                return back()->with('success', 'New Resource image added successfully.');
+            } else {
+                return back()->with('danger', 'Something went wrong,Please try again.');
+            }
+        } catch (Exception $e) {
+            dd($e);
+            return back()->with('danger', 'Error while uploading file.');
         }
     }
 
