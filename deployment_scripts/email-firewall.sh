@@ -1,4 +1,20 @@
-email_whitelisted=`mysql -u erplive -h erpdb -pC*jlP2E0nbj6 erp_live -e "select email from users where is_whitelisted='1'"`
+#!/bin/bash
+
+##### Create a file with mysql credentials and place file path in MY_CREDS variable. 
+## FILE FORMAT
+#DB_USERNAME=username
+#DB_PASSWORD=password
+#DB_HOST=hostor IP
+
+## END file
+
+MY_CREDS=/opt/etc/mysql-creds.conf
+source $MY_CREDS
+
+echo "user $DB_USERNAME"
+echo "user $DB_PASSWORD"
+echo "Host $DB_HOST"
+email_whitelisted=`mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -e "select email from users where is_whitelisted='1'"`
 
 echo p | mail > /tmp/mail
 ip=`grep 'Subject: ' /tmp/mail|cut -d' ' -f2|cut -d'-' -f2`
