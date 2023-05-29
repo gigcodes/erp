@@ -10,6 +10,7 @@ use App\SystemSizeManager;
 use App\SystemSizeRelation;
 use Illuminate\Http\Request;
 use App\Exports\SystemSizeExport;
+use App\Jobs\ProceesPushSystemSize;
 
 class SystemSizeController extends Controller
 {
@@ -257,5 +258,24 @@ class SystemSizeController extends Controller
     public function exports()
     {
         return Excel::download(new SystemSizeExport, 'systemsize.xlsx');
+    }
+
+    //This API will put the records in Queue
+    public function pushSystemSize(Request $request)
+    {
+        $data = $request->all();
+        
+        if (empty($data['systemSizeManagerId'])) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'One of the api parameter is missing']);
+        }
+
+        try {
+            //Add the data for queue
+            ProceesPushSystemSize::dispatch($data['systemSizeManagerId'])->onQueue('systemsize');
+
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'System size added in queue']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => $e->getMessage()]);
+        }
     }
 }
