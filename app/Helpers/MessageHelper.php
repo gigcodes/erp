@@ -778,7 +778,7 @@ class MessageHelper
                 ]);
             }
         } catch (\Exception $e) {
-            \Log::channel('webhook')->debug($e->getMessage() . ' | Line no: ' . $e->getLine() . ' | ' . $e->getFile());
+            \Log::channel('errorlog')->debug($e->getMessage() . ' | Line no: ' . $e->getLine() . ' | ' . $e->getFile());
         }
     }
 }
