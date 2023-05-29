@@ -299,6 +299,7 @@
                 }).done(function(data) {
                     $("#loading-image").hide();
                     $('#term').val('')
+                    $("#filter_sub_category, #filter_category").val(null).trigger('change')
                     $('#translation-select').val('')
                     $("#tblImageResource tbody").empty().html(data.tbody);
                     $("#translation_count").text(data.count);
