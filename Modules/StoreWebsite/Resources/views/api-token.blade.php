@@ -1,5 +1,10 @@
 @forelse($storeWebsites as $storeWebsite)
 	<tr>
+		<td class="text-center">
+			<span class="td-mini-container">
+				<input type="checkbox" class="selectedStoreWebsite" name="selectedStoreWebsite" value="{{$storeWebsite->id}}">
+			</span>
+		  </td>
 		<td >
 			{{$storeWebsite->id}}
 		</td>
