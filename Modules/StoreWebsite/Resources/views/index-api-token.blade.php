@@ -22,7 +22,9 @@
 	<br>
 	<div class="col-lg-12 margin-tb" id="page-view-result">
 		<div class="col-lg-12 pl-5 pr-5">
-			<div style="display:flex !important; float:right !important;"><input type="text" class="form-control api-token-search" name="search"
+			<div style="display:flex !important; float:right !important;">
+				<a href="#" class="btn btn-xs btn-secondary generate-api-tokens">Generate API Tokens</a>
+				<input type="text" class="form-control api-token-search" name="search"
 															placeholder="Search">
 				&nbsp;
 				<button style="display: inline-block;width: 10%"
@@ -47,6 +49,7 @@
 							<table class="table table-bordered overlay api-token-table"  >
 								<thead>
 								<tr>
+									<th>Select</th>
 									<th>Id</th>
 									<th width="15%">Title</th>
 									<th width="45%">Api Token</th>
@@ -320,7 +323,42 @@
 
 	})
 
+	var selectedStoreWebsites = [];
+	$(document).on('click', '.selectedStoreWebsite', function () {
+		var checked = $(this).prop('checked');
+		var id = $(this).val();
+		if (checked) {
+			selectedStoreWebsites.push(id);
+		} else {
+			var index = selectedStoreWebsites.indexOf(id);
+			selectedStoreWebsites.splice(index, 1);
+		}
+	});
 
+	$(document).on("click",".generate-api-tokens",function(e){
+		e.preventDefault();
+		if(selectedStoreWebsites.length < 1) {
+			toastr['error']("Select some rows first");
+			return;
+		}
+		var x = window.confirm("Are you sure, you want to generate API Tokens ?");
+		if(!x) {
+			return;
+		}
+
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: '/store-website/api-token/bulk-generate-api-token',
+			type: "POST",
+			data: {ids : selectedStoreWebsites}
+		}).done(function(response) {
+			toastr['success'](response.message);
+			window.location.reload();
+		}).fail(function(errObj) {
+		});
+	});
 </script>
 
 @endsection
