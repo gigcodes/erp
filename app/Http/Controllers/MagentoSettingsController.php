@@ -441,7 +441,8 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
-                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                'is_sudo' => true 
                             ]));
 
                             $headers = [];
@@ -571,7 +572,8 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
-                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                'is_sudo' => true 
                             ]));
 
                             $headers = [];
@@ -704,7 +706,8 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
-                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                'is_sudo' => true 
                             ]));
 
                             $headers = [];
@@ -826,7 +829,8 @@ class MagentoSettingsController extends Controller
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                     //'client_id' => $client_id, 
                     'script' => base64_encode($cmd), 
-                    'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                    'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                    'is_sudo' => true 
                 ]));
 
                 $headers = [];
@@ -1035,7 +1039,8 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
-                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                                        'is_sudo' => true 
                                                     ]));
 
                                                     $headers = [];
@@ -1139,7 +1144,8 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
-                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                                        'is_sudo' => true 
                                                     ]));
 
                                                     $headers = [];
@@ -1249,7 +1255,8 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
-                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                                                        'is_sudo' => true 
                                                     ]));
 
                                                     $headers = [];
