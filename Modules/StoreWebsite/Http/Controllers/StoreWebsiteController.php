@@ -281,7 +281,7 @@ class StoreWebsiteController extends Controller
                             'status_code' => $token_response->status(),
                             'status' => 'Success',
                         ]);
-                        return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
+                        // return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
                     }else{
                         StoreWebsitesApiTokenLog::create([
                             'user_id' => Auth::id(),
@@ -293,16 +293,17 @@ class StoreWebsiteController extends Controller
                         ]);
                         // return response()->json(['success' => false, 'message' => $token_response->json('message')]);
                     }
+                } else {
+                    StoreWebsitesApiTokenLog::create([
+                        'user_id' => Auth::id(),
+                        'store_website_id' => $storeWebsite->id,
+                        'store_website_users_id' => $StoreWebsiteUser->id,
+                        'response' => 'The store website URL or Store Code is not found.',
+                        'status_code' => '404',
+                        'status' => 'Error',
+                    ]);
+                    // return response()->json(['success' => false, 'message' => 'The store website URL or Store Code is not found.']);
                 }
-                StoreWebsitesApiTokenLog::create([
-                    'user_id' => Auth::id(),
-                    'store_website_id' => $storeWebsite->id,
-                    'store_website_users_id' => $StoreWebsiteUser->id,
-                    'response' => 'The store website URL or Store Code is not found.',
-                    'status_code' => '404',
-                    'status' => 'Error',
-                ]);
-                // return response()->json(['success' => false, 'message' => 'The store website URL or Store Code is not found.']);
             }
         }
         
