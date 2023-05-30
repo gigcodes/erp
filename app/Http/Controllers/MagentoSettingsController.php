@@ -441,6 +441,7 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                             ]));
 
                             $headers = [];
@@ -471,18 +472,19 @@ class MagentoSettingsController extends Controller
                                 $m_setting->save();
                                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                 
-                            }
-                            if(isset($response->data) && isset($response->data->jid) ){
-                                $job_id=$response->data->jid;
-                                $status="Success";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                             }else{
-                                $status="Error";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                if(isset($response->data) && isset($response->data->jid) ){
+                                    $job_id=$response->data->jid;
+                                    $status="Success";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                }else{
+                                    $status="Error";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                }
                             }
                         }else{
                             // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
@@ -569,6 +571,7 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                             ]));
 
                             $headers = [];
@@ -599,18 +602,19 @@ class MagentoSettingsController extends Controller
                                 $m_setting->save();
                                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                 
-                            }
-                            if(isset($response->data) && isset($response->data->jid) ){
-                                $job_id=$response->data->jid;
-                                $status="Success";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                             }else{
-                                $status="Error";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                if(isset($response->data) && isset($response->data->jid) ){
+                                    $job_id=$response->data->jid;
+                                    $status="Success";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                }else{
+                                    $status="Error";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                }
                             }
                         }else{
                             // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
@@ -700,6 +704,7 @@ class MagentoSettingsController extends Controller
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 //'client_id' => $client_id, 
                                 'script' => base64_encode($cmd), 
+                                'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                             ]));
 
                             $headers = [];
@@ -730,18 +735,19 @@ class MagentoSettingsController extends Controller
                                 $m_setting->save();
                                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                 
-                            }
-                            if(isset($response->data) && isset($response->data->jid) ){
-                                $job_id=$response->data->jid;
-                                $status="Success";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                             }else{
-                                $status="Error";
-                                $m_setting->status = $status;
-                                $m_setting->save();
-                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                if(isset($response->data) && isset($response->data->jid) ){
+                                    $job_id=$response->data->jid;
+                                    $status="Success";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                }else{
+                                    $status="Error";
+                                    $m_setting->status = $status;
+                                    $m_setting->save();
+                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                }
                             }
                         }else{
                             // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
@@ -820,6 +826,7 @@ class MagentoSettingsController extends Controller
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                     //'client_id' => $client_id, 
                     'script' => base64_encode($cmd), 
+                    'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                 ]));
 
                 $headers = [];
@@ -1028,6 +1035,7 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                                                     ]));
 
                                                     $headers = [];
@@ -1058,18 +1066,19 @@ class MagentoSettingsController extends Controller
                                                         $m_setting->save();
                                                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                                         
-                                                    }
-                                                    if(isset($response->data) && isset($response->data->jid) ){
-                                                        $job_id=$response->data->jid;
-                                                        $status="Success";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                                                     }else{
-                                                        $status="Error";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        if(isset($response->data) && isset($response->data->jid) ){
+                                                            $job_id=$response->data->jid;
+                                                            $status="Success";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                                        }else{
+                                                            $status="Error";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        }
                                                     }
                                                 }else{
                                                     // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
@@ -1130,6 +1139,7 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                                                     ]));
 
                                                     $headers = [];
@@ -1160,18 +1170,19 @@ class MagentoSettingsController extends Controller
                                                         $m_setting->save();
                                                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                                         
-                                                    }
-                                                    if(isset($response->data) && isset($response->data->jid) ){
-                                                        $job_id=$response->data->jid;
-                                                        $status="Success";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                                                     }else{
-                                                        $status="Error";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        if(isset($response->data) && isset($response->data->jid) ){
+                                                            $job_id=$response->data->jid;
+                                                            $status="Success";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                                        }else{
+                                                            $status="Error";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        }
                                                     }
                                                 }else{
                                                     // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
@@ -1238,6 +1249,7 @@ class MagentoSettingsController extends Controller
                                                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                                         //'client_id' => $client_id, 
                                                         'script' => base64_encode($cmd), 
+                                                        'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts'
                                                     ]));
 
                                                     $headers = [];
@@ -1268,18 +1280,19 @@ class MagentoSettingsController extends Controller
                                                         $m_setting->save();
                                                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error']);
                                                         
-                                                    }
-                                                    if(isset($response->data) && isset($response->data->jid) ){
-                                                        $job_id=$response->data->jid;
-                                                        $status="Success";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
                                                     }else{
-                                                        $status="Error";
-                                                        $m_setting->status = $status;
-                                                        $m_setting->save();
-                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        if(isset($response->data) && isset($response->data->jid) ){
+                                                            $job_id=$response->data->jid;
+                                                            $status="Success";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                                                        }else{
+                                                            $status="Error";
+                                                            $m_setting->status = $status;
+                                                            $m_setting->save();
+                                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error']);
+                                                        }
                                                     }
                                                 }else{
                                                     // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
