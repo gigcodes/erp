@@ -286,7 +286,7 @@ class WebsiteLogController extends Controller
     public function websiteLogStoreView()
     {
         try {
-            $dataArr = WebsiteLog::all();
+            $dataArr = WebsiteLog::latest()->paginate(\App\Setting::get('pagination',10));
 
             return view('website-logs.website-log-view', compact('dataArr'));
         } catch (\Exception $e) {
@@ -305,7 +305,7 @@ class WebsiteLogController extends Controller
             if ($request->search_type) {
                 $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
             }
-            $dataArr = $dataArr->get();
+            $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination',10));
             $search_error = $request->search_error;
             $search_type = $request->search_type;
 
