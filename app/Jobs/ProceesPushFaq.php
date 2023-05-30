@@ -128,7 +128,7 @@ class ProceesPushFaq implements ShouldQueue
 
                                     if (empty($faqParentCategoryId)) {
                                         \Log::info('ParentCategory id not available');
-                                        $faqParentCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $parentCategoryId, $storeValue, $url, $api_token);
+                                        $faqParentCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $parentCategoryId, $storeValue, $url, $api_token, $replyInfo->id);
                                     }
 
                                     if (empty($faqParentCategoryId)) {
@@ -141,7 +141,7 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if (empty($faqCategoryId)) {
                                     \Log::info('Category d not available');
-                                    $faqCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token);
+                                    $faqCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyInfo->id);
                                 }
 
                                 if (empty($faqCategoryId)) {
