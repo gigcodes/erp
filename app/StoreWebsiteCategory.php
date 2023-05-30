@@ -5,6 +5,8 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
+use App\Models\ReplyLog;
 use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteCategory extends Model
@@ -34,7 +36,7 @@ class StoreWebsiteCategory extends Model
         return false;
     }
 
-    public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token)
+    public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyId = 0)
     {
         // \Log::info('Category Id generating');
 
@@ -68,6 +70,7 @@ class StoreWebsiteCategory extends Model
         curl_close($ch);
 
         try {
+            (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
             $result = json_decode($result);
             $result = json_decode($result);
 
