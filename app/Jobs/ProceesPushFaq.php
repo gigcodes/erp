@@ -106,7 +106,7 @@ class ProceesPushFaq implements ShouldQueue
 
                         //get the Magento URL and token
                         // $url = $replyInfo->magento_url;
-                        $api_token = $replyInfo->api_token;
+                        $api_token = $websitevalue->api_token;
 
                         //create a payload for API
                         $faqQuestion = $replyInfo->name;
@@ -146,6 +146,7 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if (empty($faqCategoryId)) {
                                     (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ category ID on ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
+                                    continue; // If category id empty then move to next iteration. 
                                 }
 
                                 $language = isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != '' ? explode('-', $storeValue)[1] : '';
@@ -167,10 +168,10 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if (! empty($platform_id)) {
                                     $urlFAQ    = $url . "/" . $storeValue . "/rest/V1/faq/" . $platform_id;
-                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"id\": \"$platform_id\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
+                                    $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"id\": $platform_id,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 } else {
                                     $urlFAQ = $url . "/" . $storeValue . "/rest/V1/faq";
-                                    $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"faq_parent_category_id\": \"$faqParentCategoryId\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
+                                    $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 }
 
                                 $ch = curl_init();
