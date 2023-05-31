@@ -114,12 +114,59 @@ class MagentoRunCommand extends Command
                             );
                         }
                     }
-                    if(isset($response->data) ){
-                        if(isset($response->data->jid)){
-                            $job_id=$response->data->jid;
-                            Log::info("API Response job_id: ".$job_id);
+                    $message='';
+                    if(isset($response->data) && isset($response->data->jid) ){
+                        $job_id=$response->data->jid;
+                        Log::info("API Response job_id: ".$job_id);
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        //$headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        $response = json_decode($result);
+                        
+                        if(isset($response->data) && isset($response->data->result) ){
+                            $result=$response->data->result;
+                            
+                            if(isset($result->stdout) && $result->stdout!=''){
+                                $message.='Output: '.$result->stdout;
+                            }
+                            if(isset($result->stderr) && $result->stderr!=''){
+                                $message.='Error: '.$result->stderr;
+                            }
+                            if(isset($result->summary) && $result->summary!=''){
+                                $message.='summary: '.$result->summary;
+                            }
+                        }else{
+                            $message='Not get any response';
                         }
+                    }else{
+                        $message='Job ID not found in response';
                     }
+
+                    MagentoCommandRunLog::create(
+                        [
+                            'command_id' => $magCom->id,
+                            'user_id' => \Auth::user()->id ?? '',
+                            'website_ids' => 'ERP',
+                            'command_name' => $magCom->command_name,
+                            'server_ip' => '',
+                            'command_type' => $magCom->command_type,
+                            'response' => $message,
+                            'job_id' => $job_id,
+                        ]
+                    );
 
                 }else{
                     MagentoCommandRunLog::create(
@@ -134,45 +181,8 @@ class MagentoRunCommand extends Command
                         ]
                     );
                 }
-
-                $contains = \Str::contains($cmd, 'php artisan');
-                if ($contains) {
-                    $result = '';
-                    try {
-                        $cmd = str_replace('php artisan', '', $cmd);
-                        Artisan::call($cmd, []);
-                        $result = Artisan::output();
-                    } catch (\Exception $e) {
-                        $result = $e->getMessage();
-                    }
-                } else {
-                    $cmd = 'cd ' . base_path() . ' ' . $cmd;
-                    $allOutput = [];
-                    $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput, $statusCode);
-                    if ($statusCode == '') {
-                        $result = 'Not any response';
-                    } elseif ($statusCode == 0) {
-                        $result = 'Command run success Response ' . $result;
-                    } elseif ($statusCode == 1) {
-                        $result = 'Command run Fail Response ' . $result;
-                    } else {
-                        $result = is_array($result) ? json_encode($result, true) : $result;
-                    }
-                }
-                MagentoCommandRunLog::create(
-                    [
-                        'command_id' => $magCom->id,
-                        'user_id' => \Auth::user()->id ?? '',
-                        'website_ids' => 'ERP',
-                        'command_name' => $cmd,
-                        'server_ip' => '',
-                        'command_type' => $magCom->command_type,
-                        'response' => $result,
-                        'job_id' => $job_id,
-                    ]
-                );
                 Log::info("End Rum Magento Command for website_id: ERP");
+
             } else {
                 $websites = StoreWebsite::whereIn('id', explode(',', $magCom->website_ids))->get();
                 
@@ -258,12 +268,58 @@ class MagentoRunCommand extends Command
                                     );
                                 }
                             }
-                            if(isset($response->data) ){
-                                if(isset($response->data->jid)){
-                                    $job_id=$response->data->jid;
-                                    Log::info("API Response job_id: ".$job_id);
+                            $message='';
+                            if(isset($response->data) && isset($response->data->jid) ){
+                                $job_id=$response->data->jid;
+                                Log::info("API Response job_id: ".$job_id);
+                                $client_id=$assetsmanager->client_id;
+                                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                
+                                $ch = curl_init();
+                                curl_setopt($ch, CURLOPT_URL,$url);
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                curl_setopt($ch, CURLOPT_POST, 0);
+                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                                
+                                $headers = [];
+                                $headers[] = 'Authorization: Basic '.$key;
+                                //$headers[] = 'Content-Type: application/json';
+                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                                $result = curl_exec($ch);
+                                $response = json_decode($result);
+                            
+                                if(isset($response->data) && isset($response->data->result) ){
+                                    $result=$response->data->result;
+                                    
+                                    if(isset($result->stdout) && $result->stdout!=''){
+                                        $message.='Output: '.$result->stdout;
+                                    }
+                                    if(isset($result->stderr) && $result->stderr!=''){
+                                        $message.='Error: '.$result->stderr;
+                                    }
+                                    if(isset($result->summary) && $result->summary!=''){
+                                        $message.='summary: '.$result->summary;
+                                    }
+                                }else{
+                                    $message='Not get any response';
                                 }
+                            }else{
+                                $message='Job ID not found in response';
                             }
+                            MagentoCommandRunLog::create(
+                                [
+                                    'command_id' => $magCom->id,
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => $website->id,
+                                    'command_name' => $magCom->command_name,
+                                    'server_ip' => $website->server_ip,
+                                    'command_type' => $magCom->command_type,
+                                    'response' => $message,
+                                    'job_id' => $job_id,
+                                ]
+                            );
                             
                         }else{
                             MagentoCommandRunLog::create(
@@ -279,35 +335,6 @@ class MagentoRunCommand extends Command
                             );
                         }
                         
-                        //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type;
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command '" . $magCom->command_type . "'";
-                        if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
-                            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
-                        }
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput, $statusCode);
-                        if ($statusCode == '') {
-                            $result = 'Not any response';
-                        } elseif ($statusCode == 0) {
-                            $result = 'Command run success Response ' . $result;
-                        } elseif ($statusCode == 1) {
-                            $result = 'Command run Fail Response ' . $result;
-                        } else {
-                            $result = is_array($result) ? json_encode($result, true) : $result;
-                        }
-                        MagentoCommandRunLog::create(
-                            [
-                                'command_id' => $magCom->id,
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => $website->id,
-                                'command_name' => $cmd,
-                                'server_ip' => $website->server_ip,
-                                'command_type' => $magCom->command_type,
-                                'response' => $result,
-                                'job_id' => $job_id,
-                            ]
-                        );
                     } else {
                         //\DB::enableQueryLog();
                         $add = MagentoCommandRunLog::create(

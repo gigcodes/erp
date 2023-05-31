@@ -40,7 +40,7 @@ class MagentoCommandController extends Controller
         $magentoCommand = MagentoCommand::whereNotNull('id');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
         if (! empty($request->website)) {
-            $magentoCommand->where('website_ids', 'like', '%' . $request->website . '%');
+            $magentoCommand->where('website_ids', $request->website);
         }
         if (! empty($request->command_name)) {
             $magentoCommand->where('command_name', 'like', '%' . $request->command_name . '%');
@@ -143,6 +143,7 @@ class MagentoCommandController extends Controller
             ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
 
             foreach($postHis as $logs){
+                $logs->status='';
                 if($logs->website_ids !='' && $logs->job_id!=''){
                     $magCom = MagentoCommand::find($logs->command_id);
                     $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
@@ -168,7 +169,9 @@ class MagentoCommandController extends Controller
                             
                         }
                         $response = json_decode($result);
+                        \Log::info("API Response: ".$result);
                         if(isset($response->data) && isset($response->data->result) ){
+                            $logs->status=$response->data->status;
                             $result=$response->data->result;
                             $message='';
                             if(isset($result->stdout) && $result->stdout!=''){
