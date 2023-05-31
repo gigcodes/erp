@@ -63,6 +63,7 @@ class StoreWebsiteCategory extends Model
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
+        (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'PushFAQCategory');
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
             return false;
@@ -70,7 +71,6 @@ class StoreWebsiteCategory extends Model
         curl_close($ch);
 
         try {
-            (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
             $result = json_decode($result);
             $result = json_decode($result);
 
