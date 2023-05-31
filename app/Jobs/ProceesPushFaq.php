@@ -106,7 +106,7 @@ class ProceesPushFaq implements ShouldQueue
 
                         //get the Magento URL and token
                         // $url = $replyInfo->magento_url;
-                        $api_token = $replyInfo->api_token;
+                        $api_token = $websitevalue->api_token;
 
                         //create a payload for API
                         $faqQuestion = $replyInfo->name;
