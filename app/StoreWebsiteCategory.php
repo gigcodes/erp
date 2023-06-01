@@ -68,6 +68,7 @@ class StoreWebsiteCategory extends Model
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
+        \Log::info(print_r(['API DETAIL Category', $url . '/' . $storeValue . '/rest/V1/faqcategory',$api_token,$dataPost,$result],true));
         (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' dataPost ' . $dataPost . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'PushFAQCategory');
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
