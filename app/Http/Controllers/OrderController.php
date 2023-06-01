@@ -4062,7 +4062,7 @@ class OrderController extends Controller
         if (! $isExist) {
             Store_order_status::create($input);
 
-            store_order_status_history_create($request, '', '');
+            $this->store_order_status_history_create($request, '', '');
 
             return redirect()->back();
         } else {
