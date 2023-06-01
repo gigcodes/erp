@@ -645,7 +645,7 @@
 							<tr>
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
-								<th width="22%" style="word-break: break-all;">Message & Estimated Time</th>
+								<th width="22%" style="word-break: break-all;">Message & Estimated Time[In Minutes]</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -654,8 +654,8 @@
 								<td>Device <span id="uidev_num"></span></td>
 								<td>
 									<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
-									<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message"/>
-									<input type="time" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;"/>
+									<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
+									<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
 									
 									<button id="uidev_update_esttime" class="btn pr-0 btn-xs btn-image div-message-language">
 										<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;">
