@@ -1496,10 +1496,11 @@
             selected_array.push($(this).val());
           });
 
-          if(selected_array.length == 0){
-            alert('Please at least select one option');
-            return;
-          }else{
+          // The below check is not need. If user not select email or sms, Just change the status only.. 
+          // if(selected_array.length == 0){
+          //   alert('Please at least select one option');
+          //   return;
+          // }else{
             $.ajax({
             headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1522,7 +1523,7 @@
             }).fail(function(errObj) {
               toastr['error'](errObj.responseText);
            });
-          }
+          // }
 
       });
 
