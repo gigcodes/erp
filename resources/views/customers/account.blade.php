@@ -118,6 +118,7 @@
             <th width="5%">Pincode</th>
             <th width="5%">Country</th>
             <th width="6%">Store Website</th>
+            <th width="6%">Platform Id</th>
             <th width="2%">Action</th>
 
           </tr>
@@ -137,6 +138,7 @@
               <td>{{ $c->pincode }}</td>
               <td>{{ $c->country }}</td>
               <td>{{ $c->title }}</td>
+              <td>{{ $c->platform_id }}</td>
               <td><a href="#" onClick="openInfo({{$c}})"><i class="fa fa-edit"></i></a>
 			  <a href="#" onClick="showMessagePopup({{$c->id}})"><i class="fa fa-eye"></i></a></td>
             </tr>
@@ -198,6 +200,10 @@
 					<div class="form-group">
 					    <strong>Country</strong>
 					    <input type="text" class="form-control" name="country" value="" required id="country">
+				    </div>				
+					<div class="form-group">
+					    <strong>Platform Id</strong>
+					    <input type="text" class="form-control" name="platform_id" value="" required id="platform_id">
 				    </div>				
 					
 				</div>
@@ -317,6 +323,7 @@
 		   $('#city').val(details.city);
 		   $('#pincode').val(details.pincode);
 		   $('#country').val(details.country);
+		   $('#platform_id').val(details.platform_id);
 		   $('#customer_edit').modal('show');
 	    }
 		$('.ajax-submit').on('submit', function(e) { 
