@@ -398,6 +398,7 @@ use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoUserFromErpController;
+use App\Http\Controllers\MonitorServerController;
 
 Auth::routes();
 
@@ -5225,3 +5226,10 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+
+/** Website Monitor */
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-server', MonitorServerController::class);
+    Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
+    Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+});
