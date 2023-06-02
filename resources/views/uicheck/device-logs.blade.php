@@ -130,7 +130,7 @@
 						@if (Auth::user()->isAdmin())
                         <td>{{ $uiDeviceLog->name }}</td>
 						@endif
-                        <td>{{ $uiDeviceLog->uiDevice->estimated_time }}</td>
+                        <td>{{ $uiDeviceLog->uiDevice->estimated_time }} Mins</td>
                         <td>{{ $uiDeviceLog->uiDevice->device_no }}</td>
                         <td>{{ $uiDeviceLog->start_time }}</td>
                         <td>{{ $uiDeviceLog->end_time }}</td>

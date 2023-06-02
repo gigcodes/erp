@@ -399,6 +399,7 @@ use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoUserFromErpController;
+use App\Http\Controllers\MonitorServerController;
 
 Auth::routes();
 
@@ -5231,3 +5232,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);   
 });
  
+/** Website Monitor */
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-server', MonitorServerController::class);
+    Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
+    Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+});
