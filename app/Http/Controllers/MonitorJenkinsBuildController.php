@@ -16,7 +16,7 @@ class MonitorJenkinsBuildController extends Controller
     {
         $keyword = $request->get('keyword');
         
-        $monitorJenkinsBuilds = MonitorJenkinsBuild::orderBy('id', 'desc')->latest();
+        $monitorJenkinsBuilds = MonitorJenkinsBuild::latest();
 
         if (!empty($keyword)) {
             $monitorJenkinsBuilds = $monitorJenkinsBuilds->where(function ($q) use ($keyword) {
@@ -27,7 +27,7 @@ class MonitorJenkinsBuildController extends Controller
             });
         }
 
-        $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(3);
+        $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(25);
 
         return view('monitor.jenkins_build_index', compact('monitorJenkinsBuilds'));
     }
