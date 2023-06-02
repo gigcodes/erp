@@ -365,6 +365,7 @@ use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
+use App\Http\Controllers\MonitorJenkinsBuildController;
 
 Auth::routes();
 
@@ -5227,6 +5228,10 @@ Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, '
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);   
+});
+ 
 /** Website Monitor */
 Route::middleware('auth')->group(function () {
     Route::resource('monitor-server', MonitorServerController::class);

@@ -3753,6 +3753,7 @@ if (!empty($notifications)) {
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('monitor-jenkins-build.index') }}">Monitor Jenkins Build</a>
                                 <a class="dropdown-item" href="{{ route('monitor-server.index') }}">Website Monitor</a>
                             </li>
                             </ul>
