@@ -3,7 +3,7 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">jenkins Logs({{ $monitorJenkinsBuilds->total() }})</h2>
+        <h2 class="page-heading">Jenkins Logs({{ $monitorJenkinsBuilds->total() }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-12">
