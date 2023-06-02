@@ -479,7 +479,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 </div>
 
 <div id="settingsPushLogsModal" class="modal fade" role="dialog">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="max-width: 90%;width: 90%;">
 		<!-- Modal content-->
 		<div class="modal-content">
 			<div class="modal-header">
@@ -493,8 +493,10 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					  <tr>
 						<th width="10%">Date</th>
 						<th width="20%">Command</th>
-                        <th width="25%">Status</th>
-						<th width="25%">Command Output</th>
+						<th width="10%">Command Server</th>
+                        <th width="10%">Status</th>
+                        <th width="10%">Job Id</th>
+						<th width="40%">Command Output</th>
 					  </tr>
 					</thead>
 					<tbody id="settingsPushLogs">
