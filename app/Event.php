@@ -20,6 +20,9 @@ class Event extends Model
         'start_date',
         'end_date',
         'duration_in_min',
+        'is_recurring',
+        'recurring_end',
+        'event_type'
     ];
 
     public function user()
@@ -32,6 +35,11 @@ class Event extends Model
         return $this->hasMany(\App\EventAvailability::class);
     }
 
+    public function eventSchedules()
+    {
+        return $this->hasMany(\App\Models\EventSchedule::class);
+    }
+
     // Scopes 
     public function scopeMyEvents($query, $userId)
     {
@@ -40,6 +48,6 @@ class Event extends Model
 
     public function getLinkAttribute()
     {
-        return url(base64_encode('event:' . $this->user_id) . "/" . $this->slug);
+        return url("event-schedule/".base64_encode('event:' . $this->user_id) . "/" . $this->slug);
     } 
 }
