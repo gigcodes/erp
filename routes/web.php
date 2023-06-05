@@ -499,6 +499,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', ProductLocationController::class);
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
+    Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
 });
 /** Magento Module */
 Route::middleware('auth')->group(function () {

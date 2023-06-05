@@ -105,6 +105,7 @@
                            <th style="width: 5%">Scheduled at</th>
                            <th style="width: 5%">Executed at</th>
                            <th style="width: 5%">Finished at</th>
+                           <th style="width: 5%">Actions</th>
                        </tr>
                        </thead>
                        <tbody>
@@ -191,6 +192,11 @@
                                                {{ $dat['cron_finished_at'] }}
                                             </span>
                                </td>
+                               <td class="expand-row" style="word-break: break-all">
+                                    <a title="Run Cron" class="btn btn-image magentoCom-run-btn pd-5     btn-ht" data-id="{{ $dat['id']}}" href="javascript:;">
+                                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                    </a>
+                               </td>
 
                            </tr> 
                        @endforeach
@@ -208,7 +214,38 @@
 <script>
 
     $(document).ready(function () {
-        
+        $(document).on("click", ".magentoCom-run-btn", function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var id = $this.data('id');
+            $.ajax({
+                url: "/show-magento-cron-data/run-magento-cron"
+                , type: "post"
+                , headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+                , data: {
+                    id: id
+                },
+                beforeSend: function() {
+                    $('#loading-image').show();
+                },
+            }).done(function(response) {
+                if (response.code == '200') {
+                    toastr['success'](response.message, 'success');
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+                $('#loading-image').hide();
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                if (errObj ?.responseJSON ?.message) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                    return;
+                }
+                toastr['error'](errObj.message, 'error');
+            });
+        });    
         
 
       $(".filter_form").submit(function (event) {
