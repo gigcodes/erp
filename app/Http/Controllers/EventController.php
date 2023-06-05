@@ -6,7 +6,11 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Event;
 use App\EventAvailability;
+use App\Mails\Manual\EventEmail;
+use App\Models\EventSchedule;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class EventController extends Controller
 {
@@ -21,7 +25,14 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $events = Event::myEvents(Auth::user()->id)->latest()->paginate(25);
+        return view(
+            'events.calendar',
+        );
+    }
+
+    public function publicEvents(Request $request)
+    {
+        $events = Event::myEvents(Auth::user()->id)->where("event_type", "PU")->latest()->paginate(25);
 
         if ($request->ajax()) {
             return response()->json([
@@ -48,8 +59,11 @@ class EventController extends Controller
         $name = $request->get('name');
         $slug = Str::slug($name);
         $description = $request->get('description');
-        $daterange = $request->get('daterange');
         $durationInMin = $request->get('duration_in_min');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $dateRangeType = $request->get('date_range_type');
+        $eventType = $request->get('event_type');
 
         $errors = [];
         if (empty(trim($name))) {
@@ -60,21 +74,25 @@ class EventController extends Controller
             $errors['description'][] = 'Description is required';
         }
 
-        if (!$daterange) {
-            $errors['daterange'][] = 'Date is missing';
+        if (empty(trim($startDate))) {
+            $errors['start_date'][] = 'Start Date is required';
         }
 
         if (empty(trim($durationInMin))) {
             $errors['duration_in_min'][] = 'Duration is required';
         }
 
+        if($request->get('date_range_type') == 'within') {
+            if (empty(trim($endDate))) {
+                $errors['end_date'][] = 'End date is required';
+            }
+        } else {
+            $endDate = null;
+        }
+
         if (!empty($errors)) {
             return response()->json($errors, 400);
         }
-
-        $date = explode('-', $daterange);
-        $startDate = date('Y-m-d', strtotime($date[0]));
-        $endDate = date('Y-m-d', strtotime($date[1]));
 
         // Event
         $event = new Event();
@@ -85,6 +103,8 @@ class EventController extends Controller
         $event->start_date = $startDate;
         $event->end_date = $endDate;
         $event->duration_in_min = $durationInMin;
+        $event->event_type = $eventType;
+        $event->date_range_type = $dateRangeType;
         $event->save();
 
         // Event Availabilities 
@@ -122,5 +142,221 @@ class EventController extends Controller
             'message' => 'Failed to deleted',
             404,
         ]);
+    }
+
+    public function deleteSchedule(Request $request, $id)
+    {
+        $result = EventSchedule::where('id', $id)->first();
+
+        if ($result) {
+            $result->delete();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Event Schedule deleted successfully !!',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Failed to deleted',
+            404,
+        ]);
+    }
+
+    public function stopRecurring(Request $request, $id)
+    {
+        $result = Event::where('id', $id)->myEvents(Auth::user()->id)->first();
+        if ($result) {
+            $eventStartDate = Carbon::parse($result->start_date);
+            $nowDate = Carbon::now();
+
+            $result->date_range_type = "within";
+            if ($nowDate->gt($eventStartDate)) {
+                $result->end_date = date('Y-m-d');
+            } else {
+                $result->end_date = $result->start_date;
+            }
+            $result->save();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Recurring stopped successfully !!',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Failed to stop recurring',
+            404,
+        ]);
+    }
+
+    public function reschedule(Request $request)
+    {
+        $userId = Auth::user()->id;
+
+        if (!$userId) {
+            return response()->json(
+                [
+                    'message' => 'Not allowed',
+                ],
+                401
+            );
+        }
+
+        $event = Event::where('id', $request->get('id'))->myEvents(Auth::user()->id)->first();
+        if(!$event) {
+            return response()->json([
+                'message' => 'Failed to reschedule',
+                404,
+            ]);
+        }
+
+        $durationInMin = $request->get('duration_in_min');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $mailBody = $request->get('mail_body');
+        $dateRangeType = $request->get('date_range_type');
+
+        $errors = [];
+        if (empty(trim($startDate))) {
+            $errors['start_date'][] = 'Start Date is required';
+        }
+
+        if (empty(trim($durationInMin))) {
+            $errors['duration_in_min'][] = 'Duration is required';
+        }
+
+        if (empty(trim($mailBody))) {
+            $errors['mail_body'][] = 'Mail body is required';
+        }
+
+        if($dateRangeType == 'within') {
+            if (empty(trim($endDate))) {
+                $errors['end_date'][] = 'End date is required';
+            }
+        } else {
+            $endDate = null;
+        }
+
+        if (!empty($errors)) {
+            return response()->json($errors, 400);
+        }
+
+        // Event
+        $event->start_date = $startDate;
+        $event->end_date = $endDate;
+        $event->duration_in_min = $durationInMin;
+        $event->date_range_type = $dateRangeType;
+        $event->save();
+
+        if ($event->eventSchedules->count() > 0) {
+            foreach($event->eventSchedules as $eventSchedule) {
+                $eventSchedule->delete(); // Delete already booked schedule for this event.
+                $this->emailSend($event, $eventSchedule, $mailBody);
+            }
+        }
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Event rescheduled successfully',
+        ]);
+    }
+
+    public function emailSend($event, $eventSchedule, $message)
+    {
+        $subject = "Event Rescheduled";
+        $emailClass = (new EventEmail($subject, $message, $event->user->email, $event->link))->build();
+
+        $email = \App\Email::create([
+            'model_id' => $event->id,
+            'model_type' => Event::class,
+            'from' => $event->user->email,
+            'to' => $eventSchedule->public_email,
+            'subject' => $subject,
+            'message' => $emailClass->render(),
+            'template' => '',
+            'additional_data' => '',
+            'status' => 'pre-send',
+            'store_website_id' => null,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+    }
+
+    public function getSchedules(Request $request)
+    {
+        $userId = Auth::user()->id;
+
+        if (! $userId) {
+            return response()->json(
+                [
+                    'message' => 'Not allowed',
+                ],
+                401
+            );
+        }
+
+        $start = explode('T', $request->get('start'))[0];
+        $end = explode('T', $request->get('end'))[0];
+
+        $eventSchedules = EventSchedule::whereBetween('schedule_date', [$start, $end])
+            ->whereHas('event', function($event) use($userId) {
+                $event->where('user_id', $userId)->where('event_type', 'PU');
+            })
+            ->get()
+            ->map(function ($eventSchedule) {
+                return [
+                    'event_id' => $eventSchedule->event_id,
+                    'event_schedule_id' => $eventSchedule->id,
+                    'subject' => $eventSchedule->event->name,
+                    'title' => $eventSchedule->event->name,
+                    'description' => $eventSchedule->event->description,
+                    'start' => $eventSchedule->schedule_date . " " . $eventSchedule->start_at,
+                    'end' => $eventSchedule->schedule_date . " " . $eventSchedule->end_at,
+                    'event_type' => $eventSchedule->event->event_type
+                ];
+            });
+
+        // Private Events 
+        $userPrivateEvents = Event::join('event_availabilities', 'event_availabilities.event_id', '=', 'events.id')
+            ->select('events.*', 'event_availabilities.numeric_day', 'event_availabilities.start_at', 'event_availabilities.end_at', )
+            ->where('user_id', $userId)
+            ->where('event_type', "PR")
+            ->where(function ($query) use ($start, $end) {
+                $query->orWhereBetween('start_date', [$start, $end])
+                    ->orWhereBetween('end_date', [$start, $end])
+                    ->orWhere([
+                        ["start_date", "<=", $start],
+                        ["end_date", "=", NULL]
+                    ]);
+            })
+            ->get();
+
+        $userPrivateEventCollection = new Collection();  
+        
+        foreach ($userPrivateEvents as $userPrivateEvent) {
+            $eventEndDate = $userPrivateEvent->end_date ?: $end;
+            $startDate = new Carbon($userPrivateEvent->start_date);
+            $endDate = new Carbon($eventEndDate);
+
+            while ($startDate->lte($endDate)) {
+                if($startDate->format('N') == $userPrivateEvent->numeric_day) {
+                    $userPrivateEventCollection->push((object)[
+                        'event_id' => $userPrivateEvent->id,
+                        'subject' => $userPrivateEvent->name,
+                        'title' => $userPrivateEvent->name,
+                        'description' => $userPrivateEvent->description,
+                        'start' => $startDate->toDateString() . " " . $userPrivateEvent->start_at,
+                        'end' => $startDate->toDateString() . " " . $userPrivateEvent->end_at,
+                        'event_type' => $userPrivateEvent->event_type
+                    ]);
+                }
+                $startDate->addDay();
+            }
+        }
+
+        $merged = $eventSchedules->concat($userPrivateEventCollection);
+
+        return response()->json($merged);
     }
 }
