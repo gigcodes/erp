@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css">  
 
     <style type="text/css">
-        .duration .select2-container {
-            display: block;
-        }
+        .duration .select2-container, .date-range-type .select2-container {
+        display: block;
+    }
     </style>
 @endsection
 
@@ -22,21 +22,20 @@
     <div class="col-md-12 pl-3 pr-3">
         <div class="row m-0">
             <div class="col-lg-12 margin-tb p-0">
-                <h2 class="page-heading">Events</h2>
-                <div class="pull-right create-event">
-                    <a class="btn btn-secondary" href="#">+</a>
+                <h2 class="page-heading">Public Events</h2>
+                <div class="pull-right">
+                    <a class="btn btn-secondary" href="{{route('event.index')}}">Back to calendar</a>
                 </div>
             </div>
             <div class="table-responsive">
                 <table id="magento_list_tbl_895" class="table table-bordered table-hover">
                     <thead>
                         <th>Name</th>
-                        <th>Link</th>
+                        <th>Public Link</th>
                         <th>Description</th>
-                        <th>Start Date</th>
                         <th>Duration (min)</th>
-                        <th>Is Recurring</th>
-                        <th>Recurring End</th>
+                        <th>Date Range Type</th>
+                        <th>Start Date</th>
                         <th>End Date</th>
                         <th>Created At</th>
                         <th>Action</th>
@@ -45,18 +44,24 @@
                         @foreach ($events as $event)
                             <tr>
                                 <td> {{ $event->name }} </td>
-                                <td> <a target="_blank" href="{{ $event->link }}">Public Link</a> </td>
+                                <td class="expand-row"> 
+                                    <span class="td-mini-container">
+                                        {{ strlen($event->link) > 10 ? substr($event->link, 0, 10).'...' : $event->link }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$event->link}}
+                                    </span>
+                                </td>
                                 <td> {{ $event->description }} </td>
-                                <td> {{ $event->start_date }} </td>
                                 <td> {{ $event->duration_in_min }} </td>
-                                <td> {{ $event->is_recurring }} </td>
-                                <td> {{ $event->recurring_end }} </td>
+                                <td> {{ $event->date_range_type_full_name }} </td>
+                                <td> {{ $event->start_date }} </td>
                                 <td> {{ $event->end_date }} </td>
                                 <td> {{ $event->created_at }} </td>
                                 <td>
                                     <i class="fa fa-calendar reschedule-event" data-id="{{ $event->id }}"></i>
                                     <i class="fa fa-trash fa-trash-bin-record" data-id="{{ $event->id }}"></i>
-                                    @if ($event->is_recurring == 1 && $event->recurring_end == "never")
+                                    @if ($event->date_range_type == "indefinitely")
                                     <i class="fa fa-stop-circle stop-recurring-event" data-id="{{ $event->id }}" title="Stop Recurring"></i>
                                     @endif
                                 </td>
@@ -67,7 +72,6 @@
             </div>
         </div>
     </div>
-    @include('partials.modals.create-event')
     @include('partials.modals.reschedule-event')
 @endsection
 
@@ -86,57 +90,13 @@
             $('.event-dates').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
-            $('#is_recurring').on('click', function() {
-                if($(this).prop('checked')) {
-                    $('#recurring-end-div').removeClass('hide');
-                    $('#end-date-div').addClass('hide');
-                } else {
-                    $('#recurring-end-div').addClass('hide');
-                    $('#event-end-date').val("");
-                    $('#event-end-date').val("");
-                    $('#end-date-div').removeClass('hide');
+
+            $(document).on('click', '.expand-row', function () {
+                var selection = window.getSelection();
+                if (selection.toString().length === 0) {
+                    $(this).find('.td-mini-container').toggleClass('hidden');
+                    $(this).find('.td-full-container').toggleClass('hidden');
                 }
-
-                if($('select[name="recurring_end"]').val() == "on") {
-                    $('#event-end-date').val("");
-                    $('#end-date-div').removeClass('hide')
-                }
-            });
-
-            $('select[name="recurring_end"]').on('change', function() {
-                if($(this).val() == 'on') {
-                    $('#event-end-date').val("");
-                    $('#end-date-div').removeClass('hide')
-                } else {
-                    $('#end-date-div').addClass('hide');
-                } 
-            });
-
-            // Reschedule
-            $('#reschedule-event-submit-form #is_recurring').on('click', function() {
-                if($(this).prop('checked')) {
-                    $('#reschedule-event-submit-form #recurring-end-div').removeClass('hide');
-                    $('#reschedule-event-submit-form #end-date-div').addClass('hide');
-                } else {
-                    $('#reschedule-event-submit-form #recurring-end-div').addClass('hide');
-                    $('#reschedule-event-submit-form #event-end-date').val("");
-                    $('#reschedule-event-submit-form #event-end-date').val("");
-                    $('#reschedule-event-submit-form #end-date-div').removeClass('hide');
-                }
-
-                if($('#reschedule-event-submit-form select[name="recurring_end"]').val() == "on") {
-                    $('#reschedule-event-submit-form #event-end-date').val("");
-                    $('#reschedule-event-submit-form #end-date-div').removeClass('hide')
-                }
-            });
-
-            $('#reschedule-event-submit-form select[name="recurring_end"]').on('change', function() {
-                if($(this).val() == 'on') {
-                    $('#reschedule-event-submit-form #event-end-date').val("");
-                    $('#reschedule-event-submit-form #end-date-div').removeClass('hide')
-                } else {
-                    $('#reschedule-event-submit-form #end-date-div').addClass('hide');
-                } 
             });
 
             $(window).scroll(function() {
@@ -180,9 +140,13 @@
 				console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
 			});
 
-            // Create Event
-            $('.create-event').on('click', function() {
-                $("#create-event-modal").modal("show");
+            $('#reschedule-event-submit-form select[name="date_range_type"]').on('change', function() {
+                if($(this).val() == 'within') {
+                    $('#reschedule-event-submit-form #event-end-date').val("");
+                    $('#reschedule-event-submit-form #end-date-div').removeClass('hide')
+                } else {
+                    $('#reschedule-event-submit-form #end-date-div').addClass('hide');
+                } 
             });
 
             // Reschedule Event
@@ -218,33 +182,6 @@
                         $("#loading-image-preview").hide();
                     });
                 }
-            });
-
-            $(document).on("submit", "#create-event-submit-form", function(e) {
-                e.preventDefault();
-                var $form = $(this).closest("form");
-                $.ajax({
-                    type: "POST",
-                    url: $form.attr("action"),
-                    data: $form.serialize(),
-                    dataType: "json",
-                    success: function(data) {
-                        if (data.code == 200) {
-                            $form[0].reset();
-                            $("#create-event-modal").modal("hide");
-                            toastr['success'](data.message, 'Message');
-                            location.reload();
-                        } else {
-                            toastr['error'](data.message, 'Message');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var errors = xhr.responseJSON;
-                        $.each(errors, function(key, val) {
-                            $("#create-event-submit-form " + "#" + key + "_error").text(val[0]);
-                        });
-                    }
-                });
             });
 
             $(document).on("submit", "#reschedule-event-submit-form", function(e) {

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRecurringFieldsInEventsTable extends Migration
+class AddAdditionalFieldsInEventsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,9 @@ class AddRecurringFieldsInEventsTable extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('is_recurring')->default(0);
-            $table->string('recurring_end')->nullable();
+            $table->string('event_type', 2)->after('user_id');
+            $table->string('date_range_type');
             $table->date('end_date')->nullable()->change();
-            $table->string('event_type', 2);
         });
     }
 
@@ -29,8 +28,7 @@ class AddRecurringFieldsInEventsTable extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn("is_recurring");
-            $table->dropColumn('recurring_end');
+            $table->dropColumn('date_range_type');
             $table->dropColumn('event_type');
         });
     }

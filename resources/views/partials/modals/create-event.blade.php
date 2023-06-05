@@ -11,6 +11,18 @@
                 <form id="create-event-submit-form" action="<?php echo route('event.store') ?>" method="post">
                     {{ csrf_field() }}    
                     <div class="form-group">
+                        <div class="form-check-inline">
+                            <label class="form-check-label event-type-label" for="public">
+                              <input type="radio" class="form-check-input" id="public" name="event_type" value="PU" checked>Public
+                            </label>
+                          </div>
+                          <div class="form-check-inline">
+                            <label class="form-check-label event-type-label" for="private">
+                              <input type="radio" class="form-check-input" id="private" name="event_type" value="PR">Private
+                            </label>
+                          </div>
+                    </div>
+                    <div class="form-group">
                         <label for="event-name">Name</label>
                         <input id="event-name" name="name" class="form-control" type="text">
                         <span id="name_error" class="text-danger"></span>
@@ -31,24 +43,19 @@
                         </select>
                         <span id="duration_in_min_error" class="text-danger"></span>
                     </div>
+                    <div class="form-group date-range-type">
+                        <label for="date-range-type">Date Range Type</label>
+                        <select name="date_range_type" id="date-range-type" class="form-control select2">
+                            <option value="within">Within a date range</option>
+                            <option value="indefinitely">Indefinitely into the future</option>
+                        </select>
+                        <span id="date_range_type_error" class="text-danger"></span>
+                    </div>
                     <div class="form-group">
                         <label for="event-start-date">Start Date</label>
                         <input id="event-start-date" name="start_date" type="text" class="form-control event-dates" value="" placeholder="Select Start Date">
                         <span id="start_date_error" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label for="event-start-date">Is Recurring ?</label>
-                        <input type="checkbox" name="is_recurring" class="form-control" id="is_recurring">
-                    </div>
-                    <div class="form-group hide" id="recurring-end-div">
-                        <label for="recurring-end">Recurring Ends</label>
-                        <select name="recurring_end" class="form-control">
-                            <option value="">Select option</option>
-                            <option value="never">Never</option>
-                            <option value="on">On</option>
-                        </select>
-                        <span id="recurring_end_error" class="text-danger"></span>
-                    </div> 
                     <div class="form-group" id="end-date-div">
                         <label for="event-end-date">End Date</label>
                         <input id="event-end-date" name="end_date" type="text" class="form-control event-dates" value="" placeholder="Select End Date">

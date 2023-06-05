@@ -14,15 +14,14 @@ class Event extends Model
 
     protected $fillable = [
         'user_id',
+        'event_type',
         'name',
         'description',
         'slug',
         'start_date',
         'end_date',
         'duration_in_min',
-        'is_recurring',
-        'recurring_end',
-        'event_type'
+        'date_range_type',
     ];
 
     public function user()
@@ -50,4 +49,12 @@ class Event extends Model
     {
         return url("event-schedule/".base64_encode('event:' . $this->user_id) . "/" . $this->slug);
     } 
+
+    public function getDateRangeTypeFullNameAttribute()
+    {
+        if ($this->date_range_type == 'within')
+            return "Within a date range";
+        else 
+            return "Indefinitely into the future";
+    }
 }

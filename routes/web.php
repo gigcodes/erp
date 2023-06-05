@@ -4167,6 +4167,9 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 
+    Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
+    Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
+    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');

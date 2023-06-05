@@ -2,4 +2,6 @@
 
 {{ $message }}
 
+Link: {{ $link }}
+
 @endcomponent
