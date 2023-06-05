@@ -403,6 +403,81 @@ class MagentoCommandController extends Controller
         }
     }
 
+    public function mySqlQueryLogs()
+    {
+        try {
+            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $mysqlCommandRunLog = MysqlCommandRunLog::with(['website','user'])->latest()->paginate($limit)->appends(request()->except(['page']));
+            
+            
+            $assetsmanager = AssetsManager::all();
+            $websites = StoreWebsite::all();
+            $users = User::all();
+            foreach($mysqlCommandRunLog as $logs){
+                
+                if($logs->website_ids !='' && $logs->job_id!=''){
+                    
+                    if($logs->website_ids=='ERP'){
+                        $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
+                    }else{
+                        $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                    }
+                    
+                    if($assetsmanager && $assetsmanager->client_id!=''){
+                        $client_id=$assetsmanager->client_id;
+                        $job_id=$logs->job_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        //$headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        if (curl_errno($ch)) {
+                            
+                        }
+                        $response = json_decode($result);
+                        \Log::info("API Response: ".$result);
+                        if(isset($response->data) && isset($response->data->result) ){
+                            $logs->status=$response->data->status;
+                            $result=$response->data->result;
+                            $message='';
+                            if(isset($result->stdout) && $result->stdout!=''){
+                                $message.='Output: '.$result->stdout;
+                            }
+                            if(isset($result->stderr) && $result->stderr!=''){
+                                $message.='Error: '.$result->stderr;
+                            }
+                            if(isset($result->summary) && $result->summary!=''){
+                                $message.='summary: '.$result->summary;
+                            }
+                            if($message!=''){
+                                $logs->response=$message;
+                            }
+                        }
+
+                        curl_close($ch);
+                    }
+                        
+                    
+                } 
+            }
+            return view('magento-command.mysql-query-logs', compact('mysqlCommandRunLog', 'websites', 'users'));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return redirect()->back()->withErrors($msg);
+        }
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

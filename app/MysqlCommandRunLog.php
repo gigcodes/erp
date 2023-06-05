@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\StoreWebsite;
+use App\User;
 
 class MysqlCommandRunLog extends Model
 {
@@ -15,4 +17,14 @@ class MysqlCommandRunLog extends Model
         'job_id',
         'status',
     ];
+    
+    public function website()
+    {
+        return $this->belongsTo(StoreWebsite::class, 'website_ids','id');
+    }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
 }
