@@ -3977,7 +3977,8 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/file-list', [WebsiteLogController::class, 'searchWebsiteLog'])->name('search.website.file.list.log');
     Route::get('website/log/view', [WebsiteLogController::class, 'websiteLogStoreView'])->name('website.log.view');
     Route::get('website/search/log/view', [WebsiteLogController::class, 'searchWebsiteLogStoreView'])->name('website.search.log.view');
-
+    Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
+    Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
