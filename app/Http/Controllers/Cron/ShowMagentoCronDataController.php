@@ -7,6 +7,7 @@ use App\StoreWebsite;
 use App\MagentoCronData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\MagentoCommand;
 
 class ShowMagentoCronDataController extends Controller
 {
@@ -46,5 +47,34 @@ class ShowMagentoCronDataController extends Controller
         }
 
         return view('magento_cron_data.index', compact('data', 'status', 'website'));
+    }
+    public function runMagentoCron(Request $request)
+    {
+       
+        try {
+            if(!isset($request->id) ||$request->id==''){
+                return response()->json(['code' => 500, 'message' => 'Requested data is missing!']);
+            }
+           
+            $magentoCronData= MagentoCronData::where('id',$request->id)->first();
+            
+            if(!$magentoCronData){
+                return response()->json(['code' => 500, 'message' => 'Magento Cron Data is not found!']);
+            }
+
+            $command=MagentoCommand::where('website_ids',$magentoCronData->store_website_id)->where('command_type', 'like', '%' . $magentoCronData->job_code . '%')->first();
+            
+            if(!$command){
+                return response()->json(['code' => 500, 'message' => 'Magento Cron Command is not found!']);
+            }
+            $command_id=$command->id;
+            $comd = \Artisan::call('command:MagentoCreatRunCommand', ['id' => $command_id]);
+
+            return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully! Please check command logs']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }
