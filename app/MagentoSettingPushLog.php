@@ -15,5 +15,6 @@ class MagentoSettingPushLog extends Model
         'command_output',
         'status',
         'job_id',
+        'command_server',
     ];
 }
