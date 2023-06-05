@@ -63,8 +63,10 @@
                             <td>{{$data->id}}</td>
                             <td>{{$data->website_id}}</td>
 							<td>
+								<div>
 								{{ strlen($data->error) > 10 ? substr($data->error, 0, 70).'...' : $data->error }}
-								<i class="fa fa-eye show_logs show-logs-icon" data-id="{{ $data->id }}" style="color: #808080;"></i>
+								<i class="fa fa-eye show_logs show-logs-icon" data-id="{{ $data->id }}" style="color: #808080;float: right;"></i>
+							    </div>
 							</td>
 							<td>{{$data->type}}</td>
 							<td>{{$data->file_path}}</td>
@@ -115,8 +117,8 @@
 <script>
     $(document).ready(function() 
 	{
-		tableData(BASE_URL);
 		$("#tabledata").click(function(e) {
+			var BASE_URL = window.location.origin+'/';
 			tableData(BASE_URL);
 		});
 		function tableData(BASE_URL) {
@@ -132,7 +134,7 @@
             }
 
 			$.ajax({
-				url: "{{route('website.file.list.log')}}"//BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
+				url: "{{route('website.file.list.log')}}",//BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
