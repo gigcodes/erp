@@ -336,6 +336,6 @@ class WebsiteLogController extends Controller
     {
         WebsiteLog::truncate();
 
-        return Redirect::route('website.log.view')->back()->withSuccess('datae Removed succesfully');
+        return redirect()->route('website.log.view')->withSuccess('data Removed succesfully!');
     }
 }

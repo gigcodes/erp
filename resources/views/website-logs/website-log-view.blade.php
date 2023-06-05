@@ -42,7 +42,7 @@
 			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
 				<button type="submit" style="" class="btn btn-image pl-0"><img src="/images/filter.png"></button>
 				<a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-				<a href="{{ route('website.log.truncate') }}" class="btn btn-primary" >Truncate Data </a>		
+				<a href="{{route('website.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>		
 			</div>
 		</form>
 	</div>
