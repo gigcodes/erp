@@ -392,6 +392,16 @@
 					</select>
 				</div>
 				<div class="from-group mt-3">
+					<label for="">Select Type:</label>
+					<select name="uicheck_type" id="assign-new-type" class="form-control select2" style="width: 100%!important">
+						<option value="" selected disabled>-- Select a Type --</option>
+						@forelse($allUicheckTypes as $uicheckTypeId => $uicheckTypeName)
+							<option value="{{ $uicheckTypeId }}">{{ $uicheckTypeName }}</option>
+						@empty
+						@endforelse
+					</select>
+				</div>
+				<div class="from-group mt-3">
 					<button class="btn btn-primary" id="assign_user_to_website">Assign</button>
 				</div>
 			</div>
@@ -1030,6 +1040,7 @@
 			e.preventDefault();
 			let user = $("#assign-new-user").val()
 			let website = $("#assign-new-website").val()
+			let type = $("#assign-new-type").val()
 
 			if(user == null) {
 				toastr['error']("Please select user.");
@@ -1049,7 +1060,8 @@
 				data: {
 					_token: "{{csrf_token()}}",
 					website,
-					user
+					user,
+					type
 				},
 				success: function (response) {
 					if(response.status == true) {
