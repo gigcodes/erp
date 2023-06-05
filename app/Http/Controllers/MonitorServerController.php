@@ -33,11 +33,14 @@ class MonitorServerController extends Controller
         if (! empty($keyword)) {
             $monitorServers = $monitorServers->where(function ($q) use ($keyword) {
                 $q->orWhere('monitor_servers.ip', 'LIKE', '%' . $keyword . '%')
-                    ->orWhere('monitor_servers.port', 'LIKE', '%' . $keyword . '%')
-                    ->orWhere('monitor_servers.request_method', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('monitor_servers.label', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('monitor_servers.type', 'LIKE', '%' . $keyword . '%')
-                    ->orWhere('monitor_servers.pattern', 'LIKE', '%' . $keyword . '%');
+                    ->orWhere('monitor_servers.status', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_servers.error', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_servers.rtime', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_servers.last_online', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_servers.last_offline', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_servers.last_offline_duration', 'LIKE', '%' . $keyword . '%');
             });
         }
 
