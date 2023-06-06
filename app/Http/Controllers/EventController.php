@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;
 use Illuminate\Http\Request;
 use Auth;
 use App\Event;
@@ -355,7 +356,72 @@ class EventController extends Controller
             }
         }
 
-        $merged = $eventSchedules->concat($userPrivateEventCollection);
+        // Asset manager 
+        $assetsManagers = AssetsManager::where([
+            "user_name"=> $userId,
+            "active" => 1,
+        ])
+        ->whereIn("payment_cycle", ["Monthly", "Yearly", "One time"])
+        ->whereNotNull('due_date')
+        ->where(function ($query) use ($start, $end) {
+            $query->orWhereBetween('due_date', [$start, $end])
+                ->orWhere([
+                    ["due_date", "<=", $start],
+                ]);
+        })
+        ->get();
+
+        $myAssets = new Collection(); 
+        $cStartDate = Carbon::parse($start);
+        $cEndDate = Carbon::parse($end);
+        foreach($assetsManagers as $assetsManager) {
+            $cDueDate = Carbon::parse($assetsManager->due_date);
+            // Monthly Payment Cycle - Logic
+            if ($assetsManager->payment_cycle == 'Monthly') {
+                if(($cDueDate->month <= $cStartDate->month && $cDueDate->year == $cStartDate->year) || 
+                ($cDueDate->year < $cStartDate->year)) {
+                    $myAssets->push((object)[
+                        'assets_manager_id' => $assetsManager->id,
+                        'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
+                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'event_type' => 'AS'
+                    ]);
+                }
+            }
+            // Yearly Payment Cycle - Logic
+            if ($assetsManager->payment_cycle == 'Yearly') {
+                if(($cDueDate->month == $cStartDate->month && $cDueDate->year <= $cStartDate->year)){
+                    $myAssets->push((object)[
+                        'assets_manager_id' => $assetsManager->id,
+                        'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
+                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'event_type' => 'AS'
+                    ]);
+                }
+            }
+            // One time Payment Cycle - Logic
+            if ($assetsManager->payment_cycle == 'One time') {
+                if(($cDueDate->month == $cStartDate->month && $cDueDate->year == $cStartDate->year)){
+                    $myAssets->push((object)[
+                        'assets_manager_id' => $assetsManager->id,
+                        'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
+                        'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
+                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'event_type' => 'AS'
+                    ]);
+                }
+            }
+        }
+
+        $merged = $eventSchedules->concat($userPrivateEventCollection)->concat($myAssets);
 
         return response()->json($merged);
     }
