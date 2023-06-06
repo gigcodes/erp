@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cron;
 
+use App\CronStatus;
 use App\Setting;
 use App\StoreWebsite;
 use App\MagentoCronData;
@@ -18,7 +19,9 @@ class ShowMagentoCronDataController extends Controller
 
     public function MagentoCron(Request $request)
     {
-        $status = $this->cronStatus();
+        // $status = $this->cronStatus();
+        $status = CronStatus::all();
+
         $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
         $data = new MagentoCronData();
         $skip = empty($request->page) ? 0 : $request->page;
@@ -36,6 +39,20 @@ class ShowMagentoCronDataController extends Controller
             // $date = date('Y-m-d', strtotime($request->create_at));
             $data = $data->where('cron_created_at', 'like', $date . '%');
         }
+
+        $data = $data->where(function ($query) {
+            $query->orWhere([
+                ["cronstatus", "=", 'pending'],
+                ["cron_executed_at", "=", NULL]
+            ])
+            ->orWhere([
+                ["cronstatus", "=", 'pending'],
+                ["cron_executed_at", "=", "0000-00-00 00:00:00"]
+            ])
+            ->orWhere("cronstatus", "=", 'error')
+            ->orWhere("cronstatus", "=", 'missed')
+            ->orWhere("cronstatus", "=", 'success');
+        });
 
         $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25')->get();
 
@@ -76,5 +93,18 @@ class ShowMagentoCronDataController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function statusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $cronStatus = CronStatus::find($key);
+            $cronStatus->color = $value;
+            $cronStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

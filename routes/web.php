@@ -500,6 +500,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
     Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
+    Route::post('/show-magento-cron-data/statuscolor', [Cron\ShowMagentoCronDataController::class, 'statusColor'])->name('magento-cron-data.statuscolor');
 });
 /** Magento Module */
 Route::middleware('auth')->group(function () {
