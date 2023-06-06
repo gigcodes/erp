@@ -2988,7 +2988,7 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
     Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
     Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
-   
+
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -5208,7 +5208,8 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
-    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+    Route::get('request', [ChatGPTController::class, 'requestApi'])->name('chatgpt.request');
+    Route::post('response', [ChatGPTController::class, 'getResponse'])->name('chatgpt.response');
 });
 
 // Create magento user.
