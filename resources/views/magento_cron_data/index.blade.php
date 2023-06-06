@@ -196,6 +196,9 @@
                                     <a title="Run Cron" class="btn btn-image magentoCom-run-btn pd-5     btn-ht" data-id="{{ $dat['id']}}" href="javascript:;">
                                         <i class="fa fa-paper-plane" aria-hidden="true"></i>
                                     </a>
+                                    <a title="Preview Response" data-id="{{ $dat['id']}}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;">
+                                        <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                                    </a>
                                </td>
 
                            </tr> 
@@ -207,6 +210,42 @@
         </div>
     </div>
 </div>
+
+<div id="commandResponseHistoryModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="width: 100%;max-width: 95%;">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Cron Command Response History</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">ID</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Command Id</th>
+                                    <th style="width: 10%;overflow-wrap: anywhere;">User Name</th>
+                                    <th style="width: 10%;overflow-wrap: anywhere;">Website</th>
+                                    <th style="width: 10%;overflow-wrap: anywhere;">Working Directory</th>
+                                    <th style="width: 20%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 20%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbodayCommandResponseHistory">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
@@ -214,6 +253,75 @@
 <script>
 
     $(document).ready(function () {
+        $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+        $(document).on("click", ".preview_response", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+            url: "/show-magento-cron-data/history"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                id: id
+            },
+            beforeSend: function() {
+                $('#loading-image-preview').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                var t = '';
+                $.each(response.data, function(key, v) {
+                    var responseString = '';
+                    if (v.response)
+                        responseString = v.response.substring(0, 10);
+                    var request_data_val = '';
+                    if (v.request_data)
+                        request_data_val = v.request_data.substring(0, 10);
+                    var request_url_val = '';
+                    if (v.request_data)
+                        request_url_val = v.request_url.substring(0, 10)
+                    var commandString = '';
+                    if (v.command_name)
+                        commandString = v.command_name.substring(0, 10);
+
+
+                    t += '<tr><td>' + v.id + '</td>';
+                    t += '<td>' + v.command_id + '</td>';
+                    t += '<td>' + v.userName + '</td>';
+                    t += '<td>' + v.website + '</td>';
+                    t += '<td>' + v.working_directory + '</td>';
+                    t += '<td  class="expand-row-msg" data-name="command" data-id="' + v.id + '" ><span class="show-short-command-' + v.id + '">' + commandString + '...</span>    <span style="word-break:break-all;" class="show-full-command-' + v.id + ' hidden">' + v.command_name + '</span></td>';
+                    t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
+                    //t += '<td>'+v.response_code+'</td>';
+                    //t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
+                    //t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
+                    t += '<td>' + v.created_at + '</td></tr>';
+                });
+                $(".tbodayCommandResponseHistory").html(t);
+                $('#commandResponseHistoryModel').modal('show');
+                
+
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image-preview').hide();
+        }).fail(function(errObj) {
+            $('#loading-image-preview').hide();
+            $("#commandResponseHistoryModel").hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
         $(document).on("click", ".magentoCom-run-btn", function(e) {
             e.preventDefault();
             var $this = $(this);
