@@ -2832,7 +2832,7 @@ class OrderController extends Controller
         $status = $request->get('status');
         $message = $request->get('message');
         $sendmessage = $request->get('sendmessage');
-        $order_via = $request->order_via;
+        $order_via = $request->order_via ?: [];
         if (! empty($id) && ! empty($status)) {
             $order = \App\Order::where('id', $id)->first();
             $statuss = OrderStatus::where('id', $status)->first();
@@ -4062,7 +4062,7 @@ class OrderController extends Controller
         if (! $isExist) {
             Store_order_status::create($input);
 
-            store_order_status_history_create($request, '', '');
+            $this->store_order_status_history_create($request, '', '');
 
             return redirect()->back();
         } else {
@@ -4561,7 +4561,8 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = config('env.MAIL_FROM_ADDRESS');
+        // $from = config('env.MAIL_FROM_ADDRESS');
+        $from = "";
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4573,6 +4574,14 @@ class OrderController extends Controller
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
                     $from = $emailAddress->from_address;
+                    $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
+                } else {
+                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
+                    foreach ($emailAddresses as $emailAddress) {
+                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                    }
+                    $fromTemplate .= "</select>";
                 }
             }
             $preview = "<table>
@@ -4581,7 +4590,7 @@ class OrderController extends Controller
                        <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $order->customer->email . "' >
                        </td></tr><tr>
                        <td>From </td> <td>
-                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
+                       $fromTemplate
                        </td></tr><tr>
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . '</textarea></td>
                     </tr>
@@ -4597,6 +4606,14 @@ class OrderController extends Controller
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
                     $from = $emailAddress->from_address;
+                    $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
+                } else {
+                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
+                    foreach ($emailAddresses as $emailAddress) {
+                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                    }
+                    $fromTemplate .= "</select>";
                 }
             }
             $preview = "<table>
@@ -4605,7 +4622,7 @@ class OrderController extends Controller
                        <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $order->customer->email . "' >
                        </td></tr><tr>
                        <td>From </td> <td>
-                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
+                       $fromTemplate
                        </td></tr><tr>
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . '</textarea></td>
                     </tr>

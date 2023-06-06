@@ -882,7 +882,7 @@ class UicheckController extends Controller
                 $uiLan['status'] = $request->uilanstatus;
             }
             if ($request->estimated_time) {
-                $uiLan['estimated_time'] = date('H:i:s', strtotime($request->estimated_time));
+                $uiLan['estimated_time'] = $request->estimated_time;
             }
 
             if (count($uiLanData) == 0) {
@@ -1043,7 +1043,7 @@ class UicheckController extends Controller
                 $uiDev['status'] = $request->uidevstatus;
             }
             if ($request->uidevdatetime) {
-                $uiDev['estimated_time'] = date('H:i:s', strtotime($request->uidevdatetime));
+                $uiDev['estimated_time'] = $request->uidevdatetime;
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {
@@ -1692,29 +1692,23 @@ class UicheckController extends Controller
                 return response()->json(['status' => false, 'message' => 'Category not found.']);
             }
 
-            $uiTypesCollection = [];
-            $uiTypes = UicheckType::whereIn('name', ['UI Test', 'UI Design'])->get();
-            if ($uiTypes->count() > 0) {
-                $uiTypesCollection = $uiTypes;
-            }
-
             $userId = $request->user;
             $websiteId = $request->website;
+            $uicheckTypeId = $request->type;
 
             $all_site_development = $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryIds, $siteDevelopmentDesignMasterCategoryId);
 
             if (isset($all_site_development) && ! empty($all_site_development)) {
                 foreach ($all_site_development as $site_development_id => $site_development_category_id) {
-                    foreach ($uiTypesCollection as $key => $ui_type) {
                         $uicheck = Uicheck::where([
                             'website_id' => $websiteId,
                             'site_development_id' => $site_development_id,
                             'site_development_category_id' => $site_development_category_id,
-                            'uicheck_type_id' => $ui_type->id,
+                            'uicheck_type_id' => $uicheckTypeId,
                         ])->get();
 
                         if ($uicheck->count() == 0) {
-                            $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $ui_type->id, $userId);
+                            $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $uicheckTypeId, $userId);
                         } else {
                             $uicheck = $uicheck->first();
                             if ($uicheck->uiDeviceCount() == 0) {
@@ -1728,7 +1722,6 @@ class UicheckController extends Controller
 
                             UicheckUserAccess::provideAccess($uicheck->id, $userId);
                         }
-                    }
                 }
 
                 return response()->json(['status' => true, 'message' => 'User has assigned successfully.']);
@@ -1859,7 +1852,7 @@ class UicheckController extends Controller
             $uiDev['uicheck_id'] = $request->ui_check_id;
             $uiDev['message'] = 'New File uploaded';
             if ($request->uidevdatetime) {
-                $uiDev['estimated_time'] = date('H:i:s', strtotime($request->uidevdatetime));
+                $uiDev['estimated_time'] = $request->uidevdatetime;
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {

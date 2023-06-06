@@ -365,6 +365,7 @@ use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
+use App\Http\Controllers\MonitorJenkinsBuildController;
 
 Auth::routes();
 
@@ -398,6 +399,7 @@ use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoUserFromErpController;
+use App\Http\Controllers\MonitorServerController;
 
 Auth::routes();
 
@@ -497,6 +499,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', ProductLocationController::class);
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
+    Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
 });
 /** Magento Module */
 Route::middleware('auth')->group(function () {
@@ -1155,7 +1158,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
     Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
 
-    
+
     Route::resource('benchmark', BenchmarkController::class);
 
     // adding lead routes
@@ -3976,7 +3979,8 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/file-list', [WebsiteLogController::class, 'searchWebsiteLog'])->name('search.website.file.list.log');
     Route::get('website/log/view', [WebsiteLogController::class, 'websiteLogStoreView'])->name('website.log.view');
     Route::get('website/search/log/view', [WebsiteLogController::class, 'searchWebsiteLogStoreView'])->name('website.search.log.view');
-
+    Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
+    Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
@@ -4166,7 +4170,12 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 
+    Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
+    Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
+    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
     Route::resource('event', EventController::class);
+    Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
+    Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
@@ -4688,6 +4697,8 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::get('/size/managerdelete', [SystemSizeController::class, 'managerdelete'])->name('system.size.managerdelete');
     Route::get('/size/exports', [SystemSizeController::class, 'exports'])->name('system.size.exports');
 
+    Route::post('size/push', [SystemSizeController::class, 'pushSystemSize']);
+
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', [AutoRefreshController::class, 'index'])->name('auto.refresh.index');
         Route::post('/create', [AutoRefreshController::class, 'store'])->name('auto.refresh.store');
@@ -4891,6 +4902,8 @@ Route::get('magento/command/search', [MagentoCommandController::class, 'search']
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
 Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
+Route::post('magento/command/run-mysql-command', [MagentoCommandController::class, 'runMySqlQuery'])->name('magento.command.runMySqlQuery');
+Route::get('magento/command/run-mysql-command-logs', [MagentoCommandController::class, 'mySqlQueryLogs'])->name('magento.command.mySqlQueryLogs');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
@@ -5224,3 +5237,14 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
+});
+
+/** Website Monitor */
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-server', MonitorServerController::class);
+    Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
+    Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+});

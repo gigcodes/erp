@@ -9,6 +9,7 @@ class MagentoCronData extends Model
     protected $table = 'magento_cron_datas';
 
     protected $fillable = [
+        'id',
         'store_website_id',
         'cron_id',
         'job_code',

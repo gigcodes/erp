@@ -86,7 +86,8 @@ class UserEventController extends Controller
                                 $userEvent = new UserEvent;
                                 $userEvent->user_id = $val->user_name;
                                 $userEvent->subject = "Payment Due";
-                                $userEvent->description = "";
+                                $userEvent->subject .= " (Asset: ".($val->name ?? "-").", Provider name: $val->provider_name, Location: $val->location )";
+                                $userEvent->description = "Provider name: $val->provider_name, Location: $val->location";
                                 $userEvent->date = $c_due_date;
                                 $userEvent->start = $c_due_date;
                                 $userEvent->end = $c_due_date;
@@ -97,7 +98,6 @@ class UserEventController extends Controller
                         }
                     }
                 } 
-                // $c_start->month
             }
         }
 

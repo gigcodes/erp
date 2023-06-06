@@ -103,6 +103,8 @@
     </form>
     <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
     <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#rcmw_runCommand">Run Command</button>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#run_ms_query">Run MySql Query</button>
+    <a target="_blank" href="/magento/command/run-mysql-command-logs" class="btn custom-button float-right mr-3" >MySql Query Logs</a>
 
 </div>
 
@@ -253,7 +255,7 @@
 
 
 <div id="commandResponseHistoryModel" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
         <!-- Modal content-->
         <div class="modal-content ">
             <div id="add-mail-content">
@@ -271,7 +273,9 @@
                                     <th style="width: 3%;">ID</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Job ID</th>
                                     <th style="width: 4%;overflow-wrap: anywhere;">Date</th>
                                 </tr>
                             </thead>
@@ -429,6 +433,51 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" id="rcmw-run-command-btn" class="btn btn-secondary">Run Command</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="run_ms_query" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Run MySql Query</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="title">Websites</label>
+                                <div class="dropdown-sin-1">
+                                    <?php $websites = \App\StoreWebsite::get(); ?>
+                                    <select name="run_msq_websites_ids[]" class="run_msq_websites_ids form-control dropdown-mul-1" style="width: 100%;" id="run_msq_websites_ids" multiple>
+                                        <option>--Websites--</option>
+                                        <option value="ERP">ERP</option>
+                                        <?php
+                                            foreach($websites as $website){
+                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="rcmw_command_id">MySql Query</label>
+                                <input type="text" id="run_msq_command" class="form-control" name="run_msq_command" value="">
+                            </div>
+                                
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="run_msq_command-btn" class="btn btn-secondary">Run</button>
                     </div>
                 </div>
             </div>
@@ -771,6 +820,56 @@
         });
         
     });
+    $(document).on("click", "#run_msq_command-btn", function(e) {
+        e.preventDefault();
+        var websites_ids=$("#run_msq_websites_ids").val();
+        var command=$("#run_msq_command").val();
+        if(command==''){
+            toastr['error']('Please Enter MySql Query', 'error');
+            return;
+        }
+        if(typeof websites_ids == 'undefined' ||  websites_ids.length == 0){
+            toastr['error']('Please select Website', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: "/magento/command/run-mysql-command"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                command: command,
+                websites_ids: websites_ids
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                toastr['success'](response.message, 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+            $("#run_msq_command").val('');
+            $("#run_msq_websites_ids").val('').trigger('change')
+            $("#run_ms_query").modal('hide');
+            
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            if (errObj ?.responseJSON ?.message) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+                return;
+            }
+            toastr['error'](errObj.message, 'error');
+            $("#run_msq_command").val('');
+            $("#run_msq_websites_ids").val('').trigger('change')
+            $("#run_ms_query").modal('hide');
+        });
+        
+    });
 
     $(document).on("click", ".magentoCom-run-btn", function(e) {
         e.preventDefault();
@@ -789,7 +888,7 @@
                 $('#loading-image').show();
             },
         }).done(function(response) {
-            if (response.code = '200') {
+            if (response.code == '200') {
                 toastr['success']('Command Run successfully!!!', 'success');
             } else {
                 toastr['error'](response.message, 'error');
@@ -842,7 +941,9 @@
                     t += '<tr><td>' + v.id + '</td>';
                     t += '<td>' + v.userName + '</td>';
                     t += '<td  class="expand-row-msg" data-name="command" data-id="' + v.id + '" ><span class="show-short-command-' + v.id + '">' + commandString + '...</span>    <span style="word-break:break-all;" class="show-full-command-' + v.id + ' hidden">' + v.command_name + '</span></td>';
+                    t += '<td>' + v.status + '</td>';
                     t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
+                    t += '<td>' + v.job_id + '</td>';
                     //t += '<td>'+v.response_code+'</td>';
                     //t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
                     //t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';

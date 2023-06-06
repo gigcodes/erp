@@ -155,7 +155,7 @@ class StoreWebsite extends Model
 
     public function storeCode()
     {
-        return $this->hasOne(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
+        return $this->belongsTo(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
     }
 
     /**

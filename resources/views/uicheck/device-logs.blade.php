@@ -108,6 +108,7 @@
 					@if (Auth::user()->isAdmin())
                     <th>User Name</th>
 					@endif
+                    <th>Estimated Time</th>
                     <th>Device No</th>
                     <th>Start Time</th>
                     <th>End Time</th>
@@ -129,6 +130,7 @@
 						@if (Auth::user()->isAdmin())
                         <td>{{ $uiDeviceLog->name }}</td>
 						@endif
+                        <td>{{ $uiDeviceLog->uiDevice->estimated_time }} Mins</td>
                         <td>{{ $uiDeviceLog->uiDevice->device_no }}</td>
                         <td>{{ $uiDeviceLog->start_time }}</td>
                         <td>{{ $uiDeviceLog->end_time }}</td>
