@@ -56,6 +56,7 @@
                             <th width="10%">Error</th>
                             <th width="10%">Build Status</th>
                             <th width="10%">Full Log</th>
+                            <th width="10%">Meta Update</th>
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)
                             <tr class="quick-website-task-{{ $monitorJenkinsBuild->id }}" data-id="{{ $monitorJenkinsBuild->id }}">
@@ -77,6 +78,7 @@
                                 <td>{{ $monitorJenkinsBuild->error }}</td>
                                 <td><span class="badge badge-pill badge-success">{{ $monitorJenkinsBuild->build_status === 0 ? 'Success' : 'Failure' }}</span></td>
                                 <td>{{ $monitorJenkinsBuild->full_log }}</td>
+                                <td><span class="badge badge-pill badge-success">{{ $monitorJenkinsBuild->meta_update === 0 ? 'Success' : 'Failure' }}</span></td>
                             </tr>
                         @endforeach
                     </table>

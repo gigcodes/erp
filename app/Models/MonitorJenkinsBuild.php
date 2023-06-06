@@ -27,5 +27,6 @@ class MonitorJenkinsBuild extends Model
         'error',    
         'build_status', 
         'full_log',    
+        'meta_update',    
     ];
 }
