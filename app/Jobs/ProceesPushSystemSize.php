@@ -95,9 +95,6 @@ class ProceesPushSystemSize implements ShouldQueue
                             }
                         }
 
-                        \Log::info('Stores');
-                        \Log::info($stores);
-
                         //get the Magento URL and token
                         $url = $websitevalue->magento_url;
                         $api_token = $websitevalue->api_token;
@@ -105,7 +102,9 @@ class ProceesPushSystemSize implements ShouldQueue
                         if (! empty($url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
                                 $urlSystemSizePush = $url . "/rest/V1/size/config";
+                                
                                 $postdata = "{\n    \"sizeConfig\": {\n        \"value\": \"$size\",\n        \"category_id\": \"$categoryId\",\n        \"store_id\": \"$storeValue\"\n    }\n}";
+                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                                 $ch = curl_init();
 
                                 curl_setopt($ch, CURLOPT_URL, $urlSystemSizePush);
@@ -117,30 +116,18 @@ class ProceesPushSystemSize implements ShouldQueue
                                 $headers[] = 'Authorization: Bearer ' . $api_token;
                                 $headers[] = 'Content-Type: application/json';
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                
 
                                 $response = curl_exec($ch);
-
+                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                                 $response = json_decode($response);
 
                                 curl_close($ch);
 
-                                if (! empty($response->path)) { //This means latest is pushed to server
-                                    // $replyInfo->is_pushed = 1;
-                                    // $replyInfo->save();
-                                    // (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
-                                } else {
-                                    // (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store ' . $storeValue . ' : ' . json_encode($response), 'Push');
-                                }
-
-                                \Log::info('Got response from API after pushing the system size  to server');
-                                \Log::info($postdata);
-                                \Log::info(json_encode($response));
+                                \App\LogRequest::log($startTime, $urlSystemSizePush, 'POST', $postdata, $response, $httpcode, \App\Jobs\ProceesPushSystemSize::class, '_processSingleSystemSize');
                             }
                         } else {
-                            // (new ReplyLog)->addToLog($replyInfo->id, ' URL or API token not found linked with this FAQ ', 'Push');
-                            \Log::info(
-                                'URL or API token not found linked with reply id ' . json_encode($systemSizeManagerId)
-                            );
+                            \Log::info('URL or API token not found For Website: ' . $store_website_id);
                         }
                     }
                 }
