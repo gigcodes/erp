@@ -131,6 +131,9 @@
     .event-type-label {
         display: contents
     }
+    .fc-disabled-day {
+        visibility:hidden;
+    }
 </style>
 @include('partials.modals.user-event-modal')
 
@@ -172,6 +175,7 @@
             defaultView: 'dayGridMonth',
             allDaySlot: false,
             editable: false,
+            showNonCurrentDates: false,
             eventSources: [{
                 url: '/event/getSchedules',
                 method: 'GET',
@@ -180,14 +184,16 @@
                 }
             }],
             eventRender: function(info) {
-                var i = document.createElement('i');
-                i.className = 'fa fa-remove delete-event';
-                i.id = 'event-id-'+info.event.extendedProps.event_id;
-                i.title = 'Delete Event'
-                i.onclick = function() {
-                    removeEvent(info.event);
+                if (info.event.extendedProps.event_type == 'PU' || info.event.extendedProps.event_type == 'PR'){
+                    var i = document.createElement('i');
+                    i.className = 'fa fa-remove delete-event';
+                    i.id = 'event-id-'+info.event.extendedProps.event_id;
+                    i.title = 'Delete Event'
+                    i.onclick = function() {
+                        removeEvent(info.event);
+                    }
+                    info.el.append(i);
                 }
-                info.el.append(i);
 
                 if(info.event.extendedProps.event_type == 'PR') {
                     var recurringIcon = document.createElement('i');
