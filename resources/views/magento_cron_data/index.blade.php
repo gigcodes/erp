@@ -57,7 +57,7 @@
                     @endphp
                         @if ($status)
                             @foreach($status as $sat)
-                                <option value="{{ $sat }}" @if($selectcate == $sat) selected @endif  >{{ $sat }}</option>
+                                <option value="{{ $sat->name }}" @if($selectcate == $sat->name) selected @endif  >{{ $sat->name }}</option>
                             @endforeach
                         @endif
                     </select>
@@ -71,7 +71,9 @@
                    <button type="submit" class="btn btn-secondary">Search</button>
                 </div>
             </form> 
-            
+            <div class="form-inline mr-3">
+                <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#cronStatusColor"> Status Color</button>
+            </div>
         </div>
     </div>
 </div>
@@ -111,10 +113,13 @@
                        <tbody>
                        @php $i=1; @endphp
                        @foreach ($data as $dat) 
-                           <tr  data-id="{{$i}}" class="tr_{{$i++}}">
+                        @php
+                            $cronStatus = \App\CronStatus::where('name',$dat->cronstatus)->first();
+                        @endphp
+                           <tr  style="background-color: {{$cronStatus->color}}!important;" data-id="{{$i}}" class="tr_{{$i++}}">
                                <td class="expand-row" style="word-break: break-all">
                                    <span class="td-mini-container">
-                                      {{ strlen( $dat['website']) > 9 ? substr( $dat['website'], 0, 8).'...' :  $dat['website'] }}
+                                      {{ strlen( $dat['website']) > 22 ? substr( $dat['website'], 0, 22).'...' :  $dat['website'] }}
                                    </span>
 
                                    <span class="td-full-container hidden">
@@ -134,7 +139,7 @@
 
                                <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                                {{ strlen( $dat['job_code']) > 15 ? substr( $dat['job_code'], 0, 15).'...' :  $dat['job_code'] }}
+                                                {{ strlen( $dat['job_code']) > 18 ? substr( $dat['job_code'], 0, 18).'...' :  $dat['job_code'] }}
                                      </span>
 
                                    <span class="td-full-container hidden">
@@ -210,6 +215,7 @@
         </div>
     </div>
 </div>
+@include("magento_cron_data.partials.modal-status-color")
 
 <div id="commandResponseHistoryModel" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="width: 100%;max-width: 95%;">
@@ -369,7 +375,7 @@
         success: function (data) {
             console.log(data);
             // $loader.hide();
-             $('tbody').html($.trim(data['html']));
+             $('#product-price tbody').html($.trim(data['html']));
             // isLoading = false;
         },
         error: function () {
@@ -418,7 +424,7 @@
                 },
                 success: function (data) {
                     $loader.hide();
-                    $('tbody').append($.trim(data['html']));
+                    $('#product-price tbody').append($.trim(data['html']));
                     isLoading = false;
                 },
                 error: function () {
@@ -453,7 +459,7 @@
         // },
         success: function (data) {
             $loader.hide();
-            $('tbody').html($.trim(data['html']));
+            $('#tbody').html($.trim(data['html']));
             isLoading = false;
         },
         error: function () {
