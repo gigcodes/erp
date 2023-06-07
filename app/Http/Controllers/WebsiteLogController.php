@@ -286,7 +286,7 @@ class WebsiteLogController extends Controller
     public function websiteLogStoreView()
     {
         try {
-            $dataArr = WebsiteLog::latest()->paginate(\App\Setting::get('pagination',10));
+            $dataArr = WebsiteLog::latest()->paginate(25);
 
             return view('website-logs.website-log-view', compact('dataArr'));
         } catch (\Exception $e) {
@@ -304,14 +304,38 @@ class WebsiteLogController extends Controller
             }
             if ($request->search_type) {
                 $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
+            }  
+            if ($request->website_id) {
+                $dataArr = $dataArr->where('website_id', 'LIKE', '%' . $request->website_id . '%');
+            }
+            if ($request->date) {
+                $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
             }
             $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination',10));
             $search_error = $request->search_error;
             $search_type = $request->search_type;
+            $website_id = $request->website_id;
+            $date = $request->date;
 
-            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type'));
+            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type', 'website_id', 'date'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function websiteErrorShow(Request $request)
+    {     
+        $id = $request->input('id');
+        $errorData = WebsiteLog::where('id', $id)->value('error');
+        $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
+
+        return $htmlContent;
+    }
+
+    public function WebsiteLogTruncate()
+    {
+        WebsiteLog::truncate();
+
+        return redirect()->route('website.log.view')->withSuccess('data Removed succesfully!');
     }
 }

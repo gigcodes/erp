@@ -2446,7 +2446,57 @@ class WhatsAppController extends FindByNumberController
                         $chat_message->save();
                     }
                 }
+                \Log::info('Start API CALL /rest/V1/ticket-counter/add');
+                if ($ticket) {
+                    $ticket_id=$ticket->ticket_id;
+                    $email=$ticket->email;
+                    $source_of_ticket=$ticket->source_of_ticket;
+                    $storeWebsite=\App\StoreWebsite::where('website', $source_of_ticket)->first();
+                    if($storeWebsite){
+                        $storeWebsiteCode = $storeWebsite->storeCode;
+                        $magento_url = $storeWebsite->magento_url;
+                        $api_token = $storeWebsite->api_token;
+                        if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
+                            
 
+                            $curl = curl_init();
+
+                            curl_setopt_array($curl, array(
+                                CURLOPT_URL => trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add",
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_ENCODING => '',
+                                CURLOPT_MAXREDIRS => 10,
+                                CURLOPT_TIMEOUT => 0,
+                                CURLOPT_FOLLOWLOCATION => true,
+                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                CURLOPT_CUSTOMREQUEST => 'PUT',
+                                CURLOPT_POSTFIELDS =>'{
+                                "ticketData":
+                                {
+                                    "ticket_id": "{$ticket_id}",
+                                    "email": "{email}"
+                                }
+                                }
+                                ',
+                                CURLOPT_HTTPHEADER => array(
+                                    'Content-Type: application/json',
+                                    'Authorization: Bearer '.$api_token,
+                                ),
+                            ));
+
+                            $response = curl_exec($curl);
+                            \Log::info("API RESPONSE: ".$response);
+                            curl_close($curl);
+                        }else{
+                            \Log::info('Magento URL and Store Website code is not found:');
+                        }
+                    }else{
+                        \Log::info('Store Website not found: '.$source_of_ticket);
+                    }
+                }else{
+                    \Log::info('Ticket Data Not Found ticket_id: '.$request->ticket_id);
+                }
+                \Log::info('END API CALL /rest/V1/ticket-counter/add');
                 return response()->json(['message' => $chat_message]);
             } else {
                 if ($context == 'priority') {

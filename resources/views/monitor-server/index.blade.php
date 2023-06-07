@@ -40,27 +40,31 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="10%">IP</th>
-                            <th width="10%">Port</th>
-                            <th width="10%">Request Method</th>
-                            <th width="10%">Label</th>
+                            <th width="10%">HOST/IP</th>
+                            <th width="10%">Check Name</th>
                             <th width="10%">Type</th>
-                            <th width="10%">Pattern</th>
-                            <th width="10%">Pattern Online</th>
-                            <th width="10%">Post Field</th>
+                            <th width="10%">Status</th>
+                            <th width="10%">Root cause</th>
+                            <th width="10%">Response Time</th>
+                            <th width="10%">Last Online</th>
+                            <th width="10%">Last Offline</th>
+                            <th width="10%">SSL Expiry</th>
+                            <th width="10%">Last Downtime</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($monitorServers as $key => $monitorServer)
                             <tr class="quick-website-task-{{ $monitorServer->id }}" data-id="{{ $monitorServer->id }}">
                                 <td id="monitor_server_id">{{ $monitorServer->id }}</td>
                                 <td>{{ $monitorServer->ip }}</td>
-                                <td>{{ $monitorServer->port }}</td>
-                                <td>{{ $monitorServer->request_method }}</td>
                                 <td>{{ $monitorServer->label }}</td>
                                 <td>{{ $monitorServer->type }}</td>
-                                <td>{{ $monitorServer->pattern }}</td>
-                                <td>{{ $monitorServer->pattern_online }}</td>
-                                <td>{{ $monitorServer->post_field }}</td>
+                                <td>{{ $monitorServer->status }}</td>
+                                <td>{{ $monitorServer->error }}</td>
+                                <td>{{ $monitorServer->rtime }}</td>
+                                <td>{{ $monitorServer->last_online }}</td>
+                                <td>{{ $monitorServer->last_offline }}</td>
+                                <td>{{ $monitorServer->ssl_cert_expired_time }}</td>
+                                <td>{{ $monitorServer->last_offline_duration }}</td>
                                 <td class="Website-task"title="">
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$monitorServer->id}}')"><i class="fa fa-arrow-down"></i></button>
                                 </td>
@@ -104,6 +108,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Status</th>
+                                    <th>Latency</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -180,7 +185,7 @@
                         var html = '';
                         console.log(response);
                         $.each(response.data.data,function(idnex, val){
-                            html += '<tr><td>'+val.date+'</td><td>'+val.status+'</td></tr>';
+                            html += '<tr><td>'+val.date+'</td><td>'+val.status+'</td><td>'+val.latency+'</td></tr>';
                         })
 
                         $('#monitor_server_uptimes_data .monitor_server_id').val('');
@@ -256,7 +261,7 @@
                 if(response.code == 200) {
                     var html    =   '';
                     $.each(response.data.data,function(idnex, val){
-                        html += '<tr><td>'+val.date+'</td><td>'+val.status+'</td></tr>';
+                        html += '<tr><td>'+val.date+'</td><td>'+val.status+'</td><td>'+val.latency+'</td></tr>';
                     })
 
                     $('#monitor_server_uptimes_data table tbody').html('');

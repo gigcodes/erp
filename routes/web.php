@@ -499,6 +499,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', ProductLocationController::class);
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
+    Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
+    Route::post('/show-magento-cron-data/statuscolor', [Cron\ShowMagentoCronDataController::class, 'statusColor'])->name('magento-cron-data.statuscolor');
+    Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
 Route::middleware('auth')->group(function () {
@@ -1157,7 +1160,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
     Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
 
-    
+
     Route::resource('benchmark', BenchmarkController::class);
 
     // adding lead routes
@@ -2990,7 +2993,7 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
     Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
     Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
-   
+
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
 
@@ -3978,7 +3981,8 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/file-list', [WebsiteLogController::class, 'searchWebsiteLog'])->name('search.website.file.list.log');
     Route::get('website/log/view', [WebsiteLogController::class, 'websiteLogStoreView'])->name('website.log.view');
     Route::get('website/search/log/view', [WebsiteLogController::class, 'searchWebsiteLogStoreView'])->name('website.search.log.view');
-
+    Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
+    Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
@@ -4168,7 +4172,12 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 
+    Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
+    Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
+    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
     Route::resource('event', EventController::class);
+    Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
+    Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
@@ -4895,6 +4904,8 @@ Route::get('magento/command/search', [MagentoCommandController::class, 'search']
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
 Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
+Route::post('magento/command/run-mysql-command', [MagentoCommandController::class, 'runMySqlQuery'])->name('magento.command.runMySqlQuery');
+Route::get('magento/command/run-mysql-command-logs', [MagentoCommandController::class, 'mySqlQueryLogs'])->name('magento.command.mySqlQueryLogs');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
@@ -5212,7 +5223,8 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
-    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+    Route::get('request', [ChatGPTController::class, 'requestApi'])->name('chatgpt.request');
+    Route::post('response', [ChatGPTController::class, 'getResponse'])->name('chatgpt.response');
 });
 
 // Create magento user.
@@ -5229,9 +5241,9 @@ Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleS
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);   
+    Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
 });
- 
+
 /** Website Monitor */
 Route::middleware('auth')->group(function () {
     Route::resource('monitor-server', MonitorServerController::class);

@@ -8,6 +8,7 @@ use App\StoreWebsite;
 use App\MagentoCommand;
 use Illuminate\Http\Request;
 use App\MagentoCommandRunLog;
+use App\MysqlCommandRunLog;
 use App\AssetsManager;
 use App\LogRequest;
 
@@ -139,6 +140,342 @@ class MagentoCommandController extends Controller
             $msg = $e->getMessage();
 
             return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    
+    public function runMySqlQuery(Request $request)
+    {
+         if(!isset($request->websites_ids) && empty($request->websites_ids)){
+            return response()->json(['code' => 500, 'message' => 'Please Select Websites']);
+        }
+        if(!isset($request->command) && $request->command==''){
+            return response()->json(['code' => 500, 'message' => 'Please Entr MySql Query']);
+        }
+
+        $command= $request->command;
+        $websites_ids= $request->websites_ids;
+        $cmd = 'mysql -u root -e "'.$command.'"';
+        try {
+            \Log::info("Start Run Mysql Query");
+            $isError=0;
+            foreach($websites_ids as $websites_id){
+                if ($websites_id == 'ERP') {
+                    \Log::info("Start Rum Mysql Query for website_id: ERP");
+                    $job_id='';
+                    $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
+                    if($assetsmanager && $assetsmanager->client_id!=''){
+                        \Log::info("client_id: ".$assetsmanager->client_id);
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            //'client_id' => $client_id, 
+                            'script' => base64_encode($cmd), 
+                           // 'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                            'is_sudo' => true 
+                        ]));
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        \Log::info("API result: ".$result);
+                        if (curl_errno($ch)) {
+                            \Log::info("API Error: ".curl_error($ch));
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => 'ERP',
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => curl_error($ch),
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+                        \Log::info("API Response: ".$result);
+                        $response = json_decode($result);
+                        
+                        curl_close($ch);
+
+                        if(isset($response->errors)){ 
+                            $message='';
+                            foreach($response->errors as $error){
+                                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                            }
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => 'ERP',
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => $message,
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+
+                        if(isset($response->data) && isset($response->data->jid) ){
+                            $job_id=$response->data->jid;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => 'ERP',
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => $result,
+                                    'job_id' => $job_id,
+                                    'status' => 'Success',
+                                ]
+                            );
+                        }else{
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => 'ERP',
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => 'Job Id not found in response',
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+
+
+                    }else{
+                        $isError=1;
+                        MysqlCommandRunLog::create(
+                            [
+                                'user_id' => \Auth::user()->id ?? '',
+                                'website_ids' => 'ERP',
+                                'server_ip' => '',
+                                'command' => $cmd,
+                                'response' => 'Assets Manager & Client id not found for this website!',
+                                'status' => 'Error',
+                            ]
+                        );
+                    }
+
+                    \Log::info("End Rum Mysql Query for website_id: ERP");
+
+                }else{
+                    \Log::info("Start Rum Mysql Query for website_id:".$websites_id);
+                    $websites = StoreWebsite::where('id',$websites_id)->first();
+                    if (!$websites) {
+                        $isError=1;
+                        MysqlCommandRunLog::create(
+                            [
+                                'user_id' => \Auth::user()->id ?? '',
+                                'website_ids' => $websites_id,
+                                'server_ip' => '',
+                                'command' => $cmd,
+                                'response' => 'The website is not found!',
+                                'status' => 'Error',
+                            ]
+                        );
+                    }
+                    $assetsmanager = AssetsManager::where('website_id', $websites_id)->first();
+                    if($assetsmanager && $assetsmanager->client_id!=''){
+                        \Log::info("client_id: ".$assetsmanager->client_id);
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            //'client_id' => $client_id, 
+                            'script' => base64_encode($cmd), 
+                           // 'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
+                            'is_sudo' => true 
+                        ]));
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        \Log::info("API result: ".$result);
+                        if (curl_errno($ch)) {
+                            \Log::info("API Error: ".curl_error($ch));
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => $websites_id,
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => curl_error($ch),
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+                        \Log::info("API Response: ".$result);
+                        $response = json_decode($result);
+                        
+                        curl_close($ch);
+
+                        if(isset($response->errors)){ 
+                            $message='';
+                            foreach($response->errors as $error){
+                                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                            }
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => $websites_id,
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => $message,
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+
+                        if(isset($response->data) && isset($response->data->jid) ){
+                            $job_id=$response->data->jid;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => $websites_id,
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => $result,
+                                    'job_id' => $job_id,
+                                    'status' => 'Success',
+                                ]
+                            );
+                        }else{
+                            $isError=1;
+                            MysqlCommandRunLog::create(
+                                [
+                                    'user_id' => \Auth::user()->id ?? '',
+                                    'website_ids' => $websites_id,
+                                    'server_ip' => $assetsmanager->ip,
+                                    'command' => $cmd,
+                                    'response' => 'Job Id not found in response',
+                                    'status' => 'Error',
+                                ]
+                            );
+                        }
+                    }else{
+                        $isError=1;
+                        MysqlCommandRunLog::create(
+                            [
+                                'user_id' => \Auth::user()->id ?? '',
+                                'website_ids' => $websites_id,
+                                'server_ip' => '',
+                                'command' => $cmd,
+                                'response' => 'Assets Manager & Client id not found for this website!',
+                                'status' => 'Error',
+                            ]
+                        );
+                    }
+                    \Log::info("End Rum Mysql Query for website_id:".$websites_id);
+
+                }
+            }
+            \Log::info("End Run Mysql Query");
+            if($isError){
+                return response()->json(['code' => 500, 'message' => 'MySql Query Run Failed! Please check the command\'s preview response for more information']);
+            }
+            
+            return response()->json(['code' => 200, 'message' => 'MySql Query Run successfully! Please check the command\'s preview response for more information']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::info("Run Mysql Query Error ".$msg);
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function mySqlQueryLogs()
+    {
+        try {
+            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $mysqlCommandRunLog = MysqlCommandRunLog::with(['website','user'])->latest()->paginate($limit)->appends(request()->except(['page']));
+            
+            
+            $assetsmanager = AssetsManager::all();
+            $websites = StoreWebsite::all();
+            $users = User::all();
+            foreach($mysqlCommandRunLog as $logs){
+                
+                if($logs->website_ids !='' && $logs->job_id!=''){
+                    
+                    if($logs->website_ids=='ERP'){
+                        $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
+                    }else{
+                        $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                    }
+                    
+                    if($assetsmanager && $assetsmanager->client_id!=''){
+                        $client_id=$assetsmanager->client_id;
+                        $job_id=$logs->job_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        //$headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        if (curl_errno($ch)) {
+                            
+                        }
+                        $response = json_decode($result);
+                        \Log::info("API Response: ".$result);
+                        if(isset($response->data) && isset($response->data->result) ){
+                            $logs->status=$response->data->status;
+                            $result=$response->data->result;
+                            $message='';
+                            if(isset($result->stdout) && $result->stdout!=''){
+                                $message.='Output: '.$result->stdout;
+                            }
+                            if(isset($result->stderr) && $result->stderr!=''){
+                                $message.='Error: '.$result->stderr;
+                            }
+                            if(isset($result->summary) && $result->summary!=''){
+                                $message.='summary: '.$result->summary;
+                            }
+                            if($message!=''){
+                                $logs->response=$message;
+                            }
+                        }
+
+                        curl_close($ch);
+                    }
+                        
+                    
+                } 
+            }
+            return view('magento-command.mysql-query-logs', compact('mysqlCommandRunLog', 'websites', 'users'));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return redirect()->back()->withErrors($msg);
         }
     }
 

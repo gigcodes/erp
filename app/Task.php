@@ -431,7 +431,7 @@ class Task extends Model
             $newStartDate = Carbon::parse($new);
             $estimateDate = Carbon::parse($this->due_date);
             if ($newStartDate->gte($estimateDate)) {
-                throw new Exception('Start date must be less then Estimate date.');
+                throw new Exception('Estimate start date time must be less then Estimate end date time.');
             }
         }
 
@@ -439,10 +439,10 @@ class Task extends Model
         if ($count) {
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
         } else {
-            $this->start_date = $new;
-            $this->save();
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 1);
         }
+        $this->start_date = $new;
+        $this->save();
     }
 
     public function updateDueDate($new)
@@ -453,7 +453,7 @@ class Task extends Model
             $startDate = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
             if ($newEstimateDate->lte($startDate)) {
-                throw new Exception('Estimate date must be greater then start date.');
+                throw new Exception('Estimate end date time must be greater then Estimate start date time.');
             }
         }
 
@@ -461,10 +461,10 @@ class Task extends Model
         if ($count) {
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
         } else {
-            $this->due_date = $new;
-            $this->save();
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
         }
+        $this->due_date = $new;
+        $this->save();
     }
 
     public static function getMessagePrefix($obj)

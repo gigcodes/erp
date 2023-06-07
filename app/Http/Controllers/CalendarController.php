@@ -38,6 +38,9 @@ class CalendarController extends Controller
             if($event == null) {
                 throw new Exception("Event not found");
             }
+            if($event->event_type == "PR") {
+                throw new Exception("This is not a public event");
+            }
             $availableDays = [];
             if($event->eventAvailabilities) {
                 $availableDays = $event->eventAvailabilities->pluck('numeric_day')->toArray();
@@ -59,8 +62,38 @@ class CalendarController extends Controller
                 "schedule_date" => $request->scheduleDate,
                 "event_id" => $request->event_id
             ])->get()->pluck("start_at")->toArray();
-                
 
+            // Private event slots also an occupied slots. 
+            $userPrivateEvents = Event::join('event_availabilities', 'event_availabilities.event_id', '=', 'events.id')
+                ->where('user_id', $event->user_id)
+                ->where('event_type', "PR")
+                ->where(function ($query) use ($request) {
+                    $query->where([ 
+                            ["start_date", "<=", $request->scheduleDate], 
+                            ['end_date', '>=', $request->scheduleDate] 
+                        ])
+                        ->orWhere([
+                            ['start_date', '<=', "$request->scheduleDate"],
+                            ['end_date', '=', NULL] 
+                        ]);
+                })
+                ->where('numeric_day', $request->day)
+                ->get();
+
+            if($userPrivateEvents) {
+                foreach ($userPrivateEvents as $userPrivateEvent) {
+                    $pr_startat = Carbon::parse($userPrivateEvent->start_at);
+                    $pr_endat = Carbon::parse($userPrivateEvent->end_at);
+                    if($pr_startat->lte($pr_endat)) {
+                        while ($pr_startat->lt($pr_endat)) {
+                            $occupiedSlot[] = $pr_startat->toTimeString();
+                            // Here I am using public event duration_in_min instead of private event duration_in_min. 
+                            // Because on that time all the public event slots should be occuiped. 
+                            $pr_startat->addMinutes($event->duration_in_min ?? 30);
+                        }
+                    }
+                }
+            }
 
             $slots = [];
             $c_startat = Carbon::parse($availability->start_at);
