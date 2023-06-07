@@ -297,7 +297,7 @@ class WebsiteLogController extends Controller
     public function searchWebsiteLogStoreView(Request $request)
     {
         try {
-            
+
             $dataArr = new WebsiteLog();
             if ($request->search_error) {
                 $dataArr = $dataArr->where('error', 'LIKE', '%' . $request->search_error . '%');
@@ -305,8 +305,8 @@ class WebsiteLogController extends Controller
             if ($request->search_type) {
                 $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
             }  
-            if ($request->website_id) {
-                $dataArr = $dataArr->where('website_id', 'LIKE', '%' . $request->website_id . '%');
+            if ($request->website_ids) {
+                $dataArr = $dataArr->WhereIn('id', $request->website_ids);
             }
             if ($request->date) {
                 $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
@@ -314,7 +314,7 @@ class WebsiteLogController extends Controller
             $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination',10));
             $search_error = $request->search_error;
             $search_type = $request->search_type;
-            $website_id = $request->website_id;
+            $website_id = $request->website_ids;
             $date = $request->date;
 
             return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type', 'website_id', 'date'));
