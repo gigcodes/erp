@@ -364,7 +364,7 @@ class EventController extends Controller
         ->whereIn("payment_cycle", ["Monthly", "Yearly", "One time"])
         ->whereNotNull('due_date')
         ->where(function ($query) use ($start, $end) {
-            $query->orWhereBetween('due_date', [$start, $end])
+            $query->WhereBetween('due_date', [$start, $end])
                 ->orWhere([
                     ["due_date", "<=", $start],
                 ]);
