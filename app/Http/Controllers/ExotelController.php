@@ -6,6 +6,7 @@ use App\Customer;
 use App\CallRecording;
 use Illuminate\Http\Request;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use App\LogRequest;
 
 class ExotelController extends FindByNumberController
 {
@@ -22,7 +23,7 @@ class ExotelController extends FindByNumberController
 
         $exotel_sid = 'sololuxury'; // Your Exotel SID - Get it from here: http://my.exotel.in/settings/site#api-settings
         $exotel_token = '815a3a4dbf47e348d5f45c19c4067de14c120046'; // Your exotel token - Get it from here: http://my.exotel.in/settings/site#api-settings
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = 'https://' . $exotel_sid . ':' . $exotel_token . '@twilix.exotel.in/v1/Accounts/' . $exotel_sid . '/Calls/connect';
 
         $ch = curl_init();
@@ -40,6 +41,7 @@ class ExotelController extends FindByNumberController
 
         curl_close($ch);
 
+        LogRequest::log($startTime, $url, 'GET', json_encode($post_data), json_decode($http_result), $http_code, \App\Http\Controllers\ExotelController::class, 'Exotelcall');
         echo 'Response = ' . print_r($http_result);
     }
 

@@ -13,6 +13,7 @@ use App\MagentoSettingNameLog;
 use App\MagentoSettingPushLog;
 use Illuminate\Support\Facades\Auth;
 use App\AssetsManager;
+use App\LogRequest;
 
 class MagentoSettingsController extends Controller
 {
@@ -177,6 +178,11 @@ class MagentoSettingsController extends Controller
                     }
 
                     curl_close($ch);
+                    $url = "";
+                    $parameters = [];
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                    LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'getLogs');
                 }
                     
                 
@@ -462,6 +468,10 @@ class MagentoSettingsController extends Controller
                             $response = json_decode($result);
 
                             curl_close($ch);
+                            $url =  url("/") ."magento-admin-settings/update";
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
                             if(isset($response->errors)){ 
                                 $message='';
@@ -593,6 +603,10 @@ class MagentoSettingsController extends Controller
                             $response = json_decode($result);
 
                             curl_close($ch);
+                            $url =  url("/") ."magento-admin-settings/update";
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
                             if(isset($response->errors)){ 
                                 $message='';
@@ -727,6 +741,11 @@ class MagentoSettingsController extends Controller
                             $response = json_decode($result);
 
                             curl_close($ch);
+                            $url = "magento-admin-settings/update";
+                            $parameters = [];
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
                             if(isset($response->errors)){ 
                                 $message='';
@@ -848,6 +867,10 @@ class MagentoSettingsController extends Controller
                 $response = json_decode($result);
                 
                 curl_close($ch);
+                $parameters = [];
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
                 if(isset($response->errors)){ 
                     $message='';
@@ -975,6 +998,7 @@ class MagentoSettingsController extends Controller
                         }
                     }
                     curl_close($ch);
+                     
                 }
             }else{
                 $cmdOutputs = json_decode($log['command_output']);
@@ -1060,6 +1084,11 @@ class MagentoSettingsController extends Controller
                                                     $response = json_decode($result);
 
                                                     curl_close($ch);
+                                                    
+                                                    $parameters = [];
+                                                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                                                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
                                                     if(isset($response->errors)){ 
                                                         $message='';
@@ -1165,6 +1194,10 @@ class MagentoSettingsController extends Controller
                                                     $response = json_decode($result);
 
                                                     curl_close($ch);
+                                                    $parameters = [];
+                                                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                                                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
 
                                                     if(isset($response->errors)){ 
                                                         $message='';
@@ -1276,6 +1309,9 @@ class MagentoSettingsController extends Controller
                                                     $response = json_decode($result);
 
                                                     curl_close($ch);
+                                                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);                               
+                                                    LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
 
                                                     if(isset($response->errors)){ 
                                                         $message='';

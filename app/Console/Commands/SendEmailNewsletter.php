@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Newsletter;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class SendEmailNewsletter extends Command
 {
@@ -39,7 +40,7 @@ class SendEmailNewsletter extends Command
     public function handle()
     {
         //
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $newsletters = Newsletter::whereNull('sent_on')->where('sent_at', '!=', '')->get();
         //$newsletters = Newsletter::where("id",2)->get();
 
@@ -80,6 +81,10 @@ class SendEmailNewsletter extends Command
                             ]);
 
                             $response = curl_exec($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $url ="https://wetransfer.com/api/v4/transfers/";
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SendEmailNewsletter::class, 'handle');
+
                             $response = json_decode($response);
                             $newsletter->sent_on = date('Y-m-d H:i:s');
                             $newsletter->save();

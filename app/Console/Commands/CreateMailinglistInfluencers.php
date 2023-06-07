@@ -11,6 +11,7 @@ use  Illuminate\Console\Command;
 use  App\MaillistCustomerHistory;
 use App\Loggers\MailinglistIinfluencersLogs;
 use App\Loggers\MailinglistIinfluencersDetailLogs;
+use App\LogRequest;
 
 class CreateMailinglistInfluencers extends Command
 {
@@ -136,6 +137,9 @@ class CreateMailinglistInfluencers extends Command
 
                             $response = curl_exec($curl);
 
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
                             curl_close($curl);
                             $res = json_decode($response);
                             if ($res->status == 1) {
@@ -240,6 +244,9 @@ class CreateMailinglistInfluencers extends Command
                                 'response_data' => json_encode($response),
 
                             ]);
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
                             if (curl_errno($ch)) {
                                 echo 'Error:' . curl_error($ch);
 
@@ -416,6 +423,9 @@ class CreateMailinglistInfluencers extends Command
 
         $response = curl_exec($curl);
 
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
         curl_close($curl);
         \Log::info($response);
 

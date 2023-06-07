@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\NegativeCouponResponse;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class NegativeCouponResponses extends Command
 {
@@ -39,6 +40,7 @@ class NegativeCouponResponses extends Command
     public function handle()
     {
         try {
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $storeWebsites = \App\StoreWebsite::select('store_websites.id', 'store_websites.api_token', 'store_websites.website')->where('api_token', '!=', '')->where('website_source', 'magento')->get();
             foreach ($storeWebsites as $storeWebsite) {
                 $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
@@ -67,6 +69,9 @@ class NegativeCouponResponses extends Command
 
                 // Close cURL
                 curl_close($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $url ="https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
+                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\NegativeCouponResponses::class, 'handle');
 
                 // Check for errors
                 if ($err) {

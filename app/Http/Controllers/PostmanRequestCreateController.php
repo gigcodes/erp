@@ -19,6 +19,7 @@ use App\PostmanRequestCreate;
 use App\PostmanRequestHistory;
 use App\PostmanRequestJsonHistory;
 use Illuminate\Support\Facades\Http;
+use App\LogRequest;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -1106,6 +1107,10 @@ class PostmanRequestCreateController extends Controller
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     //dd($http_code);
                     curl_close($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                    $url =  url("/") ."postman/send/request";
+                    LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
                     $response = $response ? json_encode($response) : 'Not found response';
                     //dd($response);
                     PostmanResponse::create(
@@ -1153,6 +1158,10 @@ class PostmanRequestCreateController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = url("/");
+        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'fireApi');
 
         return $response;
     }

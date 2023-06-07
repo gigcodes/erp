@@ -9,6 +9,7 @@ use App\StoreViewsGTMetrixUrl;
 use Illuminate\Console\Command;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class GTMetrixManageQueueData extends Command
 {
@@ -51,6 +52,7 @@ class GTMetrixManageQueueData extends Command
             $lists = $query->where('process', 1)->get();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the GT matrix account and url information']);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             if ($lists) {
                 foreach ($lists as $list) {
@@ -86,6 +88,9 @@ class GTMetrixManageQueueData extends Command
 
                             $response = curl_exec($curl);
                             curl_close($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $url = "https://gtmetrix.com/api/2.0/status";
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
 
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
@@ -126,6 +131,9 @@ class GTMetrixManageQueueData extends Command
                                 $response = curl_exec($curl);
 
                                 curl_close($curl);
+                                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                                $url = "https://gtmetrix.com/api/2.0/status";
+                                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
                                 // decode the response
                                 $data = json_decode($response);
                                 $credits = $data->data->attributes->api_credits;

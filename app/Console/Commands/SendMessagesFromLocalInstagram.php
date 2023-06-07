@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use InstagramAPI\Instagram;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class SendMessagesFromLocalInstagram extends Command
 {
@@ -40,6 +41,7 @@ class SendMessagesFromLocalInstagram extends Command
     {
         $ch = curl_init();
         $username = Config('instagram.admin_account');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $url = 'https://erp.theluxuryunlimited.com/api/instagram/get-comments-list/' . $username;
 
@@ -87,6 +89,8 @@ class SendMessagesFromLocalInstagram extends Command
 
                 // execute!
                 $response = curl_exec($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SendMessagesFromLocalInstagram::class, 'handle');
 
                 // close the connection, release resources used
                 curl_close($ch);

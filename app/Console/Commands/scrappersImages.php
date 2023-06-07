@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\scraperImags;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class scrappersImages extends Command
 {
@@ -50,6 +51,7 @@ class scrappersImages extends Command
     private function downloadImages($website = null)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         try {
             // create & initialize a curl session
@@ -93,6 +95,9 @@ class scrappersImages extends Command
             // close curl resource to free up system resources
             // (deletes the variable made by curl_init)
             curl_close($curl);
+            $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
         } catch (\Throwable $th) {
             $this->output->write($th->getMessage(), true);
 
@@ -105,6 +110,7 @@ class scrappersImages extends Command
     public function saveBase64Image($file_name, $base64Image)
     {
         try {
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $curl = curl_init();
             // set our url with curl_setopt()
             curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL_BASE64') . $base64Image);
@@ -115,6 +121,9 @@ class scrappersImages extends Command
             // curl_exec() executes the started curl session
             // $output contains the output string
             $output = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $url ="https://wetransfer.com/api/v4/transfers/";
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
 
             $output = json_decode($output);
 

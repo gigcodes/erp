@@ -20,6 +20,7 @@ use App\ReviewBrandList;
 //use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\LogRequest;
 
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -579,6 +580,9 @@ class ReviewController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
 
         if (! empty($err)) {
             return response()->json(['code' => 500, 'message' => 'Could not fetch response from server']);

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\AppAdsReport;
 use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class IosAdsReport extends Command
 {
@@ -39,6 +40,7 @@ class IosAdsReport extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
@@ -78,6 +80,10 @@ class IosAdsReport extends Command
                 $res = json_decode($result, true);
 
                 curl_close($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $url ="https://api.appfigures.com/v2/reports/ads?networks=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
+                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\IosAdsReport::class, 'handle');
+
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api called."]);
                 print_r($res);
                 if ($res) {

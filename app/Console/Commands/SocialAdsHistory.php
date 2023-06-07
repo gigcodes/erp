@@ -9,6 +9,7 @@ use App\Social\SocialConfig;
 use App\Helpers\SocialHelper;
 use App\Social\SocialAdHistory;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class SocialAdsHistory extends Command
 {
@@ -50,6 +51,7 @@ class SocialAdsHistory extends Command
     {
         $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
         $adAccountCollection = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($socialConfigs as $config) {
             $this->fb = new Facebook([
@@ -88,6 +90,9 @@ class SocialAdsHistory extends Command
             $resp = curl_exec($ch);
             $resp = json_decode($resp);
             curl_close($ch);
+            $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $query, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
 
             $resp->token = $adaccountAds['config_id'];
 

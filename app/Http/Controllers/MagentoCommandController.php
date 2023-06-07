@@ -9,6 +9,7 @@ use App\MagentoCommand;
 use Illuminate\Http\Request;
 use App\MagentoCommandRunLog;
 use App\AssetsManager;
+use App\LogRequest;
 
 class MagentoCommandController extends Controller
 {
@@ -228,6 +229,9 @@ class MagentoCommandController extends Controller
                         }
 
                         curl_close($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
                     }
                         
                     

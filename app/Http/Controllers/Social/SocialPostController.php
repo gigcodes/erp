@@ -18,6 +18,7 @@ use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Http\Controllers\Controller;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class SocialPostController extends Controller
 {
@@ -779,6 +780,7 @@ class SocialPostController extends Controller
     {
         $token = $config->token;
         $page_id = $config->page_id;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -789,6 +791,8 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'getInstaID');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['instagram_business_account'])) {
@@ -805,6 +809,7 @@ class SocialPostController extends Controller
         $page_id = $config->page_id;
         $post_id = $post->id;
         $caption = $message;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $postfields = "image_url=$mediaurl&caption=$caption&access_token=$token";
         $url = "https://graph.facebook.com/v15.0/$insta_id/media";
 
@@ -832,6 +837,8 @@ class SocialPostController extends Controller
         // curl_setopt($ch, CURLOPT_POST, 1);
         // curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         // $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['id'])) {
@@ -850,7 +857,14 @@ class SocialPostController extends Controller
         $post_id = $post->id;
         $caption = $post->post_body;
         $postfields = "creation_id=$media_id&access_token=$token";
+        $request_params = [
+            'access_token' => $token,
+            'creation_id' => $media_id,
+            'caption' => $caption,
+        ];
+
         $url = "https://graph.facebook.com/v12.0/$insta_id/media_publish";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -861,6 +875,8 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode($request_params), $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
         $resp = json_decode($resp, true);
 

@@ -16,6 +16,7 @@ use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
 use Spatie\Activitylog\Models\Activity;
 use App\WebsiteStoreViewsWebmasterHistory;
+use App\LogRequest;
 
 class GoogleWebMasterController extends Controller
 {
@@ -135,6 +136,7 @@ class GoogleWebMasterController extends Controller
         }
         $this->googleToken = $request->session()->get('token')['access_token'];
         $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
@@ -151,6 +153,10 @@ class GoogleWebMasterController extends Controller
             ],
         ]);
 
+        $parameters['updateSitesData'] = [
+            'sites' => $request->sites,
+            'crawls' => $request->crawls,
+        ];
         $response = curl_exec($curl);
         $response = json_decode($response);
 
@@ -158,6 +164,8 @@ class GoogleWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'updateSitesData');
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['key' => $this->googleToken, 'error' => $error_msg, 'type' => 'site_list'];
@@ -294,6 +302,7 @@ class GoogleWebMasterController extends Controller
         $url = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
 
         $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -323,7 +332,9 @@ class GoogleWebMasterController extends Controller
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForPageInspections');
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $pageUrl, 'error' => $error_msg, 'type' => 'url_inspections'];
@@ -339,6 +350,7 @@ class GoogleWebMasterController extends Controller
         $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
 
         $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -369,6 +381,8 @@ class GoogleWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForAnaylist');
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $error_msg, 'type' => 'search_analytics'];
@@ -406,7 +420,9 @@ class GoogleWebMasterController extends Controller
         ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
         ->get()->toArray();
         $google_acc = GoogleClientAccountMail::latest()->first();
+        $params = [];
         $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         foreach ($fetchStores as $key => $value) {
             $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
             $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
@@ -439,6 +455,9 @@ class GoogleWebMasterController extends Controller
             }
 
             curl_close($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
+
 
             if (! empty($response)) {
                 $history = [
@@ -494,7 +513,8 @@ class GoogleWebMasterController extends Controller
 
                 $google_acc = GoogleClientAccountMail::latest()->first();
                 $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
-
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                $parameters = [];
                 if ($token) {
                     $curl = curl_init();
                     //replace website name with code coming form site list
@@ -520,6 +540,8 @@ class GoogleWebMasterController extends Controller
                     }
 
                     curl_close($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster');
 
                     if (! empty($response)) {
                         $history = [
@@ -623,6 +645,7 @@ class GoogleWebMasterController extends Controller
             $token = $this->client->getAccessToken();
             $request->session()->put('token', $token);
             $request->session()->put('GOOGLE_CLIENT_MULTIPLE_KEYS', $GoogleClientAccount->GOOGLE_CLIENT_MULTIPLE_KEYS);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             //echo"<pre>";print_r($token);die;
             if (empty($token)) {
                 continue;
@@ -727,7 +750,9 @@ class GoogleWebMasterController extends Controller
                 }
             }
         }
-
+        $url = "https://www.googleapis.com/webmasters/v3/sites/";
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
         return redirect()->route('googlewebmaster.index');
     }
 
@@ -840,8 +865,10 @@ class GoogleWebMasterController extends Controller
                         if (curl_errno($curl)) {
                             $error_msg = curl_error($curl);
                         }
-
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         curl_close($curl);
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url_for_sites, 'POST', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'deleteSiteFromWebmaster');
 
                         if (! empty($response)) {
                             \App\WebmasterLog::create([

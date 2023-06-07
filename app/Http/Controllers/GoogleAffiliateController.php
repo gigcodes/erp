@@ -7,6 +7,7 @@ use App\Setting;
 use App\Affiliates;
 use Illuminate\Http\Request;
 use App\Mails\Manual\AffiliateEmail;
+use App\LogRequest;
 
 class GoogleAffiliateController extends Controller
 {
@@ -403,7 +404,7 @@ class GoogleAffiliateController extends Controller
         $id = $request->input('id');
 
         $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (is_null($searchKeywords)) {
             // Return
             return response()->json([
@@ -412,7 +413,7 @@ class GoogleAffiliateController extends Controller
         } else {
             $postData = ['data' => $searchKeywords];
             $postData = json_encode($postData);
-
+            $url = url("/") . "/affiliate/scrap";
             $curl = curl_init();
             curl_setopt_array($curl, [
                 CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails',
@@ -428,9 +429,10 @@ class GoogleAffiliateController extends Controller
                 CURLOPT_POSTFIELDS => "$postData",
             ]);
             $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $err = curl_error($curl);
             curl_close($curl);
-
+            LogRequest::log($startTime, $url, 'GET', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleAffiliateController::class, 'callScraper');
             // Return
             return response()->json([
                 'success - scrapping initiated',

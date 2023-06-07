@@ -10,6 +10,7 @@ use App\MagentoDevScripUpdateLog;
 use Illuminate\Support\Facades\Artisan;
 use App\AssetsManager;
 use Illuminate\Support\Facades\Log;
+use App\LogRequest;
 
 class MagentoRunCommand extends Command
 {
@@ -44,6 +45,7 @@ class MagentoRunCommand extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info("Start Rum Magento Command");
         try {
             $magCom = MagentoCommand::find($this->argument('id'));
@@ -96,6 +98,8 @@ class MagentoRunCommand extends Command
                     $response = json_decode($result);
                     
                     curl_close($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                     
                     if(isset($response->errors)){ 
                         foreach($response->errors as $error){
@@ -134,6 +138,8 @@ class MagentoRunCommand extends Command
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                         $response = json_decode($result);
                         
                         if(isset($response->data) && isset($response->data->result) ){
@@ -250,6 +256,8 @@ class MagentoRunCommand extends Command
                             $response = json_decode($result);
                             
                             curl_close($ch);
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                             
                             if(isset($response->errors)){ 
                                 foreach($response->errors as $error){
@@ -289,6 +297,8 @@ class MagentoRunCommand extends Command
 
                                 $result = curl_exec($ch);
                                 $response = json_decode($result);
+                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                             
                                 if(isset($response->data) && isset($response->data->result) ){
                                     $result=$response->data->result;
