@@ -40,10 +40,10 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="10%">HOST/IP</th>
-                            <th width="10%">Check Name</th>
-                            <th width="10%">Type</th>
-                            <th width="10%">Status</th>
+                            <th width="12%">HOST/IP</th>
+                            <th width="12%">Check Name</th>
+                            <th width="8%">Type</th>
+                            <th width="5%">Status</th>
                             <th width="10%">Root cause</th>
                             <th width="10%">Response Time</th>
                             <th width="10%">Last Online</th>
@@ -55,10 +55,19 @@
                         @foreach ($monitorServers as $key => $monitorServer)
                             <tr class="quick-website-task-{{ $monitorServer->id }}" data-id="{{ $monitorServer->id }}">
                                 <td id="monitor_server_id">{{ $monitorServer->id }}</td>
-                                <td>{{ $monitorServer->ip }}</td>
-                                <td>{{ $monitorServer->label }}</td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                        {{ strlen($monitorServer->ip) > 15 ? substr($monitorServer->ip, 0, 15).'...' :  $monitorServer->ip }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ $monitorServer->ip }}
+                                    </span>
+                                </td>
+                                <td style="word-break: break-all">{{ $monitorServer->label }}</td>
                                 <td>{{ $monitorServer->type }}</td>
-                                <td>{{ $monitorServer->status }}</td>
+                                <td>
+                                    <span class="badge {{ $monitorServer->status == 'off' ? "badge-danger" : "badge-success"}}">{{ $monitorServer->status }}</span>
+                                </td>
                                 <td>{{ $monitorServer->error }}</td>
                                 <td>{{ $monitorServer->rtime }}</td>
                                 <td>{{ $monitorServer->last_online }}</td>
