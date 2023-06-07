@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendMessageToSelected;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class RunMessageQueue extends Command
 {
@@ -193,6 +194,7 @@ class RunMessageQueue extends Command
         $instance = $this->getInstance($number);
         $instanceId = isset($instance['instance_id']) ? $instance['instance_id'] : 0;
         $token = isset($instance['token']) ? $instance['token'] : 0;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $waiting = 0;
 
@@ -215,6 +217,10 @@ class RunMessageQueue extends Command
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $url ="https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\RunMessageQueue::class, 'handle');
+
 
             if ($err) {
                 // throw some error if you want

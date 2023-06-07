@@ -15,6 +15,7 @@ use Plank\Mediable\Media;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use App\LogRequest;
 
 class ImageController extends Controller
 {
@@ -708,7 +709,10 @@ class ImageController extends Controller
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
-
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $url = url("/") . "images/searchQueue";
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
             $messages = 'new search queue added successfuly';
 
             return Redirect::Back()

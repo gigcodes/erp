@@ -9,6 +9,7 @@ use App\Language;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\LogRequest;
 
 class SocialConfigController extends Controller
 {
@@ -65,6 +66,7 @@ class SocialConfigController extends Controller
         $fields = 'account_id,name,currency,balance,account_status,business_name,business_id';
 
         $url = 'https://graph.facebook.com/v15.0/me/adaccounts?fields=' . $fields;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -74,6 +76,8 @@ class SocialConfigController extends Controller
         ]);
         $response = curl_exec($ch);
         curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getadsAccountManager');
 
         $data = json_decode($response, true);
 
@@ -94,7 +98,7 @@ class SocialConfigController extends Controller
     {
         return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
         $curl = curl_init();
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = sprintf('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -109,12 +113,15 @@ class SocialConfigController extends Controller
 
         $response = json_decode(curl_exec($curl), true);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbToken');
     }
 
     public function getfbTokenBack(Request $request)
     {
         $code = $request['code'];
         $redirect = 'https://erpstage.theluxuryunlimited.com/social/config/fbtokenback';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $curl = curl_init();
 
@@ -132,6 +139,8 @@ class SocialConfigController extends Controller
 
         $response = json_decode(curl_exec($curl), true);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
 
         $curl = curl_init();
 
@@ -150,6 +159,8 @@ class SocialConfigController extends Controller
 
         $responseMe = json_decode(curl_exec($curl), true);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $responseMe, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
 
         $data['account_id'] = $responseMe['id'];
         $data['name'] = $responseMe['name'];
@@ -180,6 +191,7 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $data = $request->except('_token');
         $data['page_language'] = $request->page_language;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if ($request->platform == 'instagram') {
             $curl = curl_init();
 
@@ -198,6 +210,8 @@ class SocialConfigController extends Controller
 
             $response = json_decode(curl_exec($curl), true);
             curl_close($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'store');
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
@@ -246,6 +260,7 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (isset($request->adsmanager)) {
             $data['ads_manager'] = $request->adsmanager;
         }
@@ -267,6 +282,9 @@ class SocialConfigController extends Controller
             $response = json_decode(curl_exec($curl), true);
 
             curl_close($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'edit');
+
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;

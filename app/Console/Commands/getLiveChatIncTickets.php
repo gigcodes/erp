@@ -8,6 +8,7 @@ use App\CronJobReport;
 use App\Mails\Manual\TicketAck;
 use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class getLiveChatIncTickets extends Command
 {
@@ -41,6 +42,7 @@ class getLiveChatIncTickets extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $report = CronJobReport::create([
@@ -66,6 +68,9 @@ class getLiveChatIncTickets extends Command
 
             $response = curl_exec($curl);
 
+            $url = "https://api.livechatinc.com/v2/tickets";
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\getLiveChatIncTickets::class, 'handle');
             $result = json_decode($response, true);
             LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished. => https://api.livechatinc.com/v2/tickets"]);
 

@@ -13,6 +13,7 @@ use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Social\SocialAdCreative;
 use App\Http\Controllers\Controller;
+use App\LogRequest;
 
 class SocialAdCreativeController extends Controller
 {
@@ -141,6 +142,7 @@ class SocialAdCreativeController extends Controller
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
         $this->ad_acc_id = $config->ads_manager;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -163,6 +165,8 @@ class SocialAdCreativeController extends Controller
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adcreatives', $resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
 
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
@@ -205,6 +209,8 @@ class SocialAdCreativeController extends Controller
                     //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST',[], $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -377,6 +383,7 @@ class SocialAdCreativeController extends Controller
         $token = $config->page_token;
         $page_id = $config->page_id;
         $url = "https://graph.facebook.com/v15.0/$page_id?fields=posts&access_token=$token";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -387,6 +394,8 @@ class SocialAdCreativeController extends Controller
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
         $resp = json_decode($resp, true);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'getPostData');
         if (isset($resp['error'])) {
             return ['type' => 'error', 'message' => $resp['error']['message']];
         } else {
@@ -399,6 +408,7 @@ class SocialAdCreativeController extends Controller
         $token = $config->token;
         $page_id = $config->page_id;
         $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -410,6 +420,8 @@ class SocialAdCreativeController extends Controller
         $resp = curl_exec($ch);
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'getInstaID');
         if (isset($resp['instagram_business_account'])) {
             return $resp['instagram_business_account']['id'];
         }

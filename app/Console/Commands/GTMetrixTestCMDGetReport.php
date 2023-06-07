@@ -11,6 +11,7 @@ use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class GTMetrixTestCMDGetReport extends Command
 {
@@ -46,6 +47,7 @@ class GTMetrixTestCMDGetReport extends Command
     public function handle()
     {
         try {
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             \Log::info('GTMetrix :: Report cron start ');
@@ -91,6 +93,10 @@ class GTMetrixTestCMDGetReport extends Command
                 $err = curl_error($curl);
 
                 curl_close($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $url ="https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
+                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
+
                 if ($err) {
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting error from curl request']);
 
@@ -165,6 +171,9 @@ class GTMetrixTestCMDGetReport extends Command
                     if ($err) {
                         $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                     }
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $url ="https://gtmetrix.com/api/2.0/status";
+                    LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
@@ -207,6 +216,9 @@ class GTMetrixTestCMDGetReport extends Command
                                 $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                             }
                             curl_close($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $url ="https://gtmetrix.com/api/2.0/status";
+                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
                             // decode the response
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;

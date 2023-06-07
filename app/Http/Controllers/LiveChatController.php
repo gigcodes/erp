@@ -34,6 +34,7 @@ use App\Mails\Manual\PurchaseEmail;
 use Google\Cloud\Translate\TranslateClient;
 use App\Library\Watson\Model as WatsonManager;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class LiveChatController extends Controller
 {
@@ -465,6 +466,7 @@ class LiveChatController extends Controller
         $message = $request->message;
         $eventType = 'send_message';
         $customerDetails = Customer::find($chatId);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         //LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
 
@@ -522,6 +524,10 @@ class LiveChatController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $url = "https://api.livechatinc.com/v3.1/agent/action/send_event";
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'downloadFromURL');
 
         LiveChatEventLog::create(['customer_id' => $customer->id, 'thread' => $thread, 'store_website_id' => $websiteId, 'event_type' => $eventType, 'log' => 'Token used ' . \Cache::get('key')]);
         LiveChatEventLog::create(['customer_id' => $customer->id, 'thread' => $thread, 'store_website_id' => $websiteId, 'event_type' => $eventType, 'log' => $response]);
@@ -623,6 +629,11 @@ class LiveChatController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url ="";
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\LiveChatController::class, 'curlCall');
         echo $response;
     }
 
@@ -1243,6 +1254,11 @@ class LiveChatController extends Controller
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url ="";
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\LiveChatController::class, 'curlCall');
 
         return ['response' => $response, 'err' => $err];
     }
@@ -1420,6 +1436,10 @@ class LiveChatController extends Controller
 
         $response = curl_exec($curl);
 
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url =url("/");
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\LiveChatController::class, 'getLiveChatIncTickets');
         $result = json_decode($response, true);
         if (! empty($result['tickets'])) {
             return $result['tickets'];
@@ -1624,6 +1644,9 @@ class LiveChatController extends Controller
                         $result = curl_exec($ch);
 
                         curl_close($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Http\Controllers\LiveChatController::class, 'createCredits');
                         $status = 'failure';
                         if ($result == '[]') {
                             $customer->credit = $calc_credit;
@@ -2027,6 +2050,9 @@ class LiveChatController extends Controller
                         $result = curl_exec($ch);
                         $jsonResult = json_decode($result);
                         curl_close($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        LogRequest::log($startTime, $url, 'GET', [], $jsonResult, $httpcode, \App\Http\Controllers\LiveChatController::class, 'creditRepush');
                         $status = 'failure';
                         $code = 500;
                         if ($result == '[]') {

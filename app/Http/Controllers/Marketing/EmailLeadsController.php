@@ -10,6 +10,7 @@ use App\Mailinglist;
 use Illuminate\Http\Request;
 use App\Imports\EmailLeadImport;
 use App\Http\Controllers\Controller;
+use App\LogRequest;
 
 class EmailLeadsController extends Controller
 {
@@ -43,6 +44,7 @@ class EmailLeadsController extends Controller
 
         $batchArray = [];
         $i = 0;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (empty($listIdArray)) {
             return Redirect::back()->with('flash_type', 'alert-danger')->with('message', 'Mailinglist cant empty, please try again');
@@ -72,6 +74,8 @@ class EmailLeadsController extends Controller
                     return Redirect::back()->with('flash_type', 'alert-danger')->with('message', 'Contact already in list and/or does not exist' . curl_error($ch));
                 }
                 curl_close($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'GET', [], json_decode($result), $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
             }
         }
 
@@ -132,6 +136,8 @@ class EmailLeadsController extends Controller
     {
         $data = EmailLead::find($lead_id);
         $curl3 = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = "https://api.sendinblue.com/v3/contacts/' . $data->email";
         curl_setopt_array($curl3, [
             CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/' . $data->email,
             CURLOPT_RETURNTRANSFER => true,
@@ -150,7 +156,8 @@ class EmailLeadsController extends Controller
         $respw = curl_exec($curl3);
         curl_close($curl3);
         $respw = json_decode($respw);
-
+        $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $respw, $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
         $res = LeadList::destroy($lead_list_id);
         if ($res) {
             return redirect('emailleads')->with('flash_type', 'alert-success')->with('message', 'List has been unsubscribed.');

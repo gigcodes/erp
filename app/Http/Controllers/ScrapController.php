@@ -37,6 +37,7 @@ use App\Services\Products\ProductsCreator;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Products\GnbProductsCreator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class ScrapController extends Controller
 {
@@ -2040,6 +2041,9 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'restartNode');
             if ($response) {
                 return response()->json(['code' => 200, 'message' => 'Script Restarted']);
             } else {
@@ -2087,6 +2091,9 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getStatus');
             if ($response) {
                 $re = '/\d+/m';
                 $str = $response;
@@ -2121,6 +2128,9 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'updateNode');
             $duration = json_decode($response);
             $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null;
             if ($response) {
@@ -2149,6 +2159,9 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'killNode');
             if ($response) {
                 return response()->json(['code' => 200, 'message' => 'Script Restarted']);
             } else {
@@ -2342,6 +2355,10 @@ class ScrapController extends Controller
             $response = curl_exec($curl);
 
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getLatestLog');
+
 
             if (! empty($response)) {
                 $response = json_decode($response);

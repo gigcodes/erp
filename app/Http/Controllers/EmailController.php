@@ -28,6 +28,7 @@ use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailStatusChangeHistory;
 use App\ReplyCategory;
 use App\Reply;
+use App\LogRequest;
 
 class EmailController extends Controller
 {
@@ -896,6 +897,9 @@ class EmailController extends Controller
         $real = curl_exec($ch);
 
         $urlResponse = json_decode($real);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\EmailController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 

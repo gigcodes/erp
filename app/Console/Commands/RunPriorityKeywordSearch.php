@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\HashTag;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class RunPriorityKeywordSearch extends Command
 {
@@ -59,6 +60,7 @@ class RunPriorityKeywordSearch extends Command
     public function callCurl($url, $postData)
     {
         // call this endpoint
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -76,5 +78,7 @@ class RunPriorityKeywordSearch extends Command
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\RunPriorityKeywordSearch::class, 'callCurl');
     }
 }

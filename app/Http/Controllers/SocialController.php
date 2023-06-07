@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\Fields\AdFields;
+use App\LogRequest;
 
 class SocialController extends Controller
 {
@@ -44,6 +45,7 @@ class SocialController extends Controller
     public function getSchedules(Request $request)
     {
         $schedules = AdsSchedules::all();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $p = '';
         if ($request->has('date_from') && $request->has('date_to')) {
@@ -72,6 +74,8 @@ class SocialController extends Controller
 
         $resp = curl_exec($ch);
         $resp = json_decode($resp);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $query, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'getSchedules');
 
         $pagination = $resp->paging;
         $previous = $pagination->previous ?? '';
@@ -197,6 +201,9 @@ class SocialController extends Controller
         $resp = curl_exec($ch);
 
         $resp = collect(json_decode($resp)->data);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'getSchedules');
 
         $ads = $resp->map(function ($item) {
             if (isset($item->ads)) {
@@ -503,6 +510,10 @@ class SocialController extends Controller
         $resp = curl_exec($ch);
 
         $resp = json_decode($resp, true);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\SocialController::class, 'getImageByCurl');
 
         $insights = collect($resp['data']);
 
@@ -570,6 +581,10 @@ class SocialController extends Controller
                 $resp = json_decode($resp);
 
                 curl_close($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $parameters = [];
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'getImageByCurl');
 
                 $resp->token = $config->id;
 
@@ -639,6 +654,7 @@ class SocialController extends Controller
         $resp = '';
         $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
         $adAccountCollection = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($socialConfigs as $config) {
             $query = 'https://graph.facebook.com/v15.0/' . $config->ads_manager . '/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token=' . $config->token . '';
@@ -656,6 +672,9 @@ class SocialController extends Controller
             $resp = curl_exec($ch);
             $resp = json_decode($resp);
             curl_close($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'adCreativereport');
 
             $resp->token = $config->token;
 
@@ -698,6 +717,11 @@ class SocialController extends Controller
         $resp = curl_exec($ch);
         $resp = json_decode($resp);
         curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'adCreativepaginateReport');
+
         if (isset($resp->error->error_user_msg)) {
             Session::flash('message', $resp->error->error_user_msg);
         } elseif (isset($resp->error->message)) {
@@ -729,6 +753,10 @@ class SocialController extends Controller
         $resp = curl_exec($curl);
         $resp = json_decode($resp);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'changeAdStatus');
         if (isset($resp->error->message)) {
             Session::flash('message', $resp->error->message);
         } else {
@@ -787,6 +815,9 @@ class SocialController extends Controller
             $resp = curl_exec($curl);
             $resp = json_decode($resp);
             curl_close($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'storeCampaign');
             if (isset($resp->error->message)) {
                 Session::flash('message', $resp->error->message);
             } else {
@@ -821,6 +852,9 @@ class SocialController extends Controller
         $resp = json_decode($resp);
 
         curl_close($ch);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $query, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'createAdset');
         if (isset($resp->error->error_user_msg)) {
             Session::flash('message', $resp->error->error_user_msg);
         } elseif (isset($resp->error->message)) {
@@ -880,6 +914,9 @@ class SocialController extends Controller
 
             $resp = curl_exec($curl);
             $resp = json_decode($resp);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'storeAdset');
 
             curl_close($curl);
             if (isset($resp->error->error_user_msg)) {
@@ -917,6 +954,9 @@ class SocialController extends Controller
         $resp = json_decode($resp);
 
         curl_close($ch);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $query, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'createAd');
         if (isset($resp->error->message)) {
             Session::flash('message', $resp->error->message);
         }
@@ -960,6 +1000,9 @@ class SocialController extends Controller
             $resp = json_decode($resp);
 
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'storeAd');
 
             if (isset($resp->error->error_user_msg)) {
                 Session::flash('message', $resp->error->error_user_msg);

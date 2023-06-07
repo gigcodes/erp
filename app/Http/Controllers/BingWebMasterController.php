@@ -11,6 +11,7 @@ use App\BingSearchAnalytics;
 use Illuminate\Http\Request;
 use App\BingClientAccountMail;
 use Spatie\Activitylog\Models\Activity;
+use App\LogRequest;
 
 class BingWebMasterController extends Controller
 {
@@ -250,6 +251,7 @@ class BingWebMasterController extends Controller
         ];
         $params = 'client_id=' . $params['client_id'] . '&client_secret=' . $params['client_secret'] . '&grant_type=' . $params['grant_type'] . '&refresh_token=' . $params['refresh_token'];
         $url = 'https://www.bing.com/webmasters/oauth/token';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
@@ -273,6 +275,8 @@ class BingWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessToken');
 
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
@@ -343,7 +347,8 @@ class BingWebMasterController extends Controller
     private function getAccessTokenFromBing($params = [])
     {
         $url = 'https://www.bing.com/webmasters/oauth/token';
-        $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $curl = curl_init(); 
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -367,6 +372,9 @@ class BingWebMasterController extends Controller
         }
         curl_close($curl);
 
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessTokenFromBing');
+
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
         }
@@ -385,6 +393,7 @@ class BingWebMasterController extends Controller
     {
         $url = 'https://ssl.bing.com/webmaster/api.svc/json/' . $method;
         $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -408,6 +417,8 @@ class BingWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetDataFromBing');
 
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
