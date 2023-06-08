@@ -96,8 +96,7 @@ class scrappersImages extends Command
             // (deletes the variable made by curl_init)
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $parameters = [];
-            LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
+            LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
             curl_close($curl);         
         } catch (\Throwable $th) {
             $this->output->write($th->getMessage(), true);
@@ -124,8 +123,7 @@ class scrappersImages extends Command
             // $output contains the output string
             $output = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $parameters = [];
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
+            LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
 
             $output = json_decode($output);
 

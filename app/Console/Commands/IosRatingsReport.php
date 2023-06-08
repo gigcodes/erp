@@ -78,15 +78,15 @@ class IosRatingsReport extends Command
                 ]);
 
                 $result = curl_exec($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 // print($result);
                 $res = json_decode($result, true); //response decode
                 // print_r($res);
                 // print_r($res["apple:ios"]);
                 // print($res["apple:ios"]["downloads"]);
                 curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Console\Commands\IosRatingsReport::class, 'handle');
+               
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosRatingsReport::class, 'handle');
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);
 
                 if ($res) {

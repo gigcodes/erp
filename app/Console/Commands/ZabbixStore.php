@@ -6,6 +6,8 @@ use App\Host;
 use App\HostItem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\LogRequest;
+
 
 class ZabbixStore extends Command
 {
@@ -78,7 +80,9 @@ class ZabbixStore extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -95,7 +99,10 @@ class ZabbixStore extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'POST', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'login_api');
+
         $results = json_decode($result);
 
         if (isset($results[0]->result)) {
@@ -110,7 +117,9 @@ class ZabbixStore extends Command
     public function host_api($auth_key)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'host.get',
@@ -125,7 +134,9 @@ class ZabbixStore extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'host_api');
         $results = json_decode($result);
 
         return $results[0]->result;
@@ -134,7 +145,9 @@ class ZabbixStore extends Command
     public function item_api($auth_key, $hostid)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'item.get',
@@ -149,7 +162,10 @@ class ZabbixStore extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'item_api');
+
         $results = json_decode($result);
 
         return $results[0]->result;

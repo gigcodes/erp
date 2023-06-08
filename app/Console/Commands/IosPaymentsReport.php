@@ -81,7 +81,7 @@ class IosPaymentsReport extends Command
                 // print($result);
                 $res = json_decode($result, true); //response decoded
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);  
-                LogRequest::log($startTime, $url, 'POST', [],  $res, $httpcode, \App\Console\Commands\IosPaymentsReport::class, 'handle');
+                LogRequest::log($startTime, $url, 'GET', json_encode([]),  $res, $httpcode, \App\Console\Commands\IosPaymentsReport::class, 'handle');
                 curl_close($curl);   
 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);

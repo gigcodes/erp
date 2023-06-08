@@ -15,6 +15,7 @@ use App\Hubstaff\HubstaffProject;
 use App\Library\Hubstaff\Src\Hubstaff;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Validator;
+use App\LogRequest;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 // define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
@@ -558,6 +559,7 @@ class HubstaffController extends Controller
 
     public function get_data($url)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init($url);
 
         $app_token = '2YuxAoBm9PHUtruFNYTnA9HhvI3xMEGSU-EICdO5VoM';
@@ -578,7 +580,9 @@ class HubstaffController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), $result, $httpcode, \App\Console\Commands\HubstaffController::class, 'get_data');
 
         return json_decode($result);
     }

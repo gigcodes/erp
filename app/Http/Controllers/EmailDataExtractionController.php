@@ -680,7 +680,10 @@ class EmailDataExtractionController extends Controller
 
             $response = curl_exec($ch);
             preg_match_all('/^Location:(.*)$/mi', $response, $matches);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\EmailDataExtractionController::class, 'downloadFromURL');
             curl_close($ch);
+
 
             if (isset($matches[1])) {
                 if (isset($matches[1][0])) {
@@ -754,8 +757,7 @@ class EmailDataExtractionController extends Controller
 
         $urlResponse = json_decode($real); // respons decode
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $parameters = [];
-        LogRequest::log($startTime, $curlURL, 'GET',  json_encode($parameters) , $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
+        LogRequest::log($startTime, $curlURL, 'POST',  json_encode([]) , $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 

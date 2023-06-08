@@ -694,6 +694,7 @@ class ImageController extends Controller
             //call google image scraper
             $postData = ['data' => [['id' => $new->id, 'search_term' => $request->search_term]]];
             $postData = json_encode($postData);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $curl = curl_init();
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
             curl_setopt_array($curl, [
@@ -711,9 +712,7 @@ class ImageController extends Controller
             ]);
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $parameters = [];
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
             $err = curl_error($curl);
             curl_close($curl);
             

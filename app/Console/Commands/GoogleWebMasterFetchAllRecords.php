@@ -103,10 +103,9 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                         $check_error_response = json_decode($response);
 
-                        $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);
-                        $parameters =[];
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                         //here response alredy decode
-                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $check_error_response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+                        LogRequest::log($startTime, $url, 'GET', json_encode([]), $check_error_response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
 
                         curl_close($curl);
 
@@ -144,8 +143,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     $response1 = curl_exec($curl1);
                                     $err = curl_error($curl1);
                                     $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);                       
-                                    $parameters =[];
-                                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+                                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
             
 
                                     if ($err) {
@@ -217,8 +215,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                 $response = curl_exec($curl);
                 $response = json_decode($response); // here Response decode
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'updateSitesData');
+                LogRequest::log($startTime, $url_for_sites, 'GET', json_encode([]), $response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'updateSitesData');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
@@ -356,8 +353,7 @@ class GoogleWebMasterFetchAllRecords extends Command
 
         $response = json_decode($response); // response decoded
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $response, $httpcode, 'googleResultForAnaylist', \App\Console\Commands\GoogleWebMasterFetchAllRecords::class);
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), $response, $httpcode, 'googleResultForAnaylist', \App\Console\Commands\GoogleWebMasterFetchAllRecords::class);
 
         if (isset($response->error->message)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $response->error->message, 'type' => 'search_analytics'];

@@ -78,8 +78,7 @@ class RunPriorityKeywordSearch extends Command
         $response = curl_exec($curl);
         $err = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\RunPriorityKeywordSearch::class, 'callCurl');
+        LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Console\Commands\RunPriorityKeywordSearch::class, 'callCurl');
         curl_close($curl);
         
     }

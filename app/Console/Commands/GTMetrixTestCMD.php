@@ -111,6 +111,7 @@ class GTMetrixTestCMD extends Command
             if (! empty($storeViewList)) {
                 foreach ($storeViewList as $value) {
                     $webiteUrl = $value['magento_url'];
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $curl = curl_init();
                     $url = $webiteUrl."/pub/sitemap/sitemap_gb_en.xml";
 
@@ -128,9 +129,7 @@ class GTMetrixTestCMD extends Command
                     ]);
                     $response = curl_exec($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    $parameters = [];
-                    LogRequest::log($startTime, $webiteUrl, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMD::class, 'handle');
+                    LogRequest::log($startTime, $webiteUrl, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMD::class, 'handle');
 
                     $err = curl_error($curl);
                     curl_close($curl);

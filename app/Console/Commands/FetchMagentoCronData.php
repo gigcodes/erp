@@ -91,7 +91,6 @@ class FetchMagentoCronData extends Command
     public function getDataApi($url)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
@@ -100,8 +99,7 @@ class FetchMagentoCronData extends Command
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        $parameters = [];
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($server_output), $httpcode, 'getDataApi', \App\Console\Commands\FetchMagentoCronData::class);
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($server_output), $httpcode, 'getDataApi', \App\Console\Commands\FetchMagentoCronData::class);
 
         return  $server_output;
     }

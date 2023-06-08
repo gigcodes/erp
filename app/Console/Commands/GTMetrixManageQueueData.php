@@ -89,8 +89,7 @@ class GTMetrixManageQueueData extends Command
                             $response = curl_exec($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             $url = "https://gtmetrix.com/api/2.0/status";
-                            $parameters = [];
-                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
+                            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
                             curl_close($curl);
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
@@ -132,7 +131,7 @@ class GTMetrixManageQueueData extends Command
                                 $response = curl_exec($curl);
                                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                                 $parameters = [];
-                                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
+                                LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
                                 curl_close($curl);
                                
                                 // decode the response

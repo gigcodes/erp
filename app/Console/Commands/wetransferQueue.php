@@ -120,7 +120,10 @@ class wetransferQueue extends Command
 
                 $response = curl_exec($ch);
                 preg_match_all('/^Location:(.*)$/mi', $response, $matches);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
                 curl_close($ch);
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'downloadWetransferFiles');
 
                 if (isset($matches[1])) {
                     if (isset($matches[1][0])) {
@@ -191,8 +194,7 @@ class wetransferQueue extends Command
 
             $real = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $parameters = [];
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
 
             $real = json_decode($real);
 

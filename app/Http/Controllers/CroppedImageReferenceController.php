@@ -11,6 +11,8 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
+use App\LogRequest;
+
 
 class CroppedImageReferenceController extends Controller
 {
@@ -510,7 +512,7 @@ class CroppedImageReferenceController extends Controller
         $url = 'http://173.212.203.50:100/get-logs';
         $date = $request->date;
         $id = $request->id;
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $data = ['instance_id' => $id, 'date' => $date];
         $data = json_encode($data);
         $ch = curl_init($url);
@@ -519,6 +521,8 @@ class CroppedImageReferenceController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), $result, $httpcode, \App\Console\Commands\CroppedImageReferenceController::class, 'loginstance');
         echo $result;
     }
 

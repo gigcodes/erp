@@ -822,6 +822,7 @@ class HashtagController extends Controller
                 $email = $email_list[$count]['email'];
                 if (! \App\Mailinglist::where('email', $email)->where('website_id', $website->id)->first()) {
                     if (! isset($res->id)) {
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $curl = curl_init();
                         $data = [
                             'folderId' => 1,
@@ -845,10 +846,8 @@ class HashtagController extends Controller
                         ]);
 
                         $response = curl_exec($curl);
-                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        $parameters = [];
-                        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
+                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
                         \Log::info($response);
 
                         curl_close($curl);
@@ -884,6 +883,7 @@ class HashtagController extends Controller
 
         for ($count = 0; $count < count($email_list2); $count++) {
             $email = $email_list2[$count]['email'];
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $curl = curl_init();
             $data = [
                 'email' => $email,
@@ -907,9 +907,8 @@ class HashtagController extends Controller
                 ],
             ]);
             $response = curl_exec($curl);
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
             curl_close($curl);
             
         }
@@ -919,6 +918,7 @@ class HashtagController extends Controller
 
     public function loginstance(Request $request)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-logs';
         $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
         $id = $request->id;
@@ -942,6 +942,9 @@ class HashtagController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result1 = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($result1), $httpcode, \App\Http\Controllers\HashtagController::class, 'loginstance');
+
         $result = explode("\n", $result1);
 
         if (count($result) > 1) {

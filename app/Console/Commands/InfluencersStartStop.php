@@ -82,7 +82,7 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'stop_script');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'stop_script');
         curl_close($cURLConnection);    
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = $jsonArrayResponse->status;
@@ -101,7 +101,7 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'start_script');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'start_script');
         curl_close($cURLConnection);     
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = $jsonArrayResponse->status;
@@ -119,7 +119,7 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'get_status');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'get_status');
         curl_close($cURLConnection);       
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = isset($jsonArrayResponse->status) ? $jsonArrayResponse->status : '';

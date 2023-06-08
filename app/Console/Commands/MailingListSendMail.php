@@ -85,8 +85,7 @@ class MailingListSendMail extends Command
                     ]);
                     $result = curl_exec($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $parameters = [];
-                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Console\Commands\MailingListSendMail::class, 'handle');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($result), $httpcode, \App\Console\Commands\MailingListSendMail::class, 'handle');
                     curl_close($curl);
                     
                     LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request ended => https://api.sendinblue.com/v3/smtp/email"]);

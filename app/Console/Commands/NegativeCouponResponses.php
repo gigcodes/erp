@@ -66,8 +66,7 @@ class NegativeCouponResponses extends Command
                 $response = curl_exec($curl);
 
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\NegativeCouponResponses::class, 'handle');
+                LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\NegativeCouponResponses::class, 'handle');
 
                 // Get possible error
                 $err = curl_error($curl);

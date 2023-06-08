@@ -83,9 +83,8 @@ class MagentoConfigValue extends Command
 
                     // Get response
                     $response = curl_exec($curl);
-
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $url, 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
+                    LogRequest::log($startTime, $url, 'POST', json_encode($conf), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'handle');
 
                     $response = json_decode($response, true);
 

@@ -91,7 +91,7 @@ class SocialAdsHistory extends Command
             $resp = json_decode($resp); //response decodes
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $parameters = [];
-            LogRequest::log($startTime, $query, 'POST', json_encode($parameters), $resp, $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
+            LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
             curl_close($ch);
            
 

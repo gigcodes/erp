@@ -7,6 +7,7 @@ use App\HostItem;
 use Carbon\Carbon;
 use App\ZabbixHistory;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class ZabbixHostItems extends Command
 {
@@ -101,7 +102,9 @@ class ZabbixHostItems extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -117,7 +120,11 @@ class ZabbixHostItems extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'POST', json_encode($datas), json_decode($result), $httpcode, \App\Console\Commands\ZabbixHostItems::class, 'login_api');
+
         $results = json_decode($result);
 
         if (isset($results[0]->result)) {
@@ -132,7 +139,9 @@ class ZabbixHostItems extends Command
     public function item_api($auth_key, $hostid, $name)
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = env('ZABBIX_HOST'). '/api_jsonrpc.php';
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'item.get',
@@ -152,7 +161,10 @@ class ZabbixHostItems extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'POST', json_encode($datas), json_decode($result), $httpcode, \App\Console\Commands\ZabbixHostItems::class, 'item_api');
+
         $results = json_decode($result);
 
         return $results[0]->result[0];

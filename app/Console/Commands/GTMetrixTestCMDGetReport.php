@@ -92,9 +92,8 @@ class GTMetrixTestCMDGetReport extends Command
                 $response = curl_exec($curl);
                 // Get possible error
                 $err = curl_error($curl);
-                $parameters = [];
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);          
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                 curl_close($curl);
                 if ($err) {
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting error from curl request']);
@@ -172,8 +171,7 @@ class GTMetrixTestCMDGetReport extends Command
                         $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                     }
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE); 
-                    $parameters = [];               
-                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
@@ -217,8 +215,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                             }
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $parameters = [];
-                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
+                            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
                             curl_close($curl);
                             
                             // decode the response
@@ -278,6 +275,8 @@ class GTMetrixTestCMDGetReport extends Command
                                 $this->GTMatrixError($value->id, $resources['report_pdf'], 'API response error', $err);
                             }
                             curl_close($ch);
+                            LogRequest::log($startTime, $resources['report_pdf'], 'GET', json_encode([]), json_decode($response), $statusCode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
+
 
                             \Log::info(print_r(['Result started to fetch'], true));
 
@@ -316,6 +315,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $this->GTMatrixError($value->id, 'pagespeed', 'API response error', $err);
                             }
                             curl_close($ch);
+                            LogRequest::log($startTime, $resources['pagespeed'], 'GET', json_encode([]), json_decode($response), $statusCode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
 
                             \Log::info(print_r(['Result started to fetch pagespeed json'], true));
 
@@ -364,6 +364,8 @@ class GTMetrixTestCMDGetReport extends Command
                                 $this->GTMatrixError($value->id, 'yslow', 'API response error', $err);
                             }
                             curl_close($ch);
+                            LogRequest::log($startTime, $resources['yslow'], 'GET', json_encode([]), json_decode($response), $statusCode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
+
 
                             \Log::info(print_r(['Result started to fetch yslow json'], true));
 

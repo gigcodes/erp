@@ -301,9 +301,9 @@ class GoogleWebMasterController extends Controller
     {
         $params = ['inspectionUrl' => $pageUrl, 'siteUrl' => $siteUrl];
         $url = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
-
-        $curl = curl_init();
+       
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -335,7 +335,7 @@ class GoogleWebMasterController extends Controller
         }
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForPageInspections');
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForPageInspections');
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $pageUrl, 'error' => $error_msg, 'type' => 'url_inspections'];
@@ -349,9 +349,8 @@ class GoogleWebMasterController extends Controller
     public function googleResultForAnaylist($siteUrl, $params)
     {
         $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
-
-        $curl = curl_init();
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -457,7 +456,7 @@ class GoogleWebMasterController extends Controller
 
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
-            LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
+            LogRequest::log($startTime, $url_for_sites, 'PUT', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
 
 
             if (! empty($response)) {
@@ -534,14 +533,14 @@ class GoogleWebMasterController extends Controller
                         ],
                     ]);
                     $response = curl_exec($curl);
-                    $response = json_decode($response);
+                    $response = json_decode($response); //response decoded
 
                     if (curl_errno($curl)) {
                         $error_msg = curl_error($curl);
                     }
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
-                    LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster');
+                    LogRequest::log($startTime, $url_for_sites, 'PUT', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster');
 
                     if (! empty($response)) {
                         $history = [
@@ -670,7 +669,7 @@ class GoogleWebMasterController extends Controller
 
                 $response = curl_exec($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
                 $err = curl_error($curl);
 
                 if (curl_errno($curl)) {
@@ -724,8 +723,7 @@ class GoogleWebMasterController extends Controller
 
                             $response1 = curl_exec($curl1);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $parameters = [];
-                            LogRequest::log($startTime, $url, 'GET', $parameters, $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
+                            LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response1), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
                             $err = curl_error($curl1);
 
                             if ($err) {
@@ -848,6 +846,7 @@ class GoogleWebMasterController extends Controller
                     $token = $this->client->getAccessToken();
                     $request->session()->put('token', $token);
                     if ($token) {
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $curl = curl_init();
                         //replace website name with code coming form site list
                         curl_setopt_array($curl, [
@@ -870,11 +869,9 @@ class GoogleWebMasterController extends Controller
                         if (curl_errno($curl)) {
                             $error_msg = curl_error($curl);
                         }
-                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                         curl_close($curl);
-                        $parameters = [];
-                        LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'deleteSiteFromWebmaster');
+                        LogRequest::log($startTime, $url_for_sites, 'DELETE', json_encode([]), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'deleteSiteFromWebmaster');
 
                         if (! empty($response)) {
                             \App\WebmasterLog::create([

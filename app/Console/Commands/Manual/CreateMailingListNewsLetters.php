@@ -223,6 +223,7 @@ class CreateMailingListNewsLetters extends Command
 */
     public function createSendInBlueMailingList($website = null, $lan = null)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $return_response = [];
         $curl = curl_init();
         $data = [
@@ -232,7 +233,7 @@ class CreateMailingListNewsLetters extends Command
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
         $url = "https://api.sendinblue.com/v3/contacts/lists";
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/lists',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -250,9 +251,7 @@ class CreateMailingListNewsLetters extends Command
 
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\CreateMailingListNewsLetters::class, 'handle');
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\CreateMailingListNewsLetters::class, 'createSendInBlueMailingList');
 
         if (curl_errno($curl)) {
             $return_response['code'] = 401;

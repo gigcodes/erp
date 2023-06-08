@@ -275,7 +275,7 @@ class BingWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessToken');
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessToken');
         curl_close($curl);
       
         if (isset($error_msg)) {
@@ -365,7 +365,7 @@ class BingWebMasterController extends Controller
         ]);
 
         $response = curl_exec($curl);
-        $response = json_decode($response);
+        $response = json_decode($response); //response decoded
 
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
@@ -373,7 +373,7 @@ class BingWebMasterController extends Controller
         curl_close($curl);
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessTokenFromBing');
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), $response, $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessTokenFromBing');
 
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
@@ -392,8 +392,9 @@ class BingWebMasterController extends Controller
     private function getDataFromBing($method, $params = [], $request_type = 'GET')
     {
         $url = 'https://ssl.bing.com/webmaster/api.svc/json/' . $method;
-        $curl = curl_init();
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+
+        $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -411,14 +412,14 @@ class BingWebMasterController extends Controller
         ]);
 
         $response = curl_exec($curl);
-        $response = json_decode($response);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $response = json_decode($response); //response decoded
 
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetDataFromBing');
+        LogRequest::log($startTime, $url, $request_type, json_encode($params), $response, $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetDataFromBing');
 
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);

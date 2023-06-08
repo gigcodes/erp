@@ -72,8 +72,7 @@ class GTMetrixAccount extends Command
 
                     $response = curl_exec($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $parameters = [];
-                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);

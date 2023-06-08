@@ -413,10 +413,10 @@ class GoogleAffiliateController extends Controller
         } else {
             $postData = ['data' => $searchKeywords];
             $postData = json_encode($postData);
-            $url = url("/") . "/affiliate/scrap";
+            $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails',
+                CURLOPT_URL => $url ,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -432,7 +432,7 @@ class GoogleAffiliateController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $err = curl_error($curl);
             curl_close($curl);
-            LogRequest::log($startTime, $url, 'GET', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleAffiliateController::class, 'callScraper');
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleAffiliateController::class, 'callScraper');
             // Return
             return response()->json([
                 'success - scrapping initiated',

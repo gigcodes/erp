@@ -79,13 +79,12 @@ class IosSalesReport extends Command
 
                 $result = curl_exec($curl);
                 // print($result);
-                $res = json_decode($result, true);
+                $res = json_decode($result, true); //Responce Decoded
                 // print_r($res);
                 // print_r($res["apple:ios"]);
                 // print($res["apple:ios"]["downloads"]);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Console\Commands\IosSalesReport::class, 'handle');
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), $res, $httpcode, \App\Console\Commands\IosSalesReport::class, 'handle');
                 curl_close($curl);
                 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);

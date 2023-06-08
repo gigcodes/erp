@@ -85,8 +85,7 @@ class IosSubscriptionReport extends Command
                 // print($res["apple:ios"]["downloads"]);
 
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Console\Commands\IosSubscriptionReport::class, 'handle');
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosSubscriptionReport::class, 'handle');
                 curl_close($curl);
             
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call completed."]);

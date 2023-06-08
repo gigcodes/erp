@@ -69,9 +69,7 @@ class MagentoSettingAddUpdate extends Command
                     $response = curl_exec($curl);
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     $resArr = is_string($response) ? json_decode($response, true) : $response;
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $parameters = [];
-                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
                     curl_close($curl);
                     
                     //dd($resArr, 'sdfgsdf');

@@ -84,8 +84,7 @@ class IosUsageReport extends Command
                 // print_r($res["apple:analytics"]);
                 // print($res["apple:analytics"]["crashes"]);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $parameters = [];
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $res, $httpcode, \App\Console\Commands\IosUsageReport::class, 'handle');
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), $res, $httpcode, \App\Console\Commands\IosUsageReport::class, 'handle');
                 curl_close($curl);
                 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished."]);
