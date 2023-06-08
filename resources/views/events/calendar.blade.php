@@ -176,6 +176,8 @@
             allDaySlot: false,
             editable: false,
             showNonCurrentDates: false,
+            eventLimit: true, // allow "more" link when too many events
+            eventLimitText: "More", //sets the text for more events
             eventSources: [{
                 url: '/event/getSchedules',
                 method: 'GET',
