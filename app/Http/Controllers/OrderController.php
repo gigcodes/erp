@@ -330,7 +330,8 @@ class OrderController extends Controller
             $orders = $orders->whereIn('p.brand', $brandIds);
         }
 
-        $orders = $orders->groupBy('orders.id');
+        $orders = $orders->groupBy('orders.order_id');
+        
         $orders = $orders->select(['orders.*', 'cs.email as cust_email', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id']);
 
         $users = Helpers::getUserArray(User::all());
@@ -341,7 +342,7 @@ class OrderController extends Controller
         } else {
             $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
         }
-
+        
         $statusFilterList = $statusFilterList->leftJoin('order_statuses as os', 'os.id', 'orders.order_status_id')
             ->where('order_status', '!=', '')->groupBy('order_status')->select(\DB::raw('count(*) as total'), 'os.status as order_status', 'swo.website_id')->get()->toArray();
 
