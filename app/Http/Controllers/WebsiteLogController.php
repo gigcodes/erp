@@ -306,7 +306,7 @@ class WebsiteLogController extends Controller
                 $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
             }  
             if ($request->website_ids) {
-                $dataArr = $dataArr->WhereIn('id', $request->website_ids);
+                $dataArr = $dataArr->WhereIn('website_id', $request->website_ids);
             }
             if ($request->date) {
                 $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
