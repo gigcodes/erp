@@ -133,6 +133,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     .shortcut-estimate-search-container .select2.select2-container{
         width: 200px!important
     }
+
+    #event-alerts .event-alert-badge {
+        position: absolute;
+        top: -4px;
+        left: 25px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -3771,6 +3784,12 @@ if (!empty($notifications)) {
                     @if(Auth::check())
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
+                            <li>
+                                <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                    <span class="event-alert-badge hide"></span>
+                                </a>
+                            </li>
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
@@ -4407,6 +4426,7 @@ if (!empty($notifications)) {
         @include('passwords.search-password')
         @include('user-management.search-user-schedule')
         @include('partials.modals.shortcut-user-event-modal')
+        @include('partials.modals.event-alerts-modal')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7104,6 +7124,37 @@ if (!\Auth::guest()) {
             $("#loading-image").hide();
         });
     });
+
+    $(document).on('click','#event-alerts',function(e){
+        e.preventDefault();
+        getEventAlerts(true);
+    });
+    $(document).ready(function() {
+        getEventAlerts();
+    });
+
+    function getEventAlerts(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('event.getEventAlerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#event-alerts-modal-html').empty().html(response.html);
+            if (showModal) {
+                $('#event-alerts-modal').modal('show');
+            }
+            if(response.count > 0) {
+                $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
 
     $(document).on("click", ".permission-request", function(e) {
         e.preventDefault();
