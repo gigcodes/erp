@@ -19,7 +19,7 @@
                                 </select>		
                             </div>
                          
-                            <a href="{{route('monitor-server.log.history.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data? Note : It will Remove all the histories for (Status  - monitor_servers_uptime & Root case - monitor_log)  ') }}')">Truncate Data </a>		
+                            <a href="{{route('monitor-server.log.history.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data? Note : It will Remove all the histories)') }}')">Truncate Data </a>		
                             <div class="col-md-2 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
@@ -65,7 +65,7 @@
                                 <td id="monitor_server_id">{{ $monitorServer->server_id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       <a href="{{$monitorServer->ip}}"> {{ strlen($monitorServer->ip) > 15 ? substr($monitorServer->ip, 0, 15).'...' :  $monitorServer->ip }}</a>
+                                       <a href="{{$monitorServer->ip}}" target="_blank"> {{ strlen($monitorServer->ip) > 15 ? substr($monitorServer->ip, 0, 15).'...' :  $monitorServer->ip }}</a>
                                     </span>
                                     <span class="td-full-container hidden">
                                         {{ $monitorServer->ip }}
