@@ -2460,7 +2460,8 @@ class WhatsAppController extends FindByNumberController
                             
 
                             $curl = curl_init();
-
+                            $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             curl_setopt_array($curl, array(
                                 CURLOPT_URL => trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add",
                                 CURLOPT_RETURNTRANSFER => true,
@@ -2473,8 +2474,8 @@ class WhatsAppController extends FindByNumberController
                                 CURLOPT_POSTFIELDS =>'{
                                 "ticketData":
                                 {
-                                    "ticket_id": "{$ticket_id}",
-                                    "email": "{email}"
+                                    "ticket_id": "'.$ticket_id.'",
+                                    "email": "'.$email.'"
                                 }
                                 }
                                 ',
@@ -2485,8 +2486,18 @@ class WhatsAppController extends FindByNumberController
                             ));
 
                             $response = curl_exec($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             \Log::info("API RESPONSE: ".$response);
                             curl_close($curl);
+
+                            LogRequest::log($startTime, $url, 'PUT', '{
+                                "ticketData":
+                                {
+                                    "ticket_id": "'.$ticket_id.'",
+                                    "email": "'.$email.'"
+                                }
+                                }', json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendMessage');
+
                         }else{
                             \Log::info('Magento URL and Store Website code is not found:');
                         }
