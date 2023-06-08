@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\SocialContact;
 use App\SocialWebhookLog;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class SocialAccountController extends Controller
 {
@@ -68,6 +69,10 @@ class SocialAccountController extends Controller
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
+
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountController::class, 'sendMessage');
 
             SocialWebhookLog::log(SocialWebhookLog::INFO, 'Send message response', ['response' => $response, 'data' => $data]);
 

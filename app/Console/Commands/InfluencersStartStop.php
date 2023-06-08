@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\InfluencerKeyword;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class InfluencersStartStop extends Command
 {
@@ -73,6 +74,7 @@ class InfluencersStartStop extends Command
     public function stop_script($name)
     {
         //stop current script
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
         $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/stop-script?' . $name;
@@ -80,6 +82,8 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         curl_close($cURLConnection);
+        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'stop_script');
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = $jsonArrayResponse->status;
 
@@ -89,6 +93,7 @@ class InfluencersStartStop extends Command
     public function start_script($name)
     {
         //start script
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
         $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/start-script?' . $name;
@@ -96,6 +101,8 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         curl_close($cURLConnection);
+        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'start_script');
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = $jsonArrayResponse->status;
 
@@ -104,6 +111,7 @@ class InfluencersStartStop extends Command
 
     public function get_status($name)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $name = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
         $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-status?' . $name;
@@ -111,6 +119,8 @@ class InfluencersStartStop extends Command
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
         curl_close($cURLConnection);
+        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'get_status');
         $jsonArrayResponse = json_decode($phoneList);
         $b64 = isset($jsonArrayResponse->status) ? $jsonArrayResponse->status : '';
 

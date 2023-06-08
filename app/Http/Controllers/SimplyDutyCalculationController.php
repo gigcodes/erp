@@ -6,6 +6,7 @@ use App\Setting;
 use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
 use App\SimplyDutyCalculation;
+use App\LogRequest;
 
 class SimplyDutyCalculationController extends Controller
 {
@@ -228,6 +229,11 @@ class SimplyDutyCalculationController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
+        $url = "https://www.api.simplyduty.com/api/duty/calculatemultiple";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\SimplyDutyCalculationController::class, 'calculate');
+
         if ($response) {
             $req = json_decode($response);
             foreach ($req->Items as $item) {

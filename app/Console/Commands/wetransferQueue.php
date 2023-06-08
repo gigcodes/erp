@@ -6,6 +6,7 @@ use App\Wetransfer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\LogRequest;
 
 class wetransferQueue extends Command
 {
@@ -107,7 +108,7 @@ class wetransferQueue extends Command
         // $url                = 'https://we.tl/t-xqLJc4dOEM'; // zip
         // $url                = 'https://we.tl/t-okoJwHbNhX'; // one file
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             if (strpos($url, 'https://we.tl/') !== false) {
                 $ch = curl_init($url);
@@ -189,6 +190,8 @@ class wetransferQueue extends Command
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
             $real = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
 
             $real = json_decode($real);
 

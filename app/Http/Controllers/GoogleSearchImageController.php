@@ -20,6 +20,8 @@ use App\GoogleSearchRelatedImage;
 use Illuminate\Support\Facades\Storage;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
+use Google\Cloud\Dialogflow\V2\Intent\Parameter;
 
 class GoogleSearchImageController extends Controller
 {
@@ -843,7 +845,8 @@ class GoogleSearchImageController extends Controller
             $product->name,
             $product->sku,
         ];
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = url("/") . "/save-images";
         //Looping Through Keywords
         foreach ($keywords as $keyword) {
             $link = $googleServer . '&q=' . urlencode($keyword) . '&searchType=image&imgSize=large';
@@ -898,6 +901,13 @@ class GoogleSearchImageController extends Controller
 
                 $count++;
             }
+            $parameter['searchImage'] = [
+                'product_id' => $product->id,
+                "image_url" => $product->crop_image
+
+            ];
+            $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
             //If Page Is Not Found
             if ($count == 0) {
                 $product->status_id = StatusHelper::$googleTextSearchFailed;
@@ -1206,6 +1216,13 @@ class GoogleSearchImageController extends Controller
 
         // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
         $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url= url("/") . "/single-save-images";
+        $parameter['searchImage'] = [
+            'product_id' => $product->id,
+            "image_url" => $product->crop_image
+
+        ];
 
         //Replace Google Server Key
         if ($key != null) {
@@ -1264,6 +1281,8 @@ class GoogleSearchImageController extends Controller
             $log->save();
             $count++;
         }
+        $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
         //If Page Is Not Found
         if ($count == 0) {
             $product->status_id = StatusHelper::$googleTextSearchFailed;

@@ -21,7 +21,7 @@ use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
-
+use App\LogRequest;
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
@@ -846,6 +846,10 @@ class HashtagController extends Controller
                         $response = curl_exec($curl);
 
                         curl_close($curl);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $url =url("/") ."instagram/addmailinglist";
+                        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
                         \Log::info($response);
                         $res = json_decode($response);
 
@@ -902,6 +906,10 @@ class HashtagController extends Controller
             $response = curl_exec($curl);
 
             curl_close($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $url =url("/") . "instagram/addmailinglist";
+            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
         }
 
         return redirect()->back()->with('message', 'mailinglist create successfully');

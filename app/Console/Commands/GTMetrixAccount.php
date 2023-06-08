@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class GTMetrixAccount extends Command
 {
@@ -49,6 +50,7 @@ class GTMetrixAccount extends Command
 
         // Get site report
         $AccountData = StoreGTMetrixAccount::all();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($AccountData as $value) {
             if (! empty($value->account_id)) {
@@ -91,6 +93,9 @@ class GTMetrixAccount extends Command
             }
         }
 
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $url = "https://gtmetrix.com/api/2.0/status";
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
         \Log::info('GTMetrix :: Report cron complete ');
         $report->update(['end_time' => Carbon::now()]);
 

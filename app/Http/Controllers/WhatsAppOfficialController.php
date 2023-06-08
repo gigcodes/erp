@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Marketing\WhatsappBusinessAccounts;
+use App\LogRequest;
 
 class WhatsAppOfficialController extends Controller
 {
@@ -100,6 +101,7 @@ class WhatsAppOfficialController extends Controller
     public function callApi($method, $url, array $params = []): array
     {
         $finalUrl = $this->BASE_API_URL;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (!$this->ignorePhoneNumber) {
             $finalUrl .= $this->account->business_phone_number_id . '/';
         }
@@ -130,6 +132,8 @@ class WhatsAppOfficialController extends Controller
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $finalUrl, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\WhatsAppOfficialController::class, 'callApi');
         if ($err) {
             $message = 'Account :- ' . $this->account->id . ', ';
             return ['status' => false, 'message' => $message . "cURL Error #:" . $err];

@@ -15,6 +15,8 @@ class MonitorJenkinsBuildController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('keyword');
+        $projectId = $request->get('project_id');
+        $workerId = $request->get('worker_id');
         
         $monitorJenkinsBuilds = MonitorJenkinsBuild::latest();
 
@@ -23,9 +25,18 @@ class MonitorJenkinsBuildController extends Controller
                 $q->orWhere('monitor_jenkins_builds.project', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('monitor_jenkins_builds.worker', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('monitor_jenkins_builds.store_id', 'LIKE', '%' . $keyword . '%')
-                    ->orWhere('monitor_jenkins_builds.error', 'LIKE', '%' . $keyword . '%');
+                    ->orWhere('monitor_jenkins_builds.error', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('monitor_jenkins_builds.build_number', 'LIKE', '%' . $keyword . '%');
             });
         }
+
+        if ($projectId) {
+            $monitorJenkinsBuilds = $monitorJenkinsBuilds->WhereIn('id', $projectId);
+        }
+        
+        if ($workerId) {
+            $monitorJenkinsBuilds = $monitorJenkinsBuilds->WhereIn('id', $workerId);
+        } 
 
         $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(25);
 

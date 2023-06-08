@@ -9,6 +9,7 @@ use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class InfluencersController extends Controller
 {
@@ -146,6 +147,10 @@ class InfluencersController extends Controller
 
         $phoneList = curl_exec($cURLConnection);
         curl_close($cURLConnection);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'getScraperImage');
 
         $jsonArrayResponse = json_decode($phoneList);
 
@@ -187,6 +192,10 @@ class InfluencersController extends Controller
             curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
             $phoneList = curl_exec($cURLConnection);
             curl_close($cURLConnection);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'checkScraper');
             // dd($phoneList);
             $jsonArrayResponse = json_decode($phoneList);
             if (isset($jsonArrayResponse->status)) {
@@ -267,6 +276,10 @@ class InfluencersController extends Controller
             \Log::info('Influencers start scraper : ' . $url . ' with params : ' . json_encode($params) . ' and response return ' . (string) $phoneList);
 
             curl_close($cURLConnection);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'startScraper');
 
             //$jsonArrayResponse = json_decode($phoneList);
 
@@ -326,6 +339,11 @@ class InfluencersController extends Controller
 
             $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
 
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'getLogFile');
+
             return \Response::json(['success' => true, 'message' => $media->getUrl()]);
         } catch (\Throwable $th) {
             $history = [
@@ -369,6 +387,10 @@ class InfluencersController extends Controller
                 'description' => $b64,
             ];
             InfluencersHistory::insert($history);
+
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($history), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'restartScript');
 
             return \Response::json(['success' => true, 'message' => $b64]);
         } catch (\Throwable $th) {
@@ -435,6 +457,11 @@ class InfluencersController extends Controller
                 'description' => $b64,
             ];
             InfluencersHistory::insert($history);
+
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+            $url = url("/") ."images/searchQueue";
+            LogRequest::log($startTime, $url, 'POST', json_encode($history), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'addmailinglist');
 
             return \Response::json(['success' => true, 'message' => $b64]);
         } catch (\Throwable $th) {

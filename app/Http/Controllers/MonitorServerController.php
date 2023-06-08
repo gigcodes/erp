@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MonitorLog;
 use App\Models\MonitorServer;
 use App\Models\MonitorServersUptime;
 use App\OrderStatus;
@@ -27,6 +28,7 @@ class MonitorServerController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('keyword');
+        $status = $request->get('status');
 
         $monitorServers = MonitorServer::latest();
 
@@ -44,6 +46,10 @@ class MonitorServerController extends Controller
             });
         }
 
+        if($status){
+            $monitorJenkinsBuilds = $monitorServers->Where('status', $status);
+        }
+
         $monitorServers = $monitorServers->paginate(25);
 
         return view('monitor-server.index', compact('monitorServers'));
@@ -51,7 +57,7 @@ class MonitorServerController extends Controller
 
     public function getServerUptimes(Request $request, $id)
     {
-        $data = MonitorServersUptime::where('monitor_server_id', $id)->orderby('created_at', 'desc')->paginate(20);
+        $data = MonitorServersUptime::where('server_id', $id)->orderby('created_at', 'desc')->paginate(20);
         $paginateHtml = $data->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Server uptimes found']);
@@ -64,5 +70,21 @@ class MonitorServerController extends Controller
         $paginateHtml = $serverUsers->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $serverUsers, 'message' => 'Server users found']);
+    }
+
+    public function getServerHistory(Request $request, $id)
+    {
+        $logHistory = MonitorLog::where('server_id', $id)->paginate(25);
+        $paginateHtml = $logHistory->links()->render();
+
+        return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $logHistory, 'message' => 'Server history found']);
+    }
+
+    public function logHistoryTruncate()
+    {
+        MonitorLog::truncate();
+        MonitorServersUptime::truncate();
+
+        return redirect()->route('monitor-server.index')->withSuccess('data Removed succesfully!');
     }
 }

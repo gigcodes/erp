@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Http\Controllers\Controller;
+use App\LogRequest;
 
 class SocialAdsetController extends Controller
 {
@@ -161,6 +162,7 @@ class SocialAdsetController extends Controller
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         //$this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
         $this->ad_acc_id = $config->ads_manager;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -203,7 +205,8 @@ class SocialAdsetController extends Controller
                     //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
-
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'store');
                     //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
@@ -263,6 +266,8 @@ class SocialAdsetController extends Controller
                     //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -437,6 +442,7 @@ class SocialAdsetController extends Controller
         $token = $config->token;
         $page_id = $config->page_id;
         $url = "https://graph.facebook.com/v12.0/$page_id?fields=instagram_business_account&access_token=$token";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -446,6 +452,8 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'getInstaID');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['instagram_business_account'])) {
@@ -473,6 +481,9 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
 
@@ -493,6 +504,7 @@ class SocialAdsetController extends Controller
         $caption = $post->post_body;
         $postfields = "creation_id=$media_id&access_token=$token";
         $url = "https://graph.facebook.com/v12.0/$insta_id/media_publish";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -503,6 +515,8 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'publishMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
         $resp = json_decode($resp, true);
 

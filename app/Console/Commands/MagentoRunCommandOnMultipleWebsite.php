@@ -10,6 +10,7 @@ use App\MagentoDevScripUpdateLog;
 use Illuminate\Support\Facades\Artisan;
 use App\AssetsManager;
 use Illuminate\Support\Facades\Log;
+use App\LogRequest;
 
 class MagentoRunCommandOnMultipleWebsite extends Command
 {
@@ -44,6 +45,7 @@ class MagentoRunCommandOnMultipleWebsite extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info("Start Rum Magento Command On Multiple Website");
         try {
             $command_id=$this->argument('id');
@@ -104,6 +106,8 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             );
                         }
                         $response = json_decode($result);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                         
                         curl_close($ch);
                         
@@ -247,6 +251,8 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 $response = json_decode($result);
                                 
                                 curl_close($ch);
+                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                                 
                                 if(isset($response->errors)){ 
                                     foreach($response->errors as $error){

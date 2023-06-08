@@ -17,6 +17,7 @@ use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\LogRequest;
 
 class EmailDataExtractionController extends Controller
 {
@@ -667,6 +668,7 @@ class EmailDataExtractionController extends Controller
     public static function downloadFromURL($url, $supplier)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (strpos($url, 'https://we.tl/') !== false) {
             $ch = curl_init($url);
@@ -787,6 +789,8 @@ class EmailDataExtractionController extends Controller
                 }
             }
         }
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $curlURL, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
     }
 
     public function bluckAction(Request $request)

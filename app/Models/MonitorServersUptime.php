@@ -9,8 +9,10 @@ class MonitorServersUptime extends Model
 {
     use HasFactory;
 
+    protected $table = 'monitor_servers_uptime';
+
     public $fillable = [
-        'monitor_server_id',
+        'server_id',
         'date',
         'status',
         'latency',

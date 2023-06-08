@@ -100,6 +100,13 @@
     .select2-container .select2-search--inline .select2-search__field{
         margin-top: 0px !important;
     }
+    .select2-search--inline {
+    display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
+
+.select2-search__field:placeholder-shown {
+    width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
 </style>
 @extends('layouts.app')
 
@@ -124,6 +131,7 @@
                 <div class="row">
                     <div class="col-md-2 pr-0 mb-3">
                         <select class="form-control globalSelect21"  name="users_id" id="users_id">
+                           
                             @foreach($users as $key => $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -131,6 +139,7 @@
                     </div>
                     <div class="col-md-2 pl-3  pr-0">
                         <select class="form-control globalSelect22" name="ticket_id" id="ticket">
+                            
                             @foreach($data as $key => $ticket)
                             <option value="{{ $ticket->ticket_id }}">{{ $ticket->ticket_id }}</option>
                             @endforeach
@@ -138,11 +147,11 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id", [''=>'']+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", \App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
-                            <input type='text' class="form-control" id="date" name="date" value="" />
+                            <input placeholder="Select Date" type='text' class="form-control" id="date" name="date" value="" />
 
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
@@ -152,6 +161,7 @@
 
                     <div class="col-md-2 pl-3 pr-0">
                         <select class="form-control globalSelect23" name="term" id="term">
+                            
                             @foreach($data as $key => $user_name)
                                 <option value="{{ $user_name->name }}">{{ $user_name->name }}</option>
                             @endforeach
@@ -162,6 +172,7 @@
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <select class="form-control globalSelect25" name="user_email" id="user_email">
+                            
                             @foreach($data as $key => $user_email)
                                 <option value="{{ $user_email->email }}">{{ $user_email->email }}</option>
                             @endforeach
@@ -257,6 +268,7 @@
                 @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
+            <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
         </div>
 
 
@@ -430,6 +442,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+$( document ).ready(function() {
     $(".globalSelect21").select2({
         multiple: true,
         placeholder: "Select Users",
@@ -455,12 +468,12 @@
         placeholder: "Select User Message",
     });
 
-    $('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
+    /*$('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect22').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect23').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect24').val($('.globalSelect21 option:eq(1)').val()).trigger('change');
     $('.globalSelect25').val($('option:eq(1)').val()).trigger('change');
-    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');*/
 
     $("#user_email option").each(function() {
         $(this).siblings('[value="'+ this.value +'"]').remove();
@@ -468,6 +481,7 @@
     $("#term option").each(function() {
         $(this).siblings('[value="'+ this.value +'"]').remove();
     });
+});
 
 function opnMsg(email) {
       console.log(email);

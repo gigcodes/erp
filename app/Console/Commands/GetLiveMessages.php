@@ -6,6 +6,7 @@ use App\Customer;
 use Carbon\Carbon;
 use App\ChatMessage;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class GetLiveMessages extends Command
 {
@@ -40,6 +41,7 @@ class GetLiveMessages extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -78,6 +80,9 @@ class GetLiveMessages extends Command
             $response = curl_exec($curl);
             $err = curl_error($curl);
 
+            $url = "https://api.livechatinc.com/v3.1/agent/action/get_chats_summary'";
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GetLiveMessages::class, 'handle');
             curl_close($curl);
 
             if ($err) {

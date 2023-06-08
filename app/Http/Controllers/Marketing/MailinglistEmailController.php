@@ -11,6 +11,7 @@ use App\MailingTemplateFile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\LogRequest;
 
 class MailinglistEmailController extends Controller
 {
@@ -86,6 +87,7 @@ class MailinglistEmailController extends Controller
         $list = Mailinglist::find($data['mailinglist_id']);
         $website = \App\StoreWebsite::where('id', $list->website_id)->first();
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : config('env.SEND_IN_BLUE_API');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($list->service) {
             if ($list->service && isset($list->service->name)) {
@@ -107,6 +109,9 @@ class MailinglistEmailController extends Controller
 
                     $response = curl_exec($curl);
                     $response = json_decode($response);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $url = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
+                    LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
 
                     if (! empty($response->campaign)) {
                         $mailing_item->api_template_id = $response->campaign;
@@ -145,6 +150,9 @@ class MailinglistEmailController extends Controller
                             $mailing_item->api_template_id = $response->id;
                         }
                         curl_close($curl);
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $url = "https://api.sendinblue.com/v3/smtp/templates";
+                        LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
                     }
                 }
             }

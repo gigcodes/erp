@@ -6,6 +6,7 @@ use App\Helpers\LogHelper;
 use Carbon\Carbon;
 use App\MailinglistEmail;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class MailingListSendMail extends Command
 {
@@ -40,6 +41,7 @@ class MailingListSendMail extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             $mailing_list = MailinglistEmail::orderBy('created_at', 'desc')->get();
@@ -80,7 +82,12 @@ class MailingListSendMail extends Command
                             'Content-Type: application/json',
                         ],
                     ]);
+                    $result = curl_exec($curl);
                     curl_close($curl);
+                    
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $url ="https://api.sendinblue.com/v3/smtp/email";
+                    LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MailingListSendMail::class, 'handle');
                     LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request ended => https://api.sendinblue.com/v3/smtp/email"]);
                     $mailing->progress = 1;
                     $mailing->save();

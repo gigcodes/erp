@@ -70,6 +70,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class ProductController extends Controller
 {
@@ -4756,6 +4757,10 @@ class ProductController extends Controller
 
         // close curl resource to free up system resources
         curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url =  url("/") ."hscode/save-group";
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
 
         $categories = json_decode($output);
 

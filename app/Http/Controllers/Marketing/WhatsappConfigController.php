@@ -16,6 +16,7 @@ use App\Marketing\WhatsappBusinessAccounts;
 use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class WhatsappConfigController extends Controller
 {
@@ -320,6 +321,7 @@ class WhatsappConfigController extends Controller
 
         //        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         $url = 'http://136.244.118.102:81/get-barcode';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:81/get-barcode?instanceId=' . $whatsappConfig->instance_id;
@@ -336,6 +338,8 @@ class WhatsappConfigController extends Controller
 
         // close curl resource to free up system resources
         curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], json_decode($output), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getBarcode');
 
         $barcode = $output;
 
@@ -358,6 +362,7 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($whatsappConfig) {
             $ch = curl_init();
@@ -377,7 +382,8 @@ class WhatsappConfigController extends Controller
 
             // close curl resource to free up system resources
             curl_close($ch);
-
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', [], json_decode($output), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getScreen');
             if ($whatsappConfig->is_use_own = 1) {
                 $content = base64_decode($output);
             } else {
@@ -410,6 +416,7 @@ class WhatsappConfigController extends Controller
         $ch = curl_init();
 
         $url = env('WHATSAPP_BARCODE_IP') . ':' . $whatsappConfig->username . '/delete-chrome-data';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -424,6 +431,8 @@ class WhatsappConfigController extends Controller
         curl_close($ch);
 
         $barcode = json_decode($output);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', [], $barcode, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'deleteChromeData');
 
         if ($barcode) {
             if ($barcode->barcode == 'Directory Deleted') {
@@ -441,6 +450,7 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $ch = curl_init();
 
@@ -463,6 +473,8 @@ class WhatsappConfigController extends Controller
         curl_close($ch);
 
         $response = json_decode($output);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'restartScript');
 
         if ($response) {
             if ($response->barcode == 'Process Killed') {
@@ -507,6 +519,7 @@ class WhatsappConfigController extends Controller
     {
         //get all providers
         $allWhatsappInstances = WhatsappConfig::select()->where(['provider' => 'Chat-API'])->get();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             foreach ($allWhatsappInstances as $instanceDetails) {
                 $instanceId = $instanceDetails->instance_id;
@@ -547,6 +560,9 @@ class WhatsappConfigController extends Controller
                         }
                     }
                     curl_close($curl);
+                    $url = "https://api.chat-api.com/instance$instanceId/status?token";
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'checkInstanceAuthentication');
                 }
             }
         } catch (Exception $e) {
@@ -558,6 +574,7 @@ class WhatsappConfigController extends Controller
     {
         $id = $request->id;
         $whatsappConfig = WhatsappConfig::find($id);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:83/logout?instanceId=' . $whatsappConfig->instance_id;
@@ -569,6 +586,9 @@ class WhatsappConfigController extends Controller
             // close curl resource to free up system resources
             curl_close($ch);
             $response = json_decode($output);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'logoutScript');
+
             if ($response) {
                 return Response::json(['success' => true, 'message' => 'Logout Script called']);
             } else {
@@ -583,6 +603,7 @@ class WhatsappConfigController extends Controller
     {
         $id = $request->id;
         $whatsappConfig = WhatsappConfig::find($id);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:81/get-status?instanceId=' . $whatsappConfig->instance_id;
@@ -593,6 +614,9 @@ class WhatsappConfigController extends Controller
             $output = curl_exec($ch);
             // close curl resource to free up system resources
             curl_close($ch);
+            $response = json_decode($output);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getStatusInfo');
             if (! empty($output)) {
                 return Response::json(['success' => true, 'message' => $output]);
             } else {

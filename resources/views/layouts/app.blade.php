@@ -3791,6 +3791,21 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             @if (Auth::user()->hasRole('Admin'))
+                            
+                            <li>  
+                                @php
+                                    $status = \App\Models\MonitorServer::where('status', 'off')->first();
+                                @endphp
+                                @if ($status)
+                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon">
+                                    <span><i class="fa fa-desktop fa-2x off-status"style="background-color: red" aria-hidden="true"></i></span>
+                                </a>
+                                @else
+                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                                @endif
+                            </li>
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
