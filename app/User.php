@@ -83,6 +83,7 @@ class User extends Authenticatable implements JWTSubject
         'is_task_planned',
         'device_token',
         'timezone',
+        'screen_name',
     ];
 
     public function getIsAdminAttribute()
