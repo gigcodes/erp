@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\MagentoCommand;
 use App\MagentoCommandRunLog;
+use App\AssetsManager;
 
 class ShowMagentoCronDataController extends Controller
 {
