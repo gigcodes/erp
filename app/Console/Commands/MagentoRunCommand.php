@@ -138,9 +138,9 @@ class MagentoRunCommand extends Command
                         $headers[] = 'Authorization: Basic '.$key;
                         //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        $result = curl_exec($ch);
                         
+                        $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                         $response = json_decode($result);
                         curl_close($ch);
