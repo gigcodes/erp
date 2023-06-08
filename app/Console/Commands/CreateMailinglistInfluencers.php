@@ -107,7 +107,7 @@ class CreateMailinglistInfluencers extends Command
                             $req = [
                                 'folderId' => 1,
                                 'name' => $name,
-curl_init                            ];
+                            ];
                             $response = $this->callApi('https://api.sendinblue.com/v3/contacts/lists', 'POST', $data = [
                                 'folderId' => 1,
                                 'name' => $name,
@@ -121,9 +121,9 @@ curl_init                            ];
                         } elseif (strpos($service->name, 'AcelleMail') !== false) {
                             $mailListLogID = MailinglistIinfluencersLogs::log('come to AcelleMail');
                             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            $curl = ();
                             $url = 'https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
                             $req = ['contact[company]' => '.', 'contact[state]' => 'afdf', 'name' => $name, 'default_subject' => $name, 'from_email' => 'welcome@test.com', 'from_name' => 'dsfsd', 'contact[address_1]' => 'af', 'contact[country_id]' => '219', 'contact[city]' => 'sdf', 'contact[zip]' => 'd', 'contact[phone]' => 'd', 'contact[email]' => 'welcome@test.com'];
+                            $curl = curl_init();
                             curl_setopt_array($curl, [
                                 CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
