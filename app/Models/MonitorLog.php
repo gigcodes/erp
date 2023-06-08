@@ -5,24 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MonitorServersUptime extends Model
+class MonitorLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'monitor_servers_uptime';
+    protected $table = 'monitor_log';
+    protected $primaryKey = 'log_id';
 
     public $fillable = [
         'server_id',
-        'date',
-        'status',
+        'type',
         'latency',
+        'message',
+        'datetime',
     ];
 
-    /**
-     * Get the monitorServer that owns the monitorServersUptime.
+     /**
+     * The monitorServers that belong to the monitorUser.
      */
-    public function monitorServer()
+    public function monitorServers()
     {
         return $this->belongsTo(MonitorServer::class);
     }
+
 }
