@@ -24,11 +24,13 @@ class ShowMagentoCronDataController extends Controller
         $status = CronStatus::all();
 
         $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $magentoCronWebsites = MagentoCronData::whereNotNull('website')->where("website", "!=", "NULL")->groupby('website')->pluck("website");
+
         $data = new MagentoCronData();
         $skip = empty($request->page) ? 0 : $request->page;
         //echo"<pre>";print_r($request->all());die;
         if (isset($request->website)) {
-            $data = $data->where('store_website_id', $request->website);
+            $data = $data->where('website', $request->website);
         }
 
         if (isset($request->status)) {
@@ -64,7 +66,7 @@ class ShowMagentoCronDataController extends Controller
             return response()->json(['html' => $view, 'page' => $request->page, 'count' => $count]);
         }
 
-        return view('magento_cron_data.index', compact('data', 'status', 'website'));
+        return view('magento_cron_data.index', compact('data', 'status', 'website', 'magentoCronWebsites'));
     }
     public function runMagentoCron(Request $request)
     {
