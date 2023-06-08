@@ -2429,6 +2429,7 @@ class WhatsAppController extends FindByNumberController
                 $params['customer_id'] = $ticket->customer_id;
                 $params['approved'] = 1;
                 $params['status'] = 2;
+                $params['user_id'] = optional(auth()->user())->id;
                 $chat_message = ChatMessage::create($params);
 
                 // check if ticket has customer ?
