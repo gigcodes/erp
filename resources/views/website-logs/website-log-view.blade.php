@@ -21,7 +21,7 @@
 				<b>Search</b> 
 			</div>
 			<div class="col-md-2 pd-sm">
-				{{ Form::select("website_ids[]", \App\WebsiteLog::pluck('website_id','id')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+				{{ Form::select("website_ids[]", \App\WebsiteLog::pluck('website_id','website_id')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
 			</div>
 			<div class="col-lg-2">
 				<input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $search_error ?? '' }}">
