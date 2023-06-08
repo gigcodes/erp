@@ -4173,6 +4173,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
 
     Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
+    Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');
+    Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
     Route::resource('event', EventController::class);

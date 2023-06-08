@@ -24,6 +24,16 @@ class Event extends Model
         'date_range_type',
     ];
 
+    const PRIVATE = 'PR';
+    const PUBLIC  = 'PU';
+    const ASSET   = 'AS';
+
+    public static $eventTypes = [
+        self::PRIVATE => 'Private',
+        self::PUBLIC  => 'Public',
+        self::ASSET   => 'Assets',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -37,6 +47,14 @@ class Event extends Model
     public function eventSchedules()
     {
         return $this->hasMany(\App\Models\EventSchedule::class);
+    }
+
+    /**
+     * Get all of the event's alert logs.
+     */
+    public function eventAlertLogs()
+    {
+        return $this->morphMany(EventAlertLog::class, 'eventalertloggable');
     }
 
     // Scopes 
@@ -56,5 +74,15 @@ class Event extends Model
             return "Within a date range";
         else 
             return "Indefinitely into the future";
+    }
+
+    /**
+     * Get the event type name.
+     *
+     * @return string
+     */
+    public function getEventTypeNameAttribute()
+    {
+        return self::$eventTypes[$this->event_type];
     }
 }
