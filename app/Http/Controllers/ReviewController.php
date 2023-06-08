@@ -578,11 +578,13 @@ class ReviewController extends Controller
         $response = curl_exec($curl);
 
         $err = curl_error($curl);
-
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
+
+        curl_close($curl);
+        
 
         if (! empty($err)) {
             return response()->json(['code' => 500, 'message' => 'Could not fetch response from server']);

@@ -107,7 +107,8 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                         }
                         $response = json_decode($result);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                         
                         curl_close($ch);
                         
@@ -248,12 +249,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                         ]
                                     );
                                 }
-                                $response = json_decode($result);
+                                $response = json_decode($result); //response decode
+                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                $parameters = [];
+                                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $response, $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                                 
                                 curl_close($ch);
-                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
-                                
+                                            
                                 if(isset($response->errors)){ 
                                     foreach($response->errors as $error){
                                         $message=$error->code.":".$error->title.":".$error->detail;

@@ -93,10 +93,11 @@ class MailinglistEmailController extends Controller
             if ($list->service && isset($list->service->name)) {
                 if ($list->service->name == 'AcelleMail') {
                     $curl = curl_init();
+                    $url = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
 
                     curl_setopt_array($curl, [
                         //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                        CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -108,10 +109,11 @@ class MailinglistEmailController extends Controller
                     ]);
 
                     $response = curl_exec($curl);
-                    $response = json_decode($response);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $url = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
-                    LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
+                    $response = json_decode($response); //decode response
+                    $paramters = [];
+
+                    LogRequest::log($startTime, $url, 'POST', $paramters, $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
 
                     if (! empty($response->campaign)) {
                         $mailing_item->api_template_id = $response->campaign;
@@ -129,8 +131,9 @@ class MailinglistEmailController extends Controller
                             'subject' => $mailing_item->subject,
                         ];
 
+                        $url = "https://api.sendinblue.com/v3/smtp/templates";
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://api.sendinblue.com/v3/smtp/templates',
+                            CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
@@ -149,10 +152,11 @@ class MailinglistEmailController extends Controller
                         if (! empty($response->id)) {
                             $mailing_item->api_template_id = $response->id;
                         }
-                        curl_close($curl);
                         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        $url = "https://api.sendinblue.com/v3/smtp/templates";
-                        LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
+                        $paramters = [];
+                        curl_close($curl);
+                             
+                        LogRequest::log($startTime, $url, 'POST', json_encode($paramters), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
                     }
                 }
             }

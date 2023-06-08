@@ -1105,12 +1105,14 @@ class PostmanRequestCreateController extends Controller
                     $response = $this->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
                     $curl = curl_init();
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    //dd($http_code);
-                    curl_close($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    $url =  url("/") ."postman/send/request";
-                    LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
+                    $url =  $request->urls;
+                    $parameters = [];
+                    LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
+                    //dd($http_code);
+                    curl_close($curl);
+                    
                     $response = $response ? json_encode($response) : 'Not found response';
                     //dd($response);
                     PostmanResponse::create(
@@ -1156,12 +1158,13 @@ class PostmanRequestCreateController extends Controller
         ]);
 
         $response = curl_exec($curl);
-
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = url("/");
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'fireApi');
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'fireApi');
+
+        curl_close($curl);
+      
 
         return $response;
     }

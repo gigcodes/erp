@@ -338,12 +338,13 @@ class WeTransferController extends Controller
                 'Content-Type: text/plain',
             ],
         ]);
-
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = curl_exec($curl);
+        $parameters = [];
 
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
+        
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
         if ($response == 'Request Submitted!') {
             return true;
         } else {

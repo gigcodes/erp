@@ -204,6 +204,10 @@ class MagentoCommandController extends Controller
                         }
                         \Log::info("API Response: ".$result);
                         $response = json_decode($result);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
                         
                         curl_close($ch);
 
@@ -326,7 +330,11 @@ class MagentoCommandController extends Controller
                             );
                         }
                         \Log::info("API Response: ".$result);
-                        $response = json_decode($result);
+                        $response = json_decode($result); //response decoded
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'runMySqlQuery');
                         
                         curl_close($ch);
 
@@ -442,6 +450,11 @@ class MagentoCommandController extends Controller
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
+
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'mySqlQueryLogs');
                         if (curl_errno($ch)) {
                             
                         }
@@ -542,6 +555,10 @@ class MagentoCommandController extends Controller
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
                         if (curl_errno($ch)) {
                             
                         }
@@ -566,9 +583,7 @@ class MagentoCommandController extends Controller
                         }
 
                         curl_close($ch);
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
+                        
                     }
                         
                     

@@ -139,7 +139,8 @@ class CreateMailinglistInfluencers extends Command
 
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
+                            $parameters = [];
+                            LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
                             curl_close($curl);
                             $res = json_decode($response);
                             if ($res->status == 1) {
@@ -221,8 +222,7 @@ class CreateMailinglistInfluencers extends Command
 
                             $curl = curl_init();
 
-                            $ch = curl_init();
-                            $url = 'https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid=' . $mllist->remote_id;
+                            $ch = curl_init(); //Here Two Times curl initialization
                             curl_setopt($ch, CURLOPT_URL, $url);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 1);
@@ -246,7 +246,8 @@ class CreateMailinglistInfluencers extends Command
                             ]);
                             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
+                            $parameters = [];
+                            LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
                             if (curl_errno($ch)) {
                                 echo 'Error:' . curl_error($ch);
 
@@ -425,7 +426,8 @@ class CreateMailinglistInfluencers extends Command
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
         curl_close($curl);
         \Log::info($response);
 

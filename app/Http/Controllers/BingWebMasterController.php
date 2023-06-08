@@ -274,10 +274,10 @@ class BingWebMasterController extends Controller
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessToken');
-
+        curl_close($curl);
+      
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
         }

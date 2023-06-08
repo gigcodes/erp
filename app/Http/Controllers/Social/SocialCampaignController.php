@@ -185,9 +185,10 @@ class SocialCampaignController extends Controller
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
                     $resp = json_decode($resp);
-                    curl_close($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
+                    curl_close($curl);
+     
+                    LogRequest::log($startTime, $url, 'POST', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
@@ -227,9 +228,10 @@ class SocialCampaignController extends Controller
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
                     $resp = json_decode($resp);
-                    curl_close($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $url, 'POST', [], $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
+                    curl_close($curl);
+
+                    LogRequest::log($startTime, $url, 'POST', json_decode([]), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -406,7 +408,7 @@ class SocialCampaignController extends Controller
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $parameters['getIstanId'] =[
             'config' => $config,
             'fb' => $fb,

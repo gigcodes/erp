@@ -65,9 +65,10 @@ class MagentoConfigValue extends Command
                         $conf['data'][] = ['path' => $setting['path'], 'scope' => $setting['scope'], 'scope_id' => $setting['scope_id']];
                     }
                     $curl = curl_init();
+                    $url = $websiteUrl . '/rest/V1/configvalue/get';
                     // Set cURL options
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $websiteUrl . '/rest/V1/configvalue/get',
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -84,7 +85,7 @@ class MagentoConfigValue extends Command
                     $response = curl_exec($curl);
 
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $websiteUrl . '/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
+                    LogRequest::log($startTime, $url, 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
 
                     $response = json_decode($response, true);
 

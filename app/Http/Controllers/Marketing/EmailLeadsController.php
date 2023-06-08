@@ -69,13 +69,15 @@ class EmailLeadsController extends Controller
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                 $result = curl_exec($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 if (curl_errno($ch)) {
                     // echo 'Error:' . curl_error($ch);
                     return Redirect::back()->with('flash_type', 'alert-danger')->with('message', 'Contact already in list and/or does not exist' . curl_error($ch));
                 }
                 curl_close($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url, 'GET', [], json_decode($result), $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
+                $parameters =[];
+               
+                LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
             }
         }
 
@@ -154,10 +156,12 @@ class EmailLeadsController extends Controller
             ],
         ]);
         $respw = curl_exec($curl3);
+        $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
+        $parameters =[];
         curl_close($curl3);
         $respw = json_decode($respw);
-        $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $respw, $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
+
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\EmailLeadsController::class, 'unsubscribe');
         $res = LeadList::destroy($lead_list_id);
         if ($res) {
             return redirect('emailleads')->with('flash_type', 'alert-success')->with('message', 'List has been unsubscribed.');

@@ -647,12 +647,12 @@ class ProductTemplatesController extends Controller
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
-        curl_close($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ProductTemplatesController::class, 'restartScript');
-
-
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ProductTemplatesController::class, 'restartScript');
+        curl_close($ch);
+    
         return $response;
     }
 

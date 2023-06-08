@@ -61,8 +61,9 @@ class IosUsageReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
+                $url ="https://api.appfigures.com/v2/reports/usage?group_by=' . $group_by . '&start_date=2019-01-01&end_date=' . $end_date . '&products=' . $app_value,";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://api.appfigures.com/v2/reports/usage?group_by=' . $group_by . '&start_date=2019-01-01&end_date=' . $end_date . '&products=' . $app_value,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -78,15 +79,15 @@ class IosUsageReport extends Command
 
                 $result = curl_exec($curl);
                 // print($result);
-                $res = json_decode($result, true);
+                $res = json_decode($result, true); //response decode
                 // print_r($res);
                 // print_r($res["apple:analytics"]);
                 // print($res["apple:analytics"]["crashes"]);
-                curl_close($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://api.appfigures.com/v2/reports/usage?group_by=' . $group_by . '&start_date=2019-01-01&end_date=' . $end_date . '&products=' . $app_value,";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\IosUsageReport::class, 'handle');
-
+                $parameters = [];
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $res, $httpcode, \App\Console\Commands\IosUsageReport::class, 'handle');
+                curl_close($curl);
+                
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished."]);
                 print_r($res);
 

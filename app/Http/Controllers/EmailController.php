@@ -896,10 +896,11 @@ class EmailController extends Controller
 
         $real = curl_exec($ch);
 
-        $urlResponse = json_decode($real);
+        $urlResponse = json_decode($real); //response decode
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\EmailController::class, 'downloadFromURL');
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $urlResponse, $httpcode, \App\Http\Controllers\EmailController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 

@@ -8,6 +8,7 @@ use App\Mailinglist;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class CreateMailingListNewsLetters extends Command
 {
@@ -229,6 +230,7 @@ class CreateMailingListNewsLetters extends Command
             'name' => $website->title,
         ];
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
+        $url = "https://api.sendinblue.com/v3/contacts/lists";
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/lists',
             CURLOPT_RETURNTRANSFER => true,
@@ -247,6 +249,10 @@ class CreateMailingListNewsLetters extends Command
         ]);
 
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\CreateMailingListNewsLetters::class, 'handle');
 
         if (curl_errno($curl)) {
             $return_response['code'] = 401;

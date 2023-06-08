@@ -2040,10 +2040,12 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
-            curl_close($curl);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'restartNode');
+            $parameter = [];
+            LogRequest::log($startTime, $url, 'GET', json_encode($parameter), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'restartNode');
+            curl_close($curl);
+            
             if ($response) {
                 return response()->json(['code' => 200, 'message' => 'Script Restarted']);
             } else {
@@ -2090,10 +2092,12 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
-            curl_close($curl);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getStatus');
+            $parameters =[];
+            LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getStatus');
+            curl_close($curl);
+           
             if ($response) {
                 $re = '/\d+/m';
                 $str = $response;
@@ -2127,10 +2131,12 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($curl);
-            curl_close($curl);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'updateNode');
+            $parameter=[];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'updateNode');
+            curl_close($curl);
+            
             $duration = json_decode($response);
             $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null;
             if ($response) {
@@ -2353,12 +2359,13 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
             $response = curl_exec($curl);
-
-            curl_close($curl);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getLatestLog');
 
+
+            curl_close($curl);
+            
 
             if (! empty($response)) {
                 $response = json_decode($response);

@@ -94,10 +94,11 @@ class scrappersImages extends Command
             }
             // close curl resource to free up system resources
             // (deletes the variable made by curl_init)
-            curl_close($curl);
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
+            $parameters = [];
+            LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
+            curl_close($curl);         
         } catch (\Throwable $th) {
             $this->output->write($th->getMessage(), true);
 
@@ -112,8 +113,9 @@ class scrappersImages extends Command
         try {
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $curl = curl_init();
+            $url = env('SCRAPER_IMAGES_URL_BASE64') . $base64Image;
             // set our url with curl_setopt()
-            curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL_BASE64') . $base64Image);
+            curl_setopt($curl, CURLOPT_URL, $url);
 
             // return the transfer as a string, also with setopt()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -122,8 +124,8 @@ class scrappersImages extends Command
             // $output contains the output string
             $output = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $url ="https://wetransfer.com/api/v4/transfers/";
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
 
             $output = json_decode($output);
 

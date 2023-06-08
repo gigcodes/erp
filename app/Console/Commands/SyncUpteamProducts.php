@@ -64,9 +64,10 @@ class SyncUpteamProducts extends Command
     
             // $output contains the output string
             $output = curl_exec($ch);
-            $products = json_decode($output);
+            $products = json_decode($output); //response deocdes
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $api, 'POST', [], json_decode($output), $httpcode, \App\Console\Commands\SyncUpteamProducts::class, 'handle');
+            $parameters =[];
+            LogRequest::log($startTime, $api, 'POST', json_encode($parameters), $products, $httpcode, \App\Console\Commands\SyncUpteamProducts::class, 'handle');
             // close curl resource to free up system resources
             curl_close($ch);
             $headings = $products[0];

@@ -299,9 +299,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
 
                     $curl = curl_init();
+                    $url ="https://gtmetrix.com/api/2.0/status";
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
                         CURLOPT_ENCODING => '',
@@ -313,13 +314,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     ]);
 
                     $response = curl_exec($curl);
+                    $data = json_decode($response);
+                    $parameters = [];
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
 
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
-                    $data = json_decode($response);
-                    $url ="https://gtmetrix.com/api/2.0/status";
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $url, 'GET', [], $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
+                   
                     $credits = $data->data->attributes->api_credits;
                     // print_r($data->data->attributes->api_credits);
                     if ($credits != 0) {
@@ -340,9 +342,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                     foreach ($AccountData as $key => $value) {
                         $curl = curl_init();
+                        $url ="https://gtmetrix.com/api/2.0/status";
 
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                            CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                             CURLOPT_ENCODING => '',
@@ -354,13 +357,13 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         ]);
 
                         $response = curl_exec($curl);
+                        $data = json_decode($response); //response decode
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $parameters = [];
 
                         curl_close($curl);
-                        // decode the response
-                        $data = json_decode($response);
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        $url ="https://gtmetrix.com/api/2.0/status";
-                        LogRequest::log($startTime, $url, 'GET', [], $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
+                    
+                        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
                         $credits = $data->data->attributes->api_credits;
                         if ($credits != 0) {
                             $client = new GTMetrixClient();
@@ -552,9 +555,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->where('status', 'active')->first();
 
                         $curl = curl_init();
+                        $url = 'https://gtmetrix.com/api/2.0/status';
 
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                            CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
                             CURLOPT_ENCODING => '',
@@ -566,13 +570,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         ]);
 
                         $response = curl_exec($curl);
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $parameters = [];
 
                         curl_close($curl);
                         // $stdClass = json_decode(json_encode($response));
-                        $data = json_decode($response);
-                        $url ="https://gtmetrix.com/api/2.0/status";
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url, 'POST', [], $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
+                        $data = json_decode($response); //reponse encoded
+
+                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
                         $credits = $data->data->attributes->api_credits;
                         // print_r($data->data->attributes->api_credits);
                         if ($credits != 0) {
@@ -593,7 +598,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                         foreach ($AccountData as $key => $value) {
                             $curl = curl_init();
-
+                            $url = "https://gtmetrix.com/api/2.0/status";
                             curl_setopt_array($curl, [
                                 CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                                 CURLOPT_RETURNTRANSFER => true,
@@ -607,13 +612,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             ]);
 
                             $response = curl_exec($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $parameters = [];
 
                             curl_close($curl);
                             // decode the response
                             $data = json_decode($response);
-                            $url = "https://gtmetrix.com/api/2.0/status";
-                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            LogRequest::log($startTime, $url, 'POST', [], $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
+
+                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
                             $credits = $data->data->attributes->api_credits;
                             if ($credits != 0) {
                                 $client = new GTMetrixClient();

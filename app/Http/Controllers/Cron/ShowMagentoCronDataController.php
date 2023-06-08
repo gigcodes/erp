@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\MagentoCommand;
 use App\MagentoCommandRunLog;
 use App\AssetsManager;
-
+use App\LogRequest;
 class ShowMagentoCronDataController extends Controller
 {
     public function cronStatus()
@@ -173,6 +173,12 @@ class ShowMagentoCronDataController extends Controller
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
+
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $parameters = [];
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\Cron\ShowMagentoCronDataController::class, 'callApi');
+
                         if (curl_errno($ch)) {
                             
                         }

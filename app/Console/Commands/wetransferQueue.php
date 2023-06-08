@@ -191,7 +191,8 @@ class wetransferQueue extends Command
 
             $real = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
 
             $real = json_decode($real);
 

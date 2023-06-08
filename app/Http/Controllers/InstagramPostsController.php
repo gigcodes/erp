@@ -980,9 +980,10 @@ class InstagramPostsController extends Controller
 
             \Log::error(' hashtagify credentials: ' . $consumerKey . ', ' . $consumerSecret);
             $curl = curl_init();
+            $url = "https://api.hashtagify.me/oauth/token";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.hashtagify.me/oauth/token',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -997,16 +998,16 @@ class InstagramPostsController extends Controller
             ]);
 
             $response = curl_exec($curl);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\InstagramPostsController::class, 'getHastagifyApiToken');
 
             $err = curl_error($curl);
             exit(var_dump('teeeest', $err));
             \Log::error(' hashtagify response ' . $response);
             \Log::error(' hashtagify error' . $err);
-            curl_close($curl);
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $url ="https://api.hashtagify.me/oauth/token";
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\InstagramPostsController::class, 'getHastagifyApiToken');
+            curl_close($curl);       
 
             if ($err) {
                 return false;
@@ -1023,9 +1024,10 @@ class InstagramPostsController extends Controller
     public function getHashTashSuggestions($token, $word)
     {
         $curl = curl_init();
+        $url = "https://api.hashtagify.me/1.0/tag/" . $word;
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.hashtagify.me/1.0/tag/' . $word,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -1040,13 +1042,13 @@ class InstagramPostsController extends Controller
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
-        curl_close($curl);
         $parameters = [];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url ="https://api.hashtagify.me/1.0/tag/' . $word";
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\InstagramPostsController::class, 'getHashTashSuggestions');
+
+        curl_close($curl);
+       
 
         if ($err) {
             //echo "cURL Error #:" . $err;

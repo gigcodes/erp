@@ -346,11 +346,12 @@ class SeoToolController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'GET',
                 ]);
                 $response = curl_exec($curl);
-                curl_close($curl);
                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url = url("/") ;
-                LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\SeoToolController::class, 'semrushCurlRequests');
+                $parameters =[];
+                LogRequest::log($startTime, $api, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\SeoToolController::class, 'semrushCurlRequests');
+                curl_close($curl);
+                
             }
             if ($response != 'ERROR 50 :: NOTHING FOUND') {
                 if ($keyValuePair == 1) {

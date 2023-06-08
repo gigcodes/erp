@@ -66,10 +66,11 @@ class SendEmailNewsletter extends Command
                     if ($mailinglist->service && isset($mailinglist->service->name)) {
                         if ($mailinglist->service->name == 'AcelleMail') {
                             $curl = curl_init();
+                            $url = 'http://165.232.42.174/api/v1/campaign/create/' . $mailinglist->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
 
                             curl_setopt_array($curl, [
                                 //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                                CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/' . $mailinglist->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
+                                CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
@@ -82,8 +83,8 @@ class SendEmailNewsletter extends Command
 
                             $response = curl_exec($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $url ="https://wetransfer.com/api/v4/transfers/";
-                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SendEmailNewsletter::class, 'handle');
+                            $parameters = []; 
+                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\SendEmailNewsletter::class, 'handle');
 
                             $response = json_decode($response);
                             $newsletter->sent_on = date('Y-m-d H:i:s');

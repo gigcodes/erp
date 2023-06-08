@@ -112,9 +112,10 @@ class GTMetrixTestCMD extends Command
                 foreach ($storeViewList as $value) {
                     $webiteUrl = $value['magento_url'];
                     $curl = curl_init();
+                    $url = $webiteUrl."/pub/sitemap/sitemap_gb_en.xml";
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => "$webiteUrl/pub/sitemap/sitemap_gb_en.xml",
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_TIMEOUT => 30000,
@@ -126,12 +127,14 @@ class GTMetrixTestCMD extends Command
                         ],
                     ]);
                     $response = curl_exec($curl);
-                    $err = curl_error($curl);
-                    curl_close($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    LogRequest::log($startTime, $webiteUrl, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMD::class, 'handle');
+                    $parameters = [];
+                    LogRequest::log($startTime, $webiteUrl, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMD::class, 'handle');
 
+                    $err = curl_error($curl);
+                    curl_close($curl);
+                    
                     //$create = array();
                     if ($err) {
                         \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);

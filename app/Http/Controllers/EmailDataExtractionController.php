@@ -752,7 +752,10 @@ class EmailDataExtractionController extends Controller
 
         $real = curl_exec($ch);
 
-        $urlResponse = json_decode($real);
+        $urlResponse = json_decode($real); // respons decode
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        LogRequest::log($startTime, $curlURL, 'GET',  json_encode($parameters) , $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 
@@ -789,8 +792,7 @@ class EmailDataExtractionController extends Controller
                 }
             }
         }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $curlURL, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
+       
     }
 
     public function bluckAction(Request $request)

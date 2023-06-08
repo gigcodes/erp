@@ -74,8 +74,9 @@ class GTMetrixTestCMDGetReport extends Command
                     $this->GTMatrixError($value->id, 'pagespeed', 'API Key not found', 'API Key not found');
                 }
                 $curl = curl_init();
+                $url ="https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -91,12 +92,10 @@ class GTMetrixTestCMDGetReport extends Command
                 $response = curl_exec($curl);
                 // Get possible error
                 $err = curl_error($curl);
-
+                $parameters = [];
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);          
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                 curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
-
                 if ($err) {
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting error from curl request']);
 
@@ -153,9 +152,10 @@ class GTMetrixTestCMDGetReport extends Command
                     $password = $gtmatrix['account_id'];
 
                     $curl = curl_init();
+                    $url ="https://gtmetrix.com/api/2.0/status";
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_USERPWD => $value->account_id . ':' . '',
                         CURLOPT_ENCODING => '',
@@ -171,9 +171,9 @@ class GTMetrixTestCMDGetReport extends Command
                     if ($err) {
                         $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                     }
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $url ="https://gtmetrix.com/api/2.0/status";
-                    LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE); 
+                    $parameters = [];               
+                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
@@ -197,9 +197,10 @@ class GTMetrixTestCMDGetReport extends Command
 
                         foreach ($AccountData as $key => $ValueData) {
                             $curl = curl_init();
+                            $url = "https://gtmetrix.com/api/2.0/status";
 
                             curl_setopt_array($curl, [
-                                CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                                CURLOPT_URL =>  $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_USERPWD => $ValueData['account_id'] . ':' . '',
                                 CURLOPT_ENCODING => '',
@@ -215,10 +216,11 @@ class GTMetrixTestCMDGetReport extends Command
                             if ($err) {
                                 $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                             }
-                            curl_close($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $url ="https://gtmetrix.com/api/2.0/status";
-                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
+                            $parameters = [];
+                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
+                            curl_close($curl);
+                            
                             // decode the response
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;

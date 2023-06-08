@@ -60,8 +60,9 @@ class IosAdsReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
+                $url ="https://api.appfigures.com/v2/reports/ads?networks=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://api.appfigures.com/v2/reports/ads?networks=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -77,13 +78,12 @@ class IosAdsReport extends Command
 
                 $result = curl_exec($curl);
                 // print($result);
-                $res = json_decode($result, true);
-
-                curl_close($curl);
+                $res = json_decode($result, true); //here response decoded
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://api.appfigures.com/v2/reports/ads?networks=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\IosAdsReport::class, 'handle');
-
+                $parameters = [];
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $res, $httpcode, \App\Console\Commands\IosAdsReport::class, 'handle');
+                curl_close($curl);
+               
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api called."]);
                 print_r($res);
                 if ($res) {

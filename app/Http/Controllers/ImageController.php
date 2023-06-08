@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\LogRequest;
 
+use function GuzzleHttp\json_decode;
+
 class ImageController extends Controller
 {
     public function __construct()
@@ -693,8 +695,9 @@ class ImageController extends Controller
             $postData = ['data' => [['id' => $new->id, 'search_term' => $request->search_term]]];
             $postData = json_encode($postData);
             $curl = curl_init();
+            $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -707,12 +710,13 @@ class ImageController extends Controller
                 CURLOPT_POSTFIELDS => "$postData",
             ]);
             $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $url = url("/") . "images/searchQueue";
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
+            $err = curl_error($curl);
+            curl_close($curl);
+            
             $messages = 'new search queue added successfuly';
 
             return Redirect::Back()

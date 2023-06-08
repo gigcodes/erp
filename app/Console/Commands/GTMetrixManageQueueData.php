@@ -87,11 +87,11 @@ class GTMetrixManageQueueData extends Command
                             ]);
 
                             $response = curl_exec($curl);
-                            curl_close($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             $url = "https://gtmetrix.com/api/2.0/status";
-                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
-
+                            $parameters = [];
+                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
+                            curl_close($curl);
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
 
@@ -115,9 +115,10 @@ class GTMetrixManageQueueData extends Command
 
                             foreach ($AccountData as $key => $value) {
                                 $curl = curl_init();
+                                $url = "https://gtmetrix.com/api/2.0/status";
 
                                 curl_setopt_array($curl, [
-                                    CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                                    CURLOPT_URL =>  $url,
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                                     CURLOPT_ENCODING => '',
@@ -129,11 +130,11 @@ class GTMetrixManageQueueData extends Command
                                 ]);
 
                                 $response = curl_exec($curl);
-
-                                curl_close($curl);
                                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                                $url = "https://gtmetrix.com/api/2.0/status";
-                                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
+                                $parameters = [];
+                                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
+                                curl_close($curl);
+                               
                                 // decode the response
                                 $data = json_decode($response);
                                 $credits = $data->data->attributes->api_credits;

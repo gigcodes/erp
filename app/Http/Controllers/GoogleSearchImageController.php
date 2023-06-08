@@ -859,6 +859,9 @@ class GoogleSearchImageController extends Controller
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 
             $output = curl_exec($handle);
+            $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+            $parameter = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
 
             curl_close($handle);
 
@@ -906,8 +909,7 @@ class GoogleSearchImageController extends Controller
                 "image_url" => $product->crop_image
 
             ];
-            $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
+           
             //If Page Is Not Found
             if ($count == 0) {
                 $product->status_id = StatusHelper::$googleTextSearchFailed;
@@ -1241,7 +1243,8 @@ class GoogleSearchImageController extends Controller
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 
         $output = curl_exec($handle);
-
+        $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
         curl_close($handle);
 
         $list = json_decode($output);
@@ -1281,8 +1284,7 @@ class GoogleSearchImageController extends Controller
             $log->save();
             $count++;
         }
-        $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameter), json_decode($output), $httpcode, \App\Http\Controllers\GoogleSearchImageController::class, 'multipleImageStore');
+        
         //If Page Is Not Found
         if ($count == 0) {
             $product->status_id = StatusHelper::$googleTextSearchFailed;

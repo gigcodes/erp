@@ -163,9 +163,10 @@ class GoogleWebMasterController extends Controller
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'updateSitesData');
+
+        curl_close($curl);
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['key' => $this->googleToken, 'error' => $error_msg, 'type' => 'site_list'];
@@ -368,8 +369,8 @@ class GoogleWebMasterController extends Controller
         ]);
 
         $response = curl_exec($curl);
-
-        $response = json_decode($response);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $response = json_decode($response); // response decode
 
         if (isset($response->error->message)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $response->error->message, 'type' => 'search_analytics'];
@@ -381,8 +382,8 @@ class GoogleWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForAnaylist');
+       
+        LogRequest::log($startTime, $url, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForAnaylist');
 
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $error_msg, 'type' => 'search_analytics'];
@@ -445,7 +446,7 @@ class GoogleWebMasterController extends Controller
                 ],
             ]);
             $response = curl_exec($curl);
-            $response = json_decode($response);
+            $response = json_decode($response); // response deoced
 
             if (curl_errno($curl)) {
                 $error_msg = curl_error($curl);
@@ -454,9 +455,9 @@ class GoogleWebMasterController extends Controller
                 \Log::error('Error Msg::' . $error_msg);
             }
 
-            curl_close($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
+            curl_close($curl);
+            LogRequest::log($startTime, $url_for_sites, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
 
 
             if (! empty($response)) {
@@ -538,9 +539,8 @@ class GoogleWebMasterController extends Controller
                     if (curl_errno($curl)) {
                         $error_msg = curl_error($curl);
                     }
-
-                    curl_close($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    curl_close($curl);
                     LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster');
 
                     if (! empty($response)) {
@@ -654,8 +654,9 @@ class GoogleWebMasterController extends Controller
             if ($this->client->getAccessToken()) {
                 $details = $this->updateSitesData($request);
                 $curl = curl_init();
+                $url = 'https://www.googleapis.com/webmasters/v3/sites/';
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -668,6 +669,8 @@ class GoogleWebMasterController extends Controller
                 ]);
 
                 $response = curl_exec($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
                 $err = curl_error($curl);
 
                 if (curl_errno($curl)) {
@@ -703,10 +706,11 @@ class GoogleWebMasterController extends Controller
 
                             echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                             $curl1 = curl_init();
+                            $url ="https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
                             //replace website name with code coming form site list
 
                             curl_setopt_array($curl1, [
-                                CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
+                                CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
@@ -719,6 +723,9 @@ class GoogleWebMasterController extends Controller
                             ]);
 
                             $response1 = curl_exec($curl1);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $parameters = [];
+                            LogRequest::log($startTime, $url, 'GET', $parameters, $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
                             $err = curl_error($curl1);
 
                             if ($err) {
@@ -750,9 +757,7 @@ class GoogleWebMasterController extends Controller
                 }
             }
         }
-        $url = "https://www.googleapis.com/webmasters/v3/sites/";
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'allRecords');
+        
         return redirect()->route('googlewebmaster.index');
     }
 
@@ -860,15 +865,16 @@ class GoogleWebMasterController extends Controller
                             ],
                         ]);
                         $response = curl_exec($curl);
-                        $response = json_decode($response);
+                        $response = json_decode($response); //response deocde
 
                         if (curl_errno($curl)) {
                             $error_msg = curl_error($curl);
                         }
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        curl_close($curl);
                         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url_for_sites, 'POST', [], $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'deleteSiteFromWebmaster');
+                        curl_close($curl);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url_for_sites, 'POST', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'deleteSiteFromWebmaster');
 
                         if (! empty($response)) {
                             \App\WebmasterLog::create([

@@ -5205,10 +5205,10 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+
+        curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithWhatsApp');
 
         if ($err) {
@@ -5294,11 +5294,12 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'pullApiwha');
+        $parameters = [];
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'pullApiwha');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5393,9 +5394,10 @@ class WhatsAppController extends FindByNumberController
             ];
 
             $curl = curl_init();
+            $url = "https://api.wassenger.com/v1/files?reference=$chat_message_id";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => "https://api.wassenger.com/v1/files?reference=$chat_message_id",
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -5411,11 +5413,11 @@ class WhatsAppController extends FindByNumberController
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
-
-            curl_close($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $url = "https://api.wassenger.com/v1/files?reference=$chat_message_id";
+
+            curl_close($curl);
+            
             LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
             // throw new \Exception("cURL Error #: whatttt");
             if ($err) {
@@ -5463,9 +5465,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $curl = curl_init();
+        $url = "https://api.wassenger.com/v1/messages";
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.wassenger.com/v1/messages',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -5482,9 +5485,8 @@ class WhatsAppController extends FindByNumberController
         $response = curl_exec($curl);
         $err = curl_error($curl);
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
         curl_close($curl);
-        $url = "https://api.wassenger.com/v1/messages";
+       
         LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
 
         if ($err) {
@@ -5698,14 +5700,13 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
 
-        $url = "https://api.wassenger.com/v1/messages";
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithThirdApi');
+        LogRequest::log($startTime, $domain, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithThirdApi');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -6072,9 +6073,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $curl = curl_init();
+        $url = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -6090,15 +6092,15 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
+        $result = json_decode($response, true);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
 
-        $result = json_decode($response, true);
-        $url = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendBulkNotification');
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendBulkNotification');
         if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);

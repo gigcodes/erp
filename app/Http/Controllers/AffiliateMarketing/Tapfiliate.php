@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\AffiliateMarketing;
-
+use App\LogRequest;
 /**
  * Tapfiliate controller to manage and update data for tapfiliate provider.
  */
@@ -277,6 +277,7 @@ class Tapfiliate
     public function callApi($method, $url, array $params = []): array
     {
         $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->BASE_API_URL . $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -297,6 +298,9 @@ class Tapfiliate
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
         }
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        LogRequest::log($startTime,  $this->BASE_API_URL . $url, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\AffilicateMarketing\Tapfiliate::class, 'callApi');
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {

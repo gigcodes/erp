@@ -56,9 +56,10 @@ class GTMetrixAccount extends Command
             if (! empty($value->account_id)) {
                 try {
                     $curl = curl_init();
+                    $url = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_USERPWD => $value->account_id . ':' . '',
                         CURLOPT_ENCODING => '',
@@ -70,7 +71,9 @@ class GTMetrixAccount extends Command
                     ]);
 
                     $response = curl_exec($curl);
-
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $parameters = [];
+                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
@@ -92,10 +95,7 @@ class GTMetrixAccount extends Command
                 }
             }
         }
-
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $url = "https://gtmetrix.com/api/2.0/status";
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
+ 
         \Log::info('GTMetrix :: Report cron complete ');
         $report->update(['end_time' => Carbon::now()]);
 

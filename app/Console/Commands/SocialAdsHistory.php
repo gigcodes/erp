@@ -88,11 +88,12 @@ class SocialAdsHistory extends Command
             curl_setopt($ch, CURLOPT_POST, 0);
 
             $resp = curl_exec($ch);
-            $resp = json_decode($resp);
-            curl_close($ch);
-            $response = curl_exec($ch);
+            $resp = json_decode($resp); //response decodes
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $query, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
+            $parameters = [];
+            LogRequest::log($startTime, $query, 'POST', json_encode($parameters), $resp, $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
+            curl_close($ch);
+           
 
             $resp->token = $adaccountAds['config_id'];
 

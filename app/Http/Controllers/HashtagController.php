@@ -827,8 +827,9 @@ class HashtagController extends Controller
                             'folderId' => 1,
                             'name' => $name,
                         ];
+                        $url = "'https://api.sendinblue.com/v3/contacts/lists'";
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/lists',
+                            CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
@@ -844,13 +845,14 @@ class HashtagController extends Controller
                         ]);
 
                         $response = curl_exec($curl);
-
-                        curl_close($curl);
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        $url =url("/") ."instagram/addmailinglist";
-                        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
                         \Log::info($response);
+
+                        curl_close($curl);
+                        
                         $res = json_decode($response);
 
                         \App\Mailinglist::create([
@@ -888,8 +890,9 @@ class HashtagController extends Controller
                 'listIds' => $listIds,
                 'attributes' => ['firstname' => $email_list2[$count]['name']],
             ];
+            $url = 'https://api.sendinblue.com/v3/contacts';
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts',
+                CURLOPT_URL => $url ,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -904,12 +907,11 @@ class HashtagController extends Controller
                 ],
             ]);
             $response = curl_exec($curl);
-
-            curl_close($curl);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $url =url("/") . "instagram/addmailinglist";
-            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
+            LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
+            curl_close($curl);
+            
         }
 
         return redirect()->back()->with('message', 'mailinglist create successfully');

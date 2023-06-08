@@ -131,8 +131,8 @@ class WhatsAppOfficialController extends Controller
         }
         $response = curl_exec($curl);
         $err = curl_error($curl);
-        curl_close($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
         LogRequest::log($startTime, $finalUrl, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\WhatsAppOfficialController::class, 'callApi');
         if ($err) {
             $message = 'Account :- ' . $this->account->id . ', ';

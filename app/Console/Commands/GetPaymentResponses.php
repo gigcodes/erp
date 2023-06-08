@@ -137,7 +137,8 @@ class GetPaymentResponses extends Command
         curl_close($ch);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($server_output), $httpcode, \App\Console\Commands\GetPaymentResponses::class, 'getDataApi');
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($server_output), $httpcode, \App\Console\Commands\GetPaymentResponses::class, 'getDataApi');
         return  $server_output;
     }
 }
