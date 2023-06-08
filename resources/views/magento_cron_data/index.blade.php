@@ -38,9 +38,9 @@
                       $selectcate =$_GET['website'];
                     }
                     @endphp
-                        @if ($website)
-                            @foreach($website as $id => $web)
-                                <option value="{{ $id }}" @if($selectcate == $id) selected @endif  >{{ $web }}</option>
+                        @if ($magentoCronWebsites)
+                            @foreach($magentoCronWebsites as $id => $web)
+                                <option value="{{ $web }}" @if($selectcate == $web) selected @endif  >{{ $web }}</option>
                             @endforeach
                         @endif
                     </select>
