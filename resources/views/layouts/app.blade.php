@@ -7156,6 +7156,38 @@ if (!\Auth::guest()) {
         });
     }
 
+    $(document).on('click','.event-alert-log-modal',function(e){
+        var event_type = $(this).data("event_type");
+        var event_id = $(this).data("event_id");
+        var event_schedule_id = $(this).data("event_schedule_id");
+        var assets_manager_id = $(this).data("assets_manager_id");
+        var event_alert_date = $(this).data("event_alert_date");
+        var is_read = $(this).prop('checked');
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('event.saveAlertLog')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                event_type,
+                event_id,
+                event_schedule_id,
+                assets_manager_id,
+                event_alert_date,
+                is_read
+            },
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            toastr["success"](response.message, "Message");
+            $('.ajax-loader').hide();
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+        });
+    });
+
     $(document).on("click", ".permission-request", function(e) {
         e.preventDefault();
         $.ajax({

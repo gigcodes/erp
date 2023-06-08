@@ -13,7 +13,18 @@
             <td>{{ $eventAlert->title }}</td>
             <td>{{ $eventAlert->start}}</td>
             <td>{{ $eventAlert->event_type_name}}</td>
-            <td><input type="checkbox" name="is_read"></td>
+            <td>
+                <input 
+                    type="checkbox" 
+                    name="is_read" 
+                    class="event-alert-log-modal"
+                    data-event_type="{{$eventAlert->event_type}}" 
+                    data-event_id="{{$eventAlert->event_id}}" 
+                    data-event_schedule_id="{{$eventAlert->event_schedule_id}}"
+                    data-assets_manager_id="{{$eventAlert->assets_manager_id}}"
+                    data-event_alert_date="{{$eventAlert->start}}"
+                    >
+            </td>
         </tr>
         @endforeach
     </tbody>

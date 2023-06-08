@@ -49,6 +49,14 @@ class Event extends Model
         return $this->hasMany(\App\Models\EventSchedule::class);
     }
 
+    /**
+     * Get all of the event's alert logs.
+     */
+    public function eventAlertLogs()
+    {
+        return $this->morphMany(EventAlertLog::class, 'eventalertloggable');
+    }
+
     // Scopes 
     public function scopeMyEvents($query, $userId)
     {

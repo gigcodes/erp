@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;
 use Illuminate\Http\Request;
 use Auth;
 use App\Event;
+use App\EventAlertLog;
 use App\EventAvailability;
 use App\Mails\Manual\EventEmail;
 use App\Models\EventSchedule;
@@ -371,11 +373,15 @@ class EventController extends Controller
             ->whereHas('event', function($event) use($userId) {
                 $event->where('user_id', $userId)->where('event_type', 'PU');
             })
+            ->whereDoesntHave('eventAlertLogs', function($q){
+                $q->where('is_read', 1);
+            })
             ->get()
             ->map(function ($eventSchedule) {
                 return (object) [
                     'event_id' => $eventSchedule->event_id,
                     'event_schedule_id' => $eventSchedule->id,
+                    'assets_manager_id' => "",
                     'subject' => $eventSchedule->event->name,
                     'title' => $eventSchedule->event->name,
                     'description' => $eventSchedule->event->description,
@@ -395,6 +401,10 @@ class EventController extends Controller
             ])
             ->whereIn("payment_cycle", ["Monthly", "Yearly", "One time"])
             ->whereNotNull('due_date')
+            ->whereDoesntHave('eventAlertLogs', function($q) use ($dt){
+                $q->where('is_read', 1);
+                $q->where('event_alert_date', $dt->toDateString());
+            })
             ->where(function ($query) use ($dt) {
                 $query->WhereDate('due_date', $dt->toDateString())
                     ->orWhere([
@@ -411,6 +421,8 @@ class EventController extends Controller
 
                     if($dt->eq($monthlyRecurringDueDate)) {
                         $myAssets->push((object)[
+                            'event_id' => "",
+                            'event_schedule_id' => "",
                             'assets_manager_id' => $assetsManager->id,
                             'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
@@ -428,13 +440,16 @@ class EventController extends Controller
 
                     if($dt->eq($yearlyRecurringDueDate)) {
                         $myAssets->push((object)[
+                            'event_id' => "",
+                            'event_schedule_id' => "",
                             'assets_manager_id' => $assetsManager->id,
                             'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
                             'start' => $cDueDate->setYear($dt->year)->toDateString(),
                             'end' => $cDueDate->setYear($dt->year)->toDateString(),
-                            'event_type' => 'AS'
+                            'event_type' => Event::ASSET,
+                            'event_type_name' => Event::$eventTypes[Event::ASSET],
                         ]);
                     }
                 }
@@ -442,13 +457,16 @@ class EventController extends Controller
                 if ($assetsManager->payment_cycle == 'One time') {
                     if($dt->eq($cDueDate)) {
                         $myAssets->push((object)[
+                            'event_id' => "",
+                            'event_schedule_id' => "",
                             'assets_manager_id' => $assetsManager->id,
                             'subject' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => "Payment Due". " (Asset: ".($assetsManager->name ?? "-").", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
                             'start' => $cDueDate->toDateString(),
                             'end' => $cDueDate->toDateString(),
-                            'event_type' => 'AS'
+                            'event_type' => Event::ASSET,
+                            'event_type_name' => Event::$eventTypes[Event::ASSET],
                         ]);
                     }
                 }
@@ -475,16 +493,28 @@ class EventController extends Controller
         $userPrivateEventCollection = new Collection();
         foreach ($userPrivateEvents as $userPrivateEvent) {
             if($dt->format('N') == $userPrivateEvent->numeric_day) {
-                $userPrivateEventCollection->push((object)[
-                    'event_id' => $userPrivateEvent->id,
-                    'subject' => $userPrivateEvent->name,
-                    'title' => $userPrivateEvent->name,
-                    'description' => $userPrivateEvent->description,
-                    'start' => $dt->toDateString() . " " . $userPrivateEvent->start_at,
-                    'end' => $dt->toDateString() . " " . $userPrivateEvent->end_at,
-                    'event_type' => $userPrivateEvent->event_type,
-                    'event_type_name' => $userPrivateEvent->event_type_name
-                ]);
+                $eventAlertDate = $dt->toDateString() . " " . $userPrivateEvent->start_at;
+                $eventAlertLogExists = $userPrivateEvent->whereHas('eventAlertLogs', function($eventAlertLog) use($userId, $eventAlertDate) {
+                    $eventAlertLog->where('user_id', $userId)
+                        ->where('is_read', 1)
+                        ->where('event_alert_date', $eventAlertDate)
+                        ->where('event_type', 'PR');
+                })->exists();
+
+                if (!$eventAlertLogExists) {
+                    $userPrivateEventCollection->push((object)[
+                        'event_id' => $userPrivateEvent->id,
+                        'event_schedule_id' => "",
+                        'assets_manager_id' => "",
+                        'subject' => $userPrivateEvent->name,
+                        'title' => $userPrivateEvent->name,
+                        'description' => $userPrivateEvent->description,
+                        'start' => $dt->toDateString() . " " . $userPrivateEvent->start_at,
+                        'end' => $dt->toDateString() . " " . $userPrivateEvent->end_at,
+                        'event_type' => $userPrivateEvent->event_type,
+                        'event_type_name' => $userPrivateEvent->event_type_name
+                    ]);
+                }
             }
         }
 
@@ -493,5 +523,50 @@ class EventController extends Controller
         $html = view('partials.modals.event-alerts-modal-html')->with('eventAlerts', $merged)->render();
 
         return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render', 'count' => $merged->count()]);
+    }
+
+    public function saveAlertLog(Request $request)
+    {
+        $eventType = $request->event_type;
+        $eventId = $request->event_id;
+        $eventScheduleId = $request->event_schedule_id;
+        $assetsManagerId = $request->assets_manager_id;
+        $eventAlertDate = $request->event_alert_date;
+        $isRead = ($request->is_read == 'true' ? 1 : 0);
+
+        if ($eventType == Event::PUBLIC) {
+            $eventSchedule = EventSchedule::findOrFail($eventScheduleId);
+
+            $eventAlertLog['user_id'] = Auth::user()->id;
+            $eventAlertLog['event_alert_date'] = $eventAlertDate;
+            $eventAlertLog['event_type'] = $eventType;
+
+            $eventSchedule->eventAlertLogs()->updateOrCreate($eventAlertLog, ['is_read' => $isRead]);
+        }
+
+        if ($eventType == Event::PRIVATE) {
+            $event = Event::findOrFail($eventId);
+
+            $eventAlertLog['user_id'] = Auth::user()->id;
+            $eventAlertLog['event_alert_date'] = $eventAlertDate;
+            $eventAlertLog['event_type'] = $eventType;
+
+            $event->eventAlertLogs()->updateOrCreate($eventAlertLog, ['is_read' => $isRead]);
+        }
+
+        if ($eventType == Event::ASSET) {
+            $assetsManager = AssetsManager::findOrFail($assetsManagerId);
+
+            $eventAlertLog['user_id'] = Auth::user()->id;
+            $eventAlertLog['event_alert_date'] = $eventAlertDate;
+            $eventAlertLog['event_type'] = $eventType;
+
+            $assetsManager->eventAlertLogs()->updateOrCreate($eventAlertLog, ['is_read' => $isRead]);
+        }
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Updated successfully !!',
+        ]);
     }
 }
