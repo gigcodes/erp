@@ -9,6 +9,9 @@ class MonitorUser extends Model
 {
     use HasFactory;
 
+    protected $table = 'monitor_users';
+    protected $primaryKey = 'user_id';
+
     public $fillable = [
         'user_name',
         'password',
@@ -33,6 +36,6 @@ class MonitorUser extends Model
      */
     public function monitorServers()
     {
-        return $this->belongsToMany(MonitorServer::class);
+        return $this->belongsToMany(MonitorServer::class, 'monitor_users_servers', 'user_id', 'server_id');
     }
 }

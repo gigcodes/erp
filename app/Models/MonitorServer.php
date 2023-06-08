@@ -9,6 +9,9 @@ class MonitorServer extends Model
 {
     use HasFactory;
 
+    protected $table = 'monitor_servers';
+    protected $primaryKey = 'server_id';
+
     public $fillable = [
         'ip',
         'port',
@@ -62,6 +65,6 @@ class MonitorServer extends Model
      */
     public function monitorUsers()
     {
-        return $this->belongsToMany(MonitorUser::class);
+        return $this->belongsToMany(MonitorUser::class, 'monitor_users_servers', 'server_id', 'user_id');
     }
 }

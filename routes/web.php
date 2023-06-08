@@ -5249,4 +5249,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('monitor-server', MonitorServerController::class);
     Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
     Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+    Route::get('monitor-server/get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
+    Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 });
