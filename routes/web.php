@@ -475,6 +475,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers/accounts', [CustomerController::class, 'accounts']);
     Route::post('/customer/update', [CustomerController::class, 'customerUpdate']);
     Route::get('/customer/update/history/{id}', [CustomerController::class, 'customerUpdateHistory']);
+    Route::get('/customer/name', [CustomerController::class, 'customerName'])->name('customer.name.show');
 
     //Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/productselection/list', [ProductSelectionController::class, 'sList'])->name('productselection.list');
