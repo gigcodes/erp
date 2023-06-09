@@ -3783,7 +3783,7 @@ if (!empty($notifications)) {
                     </div>
                     @if(Auth::check())
                     <nav id="quick-sidebars">
-                        <ul class="list-unstyled components mr-1">
+                        <ul class="list-unstyled components mr-1">      
                             <li>
                                 <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                     <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
@@ -7170,6 +7170,32 @@ if (!\Auth::guest()) {
             console.log(response);
         });
     }
+
+        $(document).on('submit', '#event-alert-date-form', function(event) {
+            event.preventDefault();
+            var dateValue = $('input[name="event_alert_date"]').val();
+            $.ajax({
+                    type: "GET",
+                    url: "{{route('event.getEventAlerts')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date : dateValue
+                    },
+            }).done(function (response) {
+                $('.ajax-loader').hide();
+                $('#event-alerts-modal-html').empty().html(response.html);
+                if (showModal) {
+                    $('#event-alerts-modal').modal('show');
+                }
+                if(response.count > 0) {
+                    $('.event-alert-badge').removeClass("hide");
+                }
+            }).fail(function (response) {
+                $('.ajax-loader').hide();
+                console.log(response);
+            });
+         });
+
 
     $(document).on('click','.event-alert-log-modal',function(e){
         var event_type = $(this).data("event_type");
