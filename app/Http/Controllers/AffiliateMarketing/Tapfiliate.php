@@ -300,7 +300,7 @@ class Tapfiliate
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-        LogRequest::log($startTime,  $this->BASE_API_URL . $url, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\AffilicateMarketing\Tapfiliate::class, 'callApi');
+        LogRequest::log($startTime,  $this->BASE_API_URL . $url, curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params)), json_encode($params), $response, $httpcode, \App\Http\Controllers\AffilicateMarketing\Tapfiliate::class, 'callApi');
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {

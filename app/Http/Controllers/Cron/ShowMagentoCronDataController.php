@@ -160,7 +160,8 @@ class ShowMagentoCronDataController extends Controller
                         $job_id=$logs->job_id;
                         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
                         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
-                        
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+ 
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL,$url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -176,7 +177,6 @@ class ShowMagentoCronDataController extends Controller
 
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         $parameters = [];
-                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\Cron\ShowMagentoCronDataController::class, 'callApi');
 
                         if (curl_errno($ch)) {

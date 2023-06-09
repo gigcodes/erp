@@ -5135,7 +5135,7 @@ class WhatsAppController extends FindByNumberController
                 return;
             }
         }
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         if (Setting::get('whatsapp_number_change') == 1) {
@@ -5205,7 +5205,6 @@ class WhatsAppController extends FindByNumberController
         $response = curl_exec($curl);
         $err = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithWhatsApp');
@@ -5417,7 +5416,7 @@ class WhatsAppController extends FindByNumberController
 
             curl_close($curl);
             
-            LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
+            LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
             // throw new \Exception("cURL Error #: whatttt");
             if ($err) {
                 // DON'T THROW EXCEPTION
@@ -5486,7 +5485,7 @@ class WhatsAppController extends FindByNumberController
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
        
-        LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
+        LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5705,7 +5704,7 @@ class WhatsAppController extends FindByNumberController
 
         curl_close($curl);
 
-        LogRequest::log($startTime, $domain, 'GET', json_encode($logDetail), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithThirdApi');
+        LogRequest::log($startTime, $domain, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithThirdApi');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -6093,13 +6092,11 @@ class WhatsAppController extends FindByNumberController
         $err = curl_error($curl);
         $result = json_decode($response, true);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
-
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendBulkNotification');
+        LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendBulkNotification');
         if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);

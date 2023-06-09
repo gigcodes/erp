@@ -455,7 +455,7 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'getInstaID');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($resp), $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'getInstaID');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['instagram_business_account'])) {
@@ -485,7 +485,7 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($postfields), $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'addMedia');
+        LogRequest::log($startTime, $url, 'POST', json_encode($postfields), json_decode($resp), $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
 
@@ -518,7 +518,7 @@ class SocialAdsetController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($postfields), $resp, $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'publishMedia');
+        LogRequest::log($startTime, $url, 'POST', json_encode($postfields), json_decode($resp), $httpcode, \App\Http\Controllers\SocialAdsetController::class, 'publishMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
         $resp = json_decode($resp, true);
 

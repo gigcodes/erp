@@ -316,12 +316,11 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
 
         //        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         $url = 'http://136.244.118.102:81/get-barcode';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:81/get-barcode?instanceId=' . $whatsappConfig->instance_id;
@@ -414,11 +413,10 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
 
         $url = env('WHATSAPP_BARCODE_IP') . ':' . $whatsappConfig->username . '/delete-chrome-data';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -476,9 +474,9 @@ class WhatsappConfigController extends Controller
         // close curl resource to free up system resources
         curl_close($ch);
 
-        $response = json_decode($output);
+        $response = json_decode($output); //response decoded
 
-        LogRequest::log($startTime, $url, 'POST', json_encode([]), $output, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'restartScript');
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'restartScript');
 
         if ($response) {
             if ($response->barcode == 'Process Killed') {

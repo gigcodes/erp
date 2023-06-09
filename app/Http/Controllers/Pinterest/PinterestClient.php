@@ -459,7 +459,7 @@ class PinterestClient
         ]);
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $this->getBASEAPI() . 'oauth/token', 'POST', json_encode($postFields), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'validateAccessTokenAndRefreshToken');
+        LogRequest::log($startTime, $this->getBASEAPI() . 'oauth/token', 'POST', json_encode($postFields), json_decode($response), $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'validateAccessTokenAndRefreshToken');
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {
@@ -476,6 +476,7 @@ class PinterestClient
      */
     public function callApi($method, $url, array $params = []): array
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->getBASEAPI() . $url,
@@ -501,8 +502,7 @@ class PinterestClient
 //        _p([$method, $this->getBASEAPI() . $url, json_encode($params), $this->getAccessToken(), curl_getinfo($curl), $response]);die;
         $err = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, $method, json_encode($params), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');
+        LogRequest::log($startTime, $url, $method, json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');
         curl_close($curl);
         if ($err) {
             $message = 'Account :- ' . $this->getAccountId() . ', ';

@@ -137,8 +137,8 @@ class ChatGPTService
         } else {
             array_push($header, 'Content-Type: application/json');
         }
-        $curl = curl_init();
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->base_api . $url,
             CURLOPT_RETURNTRANSFER => true,

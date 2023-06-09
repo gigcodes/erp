@@ -577,7 +577,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         // $stdClass = json_decode(json_encode($response));
                         $data = json_decode($response); //reponse encoded
 
-                        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
+                        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
                         $credits = $data->data->attributes->api_credits;
                         // print_r($data->data->attributes->api_credits);
                         if ($credits != 0) {
@@ -619,7 +619,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             // decode the response
                             $data = json_decode($response);
 
-                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
+                            LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'MultiRunErpEvent');
                             $credits = $data->data->attributes->api_credits;
                             if ($credits != 0) {
                                 $client = new GTMetrixClient();

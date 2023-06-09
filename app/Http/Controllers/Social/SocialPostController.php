@@ -839,7 +839,7 @@ class SocialPostController extends Controller
         // curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         // $resp = curl_exec($ch);
 
-        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), json_deocde($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
+        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['id'])) {
@@ -877,7 +877,7 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($postfields), json_deocde($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
+        LogRequest::log($startTime, $url, 'GET', json_encode($postfields), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
         $resp = json_decode($resp, true);
 

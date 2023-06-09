@@ -78,7 +78,7 @@ class SocialConfigController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET',  json_encode([]), $json_decode($response), $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getadsAccountManager');
+        LogRequest::log($startTime, $url, 'GET',  json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getadsAccountManager');
 
         $data = json_decode($response, true);
 
@@ -284,7 +284,7 @@ class SocialConfigController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true); //response deocded
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
             curl_close($curl);

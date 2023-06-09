@@ -88,6 +88,12 @@ class MailinglistEmailController extends Controller
         $website = \App\StoreWebsite::where('id', $list->website_id)->first();
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $paramters = [
+            'name' => $mailing_item->subject, 
+            'subject' => $mailing_item->subject, 
+            'run_at' => $mailing_item->scheduled_date,
+            'template_content' => $mailing_item->html
+        ];
 
         if ($list->service) {
             if ($list->service && isset($list->service->name)) {
@@ -105,7 +111,7 @@ class MailinglistEmailController extends Controller
                         CURLOPT_FOLLOWLOCATION => true,
                         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                         CURLOPT_CUSTOMREQUEST => 'POST',
-                        CURLOPT_POSTFIELDS => ['name' => $mailing_item->subject, 'subject' => $mailing_item->subject, 'run_at' => $mailing_item->scheduled_date, 'template_content' => $mailing_item->html],
+                        CURLOPT_POSTFIELDS => $paramters,
                     ]);
 
                     $response = curl_exec($curl);
@@ -113,7 +119,7 @@ class MailinglistEmailController extends Controller
                     $response = json_decode($response); //decode response
                     $paramters = [];
 
-                    LogRequest::log($startTime, $url, 'POST', $paramters, $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($paramters), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
 
                     if (! empty($response->campaign)) {
                         $mailing_item->api_template_id = $response->campaign;
@@ -148,15 +154,13 @@ class MailinglistEmailController extends Controller
                             ],
                         ]);
                         $response = curl_exec($curl);
-                        $response = json_decode($response);
+                        $response = json_decode($response); //response decode
                         if (! empty($response->id)) {
                             $mailing_item->api_template_id = $response->id;
                         }
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        $paramters = [];
-                        curl_close($curl);
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);                        curl_close($curl);
                              
-                        LogRequest::log($startTime, $url, 'POST', json_encode($paramters), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
+                        LogRequest::log($startTime, $url, 'POST', json_encode($data), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
                     }
                 }
             }

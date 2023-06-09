@@ -414,7 +414,7 @@ class SocialCampaignController extends Controller
             'fb' => $fb,
             'post_id' => $post_id,
         ];
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'getInstaID');
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($resp), $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'getInstaID');
 
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);

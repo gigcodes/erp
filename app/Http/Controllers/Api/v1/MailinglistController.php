@@ -186,7 +186,7 @@ class MailinglistController extends Controller
                 $respw = json_decode($respw);
                 $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
                 $parameters = [];
-                LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                LogRequest::log($startTime, $url, 'DELETE', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl3);
                
 
@@ -212,7 +212,7 @@ class MailinglistController extends Controller
                 $ress = json_decode($resp);
                 $parameters = [];
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);    
-                LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl2);
                
                 if (isset($ress->message)) {
