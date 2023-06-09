@@ -7144,10 +7144,12 @@ if (!\Auth::guest()) {
         getEventAlerts(true);
     });
     $(document).ready(function() {
+        @if(Auth::check())
         var Role = "{{ Auth::user()->hasRole('Admin') }}";
         if (Role) {
             getEventAlerts();
         }
+        @endif
     });
 
     function getEventAlerts(showModal = false) {
