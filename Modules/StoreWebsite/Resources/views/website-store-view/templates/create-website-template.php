@@ -57,6 +57,10 @@
 		?>
 		         </select>
 		      </div>
+			  <div class="form-group col-md-6">
+		         <label for="platform_id">Platform Id</label>
+		         <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="platform_id" placeholder="Platform Id">
+		      </div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
