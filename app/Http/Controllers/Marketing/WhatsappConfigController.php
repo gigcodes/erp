@@ -435,7 +435,7 @@ class WhatsappConfigController extends Controller
 
         $barcode = json_decode($output); //response decoded
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $output, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'deleteChromeData');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $barcode, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'deleteChromeData');
 
         if ($barcode) {
             if ($barcode->barcode == 'Directory Deleted') {
@@ -568,7 +568,7 @@ class WhatsappConfigController extends Controller
                     curl_close($curl);
 
 
-                    LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'checkInstanceAuthentication');
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'checkInstanceAuthentication');
                 }
             }
         } catch (Exception $e) {

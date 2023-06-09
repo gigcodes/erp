@@ -5298,7 +5298,7 @@ class WhatsAppController extends FindByNumberController
         $parameters = [];
         curl_close($curl);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'pullApiwha');
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'pullApiwha');
 
         if ($err) {
             // DON'T THROW EXCEPTION
