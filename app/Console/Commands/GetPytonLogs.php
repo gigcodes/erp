@@ -90,12 +90,12 @@ class GetPytonLogs extends Command
         ]);
 
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, $method, json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\GetPytonLogs::class, 'callApi');
 
         curl_close($curl);
         \Log::info($response);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GetPytonLogs::class, 'callApi');
-
+        
         return $response;
     }
 }

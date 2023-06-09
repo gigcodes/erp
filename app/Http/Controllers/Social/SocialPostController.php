@@ -791,8 +791,8 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'getInstaID');
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'getInstaID');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['instagram_business_account'])) {
@@ -825,6 +825,7 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request_params);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         // $ch = curl_init();
@@ -837,8 +838,8 @@ class SocialPostController extends Controller
         // curl_setopt($ch, CURLOPT_POST, 1);
         // curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         // $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
+
+        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['id'])) {
@@ -876,7 +877,7 @@ class SocialPostController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($request_params), $resp, $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
+        LogRequest::log($startTime, $url, 'GET', json_encode($postfields), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
         $resp = json_decode($resp, true);
 

@@ -86,9 +86,9 @@ class UpdateScraperDuration extends Command
                 curl_setopt($curl, CURLOPT_URL, $url);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 $response = curl_exec($curl);
-                curl_close($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\UpdateScraperDuration::class, 'handle');
+                LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\UpdateScraperDuration::class, 'handle');
+                curl_close($curl);
                 $duration = json_decode($response);
 
                 if (empty($duration->Process[0])) {

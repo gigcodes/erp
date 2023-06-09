@@ -143,7 +143,7 @@ class MagentoSettingsController extends Controller
                     $job_id=$logs->job_id;
                     $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
                     $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
-                    
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL,$url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -156,6 +156,8 @@ class MagentoSettingsController extends Controller
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                     $result = curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'getLogs');
                     if (curl_errno($ch)) {
                         
                     }
@@ -178,11 +180,7 @@ class MagentoSettingsController extends Controller
                     }
 
                     curl_close($ch);
-                    $url = "";
-                    $parameters = [];
-                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'getLogs');
+                    
                 }
                     
                 
@@ -435,6 +433,7 @@ class MagentoSettingsController extends Controller
                         $client_id=$assetsmanager->client_id;
                         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL,$url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -452,6 +451,15 @@ class MagentoSettingsController extends Controller
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                         $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode([ 'script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), 
+                        json_decode($result),
+                         $httpcode,
+                          \App\Http\Controllers\MagentoSettingsController::class, 'update');
+
                         \Log::info("API result: ".$result);
                         if (curl_errno($ch)) {
                             \Log::info("API Error: ".curl_error($ch));
@@ -464,11 +472,7 @@ class MagentoSettingsController extends Controller
                         $response = json_decode($result);
 
                             curl_close($ch);
-                            $url =  url("/") ."magento-admin-settings/update";
-                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
-
+                            
                         if(isset($response->errors)){ 
                             $message='';
                             foreach($response->errors as $error){
@@ -558,6 +562,7 @@ class MagentoSettingsController extends Controller
                         $client_id=$assetsmanager->client_id;
                         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL,$url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -575,6 +580,11 @@ class MagentoSettingsController extends Controller
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                         $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode([ 'script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
                         \Log::info("API result: ".$result);
                         if (curl_errno($ch)) {
                             \Log::info("API Error: ".curl_error($ch));
@@ -586,11 +596,8 @@ class MagentoSettingsController extends Controller
                         \Log::info("API Response: ".$result);
                         $response = json_decode($result);
 
-                            curl_close($ch);
-                            $url =  url("/") ."magento-admin-settings/update";
-                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+                        curl_close($ch);
+                            
 
                         if(isset($response->errors)){ 
                             $message='';
@@ -679,6 +686,7 @@ class MagentoSettingsController extends Controller
                         $client_id=$assetsmanager->client_id;
                         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL,$url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -705,15 +713,15 @@ class MagentoSettingsController extends Controller
                             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
                         }
                         \Log::info("API Response: ".$result);
-                        $response = json_decode($result);
+                        $response = json_decode($result); //response decoded
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), $response, $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+
 
                         curl_close($ch);
-                        $url = "magento-admin-settings/update";
-                            $parameters = [];
-                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
-
+                            
                         if(isset($response->errors)){ 
                             $message='';
                             foreach($response->errors as $error){
@@ -794,6 +802,7 @@ class MagentoSettingsController extends Controller
                 $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                 $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
                 
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL,$url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -818,14 +827,15 @@ class MagentoSettingsController extends Controller
                     return redirect(route('magento.setting.index'))->with('error', curl_error($ch));
                 }
                 \Log::info("API Response: ".$result);
-                $response = json_decode($result);
-                
-                curl_close($ch);
+                $response = json_decode($result); //response deocde
                 $parameters = [];
                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
 
+                curl_close($ch);
+                
                 if(isset($response->errors)){ 
                     $message='';
                     foreach($response->errors as $error){
@@ -915,6 +925,7 @@ class MagentoSettingsController extends Controller
                     $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
                     $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
                     
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL,$url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -927,6 +938,8 @@ class MagentoSettingsController extends Controller
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                     $result = curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'magentoPushLogs');
                     
                     $response = json_decode($result);
                     if(isset($response->data) && isset($response->data->result) ){
@@ -1027,12 +1040,15 @@ class MagentoSettingsController extends Controller
                                                 }
                                                 \Log::info("API Response: ".$result);
                                                 $response = json_decode($result);
-
-                                                curl_close($ch);
                                                 $parameters = [];
                                                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                                                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                                                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+                                                LogRequest::log($startTime, $url, 'POST', json_encode( ['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
+
+                                                curl_close($ch);
+                                                
 
                                                 if(isset($response->errors)){ 
                                                     $message='';
@@ -1099,6 +1115,7 @@ class MagentoSettingsController extends Controller
                                                 $client_id=$assetsmanager->client_id;
                                                 $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                                                 $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                                                 $ch = curl_init();
                                                 curl_setopt($ch, CURLOPT_URL,$url);
                                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1126,13 +1143,12 @@ class MagentoSettingsController extends Controller
                                                 }
                                                 \Log::info("API Response: ".$result);
                                                 $response = json_decode($result);
-
+                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
                                                 curl_close($ch);
-                                                $parameters = [];
-                                                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                                                    LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
-
+                                                    
                                                 if(isset($response->errors)){ 
                                                     $message='';
                                                     foreach($response->errors as $error){
@@ -1201,6 +1217,7 @@ class MagentoSettingsController extends Controller
                                                 $client_id=$assetsmanager->client_id;
                                                 $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
                                                 $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);   
                                                 $ch = curl_init();
                                                 curl_setopt($ch, CURLOPT_URL,$url);
                                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1228,12 +1245,13 @@ class MagentoSettingsController extends Controller
                                                 }
                                                 \Log::info("API Response: ".$result);
                                                 $response = json_decode($result);
+                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
 
                                                 curl_close($ch);
-                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);                               
-                                                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
-
+                                                
                                                 if(isset($response->errors)){ 
                                                     $message='';
                                                     foreach($response->errors as $error){

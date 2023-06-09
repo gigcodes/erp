@@ -50,9 +50,10 @@ class GetLiveMessages extends Command
             $login = \Config('livechat.account_id');
             $password = \Config('livechat.password');
             $curl = curl_init();
+            $url = "https://api.livechatinc.com/v3.1/agent/action/get_chats_summary'";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.livechatinc.com/v3.1/agent/action/get_chats_summary',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -79,10 +80,9 @@ class GetLiveMessages extends Command
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
-
-            $url = "https://api.livechatinc.com/v3.1/agent/action/get_chats_summary'";
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GetLiveMessages::class, 'handle');
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\GetLiveMessages::class, 'handle');
             curl_close($curl);
 
             if ($err) {

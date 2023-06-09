@@ -75,9 +75,10 @@ class SocialConfigController extends Controller
             'Authorization: Bearer ' . $user_access_token,
         ]);
         $response = curl_exec($ch);
-        curl_close($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getadsAccountManager');
+        curl_close($ch);
+
+        LogRequest::log($startTime, $url, 'GET',  json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getadsAccountManager');
 
         $data = json_decode($response, true);
 
@@ -111,10 +112,11 @@ class SocialConfigController extends Controller
             CURLOPT_CUSTOMREQUEST => 'GET',
         ]);
 
-        $response = json_decode(curl_exec($curl), true);
-        curl_close($curl);
+        $response = json_decode(curl_exec($curl), true); //response decoded
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbToken');
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET',  json_encode([]), $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbToken');
     }
 
     public function getfbTokenBack(Request $request)
@@ -137,10 +139,11 @@ class SocialConfigController extends Controller
             CURLOPT_CUSTOMREQUEST => 'GET',
         ]);
 
-        $response = json_decode(curl_exec($curl), true);
-        curl_close($curl);
+        $response = json_decode(curl_exec($curl), true); //response decoded
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET',  json_encode([]), $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
 
         $curl = curl_init();
 
@@ -157,10 +160,11 @@ class SocialConfigController extends Controller
             CURLOPT_CUSTOMREQUEST => 'GET',
         ]);
 
-        $responseMe = json_decode(curl_exec($curl), true);
-        curl_close($curl);
+        $responseMe = json_decode(curl_exec($curl), true); //response decoded
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], $responseMe, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET',  json_encode([]), $responseMe, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'getfbTokenBack');
 
         $data['account_id'] = $responseMe['id'];
         $data['name'] = $responseMe['name'];
@@ -208,10 +212,11 @@ class SocialConfigController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ]);
 
-            $response = json_decode(curl_exec($curl), true);
-            curl_close($curl);
+            $response = json_decode(curl_exec($curl), true); //response deocded
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'store');
+            curl_close($curl);
+
+            LogRequest::log($startTime, $url, 'GET',  json_encode([]), $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'store');
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
@@ -279,11 +284,12 @@ class SocialConfigController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true); //response deocded
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
             curl_close($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'edit');
+
+            LogRequest::log($startTime, $url, 'GET',  json_encode([]), $response, $httpcode, \App\Http\Controllers\SocialConfigController::class, 'edit');
 
 
             if ($id = $response['instagram_business_account']['id']) {
