@@ -56,7 +56,7 @@
 										["" => "-- Select Website --"] + $storeWebsites,
 										request('website_store'),
 										[
-											"class" => "form-control",
+											"class" => "form-control select2-vendor",
 											"id" => "srch_website_store",
 											"onchange" => "loadWebsiteStoresDropdown()"
 										]
@@ -70,7 +70,7 @@
 										["" => "Please select website first"],
 										request('website_store_id'),
 										[
-											"class" => "form-control",
+											"class" => "form-control select2-vendor",
 											"id" => "srch_website_store_id",
 										]
 									); ?>

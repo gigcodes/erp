@@ -35,7 +35,7 @@
 					  		<div class="col">
 					  			<div class="form-group">
 								    <label for="keyword">Website:</label>
-								    <?php echo Form::select("website_id",["" => "-- select website --"] + $websites,request('website_id'), ["class" => "form-control"]); ?>
+								    <?php echo Form::select("website_id",["" => "-- select website --"] + $websites,request('website_id'), ["class" => "form-control select2-vendor"]); ?>
 							  	</div>
 					  			<div class="form-group">
 								    <label for="keyword">Keyword:</label>
