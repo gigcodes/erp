@@ -377,10 +377,9 @@ class TemplatesController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
-        $parameters = [];
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'report');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'report');
 
         return $response;
     }

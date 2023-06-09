@@ -297,7 +297,7 @@ class WeTransferController extends Controller
 
             $real = json_decode($real);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'sendWebNotification2');
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'sendWebNotification2');
 
             $url = $real->direct_link;
 
@@ -340,11 +340,10 @@ class WeTransferController extends Controller
         ]);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = curl_exec($curl);
-        $parameters = [];
 
         curl_close($curl);
         
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
+        LogRequest::log($startTime, $url, 'POST', json_encode($payload), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
         if ($response == 'Request Submitted!') {
             return true;
         } else {

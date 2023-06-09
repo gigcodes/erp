@@ -206,7 +206,7 @@ class SimplyDutyCalculationController extends Controller
 
         $output = ['OriginCountryCode' => $originCountryCode, 'DestinationCountryCode' => $destinationCountryCode, 'Items' => $itemsArray, 'Shipping' => $shipping, 'Insurance' => $insurance, 'ContractInsuranceType' => $contractInsuranceType];
         $post = json_encode($output);
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         $url = "https://www.api.simplyduty.com/api/duty/calculatemultiple";
 
@@ -229,10 +229,8 @@ class SimplyDutyCalculationController extends Controller
         $response = curl_exec($curl);
         $err = curl_error($curl);
 
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters =[];
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\SimplyDutyCalculationController::class, 'calculate');
+        LogRequest::log($startTime, $url, 'POST', json_encode($post), json_decode($response), $httpcode, \App\Http\Controllers\SimplyDutyCalculationController::class, 'calculate');
 
 
         curl_close($curl);

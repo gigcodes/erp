@@ -160,11 +160,11 @@ class SocialAdsController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //response deocded
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
 
-                    LogRequest::log($startTime, $url, 'POST', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -202,10 +202,10 @@ class SocialAdsController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //responsee deocded
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
-                    LogRequest::log($startTime, $url, 'POST',  json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST',  json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -379,7 +379,7 @@ class SocialAdsController extends Controller
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
-        $resp = json_decode($resp, true);
+        $resp = json_decode($resp, true); //response decode
         LogRequest::log($startTime, $url, 'GET',  json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'getInstaID');
         if (isset($resp['instagram_business_account'])) {
             return $resp['instagram_business_account']['id'];
@@ -422,7 +422,7 @@ class SocialAdsController extends Controller
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $resp = json_decode($resp, true);
+        $resp = json_decode($resp, true); //response decoded
 
         LogRequest::log($startTime, $url, 'GET',  json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'getPostData');
         if (isset($resp['error'])) {

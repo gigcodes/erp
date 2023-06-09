@@ -3734,14 +3734,13 @@ class TwilioController extends FindByNumberController
             curl_setopt($ch, CURLOPT_POSTFIELDS, 'VoiceUrl=' . $base_url . '/run-webhook/' . $number_details->sid . '');
             curl_setopt($ch, CURLOPT_USERPWD, $account_details->account_id . ':' . $account_details->auth_token);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $parameters = [];
             $result = curl_exec($ch);
             if (curl_errno($ch)) {
                 echo 'Error:' . curl_error($ch);
             }
             curl_close($ch);     
 
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
+            LogRequest::log($startTime, $url, 'POST', json_encode(['VoiceUrl=' . $base_url . '/run-webhook/' . $number_details->sid]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
             return new JsonResponse(['status' => 1, 'message' => 'Number forwarded to agent successfully.']);
         } catch (\Exception $e) {
@@ -5028,8 +5027,7 @@ class TwilioController extends FindByNumberController
         }
 
         curl_close($ch);
-        $parameters = [];
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
         return false;
     }

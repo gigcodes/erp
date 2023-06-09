@@ -184,11 +184,11 @@ class SocialCampaignController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //response decoder
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
      
-                    LogRequest::log($startTime, $url, 'POST', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
@@ -227,11 +227,11 @@ class SocialCampaignController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //response decoded
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
 
-                    LogRequest::log($startTime, $url, 'POST', json_decode([]), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {

@@ -4743,7 +4743,7 @@ class ProductController extends Controller
         $hscodeSearchString = urlencode($hscodeSearchString);
 
         $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey=' . $api . '&fullDescription=' . $hscodeSearchString . '&originCountry=' . $fromCountry . '&destinationCountry=' . $destinationCountry . '&getduty=false';
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
 
         // set url
@@ -4755,9 +4755,7 @@ class ProductController extends Controller
         // $output contains the output string
         $output = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $parameters = []; 
-        LogRequest::log($startTime, $searchString, 'POST', json_encode($parameters), json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
+        LogRequest::log($startTime, $searchString, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
 
 
         // close curl resource to free up system resources

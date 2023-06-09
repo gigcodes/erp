@@ -442,10 +442,9 @@ class SocialWebhookController extends Controller
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting User) => Fetched user details using Page access Token', ['response' => $response, 'user_id' => $userId]);
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
 
         curl_close($curl);
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'getImageByCurl');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'getImageByCurl');
 
         return [
             'response' => $response,
@@ -482,11 +481,10 @@ class SocialWebhookController extends Controller
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting ID Media) => Fetched IG Media using Page access Token', ['response' => $response, 'media_id' => $mediaId]);
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $parameters = [];
 
         curl_close($curl);
        
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
 
         return [
             'response' => $response,

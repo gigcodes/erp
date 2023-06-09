@@ -440,6 +440,7 @@ class PinterestClient
         } else {
             $postFields = 'grant_type=authorization_code&code=' . $params['code'] . '&redirect_uri=' . str_replace("http://", "https://", route('pinterest.accounts.connect.login'));
         }
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->getBASEAPI() . 'oauth/token',
@@ -458,8 +459,7 @@ class PinterestClient
         ]);
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $this->getBASEAPI() . 'oauth/token', 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'validateAccessTokenAndRefreshToken');
+        LogRequest::log($startTime, $this->getBASEAPI() . 'oauth/token', 'POST', json_encode($postFields), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'validateAccessTokenAndRefreshToken');
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {
@@ -502,7 +502,7 @@ class PinterestClient
         $err = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');
+        LogRequest::log($startTime, $url, $method, json_encode($params), $response, $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');
         curl_close($curl);
         if ($err) {
             $message = 'Account :- ' . $this->getAccountId() . ', ';

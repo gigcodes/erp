@@ -101,6 +101,7 @@ class SimplyDutyCurrencyController extends Controller
 
     public function getCurrencyFromApi()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         $url = "https://www.api.simplyduty.com/api/Supporting/supported-currencies";
 
@@ -112,10 +113,8 @@ class SimplyDutyCurrencyController extends Controller
 
         // $output contains the output string
         $output = curl_exec($ch);
-        $parameters = [];
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCurrencyController::class, 'getCurrencyFromApi');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCurrencyController::class, 'getCurrencyFromApi');
 
         // close curl resource to free up system resources
         curl_close($ch);

@@ -433,9 +433,9 @@ class WhatsappConfigController extends Controller
         // close curl resource to free up system resources
         curl_close($ch);
 
-        $barcode = json_decode($output);
+        $barcode = json_decode($output); //response decoded
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $barcode, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'deleteChromeData');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $output, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'deleteChromeData');
 
         if ($barcode) {
             if ($barcode->barcode == 'Directory Deleted') {
@@ -478,7 +478,7 @@ class WhatsappConfigController extends Controller
 
         $response = json_decode($output);
 
-        LogRequest::log($startTime, $url, 'POST', json_encode([]), $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'restartScript');
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), $output, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'restartScript');
 
         if ($response) {
             if ($response->barcode == 'Process Killed') {
@@ -622,7 +622,7 @@ class WhatsappConfigController extends Controller
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             // close curl resource to free up system resources
             curl_close($ch);
-            $response = json_decode($output);
+            $response = json_decode($output); //response deocded
             
             LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getStatusInfo');
             if (! empty($output)) {

@@ -193,7 +193,7 @@ class WebNotificationController extends Controller
             \Log::info('Notification Process success -->' . json_encode($result));
             // Close connection
             curl_close($ch);
-            LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
+            LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
             // FCM response
             return;
         } catch (\Exception $e) {
@@ -241,7 +241,7 @@ class WebNotificationController extends Controller
         // Close connection
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
+        LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
         // FCM response
     }
 }

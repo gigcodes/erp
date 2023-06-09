@@ -74,8 +74,7 @@ class SocialAccountCommentController extends Controller
             // Execute the cURL request and get the response
             $response = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $parameters = [];
-            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountCommentController::class, 'devCommentsReply');
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountCommentController::class, 'devCommentsReply');
 
             // Close the cURL session
             curl_close($ch);

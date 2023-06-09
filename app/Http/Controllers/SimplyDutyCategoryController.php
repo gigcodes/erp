@@ -103,6 +103,7 @@ class SimplyDutyCategoryController extends Controller
 
     public function getCategoryFromApi()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         $url = "https://www.api.simplyduty.com/api/Supporting/categories";
 
@@ -115,10 +116,8 @@ class SimplyDutyCategoryController extends Controller
         // $output contains the output string
         $output = curl_exec($ch);
 
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $parameters = [];
-        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCategoryController::class, 'getCategoryFromApi');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCategoryController::class, 'getCategoryFromApi');
 
         // close curl resource to free up system resources
         curl_close($ch);

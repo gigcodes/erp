@@ -2458,10 +2458,9 @@ class WhatsAppController extends FindByNumberController
                         $api_token = $storeWebsite->api_token;
                         if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
                             
-
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             $curl = curl_init();
                             $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             curl_setopt_array($curl, array(
                                 CURLOPT_URL => trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add",
                                 CURLOPT_RETURNTRANSFER => true,
