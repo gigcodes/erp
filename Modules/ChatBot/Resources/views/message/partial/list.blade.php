@@ -227,14 +227,14 @@ padding: 3px 2px;
                             class="bot-suggested-reply-popup boat-replied">{{ substr( $pam->suggested_replay ,0,15) }}...
 
                         @if($pam->is_approved == false && $pam->is_reject == false)
-                                <div class="suggested_replay_action">
+                                <div class="suggested_replay_action d-inline">
                                 <a href="javascript:;" class="send_suggested_replay" data-value="0"
                                    data-id="{{ $pam->tmp_replies_id }}">
-                                    <i class="fa fa-window-close-o text-secondary p-2" aria-hidden="true"></i>
+                                    <i class="fa fa-window-close-o text-secondary px-1 py-2" aria-hidden="true"></i>
                                 </a>
                                 <a href="javascript:;" class="send_suggested_replay" data-value="1"
                                    data-id="{{ $pam->tmp_replies_id }}">
-                                    <i class="fa fa-check-square-o text-secondary p-2"></i>
+                                    <i class="fa fa-check-square-o text-secondary px-1 py-2"></i>
                                 </a>
                                 </div>
                         @endif
@@ -833,7 +833,7 @@ padding: 3px 2px;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             type: "POST",
-            url: "/api/chat-bot/send-suggested-replay",
+            url: "{{ route('chatbot.send.suggested.message') }}",
             data: {
                 tmp_reply_id : tmpReplayId,
                 value  : value
@@ -978,8 +978,7 @@ padding: 3px 2px;
 
         $.ajax({
             type: "GET",
-            url:
-                "/message-list/" + object_type + "/" + object_id,
+            url: "{{ route('chatbot.message.list') }}" + "/"  + object_type + "/" + object_id,
             data: {
                 limit: limit,
                 load_all: load_all,
@@ -991,36 +990,36 @@ padding: 3px 2px;
                 $(thiss).text("Loading...");
                 $(thiss).html("");
                 $(thiss).html(
-                    '<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>'
+                    '<i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i><div class="spinner-border" role="status"><span class="">Loading...</span></div>'
                 );
             },
         })
             .done(function (response) {
                 $(".spinner-border").css("display", "none");
-                var li = getHtml(response);
-                if ($("#chat-list-history").length > 0) {
-                    $("#chat-list-history")
+                var li = getHtml(response, 'simulator-message-list');
+                if ($("#chat_bot_reply_list").length > 0) {
+                    $("#chat_bot_reply_list")
                         .find(".modal-dialog")
                         .css({ width: "1000px", "max-width": "1000px" });
-                    $("#chat-list-history")
+                    $("#chat_bot_reply_list")
                         .find(".modal-body")
                         .css({ "background-color": "white" });
-                    $("#chat-list-history").find(".modal-body").html(li);
-                    $("#chat-list-history").find("#chat_obj_type").val(object_type);
-                    $("#chat-list-history").find("#chat_obj_id").val(object_id);
-                    $("#chat-list-history")
+                    $("#chat_bot_reply_list").find(".modal-body").html(li);
+                    $("#chat_bot_reply_list").find("#chat_obj_type").val(object_type);
+                    $("#chat_bot_reply_list").find("#chat_obj_id").val(object_id);
+                    $("#chat_bot_reply_list")
                         .find(".message")
                         .css({ "white-space": "pre-wrap", "word-wrap": "break-word" });
-                    $("#chat-list-history").modal("show");
+                    $("#chat_bot_reply_list").modal("show");
                 } else {
-                    $("#chat-list-history")
+                    $("#chat_bot_reply_list")
                         .find(".modal-dialog")
                         .css({ width: "1000px", "max-width": "1000px" });
-                    $("#chat-list-history")
+                    $("#chat_bot_reply_list")
                         .find(".modal-body")
                         .css({ "background-color": "white" });
-                    $("#chat-list-history").find("#chat_obj_type").val(object_type);
-                    $("#chat-list-history").find("#chat_obj_id").val(object_id);
+                    $("#chat_bot_reply_list").find("#chat_obj_type").val(object_type);
+                    $("#chat_bot_reply_list").find("#chat_obj_id").val(object_id);
                     $("#chat-history").html(li);
                 }
 
