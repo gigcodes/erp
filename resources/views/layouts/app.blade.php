@@ -3792,6 +3792,11 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             <li>  
+                            <li>
+                                <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
@@ -4441,6 +4446,7 @@ if (!empty($notifications)) {
         @include('user-management.search-user-schedule')
         @include('partials.modals.shortcut-user-event-modal')
         @include('partials.modals.event-alerts-modal')
+        @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7137,6 +7143,11 @@ if (!\Auth::guest()) {
         }).fail(function(errObj) {
             $("#loading-image").hide();
         });
+    });
+
+    $(document).on('click','#create_event',function(e){
+        e.preventDefault();
+        $('#create-event-modal').modal('show');
     });
 
     $(document).on('click','#event-alerts',function(e){

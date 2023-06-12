@@ -105,7 +105,6 @@
 
     </div>
 </div>
-@include('partials.modals.create-event')
 <style>
     .fc-button{
         background-color: #6c757d;
