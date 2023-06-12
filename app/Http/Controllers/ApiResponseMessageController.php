@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\StoreWebsite;
 use App\ApiResponseMessage;
+use App\ApiResponseMessagesTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessageValueHistory;
@@ -69,6 +70,33 @@ class ApiResponseMessageController extends Controller
         $data = ApiResponseMessage::where('id', $id)->first();
         $history = ApiResponseMessageValueHistory::where('api_response_message_id', $id)->orderBy('created_at', 'desc')->first();
         $returnHTML = view('apiResponse/ajaxEdit')->with('data', $data)->with('store_websites', $store_websites)->with('history', $history)->render();
+
+        return response()->json(['data' => $returnHTML, 'type' => 'success'], 200);
+    }
+    
+    public function lodeTranslation(Request $request)
+    {
+        $id = $request->id;
+        $apiResponseMessage = ApiResponseMessage::where('id', $id)->first();
+        $returnHTML="<tr><td colspan='5'>No Data Found!</td></tr>";
+       
+        if($apiResponseMessage){
+            $translations=ApiResponseMessagesTranslation::where('store_website_id', $apiResponseMessage->store_website_id)->where('key', $apiResponseMessage->key)->get();
+            
+            if(!$translations->isEmpty()){
+                $returnHTML="";
+                foreach($translations as $translation){
+                    $returnHTML.="<tr>";
+                    $returnHTML.="<td>".$translation->id."</td>";
+                    $returnHTML.="<td>".$translation->storeWebsite->title."</td>";
+                    $returnHTML.="<td>".$translation->lang_code."</td>";
+                    $returnHTML.="<td>".$translation->key."</td>";
+                    $returnHTML.="<td>".$translation->value."</td>";
+                    $returnHTML.="</tr>";
+                }
+            }
+        }
+        
 
         return response()->json(['data' => $returnHTML, 'type' => 'success'], 200);
     }

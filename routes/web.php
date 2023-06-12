@@ -2606,6 +2606,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('api-response', [ApiResponseMessageController::class, 'index'])->name('api-response-message');
     Route::post('api-response', [ApiResponseMessageController::class, 'store'])->name('api-response-message.store');
     Route::post('/getEditModal', [ApiResponseMessageController::class, 'getEditModal'])->name('getEditModal');
+    Route::post('api-response/lodeTranslation', [ApiResponseMessageController::class, 'lodeTranslation'])->name('api-response-message.lodeTranslation');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
 
