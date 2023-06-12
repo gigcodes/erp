@@ -490,7 +490,8 @@ class ChatMessagesController extends Controller
                     'is_reviewed' => $chatMessage->is_reviewed,
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
-                    'is_auto_simulator' => $chatMessage->is_auto_simulator, //Purpose : Add additional data - DEVTASK-4236
+                    'is_auto_simulator' => $chatMessage->is_auto_simulator,
+                    'send_by_simulator' => $chatMessage->send_by_simulator
                 ];
 
                 if ($chatMessage->message_type == 'email') {

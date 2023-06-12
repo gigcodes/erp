@@ -77,88 +77,90 @@ class ChatMessageObserver
                             ->first();
                         $requestData = [
                             'chat_id' => $chatMessage->id,
-                            'customer_id' => $chatMessage->customer_id,
-                            'supplier_id' => $chatMessage->supplier_id,
-                            'vendor_id' => $chatMessage->vendor_id,
-                            'task_id' => $chatMessage->task_id,
-                            'is_email' => $chatMessage->is_email,
-                            'erp_user' => $chatMessage->erp_user,
-                            'status' => $chatMessage->status,
-                            'assigned_to' => $chatMessage->assigned_to,
-                            'lawyer_id' => $chatMessage->lawyer_id,
-                            'case_id' => $chatMessage->case_id,
-                            'blogger_id' => $chatMessage->blogger_id,
-                            'quicksell_id' => $chatMessage->quicksell_id,
-                            'old_id' => $chatMessage->old_id,
-                            'site_development_id' => $chatMessage->site_development_id,
-                            'social_strategy_id' => $chatMessage->social_strategy_id,
-                            'store_social_content_id' => $chatMessage->store_social_content_id,
-                            'payment_receipt_id' => $chatMessage->store_social_content_id,
-                            'developer_task_id' => $chatMessage->developer_task_id,
-                            'ticket_id' => $chatMessage->ticket_id,
-                            'user_id' => $chatMessage->user_id,
-                            'send_by_simulator' => true,
+                            'status' => 2,
+                            'add_autocomplete' => false
                         ];
+                        if ($lastMessage[0]['type'] === 'email') {
+                            $requestData['email_id'] = $lastMessage[0]['object_type_id'];
+                        }
+                        if ($lastMessage[0]['type'] === 'chatbot') {
+                            $requestData['customer_id'] = $lastMessage[0]['object_type_id'];
+                        }
+                        if ($lastMessage[0]['type'] === 'task') {
+                            $requestData['task_id'] = $lastMessage[0]['object_type_id'];
+                        }
+                        if ($lastMessage[0]['type'] === 'issue') {
+                            $requestData['issue_id'] = $lastMessage[0]['object_type_id'];
+                        }
+                        if ($lastMessage[0]['type'] === 'customer') {
+                            $requestData['customer_id'] = $lastMessage[0]['object_type_id'];
+                        }
+
+                        $getFromGoogle = true;
                         if ($chatQuestions) {
                             if ($chatQuestions->auto_approve == 1) {
                                 $requestData['message'] = $chatQuestions->suggested_reply;
                                 $request = \Request::create('/', 'POST', $requestData);
                                 app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $lastMessage[0]['type']);
+                                $getFromGoogle = false;
+                            }
+                        } else {
+                            $replay =  \App\ReplyCategory::join('replies', 'reply_categories.id', 'replies.category_id')
+                                ->select(['replies.*', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id'])
+                                ->Where('reply_categories.name', 'LIKE', '%' . $chatMessage->message . '%')
+                                ->first();
+
+                            if ($replay){
+                                $requestData['message'] = $replay->replay;
+                                $request = \Request::create('/', 'POST', $requestData);
+                                app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $lastMessage[0]['type']);
+                                $getFromGoogle = false;
                             }
                         }
 
-                        $replay =  \App\ReplyCategory::join('replies', 'reply_categories.id', 'replies.category_id')
-                            ->select(['replies.*', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id'])
-                            ->Where('reply_categories.name', 'LIKE', '%' . $chatMessage->message . '%')
-                            ->first();
+                        if ($getFromGoogle) {
+                            $dialogFlowService = new DialogFlowService($googleAccount);
+                            $response = $dialogFlowService->detectIntent(null, $chatMessage->message);
+                            $intentName = $response->getIntent()->getName();
+                            $intentName = explode('/', $intentName);
+                            $intentName = $intentName[count($intentName) - 1];
 
-                        if ($replay){
-                            $requestData['message'] = $replay->replay;
-                            $request = \Request::create('/', 'POST', $requestData);
-                            app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $lastMessage[0]['type']);
-                        }
-                        $dialogFlowService = new DialogFlowService($googleAccount);
-                        $response = $dialogFlowService->detectIntent(null, $chatMessage->message);
-
-
-                        $intentName = $response->getIntent()->getName();
-                        $intentName = explode('/', $intentName);
-                        $intentName = $intentName[count($intentName) - 1];
-
-                        $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
-                        if (!$question) {
-                            $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
+                            $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
                             if (!$question) {
-                                $question = ChatbotQuestion::create([
-                                    'keyword_or_question' => 'intent',
-                                    'is_active' => true,
-                                    'google_account_id' => $googleAccount->id,
-                                    'google_status' => 'google sended',
-                                    'google_response_id' => $intentName,
-                                    'value' => $response->getIntent()->getDisplayName(),
-                                    'suggested_reply' => $response->getFulfillmentText()
-                                ]);
+                                $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
+                                if (!$question) {
+                                    $question = ChatbotQuestion::create([
+                                        'keyword_or_question' => 'intent',
+                                        'is_active' => true,
+                                        'google_account_id' => $googleAccount->id,
+                                        'google_status' => 'google sended',
+                                        'google_response_id' => $intentName,
+                                        'value' => $response->getIntent()->getDisplayName(),
+                                        'suggested_reply' => $response->getFulfillmentText()
+                                    ]);
+                                }
                             }
-                        }
 
-                        $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
-                        if (!$questionsR) {
-                            $chatRply = new  ChatbotQuestionReply();
-                            $chatRply->suggested_reply = $response->getFulfillmentText();
-                            $chatRply->store_website_id = $googleAccount->site_id;
-                            $chatRply->chatbot_question_id = $question->id;
-                            $chatRply->save();
+                            $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
+                            if (!$questionsR) {
+                                $chatRply = new  ChatbotQuestionReply();
+                                $chatRply->suggested_reply = $response->getFulfillmentText();
+                                $chatRply->store_website_id = $googleAccount->site_id;
+                                $chatRply->chatbot_question_id = $question->id;
+                                $chatRply->save();
+                            }
+                            $store_replay = new TmpReplay();
+                            $store_replay->chat_message_id = $chatMessage->id;
+                            $store_replay->suggested_replay = $response->getFulfillmentText();
+                            $store_replay->type = $lastMessage[0]['type'];
+                            $store_replay->type_id = $lastMessage[0]['object_type_id'];
+                            $store_replay->save();
                         }
-                        $store_replay = new TmpReplay();
-                        $store_replay->chat_message_id = $chatMessage->id;
-                        $store_replay->suggested_replay = $response->getFulfillmentText();
-                        $store_replay->type = $lastMessage[0]['type'];
-                        $store_replay->save();
                     }
                 }
             }
         } catch (\Exception $e) {
-            _p($e->getTraceAsString());die;
+            _p([$e->getMessage()]);die;
         }
     }
 

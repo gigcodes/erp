@@ -20,6 +20,7 @@ class CreateTmpRepliesTable extends Migration
             $table->boolean("is_approved")->default(false)->nullable();
             $table->boolean("is_reject")->default(false)->nullable();
             $table->string("type")->nullable();
+            $table->string("type_id")->nullable();
             $table->timestamps();
 
         });
