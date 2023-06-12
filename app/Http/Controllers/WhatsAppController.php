@@ -2457,7 +2457,7 @@ class WhatsAppController extends FindByNumberController
                         $magento_url = $storeWebsite->magento_url;
                         $api_token = $storeWebsite->api_token;
                         if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
-                            
+
 
                             $curl = curl_init();
                             $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
@@ -3321,27 +3321,29 @@ class WhatsAppController extends FindByNumberController
             /** Sent To ChatbotMessage */
             $loggedUser = $request->user();
 
-            $roles = $loggedUser->roles->pluck('name')->toArray();
+            if ($loggedUser) {
+                $roles = $loggedUser->roles->pluck('name')->toArray();
 
-            if (! in_array('Admin', $roles)) {
-                \App\ChatbotReply::create([
-                    'question' => $request->message,
-                    'reply' => json_encode([
-                        'context' => 'vendor',
-                        'issue_id' => $data['vendor_id'],
-                        'from' => $loggedUser->id,
-                    ]),
-                    'replied_chat_id' => $chat_message->id,
-                    'reply_from' => 'database',
-                ]);
-            }
+                if (! in_array('Admin', $roles)) {
+                    \App\ChatbotReply::create([
+                        'question' => $request->message,
+                        'reply' => json_encode([
+                            'context' => 'vendor',
+                            'issue_id' => $data['vendor_id'],
+                            'from' => $loggedUser->id,
+                        ]),
+                        'replied_chat_id' => $chat_message->id,
+                        'reply_from' => 'database',
+                    ]);
+                }
 
-            $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+                $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
 
-            if ($messageReply) {
-                $messageReply->chat_id = $chat_message->id;
+                if ($messageReply) {
+                    $messageReply->chat_id = $chat_message->id;
 
-                $messageReply->save();
+                    $messageReply->save();
+                }
             }
         }
         //END - DEVTASK-4203

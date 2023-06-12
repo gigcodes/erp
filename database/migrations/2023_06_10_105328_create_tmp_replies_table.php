@@ -19,6 +19,7 @@ class CreateTmpRepliesTable extends Migration
             $table->string("suggested_replay")->nullable();
             $table->boolean("is_approved")->default(false)->nullable();
             $table->boolean("is_reject")->default(false)->nullable();
+            $table->string("type")->nullable();
             $table->timestamps();
 
         });

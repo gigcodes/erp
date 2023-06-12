@@ -34,7 +34,7 @@ class ChatMessagesController extends Controller
     /**
      * Load more messages from chat_messages
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|array
      */
     public function loadMoreMessages(Request $request)
     {
@@ -156,8 +156,11 @@ class ChatMessagesController extends Controller
             $onlyBroadcast = true;
             $loadType = 'images';
         }
-        
+
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+        if ($request->for_simulator) {
+            $chatMessages = $chatMessages->reorder('created_at', 'asc');
+        }
         if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }
@@ -487,6 +490,7 @@ class ChatMessagesController extends Controller
                     'is_reviewed' => $chatMessage->is_reviewed,
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
+                    'is_auto_simulator' => $chatMessage->is_auto_simulator, //Purpose : Add additional data - DEVTASK-4236
                 ];
 
                 if ($chatMessage->message_type == 'email') {
@@ -496,6 +500,9 @@ class ChatMessagesController extends Controller
 
                 $messages[] = $arr;
             }
+        }
+        if ($request->for_simulator || $request->plan_response) {
+            return $messages;
         }
 
         // Return JSON

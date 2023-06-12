@@ -338,14 +338,23 @@ padding: 3px 2px;
                    data-id="{{ $pam->chat_id }}">
                     <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
                 </a>
-                @if($pam->is_auto_simulator == 0)
-                    <a href="javascript:;" style="display: inline-block" class="btns  pt-2" onclick="changeSimulatorSetting({{ $pam->id }}, {{ $pam->user_id }}, {{ $pam->sent_to_user_id }}, {{ true }})">
-                        <i style="color: #757575c7;" class="fa fa-play" aria-hidden="true"></i>
-                    </a>
-                @else <a href="javascript:;" style="display: inline-block" class="btns  pt-2" onclick="changeSimulatorSetting({{ $pam->id }}, {{ $pam->user_id }}, {{ $pam->sent_to_user_id }}, {{ false }})">
-                    <i style="color: #757575c7;" class="fa fa-pause" aria-hidden="true"></i>
-                </a>
-
+                @if($pam->task_id > 0 )
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('task', {{ $pam->task_id }}, {{ $pam->is_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @elseif($pam->developer_task_id > 0 )
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('developer_task', {{ $pam->developer_task_id }}, {{ $pam->is_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @elseif($pam->vendor_id > 0 )
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('vendor', {{ $pam->vendor_id }}, {{ $pam->is_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
+                @else
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('customer', {{ $pam->customer_id }}, {{ $pam->is_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
                 @endif
                 @if($pam->task_id > 0 )
                     <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
@@ -903,15 +912,14 @@ padding: 3px 2px;
         });
     });
 
-    function changeSimulatorSetting(messageId, userId, sendUserId, simulator) {
+    function changeSimulatorSetting(object, objectId, simulator) {
         $.ajax({
             type: "POST",
             url: "/chatbot/messages/update-simulator-setting",
             data: {
                 '_token': "{{ csrf_token() }}",
-                'id' : messageId,
-                'user_id' : userId,
-                'send_to_user_id' : sendUserId,
+                'object' : object,
+                'objectId' : objectId,
                 'auto_simulator': simulator
             },
             dataType : "json"
