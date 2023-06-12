@@ -178,5 +178,6 @@
         </div>
     </td>
 </tr>
-
 @endforeach
+
+{{ $data->links() }}
