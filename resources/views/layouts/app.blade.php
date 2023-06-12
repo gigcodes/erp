@@ -3796,7 +3796,7 @@ if (!empty($notifications)) {
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
                                 @if ($status)
-                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon">
+                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" id="website_Off_status">
                                     <span><i class="fa fa-desktop fa-2x off-status"style="background-color: red" aria-hidden="true"></i></span>
                                 </a>
                                 @else
@@ -4442,6 +4442,7 @@ if (!empty($notifications)) {
         @include('partials.modals.shortcut-user-event-modal')
         @include('partials.modals.event-alerts-modal')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
+        @include('monitor-server.partials.monitor_status')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7138,6 +7139,11 @@ if (!\Auth::guest()) {
             $("#loading-image").hide();
         });
     });
+
+    $(document).on('click','#website_Off_status',function(e){
+        $('#create-status-modal').modal('show');
+    });
+
 
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();
