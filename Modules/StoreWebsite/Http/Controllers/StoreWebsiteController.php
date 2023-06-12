@@ -51,6 +51,7 @@ use App\StoreWebsitesCountryShipping;
 use App\Jobs\DuplicateStoreWebsiteJob;
 use App\StoreWebsiteProductScreenshot;
 use App\MagentoSettingUpdateResponseLog;
+use App\StoreWebsiteEnvironment;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Illuminate\Support\Facades\Http;
@@ -1701,5 +1702,38 @@ class StoreWebsiteController extends Controller
             'tbody' => view('storewebsite::admin-password', compact('storeWebsites', 'storeWebsiteUsers'))->render(),
 
         ], 200);
+    }
+
+    public function environment(Request $request)
+    {
+        $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+        $storeWebsiteEnvs = StoreWebsiteEnvironment::pluck('env_data', 'store_website_id')->toArray();
+
+        $storeWebsiteFlattenEnvs = [];
+        $envKeys = [];
+        if($storeWebsiteEnvs) {
+            foreach($storeWebsiteEnvs as $storeWebsiteId => $storeWebsiteEnv) {
+                $storeWebsiteFlattenEnvs[$storeWebsiteId] = $this->flattenArray($storeWebsiteEnv);
+            }
+
+            $envKeys = $this->flattenArray(head($storeWebsiteEnvs)); // Master keys for frontend looping purpose.
+        }
+
+        return view('storewebsite::environment', compact('storeWebsites', 'storeWebsiteEnvs', 'storeWebsiteFlattenEnvs', 'envKeys'));
+    }
+
+    public function flattenArray($array, $prefix = '')
+    {
+        $result = [];
+        
+        foreach ($array as $key => $value) {
+            $newKey = $prefix . $key;
+            if (is_array($value)) {
+                $result = array_merge($result, $this->flattenArray($value, $newKey . '@@@'));
+            } else {
+                $result[$newKey] = $value;
+            }
+        }
+        return $result;
     }
 }
