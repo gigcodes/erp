@@ -3796,6 +3796,11 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             <li>  
+                            <li>
+                                <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
@@ -4445,6 +4450,7 @@ if (!empty($notifications)) {
         @include('user-management.search-user-schedule')
         @include('partials.modals.shortcut-user-event-modal')
         @include('partials.modals.event-alerts-modal')
+        @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7143,6 +7149,11 @@ if (!\Auth::guest()) {
         });
     });
 
+    $(document).on('click','#create_event',function(e){
+        e.preventDefault();
+        $('#create-event-modal').modal('show');
+    });
+
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();
         getEventAlerts(true);
@@ -7178,6 +7189,32 @@ if (!\Auth::guest()) {
             console.log(response);
         });
     }
+
+        $(document).on('submit', '#event-alert-date-form', function(event) {
+            event.preventDefault();
+            var dateValue = $('input[name="event_alert_date"]').val();
+            $.ajax({
+                    type: "GET",
+                    url: "{{route('event.getEventAlerts')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date : dateValue
+                    },
+            }).done(function (response) {
+                $('.ajax-loader').hide();
+                $('#event-alerts-modal-html').empty().html(response.html);
+                if (showModal) {
+                    $('#event-alerts-modal').modal('show');
+                }
+                if(response.count > 0) {
+                    $('.event-alert-badge').removeClass("hide");
+                }
+            }).fail(function (response) {
+                $('.ajax-loader').hide();
+                console.log(response);
+            });
+         });
+
 
     $(document).on('click','.event-alert-log-modal',function(e){
         var event_type = $(this).data("event_type");
