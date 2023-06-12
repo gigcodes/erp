@@ -37,6 +37,7 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
+    Route::post('environment/update', [StoreWebsiteController::class, 'environmentUpdate'])->name('store-website.environmentUpdate');
     Route::get('environment', [StoreWebsiteController::class, 'environment'])->name('store-website.environment');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');

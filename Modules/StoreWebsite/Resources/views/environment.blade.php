@@ -107,13 +107,16 @@
 							</td>
 							<?php foreach($storeWebsites as $storeWebsiteId => $storeWebsiteTitle) { ?>
 								@if(isset($storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey]))
-								<td width="25%" class="expand-row" data-store-website-id="{{$storeWebsiteId}}" data-env-key="{{$envKey}}">
+								<td width="25%" class="expand-row" data-store-website-id="{{$storeWebsiteId}}" data-env-key="{{$envKey}}" data-store-website-title="{{$storeWebsiteTitle}}" data-env-value="{{$storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey]}}">
 									<span class="td-mini-container">
 										{{ strlen($storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey]) > 25 ? substr($storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey], 0, 25).'...' :  $storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey] }}
 									</span>
 									<span class="td-full-container hidden">
 										{{ $storeWebsiteFlattenEnvs[$storeWebsiteId][$envKey] }}
 									</span>
+									<a href="javascript:;" class="update-environment-icon btn p-0 pull-right">
+										<i class="fa fa-pencil" aria-hidden="true"></i>
+									</a>
 								</td>
 								@else
 								<td></td>
@@ -136,6 +139,41 @@
   	</div>	
 </div>
 
+<!-- Modal -->
+<div id="update-environment-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update Environment</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="update-environment-submit-form" action="<?php echo route('store-website.environmentUpdate') ?>" method="post">
+                    {{ csrf_field() }}    
+                    <div class="form-group">
+                        <label for="store-website-title">Website Title:</label>
+						<span id="store-website-title"></span>
+						<input id="store-website-id" name="store_website_id" class="form-control" type="hidden">
+                    </div>
+					<div class="form-group">
+                        <label for="env-key">Env Key:</label>
+						<span id="env-key-label"></span>
+						<input id="env-key" name="env_key" class="form-control" type="hidden">
+                    </div>
+                    <div class="form-group">
+                        <label for="env-value">Env Value</label>
+                        <input id="env-value" name="env_value" class="form-control" type="text">
+                    </div>
+                    <div class="form-group pull-right">
+                        <input id="env-update-form-submit" class="btn btn-secondary" type="submit">
+                    </div>
+               </form> 
+           </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
@@ -150,6 +188,47 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
+
+	$(document).on('click', '.update-environment-icon', function () {
+		var storeWebsiteId = $(this).parent().data('store-website-id');
+		var envKey = $(this).parent().data('env-key');
+		var storeWebsiteTitle = $(this).parent().data('store-website-title');
+		var envValue = $(this).parent().attr('data-env-value');
+
+		$("#store-website-id").val(storeWebsiteId);
+		$("#store-website-title").text(storeWebsiteTitle);
+		$("#env-key").val(envKey);
+		$("#env-key-label").text(envKey);
+		$("#env-value").val(envValue);
+
+		$("#update-environment-modal").modal("show");
+	});
+
+	$(document).on("submit", "#update-environment-submit-form", function(e) {
+            e.preventDefault();
+            var $form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                url: $form.attr("action"),
+                data: $form.serialize(),
+                dataType: "json",
+                success: function(data) {
+                    if (data.code == 200) {
+                        $form[0].reset();
+                        $("#update-environment-modal").modal("hide");
+                        toastr['success'](data.message, 'Message');
+						$("td[data-store-website-id='"+data.store_website_id+"'][data-env-key='"+data.env_key+"']").find('span.td-mini-container').text(data.new_value);
+						$("td[data-store-website-id='"+data.store_website_id+"'][data-env-key='"+data.env_key+"']").find('span.td-full-container').text(data.new_value);
+						$("td[data-store-website-id='"+data.store_website_id+"'][data-env-key='"+data.env_key+"']").attr('data-env-value', data.new_value);
+                    } else {
+                        toastr['error'](data.message, 'Message');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errors = xhr.responseJSON;
+                }
+            });
+        });
 </script>
 
 @endsection
