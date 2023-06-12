@@ -4034,6 +4034,7 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
+        Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
