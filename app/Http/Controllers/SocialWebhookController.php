@@ -444,8 +444,7 @@ class SocialWebhookController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'getImageByCurl');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'getImageByCurl');
 
         return [
             'response' => $response,
@@ -484,8 +483,8 @@ class SocialWebhookController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
+       
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
 
         return [
             'response' => $response,

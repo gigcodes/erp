@@ -19,8 +19,9 @@ class WebsiteStoreController extends Controller
     {
         $title = 'Website Store | Store Website';
 
-        $websites = Website::all()->pluck('name', 'id')->toArray();
-
+        //$websites = Website::all()->pluck('name', 'id')->toArray();
+        $websites = Website::join('store_websites', 'store_websites.id', '=', 'websites.store_website_id')->select('websites.*',\DB::raw('CONCAT(websites.name, " (", store_websites.title,")") AS full_name'))->get()->pluck('full_name', 'id')->toArray();
+        
         return view('storewebsite::website-store.index', [
             'title' => $title,
             'websites' => $websites,
@@ -77,7 +78,7 @@ class WebsiteStoreController extends Controller
             $records = new WebsiteStore;
         }
 
-        $post['code'] = replace_dash($post['code']);
+        //$post['code'] = replace_dash($post['code']);
 
         $records->fill($post);
         // if records has been save then call a request to push

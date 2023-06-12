@@ -61,8 +61,9 @@ class IosSubscriptionReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
+                $url ="https://api.appfigures.com/v2/reports/subscriptions?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://api.appfigures.com/v2/reports/subscriptions?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -82,11 +83,11 @@ class IosSubscriptionReport extends Command
                 // print_r($res);
                 // print_r($res["apple:ios"]);
                 // print($res["apple:ios"]["downloads"]);
-                curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://api.appfigures.com/v2/reports/subscriptions?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\IosSubscriptionReport::class, 'handle');
 
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosSubscriptionReport::class, 'handle');
+                curl_close($curl);
+            
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call completed."]);
 
                 if ($res) {

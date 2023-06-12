@@ -62,11 +62,12 @@ class GetStatsFromEmailServers extends Command
                         // $output contains the output string
                         $output = curl_exec($ch);
 
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Console\Commands\GetStatsFromEmailServers::class, 'handle');
+
                         // close curl resource to free up system resources
                         curl_close($ch);
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url, 'POST', [], json_decode($output), $httpcode, \App\Console\Commands\GetStatsFromEmailServers::class, 'handle');
-
+                        
                         $response = json_decode($output);
 
                         if ($response->statistics) {

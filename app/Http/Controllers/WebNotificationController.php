@@ -186,14 +186,14 @@ class WebNotificationController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
             // Execute post
             $result = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($result === false) {
                 exit('Curl failed: ' . curl_error($ch));
             }
             \Log::info('Notification Process success -->' . json_encode($result));
             // Close connection
             curl_close($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
+            LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
             // FCM response
             return;
         } catch (\Exception $e) {
@@ -232,6 +232,7 @@ class WebNotificationController extends Controller
         // Disabling SSL Certificate support temporarly
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // Execute post
         $result = curl_exec($ch);
         if ($result === false) {
@@ -239,8 +240,8 @@ class WebNotificationController extends Controller
         }
         // Close connection
         curl_close($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($data), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
+
+        LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
         // FCM response
     }
 }

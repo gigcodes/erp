@@ -73,9 +73,10 @@ class GoogleWebMasterFetchAllRecords extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
 
                         //echo"<pre>";print_r($token);die;
+                        $url = "https://www.googleapis.com/webmasters/v3/sites/";
                         $curl = curl_init();
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
+                            CURLOPT_URL =>  $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
@@ -102,6 +103,10 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                         $check_error_response = json_decode($response);
 
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        //here response alredy decode
+                        LogRequest::log($startTime, $url, 'GET', json_encode([]), $check_error_response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+
                         curl_close($curl);
 
                         if (isset($check_error_response->error->message) || $err) {
@@ -121,9 +126,9 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                                     $curl1 = curl_init();
                                     //replace website name with code coming form site list
-
+                                    $url = "https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
                                     curl_setopt_array($curl1, [
-                                        CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
+                                        CURLOPT_URL => $url,
                                         CURLOPT_RETURNTRANSFER => true,
                                         CURLOPT_ENCODING => '',
                                         CURLOPT_MAXREDIRS => 10,
@@ -137,10 +142,8 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                                     $response1 = curl_exec($curl1);
                                     $err = curl_error($curl1);
-
-                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);
-                                    $url = "https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
-                                    LogRequest::log($startTime, $url, 'POST', [], json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);                       
+                                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
             
 
                                     if ($err) {
@@ -210,15 +213,16 @@ class GoogleWebMasterFetchAllRecords extends Command
                 ]);
 
                 $response = curl_exec($curl);
-                $response = json_decode($response);
+                $response = json_decode($response); // here Response decode
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url_for_sites, 'GET', json_encode([]), $response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'updateSitesData');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
                 }
 
                 curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url_for_sites, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'updateSitesData');
+                
 
                 if (isset($error_msg)) {
                     $this->curl_errors_array[] = ['key' => $google_key, 'error' => $error_msg, 'type' => 'site_list'];
@@ -347,7 +351,9 @@ class GoogleWebMasterFetchAllRecords extends Command
 
         $response = curl_exec($curl);
 
-        $response = json_decode($response);
+        $response = json_decode($response); // response decoded
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), $response, $httpcode, 'googleResultForAnaylist', \App\Console\Commands\GoogleWebMasterFetchAllRecords::class);
 
         if (isset($response->error->message)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $response->error->message, 'type' => 'search_analytics'];
@@ -358,10 +364,8 @@ class GoogleWebMasterFetchAllRecords extends Command
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
-        curl_close($curl);
-
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, 'googleResultForAnaylist', \App\Console\Commands\GoogleWebMasterFetchAllRecords::class);
+        
+        curl_close($curl);  
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $error_msg, 'type' => 'search_analytics'];
 

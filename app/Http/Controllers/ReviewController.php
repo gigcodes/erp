@@ -569,7 +569,7 @@ class ReviewController extends Controller
 
         // $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         $url = 'http://' . $serverId . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -578,11 +578,11 @@ class ReviewController extends Controller
         $response = curl_exec($curl);
 
         $err = curl_error($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
 
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
+        
 
         if (! empty($err)) {
             return response()->json(['code' => 500, 'message' => 'Could not fetch response from server']);

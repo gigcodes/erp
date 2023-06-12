@@ -72,17 +72,18 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                         $client_id=$assetsmanager->client_id;
                         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
                         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $requestParams = [
+                            'command' => $magCom->command_type,
+                            'cwd' => $magCom->working_directory,
+                            'is_sudo' => true
+                        ];
                                 
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL,$url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                            'command' => $magCom->command_type, 
-                            'cwd' => $magCom->working_directory,
-                            'is_sudo' => true 
-                        ]));
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
     
                         $headers = [];
                         $headers[] = 'Authorization: Basic '.$key;
@@ -105,9 +106,9 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 ]
                             );
                         }
-                        $response = json_decode($result);
+                        $response = json_decode($result); //response decoded
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
+                        LogRequest::log($startTime, $url, 'POST', json_encode($requestParams), $response, $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                         
                         curl_close($ch);
                         
@@ -215,17 +216,18 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 $client_id=$assetsmanager->client_id;
                                 $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
                                 $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                $requestParams = [
+                                    'command' => $magCom->command_type, 
+                                    'cwd' => $magCom->working_directory, 
+                                    'is_sudo' => true 
+                                ];
                                 
                                 $ch = curl_init();
                                 curl_setopt($ch, CURLOPT_URL,$url);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                 curl_setopt($ch, CURLOPT_POST, 1);
                                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-                                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                                    'command' => $magCom->command_type, 
-                                    'cwd' => $magCom->working_directory, 
-                                    'is_sudo' => true 
-                                ]));
+                                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
                                 $headers = [];
                                 $headers[] = 'Authorization: Basic '.$key;
@@ -248,12 +250,12 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                         ]
                                     );
                                 }
-                                $response = json_decode($result);
+                                $response = json_decode($result); //response decode
+                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                LogRequest::log($startTime, $url, 'POST', json_encode($requestParams), $response, $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
                                 
                                 curl_close($ch);
-                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommandOnMultipleWebsite::class, 'handle');
-                                
+                                            
                                 if(isset($response->errors)){ 
                                     foreach($response->errors as $error){
                                         $message=$error->code.":".$error->title.":".$error->detail;

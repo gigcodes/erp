@@ -46,9 +46,10 @@ class NegativeCouponResponses extends Command
                 $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
                 // Init cURL
                 $curl = curl_init();
+                $url ="'https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
                 // Set cURL options
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://dev6.sololuxury.com/rest/V1/coupon/logs/',
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -64,14 +65,15 @@ class NegativeCouponResponses extends Command
                 // Get response
                 $response = curl_exec($curl);
 
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\NegativeCouponResponses::class, 'handle');
+
                 // Get possible error
                 $err = curl_error($curl);
 
                 // Close cURL
                 curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\NegativeCouponResponses::class, 'handle');
+                
 
                 // Check for errors
                 if ($err) {

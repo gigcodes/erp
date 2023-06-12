@@ -81,6 +81,8 @@ class SubmitSiteToGoogleWebmaster extends Command
                 ]);
                 $response = curl_exec($curl);
                 $response = json_decode($response);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url_for_sites, 'PUT',json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\SubmitSiteToGoogleWebmaster::class, 'handle');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
@@ -90,9 +92,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
 
                 curl_close($curl);
-                $response = curl_exec($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url_for_sites, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\SubmitSiteToGoogleWebmaster::class, 'handle');
+                
 
                 if (! empty($response)) {
                     $history = [

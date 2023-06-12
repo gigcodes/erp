@@ -41,7 +41,7 @@ class ExotelController extends FindByNumberController
 
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($post_data), json_decode($http_result), $http_code, \App\Http\Controllers\ExotelController::class, 'Exotelcall');
+        LogRequest::log($startTime, $url, 'POST', json_encode($post_data), json_decode($http_result), $http_code, \App\Http\Controllers\ExotelController::class, 'Exotelcall');
         echo 'Response = ' . print_r($http_result);
     }
 

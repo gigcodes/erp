@@ -134,10 +134,9 @@ class GetPaymentResponses extends Command
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $server_output = curl_exec($ch);
-        curl_close($ch);
-
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($server_output), $httpcode, \App\Console\Commands\GetPaymentResponses::class, 'getDataApi');
+        curl_close($ch);
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($server_output), $httpcode, \App\Console\Commands\GetPaymentResponses::class, 'getDataApi');
         return  $server_output;
     }
 }

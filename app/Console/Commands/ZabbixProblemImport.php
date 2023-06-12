@@ -6,6 +6,8 @@ use App\Host;
 use App\Problem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\LogRequest;
+
 
 class ZabbixProblemImport extends Command
 {
@@ -72,7 +74,9 @@ class ZabbixProblemImport extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -88,7 +92,11 @@ class ZabbixProblemImport extends Command
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'POST', json_encode($datas), json_decode($result), $httpcode, \App\Console\Commands\ZabbixProblemImport::class, 'login_api');
+
         $results = json_decode($result);
 
         if (isset($results[0]->result)) {
@@ -103,10 +111,12 @@ class ZabbixProblemImport extends Command
     public function problem_api($auth_key)
     {
         //Get API ENDPOINT response
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url =env('ZABBIX_HOST') . '/api_jsonrpc.php';
         $hostIds = \App\Host::pluck('hostid');
         $errorArray = [];
         foreach ($hostIds as $val) {
-            $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
+            $curl = curl_init($url);
             $data = [
                 'jsonrpc' => '2.0',
                 'method' => 'problem.get',
@@ -121,7 +131,9 @@ class ZabbixProblemImport extends Command
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $result = curl_exec($curl);
-            $result = json_decode($result);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $result = json_decode($result); //response decode
+            LogRequest::log($startTime, $url, 'POST', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixProblemImport::class, 'login_api');
 
             if (isset($result) && is_array($result)) {
                 foreach ($result as $key => $error) {

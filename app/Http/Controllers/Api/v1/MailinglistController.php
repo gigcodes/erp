@@ -132,13 +132,14 @@ class MailinglistController extends Controller
         $api_key = ($send_in_blue_api != '') ? $send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
+        $url = "https://api.sendinblue.com/v3/contacts/";
         $data = [
             'email' => $email,
             'listIds' => [intval($id)],
         ];
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -154,18 +155,20 @@ class MailinglistController extends Controller
             ],
         ]);
         $response = curl_exec($curl);
-        curl_close($curl);
         $res = json_decode($response);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $url = "https://api.sendinblue.com/v3/contacts/";
-        LogRequest::log($startTime, $url, 'GET', [], $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+        $parameters = [];
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
         
 
         if (isset($res->message)) {
             if ($res->message == 'Contact already exist') {
                 $curl3 = curl_init();
+                $url = "https://api.sendinblue.com/v3/contacts/' . $email";
                 curl_setopt_array($curl3, [
-                    CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/' . $email,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -180,15 +183,17 @@ class MailinglistController extends Controller
                     ],
                 ]);
                 $respw = curl_exec($curl3);
-                curl_close($curl3);
                 $respw = json_decode($respw);
                 $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
-                $url = "https://api.sendinblue.com/v3/contacts/' . $email";
-                LogRequest::log($startTime, $url, 'GET', [], $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                $parameters = [];
+                LogRequest::log($startTime, $url, 'DELETE', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                curl_close($curl3);
+               
 
                 $curl2 = curl_init();
+                $url = "https://api.sendinblue.com/v3/contacts";
                 curl_setopt_array($curl2, [
-                    CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts',
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -204,12 +209,12 @@ class MailinglistController extends Controller
                     ],
                 ]);
                 $resp = curl_exec($curl2);
-                curl_close($curl2);
                 $ress = json_decode($resp);
                 $parameters = [];
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url = "https://api.sendinblue.com/v3/contacts";
-                LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);    
+                LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
+                curl_close($curl2);
+               
                 if (isset($ress->message)) {
                     return response()->json(['status' => 'error']);
                 }

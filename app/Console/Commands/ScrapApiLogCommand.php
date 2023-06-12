@@ -86,7 +86,8 @@ class ScrapApiLogCommand extends Command
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\ScrapApiLogCommand::class, 'handle');
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\ScrapApiLogCommand::class, 'handle');
 
             if (! empty($response)) {
                 $response = json_decode($response);

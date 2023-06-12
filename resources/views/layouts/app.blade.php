@@ -3783,15 +3783,14 @@ if (!empty($notifications)) {
                     </div>
                     @if(Auth::check())
                     <nav id="quick-sidebars">
-                        <ul class="list-unstyled components mr-1">      
+                        <ul class="list-unstyled components mr-1">
+                            @if (Auth::user()->hasRole('Admin'))
                             <li>
                                 <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                     <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
                                     <span class="event-alert-badge hide"></span>
                                 </a>
                             </li>
-                            @if (Auth::user()->hasRole('Admin'))
-                            
                             <li>  
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
@@ -7145,7 +7144,12 @@ if (!\Auth::guest()) {
         getEventAlerts(true);
     });
     $(document).ready(function() {
-        getEventAlerts();
+        @if(Auth::check())
+        var Role = "{{ Auth::user()->hasRole('Admin') }}";
+        if (Role) {
+            getEventAlerts();
+        }
+        @endif
     });
 
     function getEventAlerts(showModal = false) {

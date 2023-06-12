@@ -23,8 +23,10 @@ class WebsiteStoreViewController extends Controller
     {
         $title = 'Website Store View | Store Website';
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
-        $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
-        $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        
+        $websiteStores = WebsiteStore::join('websites', 'websites.id', '=', 'website_stores.website_id')->join('store_websites', 'store_websites.id', '=', 'websites.store_website_id')->orderBy('websites.name', 'ASC')->select('websites.*',\DB::raw('CONCAT(website_stores.name, " (", store_websites.title,")") AS full_name'))->pluck('full_name', 'id')->toArray();
+        
+        $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'name')->toArray();
         $storeServers = StoreViewCodeServerMap::groupBy('server_id')->get();
 
         return view('storewebsite::website-store-view.index', [
@@ -94,7 +96,7 @@ class WebsiteStoreViewController extends Controller
             $records = new WebsiteStoreView;
         }
 
-        $post['code'] = replace_dash($post['code']);
+        //$post['code'] = replace_dash($post['code']);
 
         $records->fill($post);
         if ($records->save()) {
