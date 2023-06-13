@@ -34,11 +34,11 @@
                                     src="/images/filled-sent.png" /></button>
                         </div>
                         <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
-                            {{ Form::select('status', ['' => '-- Select --'] + $allStatus, $site['status'], [
+                            {{ Form::select('status', ['' => '-- Select --'] + $allStatus, optional($site)->status, [
                                 'class' => 'form-control save-item-select width-auto globalSelect2',
                                 'data-category' => $sdc->id,
                                 'data-type' => 'status',
-                                'data-swid' => $sw['id'],
+                                'data-swid' => $sw->id,
                                 'data-site' => $site ? $site->id : '',
                             ]) }}
                             @if ($site)
