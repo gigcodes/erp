@@ -338,39 +338,32 @@ padding: 3px 2px;
                    data-id="{{ $pam->chat_id }}">
                     <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
                 </a>
-                @if($pam->task_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('task', {{ $pam->task_id }}, {{ $pam->is_auto_simulator == 0 }})">
-                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+
+                @if($pam->vendor_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('vendor', {{ $pam->vendor_id }}, {{ $pam->vendor_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->vendor_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
                     </button>
-                @elseif($pam->developer_task_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('developer_task', {{ $pam->developer_task_id }}, {{ $pam->is_auto_simulator == 0 }})">
-                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                @elseif($pam->customer_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('customer', {{ $pam->customer_id }}, {{ $pam->customer_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->customer_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
                     </button>
-                @elseif($pam->vendor_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('vendor', {{ $pam->vendor_id }}, {{ $pam->is_auto_simulator == 0 }})">
-                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
-                    </button>
-                @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
-                @else
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('customer', {{ $pam->customer_id }}, {{ $pam->is_auto_simulator == 0 }})">
-                        <i style="color: #757575c7;" class="fa fa-{{$pam->is_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                @elseif($pam->supplier_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('supplier', {{ $pam->supplier_id }}, {{ $pam->supplier_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->supplier_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
                     </button>
                 @endif
-                @if($pam->task_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
-                @elseif($pam->developer_task_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
-                @elseif($pam->vendor_id > 0 )
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
 
-                @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
 
-                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="email" data-id="{{$pam->email_id}}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
+                @if($pam->vendor_id > 0)
+                    <a href="{{  route('chatbot.message.list', ['object' => 'vendor', 'object_id' =>  $pam->vendor_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+                @elseif($pam->customer_id > 0)
+                    <a href="{{  route('chatbot.message.list',['object' => 'customer', 'object_id' =>  $pam->customer_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
 
-                @else
-{{--                    <button   type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>--}}
-                    <button   type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image show_message_list" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></button>
+                @elseif($pam->supplier_id > 0)
+                    <a href="{{  route('chatbot.message.list'), ['object' => 'supplier', 'object_id' =>  $pam->supplier_id] }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+
                 @endif
+
             @if($pam->approved == 0)
             <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
 {{--                <img width="15px" height="15px" src="/images/completed.png">--}}
@@ -936,13 +929,6 @@ padding: 3px 2px;
 
     $(document).on("click", ".show_message_list", function () {
         $('#chat_bot_reply_list').modal('show');
-        var feedback_category_id = null;
-        var feedback_status_id = null;
-
-        if ($(this).data("feedback_cat_id")) {
-            var feedback_category_id = $(this).data("feedback_cat_id");
-        }
-
         var thiss = $(this);
         var object_type = $(this).data("object");
         var object_id = $(this).data("id");
@@ -984,7 +970,6 @@ padding: 3px 2px;
                 load_all: load_all,
                 load_attached: load_attached,
                 load_type: load_type,
-                feedback_category_id: feedback_category_id,
             },
             beforeSend: function () {
                 $(thiss).text("Loading...");

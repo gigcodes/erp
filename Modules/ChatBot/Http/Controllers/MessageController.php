@@ -134,7 +134,9 @@ class MessageController extends Controller
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer',
-            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name', 'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject'])
+            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
+            'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject', 'c.is_auto_simulator as customer_auto_simulator',
+            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'])
             ->orderByRaw("cr.id DESC, chat_messages.id DESC")
             ->paginate(20);
         // dd($pendingApprovalMsg);
@@ -371,10 +373,16 @@ class MessageController extends Controller
             'for_simulator' => true
         ]);
         $response = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
-        if ($response[0] && $response[0]['id'] > 0) {
-            $id = $response[0]['id'];
-            $update_chat_message = ChatMessage::where('id', $id)->update(['is_auto_simulator' => $request->auto_simulator]);
-            return response()->json(['code' => 200, 'data' => [$update_chat_message, $id], 'messages' => 'Auto simulator on successfully']);
+        $id = $request->objectId;
+        if ($id > 0) {
+            if ($request->object == 'customer') {
+                $update_simulator = Customer::where('id', $id)->update(['is_auto_simulator' => $request->auto_simulator]);
+            } elseif ($request->object == 'vendor') {
+                $update_simulator = Vendor::where('id', $id)->update(['is_auto_simulator' => $request->auto_simulator]);
+            } elseif ($request->object == 'supplier') {
+                $update_simulator = Supplier::where('id', $id)->update(['is_auto_simulator' => $request->auto_simulator]);
+            }
+            return response()->json(['code' => 200, 'data' => [$update_simulator, $id], 'messages' => 'Auto simulator on successfully']);
 
         } else {
             return response()->json(['code' => 500, 'data' => [], 'messages' => 'Error']);
@@ -382,7 +390,15 @@ class MessageController extends Controller
     }
 
     public function chatBotReplayList(Request $request) {
-        return app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($request);
+        $requestMessage = \Request::create('/', 'GET', [
+            'limit' => 20,
+            'object' => $request->object,
+            'object_id' => $request->object_id,
+            'order' => 'asc',
+            'plan_response' => true
+        ]);
+        $message_list = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
+        return view('chatbot::message.partial.chatbot-list', compact('message_list'));
     }
 
     public function sendSuggestedMessage(Request $request): \Illuminate\Http\JsonResponse
