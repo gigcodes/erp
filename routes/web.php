@@ -4173,6 +4173,8 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+    Route::get('updateLog/apiurl/show', [UpdateLogController::class, 'apiUrlShow'])->name('updateLog.api.url.show');
+    Route::get('updateLog/request_headers/show', [UpdateLogController::class, 'requestHeaderShow'])->name('updateLog.request.header.show');
 
     Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
     Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');

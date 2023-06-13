@@ -148,4 +148,22 @@ class UpdateLogController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
+    public function apiUrlShow(Request $request)
+    {     
+        $id = $request->input('id');
+        $apiUrl = UpdateLog::where('id', $id)->value('api_url');
+        $htmlContent = '<tr><td>' . $apiUrl . '</td></tr>';
+
+        return $htmlContent;
+    }
+
+    public function requestHeaderShow(Request $request)
+    {     
+        $id = $request->input('id');
+        $requestHeader = UpdateLog::where('id', $id)->value('request_header');
+        $htmlContent = '<tr><td>' . $requestHeader . '</td></tr>';
+
+        return $htmlContent;
+    }
 }
