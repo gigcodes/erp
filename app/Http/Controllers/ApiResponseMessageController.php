@@ -9,6 +9,7 @@ use App\ApiResponseMessagesTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessageValueHistory;
+use App\GoogleTranslate;
 use App\Jobs\ProcessTranslateApiResponseMessage;
 
 class ApiResponseMessageController extends Controller
@@ -79,7 +80,7 @@ class ApiResponseMessageController extends Controller
     {
         $id = $request->id;
         $apiResponseMessage = ApiResponseMessage::where('id', $id)->first();
-        $returnHTML="<tr><td colspan='5'>No Data Found!</td></tr>";
+        $returnHTML="<tr><td colspan='6'>No Data Found!</td></tr>";
        
         if($apiResponseMessage){
             $translations=ApiResponseMessagesTranslation::where('store_website_id', $apiResponseMessage->store_website_id)->where('key', $apiResponseMessage->key)->get();
@@ -93,6 +94,7 @@ class ApiResponseMessageController extends Controller
                     $returnHTML.="<td>".$translation->lang_code."</td>";
                     $returnHTML.="<td>".$translation->key."</td>";
                     $returnHTML.="<td>".$translation->value."</td>";
+                    $returnHTML.="<td>".$translation->user?->name."</td>";
                     $returnHTML.="</tr>";
                 }
             }
@@ -148,32 +150,72 @@ class ApiResponseMessageController extends Controller
     public function messageTranslate(Request $request) 
     {
         $id = $request->api_response_message_id;
-        $is_flagged_request = $request->is_flagged;
 
-        if ($is_flagged_request == '1') {
-            $is_flagged = 0;
-        } else {
-            $is_flagged = 1;
-        }
+        $apiResponseMessage = ApiResponseMessage::find($id);
+        if ($apiResponseMessage) {
+            $languages = \App\Language::where('status', 1)->get();
+            foreach ($languages as $l) {
+                $translatedValue = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                    new GoogleTranslate,
+                    $l->locale,
+                    [$apiResponseMessage->value]
+                );
 
-        if ($is_flagged == '1') {
-            $record = ApiResponseMessage::find($id);
-            if ($record) {
-                ProcessTranslateApiResponseMessage::dispatch($record, \Auth::id())->onQueue('replytranslation');
-
-                $record->is_flagged = 1;
-                $record->save();
-
-                return response()->json(['code' => 200, 'data' => [], 'message' => 'Response message set For Translatation']);
+                // Save translated text
+                ApiResponseMessagesTranslation::updateOrCreate([
+                    'store_website_id'   => $apiResponseMessage->store_website_id,
+                    'key'   => $apiResponseMessage->key,
+                    'lang_code'   => $l->code,
+                ],[
+                    'value'     => $translatedValue,
+                ]);
             }
 
-            return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
-        } else {
-            $res_rec = ApiResponseMessage::find($id);
-            $res_rec->is_flagged = 0;
-            $res_rec->save();
-
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Translation off successfully']);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Response message translated successfully']);
         }
+
+        return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
+    }
+
+    public function messageTranslateList(Request $request) 
+    {
+        $languages = \App\Language::where('status', 1)->get();
+        $apiResponseMessagesTranslations = ApiResponseMessagesTranslation::all();
+        $apiResponseMessagesTranslationsRows = ApiResponseMessagesTranslation::with('storeWebsite')->groupBy(['store_website_id', 'key'])->get();
+
+        $rowValues = [];
+        foreach($apiResponseMessagesTranslations as $apiResponseMessagesTranslation) {
+            $rowValues[$apiResponseMessagesTranslation->store_website_id]
+                [$apiResponseMessagesTranslation->key]
+                [$apiResponseMessagesTranslation->lang_code] = [
+                    'value' => $apiResponseMessagesTranslation->value,
+                    'approved_by_user_id' => $apiResponseMessagesTranslation->approved_by_user_id
+                ];
+
+        }
+
+        return view('apiResponse/message-translate-list', compact('languages', 'apiResponseMessagesTranslationsRows', 'rowValues'));
+    }
+
+    public function messageTranslateApprove(Request $request)
+    {
+        $apiResponseMessagesTranslation = ApiResponseMessagesTranslation::where("store_website_id", $request->store_website_id)
+            ->where("key", $request->key)
+            ->where("lang_code", $request->lang_code)
+            ->firstOrFail();
+
+        $apiResponseMessagesTranslation->value = $request->value;
+        $apiResponseMessagesTranslation->updated_by_user_id = Auth::User()->id;
+        $apiResponseMessagesTranslation->approved_by_user_id = Auth::User()->id;
+        $apiResponseMessagesTranslation->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Approved successfully !!',
+            'new_value' => $request->value,
+            'store_website_id' => $request->store_website_id,
+            'key' => $request->key,
+            'lang_code' => $request->lang_code,
+        ]);
     }
 }

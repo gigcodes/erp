@@ -21,5 +21,9 @@ class ApiResponseMessagesTranslation extends Model
     {
         return $this->hasOne(\App\WebsiteStoreView::class, 'code', 'lang_code');
     }
-        
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'approved_by_user_id', 'id');
+    }
 }
