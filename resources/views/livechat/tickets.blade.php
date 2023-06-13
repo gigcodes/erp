@@ -268,7 +268,9 @@
                 @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
-            <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+            <div id="pagination-container">
+                {{ $data->links() }}
+            </div>
         </div>
 
 
@@ -507,14 +509,6 @@ function opnMsg(email) {
 
     }
 
-        var page = 1;
-        function getScrollTop() {
-            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-        }
-        window.onscroll = function() {
-            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
-            loadMore(++page);
-        };
 
         function getDocumentHeight() {
             const body = document.body;
@@ -559,33 +553,7 @@ function opnMsg(email) {
               $("#loading-image").hide();
             });
         });
-        function loadMore(page) {
 
-            var url = "/livechat/tickets?page="+page;
-
-            page = page + 1;
-            $.ajax({
-                url: url,
-                type: 'GET',
-                data: $('.form-search-data').serialize(),
-                beforeSend:function(){
-                        $('.infinite-scroll-products-loader').show();
-                },
-                success: function (data) {
-                    if (data == '') {
-                        $('.infinite-scroll-products-loader').hide();
-                    }
-                    $('.globalSelect2').select2();
-
-                    $('.infinite-scroll-products-loader').hide();
-
-                    $('.infinite-scroll-pending-inner').append(data.tbody);
-                },
-                error: function () {
-                    $('.infinite-scroll-products-loader').hide();
-                }
-            });
-        }
 
     $(document).on('click', '.row-ticket', function () {
         /*DEVTASK-22731-START*/
@@ -1195,6 +1163,35 @@ function opnMsg(email) {
     function Ticketsbtn(id){
         $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
     }
+
+    // Add an event listener to the pagination links
+    $(document).on('click', '#pagination-container .page-item .page-link', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        loadTickets(url);
+    });
+
+
+    function loadTickets(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            
+            success: function(response) {
+                $('#content_data').html(response.tbody);
+                $('#pagination-container').html(response.links);
+            },
+            error: function(xhr, status, error) {
+                alert('error')
+            }
+        });
+    }
+
+    // Load tickets on initial page load
+    $(document).ready(function() {
+        loadTickets('{{ Request::url() }}');
+    });
 </script>
 @endsection
 
