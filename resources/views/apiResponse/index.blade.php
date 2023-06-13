@@ -306,7 +306,7 @@ form label.required:after{
                     <th width="25%">Store Website</th>
                     <th  width="25%">Key</th>
                     <th  width="25%">Value</th>
-                    <th  width="4%">Actions</th>
+                    <th  width="7%">Actions</th>
                 </tr>
             </thead>
             <tbody class="p-0 pending-row-render-view infinite-scroll-api-inner">
@@ -328,6 +328,13 @@ form label.required:after{
                                 <a  data-id="{{ $res->id}}" class="view-message-translation" title="View Message Translation" href="#">
                                     <i class="fa fa-language" aria-hidden="true" style="color:grey;"></i> 
                                  </a>
+                                <button type="button" title="Flagged for Translate" data-id="{{ $res->id }}" data-is_flagged="<?php if($res->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateResponseMessage(this)" class="btn" style="padding: 0px 1px;">
+                                    <?php if($res->is_flagged == '1') { ?>
+                                    <i class="fa fas fa-toggle-on"></i>
+                                    <?php } else { ?>
+                                    <i class="fa fas fa-toggle-off"></i>
+                                    <?php } ?>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -430,6 +437,56 @@ form label.required:after{
             });
         }
     })
+
+    function updateTranslateResponseMessage(ele) {
+        let btn = jQuery(ele);
+        let api_response_message_id = btn.data('id');
+        let is_flagged = btn.data('is_flagged');
+
+        if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure want unflagged this ?' : 'Are you sure want flagged this ?')) {
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('api-response-message.messageTranslate') }}",
+                type: 'POST',
+                data: {
+                    api_response_message_id: api_response_message_id,
+                    is_flagged: is_flagged,
+                },
+                dataType: 'json',
+                beforeSend: function () {
+                    jQuery("#loading-image-preview").show();
+                },
+                success: function (res) {
+                    if(res.code == 200){
+                        toastr["success"](res.message);
+                    }
+                    else{
+                        toastr["error"](res.message);                    
+                    }
+                    jQuery("#loading-image-preview").hide();
+                    
+                    if (is_flagged == 1 && res.code == 200) {
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                        btn.find('.fa').addClass('fa-toggle-off');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+                    }
+                    else if(res.code == 200){
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                        btn.find('.fa').addClass('fa-toggle-on');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+                    }
+                },
+                error: function (res) {
+                    if (res.responseJSON != undefined) {
+                        toastr["error"](res.responseJSON.message);
+                    }
+                    jQuery("#loading-image-preview").hide();
+                }
+            });
+        }
+    }
 </script>
 <script>
         

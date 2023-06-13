@@ -9,6 +9,7 @@ use App\ApiResponseMessagesTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessageValueHistory;
+use App\Jobs\ProcessTranslateApiResponseMessage;
 
 class ApiResponseMessageController extends Controller
 {
@@ -141,6 +142,38 @@ class ApiResponseMessageController extends Controller
             \Session::flash('alert-class', 'alert-danger');
 
             return redirect()->route('api-response-message');
+        }
+    }
+
+    public function messageTranslate(Request $request) 
+    {
+        $id = $request->api_response_message_id;
+        $is_flagged_request = $request->is_flagged;
+
+        if ($is_flagged_request == '1') {
+            $is_flagged = 0;
+        } else {
+            $is_flagged = 1;
+        }
+
+        if ($is_flagged == '1') {
+            $record = ApiResponseMessage::find($id);
+            if ($record) {
+                ProcessTranslateApiResponseMessage::dispatch($record, \Auth::id())->onQueue('replytranslation');
+
+                $record->is_flagged = 1;
+                $record->save();
+
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Response message set For Translatation']);
+            }
+
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
+        } else {
+            $res_rec = ApiResponseMessage::find($id);
+            $res_rec->is_flagged = 0;
+            $res_rec->save();
+
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Translation off successfully']);
         }
     }
 }
