@@ -1464,7 +1464,7 @@ class LiveChatController extends Controller
         $query = $query->leftjoin('users', 'users.id', '=', 'tickets.assigned_to');
 
         $query = $query->select($selectArray);
-        //dd($request->all());
+
         if ($request->ticket_id !='') {
             $query = $query->whereIn('ticket_id', $request->ticket_id);
         }

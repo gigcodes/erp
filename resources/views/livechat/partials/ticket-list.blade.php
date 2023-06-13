@@ -180,4 +180,3 @@
 </tr>
 @endforeach
 
-{{ $data->links() }}
