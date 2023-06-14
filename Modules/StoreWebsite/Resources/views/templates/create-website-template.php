@@ -338,6 +338,12 @@
                   </select>
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="country_duty">Working Directory</label>
+                  <input type="text" name="working_directory" value="{{if data}}{{:data.working_directory}}{{/if}}" class="form-control" id="project_id" placeholder="Enter Working Directory">
+               </div>
+            </div>
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}
