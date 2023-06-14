@@ -1519,17 +1519,17 @@ class LiveChatController extends Controller
             $query = $query->whereDate('tickets.created_at', $request->date);
         }
 
-        $pageSize = Setting::get('pagination',15);
+        $pageSize = Setting::get('pagination',25);
         if ($pageSize == '') {
             $pageSize = 1;
         }
         
         $query = $query->groupBy('tickets.ticket_id');
-        $data = $query->orderBy('created_at', 'DESC')->paginate($pageSize)->appends(['page' => $request->page]);
+        $data = $query->orderBy('created_at', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
 
-        if ($request->ajax()) { 
+        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->page) * $pageSize)->render(),
+                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
                 'links' => (string) $data->links(),
                 'count' => $data->total(),
             ], 200);

@@ -268,9 +268,6 @@
                 @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
-            <div id="pagination-container">
-                {{ $data->links() }}
-            </div>
         </div>
 
 
@@ -735,55 +732,58 @@ function opnMsg(email) {
     }
     /*DEVTASK-22731-END*/
 
-    function submitSearch(){
-                //src = "{{url('whatsapp/pollTicketsCustomer')}}";
-                src = "{{url('livechat/tickets')}}";
-                term = $('#term').val();
-                user_email = $('#user_email').val();
-                user_message = $('#user_message').val();
-                erp_user = 152;
-                serach_inquiry_type = $('#serach_inquiry_type').val();
-                search_country = $('#search_country').val();
-                search_order_no = $('#search_order_no').val();
-                search_phone_no = $('#search_phone_no').val();
+    function submitSearch(page = 1) {
+           //src = "{{url('whatsapp/pollTicketsCustomer')}}";
+            src = "{{ url('livechat/tickets') }}";
+            term = $('#term').val();
+            user_email = $('#user_email').val();
+            user_message = $('#user_message').val();
+            erp_user = 152;
+            serach_inquiry_type = $('#serach_inquiry_type').val();
+            search_country = $('#search_country').val();
+            search_order_no = $('#search_order_no').val();
+            search_phone_no = $('#search_phone_no').val();
                 //search_category = $('#search_category').val();
-                ticket_id = $('#ticket').val();
-                status_id = $('#status_id').val();
-                date = $('#date').val();
-                users_id = $('#users_id').val();
-                search_source = $('#search_source').val();
-                $.ajax({
-                    url: src,
-                    dataType: "json",
-                    data: {
-                        erpUser:erp_user,
-                        term : term,
-                        user_email : user_email,
-                        user_message : user_message,
-                        serach_inquiry_type : serach_inquiry_type,
-                        search_country : search_country,
-                        search_order_no : search_order_no,
-                        search_phone_no : search_phone_no,
-                        ticket_id : ticket_id,
-                        status_id : status_id,
-                        date : date,
-                        users_id : users_id,
-                        search_source : search_source
-                    },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                }).done(function (message) {
-                    $("#loading-image").hide();
-                    //location.reload();
-                    //alert(ticket_id);
-                    $('#ticket').val(ticket_id);
-                    $('#content_data').html(message.tbody);
-                    var rendered = renderMessage(message, tobottom);
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-    }
+            ticket_id = $('#ticket').val();
+            status_id = $('#status_id').val();
+            date = $('#date').val();
+            users_id = $('#users_id').val();
+            search_source = $('#search_source').val();
+            $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                erpUser: erp_user,
+                term: term,
+                user_email: user_email,
+                user_message: user_message,
+                serach_inquiry_type: serach_inquiry_type,
+                search_country: search_country,
+                search_order_no: search_order_no,
+                search_phone_no: search_phone_no,
+                ticket_id: ticket_id,
+                status_id: status_id,
+                date: date,
+                users_id: users_id,
+                search_source: search_source,
+                page: page // Include the page parameter in the data
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function (message) {
+        $("#loading-image").hide();
+        $('#ticket').val(ticket_id);
+        $('#content_data').html(message.tbody);
+        $('#pagination-container').html(message.links);
+        var rendered = renderMessage(message, tobottom);
+
+        // Update the URL in the browser's address bar
+        history.pushState(null, null, src + '?page=' + page);
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        alert('No response from server');
+    });
+}
 
     function resetSearch(){
         $("#loading-image").hide();
@@ -1164,34 +1164,16 @@ function opnMsg(email) {
         $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
     }
 
-    // Add an event listener to the pagination links
-    $(document).on('click', '#pagination-container .page-item .page-link', function(e) {
-        e.preventDefault();
-        var url = $(this).attr('href');
-        loadTickets(url);
-    });
+
+$(document).on('click', '.pagination a', function(e) {
+    e.preventDefault();
+    var url = $(this).attr('href');
+    var page = url.split('page=')[1];
+
+    submitSearch(page);
+});
 
 
-    function loadTickets(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: 'json',
-            
-            success: function(response) {
-                $('#content_data').html(response.tbody);
-                $('#pagination-container').html(response.links);
-            },
-            error: function(xhr, status, error) {
-                alert('error')
-            }
-        });
-    }
-
-    // Load tickets on initial page load
-    $(document).ready(function() {
-        loadTickets('{{ Request::url() }}');
-    });
 </script>
 @endsection
 
