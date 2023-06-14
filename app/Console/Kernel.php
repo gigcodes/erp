@@ -169,7 +169,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
-use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
+//use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 
@@ -283,7 +283,7 @@ class Kernel extends ConsoleKernel
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         DailyTimeDoctorActivityLevel::class,
-        EmailExcelImporter::class,
+//        EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
         UserPayment::class,

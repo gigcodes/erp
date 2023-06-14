@@ -31,22 +31,15 @@ class ChatMessageObserver
             }
             $object = '';
             $objectId = '';
-            if ($chatMessage->task_id) {
-                $object = 'task';
-                $objectId = $chatMessage->task_id;
-            }
-            else if ($chatMessage->developer_task_id) {
-                $object = 'developer_task';
-                $objectId = $chatMessage->developer_task_id;
-            }
-            else if ($chatMessage->vendor_id) {
+            if ($chatMessage->vendor_id) {
                 $object = 'vendor';
                 $objectId = $chatMessage->vendor_id;
-            }
-            else if (empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id)) {
-            } else {
+            }  elseif ($chatMessage->customer_id) {
                 $object = 'customer';
                 $objectId = $chatMessage->customer_id;
+            } elseif ($chatMessage->supplier_id) {
+                $object = 'supplier';
+                $objectId = $chatMessage->supplier_id;
             }
             $requestMessage = \Request::create('/', 'GET', [
                 'limit' => 1,
@@ -62,10 +55,15 @@ class ChatMessageObserver
                 'plan_response' => true
             ]);
             $lastMessage = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
-            if ($firstMessage[0] && $lastMessage[0]) {
+            if ($firstMessage[0] && $lastMessage[0] && ($chatMessage->vendor_id || $chatMessage->customer_id || $chatMessage->supplier_id)) {
+                if ($chatMessage->customer_id > 0) {
+                    $googleAccount = GoogleDialogAccount::where('site_id', $object['store_website_id'])->first();
+                } else {
+                    $googleAccount = GoogleDialogAccount::where('id', 1)->first();
+                }
+
                 if ($firstMessage[0]['sendTo'] == $lastMessage[0]['sendTo']) {
                     if ($firstMessage[0]['is_auto_simulator'] == 1) {
-                        $googleAccount = GoogleDialogAccount::where('id', 1)->first();
                         $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                             ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
                             ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')

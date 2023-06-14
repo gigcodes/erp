@@ -364,6 +364,15 @@ padding: 3px 2px;
 
                 @endif
 
+                @if($pam->vendor_id > 0)
+                    <a href="{{  route('simulator.message.list', ['object' => 'vendor', 'object_id' =>  $pam->vendor_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-eye" aria-hidden="true"></i></a>
+                @elseif($pam->customer_id > 0)
+                    <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $pam->customer_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-eye" aria-hidden="true"></i></a>
+                @elseif($pam->supplier_id > 0)
+                    {{$pam->supplier_id}} {{ die }}
+                    <a href="{{  route('simulator.message.list', ['object' => 'supplier', 'object_id' =>  $pam->supplier_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-eye" aria-hidden="true"></i></a>
+                @endif
+
             @if($pam->approved == 0)
             <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
 {{--                <img width="15px" height="15px" src="/images/completed.png">--}}

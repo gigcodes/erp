@@ -145,7 +145,8 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $currentPage = request('page', 1);
+//        $currentPage = request('page', 1);
+        $currentPage = $request->get('page', 1);
         $skip = ($currentPage - 1) * $limit;
 
         $loadType = $request->get('load_type');
