@@ -2533,7 +2533,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
-                                                href="{{ route('store-website.environment') }}">Store Environment</a>
+                                                href="{{ route('store-website.environment.matrix') }}">Store Environment</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
+                                                href="{{ route('store-website.environment.index') }}">Store Environment Table</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"

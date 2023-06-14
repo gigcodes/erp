@@ -12,6 +12,7 @@ use Modules\StoreWebsite\Http\Controllers\SiteAssetController;
 use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
 use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
 use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteEnvironmentController;
 use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
 use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
 use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
@@ -37,8 +38,6 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
-    Route::post('environment/update', [StoreWebsiteController::class, 'environmentUpdate'])->name('store-website.environmentUpdate');
-    Route::get('environment', [StoreWebsiteController::class, 'environment'])->name('store-website.environment');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
@@ -314,6 +313,23 @@ Route::group([
         Route::get('/{id}/delete', [StoreWebsiteProductAttributeController::class, 'delete'])->name('store-website.product-attribute.delete');
         Route::get('/{id}/push', [StoreWebsiteProductAttributeController::class, 'push'])->name('store-website.product-attribute.push');
     });
+    
+    Route::group(['prefix' => 'environment'], function () {
+        Route::get('/table', [StoreWebsiteEnvironmentController::class, 'index'])->name('store-website.environment.index');
+        Route::get('/', [StoreWebsiteEnvironmentController::class, 'matrix'])->name('store-website.environment.matrix');
+        Route::post('update', [StoreWebsiteEnvironmentController::class, 'environmentUpdate'])->name('store-website.environment.update');
+        
+        Route::get('records', [StoreWebsiteEnvironmentController::class, 'records'])->name('store-website.environment.records');
+
+        Route::post('save', [StoreWebsiteEnvironmentController::class, 'store'])->name('store-website.environment.save');
+
+        Route::post('updateValue', [StoreWebsiteEnvironmentController::class, 'updateValue'])->name('store-website.environment.updateValue');
+        
+        Route::get('/{id}/edit', [StoreWebsiteEnvironmentController::class, 'edit'])->name('store-website.environment.edit');
+
+        Route::get('/{id}/history', [StoreWebsiteEnvironmentController::class, 'history'])->name('store-website.environment.history');
+    });
+
 });
 
 Route::middleware('auth')->group(function () {
@@ -399,4 +415,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PaymentResponseController::class, 'index'])->name('payment-responses.index');
         Route::get('/records', [PaymentResponseController::class, 'records'])->name('payment-responses.records');
     });
+    
 });

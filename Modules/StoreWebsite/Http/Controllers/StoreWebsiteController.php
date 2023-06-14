@@ -1705,61 +1705,6 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
-    public function environmentUpdate(Request $request)
-    {
-        $storeWebsiteEnv = StoreWebsiteEnvironment::where("store_website_id", $request->store_website_id)->firstOrFail();
-        $envData = $storeWebsiteEnv->env_data;
-        
-        $envKeyExplode = explode("@@@", $request->env_key);
-
-        // using-a-string-path-to-set-nested-array-data
-        $temp = &$envData;
-        foreach($envKeyExplode as $key) {
-            $temp = &$temp[$key];
-        }
-
-        $oldValue = $temp;
-        $temp = $newValue = $request->env_value;
-        unset($temp);
-
-        $storeWebsiteEnv->env_data = $envData;
-        $storeWebsiteEnv->save();
-
-        // Save history
-        $storeWebsiteEnvHistory = new StoreWebsiteEnvironmentHistory();
-        $storeWebsiteEnvHistory->store_website_id = $request->store_website_id;
-        $storeWebsiteEnvHistory->key = $request->env_key;
-        $storeWebsiteEnvHistory->old_value = $oldValue;
-        $storeWebsiteEnvHistory->new_value = $newValue;
-        $storeWebsiteEnvHistory->save();
-
-        return response()->json([
-            'code' => 200,
-            'message' => 'Environment value update successfully !!',
-            'new_value' => $newValue,
-            'store_website_id' => $request->store_website_id,
-            'env_key' => $request->env_key
-        ]);
-    }
-    
-    public function environment(Request $request)
-    {
-        $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
-        $storeWebsiteEnvs = StoreWebsiteEnvironment::pluck('env_data', 'store_website_id')->toArray();
-
-        $storeWebsiteFlattenEnvs = [];
-        $envKeys = [];
-        if($storeWebsiteEnvs) {
-            foreach($storeWebsiteEnvs as $storeWebsiteId => $storeWebsiteEnv) {
-                $storeWebsiteFlattenEnvs[$storeWebsiteId] = $this->flattenArray($storeWebsiteEnv);
-            }
-
-            $envKeys = $this->flattenArray(head($storeWebsiteEnvs)); // Master keys for frontend looping purpose.
-        }
-
-        return view('storewebsite::environment', compact('storeWebsites', 'storeWebsiteEnvs', 'storeWebsiteFlattenEnvs', 'envKeys'));
-    }
-
     public function flattenArray($array, $prefix = '')
     {
         $result = [];
