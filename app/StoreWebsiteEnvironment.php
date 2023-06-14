@@ -15,7 +15,7 @@ class StoreWebsiteEnvironment extends Model
      *
      * @SWG\Property(property="name",type="string")
      */
-    protected $fillable = ['store_website_id', 'env_data'];
+    protected $fillable = ['store_website_id', 'env_data','path','value','command','created_by'];
 
     //Tell laravel to fetch text values and set them as arrays
     protected $casts = [
