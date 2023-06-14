@@ -1165,14 +1165,34 @@ function opnMsg(email) {
     }
 
 
-$(document).on('click', '.pagination a', function(e) {
-    e.preventDefault();
-    var url = $(this).attr('href');
-    var page = url.split('page=')[1];
+    // Load tickets on initial page load
+        $(document).ready(function() {
+        loadTickets('{{ Request::url() }}');
+    });
 
-    submitSearch(page);
-});
+   // Add an event listener to the pagination links
+   $(document).on('click', '#pagination-container .page-item .page-link', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        loadTickets(url);
+    });
 
+
+    function loadTickets(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            
+            success: function(response) {
+                $('#content_data').html(response.tbody);
+                $('#pagination-container').html(response.links);
+            },
+            error: function(xhr, status, error) {
+                alert('error')
+            }
+        });
+    }
 
 </script>
 @endsection
