@@ -325,4 +325,12 @@ class MagentoModuleController extends Controller
             ], 500);
         }
     }
+
+    public function magentoModuleList()
+    {
+        $magento_modules = MagentoModule::orderBy('module', 'asc')->get();
+        $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+
+        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites]);
+    }
 }
