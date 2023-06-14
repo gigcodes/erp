@@ -9,7 +9,7 @@ class ApiResponseMessagesTranslation extends Model
     protected $table = 'api_response_messages_translations';
 
     protected $fillable = [
-        'id', 'store_website_id', 'key', 'lang_code', 'value'
+        'id', 'store_website_id', 'key', 'lang_code', 'lang_name', 'value'
     ];
 
     public function storeWebsite()

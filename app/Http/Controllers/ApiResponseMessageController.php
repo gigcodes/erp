@@ -166,6 +166,7 @@ class ApiResponseMessageController extends Controller
                     'store_website_id'   => $apiResponseMessage->store_website_id,
                     'key'   => $apiResponseMessage->key,
                     'lang_code'   => $l->code,
+                    'lang_name'   => $l->name,
                 ],[
                     'value'     => $translatedValue,
                 ]);

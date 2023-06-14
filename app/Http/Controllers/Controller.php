@@ -36,11 +36,27 @@ class Controller extends BaseController
     public function generate_erp_response($key, $store_website_id, $default = '', $lang_code = null)
     {
         $message = $default;
-       
+
         $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)->where('lang_code', $lang_code)->where('key', $key)->first();
         
         if (! empty($translated_message)) {
             return $message = $translated_message->value;
+        }
+
+        // If translated_message not found with lang_code then find translated_message with lang_name. 
+        if (! empty($lang_code)) {
+            $lan_name = WebsiteStoreView::where('code', $lang_code)->first();
+            
+            if (isset($lan_name->name)) {
+                $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)
+                    ->where('lang_name', $lan_name->name)
+                    ->where('key', $key)
+                    ->first();
+
+                if (! empty($translated_message)) {
+                    return $message = $translated_message->value;
+                }
+            }
         }
 
         $return_message = ApiResponseMessage::where('store_website_id', $store_website_id)->where('key', $key)->first();
