@@ -4022,7 +4022,7 @@ if (!empty($notifications)) {
                 @endphp
             @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
 
                     <!-- Modal content-->
                     <div class="modal-content">
