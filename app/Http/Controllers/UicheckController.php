@@ -1254,6 +1254,32 @@ class UicheckController extends Controller
         }
     }
 
+    public function responseDeviceIsApprovedChange(Request $request)
+    {
+        try {
+            $uiDevDatas = UiDevice::where('device_no', $request->device_no)
+                    ->where('uicheck_id', $request->uicheck_id)
+                    ->first();
+
+            if($uiDevDatas) {
+                if($uiDevDatas->is_approved == 1){
+                    $uiDevDatas->is_approved = 0;
+                    $uiDevDatas->save();
+                } else {
+                    $uiDevDatas->is_approved = 1;
+                    $uiDevDatas->save();
+                }
+                return response()->json(['code' => 200, "status"=> true, "message"=> "Status updated"]);
+            } else {
+                throw new Exception("Record not found");
+            }
+
+            return response()->json(['code' => 200, 'message' => 'Approved succesfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
     public function uicheckResponsiveUpdateHistory($data, $old_status = 3)
     {
         try {
