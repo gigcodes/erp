@@ -41,7 +41,7 @@
                 <tr>
                     {{-- <td>{{$loop->iteration}}</td> --}}
                     <td>TASK-{{$task->task_id}}</td>
-                    <td>{{$task->task_details}}</td>
+                    <td>{{ substr($task->task_details, 0,  25) }} {{strlen($task->task_details) > 25 ? '...' : '' }}</td>
                     <td>{{$task->user->name}}</td>
                     <td>{{$task->approximate}}</td>
                     <td>{{$task->start_date}}</td>
