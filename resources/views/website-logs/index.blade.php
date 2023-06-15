@@ -34,6 +34,11 @@
 				</div>
 			</div>
 			<div class="col-md-2">
+				<div class="form-group">
+					<input class="form-control" type="date" name="date" id="date" value="{{ request('date') }}" placeholder="Search Date">
+				</div>
+			</div>
+			<div class="col-md-2">
 				<div class="form-group cls_filter_inputbox">
 					<button type="submit" class="btn btn-secondary">Search</button>
 					<a href="{{route('website.file.list.log')}}" title="Clear Filter">
@@ -56,9 +61,10 @@
 				<th width="10%">Action</th>
 			</tr>
 		<tbody>
-			@foreach ($dataArr as $data)
+			@foreach ($dataArr as $key=> $data)
 			<tr>
-				<td>{{$data['S_No']}}</td>
+				@php $key++; @endphp
+				<td>{{$key}}</td>
 				<td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
 				<td>{{$data['Website']}}</td>
 				<td>{{$data['File_Path']}}</td>

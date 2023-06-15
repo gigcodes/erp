@@ -48,6 +48,7 @@ class WebsiteLogController extends Controller
 
         $srchWebsite = request('website', '');
         $srchFilename = request('file_name', '');
+        $searchDate = request('date', '');
 
         $listSrchFiles = [];
 
@@ -82,9 +83,23 @@ class WebsiteLogController extends Controller
                     'Website' => $website,
                     'File_Path' => $filePath,
                     'date' => date ("F d Y H:i:s.", filemtime($filePath)),
+                    'formatedDate' => date("Y-m-d", filemtime($filePath)),
                 ];
             }
         }
+
+        usort($dataArr, function ($a, $b) {
+            $dateA = strtotime($a["date"]);
+            $dateB = strtotime($b["date"]);
+            return $dateB - $dateA;
+        });
+
+        if($searchDate){
+            $dataArr = array_filter($dataArr, function ($item) use ($searchDate) {
+                return $item['formatedDate'] === $searchDate;
+              });
+        }
+        
         $directories = readFolders($logFiles);
         // _p($directories);
 
