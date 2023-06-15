@@ -338,6 +338,19 @@
                   </select>
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="assets_manager_id">Assets Manager</label>
+                  <select name="assets_manager_id" id="assets_manager_id" class="form-control siteFolder">
+                        <option>--Select Assets Manager--</option>
+                        <?php
+                     foreach (\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
+                           echo "<option {{if data.assets_manager_id == '" . $l->id . "'}} selected {{/if}} value='" . $l->id . "'>" . $l->name . '</option>';
+                     }
+                     ?>
+                  </select>
+               </div>
+            </div>
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}
