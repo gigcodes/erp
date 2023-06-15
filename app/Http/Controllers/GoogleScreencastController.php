@@ -57,7 +57,7 @@ class GoogleScreencastController extends Controller
         }
         if ($keyword = request('dev_id')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->where('belongable_id', $keyword);
+                $q->where('developer_task_id', $keyword);
             });
         }
         if ($keyword = request('user_id')) {
@@ -123,7 +123,7 @@ class GoogleScreencastController extends Controller
                 }
 
                 $googleScreencast->save();
-                // UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
         }
 
