@@ -2,6 +2,7 @@
 
 namespace App\Library\Google\DialogFlow;
 
+use App\ChatbotQuestion;
 use App\Models\DialogflowEntityType;
 use Google\Cloud\Dialogflow\V2\AgentsClient;
 use Google\Cloud\Dialogflow\V2\EntityType;
@@ -69,10 +70,13 @@ class DialogFlowService
             ->setTrainingPhrases($trainingPhrases)
             ->setMessages($messages);
 
-        if (isset($parameters['parent'])) {
-            $parentClient = new IntentsClient($this->credentials);
-            $parentFollowupName = $parentClient->intentName($this->googleAccount->project_id, $parameters['parent']);
-            $intent->setParentFollowupIntentName($parentFollowupName);
+        if (isset($parameters['parent']) && !empty($parameters['parent'])) {
+            $parentQuestion = ChatbotQuestion::find($parameters['parent']);
+            if ($parentQuestion && $parentQuestion->google_response_id) {
+                $parentClient = new IntentsClient($this->credentials);
+                $parentFollowupName = $parentClient->intentName($this->googleAccount->project_id, $parentQuestion->google_response_id);
+                $intent->setParentFollowupIntentName($parentFollowupName);
+            }
         }
 
         if ($updateId) {

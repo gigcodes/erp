@@ -56,6 +56,14 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="question">Parent Intent</label>
+                <div class="row align-items-end" id="intentparent_1">
+                    <div class="col-md-9">
+                        <?php echo Form::select("parent", ['' => 'Select parent Intent'] + $parentIntents, ["class" => "form-control", "placeholder" => "Select Parent intent"]); ?>
+                    </div>
+                </div>
+            </div>
             <!-- <div class="form-group" id="add-intent-value-btn">
                 <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
                     <span class="glyphicon glyphicon-plus"></span>

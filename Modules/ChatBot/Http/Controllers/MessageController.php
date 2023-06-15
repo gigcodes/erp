@@ -165,9 +165,11 @@ class MessageController extends Controller
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
         $variables = DialogFlowService::VARIABLES;
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)->where('google_response_id', '!=', null)
+            ->pluck('value', 'id')->toArray();
 
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents'));
     }
 
     public function approve()
@@ -546,6 +548,7 @@ class MessageController extends Controller
                     'questions' => $questionArr,
                     'reply' => explode(',', $chatBotQuestion['suggested_reply']),
                     'name' => $chatBotQuestion['value'],
+                    'parent' => $chatBotQuestion['parent']
                 ], $chatBotQuestion->google_response_id ?: null);
                 return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
             } else {
@@ -576,6 +579,7 @@ class MessageController extends Controller
                     'questions' => $questionArr,
                     'reply' => explode(',', $chatBotQuestion->suggested_reply),
                     'name' => $chatBotQuestion->value,
+                    'parent' => $chatBotQuestion->parent
                 ], $chatBotQuestion->google_response_id ?: null);
 
                 if ($response) {
@@ -622,6 +626,7 @@ class MessageController extends Controller
                 'questions' => $questionArr,
                 'reply' => $replyArr,
                 'name' => $chatBotQuestion['value'],
+                'parent' => $chatBotQuestion['parent']
             ], $chatBotQuestion->google_response_id ?: null);
             return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
         }
