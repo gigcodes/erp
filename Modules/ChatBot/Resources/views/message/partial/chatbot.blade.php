@@ -13,12 +13,14 @@
             <div class="col-md-6">
                 <div class="chat-bot">
                     <div class="chat-bot-body">
-                        @if($message[0]['sendBy'] == 'ERP')
+                        @if($message[0]['inout'] == 'out')
                             <div id="chat_message_{{ $message[0]['id'] }}">
                                 <div class="right-chat chat-message">
-                                    <textarea id="text_{{$message[0]['id']}}" hidden>{{ $message[0]['message'] }}</textarea>
+                                    <textarea id="text_{{$message[0]['id']}}"
+                                              hidden>{{ $message[0]['message'] }}</textarea>
                                     <p id="intent_{{ $message[0]['id'] }}">{{ $message[0]['message'] }}
-                                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})"></i>
+                                        <i class="fa fa-pencil-square-o" aria-hidden="true"
+                                           onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}}, true)"></i>
                                     </p>
                                     @if($type != 'Database')
                                         <div id="intent_add_{{ $message[0]['id'] }}">
@@ -40,9 +42,11 @@
                         @else
                             <div id="chat_message_{{ $message[0]['id'] }}">
                                 <div class="left-chat chat-message">
-                                    <textarea id="text_{{$message[0]['id']}}" hidden>{{ $message[0]['message'] }}</textarea>
+                                    <textarea id="text_{{$message[0]['id']}}"
+                                              hidden>{{ $message[0]['message'] }}</textarea>
                                     <p id="intent_{{ $message[0]['id'] }}">{{ $message[0]['message'] }}
-                                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})"></i>
+                                        <i class="fa fa-pencil-square-o" aria-hidden="true"
+                                           onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}}, false)"></i>
                                     </p>
                                     @if($type != 'Database')
                                         <div id="intent_add_{{ $message[0]['id'] }}">
@@ -54,7 +58,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="d-flex intent-details align-items-center justify-content-end mb-2">
+                                <div class="d-flex intent-details align-items-center justify-content-start mb-2">
                                     <p class="mr-2 mb-0">Intent:</p><select>
                                         <option>{{$chatQuestions ? $chatQuestions['value'] : ''}}</option>
                                     </select>
@@ -89,10 +93,11 @@
             var object = matches[1];
             var object_id = matches[2];
         }
-        function editIntent(message, messageId, questionId) {
+
+        function editIntent(message, messageId, questionId, isQuestion) {
             $(`#text_${messageId}`).removeAttr('hidden');
             $(`#intent_${messageId}`).remove();
-            $(`#chat_message_${messageId} .chat-message`).append(`<button class="save-btn" onclick="storeIntent( ${messageId}, ${questionId})">save</button>`);
+            $(`#chat_message_${messageId} .chat-message`).append(isQuestion ? `<button class="save-btn" onclick="storeIntent( ${messageId}, ${questionId})">save</button>` : `<button class="save-btn" onclick="storeReplay( ${messageId})">save</button>`);
         }
 
         function storeIntent(messageId, QuestionId = null) {
@@ -112,7 +117,7 @@
                     $(`#text_${messageId}`).attr('hidden', true);
                     $(`#chat_message_${messageId} .chat-message .save-btn`).remove();
                     $(`#chat_message_${messageId} .chat-message`).append(`<p id="intent_${messageId}">${message}
-                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})"></i>
+                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('${message}', ${messageId}, ${QuestionId}, true)"></i>
                 </p>`);
                     toastr["success"](response.message);
                 },
@@ -123,49 +128,51 @@
             })
         }
 
-        function closeIntent(messageId){
-            console.log('----------')
+        function closeIntent(messageId) {
             $(`#intent_add_${messageId}`).remove();
         }
 
-        function getNewMessage(){
+        function getNewMessage() {
             pageNo += 1;
             $.ajax({
                 url: `{{ route('simulator.message.list') }}/${object}/${object_id}`,
                 method: "GET",
                 data: {
                     page_no: pageNo,
-                    request_type : 'ajax',
+                    request_type: 'ajax',
                     _token: "{{ csrf_token() }}",
                     // question,
                     // googleAccount: googleAccountId
                 },
                 success: function (response) {
                     if (response.code === 400) {
-                        toastr["error"](response.data);
+                        toastr["error"](response.messages);
+                        return;
+                    }
+                    if (!response.data) {
+                        toastr["warning"](response.messages);
                         return;
                     }
                     let getStr = '';
-                    if (response.data.message.type == 'vendor' || response.data.message.type == 'customer' || response.data.message.type == 'supplier') {
-
+                    if (response.data.message.inout === 'out') {
                         getStr = `<div id="chat_message_${response.data.message.id}">
                             <div class="right-chat chat-message">
                                     <textarea id="text_${response.data.message.id}"
                                               hidden>${response.data.message.message}</textarea>
                                 <p id="intent_${response.data.message.id}">${response.data.message.message}
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"
-                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')"></i>
+                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}', true)"></i>
                                 </p>`;
 
                         if (response.data.type != 'Database') {
-                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you update this question in database?</p>
+                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you save this question in database?</p>
                                 <button onclick="storeIntent(${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')">
                                     yes
                                 </button>
                                 <button onclick="closeIntent(${response.data.message.id})">no</button></div>`;
                         }
 
-                        getStr +=  `</div>
+                        getStr += `</div>
                             <div class="d-flex intent-details align-items-center justify-content-end mb-2">
                                 <p class="mr-2 mb-0">Intent:</p><select>
                                 <option>${response.data.chatQuestion?.value}</option>
@@ -180,22 +187,22 @@
                                               hidden>${response.data.message.message}</textarea>
                                 <p id="intent_${response.data.message.id}">${response.data.message.message}
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"
-                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')"></i>
+                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}', false)"></i>
                                 </p>`;
 
                         if (response.data.type != 'Database') {
-                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you update this question in database?</p>
-                                <button onclick="storeIntent(${response.data.message.id})">
+                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you save this response in database?</p>
+                                <button onclick="storeReplay(${response.data.message.id})">
                                     yes
                                 </button>
                                 <button onclick="closeIntent(${response.data.message.id})">no</button></div>`;
                         }
 
-                        getStr +=  `</div>
+                        getStr += `</div>
                             <div class="d-flex intent-details align-items-center mb-2">
                                 <p class="mr-2 mb-0">Intent:</p><select id="intent_selection_${response.data.message.id}"> <option value="">Please select intent</option>`;
                         Object.keys(allIntents).forEach(item => {
-                            getStr += `<option value="${item}">${allIntents[item]}</option>`
+                            getStr += `<option ${item == response.data.chatQuestion?.id ? 'selected' : ''} value="${item}">${allIntents[item]}</option>`
                         });
                         getStr += `</select>
                                 <p class="mb-0 ml-3">Get Type: ${response.data.type}</p>
@@ -230,6 +237,16 @@
                     object_id: object_id,
                 },
                 success: function (response) {
+                    if (response.code === 400) {
+                        toastr["error"](response.message);
+                        return;
+                    }
+                    $(`#intent_add_${messageId}`).remove();
+                    $(`#text_${messageId}`).attr('hidden', true);
+                    $(`#chat_message_${messageId} .chat-message .save-btn`).remove();
+                    $(`#chat_message_${messageId} .chat-message`).append(`<p id="intent_${messageId}">${message}
+                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('${message}', '${messageId}', '${QuestionId}', false)"></i>
+                </p>`);
                     $(`intent_add_${messageId}`).remove();
                     toastr["success"](response.message);
                 },

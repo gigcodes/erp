@@ -42,6 +42,11 @@ class DialogFlowService
 
     public function createIntent($parameters, $updateId)
     {
+        $detectIntent = $this->detectIntent(null, $parameters['name']);
+        if ($detectIntent->getIntent()->getDisplayName() == $parameters['name']) {
+            $name = explode('/', $detectIntent->getIntent()->getName());
+            $updateId = $name[count($name) - 1];
+        }
         // Create Intents
         $intentClient = new IntentsClient($this->credentials);
         if ($updateId) {

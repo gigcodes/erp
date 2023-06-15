@@ -485,16 +485,30 @@ class MessageController extends Controller
             'page' => $request->page_no
         ]);
         $message = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
+        if (!isset($message[0])) {
+            return response()->json(['code' => 200, 'data' => null, 'messages' => 'Message completed']);
+        }
 
-        $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
-            ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
-            ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
-            ->where('chatbot_questions.google_account_id', $google_accounts['id'])
-            ->where('chatbot_questions.keyword_or_question', 'intent')
-            ->where('chatbot_questions.value', 'like', '%' . $message[0]['message'] . '%')->orWhere('cqe.question', 'like', '%' . $message[0]['message'] . '%')
-            ->groupBy('chatbot_questions.id')
-            ->orderBy('chatbot_questions.id', 'desc')
-            ->first();
+        if ($message[0]['inout'] == 'out') {
+            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
+                ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                ->where('chatbot_questions.google_account_id', $google_accounts['id'])
+                ->where('chatbot_questions.keyword_or_question', 'intent')
+                ->where('chatbot_questions.value', 'like', '%' . $message[0]['message'] . '%')->orWhere('cqe.question', 'like', '%' . $message[0]['message'] . '%')
+                ->groupBy('chatbot_questions.id')
+                ->orderBy('chatbot_questions.id', 'desc')
+                ->first();
+        } else {
+            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_questions_reply as cr', 'cr.chatbot_question_id', 'chatbot_questions.id')
+                ->select('chatbot_questions.*', \DB::raw('group_concat(cr.suggested_reply) as `suggested_replies`'))
+                ->where('chatbot_questions.google_account_id', $google_accounts['id'])
+                ->where('chatbot_questions.keyword_or_question', 'intent')
+                ->where('cr.suggested_reply', 'like', '%' . $message[0]['message'] . '%')
+                ->groupBy('chatbot_questions.id')
+                ->orderBy('chatbot_questions.id', 'desc')
+                ->first();
+        }
 
         if ($chatQuestions) {
             $intent = $chatQuestions['value'];
@@ -550,6 +564,12 @@ class MessageController extends Controller
                     'name' => $chatBotQuestion['value'],
                     'parent' => $chatBotQuestion['parent']
                 ], $chatBotQuestion->google_response_id ?: null);
+                if ($response) {
+                    $name = explode('/', $response);
+                    $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                    $chatBotQuestion->google_status = 'google sended';
+                    $chatBotQuestion->save();
+                }
                 return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
             } else {
                 if ($request->object === 'customer') {
@@ -628,8 +648,14 @@ class MessageController extends Controller
                 'name' => $chatBotQuestion['value'],
                 'parent' => $chatBotQuestion['parent']
             ], $chatBotQuestion->google_response_id ?: null);
+            if ($response) {
+                $name = explode('/', $response);
+                $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                $chatBotQuestion->google_status = 'google sended';
+                $chatBotQuestion->save();
+            }
             return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
         }
-        return response()->json(['code' => 00, 'data' => null, 'message' => 'Question not found']);
+        return response()->json(['code' => 400, 'data' => null, 'message' => 'Question not found']);
     }
 }

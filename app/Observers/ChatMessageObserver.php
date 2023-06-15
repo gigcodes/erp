@@ -46,8 +46,8 @@ class ChatMessageObserver
                 } else {
                     $googleAccount = GoogleDialogAccount::where('id', 1)->first();
                 }
-
-                if ($object->is_auto_simulator == 1) {
+                $isOut = ($chatMessage->number != $object->phone) ? true : false;
+                if ($object->is_auto_simulator == 1 && !$isOut) {
                     $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                         ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
                         ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
