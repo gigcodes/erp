@@ -2221,6 +2221,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
 
         Route::get('task/show-estimate', [DevelopmentController::class, 'showTaskEstimateTime'])->name('task.estimate.list');
+        Route::get('task/show-estimate-alert', [DevelopmentController::class, 'showTaskEstimateTimeAlert'])->name('task.estimate.alert');
     });
 
     /*Routes For Social */
