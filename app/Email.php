@@ -237,4 +237,21 @@ class Email extends Model
             return $this->hasMany(\App\ChatMessage::class, 'email_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
+
+    /**
+     * Get the user's first name.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getMessageAttribute($value)
+    {
+        // new lines removed.
+        $properText = str_replace(["\n", "\r"], '', $value);
+        if(\App\Helpers::isBase64Encoded($properText)) {
+            return base64_decode($properText, true);
+        }
+        // If not a base64encoded string then pass value as usual. 
+        return $value;
+    }
 }
