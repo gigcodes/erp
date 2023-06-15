@@ -1462,7 +1462,7 @@ class LiveChatController extends Controller
         $query = $query->leftjoin('users', 'users.id', '=', 'tickets.assigned_to');
 
         $query = $query->select($selectArray);
-        //dd($request->all());
+
         if ($request->ticket_id !='') {
             $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
@@ -1517,18 +1517,18 @@ class LiveChatController extends Controller
             $query = $query->whereDate('tickets.created_at', $request->date);
         }
 
-        $pageSize = Setting::get('pagination');
+        $pageSize = Setting::get('pagination',25);
         if ($pageSize == '') {
             $pageSize = 1;
         }
         
         $query = $query->groupBy('tickets.ticket_id');
         $data = $query->orderBy('created_at', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-       
-        if ($request->ajax()) { 
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                'links' => (string) $data->render(),
+                'links' => (string) $data->links(),
                 'count' => $data->total(),
             ], 200);
         }
