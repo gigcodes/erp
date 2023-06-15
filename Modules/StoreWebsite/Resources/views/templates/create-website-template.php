@@ -340,6 +340,12 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="country_duty">Working Directory</label>
+                  <input type="text" name="working_directory" value="{{if data}}{{:data.working_directory}}{{/if}}" class="form-control" id="project_id" placeholder="Enter Working Directory">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="assets_manager_id">Assets Manager</label>
                   <select name="assets_manager_id" id="assets_manager_id" class="form-control siteFolder">
                         <option>--Select Assets Manager--</option>
