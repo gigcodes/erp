@@ -164,9 +164,10 @@ class MessageController extends Controller
         }
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
+        $variables = DialogFlowService::VARIABLES;
 
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables'));
     }
 
     public function approve()
