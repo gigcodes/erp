@@ -146,6 +146,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 10px;
     }
 
+    .red-alert-badge {
+        position: absolute;
+        top: -4px;
+        left: 310px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -3851,6 +3863,7 @@ if (!empty($notifications)) {
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
                                         </span>
+                                        <span class="time-estimation-badge red-alert-badge hide"></span>
                                     </a>
                                 </li>
                             @endif
@@ -7167,6 +7180,7 @@ if (!\Auth::guest()) {
         var Role = "{{ Auth::user()->hasRole('Admin') }}";
         if (Role) {
             getEventAlerts();
+            getTimeEstimationAlerts();
         }
         @endif
     });
@@ -7187,6 +7201,25 @@ if (!\Auth::guest()) {
             }
             if(response.count > 0) {
                 $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function getTimeEstimationAlerts() {
+        $.ajax({
+            type: "GET",
+            url: "{{route('task.estimate.alert')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            if(response.count > 0) {
+                $('.time-estimation-badge').removeClass("hide");
             }
         }).fail(function (response) {
             $('.ajax-loader').hide();
