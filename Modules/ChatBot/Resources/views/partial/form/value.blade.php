@@ -175,7 +175,7 @@
                 <option value="">Select google account</option>
                 @if(!empty($google_accounts))
                     @foreach($google_accounts as $acc)
-                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite ? $acc->storeWebsite->title : ''}}</option>
                     @endforeach
                 @endif
             </select>

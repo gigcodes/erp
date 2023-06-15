@@ -162,6 +162,9 @@ class ChatMessagesController extends Controller
         if ($request->for_simulator) {
             $chatMessages = $chatMessages->reorder('created_at', 'asc');
         }
+        if ($request->has('order')) {
+            $chatMessages = $chatMessages->reorder('created_at', $request->get('order'));
+        }
         if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }

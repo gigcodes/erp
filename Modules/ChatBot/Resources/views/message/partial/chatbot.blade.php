@@ -103,7 +103,9 @@
                 data: {
                     question_id: QuestionId,
                     _token: "{{ csrf_token() }}",
-                    value: message
+                    value: message,
+                    object: object,
+                    object_id: object_id,
                 },
                 success: function (response) {
                     $(`intent_add_${messageId}`).remove();
@@ -139,15 +141,15 @@
                         getStr = `<div id="chat_message_${response.data.message.id}">
                             <div class="right-chat chat-message">
                                     <textarea id="text_${response.data.message.id}"
-                                              hidden>${response.data.message.id}</textarea>
+                                              hidden>${response.data.message.message}</textarea>
                                 <p id="intent_${response.data.message.id}">${response.data.message.message}
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"
-                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, ${response.data.chatQuestion?.id})"></i>
+                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')"></i>
                                 </p>`;
 
                         if (response.data.type != 'Database') {
                             getStr += `<p>Do you update this question in database?</p>
-                                <button onclick="storeIntent(${response.data.message.id}, ${response.data.chatQuestion?.id})">
+                                <button onclick="storeIntent(${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')">
                                     yes
                                 </button>
                                 <button>no</button>`;
@@ -165,15 +167,15 @@
                         getStr = `<div id="chat_message_${response.data.message.id}">
                             <div class="left-chat chat-message">
                                     <textarea id="text_${response.data.message.id}"
-                                              hidden>${response.data.message.id}</textarea>
+                                              hidden>${response.data.message.message}</textarea>
                                 <p id="intent_${response.data.message.id}">${response.data.message.message}
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"
-                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, ${response.data.chatQuestion?.id})"></i>
+                                       onclick="editIntent('${response.data.message.message}', ${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')"></i>
                                 </p>`;
 
                         if (response.data.type != 'Database') {
                             getStr += `<p>Do you update this question in database?</p>
-                                <button onclick="storeIntent(${response.data.message.id}, ${response.data.chatQuestion?.id})">
+                                <button onclick="storeIntent(${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')">
                                     yes
                                 </button>
                                 <button>no</button>`;
@@ -200,7 +202,7 @@
 
         }
 
-        function storeReplay() {
+        function storeReplay(messageId, QuestionId = null) {
             let message = $(`#text_${messageId}`).val();
             $.ajax({
                 url: "{{ route('simulate.message.store.replay') }}",
@@ -208,7 +210,9 @@
                 data: {
                     question_id: QuestionId,
                     _token: "{{ csrf_token() }}",
-                    value: message
+                    value: message,
+                    object: object,
+                    object_id: object_id,
                 },
                 success: function (response) {
                     $(`intent_add_${messageId}`).remove();

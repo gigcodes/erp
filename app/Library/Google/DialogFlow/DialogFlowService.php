@@ -20,6 +20,16 @@ use Google\Cloud\Dialogflow\V2\TextInput;
 
 class DialogFlowService
 {
+    const VARIABLES = [
+        'order_id',
+        'order_status',
+        'website',
+        'estimate_date',
+        'delivery_date',
+        'awb_number',
+        'refund_status',
+        'refund_id',
+    ];
     private $googleAccount;
     private $credentials;
 
@@ -58,6 +68,12 @@ class DialogFlowService
         $intent = (new Intent())->setDisplayName($parameters['name'])
             ->setTrainingPhrases($trainingPhrases)
             ->setMessages($messages);
+
+        if (isset($parameters['parent'])) {
+            $parentClient = new IntentsClient($this->credentials);
+            $parentFollowupName = $parentClient->intentName($this->googleAccount->project_id, $parameters['parent']);
+            $intent->setParentFollowupIntentName($parentFollowupName);
+        }
 
         if ($updateId) {
             $intent->setName($parent);
@@ -197,5 +213,91 @@ class DialogFlowService
             $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
             $this->deleteEntity($entityType->response_id, $question->value);
         }
+    }
+
+    public function findVariables($text): array
+    {
+        $variables = [];
+        foreach (self::VARIABLES as $VARIABLE) {
+            if (str_contains($text, "#{$VARIABLE}")) {
+                $variables[] = $VARIABLE;
+            }
+        }
+        return $variables;
+    }
+
+    public function purifyResponse($text, $customer = null, $orderId = null, $refundId = null)
+    {
+        $variables = $this->findVariables($text);
+        if (count($variables) > 0) {
+            foreach ($variables as $variable) {
+                $text = $this->getReplacement($text, $variable, $customer, $orderId, $refundId);
+            }
+        }
+        return $text;
+    }
+
+
+    public function getReplacement($text, $variable, $customer, $orderId = null, $refundId = null)
+    {
+        $lastOrder = null;
+        $latestRefund = null;
+        if ($customer) {
+            if ($orderId) {
+                $lastOrder = $customer->getOrderById($orderId);
+            } else {
+                $lastOrder = $customer->latestOrder();
+            }
+            if ($refundId) {
+                $latestRefund = $customer->getRefundById($refundId);
+            } else {
+                $latestRefund = $customer->latestRefund();
+            }
+        }
+        switch ($variable) {
+            case 'order_id':
+                if ($lastOrder) {
+                    $text = str_replace('#{order_id}', $lastOrder->order_id, $text);
+                }
+                break;
+            case 'order_status':
+                if ($lastOrder) {
+                    $text = str_replace('#{order_status}', $lastOrder->status->status, $text);
+                }
+                break;
+            case 'website':
+                if ($lastOrder) {
+                    $text = str_replace('#{website}', $lastOrder->getWebsiteTitle(), $text);
+                }
+                break;
+            case 'estimate_date':
+                if ($lastOrder) {
+                    $text = str_replace('#{estimate_date}', $lastOrder->estimated_delivery_date, $text);
+                }
+                break;
+            case 'delivery_date':
+                if ($lastOrder) {
+                    $text = str_replace('#{delivery_date}', $lastOrder->date_of_delivery, $text);
+                }
+                break;
+            case 'awb_number':
+                if ($lastOrder) {
+                    $text = str_replace('#{awb_number}', $lastOrder->totalWayBills(), $text);
+                }
+                break;
+            case 'refund_status':
+                if ($latestRefund && $latestRefund->returnExchangeStatus) {
+                    $text = str_replace('#{refund_status}', $latestRefund->returnExchangeStatus->status_name, $text);
+                }
+                break;
+            case 'refund_id':
+                if ($latestRefund && $latestRefund->returnExchangeStatus) {
+                    $text = str_replace('#{refund_id}', $latestRefund->id, $text);
+                }
+                break;
+            default:
+                break;
+        }
+        return $text;
     }
 }
