@@ -111,6 +111,7 @@ class StoreWebsite extends Model
         'is_dev_website',
         'site_folder',
         'store_code_id',
+        'assets_manager_id',
         'working_directory',
     ];
 

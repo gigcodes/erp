@@ -187,15 +187,18 @@ class StoreWebsiteEnvironmentController extends Controller
         //$records->save();
 
         \Log::info("Start Environment Pushed");
-        $assetsmanager = AssetsManager::where('website_id', $store_website_id)->first();
+        $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
+        $cwd='';
+        $assetsmanager = new AssetsManager;
+        if($storeWebsite){
+            $cwd=$storeWebsite->working_directory;
+            $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+        }
         
         if($assetsmanager && $assetsmanager->client_id!='')
         {
-            $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
-            $cwd='';
-            if($storeWebsite){
-                $cwd=$storeWebsite->working_directory;
-            }
+            
+            
             $client_id=$assetsmanager->client_id;
             $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
             $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
@@ -346,7 +349,13 @@ class StoreWebsiteEnvironmentController extends Controller
 
         foreach($histories as $logs){
             if($logs->store_website_id !='' && $logs->job_id!=''){
-                $assetsmanager = AssetsManager::where('website_id', $logs->store_website_id)->first();
+                
+                $storeWebsite=StoreWebsite::where('id', $logs->store_website_id)->first();
+                $assetsmanager = new AssetsManager;
+                if($storeWebsite){
+                    $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+                }
+                
                 if($assetsmanager && $assetsmanager->client_id!=''){
                     $client_id=$assetsmanager->client_id;
                         $job_id=$logs->job_id;
