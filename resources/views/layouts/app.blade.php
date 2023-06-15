@@ -3819,6 +3819,10 @@ if (!empty($notifications)) {
                                 @endif
                             </li>
                             <li>
+                                <a title="jenkins Build status" id="jenkins-build-status" type="button"  class="quick-icon" style="padding: 0px 1px;"><span><i
+                                 class="fa fa-cog fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -4456,6 +4460,7 @@ if (!empty($notifications)) {
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
+        @include('monitor.partials.jenkins_build_status')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7156,6 +7161,11 @@ if (!\Auth::guest()) {
     $(document).on('click','#create_event',function(e){
         e.preventDefault();
         $('#create-event-modal').modal('show');
+    });
+
+    $(document).on('click','#jenkins-build-status',function(e){
+        e.preventDefault();
+        $('#create-jenkins-status-modal').modal('show');
     });
 
     $(document).on('click','#event-alerts',function(e){
