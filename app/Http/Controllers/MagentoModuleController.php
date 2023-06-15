@@ -489,7 +489,7 @@ class MagentoModuleController extends Controller
                     $magento_modules->status=$status;
                     $magento_modules->save();
                     \Log::info("Job Id:".$job_id);
-                    return response()->json(['code' => 200, 'data' => $records,'message'=>'Magento module status change successfully']);
+                    return response()->json(['code' => 200, 'data' => $magento_modules,'message'=>'Magento module status change successfully']);
                 }else{
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
                     
