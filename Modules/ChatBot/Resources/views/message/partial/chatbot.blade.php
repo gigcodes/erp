@@ -78,6 +78,8 @@
     <script>
         let pageNo = 1;
         var url = window.location.pathname;
+        let allIntents = JSON.parse('{!! json_encode($allIntents) !!}')
+        console.log(allIntents);
 
         // Define the regular expression pattern
         var regex = /\/simulator-messages\/([^\/]+)\/([^\/]+)/;
@@ -175,7 +177,7 @@
 
                         if (response.data.type != 'Database') {
                             getStr += `<p>Do you update this question in database?</p>
-                                <button onclick="storeIntent(${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')">
+                                <button onclick="storeIntent(${response.data.message.id})">
                                     yes
                                 </button>
                                 <button>no</button>`;
@@ -183,9 +185,11 @@
 
                         getStr +=  `</div>
                             <div class="d-flex intent-details align-items-center mb-2">
-                                <p class="mr-2 mb-0">Intent:</p><select>
-                                <option>${response.data.chatQuestion?.value}</option>
-                            </select>
+                                <p class="mr-2 mb-0">Intent:</p><select id="intent_selection_${response.data.message.id}"> <option value="">Please select intent</option>`;
+                        Object.keys(allIntents).forEach(item => {
+                            getStr += `<option value="${item}">${allIntents[item]}</option>`
+                        });
+                        getStr += `</select>
                                 <p class="mb-0 ml-3">Get Type: ${response.data.type}</p>
                             </div>
                         </div>`;
@@ -204,6 +208,9 @@
 
         function storeReplay(messageId, QuestionId = null) {
             let message = $(`#text_${messageId}`).val();
+            if (!QuestionId) {
+                QuestionId = $(`#intent_selection_${messageId}`).val();
+            }
             $.ajax({
                 url: "{{ route('simulate.message.store.replay') }}",
                 method: "POST",

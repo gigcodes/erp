@@ -521,8 +521,8 @@ class MessageController extends Controller
         if ($request->request_type == 'ajax') {
             return response()->json(['code' => 200, 'data' => ['message' => $message[0], 'chatQuestion' => $chatQuestions, 'type' => $type, 'intent' => $intent], 'messages' => 'Get message successfully']);
         }
-
-        return view('chatbot::message.partial.chatbot', compact('message', 'intent', 'type', 'chatQuestions'));
+        $allIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->pluck('value', 'id')->toArray();
+        return view('chatbot::message.partial.chatbot', compact('message', 'intent', 'type', 'chatQuestions', 'allIntents'));
     }
 
     public function storeIntent(Request $request)
@@ -554,14 +554,17 @@ class MessageController extends Controller
                 } else {
                     $googleAccount = GoogleDialogAccount::first();
                 }
-                $chatBotQuestion = new ChatbotQuestion();
-                $chatBotQuestion->keyword_or_question = 'intent';
-                $chatBotQuestion->value = $request->question_id;
-                $chatBotQuestion->auto_approve = 0;
-                $chatBotQuestion->suggested_reply = $request->value;
-                $chatBotQuestion->google_account_id = $googleAccount->id;
-                $chatBotQuestion->is_active = 1;
-                $chatBotQuestion->save();
+                $chatBotQuestion = ChatbotQuestion::where('value', $request->question_id)->first();
+                if (!$chatBotQuestion) {
+                    $chatBotQuestion = new ChatbotQuestion();
+                    $chatBotQuestion->keyword_or_question = 'intent';
+                    $chatBotQuestion->value = $request->question_id;
+                    $chatBotQuestion->auto_approve = 0;
+                    $chatBotQuestion->suggested_reply = $request->value;
+                    $chatBotQuestion->google_account_id = $googleAccount->id;
+                    $chatBotQuestion->is_active = 1;
+                    $chatBotQuestion->save();
+                }
                 $storeQuestion = new ChatbotQuestionExample();
                 $storeQuestion->question = $request->value;
                 $storeQuestion->chatbot_question_id = $chatBotQuestion->id;
@@ -595,41 +598,32 @@ class MessageController extends Controller
         } else {
             $googleAccount = GoogleDialogAccount::first();
         }
-        $dialogFlowService = new DialogFlowService($googleAccount);
-        $response = $dialogFlowService->detectIntent(null, $request->value);
-        $intentName = $response->getIntent()->getName();
-        $intentName = explode('/', $intentName);
-        $intentName = $intentName[count($intentName) - 1];
-
-//        $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
-//        if (!$question) {
-//            $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
-//            if (!$question) {
-//                $question = ChatbotQuestion::create([
-//                    'keyword_or_question' => 'intent',
-//                    'is_active' => true,
-//                    'google_account_id' => $googleAccount->id,
-//                    'google_status' => 'google sended',
-//                    'google_response_id' => $intentName,
-//                    'value' => $response->getIntent()->getDisplayName(),
-//                    'suggested_reply' => $response->getFulfillmentText()
-//                ]);
-//            }
-//        }
-//
-//        $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
-//        if (!$questionsR) {
-//            $chatRply = new  ChatbotQuestionReply();
-//            $chatRply->suggested_reply = $response->getFulfillmentText();
-//            $chatRply->store_website_id = $googleAccount->site_id;
-//            $chatRply->chatbot_question_id = $question->id;
-//            $chatRply->save();
-//        }
-//        $store_replay = new TmpReplay();
-//        $store_replay->chat_message_id = $chatMessage->id;
-//        $store_replay->suggested_replay = $response->getFulfillmentText();
-//        $store_replay->type = $lastMessage[0]['type'];
-//        $store_replay->type_id = $lastMessage[0]['object_type_id'];
-//        $store_replay->save();
+        $chatBotQuestion = ChatbotQuestion::where('id', $request->question_id)->first();
+        $questionArr = [];
+        $replyArr = [];
+        if ($chatBotQuestion) {
+            foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
+                $questionArr[] = $question->question;
+            }
+            $replyArr = explode(',', $chatBotQuestion->suggested_reply);
+            foreach ($chatBotQuestion->chatbotQuestionReplies as $reply) {
+                $replyArr[] = $reply->suggested_reply;
+            }
+            $googleAccount = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
+            $chatRply = new  ChatbotQuestionReply();
+            $chatRply->suggested_reply = $request->value;
+            $chatRply->store_website_id = $googleAccount->site_id;
+            $chatRply->chatbot_question_id = $chatBotQuestion->id;
+            $chatRply->save();
+            $replyArr[] = $request->value;
+            $dialogService = new DialogFlowService($googleAccount);
+            $response = $dialogService->createIntent([
+                'questions' => $questionArr,
+                'reply' => $replyArr,
+                'name' => $chatBotQuestion['value'],
+            ], $chatBotQuestion->google_response_id ?: null);
+            return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
+        }
+        return response()->json(['code' => 00, 'data' => null, 'message' => 'Question not found']);
     }
 }
