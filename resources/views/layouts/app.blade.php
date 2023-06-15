@@ -134,10 +134,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 200px!important
     }
 
-    #event-alerts .event-alert-badge {
+    #event-alerts .event-alert-badge,
+    #website_Off_status .status-alert-badge {
         position: absolute;
         top: -4px;
-        left: 25px;
         border-radius: 50%;
         background-color: red;
         border: 1px solid white;
@@ -146,6 +146,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 10px;
     }
 
+    #event-alerts .event-alert-badge {
+    left: 25px;
+    }
+
+    #website_Off_status .status-alert-badge {
+    left: 60px;
+    }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -3791,16 +3798,18 @@ if (!empty($notifications)) {
                                     <span class="event-alert-badge hide"></span>
                                 </a>
                             </li>
-                            <li>  
+                            <li>
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
                                 @if ($status)
-                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" id="website_Off_status">
-                                    <span><i class="fa fa-desktop fa-2x off-status"style="background-color: red" aria-hidden="true"></i></span>
+                                <a title="Monitor Status" type="button" class="quick-icon" id="website_Off_status" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
+                                        <span class="status-alert-badge"></span></span>
+                                    </span>
                                 </a>
                                 @else
-                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" style="padding: 0px 1px;">
+                                <a title="Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" style="padding: 0px 1px;">
                                     <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i></span>
                                 </a>
                                 @endif

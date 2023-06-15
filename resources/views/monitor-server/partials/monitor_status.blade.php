@@ -15,15 +15,14 @@
                 <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
-                            <th width="5%">id</th>
+                            <th width="5%">s.no</th>
                             <th width="20%">Website</th>
                         </tr>
                     </thead>
                     <tbody class="show-search-password-list">
-                        @foreach($status as $stat)
-
+                        @foreach($status as $key =>$stat)
                         <tr>
-                            <td>{{$stat->id}}</td>
+                            <td>{{$key+1}}</td>
                             <td>{{$stat->ip }}</td>
                         </tr>
                         @endforeach 
