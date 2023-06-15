@@ -46,7 +46,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="5%">ID</th>
+                            <th width="5%">S.No</th>
                             <th width="10%">Build Number</th>
                             <th width="20%">Project</th>
                             <th width="20%">Worker</th>
@@ -65,7 +65,7 @@
                             <th width="15%">Build Status</th>
                             <th width="25%">Full Log</th>
                             <th width="15%">Meta Update</th>
-                            <th width="20%">Created At</th>
+                            <th width="20%">Date Time</th>
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)
                             <tr class="quick-website-task-{{ $monitorJenkinsBuild->id }}" data-id="{{ $monitorJenkinsBuild->id }}">
