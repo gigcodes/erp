@@ -84,8 +84,9 @@ class QuestionController extends Controller
         $watson_accounts = WatsonAccount::all();
         $google_accounts = GoogleDialogAccount::all();
         $store_websites = StoreWebsite::all();
+        $variables = DialogFlowService::VARIABLES;
 
-        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType'));
+        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType', 'variables'));
     }
 
     public function create()

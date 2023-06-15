@@ -149,7 +149,11 @@
 </div>
 
 <div class="form-group">
-    <strong>Reply:</strong>
+    <div style="word-break: break-all;">
+        <strong>Reply:</strong>
+        <p>You can use variables in the reply they will be formatted when sent Eg:- #{website}, #{order_id}:</p>
+        <p>Variables List:- {!! implode(',', $variables) !!}</p>
+    </div>
     <textarea name="suggested_reply" class="form-control" rows="8" cols="80"
               required>{{ old('suggested_reply') }}</textarea>
 </div>
