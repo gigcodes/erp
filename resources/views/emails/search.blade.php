@@ -20,14 +20,14 @@
   </td>
   <td>{{ $email->type }}</td>
   <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-  <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
+  {{-- <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
     <span id="td-mini-container-{{$email->id}}" data-body="{{ $email->message }}" class="emailBodyContent">
       <iframe src="" frameborder="0"></iframe>
     </span>
     <span id ="td-full-container-{{$email->id}}" class="hidden">
     <iframe src="data:text/html,rawr" id="listFrame-{{$email->id}}" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('listFrame-{{$email->id}}');"></iframe>
     </span>
-  </td>
+  </td> --}}
   <td width="1%">
     @if($email->status != 'bin')
     <select class="form-control selecte2 status">
