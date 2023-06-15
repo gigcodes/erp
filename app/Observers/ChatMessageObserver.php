@@ -74,7 +74,7 @@ class ChatMessageObserver
                     $getFromGoogle = true;
                     if ($chatQuestions) {
                         if ($chatQuestions->auto_approve == 1) {
-                            $requestData['message'] = $dialogFlowService->purifyResponse($chatQuestions->suggested_reply, $object);
+                            $requestData['message'] = $dialogFlowService->purifyResponse($chatQuestions->suggested_reply, $objectType == 'customer' ? $object: null);
                             $request = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
@@ -86,7 +86,7 @@ class ChatMessageObserver
                             ->first();
 
                         if ($replay) {
-                            $requestData['message'] = $dialogFlowService->purifyResponse($replay->replay, $object);
+                            $requestData['message'] = $dialogFlowService->purifyResponse($replay->replay, $objectType == 'customer' ? $object: null);
                             $request = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
@@ -125,7 +125,7 @@ class ChatMessageObserver
                         }
                         $store_replay = new TmpReplay();
                         $store_replay->chat_message_id = $chatMessage->id;
-                        $store_replay->suggested_replay = $dialogFlowService->purifyResponse($response->getFulfillmentText(), $object);
+                        $store_replay->suggested_replay = $dialogFlowService->purifyResponse($response->getFulfillmentText(), $objectType == 'customer' ? $object: null);
                         $store_replay->type = $objectType;
                         $store_replay->type_id = $object->id;
                         $store_replay->save();
