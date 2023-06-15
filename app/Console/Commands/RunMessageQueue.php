@@ -201,9 +201,10 @@ class RunMessageQueue extends Command
         if (! empty($instanceId) && ! empty($token)) {
             // executing curl
             $curl = curl_init();
+            $url ="https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token",
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -215,12 +216,12 @@ class RunMessageQueue extends Command
             ]);
 
             $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\RunMessageQueue::class, 'handle');
+
             $err = curl_error($curl);
             curl_close($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $url ="https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\RunMessageQueue::class, 'handle');
-
+            
 
             if ($err) {
                 // throw some error if you want

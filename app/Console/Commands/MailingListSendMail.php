@@ -67,8 +67,9 @@ class MailingListSendMail extends Command
                     ];
                     LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request started => https://api.sendinblue.com/v3/smtp/email"]);
                     $curl = curl_init();
+                    $url ="https://api.sendinblue.com/v3/smtp/email";
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => 'https://api.sendinblue.com/v3/smtp/email',
+                        CURLOPT_URL => $url,
     
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
@@ -83,11 +84,10 @@ class MailingListSendMail extends Command
                         ],
                     ]);
                     $result = curl_exec($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($result), $httpcode, \App\Console\Commands\MailingListSendMail::class, 'handle');
                     curl_close($curl);
                     
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $url ="https://api.sendinblue.com/v3/smtp/email";
-                    LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\MailingListSendMail::class, 'handle');
                     LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL request ended => https://api.sendinblue.com/v3/smtp/email"]);
                     $mailing->progress = 1;
                     $mailing->save();

@@ -51,6 +51,8 @@ use App\StoreWebsitesCountryShipping;
 use App\Jobs\DuplicateStoreWebsiteJob;
 use App\StoreWebsiteProductScreenshot;
 use App\MagentoSettingUpdateResponseLog;
+use App\StoreWebsiteEnvironment;
+use App\StoreWebsiteEnvironmentHistory;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Illuminate\Support\Facades\Http;
@@ -1701,5 +1703,20 @@ class StoreWebsiteController extends Controller
             'tbody' => view('storewebsite::admin-password', compact('storeWebsites', 'storeWebsiteUsers'))->render(),
 
         ], 200);
+    }
+
+    public function flattenArray($array, $prefix = '')
+    {
+        $result = [];
+        
+        foreach ($array as $key => $value) {
+            $newKey = $prefix . $key;
+            if (is_array($value)) {
+                $result = array_merge($result, $this->flattenArray($value, $newKey . '@@@'));
+            } else {
+                $result[$newKey] = $value;
+            }
+        }
+        return $result;
     }
 }

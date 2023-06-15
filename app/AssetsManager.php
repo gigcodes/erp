@@ -42,6 +42,14 @@ class AssetsManager extends Model
         return $this->hasOne(AssetsCategory::class, 'id', 'category_id');
     }
 
+    /**
+     * Get all of the assetManager's alert logs.
+     */
+    public function eventAlertLogs()
+    {
+        return $this->morphMany(EventAlertLog::class, 'eventalertloggable');
+    }
+
     public static function assertTypeList()
     {
         return [

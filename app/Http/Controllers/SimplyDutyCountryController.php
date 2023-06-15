@@ -103,25 +103,27 @@ class SimplyDutyCountryController extends Controller
 
     public function getCountryFromApi()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
+        $url = "https://www.api.simplyduty.com/api/Supporting/supported-countries";
 
         // set url
-        curl_setopt($ch, CURLOPT_URL, 'https://www.api.simplyduty.com/api/Supporting/supported-countries');
+        curl_setopt($ch, CURLOPT_URL, $url);
 
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
         $output = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCountryController::class, 'getCountryFromApi');
+
 
         // close curl resource to free up system resources
         curl_close($ch);
 
         $countries = json_decode($output);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = "https://www.api.simplyduty.com/api/Supporting/supported-countries";
-        LogRequest::log($startTime, $url, 'GET', [], $countries, $httpcode, \App\Http\Controllers\SimplyDutyCountryController::class, 'getCountryFromApi');
-
+       
         foreach ($countries as $country) {
             $countryDetail = $country->Country;
             $countryCode = $country->CountryCode;

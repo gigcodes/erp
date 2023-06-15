@@ -120,11 +120,12 @@ class CreateMailinglistInfluencers extends Command
                             }
                         } elseif (strpos($service->name, 'AcelleMail') !== false) {
                             $mailListLogID = MailinglistIinfluencersLogs::log('come to AcelleMail');
-                            $curl = curl_init();
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             $url = 'https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
                             $req = ['contact[company]' => '.', 'contact[state]' => 'afdf', 'name' => $name, 'default_subject' => $name, 'from_email' => 'welcome@test.com', 'from_name' => 'dsfsd', 'contact[address_1]' => 'af', 'contact[country_id]' => '219', 'contact[city]' => 'sdf', 'contact[zip]' => 'd', 'contact[phone]' => 'd', 'contact[email]' => 'welcome@test.com'];
+                            $curl = curl_init();
                             curl_setopt_array($curl, [
-                                CURLOPT_URL => 'https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
+                                CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
@@ -132,14 +133,12 @@ class CreateMailinglistInfluencers extends Command
                                 CURLOPT_FOLLOWLOCATION => true,
                                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                 CURLOPT_CUSTOMREQUEST => 'POST',
-                                CURLOPT_POSTFIELDS => ['contact[company]' => '.', 'contact[state]' => 'afdf', 'name' => $name, 'default_subject' => $name, 'from_email' => 'welcome@test.com', 'from_name' => 'dsfsd', 'contact[address_1]' => 'af', 'contact[country_id]' => '219', 'contact[city]' => 'sdf', 'contact[zip]' => 'd', 'contact[phone]' => 'd', 'contact[email]' => 'welcome@test.com'],
+                                CURLOPT_POSTFIELDS => $req,
                             ]);
 
                             $response = curl_exec($curl);
-
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
+                            LogRequest::log($startTime, $url, 'POST', json_encode($req), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
                             curl_close($curl);
                             $res = json_decode($response);
                             if ($res->status == 1) {
@@ -219,14 +218,19 @@ class CreateMailinglistInfluencers extends Command
                         } elseif (strpos($serviceName, 'AcelleMail') !== false) {
                             //Assign Customer to list
 
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             $curl = curl_init();
-
-                            $ch = curl_init();
+                            $ch = curl_init(); //Here Two Times curl initialization
                             $url = 'https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid=' . $mllist->remote_id;
+                            $requestData = [
+                                'api_token' => config('env.ACELLE_MAIL_API_TOKEN'),
+                                'EMAIL' => $list->email
+                            ];
                             curl_setopt($ch, CURLOPT_URL, $url);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 1);
-                            curl_setopt($ch, CURLOPT_POSTFIELDS, 'api_token=' . config('env.ACELLE_MAIL_API_TOKEN') . '&EMAIL=' . $list->email);
+                            curl_setopt($ch, CURLOPT_POSTFIELDS,$requestData
+                        );
 
                             $headers = [];
                             $headers[] = 'Accept: application/json';
@@ -234,19 +238,18 @@ class CreateMailinglistInfluencers extends Command
                             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                             $response = curl_exec($ch);
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                             MailinglistIinfluencersDetailLogs::create([
                                 'service' => $service->name,
                                 'maillist_id' => $mllist->id,
                                 'email' => $list->email,
                                 'name' => $list->name,
                                 'url' => $url,
-                                'request_data' => 'api_token=' . config('env.ACELLE_MAIL_API_TOKEN') . '&EMAIL=' . $list->email,
+                                'request_data' => $requestData,
                                 'response_data' => json_encode($response),
 
                             ]);
-                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                            LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
+                            LogRequest::log($startTime, $url, 'GET', json_encode($requestData), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
                             if (curl_errno($ch)) {
                                 echo 'Error:' . curl_error($ch);
 
@@ -403,6 +406,7 @@ class CreateMailinglistInfluencers extends Command
 
     public function callApi($url, $method, $data = [], $send_in_blue_api = '')
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         $api_key = ($send_in_blue_api == '') ? getenv('SEND_IN_BLUE_API') : $send_in_blue_api;
         curl_setopt_array($curl, [
@@ -422,10 +426,8 @@ class CreateMailinglistInfluencers extends Command
         ]);
 
         $response = curl_exec($curl);
-
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
+        LogRequest::log($startTime, $url, $method, json_encode($data), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
         curl_close($curl);
         \Log::info($response);
 

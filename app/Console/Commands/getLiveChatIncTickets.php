@@ -51,9 +51,10 @@ class getLiveChatIncTickets extends Command
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
             $curl = curl_init();
+            $url = "https://api.livechatinc.com/v2/tickets";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.livechatinc.com/v2/tickets',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -67,10 +68,8 @@ class getLiveChatIncTickets extends Command
             ]);
 
             $response = curl_exec($curl);
-
-            $url = "https://api.livechatinc.com/v2/tickets";
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', [], json_decode($response), $httpcode, \App\Console\Commands\getLiveChatIncTickets::class, 'handle');
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\getLiveChatIncTickets::class, 'handle');
             $result = json_decode($response, true);
             LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished. => https://api.livechatinc.com/v2/tickets"]);
 

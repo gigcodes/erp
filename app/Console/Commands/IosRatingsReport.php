@@ -61,8 +61,9 @@ class IosRatingsReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
+                $url ="https://api.appfigures.com/v2/reports/ratings?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://api.appfigures.com/v2/reports/ratings?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -77,15 +78,15 @@ class IosRatingsReport extends Command
                 ]);
 
                 $result = curl_exec($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 // print($result);
-                $res = json_decode($result, true);
+                $res = json_decode($result, true); //response decode
                 // print_r($res);
                 // print_r($res["apple:ios"]);
                 // print($res["apple:ios"]["downloads"]);
                 curl_close($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $url ="https://api.appfigures.com/v2/reports/ratings?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,";
-                LogRequest::log($startTime, $url, 'POST', [], json_decode($result), $httpcode, \App\Console\Commands\IosRatingsReport::class, 'handle');
+               
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosRatingsReport::class, 'handle');
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);
 
                 if ($res) {

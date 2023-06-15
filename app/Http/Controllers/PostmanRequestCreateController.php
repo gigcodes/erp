@@ -1103,14 +1103,13 @@ class PostmanRequestCreateController extends Controller
                         'Authorization:Bearer ' . $postman->authorization_token,
                     ];
                     $response = $this->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $curl = curl_init();
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    //dd($http_code);
+                    $url =  $request->urls;
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
                     curl_close($curl);
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    $url =  url("/") ."postman/send/request";
-                    LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
+                    
                     $response = $response ? json_encode($response) : 'Not found response';
                     //dd($response);
                     PostmanResponse::create(
@@ -1140,6 +1139,7 @@ class PostmanRequestCreateController extends Controller
 
     public static function fireApi($data, $url, $header, $method)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -1156,12 +1156,11 @@ class PostmanRequestCreateController extends Controller
         ]);
 
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, $method, json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'fireApi');
 
         curl_close($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = url("/");
-        LogRequest::log($startTime, $url, 'GET', [], json_decode($response), $httpcode, \App\Http\Controllers\PostmanRequestCreateController::class, 'fireApi');
+      
 
         return $response;
     }

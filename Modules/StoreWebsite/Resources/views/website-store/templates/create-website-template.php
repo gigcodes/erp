@@ -38,6 +38,10 @@
 		         <label for="root_category">Root Category</label>
 		         <input type="text" name="root_category" value="{{if data}}{{:data.root_category}}{{/if}}" class="form-control" id="root_category" placeholder="Enter root cateogry">
 		      </div>
+			  <div class="form-group col-md-6">
+		         <label for="platform_id">Platform Id</label>
+		         <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="platform_id" placeholder="Enter Platform Id">
+		      </div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

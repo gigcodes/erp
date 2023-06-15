@@ -133,6 +133,31 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     .shortcut-estimate-search-container .select2.select2-container{
         width: 200px!important
     }
+
+    #event-alerts .event-alert-badge {
+        position: absolute;
+        top: -4px;
+        left: 25px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
+    .red-alert-badge {
+        position: absolute;
+        top: -4px;
+        left: 310px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -2520,6 +2545,14 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('store-website.environment.matrix') }}">Store Environment</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
+                                                href="{{ route('store-website.environment.index') }}">Store Environment Table</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('store-website.category.list') }}">Store Category</a>
                                         </li>
                                         <li class="nav-item">
@@ -3772,8 +3805,18 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
-                            
+                            <li>
+                                <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                    <span class="event-alert-badge hide"></span>
+                                </a>
+                            </li>
                             <li>  
+                            <li>
+                                <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
@@ -3820,6 +3863,7 @@ if (!empty($notifications)) {
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
                                         </span>
+                                        <span class="time-estimation-badge red-alert-badge hide"></span>
                                     </a>
                                 </li>
                             @endif
@@ -4422,6 +4466,8 @@ if (!empty($notifications)) {
         @include('passwords.search-password')
         @include('user-management.search-user-schedule')
         @include('partials.modals.shortcut-user-event-modal')
+        @include('partials.modals.event-alerts-modal')
+        @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7117,6 +7163,125 @@ if (!\Auth::guest()) {
 
         }).fail(function(errObj) {
             $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('click','#create_event',function(e){
+        e.preventDefault();
+        $('#create-event-modal').modal('show');
+    });
+
+    $(document).on('click','#event-alerts',function(e){
+        e.preventDefault();
+        getEventAlerts(true);
+    });
+    $(document).ready(function() {
+        @if(Auth::check())
+        var Role = "{{ Auth::user()->hasRole('Admin') }}";
+        if (Role) {
+            getEventAlerts();
+            getTimeEstimationAlerts();
+        }
+        @endif
+    });
+
+    function getEventAlerts(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('event.getEventAlerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#event-alerts-modal-html').empty().html(response.html);
+            if (showModal) {
+                $('#event-alerts-modal').modal('show');
+            }
+            if(response.count > 0) {
+                $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function getTimeEstimationAlerts() {
+        $.ajax({
+            type: "GET",
+            url: "{{route('task.estimate.alert')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            if(response.count > 0) {
+                $('.time-estimation-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+        $(document).on('submit', '#event-alert-date-form', function(event) {
+            event.preventDefault();
+            var dateValue = $('input[name="event_alert_date"]').val();
+            $.ajax({
+                    type: "GET",
+                    url: "{{route('event.getEventAlerts')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date : dateValue
+                    },
+            }).done(function (response) {
+                $('.ajax-loader').hide();
+                $('#event-alerts-modal-html').empty().html(response.html);
+                if (showModal) {
+                    $('#event-alerts-modal').modal('show');
+                }
+                if(response.count > 0) {
+                    $('.event-alert-badge').removeClass("hide");
+                }
+            }).fail(function (response) {
+                $('.ajax-loader').hide();
+                console.log(response);
+            });
+         });
+
+
+    $(document).on('click','.event-alert-log-modal',function(e){
+        var event_type = $(this).data("event_type");
+        var event_id = $(this).data("event_id");
+        var event_schedule_id = $(this).data("event_schedule_id");
+        var assets_manager_id = $(this).data("assets_manager_id");
+        var event_alert_date = $(this).data("event_alert_date");
+        var is_read = $(this).prop('checked');
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('event.saveAlertLog')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                event_type,
+                event_id,
+                event_schedule_id,
+                assets_manager_id,
+                event_alert_date,
+                is_read
+            },
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            toastr["success"](response.message, "Message");
+            $('.ajax-loader').hide();
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
         });
     });
 

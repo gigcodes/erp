@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ChatGPT;
 
 use CURLFile;
+use App\LogRequest;
 
 class ChatGPTService
 {
@@ -136,6 +137,7 @@ class ChatGPTService
         } else {
             array_push($header, 'Content-Type: application/json');
         }
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->base_api . $url,
@@ -160,6 +162,10 @@ class ChatGPTService
             curl_setopt($curl, CURLOPT_POSTFIELDS,$params);
         }
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\ChatGPT\ChatGPTService::class, 'callApi');
+        curl_close($curl);
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {

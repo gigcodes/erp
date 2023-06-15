@@ -178,5 +178,9 @@
         </div>
     </td>
 </tr>
-
 @endforeach
+
+<div id="pagination-container">
+    <!-- Pagination links will be dynamically loaded here -->
+</div>
+

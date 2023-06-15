@@ -693,6 +693,8 @@ var page = {
     var files = $("#key_file_path1")[0].files[0];
     var site_folder = $('[name="site_folder"]').val();
     var store_code_id = $('[name="store_code_id"]').val();
+    var working_directory = $('[name="working_directory"]').val();
+    var assets_manager_id = $('#assets_manager_id').val();
 
     var formData = new FormData();
     formData.append("id", id);
@@ -745,6 +747,8 @@ var page = {
     formData.append("key_file_path1", files);
     formData.append("site_folder", site_folder);
     formData.append("store_code_id", store_code_id);
+    formData.append("working_directory", working_directory);
+    formData.append("assets_manager_id", assets_manager_id);
 
     $.ajaxSetup({
       headers: {
