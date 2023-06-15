@@ -85,7 +85,7 @@ class QuestionController extends Controller
         $google_accounts = GoogleDialogAccount::all();
         $store_websites = StoreWebsite::all();
         $variables = DialogFlowService::VARIABLES;
-        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)->where('google_response_id', '!=', null)
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)
             ->pluck('value', 'id')->toArray();
 
         return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType', 'variables', 'parentIntents'));

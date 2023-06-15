@@ -165,7 +165,7 @@ class MessageController extends Controller
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
         $variables = DialogFlowService::VARIABLES;
-        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)->where('google_response_id', '!=', null)
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)
             ->pluck('value', 'id')->toArray();
 
         //dd($pendingApprovalMsg);
