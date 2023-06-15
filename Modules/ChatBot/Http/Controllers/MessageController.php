@@ -553,7 +553,7 @@ class MessageController extends Controller
                     $customer = Customer::find($request->object_id);
                     $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
                 } else {
-                    $googleAccount = GoogleDialogAccount::first();
+                    $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
                 }
                 $chatBotQuestion = ChatbotQuestion::where('value', $request->question_id)->first();
                 if (!$chatBotQuestion) {
@@ -597,7 +597,7 @@ class MessageController extends Controller
             $customer = Customer::find($request->object_id);
             $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
         } else {
-            $googleAccount = GoogleDialogAccount::first();
+            $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
         }
         $chatBotQuestion = ChatbotQuestion::where('id', $request->question_id)->first();
         $questionArr = [];

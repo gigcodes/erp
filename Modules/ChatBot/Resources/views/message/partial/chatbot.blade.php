@@ -26,7 +26,7 @@
                                             <button onclick="storeIntent({{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})">
                                                 yes
                                             </button>
-                                            <button>no</button>
+                                            <button onclick="closeIntent({{ $message[0]['id'] }})">no</button>
                                         </div>
                                     @endif
                                 </div>
@@ -50,7 +50,7 @@
                                             <button onclick="storeReplay({{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})">
                                                 yes
                                             </button>
-                                            <button>no</button>
+                                            <button closeIntent({{ $message[0]['id'] }})>no</button>
                                         </div>
                                     @endif
                                 </div>
@@ -79,8 +79,6 @@
         let pageNo = 1;
         var url = window.location.pathname;
         let allIntents = JSON.parse('{!! json_encode($allIntents) !!}')
-        console.log(allIntents);
-
         // Define the regular expression pattern
         var regex = /\/simulator-messages\/([^\/]+)\/([^\/]+)/;
 
@@ -94,7 +92,7 @@
         function editIntent(message, messageId, questionId) {
             $(`#text_${messageId}`).removeAttr('hidden');
             $(`#intent_${messageId}`).remove();
-            $(`#chat_message_${messageId}`).append(`<button onclick="storeIntent( ${messageId}, ${questionId})">save</button>`);
+            $(`#chat_message_${messageId} .chat-message`).append(`<button class="save-btn" onclick="storeIntent( ${messageId}, ${questionId})">save</button>`);
         }
 
         function storeIntent(messageId, QuestionId = null) {
@@ -110,7 +108,12 @@
                     object_id: object_id,
                 },
                 success: function (response) {
-                    $(`intent_add_${messageId}`).remove();
+                    $(`#intent_add_${messageId}`).remove();
+                    $(`#text_${messageId}`).attr('hidden', true);
+                    $(`#chat_message_${messageId} .chat-message .save-btn`).remove();
+                    $(`#chat_message_${messageId} .chat-message`).append(`<p id="intent_${messageId}">${message}
+                        <i class="fa fa-pencil-square-o" aria-hidden="true" onclick="editIntent('{{ $message[0]['message'] }}', {{ $message[0]['id'] }}, {{ $chatQuestions ? $chatQuestions['id'] : ''}})"></i>
+                </p>`);
                     toastr["success"](response.message);
                 },
                 error: function (error) {
@@ -118,6 +121,11 @@
                     return;
                 }
             })
+        }
+
+        function closeIntent(messageId){
+            console.log('----------')
+            $(`#intent_add_${messageId}`).remove();
         }
 
         function getNewMessage(){
@@ -150,11 +158,11 @@
                                 </p>`;
 
                         if (response.data.type != 'Database') {
-                            getStr += `<p>Do you update this question in database?</p>
+                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you update this question in database?</p>
                                 <button onclick="storeIntent(${response.data.message.id}, '${response.data.chatQuestion?.id || response.data.chatQuestion?.value}')">
                                     yes
                                 </button>
-                                <button>no</button>`;
+                                <button onclick="closeIntent(${response.data.message.id})">no</button></div>`;
                         }
 
                         getStr +=  `</div>
@@ -176,11 +184,11 @@
                                 </p>`;
 
                         if (response.data.type != 'Database') {
-                            getStr += `<p>Do you update this question in database?</p>
+                            getStr += `<div id="intent_add_${response.data.message.id}"><p>Do you update this question in database?</p>
                                 <button onclick="storeIntent(${response.data.message.id})">
                                     yes
                                 </button>
-                                <button>no</button>`;
+                                <button onclick="closeIntent(${response.data.message.id})">no</button></div>`;
                         }
 
                         getStr +=  `</div>
