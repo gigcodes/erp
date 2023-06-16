@@ -505,7 +505,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
+    
 Route::middleware('auth')->group(function () {
+    Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
+    Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
     Route::get('magento_modules/remark/{magento_module}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
@@ -2220,6 +2224,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
 
         Route::get('task/show-estimate', [DevelopmentController::class, 'showTaskEstimateTime'])->name('task.estimate.list');
+        Route::get('task/show-estimate-alert', [DevelopmentController::class, 'showTaskEstimateTimeAlert'])->name('task.estimate.alert');
     });
 
     /*Routes For Social */
@@ -2606,6 +2611,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('api-response', [ApiResponseMessageController::class, 'index'])->name('api-response-message');
     Route::post('api-response', [ApiResponseMessageController::class, 'store'])->name('api-response-message.store');
     Route::post('/getEditModal', [ApiResponseMessageController::class, 'getEditModal'])->name('getEditModal');
+    Route::post('api-response/lodeTranslation', [ApiResponseMessageController::class, 'lodeTranslation'])->name('api-response-message.lodeTranslation');
+    Route::post('api-response/message-translate', [ApiResponseMessageController::class, 'messageTranslate'])->name('api-response-message.messageTranslate');
+    Route::get('api-response/message-translate-list', [ApiResponseMessageController::class, 'messageTranslateList'])->name('api-response-message.messageTranslateList');
+    Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
 
@@ -4033,6 +4042,7 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
+        Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');

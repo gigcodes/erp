@@ -431,11 +431,15 @@ class EventController extends Controller
         return response()->json($merged);
     }
 
-    public function getEventAlerts()
+    public function getEventAlerts(Request $request)
     {
         $userId = Auth::user()->id;
         $user = Auth::user();
         $dt = Carbon::now()->startOfDay();
+
+        if ($request->get('date')) {
+            $dt =  Carbon::createFromFormat('Y-m-d', $request->get('date'));
+        }
 
         // Public events
         $publicEventSchedules = EventSchedule::whereDate('schedule_date', $dt->toDateString())

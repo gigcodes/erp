@@ -4896,4 +4896,57 @@ class DevelopmentController extends Controller
             return '';
         }
     }
+
+    public function showTaskEstimateTimeAlert(Request $request)
+    {
+        try {
+                
+                $developerTaskID = DeveloperTaskHistory::where([
+                    'model'=> DeveloperTask::class,
+                    'attribute' => "estimation_minute"
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+                
+                $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
+                ->whereIn("developer_tasks_history.id", $developerTaskID)
+                ->where(function($query) use ($request) {
+                    if(isset($request->task_id)) {
+                        if(str_contains($request->task_id, "DEVTASK")){
+                            $query= $query->where('developer_tasks.id', trim($request->task_id, "DEVTASK-"));
+                        }
+                    }
+                    return $query;
+                })
+                ->where('developer_tasks_history.is_approved', 0)
+                ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->count();
+
+
+                $t_developerTaskID = DeveloperTaskHistory::where([
+                    'model'=> Task::class,
+                    'attribute' => "estimation_minute"
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+                
+                $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
+                ->whereIn("developer_tasks_history.id", $t_developerTaskID)
+                ->where(function($query) use ($request) {
+                    if(isset($request->task_id)) {
+                        if(!str_contains($request->task_id, "DEVTASK")){
+                            $query= $query->where('tasks.id', trim($request->task_id, "TASK-"));
+                        }
+                    }
+                    return $query;
+                })
+                ->where('developer_tasks_history.is_approved', 0)
+                ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->count();
+
+                $totalUnApproved = $developerTaskHistory + $t_developerTaskHistory;
+                
+                return response()->json([
+                    'code' => 200,
+                    'count' => $totalUnApproved
+                ]);
+        } catch (Exception $e) {
+            dd($e);
+            return '';
+        }
+    }
 }
