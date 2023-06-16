@@ -2505,6 +2505,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-setting-revision-history.index') }}">Magento Setting Revision Histories
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-cron-data') }}">Magento Cron
                                                 Data</a>
                                         </li>
