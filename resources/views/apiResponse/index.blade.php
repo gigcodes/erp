@@ -274,10 +274,11 @@ form label.required:after{
                         <thead class="p-0">
                             <tr>
                                 <th width="5%">ID</th>
-                                <th width="25%">Store Website</th>
+                                <th width="20%">Store Website</th>
                                 <th  width="20%">Lang Code</th>
-                                <th  width="25%">Key</th>
-                                <th  width="25%">Value</th>
+                                <th  width="20%">Key</th>
+                                <th  width="20%">Value</th>
+                                <th  width="15%">Approved By</th>
                             </tr>
                         </thead>
                         <tbody id="armt_tbody" class="p-0 pending-row-render-view infinite-scroll-api-inner">
@@ -306,7 +307,7 @@ form label.required:after{
                     <th width="25%">Store Website</th>
                     <th  width="25%">Key</th>
                     <th  width="25%">Value</th>
-                    <th  width="4%">Actions</th>
+                    <th  width="7%">Actions</th>
                 </tr>
             </thead>
             <tbody class="p-0 pending-row-render-view infinite-scroll-api-inner">
@@ -326,6 +327,9 @@ form label.required:after{
                                    <i class="fa fa-trash-o" aria-hidden="true" style="color:grey;"></i> 
                                 </a>
                                 <a  data-id="{{ $res->id}}" class="view-message-translation" title="View Message Translation" href="#">
+                                    <i class="fa fa-eye" aria-hidden="true" style="color:grey;"></i> 
+                                 </a>
+                                 <a onclick="apiResponseMessageTranslate(this)" data-id="{{ $res->id}}" title="Translate API Response Message" href="#">
                                     <i class="fa fa-language" aria-hidden="true" style="color:grey;"></i> 
                                  </a>
                             </div>
@@ -430,6 +434,43 @@ form label.required:after{
             });
         }
     })
+
+    function apiResponseMessageTranslate(ele) {
+        let btn = jQuery(ele);
+        let api_response_message_id = btn.data('id');
+
+        if (confirm('Are you sure you want translate this message ?')) {
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('api-response-message.messageTranslate') }}",
+                type: 'POST',
+                data: {
+                    api_response_message_id: api_response_message_id,
+                },
+                dataType: 'json',
+                beforeSend: function () {
+                    jQuery("#loading-image-preview").show();
+                },
+                success: function (res) {
+                    if(res.code == 200){
+                        toastr["success"](res.message);
+                    }
+                    else{
+                        toastr["error"](res.message);                    
+                    }
+                    jQuery("#loading-image-preview").hide();
+                },
+                error: function (res) {
+                    if (res.responseJSON != undefined) {
+                        toastr["error"](res.responseJSON.message);
+                    }
+                    jQuery("#loading-image-preview").hide();
+                }
+            });
+        }
+    }
 </script>
 <script>
         
