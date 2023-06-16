@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessageValueHistory;
 use App\GoogleTranslate;
+use App\WebsiteStoreView;
 use App\Jobs\ProcessTranslateApiResponseMessage;
 
 class ApiResponseMessageController extends Controller
@@ -155,17 +156,36 @@ class ApiResponseMessageController extends Controller
         if ($apiResponseMessage) {
             $languages = \App\Language::where('status', 1)->get();
             foreach ($languages as $l) {
+
+                $websiteStoreViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')
+                ->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')->where('website_store_views.name',$l->name)->whereHas('websiteStore', function ($q) use ($apiResponseMessage) {
+                    $q->whereHas('website', function ($query) use ($apiResponseMessage) {
+                        $query->where('store_website_id', $apiResponseMessage->store_website_id);
+                    });
+                })->select('website_store_views.code')->first();
+                
+                
+                if($websiteStoreViews){
+                    $lang_code=$websiteStoreViews->code;
+                }else{
+                    $websiteStoreViews = WebsiteStoreView::where('name', $l->name)->first();
+                    if(!$websiteStoreViews){continue;}
+                    $lang_code = $websiteStoreViews->code;
+                }
+                
                 $translatedValue = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate,
                     $l->locale,
                     [$apiResponseMessage->value]
                 );
-
+                if($translatedValue==''){
+                    $translatedValue=$apiResponseMessage->value;
+                }
                 // Save translated text
                 ApiResponseMessagesTranslation::updateOrCreate([
                     'store_website_id'   => $apiResponseMessage->store_website_id,
                     'key'   => $apiResponseMessage->key,
-                    'lang_code'   => $l->code,
+                    'lang_code'   => $lang_code,
                     'lang_name'   => $l->name,
                 ],[
                     'value'     => $translatedValue,
@@ -182,13 +202,13 @@ class ApiResponseMessageController extends Controller
     {
         $languages = \App\Language::where('status', 1)->get();
         $apiResponseMessagesTranslations = ApiResponseMessagesTranslation::all();
-        $apiResponseMessagesTranslationsRows = ApiResponseMessagesTranslation::with('storeWebsite')->groupBy(['store_website_id', 'key'])->get();
+        $apiResponseMessagesTranslationsRows = ApiResponseMessagesTranslation::with('storeWebsite')->groupBy(['store_website_id', 'key'])->latest()->get();
 
         $rowValues = [];
         foreach($apiResponseMessagesTranslations as $apiResponseMessagesTranslation) {
             $rowValues[$apiResponseMessagesTranslation->store_website_id]
                 [$apiResponseMessagesTranslation->key]
-                [$apiResponseMessagesTranslation->lang_code] = [
+                [$apiResponseMessagesTranslation->lang_name] = [
                     'value' => $apiResponseMessagesTranslation->value,
                     'approved_by_user_id' => $apiResponseMessagesTranslation->approved_by_user_id
                 ];
@@ -202,9 +222,14 @@ class ApiResponseMessageController extends Controller
     {
         $apiResponseMessagesTranslation = ApiResponseMessagesTranslation::where("store_website_id", $request->store_website_id)
             ->where("key", $request->key)
-            ->where("lang_code", $request->lang_code)
-            ->firstOrFail();
-
+            ->where("lang_name", $request->lang_name)
+            ->first();
+        if( !$apiResponseMessagesTranslation){
+            return response()->json([
+                'code' => 500,
+                'message' => 'Data Not found !!',
+            ]);
+        }
         $apiResponseMessagesTranslation->value = $request->value;
         $apiResponseMessagesTranslation->updated_by_user_id = Auth::User()->id;
         $apiResponseMessagesTranslation->approved_by_user_id = Auth::User()->id;
@@ -216,7 +241,7 @@ class ApiResponseMessageController extends Controller
             'new_value' => $request->value,
             'store_website_id' => $request->store_website_id,
             'key' => $request->key,
-            'lang_code' => $request->lang_code,
+            'lang_name' => $request->lang_name,
         ]);
     }
 }

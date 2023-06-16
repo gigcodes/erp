@@ -327,7 +327,7 @@ form label.required:after{
                                    <i class="fa fa-trash-o" aria-hidden="true" style="color:grey;"></i> 
                                 </a>
                                 <a  data-id="{{ $res->id}}" class="view-message-translation" title="View Message Translation" href="#">
-                                    <i class="fa fa-language" aria-hidden="true" style="color:grey;"></i> 
+                                    <i class="fa fa-eye" aria-hidden="true" style="color:grey;"></i> 
                                  </a>
                                  <a onclick="apiResponseMessageTranslate(this)" data-id="{{ $res->id}}" title="Translate API Response Message" href="#">
                                     <i class="fa fa-language" aria-hidden="true" style="color:grey;"></i> 

@@ -70,8 +70,8 @@
 				        <th width="10%">Store Website</th>
 				        <th width="10%">Key</th>
 				        <?php foreach($languages as $language) { ?>
-				        	<th data-language-locale="{{$language->locale}}" width="10%">
-								<?php echo $language->locale; ?>
+				        	<th data-language-locale="{{$language->name}}" width="10%">
+								<?php echo $language->name; ?>
 				        	</th>
 				        <?php } ?>	
 				      </tr>
@@ -99,8 +99,8 @@
 								</span>
 							</td>
 							<?php foreach($languages as $language) { ?>
-                                <?php $rowValue = $rowValues[$apiResponseMessagesTranslationsRow->store_website_id][$apiResponseMessagesTranslationsRow->key][$language->code]['value'] ?? '' ?>
-                                <?php $rowValueApproved = $rowValues[$apiResponseMessagesTranslationsRow->store_website_id][$apiResponseMessagesTranslationsRow->key][$language->code]['approved_by_user_id'] ?? '' ?>
+                                <?php $rowValue = $rowValues[$apiResponseMessagesTranslationsRow->store_website_id][$apiResponseMessagesTranslationsRow->key][$language->name]['value'] ?? '' ?>
+                                <?php $rowValueApproved = $rowValues[$apiResponseMessagesTranslationsRow->store_website_id][$apiResponseMessagesTranslationsRow->key][$language->name]['approved_by_user_id'] ?? '' ?>
 								<td width="10%" class="expand-row">
                                     <span class="td-mini-container">
                                         {{ strlen($rowValue) > 12 ? substr($rowValue, 0, 12).'...' :  $rowValue }}
@@ -113,7 +113,7 @@
                                             <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
                                         </a>
                                     @else
-                                        <a href="javascript:;" class="update-translation-icon btn p-0 pull-right" data-store-website-id="{{$apiResponseMessagesTranslationsRow->store_website_id}}" data-store-website-title="{{$apiResponseMessagesTranslationsRow->storeWebsite->title}}" data-key="{{$apiResponseMessagesTranslationsRow->key}}" data-language-code="{{$language->code}}"  data-value="{{$rowValue}}">
+                                        <a href="javascript:;" class="update-translation-icon btn p-0 pull-right" data-store-website-id="{{$apiResponseMessagesTranslationsRow->store_website_id}}" data-store-website-title="{{$apiResponseMessagesTranslationsRow->storeWebsite->title}}" data-key="{{$apiResponseMessagesTranslationsRow->key}}" data-language-name="{{$language->name}}"  data-value="{{$rowValue}}">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                         </a>
                                     @endif
@@ -159,9 +159,9 @@
 						<input id="key" name="key" class="form-control" type="hidden">
                     </div>
                     <div class="form-group">
-                        <label for="language-code">Language Code:</label>
-						<span id="language-code-label"></span>
-						<input id="language-code" name="lang_code" class="form-control" type="hidden">
+                        <label for="language-name">Language Name:</label>
+						<span id="language-name-label"></span>
+						<input id="language-name" name="lang_name" class="form-control" type="hidden">
                     </div>
                     <div class="form-group">
                         <label for="value">Value</label>
@@ -195,15 +195,15 @@
 		var storeWebsiteId = $(this).data('store-website-id');
 		var storeWebsiteTitle = $(this).data('store-website-title');
 		var key = $(this).data('key');
-		var languageCode = $(this).data('language-code');
+		var languageName = $(this).data('language-name');
 		var value = $(this).attr('data-value');
 
 		$("#store-website-id").val(storeWebsiteId);
 		$("#store-website-title").text(storeWebsiteTitle);
 		$("#key").val(key);
 		$("#key-label").text(key);
-		$("#language-code").val(languageCode);
-		$("#language-code-label").text(languageCode);
+		$("#language-name").val(languageName);
+		$("#language-name-label").text(languageName);
 		$("#value").val(value);
 
 		$("#update-translation-modal").modal("show");
@@ -222,7 +222,7 @@
                         $form[0].reset();
                         $("#update-translation-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
-						$("a[data-store-website-id='"+data.store_website_id+"'][data-key='"+data.key+"'][data-language-code='"+data.lang_code+"']").find('i').removeClass("fa-pencil").addClass("fa-check-circle-o text-success");
+						$("a[data-store-website-id='"+data.store_website_id+"'][data-key='"+data.key+"'][data-language-name='"+data.lang_name+"']").find('i').removeClass("fa-pencil").addClass("fa-check-circle-o text-success");
                     } else {
                         toastr['error'](data.message, 'Message');
                     }

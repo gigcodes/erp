@@ -37,37 +37,45 @@ class Controller extends BaseController
     {
         $message = $default;
 
+        //check by store_website_id and lang_code and key
         $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)->where('lang_code', $lang_code)->where('key', $key)->first();
         
         if (! empty($translated_message)) {
             return $message = $translated_message->value;
         }
 
-        // If translated_message not found with lang_code then find translated_message with lang_name. 
-        if (! empty($lang_code)) {
-            $lan_name = WebsiteStoreView::where('code', $lang_code)->first();
-            
-            if (isset($lan_name->name)) {
-                $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)
-                    ->where('lang_name', $lan_name->name)
-                    ->where('key', $key)
-                    ->first();
-
-                if (! empty($translated_message)) {
-                    return $message = $translated_message->value;
-                }
-            }
-        }
-
+        
         $return_message = ApiResponseMessage::where('store_website_id', $store_website_id)->where('key', $key)->first();
         if (! empty($return_message)) {
             $message = $return_message->value;
         }
 
         if (! empty($lang_code)) {
+
+            //check by lang_code and key
+            if(empty($store_website_id)){
+                $translated_message = ApiResponseMessagesTranslation::where('lang_code', $lang_code)
+                    ->where('key', $key)
+                    ->first();
+    
+                if (! empty($translated_message)) {
+                  //  return $message = $translated_message->value;
+                }
+            }
+
             $lan_name = WebsiteStoreView::where('code', $lang_code)->first();
             
             if (isset($lan_name->name)) {
+                
+                //check by  lang_name and key
+                $translated_message = ApiResponseMessagesTranslation::where('lang_name', $lan_name->name)
+                    ->where('key', $key)
+                    ->first();
+    
+                if (! empty($translated_message)) {
+                   return $message = $translated_message->value;
+                }
+
                 $local_code = Language::where('name', $lan_name->name)->first();
                 
                 if (isset($local_code->locale)) {
@@ -80,6 +88,7 @@ class Controller extends BaseController
                             'store_website_id' => $store_website_id,
                             'key' => $key,
                             'lang_code' => $lang_code,
+                            'lang_name' => $lan_name->name,
                             'value' => $message,
                         ]);
                     }
