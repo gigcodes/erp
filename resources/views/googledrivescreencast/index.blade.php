@@ -46,11 +46,11 @@
                                         <select name="task_id" id="search_task" class="form-control" placeholder="Search Dev Task">
                                         <option value="">Search Tasks</option>
                                             @foreach ($tasks as $key => $task )
-                                                <option value="{{$task->id}}" @if(request()->get('dev_id')==$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
+                                                <option value="DEV-{{$task->id}}" @if(request()->get('task_id') == "DEV-".$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
                                             @endforeach
                                             @if (isset($generalTask) && !empty($generalTask))
                                             @foreach($generalTask as $task)
-                                                <option value="{{$task->id}}" @if(request()->get('task_id')== $task->id) selected @endif class="form-control">#TASK-{{$task->id}}</option>
+                                                <option value="TASK-{{$task->id}}" @if(request()->get('task_id') == "TASK-".$task->id) selected @endif class="form-control">#TASK-{{$task->id}}</option>
                                             @endforeach
                                         @endif
                                         </select>
