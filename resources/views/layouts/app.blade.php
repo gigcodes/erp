@@ -3802,17 +3802,15 @@ if (!empty($notifications)) {
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
-                                @if ($status)
+                                
                                 <a title="Monitor Status" type="button" class="quick-icon" id="website_Off_status" style="padding: 0px 1px;">
-                                    <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
-                                        <span class="status-alert-badge"></span></span>
+                                    <span>
+                                        <i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
+                                        @if ($status)
+                                        <span class="status-alert-badge"></span>
+                                        @endif
                                     </span>
                                 </a>
-                                @else
-                                <a title="Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" style="padding: 0px 1px;">
-                                    <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i></span>
-                                </a>
-                                @endif
                             </li>
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i

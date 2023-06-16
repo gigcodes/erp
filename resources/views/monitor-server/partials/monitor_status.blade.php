@@ -1,8 +1,7 @@
 <!-- Modal -->
 @php
- $status = \App\Models\MonitorServer::where('status', '=','Off')->paginate(25);
-//  @dd($status->ip);
-                                @endphp
+ $status = \App\Models\MonitorServer::where('status', '=','Off')->get();
+@endphp
 <div id="create-status-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -20,12 +19,16 @@
                         </tr>
                     </thead>
                     <tbody class="show-search-password-list">
+                        @if (count($status) > 0)
                         @foreach($status as $key =>$stat)
                         <tr>
                             <td>{{$key+1}}</td>
                             <td>{{$stat->ip }}</td>
                         </tr>
-                        @endforeach 
+                        @endforeach
+                        @else
+                        <tr><td colspan="2">No records found</td></tr>
+                        @endif
                     </tbody>
                 </table> 
            </div>
