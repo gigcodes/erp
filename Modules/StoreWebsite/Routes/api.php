@@ -16,3 +16,4 @@ use App\Http\Controllers\ColorController;
 
 //Giving All Brands with Reference
 Route::get('colors', [ColorController::class, 'colorReference']);
+Route::get('websitesStores', [\Modules\StoreWebsite\Http\Controllers\WebsiteController::class, 'websitesStores']);
