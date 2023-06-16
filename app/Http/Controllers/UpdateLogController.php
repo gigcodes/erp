@@ -149,15 +149,6 @@ class UpdateLogController extends Controller
         }
     }
 
-    public function apiUrlShow(Request $request)
-    {     
-        $id = $request->input('id');
-        $apiUrl = UpdateLog::where('id', $id)->value('api_url');
-        $htmlContent = '<tr><td>' . $apiUrl . '</td></tr>';
-
-        return $htmlContent;
-    }
-
     public function requestHeaderShow(Request $request)
     {     
         $id = $request->input('id');

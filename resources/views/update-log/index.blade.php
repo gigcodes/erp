@@ -128,8 +128,14 @@
               <?php foreach ($updateLog as $key => $logData) { ?>
                 <tr>
                   <td>{!! $logData->id !!}</td>
-                  <td> <a href="{!! strlen($logData->api_url)!!}" target="_blank">{!! strlen($logData->api_url) > 10 ? substr($logData->api_url, 0, 30).'...' : $logData->api_url !!}</a>
-                    @if(!is_null($logData->api_url))<i class="fa fa-eye show_logs show-logs-icon" data-id="{{ $logData->id }}" style="color: #808080;float: right;"></i> @endif</td>
+                  <td> 
+                    <a href="{!! $logData->api_url !!}" target="_blank">
+                      {!! strlen($logData->api_url) > 10 ? substr($logData->api_url, 0, 30).'...' : $logData->api_url !!}
+                    </a>
+                    @if(!is_null($logData->api_url))
+                    <i class="fa fa-eye show_logs show-logs-icon" data-full_api_url="{{ $logData->api_url }}" data-id="{{ $logData->id }}" style="color: #808080;float: right;"></i> 
+                    @endif
+                  </td>
                   <td>{!! $logData->device !!}</td>
                   <td>{!! $logData->api_type !!}</td>
                   <td>{!! $logData->email !!}</td>
@@ -198,14 +204,6 @@
           <div class="modal-body">
               <div class="row">
                   <div class="col-md-12" id="api_url_div">
-                      <table class="table">
-                          <thead>
-                              <tr>
-                              </tr>
-                          </thead>
-                          <tbody>
-                          </tbody>
-                      </table>
                   </div>
               </div>
           </div>
@@ -220,7 +218,7 @@
   <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title">API URL</h5>
+              <h5 class="modal-title">Request Headers</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
               </button>
@@ -395,22 +393,11 @@
   });
 
   $(document).on('click', '.show-logs-icon', function() {
-		var id = $(this).data('id');
-			$.ajax({
-				url: '{{route('updateLog.api.url.show')}}',
-				method: 'GET',
-				data: {
-					id: id
-				},
-				success: function(response) {
-					$('#api_url_modal').modal('show');
-					$('#api_url_div').html(response);
-				},
-				error: function(xhr, status, error) {
-					alert("Error occured.please try again");
-				}
-			});
-		});
+      var id = $(this).data('id');
+      var fullApiUrl = $(this).data('full_api_url');
+      $('#api_url_modal').modal('show');
+      $('#api_url_div').text(fullApiUrl);
+  });
 
     $(document).on('click', '.show-request-icon', function() {
 		var id = $(this).data('id');
