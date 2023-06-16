@@ -134,10 +134,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 200px!important
     }
 
-    #event-alerts .event-alert-badge {
+    #event-alerts .event-alert-badge,
+    #website_Off_status .status-alert-badge {
         position: absolute;
         top: -4px;
-        left: 25px;
         border-radius: 50%;
         background-color: red;
         border: 1px solid white;
@@ -146,6 +146,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 10px;
     }
 
+    #event-alerts .event-alert-badge {
+    left: 25px;
+    }
+
+    #website_Off_status .status-alert-badge {
+    left: 60px;
+    }
     .red-alert-badge {
         position: absolute;
         top: -4px;
@@ -3811,24 +3818,28 @@ if (!empty($notifications)) {
                                     <span class="event-alert-badge hide"></span>
                                 </a>
                             </li>
-                            <li>  
                             <li>
                                 <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
                                     <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
+                            <li>  
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                 @endphp
-                                @if ($status)
-                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon">
-                                    <span><i class="fa fa-desktop fa-2x off-status"style="background-color: red" aria-hidden="true"></i></span>
+                                
+                                <a title="Monitor Status" type="button" class="quick-icon" id="website_Off_status" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
+                                        @if ($status)
+                                        <span class="status-alert-badge"></span>
+                                        @endif
+                                    </span>
                                 </a>
-                                @else
-                                <a title="Search Monitor Status" type="button" data-toggle="modal" data-target="#searchmonitorStatus" class="quick-icon" style="padding: 0px 1px;">
-                                    <span><i class="fa fa-desktop fa-2x" aria-hidden="true"></i></span>
-                                </a>
-                                @endif
+                            </li>
+                            <li>
+                                <a title="jenkins Build status" id="jenkins-build-status" type="button"  class="quick-icon" style="padding: 0px 1px;"><span><i
+                                 class="fa fa-cog fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
@@ -4018,7 +4029,7 @@ if (!empty($notifications)) {
                 @endphp
             @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
 
                     <!-- Modal content-->
                     <div class="modal-content">
@@ -4469,6 +4480,8 @@ if (!empty($notifications)) {
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
+        @include('monitor-server.partials.monitor_status')
+        @include('monitor.partials.jenkins_build_status')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7166,9 +7179,18 @@ if (!\Auth::guest()) {
         });
     });
 
+    $(document).on('click','#website_Off_status',function(e){
+        $('#create-status-modal').modal('show');
+    });
+
     $(document).on('click','#create_event',function(e){
         e.preventDefault();
         $('#create-event-modal').modal('show');
+    });
+
+    $(document).on('click','#jenkins-build-status',function(e){
+        e.preventDefault();
+        $('#create-jenkins-status-modal').modal('show');
     });
 
     $(document).on('click','#event-alerts',function(e){

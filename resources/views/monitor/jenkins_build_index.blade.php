@@ -46,7 +46,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="5%">ID</th>
+                            <th width="5%">S.No</th>
                             <th width="10%">Build Number</th>
                             <th width="20%">Project</th>
                             <th width="20%">Worker</th>
@@ -65,10 +65,11 @@
                             <th width="15%">Build Status</th>
                             <th width="25%">Full Log</th>
                             <th width="15%">Meta Update</th>
+                            <th width="20%">Date Time</th>
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)
                             <tr class="quick-website-task-{{ $monitorJenkinsBuild->id }}" data-id="{{ $monitorJenkinsBuild->id }}">
-                                <td id="monitor_server_id">{{ $monitorJenkinsBuild->id }}</td>
+                                <td>{{$key+1 }}</td>
                                 <td>{{ $monitorJenkinsBuild->build_number }}</td>
                                 <td>{{ $monitorJenkinsBuild->project }}</td>
                                 <td>{{ $monitorJenkinsBuild->worker }}</td>
@@ -87,6 +88,7 @@
                                 <td><span class="badge badge-pill" style = "background-color:{{ $monitorJenkinsBuild->build_status === 0 ? 'green' : 'orange' }}">{{ $monitorJenkinsBuild->build_status === 0 ? 'Success' : 'Failure' }}</span></td>
                                 <td>{{ $monitorJenkinsBuild->full_log }}</td>
                                 <td><span class="badge badge-pill" style = "background-color:{{ $monitorJenkinsBuild->meta_update === 0 ? 'green' : 'orange' }}">{{ $monitorJenkinsBuild->meta_update === 0 ? 'Success' : 'Failure' }}</span></td>
+                                <td>{{ $monitorJenkinsBuild->created_at }}</td>
                             </tr>
                         @endforeach
                     </table>

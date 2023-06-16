@@ -2612,6 +2612,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('api-response', [ApiResponseMessageController::class, 'store'])->name('api-response-message.store');
     Route::post('/getEditModal', [ApiResponseMessageController::class, 'getEditModal'])->name('getEditModal');
     Route::post('api-response/lodeTranslation', [ApiResponseMessageController::class, 'lodeTranslation'])->name('api-response-message.lodeTranslation');
+    Route::post('api-response/message-translate', [ApiResponseMessageController::class, 'messageTranslate'])->name('api-response-message.messageTranslate');
+    Route::get('api-response/message-translate-list', [ApiResponseMessageController::class, 'messageTranslateList'])->name('api-response-message.messageTranslateList');
+    Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
 
@@ -4179,6 +4182,7 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+    Route::get('updateLog/request_headers/show', [UpdateLogController::class, 'requestHeaderShow'])->name('updateLog.request.header.show');
 
     Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
     Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');

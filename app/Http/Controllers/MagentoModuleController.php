@@ -330,10 +330,19 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList()
     {
-        $magento_modules = MagentoModule::orderBy('module', 'asc')->get();
         $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+
+        $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
+        $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
         
-        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites]);
+        $result = [];
+        array_walk($magento_modules_array, function ($value, $key) use (&$result) {
+            $result[$value['store_website_id']][] = $value;
+        });
+        $magento_modules_array=$result;
+        $magento_modules_count=MagentoModule::count();
+        
+        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request){

@@ -27,8 +27,8 @@
 	.mml_switch {
 		position: relative;
 		display: inline-block;
-		width: 54px;
-		height: 28px;
+		width: 32px;
+		height: 16px;
 	}
 
 	.mml_switch input { 
@@ -52,8 +52,8 @@
 	.mml_switch .slider:before {
 		position: absolute;
 		content: "";
-		height: 20px;
-		width: 20px;
+		height: 9px;
+		width: 9px;
 		left: 4px;
 		bottom: 4px;
 		background-color: white;
@@ -70,9 +70,9 @@
 	}
 
 	.mml_switch input:checked + .slider:before {
-	-webkit-transform: translateX(26px);
-	-ms-transform: translateX(26px);
-	transform: translateX(26px);
+	-webkit-transform: translateX(16px);
+	-ms-transform: translateX(16px);
+	transform: translateX(16px);
 	}
 
 	/* Rounded sliders */
@@ -111,7 +111,7 @@
 </style>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Magento Modules ({{count($magento_modules)}})</h2>
+        <h2 class="page-heading">Magento Modules ({{$magento_modules_count}})</h2>
     </div>
     <br>
     @if(session()->has('success'))
@@ -134,34 +134,23 @@
                         <th width="20%">Name</th>
                         <th width="20%">Description</th>
 				        <?php foreach($storeWebsites as $storeWebsiteId => $storeWebsiteTitle) { ?>
-							<?php 
-							$title = $storeWebsiteTitle;
-							$title= str_replace(' & ','&',$title);
-							$title= str_replace(' - ','-',$title);
-							$title= str_replace('&',' & ',$title);
-							$title= str_replace('-',' - ',$title);
-							$words = explode(' ', $title);
-							$is_short_title=0;
-							if (count($words) >= 2) {
-								$title='';
-								foreach($words as $word){
-									$title.=strtoupper(substr($word, 0, 1));
-								}
-								$is_short_title=1;
-							}
-							?>
-				        	<th data-id="{{$storeWebsiteId}}" width="10%">
-								<?php echo $title; ?>
-				        	</th>
+							<th title="{{$storeWebsiteTitle}}" class="expand-row" width="30%">
+							<span class="td-mini-container">
+								{{ strlen($storeWebsiteTitle) > 5 ? trim(substr($storeWebsiteTitle, 0, 5)).'...' :  $storeWebsiteTitle }}
+							</span>
+							<span class="td-full-container hidden">
+								{{$storeWebsiteTitle}}
+							</span>
+							</th >
 				        <?php } ?>	
 				      </tr>
 				    </thead>
 				    <tbody id="environment_data">
 						<?php 
 						if($magento_modules) {
-							foreach($magento_modules as $key => $magento_module) {
+							foreach($magento_modules as $mmkey => $magento_module) {
 						?>
-						<tr>
+						<tr class="trrow">
 							<td width="10%" class="expand-row">
 								<span class="td-mini-container">
 									{{ strlen($magento_module->module) > 15 ? substr($magento_module->module, 0, 15).'...' :  $magento_module->module }}
@@ -178,17 +167,32 @@
 										{{ $magento_module->module_description}}
 									</span>
 								</td>
-								<?php foreach($storeWebsites as $store_Website_id => $store_website_title) { ?>
-									<td>
+								<?php 
+								foreach($storeWebsites as $store_Website_id => $store_website_title) { 
+								$search_array=[];
+								if(isset($magento_modules_array[$store_Website_id])){
+									$search_array=$magento_modules_array[$store_Website_id];
+								}
+								
+								$key = array_search($magento_module->module, array_column($search_array, 'module'));
+									
+								?>
+								<td>
+									@if($key !== false)
+										<?php 
+											$status=$magento_modules_array[$store_Website_id][$key]['status'];
+											$magento_module_id=$magento_modules_array[$store_Website_id][$key]['id'];
+										?>
 										<label class="mml_switch">
-											<input type="checkbox" {{ $magento_module->status ? 'checked' : '' }} class="magento_module_toggle_switch" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module->id}}" id="mm_status_{{$store_Website_id}}_{{$magento_module->id}}" name="mm_status_[{{$store_Website_id}}][{{$magento_module->id}}]" value="{{$magento_module->status}}">
+											<input type="checkbox" {{ $status ? 'checked' : '' }} class="magento_module_toggle_switch" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" id="mm_status_{{$store_Website_id}}_{{$magento_module_id}}" name="mm_status_[{{$store_Website_id}}][{{$magento_module_id}}]" value="{{$status}}">
 											<span class="slider round"></span>
 										</label><br>
-										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module->id}}" class="btn btn-history" style="padding: 0px 5px !important;">
+										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-history" style="padding: 0px 5px !important;">
 											<i class="fa fa-eye" aria-hidden="true"></i>
 										</button>
-                                    </td>
-                                  <?php } ?>
+									@endif
+								</td>
+								<?php } ?>
 							<?php } ?>
 						</tr>
 						<?php } ?>
@@ -243,7 +247,7 @@
 	
 	$("#search-input").on("keyup", function() {
 		var value = $(this).val().toLowerCase();
-		$("#env-table tr").filter(function() {
+		$("#env-table tr.trrow").filter(function() {
 		$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
 		});
 

@@ -425,5 +425,9 @@ class Helpers
         }
         return config('env.MAIL_FROM_ADDRESS');
     }
+
+    public static function isBase64Encoded($string) {
+        return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string);
+    }
      
 }
