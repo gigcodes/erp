@@ -565,10 +565,15 @@ class MessageController extends Controller
                     'parent' => $chatBotQuestion['parent']
                 ], $chatBotQuestion->google_response_id ?: null);
                 if ($response) {
-                    $name = explode('/', $response);
-                    $chatBotQuestion->google_response_id =  $name[count($name) - 1];
                     $chatBotQuestion->google_status = 'google sended';
                     $chatBotQuestion->save();
+
+                    $name = explode('/', $response);
+                    $store_response = new GoogleResponseId();
+                    $store_response->google_response_id = $name[count($name) - 1];
+                    $store_response->google_dialog_account_id = $googleAccount->id;
+                    $store_response->chatbot_question_id = $chatBotQuestion->id;
+                    $store_response->save();
                 }
                 return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
             } else {
@@ -604,9 +609,14 @@ class MessageController extends Controller
 
                 if ($response) {
                     $name = explode('/', $response);
-                    $chatBotQuestion->google_response_id = $name[count($name) - 1];
                     $chatBotQuestion->google_status = 'google sended';
                     $chatBotQuestion->save();
+
+                    $store_response = new GoogleResponseId();
+                    $store_response->google_response_id = $name[count($name) - 1];
+                    $store_response->google_dialog_account_id = $googleAccount->id;
+                    $store_response->chatbot_question_id = $chatBotQuestion->id;
+                    $store_response->save();
                 }
                 return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
             }
@@ -650,9 +660,14 @@ class MessageController extends Controller
             ], $chatBotQuestion->google_response_id ?: null);
             if ($response) {
                 $name = explode('/', $response);
-                $chatBotQuestion->google_response_id = $name[count($name) - 1];
                 $chatBotQuestion->google_status = 'google sended';
                 $chatBotQuestion->save();
+
+                $store_response = new GoogleResponseId();
+                $store_response->google_response_id = $name[count($name) - 1];
+                $store_response->google_dialog_account_id = $googleAccount->id;
+                $store_response->chatbot_question_id = $chatBotQuestion->id;
+                $store_response->save();
             }
             return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
         }

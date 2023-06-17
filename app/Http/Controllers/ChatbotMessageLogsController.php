@@ -365,16 +365,17 @@ class ChatbotMessageLogsController extends Controller
     }
 
     public function pushQuickRepliesToGoogle() {
-        $replyCategories = \App\ReplyCategory::where('push_to_google', 0)->limit(5)->get();
+        $replyCategories = \App\ReplyCategory::where('push_to_google', 0)->get()->chunk(5)->toArray();
         $params['google_account_id'] = 0;
         $params['keyword_or_question'] = 'intent';
         foreach ($replyCategories as $replyCategory) {
-            $replies = \App\Reply::where('category_id', $replyCategory['id'])->where('pushed_to_google', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
-            foreach ($replies as $replyId => $reply) {
-                $params['value'] = str_replace(' ', '_', $replyCategory['name']);
-                $params['suggested_reply'] = $reply;
-                $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
-                $data_to_insert = [];
+            foreach ($replyCategory as $value) {
+                $replies = \App\Reply::where('category_id', $value['id'])->where('pushed_to_google', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
+                foreach ($replies as $reply) {
+                    $params['value'] = str_replace(' ', '_', $value['name']);
+                    $params['suggested_reply'] = $reply;
+                    $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
+                    $data_to_insert = [];
 
                     $recordAvailable = \App\ChatbotQuestionReply::where([
                         'suggested_reply' => $params['suggested_reply'],
@@ -387,11 +388,12 @@ class ChatbotMessageLogsController extends Controller
                             'chatbot_question_id' => $chatbotQuestion->id,
                         ];
                     }
-                \App\ChatbotQuestionReply::insert($data_to_insert);
+                    \App\ChatbotQuestionReply::insert($data_to_insert);
 
-                \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['google_status' => 'google sended']);
+                    \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['google_status' => 'google sended']);
 
-                ManageGoogle::dispatch($chatbotQuestion->id, $data_to_insert);
+                    ManageGoogle::dispatch($chatbotQuestion->id, $data_to_insert)->delay(Carbon::now()->addSeconds(120));
+                }
             }
         }
         session()->flash('msg', 'Successfully done the operation.');

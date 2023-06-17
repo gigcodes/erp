@@ -57,8 +57,7 @@ class ManageGoogle implements ShouldQueue
                     'questions' => $questionArr,
                     'reply' => $replyArr,
                     'name' => $chatBotQuestion['value'],
-                    'parent' => $chatBotQuestion['parent']
-                ], $chatBotQuestion->google_response_id ?: null);
+                    'parent' => $chatBotQuestion['parent']]);
                 if ($response) {
                     $name = explode('/', $response);
                     $store_response = new GoogleResponseId();

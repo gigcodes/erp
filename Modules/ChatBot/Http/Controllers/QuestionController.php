@@ -17,6 +17,7 @@ use App\ChatbotQuestion;
 use App\DeveloperModule;
 use App\ScheduledMessage;
 use App\MailinglistTemplate;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\ChatbotQuestionReply;
 use Illuminate\Http\Response;
@@ -1039,9 +1040,14 @@ class QuestionController extends Controller
                     ], $chatBotQuestion->google_response_id ?: null);
                     if ($response) {
                         $name = explode('/', $response);
-                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
                         $chatBotQuestion->google_status = 'google sended';
                         $chatBotQuestion->save();
+
+                        $store_response = new GoogleResponseId();
+                        $store_response->google_response_id = $name[count($name) - 1];
+                        $store_response->google_dialog_account_id = $googleAccount->id;
+                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->save();
                     }
                 } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
                     $ids = [];
