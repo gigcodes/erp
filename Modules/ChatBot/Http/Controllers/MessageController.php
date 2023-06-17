@@ -566,7 +566,7 @@ class MessageController extends Controller
                 ], $chatBotQuestion->google_response_id ?: null);
                 if ($response) {
                     $name = explode('/', $response);
-                    $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                    $chatBotQuestion->google_response_id =  $name[count($name) - 1];
                     $chatBotQuestion->google_status = 'google sended';
                     $chatBotQuestion->save();
                 }

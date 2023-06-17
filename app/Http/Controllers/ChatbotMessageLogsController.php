@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ManageGoogle;
+use App\Jobs\ManageWatson;
+use App\Library\Google\DialogFlow\DialogFlowService;
+use App\Models\GoogleDialogAccount;
 use App\Setting;
 use App\WatsonJourney;
 use Illuminate\Http\Request;
@@ -358,5 +362,40 @@ class ChatbotMessageLogsController extends Controller
         $logs = \App\ChatbotDialogErrorLog::where('reply_id', $replyId)->orderBy('id', 'desc')->get();
 
         return response()->json(['logs' => $logs]);
+    }
+
+    public function pushQuickRepliesToGoogle() {
+        $replyCategories = \App\ReplyCategory::where('push_to_google', 0)->limit(5)->get();
+        $params['google_account_id'] = 0;
+        $params['keyword_or_question'] = 'intent';
+        foreach ($replyCategories as $replyCategory) {
+            $replies = \App\Reply::where('category_id', $replyCategory['id'])->where('pushed_to_google', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
+            foreach ($replies as $replyId => $reply) {
+                $params['value'] = str_replace(' ', '_', $replyCategory['name']);
+                $params['suggested_reply'] = $reply;
+                $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
+                $data_to_insert = [];
+
+                    $recordAvailable = \App\ChatbotQuestionReply::where([
+                        'suggested_reply' => $params['suggested_reply'],
+                        'chatbot_question_id' => $chatbotQuestion->id,
+                    ])->first();
+
+                    if ($recordAvailable == null) {
+                        $data_to_insert[] = [
+                            'suggested_reply' => $params['suggested_reply'],
+                            'chatbot_question_id' => $chatbotQuestion->id,
+                        ];
+                    }
+                \App\ChatbotQuestionReply::insert($data_to_insert);
+
+                \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['google_status' => 'google sended']);
+
+                ManageGoogle::dispatch($chatbotQuestion->id, $data_to_insert);
+            }
+        }
+        session()->flash('msg', 'Successfully done the operation.');
+
+        return redirect()->back();
     }
 }

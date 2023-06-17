@@ -18,8 +18,8 @@
 .chat-bot-body {
     background-color: #dddddd36;
     padding: 10px;
-    min-height: 450px;
-    max-height: 450px;
+    min-height: 80vh;
+    max-height: 80vh;
     overflow: hidden;
     overflow-y: scroll;
 }
@@ -70,4 +70,9 @@
 
 .intent-details select {
     max-width: 200px;
+}
+
+.save-btn {
+    padding: 2px 8px;
+    margin-top: -15px;
 }

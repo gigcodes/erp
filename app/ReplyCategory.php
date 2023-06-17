@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReplyCategory extends Model
 {
-    public $fillable = ['name', 'parent_id', 'pushed_to_watson', 'dialog_id', 'intent_id'];
+    public $fillable = ['name', 'parent_id', 'pushed_to_watson', 'dialog_id', 'intent_id', 'push_to_google'];
 
     public function approval_leads()
     {
