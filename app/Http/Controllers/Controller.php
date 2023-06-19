@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\View;
 
 /**
  * @SWG\Swagger(
@@ -32,6 +33,16 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function __construct()
+    {
+        // Bind the variable to the layout view
+        View::composer('layouts.app', function ($view) {
+            $laravelLogController = new LaravelLogController();
+
+            $view->with('liveLaravelLogs', $laravelLogController->liveLogsSummary());
+        });
+    }
 
     public function generate_erp_response($key, $store_website_id, $default = '', $lang_code = null)
     {
