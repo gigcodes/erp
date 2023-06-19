@@ -613,8 +613,9 @@ padding: 3px 2px;
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="/js/simulator.js"></script>
 <script type="text/javascript">
+    var csrftoken = "{{ csrf_token() }}";
     $(document).on('click','.speech-button',function(e){
         const speechInput = document.querySelector('#message_'+ $(this).attr("data-id"));
         var recognition = new webkitSpeechRecognition()
@@ -902,27 +903,6 @@ padding: 3px 2px;
         });
     });
 
-    function changeSimulatorSetting(object, objectId, simulator) {
-        $.ajax({
-            type: "POST",
-            url: "/chatbot/messages/update-simulator-setting",
-            data: {
-                '_token': "{{ csrf_token() }}",
-                'object' : object,
-                'objectId' : objectId,
-                'auto_simulator': simulator
-            },
-            dataType : "json"
-        }).done(function(response) {
-            if(response.code == 200) {
-                toastr['success'](response.messages);
-            }else{
-                toastr['error'](response.messages);
-            }
-        }).fail(function(response) {
-            toastr['error']('Could not update simulator status');
-        });
-    }
 
     $(document).on("click", ".show_message_list", function () {
         $('#chat_bot_reply_list').modal('show');

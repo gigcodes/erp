@@ -17,6 +17,7 @@ use App\Learning;
 use App\Library\Google\DialogFlow\DialogFlowService;
 use App\Models\DialogflowEntityType;
 use App\Models\GoogleDialogAccount;
+use App\Models\GoogleResponseId;
 use App\Models\TmpReplay;
 use App\Old;
 use App\Order;
@@ -471,10 +472,10 @@ class MessageController extends Controller
         $object = $request->has('object') ? $request->get('object') : $object;
         $objectId = $request->has('object_id') ? $request->get('object_id') : $objectId;
         if ($object == 'customer') {
-            $object = Customer::find($objectId);
-            $google_accounts = GoogleDialogAccount::where('site_id', $object->store_website_id)->first();
+            $customer = Customer::find($objectId);
+            $google_accounts = GoogleDialogAccount::where('site_id', $customer->store_website_id)->first();
         } else {
-            $google_accounts = GoogleDialogAccount::where('id', 1)->first();
+            $google_accounts = GoogleDialogAccount::where('default_selected', 1)->first();
         }
         $requestMessage = \Request::create('/', 'GET', [
             'limit' => 1,
@@ -485,55 +486,63 @@ class MessageController extends Controller
             'page' => $request->page_no
         ]);
         $message = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
-        if (!isset($message[0])) {
-            return response()->json(['code' => 200, 'data' => null, 'messages' => 'Message completed']);
-        }
 
-        if ($message[0]['inout'] == 'out') {
-            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
-                ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
-                ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
-                ->where('chatbot_questions.google_account_id', $google_accounts['id'])
-                ->where('chatbot_questions.keyword_or_question', 'intent')
-                ->where('chatbot_questions.value', 'like', '%' . $message[0]['message'] . '%')->orWhere('cqe.question', 'like', '%' . $message[0]['message'] . '%')
-                ->groupBy('chatbot_questions.id')
-                ->orderBy('chatbot_questions.id', 'desc')
-                ->first();
-        } else {
-            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_questions_reply as cr', 'cr.chatbot_question_id', 'chatbot_questions.id')
-                ->select('chatbot_questions.*', \DB::raw('group_concat(cr.suggested_reply) as `suggested_replies`'))
-                ->where('chatbot_questions.google_account_id', $google_accounts['id'])
-                ->where('chatbot_questions.keyword_or_question', 'intent')
-                ->where('cr.suggested_reply', 'like', '%' . $message[0]['message'] . '%')
-                ->groupBy('chatbot_questions.id')
-                ->orderBy('chatbot_questions.id', 'desc')
-                ->first();
-        }
+//        _p($message);die();
+//        if (!isset($message[0])) {
+//            return response()->json(['code' => 200, 'data' => null, 'messages' => 'Message completed']);
+//        }
+        $intent = '';
+        $type = '';
+        $chatQuestions = [];
 
-        if ($chatQuestions) {
-            $intent = $chatQuestions['value'];
-            $type = 'Database';
-        } else {
-            $dialogFlowService = new DialogFlowService($google_accounts);
-            $response = $dialogFlowService->detectIntent(null, $message[0]['message']);
-            $intent = $response->getIntent()->getDisplayName();
-            $intentName = $response->getIntent()->getName();
-            $intentName = explode('/', $intentName);
-            $intentName = $intentName[count($intentName) - 1];
-            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
-                ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
-                ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
-                ->where('chatbot_questions.google_account_id', $google_accounts['id'])
-                ->where('chatbot_questions.keyword_or_question', 'intent')
-                ->where('chatbot_questions.google_response_id', $intentName)
-                ->groupBy('chatbot_questions.id')
-                ->orderBy('chatbot_questions.id', 'desc')
-                ->first();
-            if (!$chatQuestions) {
-                $chatQuestions = ['value' => $intent, 'id' => null];
+        if (!empty($message)) {
+            if ($message[0]['inout'] == 'out') {
+                $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                    ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
+                    ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                    ->where('chatbot_questions.google_account_id', $google_accounts['id'])
+                    ->where('chatbot_questions.keyword_or_question', 'intent')
+                    ->where('chatbot_questions.value', 'like', '%' . $message[0]['message'] . '%')->orWhere('cqe.question', 'like', '%' . $message[0]['message'] . '%')
+                    ->groupBy('chatbot_questions.id')
+                    ->orderBy('chatbot_questions.id', 'desc')
+                    ->first();
+            } else {
+                $chatQuestions = ChatbotQuestion::leftJoin('chatbot_questions_reply as cr', 'cr.chatbot_question_id', 'chatbot_questions.id')
+                    ->select('chatbot_questions.*', \DB::raw('group_concat(cr.suggested_reply) as `suggested_replies`'))
+                    ->where('chatbot_questions.google_account_id', $google_accounts['id'])
+                    ->where('chatbot_questions.keyword_or_question', 'intent')
+                    ->where('cr.suggested_reply', 'like', '%' . $message[0]['message'] . '%')
+                    ->groupBy('chatbot_questions.id')
+                    ->orderBy('chatbot_questions.id', 'desc')
+                    ->first();
             }
-            $type = 'google';
+
+            if ($chatQuestions) {
+                $intent = $chatQuestions['value'];
+                $type = 'Database';
+            } else {
+                $dialogFlowService = new DialogFlowService($google_accounts);
+                $response = $dialogFlowService->detectIntent(null, $message[0]['message']);
+                $intent = $response->getIntent()->getDisplayName();
+                $intentName = $response->getIntent()->getName();
+                $intentName = explode('/', $intentName);
+                $intentName = $intentName[count($intentName) - 1];
+                $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                    ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
+                    ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                    ->where('chatbot_questions.google_account_id', $google_accounts['id'])
+                    ->where('chatbot_questions.keyword_or_question', 'intent')
+                    ->where('chatbot_questions.google_response_id', $intentName)
+                    ->groupBy('chatbot_questions.id')
+                    ->orderBy('chatbot_questions.id', 'desc')
+                    ->first();
+                if (!$chatQuestions) {
+                    $chatQuestions = ['value' => $intent, 'id' => null];
+                }
+                $type = 'google';
+            }
         }
+
 
         if ($request->request_type == 'ajax') {
             return response()->json(['code' => 200, 'data' => ['message' => $message[0], 'chatQuestion' => $chatQuestions, 'type' => $type, 'intent' => $intent], 'messages' => 'Get message successfully']);

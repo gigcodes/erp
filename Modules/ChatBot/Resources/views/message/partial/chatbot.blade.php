@@ -13,7 +13,9 @@
             <div class="col-md-10 mx-auto">
                 <div class="chat-bot">
                     <div class="chat-bot-body">
-                        @if($message[0]['inout'] == 'out')
+                        @if(empty($message))
+                            <p class="text-center fw-bold">No Records Found</p>
+                        @elseif($message[0]['inout'] == 'out')
                             <div id="chat_message_{{ $message[0]['id'] }}" class="mb-3">
                                 <div class="right-chat chat-message">
                                     <div class="d-flex align-items-end text-area">

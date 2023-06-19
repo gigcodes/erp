@@ -44,7 +44,7 @@ class ChatMessageObserver
                 if ($chatMessage->customer_id > 0) {
                     $googleAccount = GoogleDialogAccount::where('site_id', $object->store_website_id)->first();
                 } else {
-                    $googleAccount = GoogleDialogAccount::where('id', 1)->first();
+                    $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
                 }
                 $isOut = ($chatMessage->number != $object->phone) ? true : false;
                 if ($object->is_auto_simulator == 1 && !$isOut) {
