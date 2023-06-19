@@ -213,7 +213,17 @@ var page = {
 
     $(document).on("click", ".delete-pem-user", function (e) {
       e.preventDefault();
+      if (!confirm("Are you sure you want to remove access for this user?")) {
+        return false;
+      }
       page.deletePemUser($(this));
+    });
+    $(document).on("click", ".disable-pem-user", function (e) {
+      e.preventDefault();
+      if (!confirm("Are you sure you want to disable access for this user?")) {
+        return false;
+      }
+      page.disablePemUser($(this));
     });
   },
   validationRule: function (response) {
@@ -1108,11 +1118,33 @@ var page = {
   afterDeletePemUser: function (response, ele) {
     if (response.code == 200) {
       toastr["success"](response.message);
-      ele.closest("tr").remove();
+      
     } else {
       toastr["error"](response.message);
-      ele.closest("tr").remove();
+      
     }
+    location.reload();
+  },
+  disablePemUser: function (ele) {
+    var _z = {
+      url:
+        this.config.baseUrl +
+        "/user-management/disable-pem-file/" +
+        ele.data("id"),
+      method: "post",
+    };
+    this.sendAjax(_z, "afterDisablePemUser", ele);
+  },
+
+  afterDisablePemUser: function (response, ele) {
+    if (response.code == 200) {
+      toastr["success"](response.message);
+      
+    } else {
+      toastr["error"](response.message);
+      
+    }
+    location.reload();
   },
 };
 
@@ -1364,6 +1396,41 @@ $(document).on("click", ".show_hide_description", function () {
   }
 });
 
+/**
+ * Generate Pem File
+ */
+$(document).on("click", ".submit-generete-file-btn", function (e) {
+  e.preventDefault();
+  var thiss = $(this);
+  jQuery.ajax({
+    headers: {
+      "X-CSRF-TOKEN": jQuery('meta[name="csrf-token"]').attr("content"),
+    },
+    url: "/user-management/user-generate-file-store",
+    type: "POST",
+    data: thiss.closest("form").serialize(),
+    dataType: "json",
+    beforeSend: function () {
+      jQuery("#loading-image").show();
+    },
+    success: function (response) {
+      if (response.code == 200) {
+        toastr["success"](response.message, "success");
+        $(".common-modal").modal("hide");
+      } else {
+        toastr["error"](response.message, "error");
+      }
+      jQuery("#loading-image").hide();
+    },
+    error: function (res) {
+      if (res.responseJSON != undefined) {
+        toastr["error"](res.responseJSON.message);
+      }
+      jQuery("#loading-image").hide();
+    },
+  });
+  
+});
 /**
  * set due date
  */
