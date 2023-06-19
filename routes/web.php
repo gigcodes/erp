@@ -645,6 +645,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('list-laravel-logs', [LaravelLogController::class, 'index'])->name('logging.laravel.log');
     Route::get('live-laravel-logs', [LaravelLogController::class, 'liveLogs'])->name('logging.live.logs');
+    Route::get('live-laravel-logs-summary', [LaravelLogController::class, 'liveLogsSummary'])->name('logging.live.logs-summary');
 
     Route::get('live-laravel-logs-single', [LaravelLogController::class, 'liveLogsSingle']);
 

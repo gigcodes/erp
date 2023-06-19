@@ -1,7 +1,4 @@
 <!-- Modal -->
-@php
- $liveLaravelLogsSummary = (new \App\Http\Controllers\LaravelLogController)->liveLogsSummary();
-@endphp
 <div id="live-laravel-logs-summary-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -19,33 +16,8 @@
                             <th width="40%">Log</th>
                         </tr>
                     </thead>
-                    <tbody class="show-search-password-list">
-                        @if (isset($liveLaravelLogsSummary['logs']))
-                        @foreach ($liveLaravelLogsSummary['logs'] as $log)
-                            @php
-                                $str = $log;
-                                $temp1 = explode(".",$str);
-                                $temp2 = explode(" ",$temp1[0]);
-                                $type = $temp2[2];
-
-                                $file_name = explode('===',$log);
-                                $log = str_replace("===".$file_name[1],"",$log);
-                            @endphp
+                    <tbody class="show-search-password-list" id="live-laravel-logs-summary-modal-html">
                         
-                            <tr>
-                                <td>{{ $file_name[1] }}</td>
-                                <td>{{ $type }}</td>
-                                <td class="expand-row table-hover-cell">
-                                    <span class="td-mini-container">
-                                    {{ strlen( $log ) > 110 ? substr( $log , 0, 110).'...' :  $log }}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                    {{ $log }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @endif
                     </tbody>
                 </table> 
            </div>

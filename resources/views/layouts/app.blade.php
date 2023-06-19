@@ -7195,7 +7195,21 @@ if (!\Auth::guest()) {
     });
 
     $(document).on('click','#live-laravel-logs',function(e){
-        $('#live-laravel-logs-summary-modal').modal('show');
+        $.ajax({
+            type: "GET",
+            url: "{{route('logging.live.logs-summary')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#live-laravel-logs-summary-modal-html').empty().html(response.html);
+            $('#live-laravel-logs-summary-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
     });
 
     $(document).on('click','#create_event',function(e){

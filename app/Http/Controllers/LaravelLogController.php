@@ -377,7 +377,13 @@ class LaravelLogController extends Controller
         $errors = array_unique($final);
         $logs = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
 
-        return ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes];
+        $html = view('partials.modals.live-laravel-logs-summary-ajax')
+            ->with('logs', $logs)
+            ->with('filename', str_replace('/', '', $filename))
+            ->with('errSelection', $allErrorTypes)
+            ->render();
+
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render']);
     }
 
     public function LogKeyword(Request $request)
