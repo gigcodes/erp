@@ -405,6 +405,67 @@ class MagentoModuleController extends Controller
         }
         return response()->json(['code' => 200, 'data' => $histories]);
     }
+    public function runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd){
+        $updated_by=auth()->user()->id;
+        $cmd="bin/magento cache:flush";
+        \Log::info("Start cache:flush");
+
+        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        $parameters = [
+            'command' => $cmd, 
+            'cwd' => $cwd,
+            'is_sudo' => true, 
+            'timeout_sec' => 300, 
+        ];
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+
+        $headers = [];
+        $headers[] = 'Authorization: Basic '.$key;
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $result = curl_exec($ch);
+        
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        \Log::info("API result: ".$result);
+        \Log::info("API Error Number: ".curl_errno($ch));
+        if (curl_errno($ch)) {
+            \Log::info("API Error: ".curl_error($ch));
+            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => curl_error($ch)]);
+        }
+        $response = json_decode($result);
+
+        curl_close($ch);
+                
+        if(isset($response->errors)){
+            $message='';
+            foreach($response->errors as $error){
+                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+            }
+            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
+            \Log::info($message);
+        }else{
+            if(isset($response->data) && isset($response->data->jid) ){
+                $job_id=$response->data->jid;
+                $status="Success";
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' => 'Success', 'job_id' => $job_id]);
+                \Log::info("Job Id:".$job_id);
+            }else{
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
+                    
+                \Log::info("Job Id not found in response!");
+            }
+        }
+
+        \Log::info("End cache:flush");
+        return true;
+    }
     public function magentoModuleUpdateStatus(Request $request){
 
         $store_website_id=$request->store_website_id;
@@ -498,6 +559,7 @@ class MagentoModuleController extends Controller
                     $magento_modules->status=$status;
                     $magento_modules->save();
                     \Log::info("Job Id:".$job_id);
+                    $this->runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd);
                     return response()->json(['code' => 200, 'data' => $magento_modules,'message'=>'Magento module status change successfully']);
                 }else{
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
