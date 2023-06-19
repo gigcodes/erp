@@ -1795,18 +1795,33 @@ class UserManagementController extends Controller
         return response()->json(['code' => 200, 'data' => $shell_list]);
     }
 
-    public function userGenerateStorefile(Request $request)
-    {
-        $server = $request->get('for_server');
-        $user = \App\User::find($request->get('userid', 0));
-        if (! $user) {
-            return false;
+    public function downloadPemFile(Request $request,$id){
+        $pemHistory = UserPemfileHistory::find($id);
+        if (!$pemHistory) {
+            return redirect()->back()->with('error', 'PEM File data not found!');
+        }
+            
+        $server = AssetsManager::where('id',$pemHistory->server_id)->first();
+        if (!$server) {
+            return redirect()->back()->with('error', 'Server data not found!');
+        }
+        $server=$server->ip;
+        $username=$pemHistory->username;
+        $public_key=$pemHistory->public_key;
+        if($public_key==''){
+            return redirect()->back()->with('error', 'Public key is not found!');
+        }
+        
+        $access_type=$pemHistory->access_type;
+        $var_t_sftp=true;
+        $var_b_ssh=false;
+        if($access_type=="ssh"){
+            $var_t_sftp=false;
+            $var_b_ssh=true;
         }
 
-        $username = str_replace(' ', '_', $user->name);
-
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server . ' 2>&1';
-
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k '. $public_key .' 2>&1';
+        \Log::info("Download Pem Files:".$id);
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
@@ -1826,15 +1841,7 @@ class UserManagementController extends Controller
 
         $content = implode("\n", $string);
         $content = $content . "\n";
-        $nameF = $server . '.pem';
-
-        UserPemfileHistory::create([
-            'user_id' => $request->userid,
-            'server_name' => $server,
-            'username' => $username,
-            'action' => 'add',
-            'created_by' => $request->user()->id,
-        ]);
+        $nameF = $pemHistory->server_name . '.pem';
 
         //header download
         header('Content-Disposition: attachment; filename="' . $nameF . '"');
@@ -1846,27 +1853,105 @@ class UserManagementController extends Controller
 
         echo $content;
         exit;
+        
+        
+    }
+    public function userGenerateStorefile(Request $request)
+    {
+
+        $server_id = $request->get('for_server');
+        $user = \App\User::find($request->get('userid', 0));
+        if (! $user) {
+           return response()->json(['code' => 500, 'message' => "User data Not found!"]);
+        }
+        $public_key = $request->public_key;
+        if ($public_key=='') {
+            return response()->json(['code' => 500, 'message' => "Please enter public key"]);
+        }
+        $access_type = $request->get('access_type', 'sftp');
+        $server = AssetsManager::where('id',$server_id)->first();
+        if(!$server){
+            return response()->json(['code' => 500, 'message' => "Server data Not found!"]);
+        }
+        
+        $username = str_replace(' ', '_', $user->name);
+
+        UserPemfileHistory::create([
+            'user_id' => $request->userid,
+            'server_id' => $server->id,
+            'server_name' => $server->name,
+            'username' => $username,
+            'public_key' => $public_key,
+            'access_type' => $access_type,
+            'action' => 'add',
+            'created_by' => $request->user()->id,
+        ]);
+        return response()->json(['code' => 200, 'message' => "PEM file generate sucessfully!"]);
+        
     }
 
     public function userPemfileHistoryListing(Request $request)
     {
-        $history = UserPemfileHistory::where('user_id', $request->userid)->latest()->get();
+        $history = UserPemfileHistory::with('user')->withTrashed()->where('user_id', $request->userid)->latest()->get();
 
         return response()->json(['code' => 200, 'data' => $history]);
+    }
+
+    public function disablePemFile(Request $request, $id)
+    {
+        $pemHistory = UserPemfileHistory::find($id);
+        if ($pemHistory) {
+
+            $server = AssetsManager::where('id',$pemHistory->server_id)->first();
+            if (!$server) {
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Server data not found!']);
+            }
+            $access_type=$pemHistory->access_type;
+            $var_t_sftp=true;
+            $var_b_ssh=false;
+            if($access_type=="ssh"){
+                $var_t_sftp=false;
+                $var_b_ssh=true;
+            }
+
+            \Log::info("Disable Pem Access:".$id);
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f disable -s ' . $server->id . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  2>&1';
+
+            $allOutput = [];
+            $allOutput[] = $cmd;
+            $result = exec($cmd, $allOutput);
+            \Log::info(print_r($allOutput, true));
+            $pemHistory->action='disable';
+            $pemHistory->user_id=auth()->user()->id;
+            $pemHistory->save();
+            
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access disable successfully']);
+        } else {
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'No request found']);
+        }
     }
 
     public function deletePemFile(Request $request, $id)
     {
         $pemHistory = UserPemfileHistory::find($id);
         if ($pemHistory) {
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f delete -s ' . $pemHistory->server_name . ' 2>&1';
 
+            $server = AssetsManager::where('id',$pemHistory->server_id)->first();
+            if (!$server) {
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Server data not found!']);
+            }
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f delete -s ' . $server->id . ' 2>&1';
+            \Log::info("Delete Pem Access:".$id);
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
+            \Log::info(print_r($allOutput, true));
+            $pemHistory->action='delete';
+            $pemHistory->user_id=auth()->user()->id;
+            $pemHistory->save();
             $pemHistory->delete();
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem remove file request submitted successfully']);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access remove successfully']);
         } else {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'No request found']);
         }

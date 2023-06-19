@@ -216,20 +216,36 @@
 						<div class="row">
 					  		<div class="col-md-12">
 					    		<div class="form-group">
-
-					    				<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
+									<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
 
 						         	<label for="meta_title">Server List</label>
 						         	<select class="form-control select2" name="for_server">
-						         		<option value="Erp-Server">Erp-Server</option>
+						         		<option value="">Select Server</option>
 						         		<?php if (isset($servers)) { ?>
                                             <?php foreach ($servers as $server) { ?>
-						         		        <option value="<?php echo $server->name; ?>"><?php echo $server->name; ?></option>
+						         		        <option value="<?php echo $server->id; ?>"><?php echo $server->name; ?></option>
 						         		    <?php } ?>
                                         <?php } ?>
 
 						         	</select>
-						         </div>
+						        </div>
+								<div class="form-group">
+									<label for="public_key">Public Key</label>
+									<textarea class="form-control" name="public_key"></textarea>
+						        </div>
+								<div class="form-group">
+									<label for="access_type">Access Type</label>
+									<div>
+									<div class="form-check form-check-inline">
+											<input class="form-check-input" type="radio" name="access_type" id="access_type_sftp" checked="checked" value="sftp">
+											<label class="form-check-label" for="access_type_sftp">SFTP</label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="radio" name="access_type" id="access_type_ssh" value="ssh">
+											<label class="form-check-label" for="access_type_ssh">SSH</label>
+										</div>
+									</div>
+								</div>
 					        </div> 
 					        <div class="col-md-12">
 						    	<div class="form-group">
@@ -247,22 +263,23 @@
 <script type="text/x-jsrender" id="pem-file-user-history-lising">
 	<div class="modal-content">
 	   <div class="modal-header">
-	      <h5 class="modal-title">User Listing</h5>
+	      <h5 class="modal-title">User Access Listing</h5>
 	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	      	<span aria-hidden="true">&times;</span>
 	      </button>
 	   </div>
 	   <div class="modal-body">
-			<div class="row mt-5">		
+			<div class="row">		
 				<div class="col-lg-12">
 					<table class="table table-bordered">
 					    <thead>
 					      <tr>
+					      	<th>Id</th>
 					      	<th>User Id</th>
 					        <th>Server</th>
 					        <th>Username</th>
 					        <th>Event</th>
-					        <th>Created Date</th>
+					        <th>Date</th>
 					        <th>Action</th>
 					      </tr>
 					    </thead>
@@ -273,8 +290,13 @@
 						      	<td>
 						      		<input type="hidden" class="pem_history_id"  value="{{:prop.id}}"/>
 						      		
-						      		{{:prop.user_id}}
+						      		{{:prop.id}}
 
+						      	</td>
+						      	<td>
+								 	{{if prop.user}}
+						      		{{:prop.user.name}}
+									{{/if}}
 						      	</td>
 						        <td>
 						        	{{:prop.server_name}}
@@ -289,10 +311,18 @@
 						        </td>
 
 						        <td>
-						        	{{:prop.created_at}}
+						        	{{:prop.updated_at}}
 						        </td>
 
-						        <td><button title="Delete user" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button></td>
+						        <td>
+									{{if prop.action=='add'}}
+									<a title="Download" href="/user-management/download-pem-file/{{:prop.id}}/" class="btn btn-image download-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-download"></i></a>
+									<button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-ban"></i></button>
+									{{/if}}
+									{{if prop.action=='add' || prop.action=='disable'}}
+									<button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button>
+									{{/if}}
+								</td>
 						      </tr>
 						    {{/props}}  
 					    </tbody>
