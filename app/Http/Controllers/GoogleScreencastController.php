@@ -51,13 +51,22 @@ class GoogleScreencastController extends Controller
             });
         }
         if ($keyword = request('task_id')) {
-            $data = $data->where(function ($q) use ($keyword) {
-                $q->where('developer_task_id', $keyword);
-            });
+            if (str_contains($keyword, 'TASK-')) {
+                $keyword = trim($keyword, 'TASK-');
+                $data = $data->where(function ($q) use ($keyword) {
+                    $q->where('belongable_id', $keyword);
+                });
+            } else {
+                $keyword = trim($keyword, 'DEV-');
+                $data = $data->where(function ($q) use ($keyword) {
+                    $q->where('developer_task_id', $keyword);
+                });
+            }
         }
-        if ($keyword = request('user_gmail')) {
+        
+        if ($keyword = request('user_id')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->whereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.write)");
+                $q->where('user_id', $keyword);
             });
         }
         if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {

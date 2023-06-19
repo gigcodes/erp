@@ -44,18 +44,23 @@
                                     </div>
                                     <div class="form-group m-1">
                                         <select name="task_id" id="search_task" class="form-control" placeholder="Search Dev Task">
-                                        <option value="">Search Dev Task</option>
+                                        <option value="">Search Tasks</option>
                                             @foreach ($tasks as $key => $task )
-                                                <option value="{{$task->id}}" @if(request()->get('task_id')==$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
+                                                <option value="DEV-{{$task->id}}" @if(request()->get('task_id') == "DEV-".$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
                                             @endforeach
+                                            @if (isset($generalTask) && !empty($generalTask))
+                                            @foreach($generalTask as $task)
+                                                <option value="TASK-{{$task->id}}" @if(request()->get('task_id') == "TASK-".$task->id) selected @endif class="form-control">#TASK-{{$task->id}}</option>
+                                            @endforeach
+                                        @endif
                                         </select>
                                     </div>
                                     @if(Auth::user()->isAdmin())
                                     <div class="form-group m-1">
-                                        <select name="user_gmail" id="search_user" class="form-control" placeholder="Search User">
+                                        <select name="user_id" id="search_user" class="form-control" placeholder="Search User">
                                         <option value="">Search User</option>
                                             @foreach ($users as $key => $val )
-                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                                <option value="{{$val->id}}" @if(request()->get('user_id')==$val->id) selected @endif>{{$val->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
