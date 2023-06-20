@@ -7441,6 +7441,10 @@ if (!\Auth::guest()) {
         });
     });
 
+    function showCreatePasswordModal() {
+      $('#searchPassswordModal').modal('hide');
+    }
+
     $(document).on("click", ".permission-delete-grant", function(e) {
         e.preventDefault();
         $.ajax({
