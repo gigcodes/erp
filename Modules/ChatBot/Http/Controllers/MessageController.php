@@ -471,11 +471,25 @@ class MessageController extends Controller
     {
         $object = $request->has('object') ? $request->get('object') : $object;
         $objectId = $request->has('object_id') ? $request->get('object_id') : $objectId;
+        $objectData = [];
         if ($object == 'customer') {
             $customer = Customer::find($objectId);
-            $google_accounts = GoogleDialogAccount::where('site_id', $customer->store_website_id)->first();
+            $objectData['type'] = $object;
+            $objectData['name'] = $customer['name'];
+            $google_accounts = GoogleDialogAccount::with('storeWebsite')->where('site_id', $customer->store_website_id)->first();
+            $objectData['url'] = $google_accounts['storeWebsite']['website'];
         } else {
-            $google_accounts = GoogleDialogAccount::where('default_selected', 1)->first();
+            if($object == 'vendor'){
+                $vendor = Vendor::find($objectId);
+                $objectData['type'] = $object;
+                $objectData['name'] = $vendor['name'];
+            } elseif ($object == 'supplier') {
+                $supplier = Supplier::find($objectId);
+                $objectData['type'] = $object;
+                $objectData['name'] = $supplier['name'];
+            }
+            $google_accounts = GoogleDialogAccount::with('storeWebsite')->where('default_selected', 1)->first();
+            $objectData['url'] = $google_accounts['storeWebsite']['website'];
         }
         $requestMessage = \Request::create('/', 'GET', [
             'limit' => 1,
@@ -487,8 +501,7 @@ class MessageController extends Controller
         ]);
         $message = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
 
-//        _p($message);die();
-//        if (!isset($message[0])) {
+        //        if (!isset($message[0])) {
 //            return response()->json(['code' => 200, 'data' => null, 'messages' => 'Message completed']);
 //        }
         $intent = '';
@@ -499,7 +512,8 @@ class MessageController extends Controller
             if ($message[0]['inout'] == 'out') {
                 $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                     ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
-                    ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                    ->leftJoin('google_dialog_accounts as ga', 'ga.id', 'chatbot_questions.google_account_id')
+                    ->select('chatbot_questions.*', 'ga.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
                     ->where('chatbot_questions.google_account_id', $google_accounts['id'])
                     ->where('chatbot_questions.keyword_or_question', 'intent')
                     ->where('chatbot_questions.value', 'like', '%' . $message[0]['message'] . '%')->orWhere('cqe.question', 'like', '%' . $message[0]['message'] . '%')
@@ -508,7 +522,8 @@ class MessageController extends Controller
                     ->first();
             } else {
                 $chatQuestions = ChatbotQuestion::leftJoin('chatbot_questions_reply as cr', 'cr.chatbot_question_id', 'chatbot_questions.id')
-                    ->select('chatbot_questions.*', \DB::raw('group_concat(cr.suggested_reply) as `suggested_replies`'))
+                    ->leftJoin('google_dialog_accounts as ga', 'ga.id', 'chatbot_questions.google_account_id')
+                    ->select('chatbot_questions.*', 'ga.*',  \DB::raw('group_concat(cr.suggested_reply) as `suggested_replies`'))
                     ->where('chatbot_questions.google_account_id', $google_accounts['id'])
                     ->where('chatbot_questions.keyword_or_question', 'intent')
                     ->where('cr.suggested_reply', 'like', '%' . $message[0]['message'] . '%')
@@ -529,7 +544,8 @@ class MessageController extends Controller
                 $intentName = $intentName[count($intentName) - 1];
                 $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                     ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
-                    ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                    ->leftJoin('google_dialog_accounts as ga', 'ga.id', 'chatbot_questions.google_account_id')
+                    ->select('chatbot_questions.*', 'ga.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
                     ->where('chatbot_questions.google_account_id', $google_accounts['id'])
                     ->where('chatbot_questions.keyword_or_question', 'intent')
                     ->where('chatbot_questions.google_response_id', $intentName)
@@ -548,7 +564,7 @@ class MessageController extends Controller
             return response()->json(['code' => 200, 'data' => ['message' => $message[0], 'chatQuestion' => $chatQuestions, 'type' => $type, 'intent' => $intent], 'messages' => 'Get message successfully']);
         }
         $allIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->pluck('value', 'id')->toArray();
-        return view('chatbot::message.partial.chatbot', compact('message', 'intent', 'type', 'chatQuestions', 'allIntents'));
+        return view('chatbot::message.partial.chatbot', compact('message', 'intent', 'type', 'chatQuestions', 'allIntents', 'objectData'));
     }
 
     public function storeIntent(Request $request)

@@ -76,3 +76,11 @@
     padding: 2px 8px;
     margin-top: -15px;
 }
+
+.intent-details {
+    width: fit-content;
+}
+
+.get-type {
+    white-space: nowrap;
+}

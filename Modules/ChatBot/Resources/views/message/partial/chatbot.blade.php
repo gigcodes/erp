@@ -12,6 +12,8 @@
         <div class="row mt-4">
             <div class="col-md-10 mx-auto">
                 <div class="chat-bot">
+                    <p class="text-center font-weight-bold">User Name: {{$objectData['name']}}</p>
+                    <p class="text-center font-weight-bold">Site URL: {{$objectData['url']}}</p>
                     <div class="chat-bot-body">
                         @if(empty($message))
                             <p class="text-center fw-bold">No Records Found</p>
@@ -36,16 +38,20 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="d-flex intent-details align-items-center justify-content-end mb-2">
-                                    <p class="mr-2 mb-0">Intent:</p><select class="form-control">
-                                        <option>{{$chatQuestions ? $chatQuestions['value'] : ''}}</option>
-                                    </select>
-                                    <p class="mb-0 ml-3">Get Type: {{ $type }}</p>
+                                <div class="intent-details ml-auto mb-2">
+                                    <div class="d-flex align-items-center d-flex">
+                                        <p class="mr-2 mb-0">Intent:</p><select class="form-control">
+                                            <option>{{$chatQuestions ? $chatQuestions['value'] : ''}}</option>
+                                        </select>
+                                        <p class="mb-0 ml-3 get-type">Get Type: {{ $type }}</p>
+                                    </div>
+                                    <p class="mb-0">Email: {{ $chatQuestions['email'] }}</p>
+                                    <p class="mb-0">Google Account: {{ $chatQuestions['project_id'] }}</p>
                                 </div>
                             </div>
                         @else
                             <div id="chat_message_{{ $message[0]['id'] }}" class="mb-3">
-                                <div class="right-chat chat-message">
+                                <div class="left-chat chat-message">
                                     <div class="d-flex align-items-end text-area">
                                         <textarea class="form-control" id="text_{{$message[0]['id']}}"
                                                   hidden>{{ $message[0]['message'] }}</textarea>
@@ -64,11 +70,15 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="d-flex intent-details align-items-center justify-content-end mb-2">
-                                    <p class="mr-2 mb-0">Intent:</p><select class="form-control">
-                                        <option>{{$chatQuestions ? $chatQuestions['value'] : ''}}</option>
-                                    </select>
-                                    <p class="mb-0 ml-3">Get Type: {{ $type }}</p>
+                                <div class="intent-details mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <p class="mr-2 mb-0">Intent:</p><select class="form-control">
+                                            <option>{{$chatQuestions ? $chatQuestions['value'] : ''}}</option>
+                                        </select>
+                                        <p class="mb-0 ml-3 get-type">Get Type: {{ $type }}</p>
+                                    </div>
+                                    <p class="mb-0">Email: {{ $chatQuestions['email'] }}</p>
+                                    <p class="mb-0">Google Account: {{ $chatQuestions['project_id'] }}</p>
                                 </div>
                             </div>
                         @endif
@@ -180,11 +190,16 @@
                         }
 
                         getStr += `</div>
-                            <div class="d-flex intent-details align-items-center justify-content-end mb-2">
-                                <p class="mr-2 mb-0">Intent:</p><select class="form-control">
-                                <option>${response.data.chatQuestion?.value}</option>
-                            </select>
-                                <p class="mb-0 ml-3">Get Type: ${response.data.type}</p>
+                            <div class="intent-details ml-auto mb-2">
+                                <div class="d-flex align-items-center">
+                                    <p class="mr-2 mb-0">Intent:</p>
+                                    <select class="form-control">
+                                        <option>${response.data.chatQuestion?.value}</option>
+                                    </select>
+                                    <p class="mb-0 ml-3 get-type">Get Type: ${response.data.type}</p>
+                                </div>
+                                    <p class="mb-0">Email: ${response.data.chatQuestion?.email}</p>
+                                    <p class="mb-0">Google Account: ${response.data.chatQuestion?.project_id}</p>
                             </div>
                         </div>`;
                     } else {
@@ -208,13 +223,18 @@
                         }
 
                         getStr += `</div>
-                            <div class="d-flex intent-details align-items-center mb-2">
-                                <p class="mr-2 mb-0">Intent:</p><select class="form-control" id="intent_selection_${response.data.message.id}"> <option value="">Please select intent</option>`;
-                        Object.keys(allIntents).forEach(item => {
-                            getStr += `<option ${item == response.data.chatQuestion?.id ? 'selected' : ''} value="${item}">${allIntents[item]}</option>`
-                        });
-                        getStr += `</select>
-                                <p class="mb-0 ml-3">Get Type: ${response.data.type}</p>
+                            <div class="intent-details mb-2">
+                                <div class="d-flex  align-items-center">
+                                    <p class="mr-2 mb-0">Intent:</p>
+                                    <select class="form-control" id="intent_selection_${response.data.message.id}"> <option value="">Please select intent</option>`;
+                                        Object.keys(allIntents).forEach(item => {
+                                            getStr += `<option ${item == response.data.chatQuestion?.id ? 'selected' : ''} value="${item}">${allIntents[item]}</option>`
+                                        });
+                                        getStr += `</select>
+                                    <p class="mb-0 ml-3 get-type">Get Type: ${response.data.type}</p>
+                                </div>
+                                    <p class="mb-0">Email: ${response.data.chatQuestion?.email}</p>
+                                    <p class="mb-0">Google Account: ${response.data.chatQuestion?.project_id}</p>
                             </div>
                         </div>`;
                     }
