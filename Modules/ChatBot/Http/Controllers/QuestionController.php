@@ -1174,7 +1174,8 @@ class QuestionController extends Controller
                 $chatRply->chatbot_question_id = $question->id;
                 $chatRply->save();
             }
-            return response()->json(['code' => 200, 'data' => $response->getFulfillmentText()]);
+            $suggested_reply = $dialogFlowService->purifyResponse($response->getFulfillmentText());
+            return response()->json(['code' => 200, 'data' => $suggested_reply]);
         } catch (\Exception $e) {
             return response()->json(['code' => 400, 'data' => $e->getMessage()]);
         }

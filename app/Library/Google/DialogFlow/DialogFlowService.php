@@ -250,7 +250,7 @@ class DialogFlowService
     {
         $variables = [];
         foreach (self::VARIABLES as $VARIABLE) {
-            if (str_contains($text, "#{$VARIABLE}")) {
+            if (str_contains($text, "#{" . $VARIABLE. "}")) {
                 $variables[] = $VARIABLE;
             }
         }
