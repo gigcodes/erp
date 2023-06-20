@@ -218,6 +218,7 @@ Route::group([
         Route::post('change-status', [WebsiteController::class, 'changeStatus'])->name('store-website.websites.changeStatus');
         Route::post('change-price-ovveride', [WebsiteController::class, 'changePriceOvveride'])->name('store-website.websites.changePriceOvveride');
         Route::post('copy-websites', [WebsiteController::class, 'copyWebsites'])->name('store-website.websites.copyWebsites');
+        Route::get('/push-logs/{id}', [WebsiteController::class, 'pushLogs'])->name('store-website.websites.push-logs');
         Route::get('/{id}/edit', [WebsiteController::class, 'edit'])->name('store-website.websites.edit');
         Route::get('/{id}/delete', [WebsiteController::class, 'delete'])->name('store-website.websites.delete');
         Route::get('/{id}/push', [WebsiteController::class, 'push'])->name('store-website.websites.push');

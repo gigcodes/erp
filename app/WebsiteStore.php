@@ -50,4 +50,12 @@ class WebsiteStore extends Model
     {
         return $this->hasMany(\App\WebsiteStoreView::class);
     }
+
+    /**
+     * Get all of the websiteStore's push logs.
+     */
+    public function websitePushLogs()
+    {
+        return $this->morphMany(WebsitePushLog::class, 'websitepushloggable');
+    }
 }

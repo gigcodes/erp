@@ -8,6 +8,7 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\WebsitePushLog;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteController extends Controller
@@ -64,6 +65,17 @@ class WebsiteController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => $websites->total(), 'pagination' => (string) $websites->render()]);
+    }
+
+    public function pushLogs($id)
+    {
+        $websitePushLogs = WebsitePushLog::where('websitepushloggable_type', \App\Website::class)
+            ->where('websitepushloggable_id', $id)
+            ->paginate();
+
+        $items = $websitePushLogs->items();
+
+        return response()->json(['code' => 200, 'data' => $items, 'total' => $websitePushLogs->total(), 'pagination' => (string) $websitePushLogs->render()]);
     }
 
     public function store(Request $request)

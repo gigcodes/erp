@@ -271,6 +271,7 @@
 
 @include("storewebsite::website.templates.list-template")
 @include("storewebsite::website.templates.create-website-template")
+@include("storewebsite::website.templates.website-push-logs-template")
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>

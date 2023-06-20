@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\WebsitePushLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -53,6 +54,13 @@ class PushWebsiteToMagento implements ShouldQueue
 
                 if (! empty($id) && is_numeric($id)) {
                     \Log::channel('productUpdates')->info('Website pushed with id : ' . $id);
+
+                    $websitePushLog = new WebsitePushLog();
+                    $websitePushLog->type = "website";
+                    $websitePushLog->name = $website->name;
+                    $websitePushLog->message = "Website {$website->name} pushed successfully";
+                    $website->websitePushLogs()->save($websitePushLog);
+
                     $website->platform_id = $id;
 
                     if ($website->save()) {
@@ -71,6 +79,12 @@ class PushWebsiteToMagento implements ShouldQueue
                                 if (! empty($id) && is_numeric($id)) {
                                     \Log::channel('productUpdates')->info('Website Store pushed =>' . $id);
 
+                                    $websiteStorePushLog = new WebsitePushLog();
+                                    $websiteStorePushLog->type = "store";
+                                    $websiteStorePushLog->name = $store->name;
+                                    $websiteStorePushLog->message = "Website Store {$store->name} pushed successfully";
+                                    $store->websitePushLogs()->save($websiteStorePushLog);
+
                                     $store->platform_id = $id;
                                     if ($store->save()) {
                                         $storeView = $store->storeView;
@@ -88,17 +102,44 @@ class PushWebsiteToMagento implements ShouldQueue
 
                                                 if (! empty($id) && is_numeric($id)) {
                                                     \Log::channel('productUpdates')->info('Website Store view pushed =>' . $id);
+                                                    
+                                                    $websiteStoreViewPushLog = new WebsitePushLog();
+                                                    $websiteStoreViewPushLog->type = "store_view";
+                                                    $websiteStoreViewPushLog->name = $sView->name;
+                                                    $websiteStoreViewPushLog->message = "Website Store view {$sView->name} pushed successfully";
+                                                    $sView->websitePushLogs()->save($websiteStoreViewPushLog);
 
                                                     $sView->platform_id = $id;
                                                     $sView->save();
+                                                } else {
+                                                    $websiteStoreViewPushLog = new WebsitePushLog();
+                                                    $websiteStoreViewPushLog->type = "store_view";
+                                                    $websiteStoreViewPushLog->name = $sView->name;
+                                                    $websiteStoreViewPushLog->message = "Error while pushing Website Store View {$sView->name}";
+
+                                                    $sView->websitePushLogs()->save($websiteStoreViewPushLog);
                                                 }
                                             }
                                         }
                                     }
+                                } else {
+                                    $websiteStorePushLog = new WebsitePushLog();
+                                    $websiteStorePushLog->type = "store";
+                                    $websiteStorePushLog->name = $store->name;
+                                    $websiteStorePushLog->message = "Error while pushing Website Store {$store->name}";
+
+                                    $store->websitePushLogs()->save($websiteStorePushLog);
                                 }
                             }
                         }
                     }
+                } else {
+                    $websitePushLog = new WebsitePushLog();
+                    $websitePushLog->type = "website";
+                    $websitePushLog->name = $website->name;
+                    $websitePushLog->message = "Error while pushing Website {$website->name}";
+
+                    $website->websitePushLogs()->save($websitePushLog);
                 }
             }
         } catch (\Exception $e) {
