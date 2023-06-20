@@ -136,6 +136,10 @@ var page = {
       page.userProfileHistoryListing($(this).data("userid"));
     });
 
+    $(document).on("click", ".view-pem-logs", function (href) {
+      page.userPemfileHistoryLogs($(this).data("id"));
+    });
+
     $(".common-modal").on("click", ".submit-role", function () {
       page.submitRole($(this));
     });
@@ -1097,6 +1101,25 @@ var page = {
   showPemUserLiting: function (response) {
     if (response.code == 200) {
       var createWebTemplate = $.templates("#pem-file-user-history-lising");
+      var tplHtml = createWebTemplate.render(response);
+      var common = $(".common-modal");
+      common.find(".modal-dialog").html(tplHtml);
+      common.modal("show");
+    }
+  },
+  userPemfileHistoryLogs: function (userPemfileHistoryId) {
+    var _z = {
+      url:
+        this.config.baseUrl +
+        "/user-management/user-pemfile-history-logs/" +
+        userPemfileHistoryId,
+      method: "get",
+    };
+    this.sendAjax(_z, "showUserPemfileHistoryLogs");
+  },
+  showUserPemfileHistoryLogs: function (response) {
+    if (response.code == 200) {
+      var createWebTemplate = $.templates("#pem-file-user-history-logs");
       var tplHtml = createWebTemplate.render(response);
       var common = $(".common-modal");
       common.find(".modal-dialog").html(tplHtml);
