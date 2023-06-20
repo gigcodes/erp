@@ -169,8 +169,10 @@
                                         <button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"style="padding: 0px 1px;"></i></button>
                                         <?php if (Auth::user()->isAdmin()) { ?>
                                             <button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true" style="padding: 0px 1px;"></i></button>
-                                            <button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
                                         <?php } ?>
+										
+										<button title="Server Access List" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
+
                                         <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true" style="padding: 0px 1px;"><i class="fa fa comment" aria-hidden="true"></i></button>
 
                                         <button type="button" title="Flagged for Plan Task" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}" onclick="updateUserFlagForTaskPlan(this)" class="btn" style="padding: 0px 1px;">
@@ -246,6 +248,15 @@
 										</div>
 									</div>
 								</div>
+								<div class="form-group">
+									<label for="meta_title">Role</label>
+						         	<select class="form-control select2" name="user_role">
+						         		    <option value="user">User</option>
+						         		    <option value="magento">Magento User</option>
+						         		    <option value="super">Super User</option>
+						         		
+						         	</select>
+						        </div>
 					        </div> 
 					        <div class="col-md-12">
 						    	<div class="form-group">
@@ -299,7 +310,7 @@
 									{{/if}}
 						      	</td>
 						        <td>
-						        	{{:prop.server_name}}
+						        	{{:prop.server_name}} ({{:prop.server_ip}})
 						        </td>
 
 						        <td>
@@ -317,10 +328,14 @@
 						        <td>
 									{{if prop.action=='add'}}
 									<a title="Download" href="/user-management/download-pem-file/{{:prop.id}}/" class="btn btn-image download-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-download"></i></a>
+									<?php if (Auth::user()->isAdmin()) { ?>
 									<button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-ban"></i></button>
+									<?php }?>
 									{{/if}}
 									{{if prop.action=='add' || prop.action=='disable'}}
+									<?php if (Auth::user()->isAdmin()) { ?>
 									<button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button>
+									<?php }?>
 									{{/if}}
 								</td>
 						      </tr>
