@@ -135,8 +135,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #event-alerts .event-alert-badge,
-    #website_Off_status .status-alert-badge
-    #timer-alerts .etimer-alert-badge {
+    #website_Off_status .status-alert-badge,
+    #timer-alerts .timer-alert-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -155,8 +155,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     left: 60px;
     }
 
-    #timer-alerts .etimer-alert-badge {
-    left: 120px;
+    #timer-alerts .timer-alert-badge {
+    left: 130px;
     }
     .red-alert-badge {
         position: absolute;
@@ -3848,9 +3848,23 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             <li>
-                                <a title="Timer-Logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
-                                    <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
-                                    <span class="timer-alert-badge hide"></span>
+                                @php
+                                    $currentDate = Illuminate\Support\Carbon::now()->format('Y-m-d');
+                                    $logs = \App\TimeDoctor\TimeDoctorLog::query()->with(['user']);
+
+                                    if(!auth()->user()->isAdmin()) {
+                                        $logs->where('user_id', auth()->user()->id);
+                                    }
+                                    
+                                    $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->count();
+                                @endphp
+                                <a title="Time-Doctor-logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                    <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    @if($currentLogs)
+                                    <span class="timer-alert-badge"></span>
+                                    @endif
+                                </span>
                                 </a>
                             </li>
                             <li>
@@ -7267,9 +7281,9 @@ if (!\Auth::guest()) {
             if (showModal) {
                 $('#timer-alerts-modal').modal('show');
             }
-            if(response.count > 0) {
-                $('.timer-alert-badge').removeClass("hide");
-            }
+            // if(response.count > 0) {
+            //     $('.timer-alert-badge').removeClass("hide");
+            // }
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
