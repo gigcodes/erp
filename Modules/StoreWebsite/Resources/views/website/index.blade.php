@@ -28,7 +28,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-6">
+	    	<div class="col col-md-7">
 		    	<div class="row">
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 		  				<img src="/images/add.png" style="cursor: default;">
@@ -48,9 +48,12 @@
                     <button style="display: inline-block;" class="btn btn-secondary btn-copy-full-websites m-2" data-toggle="modal" data-target="#copy-websites-modal-struct">
                         Copy Websites
                     </button>
+                    <button style="display: inline-block;" class="btn btn-secondary btn-push-websites-logs m-2">
+                        Push Logs
+                    </button>
 				 </div>
 		    </div>
-		    <div class="col col-md-6">
+		    <div class="col col-md-5">
 		    	<div class="h">
 					<div class="row">
 		    			<form class="form-inline message-search-handler" method="get">
@@ -268,9 +271,52 @@
     </div>
 </div>
 
+<div id="push-websites-logs-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Push website logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="store_website_id">Websites:</label>
+                            <?php echo Form::select("website_id", $websites, request("website_id"),["class"=> "website_id form-control","placeholder" => "Select website"]) ?>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <table id="push-websites-logs-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th width="20%" style="word-break: break-all;">Name</th>
+                                    <th width="15%" style="word-break: break-all;">Type</th>
+                                    <th width="30%" style="word-break: break-all;">Message</th>
+                                    <th width="15%" style="word-break: break-all;">Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody id="push-websites-logs-table-tbody">
+                                <!-- Table rows will be dynamically populated here -->
+                            </tbody>
+                        </table>
+                        <!-- Pagination links -->
+                        <div id="push-websites-logs-table-paginationLinks">
+                            <!-- Pagination links will be dynamically populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @include("storewebsite::website.templates.list-template")
 @include("storewebsite::website.templates.create-website-template")
+@include("storewebsite::website.templates.website-push-logs-template")
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
@@ -283,5 +329,85 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+    $(document).on("change", ".website_id", function (e) { 
+        getWebsitesLogs(1, $(this).val());
+    });
+
+    $(document).on('click','.btn-push-websites-logs',function(e){
+        e.preventDefault();
+        $('#push-websites-logs-modal').modal('show');
+        getWebsitesLogs(1);
+    });
+
+    function getWebsitesLogs(page, storeWebsiteId) {
+        if (typeof storeWebsiteId != 'undefined') {
+            var url = "/store-website/websites/push-all-logs?page=" + page + "&website_id=" + storeWebsiteId
+        } else {
+            var url = "/store-website/websites/push-all-logs?page=" + page
+        }
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            var tableBody = $('#push-websites-logs-table-tbody');
+            tableBody.empty(); // Clear the table body
+            // Loop through the data and populate the table rows
+            $.each(response.data, function(index, item) {
+                var row = $('<tr>');
+                row.append($('<td>').text(item.name));
+                row.append($('<td>').text(item.type));
+                row.append($('<td>').text(item.message));
+                row.append($('<td>').text(item.created_at));
+                // Add more table data cells as needed
+
+                tableBody.append(row);
+            });
+
+            var paginationLinks = $('#push-websites-logs-table-paginationLinks');
+            paginationLinks.empty(); // Clear the pagination links
+
+            // Generate the pagination links manually
+            var links = response.links;
+            var currentPage = response.current_page;
+            var lastPage = response.last_page;
+
+            var pagination = $('<ul class="pagination"></ul>');
+
+            // Previous page link
+            if (currentPage > 1) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+            }
+
+            // Individual page links
+            for (var i = 1; i <= lastPage; i++) {
+                var activeClass = (i === currentPage) ? 'active' : '';
+                pagination.append('<li class="page-item ' + activeClass + '"><a href="#" class="page-link" data-page="' + i + '">' + i + '</a></li>');
+            }
+
+            // Next page link
+            if (currentPage < lastPage) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage + 1) + '">Next</a></li>');
+            }
+
+            paginationLinks.append(pagination);
+
+            // Handle pagination link clicks
+            paginationLinks.find('a').on('click', function(event) {
+                event.preventDefault();
+                var page = $(this).data('page');
+                getWebsitesLogs(page, storeWebsiteId);
+            });
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
 </script>
 @endsection
