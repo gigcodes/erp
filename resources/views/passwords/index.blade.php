@@ -124,7 +124,6 @@
     </div>
 
 
-    @include('partials.modals.password-create-modal')
 
     @if($passwords->isEmpty())
 
