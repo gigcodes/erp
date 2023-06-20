@@ -23,7 +23,7 @@
                                             <button type="submit" class="btn btn-secondary"> Generate password </button>
                                             {{ Form::close() }}
                                         </div>
-                                      <button type="button" class="btn btn-secondary" data-toggle="modal" id="passwordCreateModal" onclick="showCreatePasswordModal()">+</button>
+                                      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal" onclick="showCreatePasswordModal()">+</button>
                                     </div>
                                 </div>
                                 <div class="col-12">
