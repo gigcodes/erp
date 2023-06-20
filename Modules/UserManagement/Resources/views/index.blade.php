@@ -210,7 +210,7 @@
               50% 50% no-repeat;display:none;">
 </div>
 <div class="common-modal modal" role="dialog">
-    <div class="modal-dialog modal-lg" role="document" id="modalDialog" style="width:500px !important">
+    <div class="modal-dialog modal-lg" role="document" id="modalDialog" style="width:800px !important">
     </div>
 </div>
 

@@ -2505,6 +2505,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-setting-revision-history.index') }}">Magento Setting Revision Histories
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-cron-data') }}">Magento Cron
                                                 Data</a>
                                         </li>
@@ -3823,6 +3828,11 @@ if (!empty($notifications)) {
                                     <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
+                            <li>
+                                <a title="Live laravel logs" id="live-laravel-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
                             <li>  
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
@@ -4479,6 +4489,7 @@ if (!empty($notifications)) {
         @include('partials.modals.shortcut-user-event-modal')
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
+        @include('partials.modals.live-laravel-logs-summary')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
@@ -7181,6 +7192,24 @@ if (!\Auth::guest()) {
 
     $(document).on('click','#website_Off_status',function(e){
         $('#create-status-modal').modal('show');
+    });
+
+    $(document).on('click','#live-laravel-logs',function(e){
+        $.ajax({
+            type: "GET",
+            url: "{{route('logging.live.logs-summary')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#live-laravel-logs-summary-modal-html').empty().html(response.html);
+            $('#live-laravel-logs-summary-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
     });
 
     $(document).on('click','#create_event',function(e){

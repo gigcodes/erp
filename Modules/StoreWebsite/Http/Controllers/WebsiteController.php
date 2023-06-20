@@ -490,4 +490,36 @@ class WebsiteController extends Controller
 
         return response()->json(['code' => 500, 'data' => [], 'error' => 'Copy field or Store Website id is not selected']);
     }
+    public function websitesStores(Request $request){
+
+        $websites = Website::with('stores.storeViewMany')->whereNotNull('platform_id')->get();
+       
+        $returnData=[];
+        foreach($websites as $key=>$website){
+            
+            $websiteArray=[];
+            $websiteArray['website_id']=$website->platform_id;
+            $websiteArray['name']=$website->name;
+            $websiteArray['code']=$website->code;
+            $websiteArray['default_display_currency_code']='';
+            $websiteArray['store_list']=[];
+            if($website->stores){
+                foreach($website->stores as $stores){
+                    if($stores->storeViewMany){
+                        foreach($stores->storeViewMany as $view){
+                            $storesViewArray=[];
+                            $storesViewArray['id']=$view->id;
+                            $storesViewArray['code']=$view->code;
+                            $storesViewArray['name']=$view->name;
+                            $websiteArray['store_list'][]=$storesViewArray;
+                        }
+                    }
+                    
+                }
+                
+            }
+            $returnData[]=$websiteArray;
+        }
+        return json_encode($returnData);
+    }
 }

@@ -398,6 +398,7 @@ use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
 
@@ -532,6 +533,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
 
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
+
+    Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -642,6 +645,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('list-laravel-logs', [LaravelLogController::class, 'index'])->name('logging.laravel.log');
     Route::get('live-laravel-logs', [LaravelLogController::class, 'liveLogs'])->name('logging.live.logs');
+    Route::get('live-laravel-logs-summary', [LaravelLogController::class, 'liveLogsSummary'])->name('logging.live.logs-summary');
 
     Route::get('live-laravel-logs-single', [LaravelLogController::class, 'liveLogsSingle']);
 
