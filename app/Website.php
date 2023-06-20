@@ -65,4 +65,13 @@ class Website extends Model
     {
         return $this->morphMany(WebsitePushLog::class, 'websitepushloggable');
     }
+
+    public function getFullNameAttribute()
+    {
+        if(isset($this->storeWebsite)) {
+            return $this->name . "({$this->storeWebsite->title})";
+        }
+
+        return $this->name;
+    }
 }

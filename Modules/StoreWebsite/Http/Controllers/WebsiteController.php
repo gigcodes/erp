@@ -23,12 +23,14 @@ class WebsiteController extends Controller
         $title = 'Website | Store Website';
 
         $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
+        $websites = Website::all()->pluck('full_name', 'id')->toArray();
         $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
         return view('storewebsite::website.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'countries' => $countries,
+            'websites' => $websites
         ]);
     }
 
@@ -76,6 +78,21 @@ class WebsiteController extends Controller
         $items = $websitePushLogs->items();
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => $websitePushLogs->total(), 'pagination' => (string) $websitePushLogs->render()]);
+    }
+
+    public function pushAllLogs(Request $request)
+    {
+        
+        $perPage = 10; // Number of records per page
+
+        $websitePushLogs = WebsitePushLog::latest();
+        if( $request->has('website_id') ) {
+            $websitePushLogs = $websitePushLogs->where('websitepushloggable_id', $request->query('website_id'))
+                ->where('websitepushloggable_type', \App\Website::class);
+        }
+        $websitePushLogs = $websitePushLogs->paginate($perPage);
+
+        return response()->json($websitePushLogs);
     }
 
     public function store(Request $request)
