@@ -56,6 +56,14 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="question">Parent Intent</label>
+                <div class="row align-items-end" id="intentparent_1">
+                    <div class="col-md-9">
+                        <?php echo Form::select("parent", ['' => 'Select parent Intent'] + $parentIntents, ["class" => "form-control", "placeholder" => "Select Parent intent"]); ?>
+                    </div>
+                </div>
+            </div>
             <!-- <div class="form-group" id="add-intent-value-btn">
                 <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
                     <span class="glyphicon glyphicon-plus"></span>
@@ -149,7 +157,11 @@
 </div>
 
 <div class="form-group">
-    <strong>Reply:</strong>
+    <div style="word-break: break-all;">
+        <strong>Reply:</strong>
+        <p>You can use variables in the reply they will be formatted when sent Eg:- #{website}, #{order_id}:</p>
+        <p>Variables List:- {!! implode(',', $variables) !!}</p>
+    </div>
     <textarea name="suggested_reply" class="form-control" rows="8" cols="80"
               required>{{ old('suggested_reply') }}</textarea>
 </div>
@@ -175,7 +187,7 @@
                 <option value="">Select google account</option>
                 @if(!empty($google_accounts))
                     @foreach($google_accounts as $acc)
-                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite ? $acc->storeWebsite->title : ''}}</option>
                     @endforeach
                 @endif
             </select>
