@@ -502,7 +502,10 @@ class ChatMessagesController extends Controller
                     $arr['sendTo'] = $chatMessage->from_email;
                     $arr['sendBy'] = $chatMessage->to_email;
                 }
-
+                $arr['is_audio'] = $chatMessage->is_audio;
+                if($chatMessage->is_audio){
+                    $arr['message']=\App\Helpers::getAudioUrl($chatMessage->message);
+                }
                 $messages[] = $arr;
             }
         }
@@ -729,12 +732,17 @@ class ChatMessagesController extends Controller
                 $type = 'customer';
                 $sender = optional($row->customer)->name;
             }
-
+            $message=$row->message;
+            if($row->is_audio){
+                $message=\App\Helpers::getAudioUrl($row->message);
+                //dd($message);
+            }
             $recorsArray[] = [
                 'id' => $row->id,
                 'created_at' => $row->created_at->format('d-m-y H:i:s'),
                 'type' => $type,
-                'message' => $row->message,
+                'message' => $message,
+                'is_audio' => $row->is_audio,
                 'sender' => $type,
                 'sender_name' => $sender,
                 'resent' => $row->resent,

@@ -147,7 +147,9 @@ padding: 3px 2px;
         </td>
         <!-- DEVTASK-23479 display message type -->
         <!-- Purpose : Add question - DEVTASK-4203 -->
-        @if (strlen($pam->question) > 10)
+        @if($pam->is_audio)
+            <td class="user-input" ><audio controls="" src="{{ \App\Helpers::getAudioUrl($pam->message) }}"></audio></td>
+        @elseif(strlen($pam->question) > 10)
             <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
@@ -165,56 +167,40 @@ padding: 3px 2px;
         @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
             <td class="user-input" >{{ $pam->message }}</td>
         @else
-            {{-- <td class="user-input" >{{ $pam->question }}
-                @if($pam->chat_read_id == 1)
-                    <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-dark"></i>
-
-                    </a>
-                @else
-                    <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-secondary"></i>
-
-                    </a>
-                @endif
-            </td> --}}
-
             @if (strlen($pam->question) > 10)
-            <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
-                @if($pam->chat_read_id == 1)
-                    <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-dark"></i>
+                <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
+                    @if($pam->chat_read_id == 1)
+                        <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                            <i class="fa fa-check-square-o text-dark"></i>
 
-                    </a>
-                @else
-                    <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-secondary"></i>
+                        </a>
+                    @else
+                        <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                            <i class="fa fa-check-square-o text-secondary"></i>
 
-                    </a>
-                @endif
-            </td>
-        @else
-            <td class="user-input" >{{ $pam->question }}
-                @if($pam->chat_read_id == 1)
-                    <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-dark"></i>
+                        </a>
+                    @endif
+                </td>
+            @else
+                <td class="user-input" >{{ $pam->question }}
+                    @if($pam->chat_read_id == 1)
+                        <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                            <i class="fa fa-check-square-o text-dark"></i>
 
-                    </a>
-                @else
-                    <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
-                        <i class="fa fa-check-square-o text-secondary"></i>
+                        </a>
+                    @else
+                        <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                            <i class="fa fa-check-square-o text-secondary"></i>
 
-                    </a>
-                @endif
-            </td>
-        @endif
+                        </a>
+                    @endif
+                </td>
+            @endif
         @endif
 {{--            {{ $pam->question }}--}}
 
-
-        @if (strlen($pam->answer) > 10)
-            <td  data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,15) }}...
-            </td>
+        @if($pam->answer_is_audio)
+        <td class="boat-replied"><audio controls="" src="{{ \App\Helpers::getAudioUrl($pam->answer) }}"></audio></td>
         @else
             <td class="boat-replied">{{ $pam->answer }}
             </td>
@@ -254,6 +240,7 @@ padding: 3px 2px;
                         </td>
                     @endif
 
+
         <td class="message-input p-0 pt-2 pl-3">
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
@@ -269,8 +256,12 @@ padding: 3px 2px;
                         </button>
                         @if($pam->task_id > 0 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <input type="hidden" name="is_audio" id="is_audio_{{$pam->id}}" value="0" >
+                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$pam->id}}" data-tid="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
                         @elseif($pam->developer_task_id > 0 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <input type="hidden" name="is_audio" id="is_audio_{{$pam->id}}" value="0" >
+                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$pam->id}}" data-tid="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
                         @elseif($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
 
