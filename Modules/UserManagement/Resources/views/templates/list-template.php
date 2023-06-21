@@ -332,12 +332,66 @@
 									<button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-ban"></i></button>
 									<?php }?>
 									{{/if}}
+									<?php if (Auth::user()->isAdmin()) { ?>
+									<button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
+									<?php }?>
 									{{if prop.action=='add' || prop.action=='disable'}}
 									<?php if (Auth::user()->isAdmin()) { ?>
 									<button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button>
 									<?php }?>
 									{{/if}}
 								</td>
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
+</script>
+
+<script type="text/x-jsrender" id="pem-file-user-history-logs">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Pem file history logs</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>Id</th>
+					        <th>Cmd</th>
+					        <th>Output</th>
+					        <th>Error code</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr class='subMagentoUser'>
+						      	<td>
+						      		{{:prop.id}}
+						      	</td>
+						        <td>
+						        	{{:prop.cmd}}
+						        </td>
+						        <td>
+									<span class="tooltip-cmd-output" title="{{:prop.output_string}}">
+									{{if prop.output_string.length > 30}}
+						        		{{:prop.output_string.substring(0, 30)}}...
+									{{else}}
+										{{:prop.output_string}}
+									{{/if}}
+									</span>
+						        </td>
+						        <td>
+						        	{{:prop.return_var}}
+						        </td>
 						      </tr>
 						    {{/props}}  
 					    </tbody>

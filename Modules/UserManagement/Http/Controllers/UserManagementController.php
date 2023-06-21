@@ -39,6 +39,7 @@ use function GuzzleHttp\json_encode;
 use App\UserFeedbackCategorySopHistory;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
+use App\UserPemfileHistoryLog;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller
@@ -1861,7 +1862,7 @@ class UserManagementController extends Controller
         \Log::info("Generate Pem Files:");
         $allOutput = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result = exec($cmd, $allOutput, $return_var);
 
         \Log::info(print_r($allOutput, true));
 
@@ -1879,7 +1880,7 @@ class UserManagementController extends Controller
         $content = implode("\n", $string);
         $content = $content . "\n";
 
-        UserPemfileHistory::create([
+        $userPemfileHistory = UserPemfileHistory::create([
             'user_id' => $request->userid,
             'server_id' => $server->id,
             'server_name' => $server->name,
@@ -1892,6 +1893,9 @@ class UserManagementController extends Controller
             'action' => 'add',
             'created_by' => $request->user()->id,
         ]);
+
+        (new UserPemfileHistoryLog())->saveLog($userPemfileHistory->id, $cmd, $allOutput, $return_var);
+
         return response()->json(['code' => 200, 'message' => "PEM file generate sucessfully!"]);
         
     }
@@ -1925,11 +1929,13 @@ class UserManagementController extends Controller
 
             $allOutput = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
             $pemHistory->action='disable';
             $pemHistory->created_by=auth()->user()->id;
             $pemHistory->save();
+
+            (new UserPemfileHistoryLog())->saveLog($pemHistory->id, $cmd, $allOutput, $return_var);
             
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access disable successfully']);
         } else {
@@ -1950,12 +1956,14 @@ class UserManagementController extends Controller
             \Log::info("Delete Pem Access:".$id);
             $allOutput = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
             $pemHistory->action='delete';
             $pemHistory->created_by=auth()->user()->id;
             $pemHistory->save();
             $pemHistory->delete();
+
+            (new UserPemfileHistoryLog())->saveLog($pemHistory->id, $cmd, $allOutput, $return_var);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access remove successfully']);
         } else {
@@ -2733,5 +2741,12 @@ class UserManagementController extends Controller
             $whitelistValue = $request->action == 1 ? 1 : 0;
             User::whereIn('id', $request->users)->update(['is_whitelisted' => $whitelistValue]);
         }
+    }
+
+    public function userPemfileHistoryLogs(Request $request)
+    {
+        $historyLogs = UserPemfileHistoryLog::where('user_pemfile_history_id', $request->pemfileHistoryId)->latest()->get();
+
+        return response()->json(['code' => 200, 'data' => $historyLogs]);
     }
 }
