@@ -135,7 +135,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #event-alerts .event-alert-badge,
-    #website_Off_status .status-alert-badge {
+    #website_Off_status .status-alert-badge,
+    #timer-alerts .timer-alert-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -152,6 +153,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     #website_Off_status .status-alert-badge {
     left: 60px;
+    }
+
+    #timer-alerts .timer-alert-badge {
+    left: 130px;
     }
     .red-alert-badge {
         position: absolute;
@@ -3848,6 +3853,26 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             <li>
+                                @php
+                                    $currentDate = Illuminate\Support\Carbon::now()->format('Y-m-d');
+                                    $logs = \App\TimeDoctor\TimeDoctorLog::query()->with(['user']);
+
+                                    if(!auth()->user()->isAdmin()) {
+                                        $logs->where('user_id', auth()->user()->id);
+                                    }
+                                    
+                                    $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->count();
+                                @endphp
+                                <a title="Time-Doctor-logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                    <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    @if($currentLogs)
+                                    <span class="timer-alert-badge"></span>
+                                    @endif
+                                </span>
+                                </a>
+                            </li>
+                            <li>
                                 <a title="jenkins Build status" id="jenkins-build-status" type="button"  class="quick-icon" style="padding: 0px 1px;"><span><i
                                  class="fa fa-cog fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -4493,6 +4518,7 @@ if (!empty($notifications)) {
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
+        @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7253,6 +7279,35 @@ if (!\Auth::guest()) {
             if(response.count > 0) {
                 $('.event-alert-badge').removeClass("hide");
             }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','#timer-alerts',function(e){
+        e.preventDefault();
+        getTimerAlerts(true);
+    });
+
+    function getTimerAlerts(showModal = false) {
+
+        $.ajax({
+            type: "GET",
+            url: "{{route('get.timer.alerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#timer-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#timer-alerts-modal').modal('show');
+            }
+            // if(response.count > 0) {
+            //     $('.timer-alert-badge').removeClass("hide");
+            // }
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
