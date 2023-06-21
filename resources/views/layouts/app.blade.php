@@ -4531,6 +4531,7 @@ if (!empty($notifications)) {
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
+        @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7532,6 +7533,10 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+    function showCreatePasswordModal() {
+      $('#searchPassswordModal').modal('hide');
+    }
 
     $(document).on("click", ".permission-delete-grant", function(e) {
         e.preventDefault();
