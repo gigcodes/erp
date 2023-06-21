@@ -153,11 +153,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #website_Off_status .status-alert-badge {
-    left: 60px;
+    left: 130px;
     }
 
     .permission-alert-badge{
-        left: 660px; 
+        left: 730px; 
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
