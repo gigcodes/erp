@@ -310,7 +310,7 @@ class GoogleScreencastController extends Controller
 
     public function getGoogleScreencast (Request $request){
 
-        $datas = GoogleScreencast::get()->take(10);
+        $datas = GoogleScreencast::latest()->take(10)->get();
 
         return response()->json([
             'tbody' => view('partials.modals.google-drive-screen-cast-modal-html', compact('datas'))->render(),
