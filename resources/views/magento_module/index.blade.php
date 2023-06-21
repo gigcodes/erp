@@ -61,6 +61,13 @@
                 width: 100%;
             }
         }
+        .table  select.form-control{
+            width: 60px !important;
+             padding: 5px;
+        }
+       .table input.form-control{
+            width: 90px !important;
+        }
     </style>
 @endsection
 
@@ -149,6 +156,8 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> Module Category Create </button>
 
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magento Module Create </button>
+
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatus"> Verified Status </button>
                     </div>
                 </div>
             </form>
@@ -177,14 +186,13 @@
             </div>
         @endif
         <div class="erp_table_data">
-            <table class="table table-bordered " id="erp_table">
+            <table class="table table-bordered" id="erp_table">
                 <thead>
                     <tr>
                         <th> Id </th>
                         <th width="200px"> Remark </th>
                         <th> Category </th>
                         <th> Description </th>
-                        <th> Website </th>
                         <th> Name </th>
                         <th> API </th>
                         <th> Cron </th>
@@ -192,6 +200,8 @@
                         <th> Type </th>
                         <th> Payment Status</th>
                         <th> Status </th>
+                        <th> Dev Verified By </th>
+                        <th> Dev Verified Status </th>
                         <th> Developer Name </th>
                         <th> Customized </th>
                         <th> js/css </th>
@@ -220,6 +230,8 @@
     @include('magento_module_category.partials.form_modals')
     {{-- moduleCreateModal --}} {{-- moduleEditModal --}}
     @include('magento_module.partials.form_modals')
+    {{-- magentoModuleVerifiedStatus --}} {{-- magentoModuleVerifiedStatus --}}
+    @include('magento_module.partials.mm_verified_status_form_modals')
     {{-- apiDataAddModal --}}
     @include('magento_module.partials.api_form_modals')
     {{-- cronJobDataAddModal --}}
@@ -276,6 +288,7 @@
         var oTable;
         $(document).ready(function() {
             oTable = $('#erp_table').DataTable({
+                pageLength: 50,
                 responsive: true,
                 searchDelay: 500,
                 processing: true,
@@ -336,7 +349,7 @@
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
                                 data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
-                            let retun_data = `${data} <div class="d-flex"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
                             
                             return retun_data;
                         }
@@ -372,32 +385,8 @@
                         name: 'magento_modules.module_description',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            return `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
-                        }
-                    },
-                    {
-                        data: 'website',
-                        name: 'store_websites.website',
-                        render: function(data, type, row, meta) {
-                            var m_types = row['website_list'];
-                            var m_types =  m_types.replace(/&quot;/g, '"');
-                            if(m_types && m_types != "" ){
-                                var m_types = JSON.parse(m_types);
-                                var m_types_html = '<select id="module_category_id" class="form-control edit_mm" required="required" name="store_website_id"><option selected="selected" value="">Select Module Category</option>';
-                                m_types.forEach(function(m_type){
-                                    if(m_type.website == data){
-                                        m_types_html += `<option value="${m_type.id}" selected> ${m_type.website}</option>`;
-                                    }else{
-                                        m_types_html += `<option value="${m_type.id}" >${m_type.website}</option>`;
-                                    }
-                                    
-                                });
-                                m_types_html += '</select>';
-                                return m_types_html;
-                            }else{
-                                return `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
-                            }
-                            
+                            data=(data == null) ? '' : `<div class="expand-row"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
                         }
                     },
                     {
@@ -416,9 +405,9 @@
                             let html_data = ``;
                             
                             if(data == 1){
-                                html_data = `<div class="d-flex"> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class="d-flex"> ${html}  ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -437,9 +426,9 @@
                             let show_button = `<button type="button" class="btn btn-xs show-cron_job-modal" title="Show Cron History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             
                             if(data == 1){
-                                html_data = `<div class="d-flex"> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class="d-flex"> ${html}  ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
                             }
                             return  html_data;
                         }
@@ -490,12 +479,43 @@
                         name: 'magento_modules.status',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                           
-                            var html = '<select id="status" class="form-control edit_mm"  name="status"><option selected="selected" value="">Select Status</option>';
-                                html += '<option value="Enable" '+(status_array[data] == 'Enable' ? 'selected' : '')+'>Enable</option><option value="Disabled" '+(status_array[data] == 'Disabled' ? 'selected' : '')+'>Disabled</option>';
-                            html +='</select>';
-
-                            return `<div class="flex items-center justify-left">${html}</div>`;
+                            return status_array[data];
+                        }
+                    },
+                    {
+                        data: 'dev_verified_by',
+                        name: 'dev_verified_by',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['developer_list'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="dev_verified_by" class="form-control edit_mm" name="dev_verified_by"><option selected="selected" value="">Select user </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                        }
+                    },
+                    {
+                        data: 'dev_verified_status_id',
+                        name: 'dev_verified_status_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['verified_status'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="dev_verified_status_id" class="form-control edit_mm" name="dev_verified_status_id"><option selected="selected" value="">Select Status </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
                         }
                     },
                     {
@@ -529,9 +549,9 @@
                             let show_button = `<button type="button" class="btn btn-xs show-is_customized-modal" title="Show 3rd party JS History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             
                             if(data == 1){
-                                html_data = `<div class="d-flex"> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class="d-flex"> ${html}  ${show_button} </div>`;
+                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -562,9 +582,9 @@
                             
                             
                             if(data == 1){
-                                html_data = `<div class="d-flex"> ${html} ${add_button} ${show_button} </div>`;
+                                html_data = `<div class=""> ${html} ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class="d-flex"> ${html} ${show_button} </div>`;
+                                html_data = `<div class=""> ${html} ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -611,6 +631,7 @@
                             row["developer_list"] = "";
                             row["categories"] = "";
                             row["website_list"] = "";
+                            row["verified_status"] = "";
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
@@ -1023,6 +1044,15 @@
                 toastr['error'](response.message);
             });
         });
+        $( document ).ready(function() {
+            $(document).on('click', '.expand-row', function () {
+                var selection = window.getSelection();
+                if (selection.toString().length === 0) {
+                    $(this).find('.td-mini-container').toggleClass('hidden');
+                    $(this).find('.td-full-container').toggleClass('hidden');
+                }
+            });
+		});
     </script>
 
 @endsection

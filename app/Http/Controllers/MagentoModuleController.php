@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\MagentoModuleHistory;
 use App\MagentoModuleLogs;
 use App\MagentoModuleCategory;
+use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 
@@ -44,13 +45,14 @@ class MagentoModuleController extends Controller
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
+        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id')->get();
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
-                ->join('users', 'users.id', 'magento_modules.developer_name')
+                ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
                 ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
                 ->select(
                     'magento_modules.*',
@@ -59,7 +61,7 @@ class MagentoModuleController extends Controller
                     'task_statuses.name as task_name',
                     'store_websites.website',
                     'store_websites.title',
-                    'users.name as developer_name',
+                    'users.name as developer_name1',
                     'users.id as developer_id'
                 );
 
@@ -97,8 +99,8 @@ class MagentoModuleController extends Controller
             if (isset($request->status)) {
                 $items->where('magento_modules.status', $request->status);
             }
-
-            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->toJson();
+            $items->groupBy('magento_modules.module');
+            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->toJson();
         } else {
             $title = 'Magento Module';
             $users = $users->pluck('name', 'id');
@@ -580,5 +582,27 @@ class MagentoModuleController extends Controller
         \Log::info("End Magento module change status");
 
         return response()->json(['status' => 500,  'message' => 'error!']);
+    }
+    
+    public function storeVerifiedStatus(Request $request)
+    {
+        $input = $request->except(['_token']);
+
+        $data = MagentoModuleVerifiedStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
     }
 }
