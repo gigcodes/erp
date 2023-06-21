@@ -32,16 +32,16 @@
 		                                <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
 		                            </div>
 			                    </div>
-		                	</div>	
+		                	</div>
 		                	<div class="pull-right">
 	                            <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
 		                	</div>
 			    		</form>
-					</div>	
+					</div>
 					<div class="row send-message-report">
-							
+
 					</div>
 				</div>
 			</div>
@@ -59,10 +59,10 @@
 	                                  <?php echo $queue->total_message; ?>
 	                              </div>
 	                          </div>
-	                       </div> 
+	                       </div>
 	                  <?php } ?>
 	                </div>
-	              <?php } else  { 
+	              <?php } else  {
 	                echo "Sorry , No data available";
 	              } ?>
 	            </div>
@@ -90,17 +90,17 @@
 					                              <?php echo $queue; ?>
 				                              </div>
 				                          </div>
-				                       </div> 
+				                       </div>
 				                  <?php } ?>
 				                </div>
-				              <?php } else  { 
+				              <?php } else  {
 				                echo "Sorry , No data available";
 				              } ?>
 				            </div>
 				        </div>
-				    </div>    
-				</div>	
-			</div>	
+				    </div>
+				</div>
+			</div>
 		</div>
     </div>
 
@@ -118,8 +118,8 @@
 							    	<option value="change_to_broadcast">Change to Broadcast</option>
 							    	<option value="delete_records">Delete Records</option>
 							    	<option value="delete_all">Delete All Records</option>
-							    	<option value="change_customer_number">Change Customer Number</option>	
-							    	<option value="change_to_dnd">Change To Dnd</option>	
+							    	<option value="change_customer_number">Change Customer Number</option>
+							    	<option value="change_to_dnd">Change To Dnd</option>
 							    </select>
 						  	</div>
 						  	<div class="form-group sending-number-section" style="display: none;">
@@ -137,9 +137,9 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-action">
 						  			<img src="/images/filled-sent.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
+					  </div>
 					</form>
 					<form class="form-inline message-queue-limit-handler" method="post">
 						<?php echo csrf_field(); ?>
@@ -152,7 +152,7 @@
 										    {{ Form::text("message_sending_limit[{$number}]",isset($sendingLimit[$number]) ? $sendingLimit[$number] : 0,["class" => "form-control message_sending_limit col-md"] ) }}
 									  	</div>
 			                        @endif
-			                    @endforeach		
+			                    @endforeach
 					  		</div>
 					  	</div>
 					  	<div class="row">
@@ -170,9 +170,9 @@
 							  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-limit">
 							  			<img src="/images/filled-sent.png" style="cursor: default;">
 							  		</button>
-							  	</div>		
+							  	</div>
 					  		</div>
-					  	</div>	
+					  	</div>
 					</form>
 		    	</div>
 		    </div>
@@ -221,10 +221,10 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 		    	</div>
 
 				<form class="form-inline message-queue-time-handler" method="post">
@@ -244,18 +244,18 @@
 						  		<button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-time">
 						  			<img src="/images/filled-sent.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
 				  	</div>
-				</form>	
+				</form>
 		    </div>
-	    </div>	
+	    </div>
 		<div class="col-md-12 margin-tb infinite-scroll" id="page-view-result">
 
 		</div>
 	</div>
 </div>
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
 </div>
 <div id="chat-list-history" class="modal fade" role="dialog">

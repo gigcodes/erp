@@ -70,4 +70,9 @@ class EmailAddress extends Model
         //dd('sdfdsf');
         return $this->hasOne(EmailRunHistories::class, 'email_address_id', 'id')->latest();
     }
+
+    public function history_last_message_error()
+    {
+        return $this->hasOne(EmailRunHistories::class, 'email_address_id', 'id')->where('is_success', 0)->latest();
+    }
 }

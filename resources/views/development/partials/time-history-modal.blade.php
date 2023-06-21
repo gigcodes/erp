@@ -163,8 +163,8 @@
 @push('scripts')
 <script>
     jQuery(document).on('click', '.show-time-history', function() {
-        var userId = jQuery(this).data('userid');
-        var issueId = jQuery(this).data('id');
+        var userId = jQuery(this).attr('data-userid');
+        var issueId = jQuery(this).attr('data-id');
         jQuery('#time_history_div table tbody').html('');
 
         // const hasText = jQuery(this).siblings('input').val()
@@ -302,8 +302,8 @@
     });
 
     jQuery(document).on('click', '.show-lead-time-history', function() {
-        var data = $(this).data('history');
-        var issueId = $(this).data('id');
+        var data = $(this).attr('data-history');
+        var issueId = $(this).attr('data-id');
         jQuery('#lead_time_history_div table tbody').html('');
         jQuery.ajax({
             url: "{{ route('development/lead/time/history') }}",

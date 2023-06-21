@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\KeywordSearchVariants;
 use App\Library\Watson\Response;
 use Yajra\DataTables\DataTables;
-
+use App\LogRequest;
 //use App\InstagramPosts;
 
 class GoogleSearchController extends Controller
@@ -390,11 +390,16 @@ class GoogleSearchController extends Controller
             $postData = [];
             $postData['data'] = $searchKeywords;
             $postData = json_encode($postData);
-
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearch';
+            $parameters['Scraper'] = [
+                'searchKeywords' => $searchKeywords,
+            ];
+    
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearch',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -408,7 +413,9 @@ class GoogleSearchController extends Controller
             ]);
             $response = curl_exec($curl);
             $err = curl_error($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleSearchController::class, 'GoogleSearchcallScraper');
 
             $result = null;
             if (! empty($response)) {

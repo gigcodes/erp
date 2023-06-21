@@ -163,8 +163,8 @@
 @push('scripts')
 <script>
     jQuery(document).on('click', '.show-time-history', function() {
-        var userId = jQuery(this).data('userid');
-        var issueId = jQuery(this).data('id');
+        var userId = jQuery(this).attr('data-userid');
+        var issueId = jQuery(this).attr('data-id');
         jQuery('#time_history_div table tbody').html('');
 
         // const hasText = jQuery(this).siblings('input').val()

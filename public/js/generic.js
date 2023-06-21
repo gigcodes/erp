@@ -61,7 +61,7 @@ var getMoreChatConvo = function (params) {
     });
 };
 
-var getHtml = function (response) {
+var getHtml = function (response, listType = 'message-list') {
   var j = 0;
 
   var classMaster =
@@ -300,6 +300,7 @@ var getHtml = function (response) {
 
     // Set empty button var
     var button = "";
+    if (listType === 'message-list') {
 
     if (message.error_status == 1) {
       button +=
@@ -307,212 +308,220 @@ var getHtml = function (response) {
         message.error_info +
         '" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
     }
-    if (
-      message.type == "task" ||
-      message.type == "customer" ||
-      message.type == "vendor" ||
-      message.type == "user"
-    ) {
-      if (message.status == 0 || message.status == 5 || message.status == 6) {
-        if (message.status == 0) {
-          button +=
-            "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
-            message.id +
-            "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
-        }
-
-        if (message.status == 0 || message.status == 5) {
-          button +=
-            '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' +
-            message.id +
-            '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
-        }
-        button +=
-          '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
-          message.id +
-          '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
-          message.id +
-          '" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
-      } else if (message.status == 4) {
-      } else {
-        if (message.type == "customer") {
-          if (message.error_status == 1) {
+      if (
+          message.type == "task" ||
+          message.type == "customer" ||
+          message.type == "vendor" ||
+          message.type == "user"
+      ) {
+        if (message.status == 0 || message.status == 5 || message.status == 6) {
+          if (message.status == 0) {
             button +=
-              "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
-              message.id +
-              "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
-              message.id +
-              "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
-          } else if (message.error_status == 2) {
-            button +=
-              "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
-              message.id +
-              "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
-              message.id +
-              "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
+                message.id +
+                "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
           }
 
-          if (!message.approved) {
-            if (is_admin || is_hod_crm) {
-              approveBtn =
-                "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" +
+          if (message.status == 0 || message.status == 5) {
+            button +=
+                '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' +
                 message.id +
-                "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
-              button += approveBtn;
+                '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
+          }
+          button +=
+              '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+              message.id +
+              '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
+              message.id +
+              '" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+        } else if (message.status == 4) {
+        } else {
+          if (message.type == "customer") {
+            if (message.error_status == 1) {
               button +=
-                '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' +
-                message.id +
-                '" style="display: none;">' +
-                message.message +
-                "</textarea>";
+                  "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
+                  message.id +
+                  "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
+                  message.id +
+                  "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+            } else if (message.error_status == 2) {
               button +=
-                ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' +
+                  "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
+                  message.id +
+                  "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
+                  message.id +
+                  "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+            }
+
+            if (!message.approved) {
+              if (is_admin || is_hod_crm) {
+                approveBtn =
+                    "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" +
+                    message.id +
+                    "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
+                button += approveBtn;
+                button +=
+                    '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' +
+                    message.id +
+                    '" style="display: none;">' +
+                    message.message +
+                    "</textarea>";
+                button +=
+                    ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' +
+                    message.id +
+                    '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+              }
+            }
+            button +=
+                '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
                 message.id +
-                '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+                '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
+                message.id +
+                '" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+          }
+
+          if (message.type == "task" || message.type == "vendor") {
+            button +=
+                "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+                message.id +
+                "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+                message.resent +
+                ")</a>";
+            if (message.type != "vendor") {
+              button +=
+                  "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" +
+                  message.id +
+                  "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
             }
           }
-          button +=
-            '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
-            message.id +
-            '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
-            message.id +
-            '" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
-        }
 
-        if (message.type == "task" || message.type == "vendor") {
+          if (message.type == "vendor") {
+            button +=
+                '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+                message.id +
+                '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
+          }
+        }
+      }
+
+      var image_url = message.media_url;
+      if (image_url == null) {
+        if (message.media.length != 0) {
+          image_url = message.media[0].image;
+        }
+      }
+      button +=
+          '&nbsp;<button title="Search Product Image" data-media-url="\'' +
+          image_url +
+          '\'" data-id="' +
+          message.id +
+          '" data-object_type_id="' +
+          message.object_type_id +
+          '" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+
+      if (message.type == "developer_task") {
+        if (message.status == 0) {
           button +=
+              "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
+              message.id +
+              "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+        }
+        button +=
             "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
             message.id +
             "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
             message.resent +
             ")</a>";
-          if (message.type != "vendor") {
-            button +=
-              "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" +
-              message.id +
-              "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
-          }
-        }
+      }
 
-        if (message.type == "vendor") {
-          button +=
-            '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+      if (is_admin) {
+        button +=
+            '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' +
             message.id +
-            '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
+            '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+      }
+      //START - Purpose : Add resend button - DEVTASK-4236
+      if (message.type == "supplier") {
+        button +=
+            "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+            message.id +
+            "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+            message.resent +
+            ")</a>";
+
+        if (message.additional_data != "" && message.additional_data != null) {
+          button +=
+              "<a href='/purchase-product/download_excel_file/?filename=" +
+              message.additional_data +
+              "' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" +
+              message.id +
+              "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
         }
       }
-    }
+      //END - DEVTASK-4236
 
-    var image_url = message.media_url;
-    if (image_url == null) {
-      if (message.media.length != 0) {
-        image_url = message.media[0].image;
-      }
-    }
-    button +=
-      '&nbsp;<button title="Search Product Image" data-media-url="\'' +
-      image_url +
-      '\'" data-id="' +
-      message.id +
-      '" data-object_type_id="' +
-      message.object_type_id +
-      '" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
-
-    if (message.type == "developer_task") {
-      if (message.status == 0) {
+      //START - Purpose : Add resend button - DEVTASK-18283
+      if (message.type == "order") {
         button +=
-          "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
-          message.id +
-          "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+            "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+            message.id +
+            "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+            message.resent +
+            ")</a>";
       }
-      button +=
-        "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-        message.id +
-        "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-        message.resent +
-        ")</a>";
-    }
+      //END - DEVTASK-18283
 
-    if (is_admin) {
-      button +=
-        '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' +
-        message.id +
-        '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
-    }
-    //START - Purpose : Add resend button - DEVTASK-4236
-    if (message.type == "supplier") {
-      button +=
-        "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-        message.id +
-        "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-        message.resent +
-        ")</a>";
-
-      if (message.additional_data != "" && message.additional_data != null) {
+      if (message.is_queue == 1) {
         button +=
-          "<a href='/purchase-product/download_excel_file/?filename=" +
-          message.additional_data +
-          "' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" +
+            '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
+      }
+      if (message.is_reviewed != 1) {
+        button +=
+            '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' +
+            message.id +
+            '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+      }
+
+      if (message.inout == "out" || message.inout == "in") {
+        button +=
+            '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+      }
+      button +=
+          '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="' +
+          message.sop_category +
+          '" data-name="' +
+          message.sop_name +
+          '" data-message="' +
+          message.sop_content +
+          '" data-id="' +
           message.id +
-          "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
+          '" data-msg="' +
+          message.message +
+          '"><i class="fa fa-asterisk" data-message="' +
+          message.message +
+          '" aria-hidden="true"></i></a>';
+      button +=
+          '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="' +
+          message.message +
+          '" data-id="' +
+          message.id +
+          '"><i class="fa fa-server" aria-hidden="true"></i></a>';
+      button +=
+          '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(' +
+          message.id +
+          ')" data-message="' +
+          message.message +
+          '" data-id="' +
+          message.id +
+          '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+    } else {
+      if (message.send_by_simulator) {
+        button += 'send by simulator'
+      } else {
+
+        button += 'Send by user';
       }
     }
-    //END - DEVTASK-4236
-
-    //START - Purpose : Add resend button - DEVTASK-18283
-    if (message.type == "order") {
-      button +=
-        "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-        message.id +
-        "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-        message.resent +
-        ")</a>";
-    }
-    //END - DEVTASK-18283
-
-    if (message.is_queue == 1) {
-      button +=
-        '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
-    }
-    if (message.is_reviewed != 1) {
-      button +=
-        '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' +
-        message.id +
-        '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
-    }
-
-    if (message.inout == "out" || message.inout == "in") {
-      button +=
-        '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
-    }
-    button +=
-      '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="' +
-      message.sop_category +
-      '" data-name="' +
-      message.sop_name +
-      '" data-message="' +
-      message.sop_content +
-      '" data-id="' +
-      message.id +
-      '" data-msg="' +
-      message.message +
-      '"><i class="fa fa-asterisk" data-message="' +
-      message.message +
-      '" aria-hidden="true"></i></a>';
-    button +=
-      '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="' +
-      message.message +
-      '" data-id="' +
-      message.id +
-      '"><i class="fa fa-server" aria-hidden="true"></i></a>';
-    button +=
-      '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(' +
-      message.id +
-      ')" data-message="' +
-      message.message +
-      '" data-id="' +
-      message.id +
-      '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
     // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
     //check parent media details
@@ -1591,7 +1600,7 @@ $(".search_chat_pop_time")
 
 /*$('body').on('focus',".search_chat_pop_time", function(){
     if($(this).data("DateTimePicker") == null){
-        
+
        // datepicker initialized
     }
 });*/

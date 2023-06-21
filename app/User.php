@@ -11,6 +11,7 @@ use App\Hubstaff\HubstaffActivity;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\CodeShortcut;
 use App\Hubstaff\HubstaffPaymentAccount;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -82,6 +83,7 @@ class User extends Authenticatable implements JWTSubject
         'is_task_planned',
         'device_token',
         'timezone',
+        'screen_name',
     ];
 
     public function getIsAdminAttribute()
@@ -634,5 +636,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function user_detail()
+    {
+        return $this->belongsTo(CodeShortcut::class);
     }
 }

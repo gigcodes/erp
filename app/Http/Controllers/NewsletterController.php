@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Language;
 use App\Newsletter;
 use App\StoreWebsite;
 use App\GoogleTranslate;
@@ -25,6 +26,21 @@ class NewsletterController extends Controller
         return view('newsletter.index', compact(['title', 'store_websites']));
     }
 
+    public function reviewTranslate(Request $request, $language = '')
+    {
+        $title = 'Newsletter - Review Translate:' . $language;
+        $languagesList = Language::pluck('name', 'name')->toArray();
+        if (! empty($languagesList) && $language == '') {
+            $first = reset($languagesList);
+
+            return redirect()->route('newsletters.review.translate', ['language' => $first]);
+        }
+
+        $languages = Language::pluck('locale', 'code')->toArray();
+        $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
+        return view('newsletter.review-translate', compact(['title', 'storeWebsites','languagesList']));
+    }
+
     public function records(Request $request)
     {
         $records = \App\Newsletter::join('newsletter_products as np', 'newsletters.id', 'np.newsletter_id')
@@ -39,6 +55,11 @@ class NewsletterController extends Controller
             });
         }
 
+        if ($request->language != null) {
+            $records = $records->where('newsletters.language', $request->language);
+            $records = $records->where('newsletters.is_flagged_translation', 1);
+        }
+        
         $dateFrom = request('date_from');
         if ($dateFrom != null) {
             $records = $records->where('newsletters.created_at', '>=', $dateFrom);
@@ -79,6 +100,9 @@ class NewsletterController extends Controller
             $rec->product_images = $images;
             $rec->store_websiteName = ($rec->storeWebsite) ? $rec->storeWebsite->website : '';
             $rec->mailinglist_template_name = ($rec->mailinglistTemplate) ? $rec->mailinglistTemplate->name : '';
+            if ($request->language != null) {
+                $rec->original_newsletter = \App\Newsletter::where('id', $rec->translated_from)->first();
+            }
             $items[] = $rec;
         }
 
@@ -275,6 +299,7 @@ class NewsletterController extends Controller
                         $newNewsletter->mail_list_id = $newsletter->mail_list_id;
                         $newNewsletter->mail_list_temp_id = $newsletter->mail_list_temp_id;
                         $newNewsletter->updated_by = auth()->user()->id;
+                        $newNewsletter->is_flagged_translation = 1;
                         $newNewsletter->save();
                         activity()->causedBy(auth()->user())->performedOn($newsletter)->log('newsletter ' . $newsletter->id . ' translated to ' . $l->name);
                         if (! empty($products)) {

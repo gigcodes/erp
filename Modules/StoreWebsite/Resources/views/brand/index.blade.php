@@ -322,7 +322,7 @@
             },
             error: function(response) {
                 $("#loading-image").hide();
-            	alert(response.responseText);
+				toastr["error"](response.responseJSON.message);
             }
     	});
 	});
@@ -390,7 +390,7 @@
             },
             error: function(response) {
             	$("#loading-image").hide();
-                alert(response.responseText);
+				toastr["error"](response.responseJSON.message);
             }
     	});
 	});

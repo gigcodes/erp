@@ -51,6 +51,7 @@ use App\Jobs\UploadGoogleDriveScreencast;
 use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\UserEvent\UserEvent;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -633,7 +634,7 @@ class TaskModuleController extends Controller
         // dd($tasks_query);
         // $users = Helpers::getUserArray(User::all());
 
-        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['users'] = User::orderBy('name')->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // foreach ($data['task']['pending'] as $task) {
@@ -665,11 +666,11 @@ class TaskModuleController extends Controller
         $selected_user = $request->input('selected_user');
 
         if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
         } else {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         }
 
         $users = Helpers::getUserArray($usrlst);
@@ -1220,11 +1221,31 @@ class TaskModuleController extends Controller
 
     public function plan(Request $request, $id)
     {
+        $user = auth()->user();
         $task = Task::find($id);
         $task->time_slot = $request->time_slot;
         $task->planned_at = $request->planned_at;
         $task->general_category_id = $request->get('general_category_id', null);
         $task->save();
+
+        // Save the data in user event
+        $schedultDate = Carbon::parse($request->planned_at);
+        $timeSlotArr = explode("-", $request->time_slot);
+        $c_start_at = Carbon::parse("$request->planned_at ".$timeSlotArr[0]);
+        $c_end_at = Carbon::parse("$request->planned_at ".$timeSlotArr[1]);
+        
+        // Delete old event of plan task task
+        UserEvent::where('subject', "LIKE", "%Planned task $task->id%")->delete();
+
+        $userEvent = new UserEvent();
+        $userEvent->user_id = $user->id;
+        $userEvent->description = trim($timeSlotArr[0])."-".trim($timeSlotArr[1]).', '.$schedultDate->format('l').", ".$schedultDate->toDateString();
+        $userEvent->subject = "Planned task $task->id ($task->task_subject)";
+        $userEvent->date = $schedultDate;
+        $userEvent->start = $c_start_at->toDateTime();
+        $userEvent->end = $c_end_at->toDateTime();
+        $userEvent->save();
+
 
         return response()->json(
             [
@@ -1545,7 +1566,7 @@ class TaskModuleController extends Controller
             }
         }
         //task pending backup
-        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['users'] = User::orderBy('name')->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // Lead user process starts
@@ -1572,11 +1593,11 @@ class TaskModuleController extends Controller
         $selected_user = $request->input('selected_user');
 
         if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
         } else {
-            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+            $usrlst = User::orderby('name')->get();
         }
 
         $users = Helpers::getUserArray($usrlst);
@@ -4706,6 +4727,7 @@ class TaskModuleController extends Controller
             return respJson(
                 200, '', [
                     'data' => $single,
+                    'user'=> $single->assignedTo ?? null
                 ]
             );
         } catch(\Throwable $th) {
@@ -4890,8 +4912,13 @@ class TaskModuleController extends Controller
         try {
             foreach ($data['file'] as $file) {
                 DB::transaction(function () use ($file, $data) {
+                    $task = Task::find($data['task_id']);
                     $googleScreencast = new GoogleScreencast();
+                    
                     $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->file_name .= " (TASK-$task->id ".($task->task_subject ?? "-").")";
+                    // dd($googleScreencast->file_name);
+
                     $googleScreencast->extension = $file->extension();
                     $googleScreencast->user_id = Auth::id();
 

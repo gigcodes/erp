@@ -345,6 +345,7 @@ use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\StoreWebsiteAnalyticsController;
 use App\Http\Controllers\UsersFeedbackHrTicketController;
 use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
 use App\Http\Controllers\UnknownAttributeProductController;
@@ -354,14 +355,17 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
+use App\Http\Controllers\GoogleDialogFlowController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
+use App\Http\Controllers\MonitorJenkinsBuildController;
 
 Auth::routes();
 
@@ -393,6 +397,10 @@ use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoSettingRevisionHistoryController;
+use App\Http\Controllers\MagentoUserFromErpController;
+use App\Http\Controllers\MonitorServerController;
 
 Auth::routes();
 
@@ -468,6 +476,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers/accounts', [CustomerController::class, 'accounts']);
     Route::post('/customer/update', [CustomerController::class, 'customerUpdate']);
     Route::get('/customer/update/history/{id}', [CustomerController::class, 'customerUpdateHistory']);
+    Route::get('/customer/name', [CustomerController::class, 'customerName'])->name('customer.name.show');
 
     //Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/productselection/list', [ProductSelectionController::class, 'sList'])->name('productselection.list');
@@ -492,9 +501,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', ProductLocationController::class);
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
+    Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
+    Route::post('/show-magento-cron-data/statuscolor', [Cron\ShowMagentoCronDataController::class, 'statusColor'])->name('magento-cron-data.statuscolor');
+    Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
+    
 Route::middleware('auth')->group(function () {
+    Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
+    Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
     Route::get('magento_modules/remark/{magento_module}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
@@ -517,6 +533,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
 
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
+
+    Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -543,6 +561,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
     Route::get('magento-admin-settings', [MagentoSettingsController::class, 'index'])->name('magento.setting.index');
+    Route::get('magento-admin-settings/logs', [MagentoSettingsController::class, 'getLogs'])->name('magento.setting.sync-logs');
     Route::get('magento-get-sync-data', [MagentoSettingsController::class, 'magentoSyncLogSearch'])->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', [MagentoSettingsController::class, 'magentoPushLogs'])->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', [MagentoSettingsController::class, 'create'])->name('magento.setting.create');
@@ -626,6 +645,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('list-laravel-logs', [LaravelLogController::class, 'index'])->name('logging.laravel.log');
     Route::get('live-laravel-logs', [LaravelLogController::class, 'liveLogs'])->name('logging.live.logs');
+    Route::get('live-laravel-logs-summary', [LaravelLogController::class, 'liveLogsSummary'])->name('logging.live.logs-summary');
 
     Route::get('live-laravel-logs-single', [LaravelLogController::class, 'liveLogsSingle']);
 
@@ -1147,6 +1167,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
+    Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
+
 
     Route::resource('benchmark', BenchmarkController::class);
 
@@ -1346,6 +1368,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status-temp', [OrderController::class, 'prodctStatusChangeTemplate']);
     Route::post('order/change-status', [OrderController::class, 'statusChange']);
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
+    Route::post('order/order-product-status-change', [OrderController::class, 'orderProductStatusChange'])->name('order.order-product-status-change');
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
 
@@ -1395,6 +1418,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
+    Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
@@ -1749,6 +1773,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/records', [NewsletterController::class, 'records'])->name('newsletters.records');
         Route::post('/store', [NewsletterController::class, 'store'])->name('newsletters.store');
         Route::get('/image/{id}/{productId}/delete', [NewsletterController::class, 'deleteImage'])->name('newsletters.deleteImage');
+        Route::get('/review-translate/{language?}', [NewsletterController::class, 'reviewTranslate'])->name('newsletters.review.translate');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [NewsletterController::class, 'edit'])->name('newsletters.edit');
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
@@ -2203,6 +2228,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
 
         Route::get('task/show-estimate', [DevelopmentController::class, 'showTaskEstimateTime'])->name('task.estimate.list');
+        Route::get('task/show-estimate-alert', [DevelopmentController::class, 'showTaskEstimateTimeAlert'])->name('task.estimate.alert');
     });
 
     /*Routes For Social */
@@ -2589,11 +2615,16 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('api-response', [ApiResponseMessageController::class, 'index'])->name('api-response-message');
     Route::post('api-response', [ApiResponseMessageController::class, 'store'])->name('api-response-message.store');
     Route::post('/getEditModal', [ApiResponseMessageController::class, 'getEditModal'])->name('getEditModal');
+    Route::post('api-response/lodeTranslation', [ApiResponseMessageController::class, 'lodeTranslation'])->name('api-response-message.lodeTranslation');
+    Route::post('api-response/message-translate', [ApiResponseMessageController::class, 'messageTranslate'])->name('api-response-message.messageTranslate');
+    Route::get('api-response/message-translate-list', [ApiResponseMessageController::class, 'messageTranslateList'])->name('api-response-message.messageTranslateList');
+    Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
+    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name("assets-manager.update-status");
     Route::post('assets-manager/payment-history', [AssetsManagerController::class, 'paymentHistory'])->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', [AssetsManagerController::class, 'assetManamentLog'])->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', [AssetsManagerController::class, 'getMagentoDevScriptUpdatesLogs']);
@@ -2637,6 +2668,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('destroy/{id}', [TemplatesController::class, 'destroy']);
         Route::get('generate-template-category-branch', [TemplatesController::class, 'generateTempalateCategoryBrand']);
         Route::get('type', [TemplatesController::class, 'typeIndex'])->name('templates.type');
+    });
+
+    Route::prefix('code-shortcuts')->middleware('auth')->group(function () {
+        Route::get('/', [CodeShortcutController::class, 'index'])->name('code-shortcuts');
+        Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
+        Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
+        Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -2898,6 +2936,7 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
+    Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -2910,10 +2949,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
-        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
-
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
-
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
         Route::prefix('notification')->group(function () {
             Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
             Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
@@ -2968,6 +3005,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
+    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
 
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
     Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
@@ -3956,7 +3996,8 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/file-list', [WebsiteLogController::class, 'searchWebsiteLog'])->name('search.website.file.list.log');
     Route::get('website/log/view', [WebsiteLogController::class, 'websiteLogStoreView'])->name('website.log.view');
     Route::get('website/search/log/view', [WebsiteLogController::class, 'searchWebsiteLogStoreView'])->name('website.search.log.view');
-
+    Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
+    Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
@@ -4006,6 +4047,7 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
+        Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
@@ -4145,9 +4187,20 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+    Route::get('updateLog/request_headers/show', [UpdateLogController::class, 'requestHeaderShow'])->name('updateLog.request.header.show');
+
+    Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
+    Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');
+    Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
+    Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
+    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
+    Route::resource('event', EventController::class);
+    Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
+    Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
+    Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
-Route::prefix('calendar/public')->middleware('auth')->group(function () {
+Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
     Route::get('/event/suggest-time/{invitationId}', [UserEventController::class, 'suggestInvitationTiming']);
@@ -4283,7 +4336,6 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('google-campaign-location/states', [GoogleCampaignLocationController::class, 'states'])->name('google-campaign-location.states');
     Route::get('google-campaign-location/cities', [GoogleCampaignLocationController::class, 'cities'])->name('google-campaign-location.cities');
     Route::get('google-campaign-location/address', [GoogleCampaignLocationController::class, 'address'])->name('google-campaign-location.address');
-
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
     Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
@@ -4463,6 +4515,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('twilio/accept', [TwilioController::class, 'incomingCall'])->name('twilio-accept-call');
 
+    Route::get('watson/accounts', [WatsonController::class, 'index'])->name('watson-accounts');
+    Route::post('watson/account', [WatsonController::class, 'store'])->name('watson-accounts.add');
+    Route::get('watson/account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
+    Route::post('watson/account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
+    Route::get('watson/delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
+    Route::post('watson/add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+
+    Route::group(['prefix' => 'google-dialog'], function () {
+        Route::get('/accounts', [GoogleDialogFlowController::class, 'index'])->name('google-chatbot-accounts');
+        Route::post('/account/create', [GoogleDialogFlowController::class, 'store'])->name('google-chatbot-accounts.add');
+        Route::get('/account/get/{id}', [GoogleDialogFlowController::class, 'get'])->name('google-chatbot-accounts.get');
+        Route::post('/account/update', [GoogleDialogFlowController::class, 'update'])->name('google-chatbot-accounts.update');
+        Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');
+    });
+
     //subcategory route
 });
 
@@ -4591,6 +4658,7 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
 
 // auth not applied
 Route::post('/common/sendEmail', [CommonController::class, 'sendCommonEmail'])->name('common.send.email');
+Route::post('/common/sendclanaderLinkEmail', [CommonController::class, 'sendClanaderLinkEmail'])->name('common.send.clanaderLinkEmail');
 Route::get('/common/getmailtemplate', [CommonController::class, 'getMailTemplate'])->name('common.getmailtemplate');
 
 //Google file translator
@@ -4649,6 +4717,8 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::post('/size/managerupdate', [SystemSizeController::class, 'managerupdate'])->name('system.size.managerupdate');
     Route::get('/size/managerdelete', [SystemSizeController::class, 'managerdelete'])->name('system.size.managerdelete');
     Route::get('/size/exports', [SystemSizeController::class, 'exports'])->name('system.size.exports');
+
+    Route::post('size/push', [SystemSizeController::class, 'pushSystemSize']);
 
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', [AutoRefreshController::class, 'index'])->name('auto.refresh.index');
@@ -4847,10 +4917,14 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/magento_product_today_common_err_report', [MagentoProductPushErrors::class, 'groupErrorMessageReport'])->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
 //Magento Command
+Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
+Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
+Route::post('magento/command/run-mysql-command', [MagentoCommandController::class, 'runMySqlQuery'])->name('magento.command.runMySqlQuery');
+Route::get('magento/command/run-mysql-command-logs', [MagentoCommandController::class, 'mySqlQueryLogs'])->name('magento.command.mySqlQueryLogs');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
@@ -5019,6 +5093,7 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+    Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
 });
 
 //Queue Management::
@@ -5167,5 +5242,32 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
 Route::prefix('chat-gpt')->middleware('auth')->group(function () {
     Route::get('', [ChatGPTController::class, 'index'])->name('chatgpt.index');
-    Route::post('response', [ChatGPTController::class, 'getCompletions'])->name('chatgpt.response');
+    Route::get('request', [ChatGPTController::class, 'requestApi'])->name('chatgpt.request');
+    Route::post('response', [ChatGPTController::class, 'getResponse'])->name('chatgpt.response');
+});
+
+// Create magento user.
+Route::prefix('magento-users')->middleware('auth')->group(function () {
+    Route::get('', [MagentoUserFromErpController::class, 'index'])->name('magento-user-from-erp.index');
+    Route::post('create', [MagentoUserFromErpController::class, 'magentoUserCreate'])->name('magento-user-from-erp.create');
+    Route::post('roles', [MagentoUserFromErpController::class, 'getRoles'])->name('magento-user-from-erp.roles');
+    Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
+});
+
+
+Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
+Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
+Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
+});
+
+/** Website Monitor */
+Route::middleware('auth')->group(function () {
+    Route::resource('monitor-server', MonitorServerController::class);
+    Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
+    Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+    Route::get('monitor-server/get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
+    Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 });

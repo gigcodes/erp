@@ -28,6 +28,7 @@ use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailStatusChangeHistory;
 use App\ReplyCategory;
 use App\Reply;
+use App\LogRequest;
 
 class EmailController extends Controller
 {
@@ -812,6 +813,7 @@ class EmailController extends Controller
     public static function downloadFromURL($url, $supplier)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (strpos($url, 'https://we.tl/') !== false) {
             $ch = curl_init($url);
@@ -823,6 +825,8 @@ class EmailController extends Controller
 
             $response = curl_exec($ch);
             preg_match_all('/^Location:(.*)$/mi', $response, $matches);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\EmailController::class, 'downloadFromURL');
             curl_close($ch);
 
             if (isset($matches[1])) {
@@ -860,6 +864,7 @@ class EmailController extends Controller
 
         $cookie = 'cookie.txt';
         $url = 'https://wetransfer.com/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -895,7 +900,10 @@ class EmailController extends Controller
 
         $real = curl_exec($ch);
 
-        $urlResponse = json_decode($real);
+        $urlResponse = json_decode($real); //response decode
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters = [];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $urlResponse, $httpcode, \App\Http\Controllers\EmailController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 

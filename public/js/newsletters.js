@@ -176,7 +176,7 @@ var page = {
   deleteResults: function (response) {
     if (response.code == 200) {
       this.getResults();
-      toastr["success"]("Message deleted successfully", "success");
+      toastr["success"]("Newsletter deleted successfully", "success");
     } else {
       toastr["error"]("Oops.something went wrong", "error");
     }
@@ -293,8 +293,8 @@ var page = {
   },
   saveSite: function (response) {
     if (response.code == 200) {
-      toastr["success"]("Setting saved successfully");
-      page.loadFirst();
+      toastr["success"]("Newsletter saved successfully");
+      this.getResults();
       $(".common-modal").modal("hide");
     } else {
       $("#loading-image").hide();

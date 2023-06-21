@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\MailinglistEmail;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class GetStatsFromEmailServers extends Command
 {
@@ -39,7 +40,8 @@ class GetStatsFromEmailServers extends Command
     public function handle()
     {
         $mailEmails = MailinglistEmail::where('progress', 0)->get();
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        
         foreach ($mailEmails as $mailEmail) {
             $list = $mailEmail->audience;
 
@@ -60,9 +62,12 @@ class GetStatsFromEmailServers extends Command
                         // $output contains the output string
                         $output = curl_exec($ch);
 
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Console\Commands\GetStatsFromEmailServers::class, 'handle');
+
                         // close curl resource to free up system resources
                         curl_close($ch);
-
+                        
                         $response = json_decode($output);
 
                         if ($response->statistics) {

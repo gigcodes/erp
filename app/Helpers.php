@@ -404,7 +404,7 @@ class Helpers
     }
     public static function getFromEmail($customer_id=0){
         if(!empty($customer_id)){
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::find($customer_id);
             if($customer){
                 $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
                 if($emailAddressDetails){
@@ -418,13 +418,14 @@ class Helpers
     
     public static function getFromEmailByOrderId($order_id){
         if(!empty($order_id)){
-            $order = Order::find($id);
+            $order = Order::find($order_id);
             if($order){
                 return self::getFromEmail($order->customer->id);
             }
         }
         return config('env.MAIL_FROM_ADDRESS');
     }
+
     public static function getAudioUrl($messages){
         $reg_exUrl = '/\b(https?|ftp|file|http):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i';
         // The Text you want to filter for urls
@@ -436,6 +437,11 @@ class Helpers
 
         } 
         return $messages;
+    }
+
+    public static function isBase64Encoded($string) {
+        return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string);
+
     }
      
 }

@@ -37,27 +37,27 @@
     <td>{{ $file->created_at }}</td>
     <td>
         @if($file->type === 'spreadsheet')
-        <input class="fileUrl" type="text" value="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" />
+        <a href ="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" target="_blank"><input class="fileUrl" type="text" value="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" /></a>
         <button class="copy-button btn btn-secondary"
             data-message="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}">Copy</button>
         @endif
         @if($file->type === 'doc')
-        <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary"
             data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}">Copy</button>
         @endif
         @if($file->type === 'ppt')
-        <input class="fileUrl" type="text" value="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" />
+        <a href ="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" target="_blank"><input class="fileUrl" type="text" value="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary"
             data-message="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}">Copy</button>
         @endif
         @if($file->type === 'xps')
-        <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary"
             data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}">Copy</button>
         @endif
         @if($file->type === 'txt')
-        <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank"> <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary"
             data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}">Copy</button>
         @endif

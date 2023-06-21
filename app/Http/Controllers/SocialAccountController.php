@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\SocialContact;
 use App\SocialWebhookLog;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class SocialAccountController extends Controller
 {
@@ -45,6 +46,7 @@ class SocialAccountController extends Controller
             $data['message']['text'] = $input;
             $pageToken = $contact->socialConfig->page_token;
             $url = "https://graph.facebook.com/v12.0/me/messages?access_token={$pageToken}";
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             $curl = curl_init();
 
@@ -67,6 +69,7 @@ class SocialAccountController extends Controller
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountController::class, 'sendMessage');
             curl_close($curl);
 
             SocialWebhookLog::log(SocialWebhookLog::INFO, 'Send message response', ['response' => $response, 'data' => $data]);

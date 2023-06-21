@@ -169,7 +169,7 @@ return [
         Nestable\NestableServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Thujohn\Twitter\TwitterServiceProvider::class,
+//        Thujohn\Twitter\TwitterServiceProvider::class,
         // BookStack replacement service providers (Extends Laravel)
         Modules\BookStack\Providers\PaginationServiceProvider::class,
         Modules\BookStack\Providers\TranslationServiceProvider::class,
@@ -260,7 +260,7 @@ return [
         'Input' => Illuminate\Support\Facades\Request::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+//        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
 
         // Custom Modules\BookStack
         'Activity' => Modules\BookStack\Facades\Activity::class,

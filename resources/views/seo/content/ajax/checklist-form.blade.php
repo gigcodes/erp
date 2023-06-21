@@ -1,3 +1,6 @@
+@php
+    $auth = auth()->user();
+@endphp
 <form action="{{ $actionUrl }}" autocomplete="off" id="checkListForm"> @csrf
     <input type="hidden" name="type" value="CHECKLIST">
     <input type="hidden" name="checklistType" value="{{ $statusType }}">
@@ -20,11 +23,13 @@
                 <div class="col-md-3">
                     <input type="datetime-local" name="date[]" value="{{ $item->date }}" class="form-control">
                 </div>
+                @if($auth->hasRole(['Admin']))
                 <div class="col-md-1">
                     <button type="button" data-url="{{ route('seo.content.edit', $seoProcess->id)}}" data-label="{{ $item->field_name }}" class="btn btn-image search ui-autocomplete-input checkListHistory" style="cursor: default">
                         <img src="{{ asset('images/history.png') }}" style="width: 30px !important; cursor: default;">
                     </button>
                 </div>
+                @endif
             </div>
         @endforeach
     @else
@@ -46,11 +51,13 @@
                 <div class="col-md-3">
                     <input type="datetime-local" name="date[]" class="form-control">
                 </div>
+                @if($auth->hasRole(['Admin']))
                 <div class="col-md-1">
                     <button type="button" data-url="{{ route('seo.content.edit', $seoProcess->id)}}" data-label="{{ $item }}" class="btn btn-image search ui-autocomplete-input checkListHistory" style="cursor: default">
                         <img src="{{ asset('images/history.png') }}" style="width: 30px !important; cursor: default;">
                     </button>
                 </div>
+                @endif
             </div>
         @endforeach
     @endif

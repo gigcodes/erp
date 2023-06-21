@@ -99,6 +99,35 @@
             </div>
         </div>
     </div>
+    <div class="modal" tabindex="-1" role="dialog" id="reply_logs_modal">
+      <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title">Name</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col-md-12" id="reply_logs_div">
+                          <table class="table">
+                              <thead>
+                                  <tr>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
 
     @include('partials.flash_messages')
 
@@ -108,7 +137,7 @@
         <thead>
           <tr>
            <th width="1%">ID</th>
-            <th width="4%">Name</th>
+            <th width="5%">Name</th>
             <th width="4%">Email</th>
             <th width="4%">Phone</th>
             <th width="6%">Date</th>
@@ -118,6 +147,7 @@
             <th width="5%">Pincode</th>
             <th width="5%">Country</th>
             <th width="6%">Store Website</th>
+            <th width="6%">Platform Id</th>
             <th width="2%">Action</th>
 
           </tr>
@@ -127,7 +157,8 @@
           @foreach ($customers_all as $c)
             <tr>
               <td>{{ $c->id }}</td>
-              <td>{{ $c->name }}</td>
+              <td> {{ strlen($c->name) > 10 ? substr($c->name, 0, 7).'...' : $c->name }}
+                <i class="fa fa-eye show_logs show-logs-icon" data-id="{{ $c->id }}" style="color: #808080;float: right;"></i></td>
               <td>{{ $c->email }}</td>
               <td>{{ $c->phone }}</td>
               <td>{{ date("d-m-Y",strtotime($c->created_at)) }}</td>
@@ -137,6 +168,7 @@
               <td>{{ $c->pincode }}</td>
               <td>{{ $c->country }}</td>
               <td>{{ $c->title }}</td>
+              <td>{{ $c->platform_id }}</td>
               <td><a href="#" onClick="openInfo({{$c}})"><i class="fa fa-edit"></i></a>
 			  <a href="#" onClick="showMessagePopup({{$c->id}})"><i class="fa fa-eye"></i></a></td>
             </tr>
@@ -198,6 +230,10 @@
 					<div class="form-group">
 					    <strong>Country</strong>
 					    <input type="text" class="form-control" name="country" value="" required id="country">
+				    </div>				
+					<div class="form-group">
+					    <strong>Platform Id</strong>
+					    <input type="text" class="form-control" name="platform_id" value="" required id="platform_id">
 				    </div>				
 					
 				</div>
@@ -317,6 +353,7 @@
 		   $('#city').val(details.city);
 		   $('#pincode').val(details.pincode);
 		   $('#country').val(details.country);
+		   $('#platform_id').val(details.platform_id);
 		   $('#customer_edit').modal('show');
 	    }
 		$('.ajax-submit').on('submit', function(e) { 
@@ -349,6 +386,25 @@
 			$('#customer_history').modal('show');
 		});
 	}
+
+  $(document).on('click', '.show-logs-icon', function() {
+		var id = $(this).data('id');
+			$.ajax({
+				url: '{{route('customer.name.show')}}',
+				method: 'GET',
+				data: {
+					id: id
+				},
+				success: function(response) {
+					$('#reply_logs_modal').modal('show');
+					$('#reply_logs_div').html(response);
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});
+		});
+
   </script>   
   
 @endsection

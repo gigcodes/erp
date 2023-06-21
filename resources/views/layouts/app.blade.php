@@ -133,6 +133,43 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     .shortcut-estimate-search-container .select2.select2-container{
         width: 200px!important
     }
+
+    #event-alerts .event-alert-badge,
+    #website_Off_status .status-alert-badge,
+    #timer-alerts .timer-alert-badge {
+        position: absolute;
+        top: -4px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
+    #event-alerts .event-alert-badge {
+    left: 25px;
+    }
+
+    #website_Off_status .status-alert-badge {
+    left: 60px;
+    }
+
+    #timer-alerts .timer-alert-badge {
+    left: 130px;
+    }
+    .red-alert-badge {
+        position: absolute;
+        top: -4px;
+        left: 310px;
+        border-radius: 50%;
+        background-color: red;
+        border: 1px solid white;
+        color: white;
+        height: 10px;
+        width: 10px;
+    }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -1058,6 +1095,9 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+											<a class="dropdown-item"
+												href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
+												Node Code Shortcut</a>
                                             <a class="dropdown-item"
                                                 href="{{ action('\App\Http\Controllers\ProductController@productStats') }}">Product
                                                 Statistics</a>
@@ -1441,7 +1481,7 @@ if (!empty($notifications)) {
                                                     href="{{ route('order.get.email.send.journey.logs') }}">Order email
                                                     journey</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ route('order.get.order.journey') }}">Order 
+                                                    href="{{ route('order.get.order.journey') }}">Order
                                                     journey</a>
                                             </ul>
                                         </li>
@@ -1766,6 +1806,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="/calendar">Calendar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/event">Event</a>
                                 </li>
                             </ul>
                         </li>
@@ -2180,6 +2223,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot-simulator')}}">Simulator</a>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -2464,6 +2510,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-setting-revision-history.index') }}">Magento Setting Revision Histories
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-cron-data') }}">Magento Cron
                                                 Data</a>
                                         </li>
@@ -2487,8 +2538,10 @@ if (!empty($notifications)) {
                                         </li>
 
                                         <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('store-website.index') }}">Store
-                                                Website</a>
+                                            <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
@@ -2509,6 +2562,14 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('store-website.environment.matrix') }}">Store Environment</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
+                                                href="{{ route('store-website.environment.index') }}">Store Environment Table</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('store-website.category.list') }}">Store Category</a>
                                         </li>
                                         <li class="nav-item">
@@ -2524,6 +2585,51 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ route('newsletters.index') }}">Newsletters</a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre="">Review Newsletters Translate<span
+                                                class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="twilioDropdown">
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate') }}">Review Arabic Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','English') }}">Review English Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Chinese') }}">Review Chinese Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Japanese') }}">Review Japanese Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Korean') }}">Review Korean Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Urdu') }}">Review Urdu Newsletters Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Russian') }}">Review Russian Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Italian') }}">Review Italian Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','French') }}">Review French Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Spanish') }}">Review Spanish Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','Dutch') }}">Review Dutch Newsletters Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('newsletters.review.translate','German') }}">Review German Newsletters Translate </a>
+                                                    </li>
+
+                                                </ul>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
@@ -2931,6 +3037,9 @@ if (!empty($notifications)) {
 
                                         <li class="nav-item dropdown">
                                             <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a href="{{ route('google-chatbot-accounts') }}">Google Dialogflow Account Management</a>
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -3688,7 +3797,14 @@ if (!empty($notifications)) {
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('order/invoices/saveLaterList') }}">Save Later Invoices</a>
+                                    </li>
                                 </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('monitor-jenkins-build.index') }}">Monitor Jenkins Build</a>
+                                <a class="dropdown-item" href="{{ route('monitor-server.index') }}">Website Monitor</a>
                             </li>
                             </ul>
                         </div>
@@ -3706,6 +3822,60 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
+                            <li>
+                                <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                    <span class="event-alert-badge hide"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="Live laravel logs" id="live-laravel-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            <li>  
+                                @php
+                                    $status = \App\Models\MonitorServer::where('status', 'off')->first();
+                                @endphp
+                                
+                                <a title="Monitor Status" type="button" class="quick-icon" id="website_Off_status" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
+                                        @if ($status)
+                                        <span class="status-alert-badge"></span>
+                                        @endif
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                @php
+                                    $currentDate = Illuminate\Support\Carbon::now()->format('Y-m-d');
+                                    $logs = \App\TimeDoctor\TimeDoctorLog::query()->with(['user']);
+
+                                    if(!auth()->user()->isAdmin()) {
+                                        $logs->where('user_id', auth()->user()->id);
+                                    }
+                                    
+                                    $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->count();
+                                @endphp
+                                <a title="Time-Doctor-logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                    <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    @if($currentLogs)
+                                    <span class="timer-alert-badge"></span>
+                                    @endif
+                                </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="jenkins Build status" id="jenkins-build-status" type="button"  class="quick-icon" style="padding: 0px 1px;"><span><i
+                                 class="fa fa-cog fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
@@ -3739,6 +3909,7 @@ if (!empty($notifications)) {
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
                                         </span>
+                                        <span class="time-estimation-badge red-alert-badge hide"></span>
                                     </a>
                                 </li>
                             @endif
@@ -3749,6 +3920,14 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Create database" type="button" class="quick-icon menu-create-database" style="padding: 0px 1px;"><span><i
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Create Event" type="button" class="quick-icon" data-toggle="modal" data-target="#shortcut-user-event-model" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-calendar-o fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Create Resource" type="button" class="quick-icon" data-toggle="modal" data-target="#shortcut_addresource" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
@@ -3885,7 +4064,7 @@ if (!empty($notifications)) {
                 @endphp
             @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
 
                     <!-- Modal content-->
                     <div class="modal-content">
@@ -4332,6 +4511,14 @@ if (!empty($notifications)) {
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
         @include('user-management.search-user-schedule')
+        @include('partials.modals.shortcut-user-event-modal')
+        @include('partials.modals.event-alerts-modal')
+        @include('partials.modals.create-event')
+        @include('partials.modals.live-laravel-logs-summary')
+        @include('resourceimg.partials.short-cut-modal-create-resource-center')
+        @include('monitor-server.partials.monitor_status')
+        @include('monitor.partials.jenkins_build_status')
+        @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7026,6 +7213,181 @@ if (!\Auth::guest()) {
 
         }).fail(function(errObj) {
             $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('click','#website_Off_status',function(e){
+        $('#create-status-modal').modal('show');
+    });
+
+    $(document).on('click','#live-laravel-logs',function(e){
+        $.ajax({
+            type: "GET",
+            url: "{{route('logging.live.logs-summary')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#live-laravel-logs-summary-modal-html').empty().html(response.html);
+            $('#live-laravel-logs-summary-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    });
+
+    $(document).on('click','#create_event',function(e){
+        e.preventDefault();
+        $('#create-event-modal').modal('show');
+    });
+
+    $(document).on('click','#jenkins-build-status',function(e){
+        e.preventDefault();
+        $('#create-jenkins-status-modal').modal('show');
+    });
+
+    $(document).on('click','#event-alerts',function(e){
+        e.preventDefault();
+        getEventAlerts(true);
+    });
+    $(document).ready(function() {
+        @if(Auth::check())
+        var Role = "{{ Auth::user()->hasRole('Admin') }}";
+        if (Role) {
+            getEventAlerts();
+            getTimeEstimationAlerts();
+        }
+        @endif
+    });
+
+    function getEventAlerts(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('event.getEventAlerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#event-alerts-modal-html').empty().html(response.html);
+            if (showModal) {
+                $('#event-alerts-modal').modal('show');
+            }
+            if(response.count > 0) {
+                $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','#timer-alerts',function(e){
+        e.preventDefault();
+        getTimerAlerts(true);
+    });
+
+    function getTimerAlerts(showModal = false) {
+
+        $.ajax({
+            type: "GET",
+            url: "{{route('get.timer.alerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#timer-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#timer-alerts-modal').modal('show');
+            }
+            // if(response.count > 0) {
+            //     $('.timer-alert-badge').removeClass("hide");
+            // }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function getTimeEstimationAlerts() {
+        $.ajax({
+            type: "GET",
+            url: "{{route('task.estimate.alert')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            if(response.count > 0) {
+                $('.time-estimation-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+        $(document).on('submit', '#event-alert-date-form', function(event) {
+            event.preventDefault();
+            var dateValue = $('input[name="event_alert_date"]').val();
+            $.ajax({
+                    type: "GET",
+                    url: "{{route('event.getEventAlerts')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date : dateValue
+                    },
+            }).done(function (response) {
+                $('.ajax-loader').hide();
+                $('#event-alerts-modal-html').empty().html(response.html);
+                if (showModal) {
+                    $('#event-alerts-modal').modal('show');
+                }
+                if(response.count > 0) {
+                    $('.event-alert-badge').removeClass("hide");
+                }
+            }).fail(function (response) {
+                $('.ajax-loader').hide();
+                console.log(response);
+            });
+         });
+
+
+    $(document).on('click','.event-alert-log-modal',function(e){
+        var event_type = $(this).data("event_type");
+        var event_id = $(this).data("event_id");
+        var event_schedule_id = $(this).data("event_schedule_id");
+        var assets_manager_id = $(this).data("assets_manager_id");
+        var event_alert_date = $(this).data("event_alert_date");
+        var is_read = $(this).prop('checked');
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('event.saveAlertLog')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                event_type,
+                event_id,
+                event_schedule_id,
+                assets_manager_id,
+                event_alert_date,
+                is_read
+            },
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            toastr["success"](response.message, "Message");
+            $('.ajax-loader').hide();
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
         });
     });
 

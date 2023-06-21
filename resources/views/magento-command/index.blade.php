@@ -64,7 +64,7 @@
                       $ops = 'id';
                     ?>
                         @foreach($websites as $website)
-                        <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                            <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -73,14 +73,9 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <?php $magentoComArr = []; ?>
-                    @foreach ($magentoCommand as $key => $magentoCom)
-                    <?php array_push($magentoComArr,$magentoCom->command_name);?>
-                    @endforeach
-                    <?php $magentoComArr = array_unique($magentoComArr); ?>
                     <select name="command_name" class="form-control" id="command_name">
                         <option value="">--Select Command Name--</option>
-                        @foreach ($magentoComArr as $key => $comName)
+                        @foreach ($magentoCommandListArray as $comName => $comType)
                         <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                         @endforeach
                     </select>
@@ -107,8 +102,45 @@
         </div>
     </form>
     <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#rcmw_runCommand">Run Command</button>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#run_ms_query">Run MySql Query</button>
+    <a target="_blank" href="/magento/command/run-mysql-command-logs" class="btn custom-button float-right mr-3" >MySql Query Logs</a>
 
 </div>
+
+@php $isPermissionCommandRun = 0; @endphp
+
+@if(auth()->user()->isAdmin())
+    @php $isPermissionCommandRun = 1; @endphp
+
+    <div class="col-12">
+        <h3>Assign Permission to User</h3>
+        <form class="form-inline" id="update_user_permission" action="/magento/command/permission/user" method="POST">
+        @csrf
+        <div class="form-group">
+            <div class="input-group">
+            <select name="persmission_website" class="form-control" id="persmission_website" required>
+                <option value="">--select website for Permission--</option>
+                    @foreach($websites as $website)
+                        <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                    @endforeach
+            </select>
+            </div>
+        </div> &nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <div class="input-group">
+            <select name="persmission_user" class="form-control" id="persmission_user" required>
+                <option value="">--select user for Permission--</option>
+                @foreach ($users as $key => $user)
+                    <option @if($user->id == request('user_id')) selected @endif value="{{$user->id}}">{{$user->name}}</option>
+                @endforeach
+            </select>
+            </div>
+        </div> &nbsp;&nbsp;
+        <button type="submit" class="btn custom-button update-userpermission">Update User Permission</button>
+        </form>
+    </div>
+@endif
 
 </br>
 <div class="row m-0">
@@ -150,13 +182,27 @@
                             <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                         </td>
                         <td>
-                            <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
-                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                            </a>
+                            @php 
+                                $isPerCommandRunCheck = $isPermissionCommandRun; 
+
+                                if($isPerCommandRunCheck == 0 && !empty($magentoCom->user_permission)){
+                                    $userPermissions = explode(',', $magentoCom->user_permission);
+
+                                    if(in_array(auth()->user()->id, $userPermissions)){
+                                        $isPerCommandRunCheck = 1;
+                                    }
+                                }
+                            @endphp
+
+                            @if($isPerCommandRunCheck == 1)
+                                <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
+                                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                </a>
+                            @endif
+
                             <a class="btn btn-image edit-magentoCom-btn" data-id="{{ $magentoCom->id }}"><img data-id="{{ $magentoCom->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
                             <a class="btn delete-magentoCom-btn" data-id="{{ $magentoCom->id }}" href="#"><img data-id="{{ $magentoCom->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
                             <a title="Preview Response" data-id="{{ $magentoCom->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
-
                         </td>
                     </tr>
                     @endforeach
@@ -209,7 +255,7 @@
 
 
 <div id="commandResponseHistoryModel" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
         <!-- Modal content-->
         <div class="modal-content ">
             <div id="add-mail-content">
@@ -227,7 +273,9 @@
                                     <th style="width: 3%;">ID</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Job ID</th>
                                     <th style="width: 4%;overflow-wrap: anywhere;">Date</th>
                                 </tr>
                             </thead>
@@ -257,8 +305,21 @@
                     <div class="modal-body">
                         <form id="magentoForm" method="post">
                             @csrf
+
                             <div class="form-row">
                                 <input type="hidden" id="command_id" name="id" value="" />
+
+                                @if(auth()->user()->isAdmin())
+                                    <div class="form-group col-md-12">
+                                        <label for="title">User Name</label>
+                                        <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
+                                            <option>--Users--</option>
+                                            @foreach ($users as $key => $user)
+                                                <option value="{{$user->id}}">{{$user->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div> 
+                                @endif
 
                                 <div class="form-group col-md-12">
                                     <label for="title">Website</label>
@@ -275,18 +336,27 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12">
+                                    <label for="assets_manager_id">Assets Manager</label>
+                                    <div class="dropdown-sin-1">
+                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
+                                            <option value="">--Assets Manager--</option>
+                                            
+                                            <?php
+                            foreach($assetsmanager as $am){
+                                echo '<option value="'.$am->id.'">'.$am->name.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <?php $magentoComArr = []; ?>
-                                    @foreach ($magentoCommand as $key => $magentoCom)
-                                    <?php array_push($magentoComArr,$magentoCom->command_name);?>
-                                    @endforeach
-                                    <?php $magentoComArr = array_unique($magentoComArr); ?>
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%">
+                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
                                         <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoComArr as $key => $comName)
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
                                         <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                                         @endforeach
                                     </select>
@@ -294,17 +364,17 @@
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <?php $commandTypeArr = []; ?>
-                                    @foreach ($magentoCommand as $key => $magentoComT)
-                                    <?php array_push($magentoComArr,$magentoComT->command_type);?>
-                                    @endforeach
-                                    <?php $magentoComArr = array_unique($magentoComArr); ?>
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%">
+                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
                                         <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoComArr as $key => $comType)
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
                                         <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="working_directory">Working Directory</label>
+                                    <input type="text" name="working_directory" value="" class="form-control" id="working_directory" placeholder="Enter the working directory" required>
+                                    
                                 </div>
                             </div>
                         </form>
@@ -319,7 +389,101 @@
         </div>
     </div>
 </div>
-
+<div id="rcmw_runCommand" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Run Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="title">Websites</label>
+                                <div class="dropdown-sin-1">
+                                    <?php $websites = \App\StoreWebsite::get(); ?>
+                                    <select name="rcmw_websites_ids[]" class="rcmw_websites_ids form-control dropdown-mul-1" style="width: 100%;" id="rcmw_websites_ids" multiple>
+                                        <option>--Websites--</option>
+                                        <option value="ERP">ERP</option>
+                                        <?php
+                                            foreach($websites as $website){
+                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="rcmw_command_id">Command</label>
+                                <select name="rcmw_command_id" class="form-control" id="rcmw_command_id" style="width: 100%" required>
+                                    <option value="">--Select Command--</option>
+                                    @foreach ($allMagentoCommandListArray as $id => $comType)
+                                    <option value="{{$id}}">{{$comType}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                                
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="rcmw-run-command-btn" class="btn btn-secondary">Run Command</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="run_ms_query" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Run MySql Query</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="title">Websites</label>
+                                <div class="dropdown-sin-1">
+                                    <?php $websites = \App\StoreWebsite::get(); ?>
+                                    <select name="run_msq_websites_ids[]" class="run_msq_websites_ids form-control dropdown-mul-1" style="width: 100%;" id="run_msq_websites_ids" multiple>
+                                        <option>--Websites--</option>
+                                        <option value="ERP">ERP</option>
+                                        <?php
+                                            foreach($websites as $website){
+                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="rcmw_command_id">MySql Query</label>
+                                <input type="text" id="run_msq_command" class="form-control" name="run_msq_command" value="">
+                            </div>
+                                
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="run_msq_command-btn" class="btn btn-secondary">Run</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -414,7 +578,10 @@
                 }
                 , data: {
                     id: id
-                }
+                },
+                beforeSend: function() {
+                    $('#loading-image').show();
+                },
             }).done(function(response) {
                 if (response.code = '200') {
                     toastr['success']('Command deleted successfully!!!', 'success');
@@ -432,14 +599,50 @@
     $(document).on("click", ".submit-form", function(e) {
         e.preventDefault();
         var $this = $(this);
+
+        <?php if(auth()->user()->isAdmin()){ ?>
+            if($("#user_permission").val().length == 0){
+                toastr['error']('Please Select User Permission', 'error');
+                return '';
+            }
+        <?php } ?>
+        
+        if($("#websites_ids").val()=='--Website--'){
+            toastr['error']('Please Select Website', 'error');
+            return '';
+        }
+        if($("#websites_ids").val()=='--Website--'){
+            toastr['error']('Please Select Website', 'error');
+            return '';
+        }
+        if($("#assets_manager_id").val()==''){
+            toastr['error']('Please Select Assets Manager', 'error');
+            return '';
+        }
+        if($("#command_name_search").val()==''){
+            toastr['error']('Please Select Command Name', 'error');
+            return '';
+        }
+        if($("#command_type").val()==''){
+            toastr['error']('Please Select Command', 'error');
+            return '';
+        }
+        /*if($("#working_directory").val()==''){
+            toastr['error']('Please Enter Command Working Directory', 'error');
+            return '';
+        }*/
+
         if ($('#titleUpdate').text() == 'Add')
             $("#command_id").val("");
         $.ajax({
             url: "/magento/command/add"
             , type: "post"
-            , data: $('#magentoForm').serialize()
+            , data: $('#magentoForm').serialize(),
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
-            if (response.code = '200') {
+            if (response.code == '200') {
                 $('#loading-image').hide();
                 $('#addCommand').modal('hide');
                 toastr['success']('Command added successfully!!!', 'success');
@@ -467,7 +670,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 form = $('#magentoForm');
@@ -490,6 +696,9 @@
                         if (key == 'command_type') {
                             $('#command_type').val(v).trigger('change');
                         }
+                        if (key == 'assets_manager_id') {
+                            $('#assets_manager_id').val(v).trigger('change');
+                        }
 
                     } else if (form.find('[name="' + key + '[]"]').length) {
                         //form.find('[name="'+key+'[]"]').val(response.ops);
@@ -501,6 +710,12 @@
                             // $("#websites_ids option[value='" + e + "']").prop("selected", true);
                         });
                     }
+
+                    <?php if(auth()->user()->isAdmin()){ ?>
+                        if (key == "user_permission") {
+                            $('#user_permission').val(v.split(',')).trigger('change');
+                        }
+                    <?php } ?>
                 });
                 $('#addPostman').modal('show');
                 toastr['success']('Command Listed successfully!!!', 'success');
@@ -508,6 +723,7 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#addPostman").hide();
@@ -527,7 +743,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 var t = '';
@@ -543,11 +762,113 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#postmanHistory").hide();
             toastr['error'](errObj.message, 'error');
         });
+    });
+    
+    $(document).on("click", "#rcmw-run-command-btn", function(e) {
+        e.preventDefault();
+        var websites_ids=$("#rcmw_websites_ids").val();
+        var command_id=$("#rcmw_command_id").val();
+        if(command_id==''){
+            toastr['error']('Please select Command', 'error');
+            return;
+        }
+        if(typeof websites_ids == 'undefined' ||  websites_ids.length == 0){
+            toastr['error']('Please select Website', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: "/magento/command/run-on-multiple-website"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                command_id: command_id,
+                websites_ids: websites_ids
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code = '200') {
+                toastr['success'](response.message, 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+            $("#rcmw_command_id").val('');
+            $("#rcmw_websites_ids").val('').trigger('change')
+            $("#rcmw_runCommand").modal('hide');
+            
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            if (errObj ?.responseJSON ?.message) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+                return;
+            }
+            toastr['error'](errObj.message, 'error');
+            $("#rcmw_command_id").val('');
+            $("#rcmw_websites_ids").val('').trigger('change')
+            $("#rcmw_runCommand").modal('hide');
+        });
+        
+    });
+    $(document).on("click", "#run_msq_command-btn", function(e) {
+        e.preventDefault();
+        var websites_ids=$("#run_msq_websites_ids").val();
+        var command=$("#run_msq_command").val();
+        if(command==''){
+            toastr['error']('Please Enter MySql Query', 'error');
+            return;
+        }
+        if(typeof websites_ids == 'undefined' ||  websites_ids.length == 0){
+            toastr['error']('Please select Website', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: "/magento/command/run-mysql-command"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                command: command,
+                websites_ids: websites_ids
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                toastr['success'](response.message, 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+            $("#run_msq_command").val('');
+            $("#run_msq_websites_ids").val('').trigger('change')
+            $("#run_ms_query").modal('hide');
+            
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            if (errObj ?.responseJSON ?.message) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+                return;
+            }
+            toastr['error'](errObj.message, 'error');
+            $("#run_msq_command").val('');
+            $("#run_msq_websites_ids").val('').trigger('change')
+            $("#run_ms_query").modal('hide');
+        });
+        
     });
 
     $(document).on("click", ".magentoCom-run-btn", function(e) {
@@ -562,13 +883,17 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
-            if (response.code = '200') {
+            if (response.code == '200') {
                 toastr['success']('Command Run successfully!!!', 'success');
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             if (errObj ?.responseJSON ?.message) {
@@ -591,7 +916,10 @@
             }
             , data: {
                 id: id
-            }
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
         }).done(function(response) {
             if (response.code = '200') {
                 var t = '';
@@ -613,7 +941,9 @@
                     t += '<tr><td>' + v.id + '</td>';
                     t += '<td>' + v.userName + '</td>';
                     t += '<td  class="expand-row-msg" data-name="command" data-id="' + v.id + '" ><span class="show-short-command-' + v.id + '">' + commandString + '...</span>    <span style="word-break:break-all;" class="show-full-command-' + v.id + ' hidden">' + v.command_name + '</span></td>';
+                    t += '<td>' + v.status + '</td>';
                     t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
+                    t += '<td>' + v.job_id + '</td>';
                     //t += '<td>'+v.response_code+'</td>';
                     //t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
                     //t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
@@ -626,6 +956,7 @@
             } else {
                 toastr['error'](response.message, 'error');
             }
+            $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
             $("#commandResponseHistoryModel").hide();
@@ -653,5 +984,46 @@
         $(".dropdown-mul-1").select2({});
     });
 
+    $('#update_user_permission').submit(function(e){
+        e.preventDefault();
+        var persmission_website = $('#persmission_website').val();
+        var persmission_user = $('#persmission_user').val();
+
+        if (persmission_website && persmission_user) {
+            $.ajax({
+                url: "{{ route('magento.command.user.permission') }}",
+                type: "post",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    persmission_website: persmission_website,
+                    persmission_user: persmission_user
+                }
+
+            }).done(function(response) {
+                $('#loading-image').hide();
+                if (response.code = '200') {
+                    toastr['success'](response.message, 'success');
+                    location.reload();
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        } else {
+            if (persmission_website.length > 0){
+                $('#persmission_website').addClass("alert alert-danger");
+
+                toastr['error']("Please Select Required fileds", 'error');
+            }else if(persmission_user.length > 0){
+                $('#persmission_user').addClass("alert alert-danger");
+
+                toastr['error']("Please Select Required fileds", 'error');
+            }
+        }
+    });
 </script>
 @endsection

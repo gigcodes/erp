@@ -8,6 +8,7 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\WebsitePushLog;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteController extends Controller
@@ -22,12 +23,14 @@ class WebsiteController extends Controller
         $title = 'Website | Store Website';
 
         $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
+        $websites = Website::all()->pluck('full_name', 'id')->toArray();
         $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
         return view('storewebsite::website.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'countries' => $countries,
+            'websites' => $websites
         ]);
     }
 
@@ -64,6 +67,32 @@ class WebsiteController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => $websites->total(), 'pagination' => (string) $websites->render()]);
+    }
+
+    public function pushLogs($id)
+    {
+        $websitePushLogs = WebsitePushLog::where('websitepushloggable_type', \App\Website::class)
+            ->where('websitepushloggable_id', $id)
+            ->paginate();
+
+        $items = $websitePushLogs->items();
+
+        return response()->json(['code' => 200, 'data' => $items, 'total' => $websitePushLogs->total(), 'pagination' => (string) $websitePushLogs->render()]);
+    }
+
+    public function pushAllLogs(Request $request)
+    {
+        
+        $perPage = 10; // Number of records per page
+
+        $websitePushLogs = WebsitePushLog::latest();
+        if( $request->has('website_id') ) {
+            $websitePushLogs = $websitePushLogs->where('websitepushloggable_id', $request->query('website_id'))
+                ->where('websitepushloggable_type', \App\Website::class);
+        }
+        $websitePushLogs = $websitePushLogs->paginate($perPage);
+
+        return response()->json($websitePushLogs);
     }
 
     public function store(Request $request)
@@ -489,5 +518,37 @@ class WebsiteController extends Controller
         }
 
         return response()->json(['code' => 500, 'data' => [], 'error' => 'Copy field or Store Website id is not selected']);
+    }
+    public function websitesStores(Request $request){
+
+        $websites = Website::with('stores.storeViewMany')->whereNotNull('platform_id')->get();
+       
+        $returnData=[];
+        foreach($websites as $key=>$website){
+            
+            $websiteArray=[];
+            $websiteArray['website_id']=$website->platform_id;
+            $websiteArray['name']=$website->name;
+            $websiteArray['code']=$website->code;
+            $websiteArray['default_display_currency_code']='';
+            $websiteArray['store_list']=[];
+            if($website->stores){
+                foreach($website->stores as $stores){
+                    if($stores->storeViewMany){
+                        foreach($stores->storeViewMany as $view){
+                            $storesViewArray=[];
+                            $storesViewArray['id']=$view->id;
+                            $storesViewArray['code']=$view->code;
+                            $storesViewArray['name']=$view->name;
+                            $websiteArray['store_list'][]=$storesViewArray;
+                        }
+                    }
+                    
+                }
+                
+            }
+            $returnData[]=$websiteArray;
+        }
+        return json_encode($returnData);
     }
 }

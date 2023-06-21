@@ -15,5 +15,7 @@ class WebsiteLog extends Model
         'type',
         'created_at',
         'updated_at',
+        'error',
+        'file_path',
     ];
 }

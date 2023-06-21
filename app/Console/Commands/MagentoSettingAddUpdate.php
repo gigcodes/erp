@@ -6,6 +6,7 @@ use App\StoreWebsite;
 use App\MagentoSetting;
 use Illuminate\Console\Command;
 use App\MagentoSettingUpdateResponseLog;
+use App\LogRequest;
 
 class MagentoSettingAddUpdate extends Command
 {
@@ -41,12 +42,14 @@ class MagentoSettingAddUpdate extends Command
     public function handle()
     {
         try {
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $websites = StoreWebsite::whereNotNull('api_token')->whereNotNull('magento_url')->whereNotNull('server_ip')->get();
             foreach ($websites as $website) {
                 if ($website->api_token != '' && $website->server_ip != '') {
                     $curl = curl_init();
+                    $url = $website->magento_url . '/rest/V1/core/config/';
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $website->magento_url . '/rest/V1/core/config/',
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -66,7 +69,9 @@ class MagentoSettingAddUpdate extends Command
                     $response = curl_exec($curl);
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     $resArr = is_string($response) ? json_decode($response, true) : $response;
+                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
                     curl_close($curl);
+                    
                     //dd($resArr, 'sdfgsdf');
                     if (is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
                         foreach ($resArr as $key1 => $res1) {

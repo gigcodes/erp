@@ -2,11 +2,11 @@
 foreach($brands as $brand) { 
 	if(request()->get('brd_store_website_id')){
 		if(request()->get('no_brand')){
-			if(in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+			if(isset($apppliedResult[$brand->id]) && in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
 				continue;
 			}
 		}else{
-			if(!in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+			if(isset($apppliedResult[$brand->id]) && !in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
 				continue;
 			}
 		}	

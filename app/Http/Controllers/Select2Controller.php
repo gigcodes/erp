@@ -12,7 +12,9 @@ use App\Supplier;
 use App\DeveloperTask;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorAccount;
+use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorProject;
+use Illuminate\Support\Facades\Auth;
 
 class Select2Controller extends Controller
 {
@@ -382,6 +384,18 @@ class Select2Controller extends Controller
             $time_doctor_accounts->where(function ($q) use ($request) {
                 $q->where('time_doctor_email', 'LIKE', '%' . $request->q . '%');
             });
+        }
+
+        // If I am the member of TimeDoctor, then get my latest time_doctor_account_id
+        if (isset(Auth::user()->id)) {
+            $myTimeDoctorMember = TimeDoctorMember::where('user_id', Auth::user()->id)->latest()->first();
+            if ($myTimeDoctorMember) {
+                // Check record exist, Otherwise it will ignore the below condition & get all the remaining accounts as usual. 
+                $accountExists = TimeDoctorAccount::where('id', $myTimeDoctorMember->time_doctor_account_id)->where('auth_token', '!=', '')->exists();
+                if($accountExists) {
+                    $time_doctor_accounts = $time_doctor_accounts->where('id', $myTimeDoctorMember->time_doctor_account_id);
+                }
+            }
         }
 
         $time_doctor_accounts = $time_doctor_accounts->where('auth_token', '!=', '');

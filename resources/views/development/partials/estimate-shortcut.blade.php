@@ -69,6 +69,12 @@ if(typeof estimatefunTaskInformationModal === 'undefined') {
                     mdl.find('.estimate-general-show-time-history').attr('data-user_id', res.data.assign_to);
                     mdl.modal("show");
                 }
+
+                if(res.user){
+                    mdl.find(".task_user").html(`(${res.user.name || '-'})`)
+                } else {
+                    mdl.find(".task_user").html(``)
+                }
                 mdl.modal("show");
             } else {
                 siteErrorAlert(res);
@@ -343,8 +349,8 @@ if(typeof estimatefunTaskHistories === 'undefined') {
 
 jQuery(document).on('click', '.estimate-show-time-history', function() {
     
-        var userId = jQuery(this).data('userid');
-        var issueId = jQuery(this).data('id');
+        var userId = jQuery(this).attr('data-userid');
+        var issueId = jQuery(this).attr('data-id');
         jQuery('#estimate_time_history_div table tbody').html('');
 
         // const hasText = jQuery(this).siblings('input').val()
@@ -374,15 +380,16 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                                     <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
                                     <td>${item['new_value']}</td>
                                     <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
                                     </tr>`
-                                    // <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
-                                    // <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
                         );
                     });
                     jQuery('#estimate_time_history_div table tbody').append(
                         '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
                     );
                 }
+                $("#hidden_task_type").val("DEVTASK")
                 jQuery('#estimate_time_history_modal').modal('show');
             }
         });
@@ -492,15 +499,16 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                                     <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
                                     <td>${item['new_value']}</td>
                                     <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
                                     </tr>`
-                                    // <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
-                                    // <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
                         );
                     });
                     jQuery('#estimate_time_history_div table tbody').append(
                         '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
                     );
                 }
+                $("#hidden_task_type").val("TASK")
                 jQuery('#estimate_time_history_modal').modal('show');
             }
         });
@@ -547,12 +555,50 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
             });
         }
     }
+
+    $(document).on("submit", "#estimate-approve-time-btn", function (event) {
+        event.preventDefault();
+        var type = $("#hidden_task_type").val();
+        siteLoader(1);
+        if (type == "TASK") {
+            $.ajax({
+                url: "/task/time/history/approve",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    siteLoader(0);
+                    toastr["success"]("Successfully approved", "success");
+                    $("#estimate_time_history_modal").modal("hide");
+                },
+                error: function (error) {
+                    siteLoader(0);
+                    toastr["error"](error.responseJSON.message);
+                },
+            });
+        } else {
+            $.ajax({
+                url: "/development/time/history/approve",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr["success"]("Successfully approved", "success");
+                    $("#estimate_time_history_modal").modal("hide");
+                    siteLoader(0);
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                    siteLoader(0);
+                },
+            });
+        }
+    });
+    
 </script>
 <div id="estimateModalTaskInformationUpdates" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Task's Information Update</h4>
+                <h4 class="modal-title">Task's Information Update <span class="task_user"></span></h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -636,7 +682,7 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Task's Information Update</h4>
+                <h4 class="modal-title">Task's Information Update  <span class="task_user"></span></h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -725,7 +771,7 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                 <h5 class="modal-title">Estimated Time History</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="" id="approve-time-btn" method="POST">
+            <form action="" id="estimate-approve-time-btn" method="POST">
                 @csrf
                 <input type="hidden" name="hidden_task_type" id="hidden_task_type">
                 <div class="modal-body">
@@ -740,6 +786,8 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                                         <th>Old Value</th>
                                         <th>New Value</th>
                                         <th>Updated by</th>
+                                        <th>Remark</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -748,12 +796,12 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                         </div>
                     </div>
                 </div>
-                {{-- <div class="modal-footer">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     @if (auth()->user()->isReviwerLikeAdmin())
                     <button type="submit" class="btn btn-secondary">Confirm</button>
                     @endif
-                </div> --}}
+                </div>
             </form>
         </div>
     </div>

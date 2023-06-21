@@ -6,6 +6,7 @@ use App\Scraper;
 use App\ScraperDuration;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use App\LogRequest;
 
 class UpdateScraperDuration extends Command
 {
@@ -40,6 +41,7 @@ class UpdateScraperDuration extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $activeSuppliers = Scraper::with([
             'scraperDuration' => function ($q) {
                 $q->orderBy('id', 'desc');
@@ -84,6 +86,8 @@ class UpdateScraperDuration extends Command
                 curl_setopt($curl, CURLOPT_URL, $url);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 $response = curl_exec($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\UpdateScraperDuration::class, 'handle');
                 curl_close($curl);
                 $duration = json_decode($response);
 

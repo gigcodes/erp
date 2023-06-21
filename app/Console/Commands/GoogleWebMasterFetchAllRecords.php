@@ -12,6 +12,7 @@ use App\GoogleSearchAnalytics;
 use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class GoogleWebMasterFetchAllRecords extends Command
 {
@@ -27,6 +28,7 @@ class GoogleWebMasterFetchAllRecords extends Command
     public function handle()
     {
         try{
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron stared to run']);
 
             $google_redirect_url = route('googlewebmaster.get-access-token');
@@ -71,9 +73,10 @@ class GoogleWebMasterFetchAllRecords extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
 
                         //echo"<pre>";print_r($token);die;
+                        $url = "https://www.googleapis.com/webmasters/v3/sites/";
                         $curl = curl_init();
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
+                            CURLOPT_URL =>  $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
@@ -100,6 +103,10 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                         $check_error_response = json_decode($response);
 
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        //here response alredy decode
+                        LogRequest::log($startTime, $url, 'GET', json_encode([]), $check_error_response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+
                         curl_close($curl);
 
                         if (isset($check_error_response->error->message) || $err) {
@@ -119,9 +126,9 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                                     $curl1 = curl_init();
                                     //replace website name with code coming form site list
-
+                                    $url = "https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
                                     curl_setopt_array($curl1, [
-                                        CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
+                                        CURLOPT_URL => $url,
                                         CURLOPT_RETURNTRANSFER => true,
                                         CURLOPT_ENCODING => '',
                                         CURLOPT_MAXREDIRS => 10,
@@ -135,6 +142,9 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                                     $response1 = curl_exec($curl1);
                                     $err = curl_error($curl1);
+                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);                       
+                                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
+            
 
                                     if ($err) {
                                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Error found from the curl request']);
@@ -172,6 +182,8 @@ class GoogleWebMasterFetchAllRecords extends Command
         $GOOGLE_CLIENT_MULTIPLE_KEYS = config('google.GOOGLE_CLIENT_MULTIPLE_KEYS');
 
         $google_keys = explode(',', $GOOGLE_CLIENT_MULTIPLE_KEYS);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+
         //$token = $request->session()->get('token');
         foreach ($google_keys as $google_key) {
             if ($google_key) {
@@ -201,13 +213,16 @@ class GoogleWebMasterFetchAllRecords extends Command
                 ]);
 
                 $response = curl_exec($curl);
-                $response = json_decode($response);
+                $response = json_decode($response); // here Response decode
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url_for_sites, 'GET', json_encode([]), $response, $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'updateSitesData');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
                 }
 
                 curl_close($curl);
+                
 
                 if (isset($error_msg)) {
                     $this->curl_errors_array[] = ['key' => $google_key, 'error' => $error_msg, 'type' => 'site_list'];
@@ -315,6 +330,7 @@ class GoogleWebMasterFetchAllRecords extends Command
     public function googleResultForAnaylist($siteUrl, $params)
     {
         $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $curl = curl_init();
         //replace website name with code coming form site list
@@ -335,7 +351,9 @@ class GoogleWebMasterFetchAllRecords extends Command
 
         $response = curl_exec($curl);
 
-        $response = json_decode($response);
+        $response = json_decode($response); // response decoded
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($params), $response, $httpcode, 'googleResultForAnaylist', \App\Console\Commands\GoogleWebMasterFetchAllRecords::class);
 
         if (isset($response->error->message)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $response->error->message, 'type' => 'search_analytics'];
@@ -346,8 +364,8 @@ class GoogleWebMasterFetchAllRecords extends Command
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
-        curl_close($curl);
-
+        
+        curl_close($curl);  
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $error_msg, 'type' => 'search_analytics'];
 

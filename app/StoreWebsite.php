@@ -111,6 +111,8 @@ class StoreWebsite extends Model
         'is_dev_website',
         'site_folder',
         'store_code_id',
+        'assets_manager_id',
+        'working_directory',
     ];
 
     const DB_CONNECTION = [
@@ -155,7 +157,7 @@ class StoreWebsite extends Model
 
     public function storeCode()
     {
-        return $this->hasOne(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
+        return $this->belongsTo(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
     }
 
     /**

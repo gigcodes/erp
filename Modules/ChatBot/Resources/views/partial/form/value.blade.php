@@ -2,7 +2,8 @@
     <div class="col">
         <div class="form-group">
             <label for="value">Type</label>
-            <select name="keyword_or_question" id="" class="form-control view_details_div">
+            <select name="keyword_or_question" id="keyword_or_question" class="form-control view_details_div"
+                    onchange="checkType()">
                 <option value="intent">Intent</option>
                 <option value="entity">Entity</option>
                 <option value="simple">Simple Text</option>
@@ -55,6 +56,14 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="question">Parent Intent</label>
+                <div class="row align-items-end" id="intentparent_1">
+                    <div class="col-md-9">
+                        <?php echo Form::select("parent", ['' => 'Select parent Intent'] + $parentIntents, ["class" => "form-control", "placeholder" => "Select Parent intent"]); ?>
+                    </div>
+                </div>
+            </div>
             <!-- <div class="form-group" id="add-intent-value-btn">
                 <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
                     <span class="glyphicon glyphicon-plus"></span>
@@ -70,8 +79,26 @@
     </div>
     <div class="form-row align-items-end">
         <div class="form-group col-md-4">
-            <label for="type">Type</label>
-            <?php echo Form::select("types", ["synonyms" => "synonyms", "patterns" => "patterns"], null, ["class" => "form-control", "id" => "types"]); ?>
+            <label for="type">Entity types (Google)</label>
+            <?php echo Form::select("entity_type", ["" => "Please select"] + ($allEntityType ?? []), null, ["class" => "form-control", "id" => "types"]); ?>
+        </div>
+        <div class="form-group col-md-4">
+            <div class="row align-items-end" id="typeValue_1">
+                <div class="col-md-9">
+                    <?php echo Form::text("entity_types[]", null, ["class" => "form-control", "id" => "type", "placeholder" => "Enter value", "maxLength" => 64]); ?>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-md-2" id="add-type-value-btn2">
+            <a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn2">
+                <span class="glyphicon glyphicon-plus"></span>
+            </a>
+        </div>
+    </div>
+    <div class="form-row align-items-end">
+        <div class="form-group col-md-4">
+            <label for="type">Type (Watson)</label>
+            <?php echo Form::select("types", ["" => "Please select", "synonyms" => "synonyms", "patterns" => "patterns"], null, ["class" => "form-control", "id" => "types"]); ?>
         </div>
         <div class="form-group col-md-4">
             <div class="row align-items-end" id="typeValue_1">
@@ -130,33 +157,42 @@
 </div>
 
 <div class="form-group">
-    <strong>Reply:</strong>
+    <div style="word-break: break-all;">
+        <strong>Reply:</strong>
+        <p>You can use variables in the reply they will be formatted when sent Eg:- #{website}, #{order_id}:</p>
+        <p>Variables List:- {!! implode(',', $variables) !!}</p>
+    </div>
     <textarea name="suggested_reply" class="form-control" rows="8" cols="80"
               required>{{ old('suggested_reply') }}</textarea>
 </div>
 <div class="row">
     <div class="col">
         <div class="form-group">
-            <label for="value">Push to</label>
-            <select name="erp_or_watson" id="" class="form-control">
-                <option value="watson">Watson</option>
-                <option value="erp">ERP</option>
-            </select>
-        </div>
-    </div>
-    <div class="col">
-        <div class="form-group">
             <label for="value">Select watson account</label>
             <select name="watson_account" class="form-control" required>
-                <option value="0">All account </option>
+                <option value="0">All account</option>
                 @if(!empty($watson_accounts))
                     @foreach($watson_accounts as $acc)
-                        <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
                     @endforeach
                 @endif
             </select>
         </div>
     </div>
- </div>   
+
+    <div class="col" id="google_account">
+        <div class="form-group">
+            <label for="value">Select goggle account</label>
+            <select name="google_account" class="form-control" required>
+                <option value="">Select google account</option>
+                @if(!empty($google_accounts))
+                    @foreach($google_accounts as $acc)
+                        <option value="{{$acc->id}}"> {{$acc->id}} - {{$acc->storeWebsite ? $acc->storeWebsite->title : ''}}</option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+    </div>
+</div>
 
 

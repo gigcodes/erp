@@ -17,12 +17,21 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Select Website </label>
-                            <select name="website_id" class="form-control" required data-msg-required="Please select website." {{ $auth->hasRole(['Admin']) ? '' : 'readonly'}}>
+                            @if( $auth->hasRole(['Admin', 'Seo Head']))
+                            <select name="website_id" class="form-control" required data-msg-required="Please select website.">
                                 <option value="">-- Select --</option>
                                 @foreach ($storeWebsites as $item)
                                 <option value="{{ $item->id }}" {{ $seoProcess->website_id == $item->id ? 'selected' : '' }}>{{ $item->website }}</option>
                                 @endforeach
                             </select>
+                            @else
+                            <input type="hidden" name="website_id" value="{{ $seoProcess->website_id }}">
+                            <select class="form-control" required data-msg-required="Please select website." disabled="true">
+                                @foreach ($storeWebsites as $item)
+                                <option value="{{ $item->id }}" {{ $seoProcess->website_id == $item->id ? 'selected' : '' }}>{{ $item->website }}</option>
+                                @endforeach
+                            </select>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -97,7 +106,7 @@
                     $priceClass = "bg-warning text-dark font-weight-bold";
                     }
 
-                    if($auth->hasRole(['user']) && !$seoProcess->is_price_approved ) {
+                    if($auth->hasRole(['user', 'Seo Head']) && !$seoProcess->is_price_approved ) {
                     $isPriceEdit = true;
                     } else if($auth->hasRole(['Admin'])) {
                     $isPriceEdit = true;
@@ -115,6 +124,8 @@
                             <label class="form-check-label" for="priceApprove">Approve</label>
                         </div>
                     </div>
+                    @else
+                        <input type="hidden" name="is_price_approved" value="{{ $seoProcess->is_price_approved }}">
                     @endif
                 </div>
 

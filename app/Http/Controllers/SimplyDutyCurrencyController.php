@@ -6,6 +6,7 @@ use Response;
 use App\Setting;
 use App\SimplyDutyCurrency;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class SimplyDutyCurrencyController extends Controller
 {
@@ -100,19 +101,25 @@ class SimplyDutyCurrencyController extends Controller
 
     public function getCurrencyFromApi()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
+        $url = "https://www.api.simplyduty.com/api/Supporting/supported-currencies";
 
         // set url
-        curl_setopt($ch, CURLOPT_URL, 'https://www.api.simplyduty.com/api/Supporting/supported-currencies');
+        curl_setopt($ch, CURLOPT_URL, $url);
 
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
         $output = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCurrencyController::class, 'getCurrencyFromApi');
 
         // close curl resource to free up system resources
         curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
 
         $currencies = json_decode($output);
 

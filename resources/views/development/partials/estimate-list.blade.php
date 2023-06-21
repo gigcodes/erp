@@ -4,6 +4,8 @@
             <tr>
                 {{-- <th>#</th> --}}
                 <th>Task ID</th>
+                <th>Task Details</th>
+                <th>Developer</th>
                 <th>Estimate Min</th>
                 <th>Start Date</th>
                 <th>End date</th>
@@ -15,6 +17,8 @@
                 <tr>
                     {{-- <td>{{$loop->iteration}}</td> --}}
                     <td>DEVTASK-{{$task->task_id}}</td>
+                    <td>{{$task->task}}</td>
+                    <td>{{$task->user->name}}</td>
                     <td>{{$task->estimate_minutes}}</td>
                     <td>{{$task->start_date}}</td>
                     <td>{{$task->estimate_date}}</td>
@@ -37,6 +41,8 @@
                 <tr>
                     {{-- <td>{{$loop->iteration}}</td> --}}
                     <td>TASK-{{$task->task_id}}</td>
+                    <td>{{ substr($task->task_details, 0,  25) }} {{strlen($task->task_details) > 25 ? '...' : '' }}</td>
+                    <td>{{$task->user->name}}</td>
                     <td>{{$task->approximate}}</td>
                     <td>{{$task->start_date}}</td>
                     <td>{{$task->due_date}}</td>

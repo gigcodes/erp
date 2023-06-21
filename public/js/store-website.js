@@ -639,60 +639,61 @@ var page = {
             }
         }
         this.sendAjax(_z, "saveSite");*/
-    var id = $("#store_website_id").val();
-    var title = $("#swTitle").val();
-    var website = $('[name="website"]').val();
-    var semrush_project_id = $('[name="semrush_project_id"]').val();
-    var mailing_service_id = $('[name="mailing_service_id"]').val();
-    var sale_old_products = $('[name="sale_old_products"]').val();
-    var is_debug_true = $('[name="is_debug_true"]').val();
-    var is_dev_website = $('[name="is_dev_website"]').val();
-    var description = $('[name="description"]').val();
-    var send_in_blue_account = $('[name="send_in_blue_account"]').val();
-    var send_in_blue_api = $('[name="send_in_blue_api"]').val();
-    var send_in_blue_smtp_email_api = $(
-      '[name="send_in_blue_smtp_email_api"]'
-    ).val();
-    var remote_software = $('[name="remote_software"]').val();
-    var magento_url = $('[name="magento_url"]').val();
-    var dev_magento_url = $('[name="dev_magento_url"]').val();
-    var stage_magento_url = $('[name="stage_magento_url"]').val();
-    var magento_username = $('[name="magento_username"]').val();
-    var magento_password = $('[name="magento_password"]').val();
-    var api_token = $('[name="api_token"]').val();
-    var dev_api_token = $('[name="dev_api_token"]').val();
-    var stage_api_token = $('[name="stage_api_token"]').val();
-    var facebook = $('[name="facebook"]').val();
-    var facebook_remarks = $('[name="facebook_remarks"]').val();
-    var product_markup = $('[name="product_markup"]').val();
-    var instagram = $('[name="instagram"]').val();
-    var instagram_remarks = $('[name="instagram_remarks"]').val();
-    var cropper_color = $('[name="cropper_color"]').val();
-    var cropping_size = $('[name="cropping_size"]').val();
-    var logo_color = $('[name="logo_color"]').val();
-    var logo_border_color = $('[name="logo_border_color"]').val();
-    var text_color = $('[name="text_color"]').val();
-    var border_color = $('[name="border_color"]').val();
-    var border_thickness = $('[name="border_thickness"]').val();
-    var country_duty = $('[name="country_duty"]').val(); //selected
-    var is_published = $('[name="is_published"]').val(); // selected
-    var disable_push = $('[name="disable_push"]').val(); //selected
-    var website_source = $('[name="website_source"]').val(); //selected
-    var server_ip = $('[name="server_ip"]').val();
-    var repository_id = $('[name="repository_id"]').val(); //selected
-    var staging_username = $('[name="staging_username"]').val();
-    var staging_password = $('[name="staging_password"]').val();
-    var mysql_username = $('[name="mysql_username"]').val();
-    var mysql_password = $('[name="mysql_password"]').val();
-    var mysql_staging_username = $('[name="mysql_staging_username"]').val();
-    var mysql_staging_password = $('[name="mysql_staging_password"]').val();
-    var push_web_key = $('[name="push_web_key"]').val();
-    var push_web_id = $('[name="push_web_id"]').val();
-    var icon = $('[name="icon"]').val();
-    var is_price_override = $('[name="is_price_override"]').val(); // selected
+    var id = $("#form-create-website #store_website_id").val();
+    var title = $("#form-create-website #swTitle").val();
+    var website = $('#form-create-website #website').val();
+    var semrush_project_id = $('#form-create-website #semrush_project_id').val();
+    var mailing_service_id = $('#form-create-website #mailing_service_id').val();
+    var sale_old_products = $('#form-create-website #sale_old_products').val();
+    var is_debug_true = $('#form-create-website #is_debug_true').val();
+    var is_dev_website = $('#form-create-website #is_dev_website').val();
+    var description = $('#form-create-website #description').val();
+    var send_in_blue_account = $('#form-create-website #send_in_blue_account').val();
+    var send_in_blue_api =  $('#form-create-website #send_in_blue_api').val();
+    var send_in_blue_smtp_email_api = $('#form-create-website #send_in_blue_smtp_email_api').val();
+    var remote_software = $('#form-create-website #remote_software').val();
+    var magento_url = $('#form-create-website #magento_url').val();
+    var dev_magento_url = $('#form-create-website #dev_magento_url').val();
+    var stage_magento_url = $('#form-create-website #stage_magento_url').val();
+    var magento_username = $('#form-create-website #magento_username').val();
+    var magento_password = $('#form-create-website #magento_password').val();
+    var api_token = $('#form-create-website #api_token').val();
+    var dev_api_token = $('#form-create-website #dev_api_token').val();
+    var stage_api_token = $('#form-create-website #stage_api_token').val();
+    var facebook = $('#form-create-website #facebook').val();
+    var facebook_remarks = $('#form-create-website #facebook_remarks').val();
+    var product_markup = $('#form-create-website #product_markup').val();
+    var instagram = $('#form-create-website #instagram').val();
+    var instagram_remarks = $('#form-create-website #instagram_remarks').val();
+    var cropper_color = $('#form-create-website #cropper_color').val();
+    var cropping_size = $('#form-create-website #cropping_size').val();
+    var logo_color = $('#form-create-website #logo_color').val();
+    var logo_border_color = $('#form-create-website #logo_border_color').val();
+    var text_color = $('#form-create-website #text_color').val();
+    var border_color = $('#form-create-website #border_color').val();
+    var border_thickness = $('#form-create-website #border_thickness').val();
+    var country_duty = $('#form-create-website #country_duty').val(); //selected
+    var is_published = $('#form-create-website #is_published').val(); // selected
+    var disable_push = $('#form-create-website #disable_push').val(); //selected
+    var website_source = $('#form-create-website #website_source').val(); //selected
+    var server_ip = $('#form-create-website #server_ip').val();
+    var repository_id = $('#form-create-website #repository_id').val(); //selected
+    var staging_username = $('#form-create-website #staging_username').val();
+    var staging_password = $('#form-create-website #staging_password').val();
+    var mysql_username = $('#form-create-website #mysql_username').val();
+    var mysql_password = $('#form-create-website #mysql_password').val();
+    var mysql_staging_username = $('#form-create-website #mysql_staging_username').val();
+    var mysql_staging_password = $('#form-create-website #mysql_staging_password').val();
+    var push_web_key = $('#form-create-website #push_web_key').val();
+    var push_web_id = $('#form-create-website #push_web_id').val();
+    var icon = $('#form-create-website #icon').val();
+    var is_price_override = $('#form-create-website #is_price_override').val(); // selected
     var files = $("#key_file_path1")[0].files[0];
-    var site_folder = $('[name="site_folder"]').val();
-    var store_code_id = $('[name="store_code_id"]').val();
+    var project_id = $('#form-create-website #project_id').val();
+    var site_folder = $('#form-create-website #site_folder').val();
+    var store_code_id = $('#form-create-website #store_code_id').val();
+    var working_directory = $('#form-create-website #working_directory').val();
+    var assets_manager_id = $('#form-create-website #assets_manager_id').val();
 
     var formData = new FormData();
     formData.append("id", id);
@@ -700,6 +701,7 @@ var page = {
     formData.append("website", website);
     formData.append("semrush_project_id", semrush_project_id);
     formData.append("mailing_service_id", mailing_service_id);
+    formData.append("sale_old_products", sale_old_products);
     formData.append("is_debug_true", is_debug_true);
     formData.append("is_dev_website", is_dev_website);
     formData.append("description", description);
@@ -725,10 +727,10 @@ var page = {
     formData.append("logo_color", logo_color);
     formData.append("logo_border_color", logo_border_color);
     formData.append("text_color", text_color);
-    formData.append("btitleorder_color", border_color);
+    formData.append("border_color", border_color);
     formData.append("border_thickness", border_thickness);
     formData.append("country_duty", country_duty);
-    formData.append("is_publititleshed", is_published);
+    formData.append("is_published", is_published);
     formData.append("disable_push", disable_push);
     formData.append("website_source", website_source);
     formData.append("server_ip", server_ip);
@@ -742,9 +744,13 @@ var page = {
     formData.append("push_web_key", push_web_key);
     formData.append("push_web_id", push_web_id);
     formData.append("icon", icon);
+    formData.append("is_price_override", is_price_override);
+    formData.append("project_id", project_id);
     formData.append("key_file_path1", files);
     formData.append("site_folder", site_folder);
     formData.append("store_code_id", store_code_id);
+    formData.append("working_directory", working_directory);
+    formData.append("assets_manager_id", assets_manager_id);
 
     $.ajaxSetup({
       headers: {

@@ -1762,7 +1762,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     doc_type,
                     doc_name,
                     task_id,
-                    task_type: "DEVTASK"
+                    task_type: "DEVTASK",
+                    attach_task_detail: true
                 },
                 beforeSend: function() {
                     $("#loading-image").show();

@@ -60,6 +60,7 @@ padding: 3px 2px;
         <th width="2%">Message Type</th>
         <th width="8%">User input</th>
         <th width="8%">Bot Replied</th>
+        <th width="8%">Bot Suggested Replay</th>
         <th width="30%">Message Box </th>
         <th width="2%">From</th>
         <th width="2%">Shortcuts</th>
@@ -128,6 +129,8 @@ padding: 3px 2px;
         <td>
             @if($pam->message_type!='')
                 {{ucfirst($pam->message_type)}}
+            @elseif ($pam->is_email>0)
+                {{'Email'}}
             @elseif ($pam->task_id>0)
                 {{'Task'}}
             @elseif ($pam->developer_task_id>0)
@@ -199,14 +202,44 @@ padding: 3px 2px;
         @if($pam->answer_is_audio)
         <td class="boat-replied"><audio controls="" src="{{ \App\Helpers::getAudioUrl($pam->answer) }}"></audio></td>
         @else
-            @if (strlen($pam->answer) > 10)
-                <td  data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,15) }}...
-                </td>
-            @else
-                <td class="boat-replied">{{ $pam->answer }}
-                </td>
-            @endif
+            <td class="boat-replied">{{ $pam->answer }}
+            </td>
         @endif
+
+
+
+                    @if (strlen($pam->suggested_replay) > 10)
+                        <td data-log_message="{{ $pam->suggested_replay }}"
+                            class="bot-suggested-reply-popup boat-replied">{{ substr( $pam->suggested_replay ,0,15) }}...
+
+                        @if($pam->is_approved == false && $pam->is_reject == false)
+                                <div class="suggested_replay_action d-inline">
+                                <a href="javascript:;" class="send_suggested_replay" data-value="0"
+                                   data-id="{{ $pam->tmp_replies_id }}">
+                                    <i class="fa fa-window-close-o text-secondary px-1 py-2" aria-hidden="true"></i>
+                                </a>
+                                <a href="javascript:;" class="send_suggested_replay" data-value="1"
+                                   data-id="{{ $pam->tmp_replies_id }}">
+                                    <i class="fa fa-check-square-o text-secondary px-1 py-2"></i>
+                                </a>
+                                </div>
+                        @endif
+                        </td>
+                    @else
+                        <td class="boat-replied">{{ $pam->suggested_replay }}
+                            @if($pam->suggested_replay && $pam->is_approved == false && $pam->is_reject == false)
+                                <a href="javascript:;" class="read-message" data-value="0"
+                                   data-id="{{ $pam->chat_bot_id }}">
+                                    <i class="fa fa-window-close-o text-secondary p-2" aria-hidden="true"></i>
+                                </a>
+                                <a href="javascript:;" class="read-message" data-value="0"
+                                   data-id="{{ $pam->chat_bot_id }}">
+                                    <i class="fa fa-check-square-o text-secondary p-2"></i>
+                                </a>
+                            @endif
+                        </td>
+                    @endif
+
 
         <td class="message-input p-0 pt-2 pl-3">
             <div class=" cls_textarea_subbox">
@@ -287,13 +320,37 @@ padding: 3px 2px;
         </td>
         <td>
             <div class="actions">
-            <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
-                <i style="color: #757575c7;" class="fa fa-refresh" title="Resend to bot" aria-hidden="true"></i>
+                <a href="javascript:;" style="display: inline-block" class="resend-to-bot btns"
+                   data-id="{{ $pam->id }}">
+                    <i style="color: #757575c7;" class="fa fa-refresh" title="Resend to bot" aria-hidden="true"></i>
 
-            </a>
-            <a href="javascript:;"  style="display: inline-block" class="approve_message  btns  pt-2" data-id="{{ $pam->chat_id }}">
-                <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
-            </a>
+                </a>
+                <a href="javascript:;" style="display: inline-block" class="approve_message  btns  pt-2"
+                   data-id="{{ $pam->chat_id }}">
+                    <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
+                </a>
+
+                @if($pam->vendor_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('vendor', {{ $pam->vendor_id }}, {{ $pam->vendor_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->vendor_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @elseif($pam->customer_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('customer', {{ $pam->customer_id }}, {{ $pam->customer_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->customer_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @elseif($pam->supplier_id > 0)
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="changeSimulatorSetting('supplier', {{ $pam->supplier_id }}, {{ $pam->supplier_auto_simulator == 0 }})">
+                        <i style="color: #757575c7;" class="fa fa-{{$pam->supplier_auto_simulator == 0 ? 'play' : 'pause'}}" aria-hidden="true"></i>
+                    </button>
+                @endif
+
+                @if($pam->vendor_id > 0)
+                    <a href="{{  route('simulator.message.list', ['object' => 'vendor', 'object_id' =>  $pam->vendor_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+                @elseif($pam->customer_id > 0)
+                    <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $pam->customer_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+                @elseif($pam->supplier_id > 0)
+                    <a href="{{  route('simulator.message.list', ['object' => 'supplier', 'object_id' =>  $pam->supplier_id]) }}" title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+                @endif
 
             @if($pam->approved == 0)
             <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
@@ -420,6 +477,25 @@ padding: 3px 2px;
 </div>
 
 
+<div id="botSuggestedReply" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Bot Suggested Replied</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 
 
@@ -511,7 +587,23 @@ padding: 3px 2px;
     </div>
 </div>
 
-
+<div id="chat_bot_reply_list" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Simulator Replay</h4>
+                <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(document).on('click','.speech-button',function(e){
@@ -596,6 +688,12 @@ padding: 3px 2px;
         $('#botReply').modal('show');
         $('#botReply p').text($(this).data('log_message'));
     })
+
+    $(document).on('click','.bot-suggested-reply-popup',function(){
+        $('#botSuggestedReply').modal('show');
+        $('#botSuggestedReply p').text($(this).data('log_message'));
+    })
+
     $(document).on('click','.user-inputt',function(){
         $('#chatbotname').modal('show');
         $('#chatbotname p').text($(this).data('log_message'));
@@ -707,6 +805,39 @@ padding: 3px 2px;
         });
     });
 
+    $(document).on("click",".send_suggested_replay",function () {
+        let tmpReplayId = $(this).data("id");
+        let value = $(this).data("value");
+        var $this = $(this);
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: "POST",
+            url: "{{ route('chatbot.send.suggested.message') }}",
+            data: {
+                tmp_reply_id : tmpReplayId,
+                value  : value
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                    if(value == 1) {
+                        $this.remove();
+                    }else{
+                        $this.remove();
+                    }
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Suggested replay not found');
+            }
+        });
+    });
+
     $(document).on('click', '.do_not_disturb', function() {
         var id = $(this).data('id');
         var thiss = $(this);
@@ -760,6 +891,128 @@ padding: 3px 2px;
         }).fail(function(response) {
           toastr['error']('Could not update DND status');
         });
+    });
+
+    function changeSimulatorSetting(object, objectId, simulator) {
+        $.ajax({
+            type: "POST",
+            url: "/chatbot/messages/update-simulator-setting",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                'object' : object,
+                'objectId' : objectId,
+                'auto_simulator': simulator
+            },
+            dataType : "json"
+        }).done(function(response) {
+            if(response.code == 200) {
+                toastr['success'](response.messages);
+            }else{
+                toastr['error'](response.messages);
+            }
+        }).fail(function(response) {
+            toastr['error']('Could not update simulator status');
+        });
+    }
+
+    $(document).on("click", ".show_message_list", function () {
+        $('#chat_bot_reply_list').modal('show');
+        var thiss = $(this);
+        var object_type = $(this).data("object");
+        var object_id = $(this).data("id");
+        var load_attached = $(this).data("attached");
+        var load_all = $(this).data("all");
+        load_type = $(this).data("load-type");
+        is_admin = $(this).data("is_admin");
+        var is_hod_crm = $(this).data("is_hod_crm");
+        var limit = 20;
+        if (typeof $(this).data("limit") != "undefined") {
+            limit = $(this).data("limit");
+        }
+
+        var base_url = BASE_URL;
+        // var base_url ="http://localhost:8000";
+        thiss.parent().find(".td-full-container").toggleClass("hidden");
+        currentChatParams.url =
+            base_url +
+            "/message-list/" +
+            object_type +
+            "/" +
+            object_id;
+        currentChatParams.data = {
+            limit: limit,
+            load_all: load_all,
+            load_attached: load_attached,
+            load_type: load_type,
+            page: 1,
+            hasMore: true,
+            object_name: object_type,
+            object_val: object_id,
+        };
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('chatbot.message.list') }}" + "/"  + object_type + "/" + object_id,
+            data: {
+                limit: limit,
+                load_all: load_all,
+                load_attached: load_attached,
+                load_type: load_type,
+            },
+            beforeSend: function () {
+                $(thiss).text("Loading...");
+                $(thiss).html("");
+                $(thiss).html(
+                    '<i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i><div class="spinner-border" role="status"><span class="">Loading...</span></div>'
+                );
+            },
+        })
+            .done(function (response) {
+                $(".spinner-border").css("display", "none");
+                var li = getHtml(response, 'simulator-message-list');
+                if ($("#chat_bot_reply_list").length > 0) {
+                    $("#chat_bot_reply_list")
+                        .find(".modal-dialog")
+                        .css({ width: "1000px", "max-width": "1000px" });
+                    $("#chat_bot_reply_list")
+                        .find(".modal-body")
+                        .css({ "background-color": "white" });
+                    $("#chat_bot_reply_list").find(".modal-body").html(li);
+                    $("#chat_bot_reply_list").find("#chat_obj_type").val(object_type);
+                    $("#chat_bot_reply_list").find("#chat_obj_id").val(object_id);
+                    $("#chat_bot_reply_list")
+                        .find(".message")
+                        .css({ "white-space": "pre-wrap", "word-wrap": "break-word" });
+                    $("#chat_bot_reply_list").modal("show");
+                } else {
+                    $("#chat_bot_reply_list")
+                        .find(".modal-dialog")
+                        .css({ width: "1000px", "max-width": "1000px" });
+                    $("#chat_bot_reply_list")
+                        .find(".modal-body")
+                        .css({ "background-color": "white" });
+                    $("#chat_bot_reply_list").find("#chat_obj_type").val(object_type);
+                    $("#chat_bot_reply_list").find("#chat_obj_id").val(object_id);
+                    $("#chat-history").html(li);
+                }
+
+                var searchterm = $(".search_chat_pop").val();
+                if (searchterm && searchterm != "") {
+                    var value = searchterm.toLowerCase();
+                    $(".filter-message").each(function () {
+                        if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                            $(this).hide();
+                        } else {
+                            $(this).show();
+                        }
+                    });
+                }
+            })
+            .fail(function (response) {
+                //$(thiss).text('Load More');
+                $(".spinner-border").css("display", "none");
+                alert("Could not load messages");
+            });
     });
 
 </script>

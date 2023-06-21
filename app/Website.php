@@ -57,4 +57,21 @@ class Website extends Model
 
         return $shipping_country;
     }
+
+    /**
+     * Get all of the website's push logs.
+     */
+    public function websitePushLogs()
+    {
+        return $this->morphMany(WebsitePushLog::class, 'websitepushloggable');
+    }
+
+    public function getFullNameAttribute()
+    {
+        if(isset($this->storeWebsite)) {
+            return $this->name . "({$this->storeWebsite->title})";
+        }
+
+        return $this->name;
+    }
 }

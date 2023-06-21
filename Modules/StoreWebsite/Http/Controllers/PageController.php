@@ -66,7 +66,7 @@ class PageController extends Controller
 
     public function records(Request $request)
     {
-        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id');
+        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id')->leftJoin('users as u', 'u.id', 'store_website_pages.approved_by_user_id');
 
         // Check for keyword search
         if ($request->keyword != null) {
@@ -92,7 +92,7 @@ class PageController extends Controller
             $pages = $pages->where('store_website_pages.is_pushed', $request->is_pushed);
         }
 
-        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name'])->paginate();
+        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by'])->paginate();
 
         $items = $pages->items();
 
@@ -221,7 +221,9 @@ class PageController extends Controller
         if (! $records) {
             $records = new StoreWebsitePage;
         } else {
-            StoreWebsitePage::where('url_key', $records['url_key'])->where('store_website_id', $records['store_website_id'])->update(['is_latest_version_translated' => 0, 'is_latest_version_pushed' => 0]);
+            if (is_null($records->translated_from)) {
+                StoreWebsitePage::where('url_key', $records['url_key'])->where('store_website_id', $records['store_website_id'])->update(['is_latest_version_translated' => 0, 'is_latest_version_pushed' => 0]);
+            }
         }
 
         if (empty($id)) {
@@ -239,7 +241,9 @@ class PageController extends Controller
         $post['is_latest_version_translated'] = 1;
         $post['is_latest_version_pushed'] = 0;
         $records->fill($post);
-
+        if($request->has('approved_by_user_id')){
+            activity()->causedBy(auth()->user())->performedOn($records)->log('Translation Approved by:'.optional(auth()->user())->name);
+        }
         // if records has been save then call a request to push
         if ($records->save()) {
             //Logging activity

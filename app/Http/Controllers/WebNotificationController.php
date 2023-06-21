@@ -6,6 +6,7 @@ use App\User;
 use App\DeveloperTask;
 use App\NotificationToken;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class WebNotificationController extends Controller
 {
@@ -110,6 +111,8 @@ class WebNotificationController extends Controller
         $users = User::get();
         \Log::info('User from assign id--->' . json_encode($users));
         $adminIds = [];
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+
         foreach ($users as $user) {
             if ($user->isAdmin()) {
                 $adminIds[] = $user->id;
@@ -183,12 +186,14 @@ class WebNotificationController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
             // Execute post
             $result = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($result === false) {
                 exit('Curl failed: ' . curl_error($ch));
             }
             \Log::info('Notification Process success -->' . json_encode($result));
             // Close connection
             curl_close($ch);
+            LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
             // FCM response
             return;
         } catch (\Exception $e) {
@@ -198,6 +203,7 @@ class WebNotificationController extends Controller
 
     public static function sendBulkNotification($userId, $title, $body)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = 'https://fcm.googleapis.com/fcm/send';
         $FcmToken = NotificationToken::whereNotNull('device_token')->where('user_id', $userId)->pluck('device_token')->all();
         $serverKey = env('FCM_SECRET_KEY');
@@ -226,6 +232,7 @@ class WebNotificationController extends Controller
         // Disabling SSL Certificate support temporarly
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // Execute post
         $result = curl_exec($ch);
         if ($result === false) {
@@ -233,6 +240,8 @@ class WebNotificationController extends Controller
         }
         // Close connection
         curl_close($ch);
+
+        LogRequest::log($startTime, $url, 'POST', json_encode($encodedData), json_decode($result), $httpcode, \App\Http\Controllers\WebNotificationController::class, 'sendWebNotification2');
         // FCM response
     }
 }

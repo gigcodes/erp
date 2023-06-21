@@ -49,7 +49,7 @@ class FetchEmail implements ShouldQueue
             $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => $emailAddress->host,
-                'port' => 993,
+                'port' => $emailAddress->port,
                 'encryption' => 'ssl',
                 'validate_cert' => false,
                 'username' => $emailAddress->username,

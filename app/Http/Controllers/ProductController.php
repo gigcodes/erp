@@ -70,6 +70,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class ProductController extends Controller
 {
@@ -4742,7 +4743,7 @@ class ProductController extends Controller
         $hscodeSearchString = urlencode($hscodeSearchString);
 
         $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey=' . $api . '&fullDescription=' . $hscodeSearchString . '&originCountry=' . $fromCountry . '&destinationCountry=' . $destinationCountry . '&getduty=false';
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
 
         // set url
@@ -4753,10 +4754,13 @@ class ProductController extends Controller
 
         // $output contains the output string
         $output = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $searchString, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
+
 
         // close curl resource to free up system resources
         curl_close($ch);
-
+        
         $categories = json_decode($output);
 
         if (! isset($categories->HSCode)) {

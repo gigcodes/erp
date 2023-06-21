@@ -2,6 +2,11 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\Library\Google\DialogFlow\DialogFlowService;
+
+use App\Models\DialogflowEntityType;
+use App\Models\GoogleDialogAccount;
+use App\StoreWebsite;
 use DB;
 use Auth;
 use App\Customer;
@@ -39,13 +44,13 @@ class QuestionController extends Controller
             ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
             ->where('keyword_or_question', $keyword_or_question)
             ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name');
-        if (! empty($q)) {
+        if (!empty($q)) {
             $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
                 $query->where('chatbot_questions.value', 'like', '%' . $q . '%')->orWhere('cqe.question', 'like', '%' . $q . '%');
             });
         }
 
-        if (! empty($category_id)) {
+        if (!empty($category_id)) {
             $chatQuestions = $chatQuestions->where('cc.id', $category_id);
         }
 
@@ -55,11 +60,13 @@ class QuestionController extends Controller
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
-        if (! $allCategory->isEmpty()) {
+        if (!$allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
+
+        $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
 
         $task_category = DB::table('task_categories')->select('*')->get();
         $userslist = DB::table('users')->select('*')->get();
@@ -75,15 +82,20 @@ class QuestionController extends Controller
 
         $templates = MailinglistTemplate::all();
         $watson_accounts = WatsonAccount::all();
+        $google_accounts = GoogleDialogAccount::all();
+        $store_websites = StoreWebsite::all();
+        $variables = DialogFlowService::VARIABLES;
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)
+            ->pluck('value', 'id')->toArray();
 
-        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates'));
+        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType', 'variables', 'parentIntents'));
     }
 
     public function create()
     {
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
-        if (! $allCategory->isEmpty()) {
+        if (!$allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
@@ -97,6 +109,7 @@ class QuestionController extends Controller
         $params = $request->all();
         $params['value'] = str_replace(' ', '_', $params['value']);
         $params['watson_account_id'] = $request->watson_account;
+        $params['google_account_id'] = $request->google_account;
         $validator = Validator::make($params, [
             'value' => 'required|unique:chatbot_questions|max:255',
             'keyword_or_question' => 'required',
@@ -106,6 +119,9 @@ class QuestionController extends Controller
             return response()->json(['code' => 500, 'error' => $validator->errors()]);
         }
 
+        if ($request->has('parent') && $request->get('parent')) {
+            $params['parent'] = $request->get('parent');
+        }
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $validator = Validator::make($request->all(), [
                 'keyword' => 'sometimes|nullable|string',
@@ -119,9 +135,9 @@ class QuestionController extends Controller
                 return response()->json(['code' => 500, 'error' => $validator->errors()]);
             }
         }
-
+        $params['erp_or_watson'] = 'erp';
         $chatbotQuestion = ChatbotQuestion::create($params);
-        if (! empty($params['question'])) {
+        if (!empty($params['question'])) {
             foreach ($params['question'] as $qu) {
                 if ($qu) {
                     $params['chatbot_question_id'] = $chatbotQuestion->id;
@@ -135,7 +151,7 @@ class QuestionController extends Controller
 
         if (array_key_exists('types', $params) && $params['types'] != null && array_key_exists('type', $params) && $params['type'] != null) {
             $chatbotQuestionExample = null;
-            if (! empty($params['value_name'])) {
+            if (!empty($params['value_name'])) {
                 $chatbotQuestionExample = new ChatbotQuestionExample;
                 $chatbotQuestionExample->question = $params['value_name'];
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
@@ -146,7 +162,7 @@ class QuestionController extends Controller
             if ($chatbotQuestionExample) {
                 $valueType = [];
                 $valueType['chatbot_keyword_value_id'] = $chatbotQuestionExample->id;
-                if (! empty($params['type'])) {
+                if (!empty($params['type'])) {
                     foreach ($params['type'] as $value) {
                         if ($value != null) {
                             $valueType['type'] = $value;
@@ -154,6 +170,28 @@ class QuestionController extends Controller
                             $chatbotKeywordValueTypes->fill($valueType);
                             $chatbotKeywordValueTypes->save();
                         }
+                    }
+                }
+            }
+        }
+
+        if (array_key_exists('entity_type', $params) && $params['entity_type'] != null && array_key_exists('entity_types', $params) && $params['entity_types'] != null) {
+            $chatbotQuestionExample = null;
+            if (!empty($params['value_name'])) {
+                $chatbotQuestionExample = new ChatbotQuestionExample;
+                $chatbotQuestionExample->question = $params['value_name'];
+                $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                $chatbotQuestionExample->types = $params['entity_type'];
+                $chatbotQuestionExample->save();
+            }
+            if (!empty($params['entity_types'])) {
+                foreach ($params['entity_types'] as $value) {
+                    if ($value != null) {
+                        $chatbotQuestionExample = new ChatbotQuestionExample;
+                        $chatbotQuestionExample->question = $value;
+                        $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                        $chatbotQuestionExample->types = $params['entity_type'];
+                        $chatbotQuestionExample->save();
                     }
                 }
             }
@@ -191,48 +229,27 @@ class QuestionController extends Controller
             $wotson_account_ids = WatsonAccount::all();
         }
 
+        $storeWebsites = [];
         foreach ($wotson_account_ids as $id) {
+            $storeWebsites[] = $id->store_website_id;
             $data_to_insert[] = [
                 'suggested_reply' => $params['suggested_reply'],
                 'store_website_id' => $id->store_website_id,
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
         }
-        ChatbotQuestionReply::insert($data_to_insert);
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
 
-        if ($request->erp_or_watson == 'watson') {
-            if ($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
-                ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
-
-                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
+        foreach ($gogole_account_ids as $id) {
+            if (!in_array($id->site_id, $storeWebsites)) {
+                $data_to_insert[] = [
+                    'suggested_reply' => $params['suggested_reply'],
+                    'store_website_id' => $id->store_website_id,
+                    'chatbot_question_id' => $chatbotQuestion->id,
+                ];
             }
-
-            if ($request->keyword_or_question == 'entity') {
-                ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
-
-                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
-            }
-
-            // if (property_exists($result, 'error')) {
-            //     $question_error = new ChatbotQuestionErrorLog();
-            //     $question_error->chatbot_question_id = $chatbotQuestion->id;
-            //     $question_error->type = $request->keyword_or_question;
-            //     $question_error->request = json_encode($request->all());
-            //     $question_error->response = json_encode($result);
-            //     $question_error->response_type = "error";
-            //     $question_error->save();
-            //     ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
-            //     return response()->json(["code" => $result->code, "error" => $result->error]);
-            // }
-
-            // $question_error = new ChatbotQuestionErrorLog();
-            // $question_error->chatbot_question_id = $chatbotQuestion->id;
-            // $question_error->type = $request->keyword_or_question;
-            // $question_error->request = json_encode($request->all());
-            // $question_error->response = json_encode($result);
-            // $question_error->response_type = "success";
-            // $question_error->save();
         }
+        ChatbotQuestionReply::insert($data_to_insert);
 
         $route = route('chatbot.question.edit', [$chatbotQuestion->id]);
 
@@ -248,6 +265,11 @@ class QuestionController extends Controller
                 ChatbotQuestionExample::where('chatbot_question_id', $id)->delete();
                 $chatbotQuestion->delete();
                 WatsonManager::deleteQuestion($chatbotQuestion->id);
+                $googleAccount = GoogleDialogAccount::where('id', $chatbotQuestion->google_account_id)->get();
+                if ($googleAccount) {
+                    $dialgflowService = new DialogFlowService($googleAccount);
+                    $dialgflowService->deleteQuestion($chatbotQuestion);
+                }
 
                 return redirect()->back();
             }
@@ -261,7 +283,7 @@ class QuestionController extends Controller
         $chatbotQuestion = ChatbotQuestion::where('id', $id)->first();
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
-        if (! $allCategory->isEmpty()) {
+        if (!$allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
@@ -310,7 +332,7 @@ class QuestionController extends Controller
 
                 $chatbotQuestion->fill($params);
                 $chatbotQuestion->save();
-                if (! empty($params['category_id'])) {
+                if (!empty($params['category_id'])) {
                     if (is_numeric($params['category_id'])) {
                         $chatbotQuestion->category_id = $params['category_id'];
                         $chatbotQuestion->save();
@@ -326,13 +348,10 @@ class QuestionController extends Controller
                     }
                 }
 
-                if (! empty($params['question'])) {
+                if (!empty($params['question'])) {
                     $chatbotQuestionExample = new ChatbotQuestionExample;
                     $chatbotQuestionExample->fill($params);
                     $chatbotQuestionExample->save();
-                }
-                if ($chatbotQuestion->erp_or_watson == 'watson') {
-                    WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
                 }
             } elseif ($chatbotQuestion->keyword_or_question == 'entity') {
                 $validator = Validator::make($params, [
@@ -345,7 +364,7 @@ class QuestionController extends Controller
 
                 $chatbotQuestion->fill($params);
                 $chatbotQuestion->save();
-                if (! empty($params['category_id'])) {
+                if (!empty($params['category_id'])) {
                     if (is_numeric($params['category_id'])) {
                         $chatbotQuestion->category_id = $params['category_id'];
                         $chatbotQuestion->save();
@@ -361,7 +380,7 @@ class QuestionController extends Controller
                     }
                 }
 
-                if (! empty($params['question'])) {
+                if (!empty($params['question'])) {
                     $chatbotQuestionExample = new ChatbotQuestionExample;
                     $chatbotQuestionExample->question = $params['question'];
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
@@ -372,7 +391,7 @@ class QuestionController extends Controller
                 if ($chatbotQuestionExample) {
                     $valueType = [];
                     $valueType['chatbot_keyword_value_id'] = $chatbotQuestionExample->id;
-                    if (! empty($params['type'])) {
+                    if (!empty($params['type'])) {
                         foreach ($params['type'] as $value) {
                             if ($value != null) {
                                 $valueType['type'] = $value;
@@ -382,9 +401,6 @@ class QuestionController extends Controller
                             }
                         }
                     }
-                }
-                if ($chatbotQuestion->erp_or_watson == 'watson') {
-                    WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
                 }
             }
             if ($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer') {
@@ -405,9 +421,6 @@ class QuestionController extends Controller
                 $chatbotQuestionExample->question = trim($params['keyword']);
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                 $chatbotQuestionExample->save();
-                if ($chatbotQuestion->erp_or_watson == 'watson') {
-                    WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
-                }
             }
         }
 
@@ -440,11 +453,11 @@ class QuestionController extends Controller
         $category_id = $request->get('category_id');
         $erp_or_watson = $request->get('erp_or_watson');
         $keyword_or_question = $request->get('keyword_or_question');
-        if (! $erp_or_watson) {
+        if (!$erp_or_watson) {
             $erp_or_watson = 'erp';
         }
 
-        if (! $keyword_or_question) {
+        if (!$keyword_or_question) {
             $keyword_or_question = 'intent';
         }
         // if (!empty($groupId) && $groupId > 0) {
@@ -520,7 +533,7 @@ class QuestionController extends Controller
         }
         if ($chQuestion) {
             $oldvalue = $chQuestion->value;
-            if (! empty($category_id)) {
+            if (!empty($category_id)) {
                 if (is_numeric($category_id)) {
                     $chQuestion->category_id = $category_id;
                     $chQuestion->save();
@@ -535,7 +548,7 @@ class QuestionController extends Controller
                     }
                 }
             }
-            if (! $chQuestion->keyword_or_question || $chQuestion->keyword_or_question == '') {
+            if (!$chQuestion->keyword_or_question || $chQuestion->keyword_or_question == '') {
                 $chQuestion->keyword_or_question = $keyword_or_question;
             }
             $chQuestion->erp_or_watson = $erp_or_watson;
@@ -579,7 +592,7 @@ class QuestionController extends Controller
         $allquestion = ChatbotQuestion::where('value', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allquestionList = [];
-        if (! $allquestion->isEmpty()) {
+        if (!$allquestion->isEmpty()) {
             foreach ($allquestion as $all) {
                 $allquestionList[] = ['id' => $all->id, 'text' => $all->value, 'suggested_reply' => $all->suggested_reply];
             }
@@ -592,7 +605,7 @@ class QuestionController extends Controller
     {
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
-        if (! $allCategory->isEmpty()) {
+        if (!$allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
@@ -661,7 +674,7 @@ class QuestionController extends Controller
         $allCategory = ChatbotCategory::where('name', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allCategoryList = [];
-        if (! $allCategory->isEmpty()) {
+        if (!$allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
@@ -691,7 +704,7 @@ class QuestionController extends Controller
         $allKeyword = ChatbotQuestion::where('value', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allKeywordList = [];
-        if (! $allKeyword->isEmpty()) {
+        if (!$allKeyword->isEmpty()) {
             foreach ($allKeyword as $all) {
                 $allKeywordList[] = ['id' => $all->id, 'text' => $all->value];
             }
@@ -770,7 +783,7 @@ class QuestionController extends Controller
             'watson_account' => 'nullable',
         ]);
         if ($params['task_type'] == 'devtask') {
-            if (! $params['repository_id'] || ! $params['module_id']) {
+            if (!$params['repository_id'] || !$params['module_id']) {
                 return response()->json(['code' => 500, 'error' => 'Repository and module is required for Devtask']);
             }
         }
@@ -782,14 +795,16 @@ class QuestionController extends Controller
         $params['auto_approve'] = 1;
         $params['is_active'] = 1;
         $params['watson_account_id'] = $params['watson_account'];
+        $params['google_account_id'] = $params['google_account'];
         $chatbotQuestion = ChatbotQuestion::create($params);
-        if (! empty($params['question'])) {
+        if (!empty($params['question'])) {
             $chatbotQuestionExample = new ChatbotQuestionExample;
             $chatbotQuestionExample->question = $params['question'];
             $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
             $chatbotQuestionExample->save();
         }
-
+        $data_to_insert = [];
+        $storeWebsites = [];
         if ($params['watson_account'] > 0) {
             $wotson_account_ids = WatsonAccount::where('id', $params['watson_account'])->get();
         } else {
@@ -797,11 +812,23 @@ class QuestionController extends Controller
         }
 
         foreach ($wotson_account_ids as $id) {
+            $storeWebsites[] = $id->store_website_id;
             $data_to_insert[] = [
                 'suggested_reply' => $params['suggested_reply'],
                 'store_website_id' => $id->store_website_id,
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
+        }
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
+
+        foreach ($gogole_account_ids as $id) {
+            if (!in_array($id->site_id, $storeWebsites)) {
+                $data_to_insert[] = [
+                    'suggested_reply' => $params['suggested_reply'],
+                    'store_website_id' => $id->store_website_id,
+                    'chatbot_question_id' => $chatbotQuestion->id,
+                ];
+            }
         }
         ChatbotQuestionReply::insert($data_to_insert);
 
@@ -827,32 +854,41 @@ class QuestionController extends Controller
         $params['is_active'] = 1;
         $params['dynamic_reply'] = 1;
         $params['watson_account_id'] = $params['watson_account'];
+        $params['google_account_id'] = $params['google_account'];
         $chatbotQuestion = ChatbotQuestion::create($params);
-        if (! empty($params['question'])) {
+        if (!empty($params['question'])) {
             $chatbotQuestionExample = new ChatbotQuestionExample;
             $chatbotQuestionExample->question = $params['question'];
             $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
             $chatbotQuestionExample->save();
         }
 
-        if ($params['erp_or_watson'] == 'watson') {
-            $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $params['watson_account']));
+        $storeWebsites = [];
+        if ($params['watson_account'] > 0) {
+            $wotson_account_ids = WatsonAccount::where('id', $params['watson_account'])->get();
         } else {
-            if ($params['watson_account'] > 0) {
-                $wotson_account_ids = WatsonAccount::where('id', $params['watson_account'])->get();
-            } else {
-                $wotson_account_ids = WatsonAccount::all();
-            }
+            $wotson_account_ids = WatsonAccount::all();
+        }
 
-            foreach ($wotson_account_ids as $id) {
+        foreach ($wotson_account_ids as $id) {
+            $data_to_insert[] = [
+                'suggested_reply' => $params['suggested_reply'],
+                'store_website_id' => $id->store_website_id,
+                'chatbot_question_id' => $chatbotQuestion->id,
+            ];
+        }
+        $gogole_account_ids = GoogleDialogAccount::where('id', $request->google_account)->get();
+
+        foreach ($gogole_account_ids as $id) {
+            if (!in_array($id->site_id, $storeWebsites)) {
                 $data_to_insert[] = [
                     'suggested_reply' => $params['suggested_reply'],
                     'store_website_id' => $id->store_website_id,
                     'chatbot_question_id' => $chatbotQuestion->id,
                 ];
             }
-            ChatbotQuestionReply::insert($data_to_insert);
         }
+        ChatbotQuestionReply::insert($data_to_insert);
 
         return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
     }
@@ -909,11 +945,11 @@ class QuestionController extends Controller
     public function searchSuggestion(Request $request)
     {
         $listOfQuestions = ChatbotQuestionExample::join('chatbot_questions as cq', 'cq.id', 'chatbot_question_examples.chatbot_question_id')
-        ->where('question', 'LIKE', '%' . $request->q . '%')
-        ->where('cq.keyword_or_question', $request->type)
-        ->select(['chatbot_question_examples.*', 'cq.value', 'cq.erp_or_watson'])
-        ->limit(10)
-        ->get()->toArray();
+            ->where('question', 'LIKE', '%' . $request->q . '%')
+            ->where('cq.keyword_or_question', $request->type)
+            ->select(['chatbot_question_examples.*', 'cq.value', 'cq.erp_or_watson'])
+            ->limit(10)
+            ->get()->toArray();
 
         return response()->json(['code' => 200, 'data' => $listOfQuestions]);
     }
@@ -967,5 +1003,174 @@ class QuestionController extends Controller
         $reply = \App\ChatbotQuestionReply::get();
 
         return view('chatbot::question.partial.suggested-response', compact('reply'));
+    }
+
+    public function syncWatson($id)
+    {
+        $chatBotQuestion = ChatbotQuestion::find($id);
+        if ($chatBotQuestion) {
+            ChatbotQuestion::where('id', $chatBotQuestion->id)->update(['watson_status' => 'Pending watson send']);
+            $result = json_decode(WatsonManager::pushQuestion($chatBotQuestion->id, null, $chatBotQuestion->watson_account_id));
+            return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
+        }
+        return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong, Please try again!']);
+    }
+
+    public function syncGoogle($id)
+    {
+        $chatBotQuestion = ChatbotQuestion::where('id', $id)->first();
+        $chatBotQuestion->google_status = 'Pending google send';
+        $chatBotQuestion->save();
+        $questionArr = [];
+        foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
+            $questionArr[] = $question->question;
+        }
+        if ($chatBotQuestion) {
+            $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
+
+            foreach ($googleAccounts as $googleAccount) {
+                $dialogService = new DialogFlowService($googleAccount);
+                if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
+                    $response = $dialogService->createIntent([
+                        'questions' => $questionArr,
+                        'reply' => explode(',', $chatBotQuestion['suggested_reply']),
+                        'name' => $chatBotQuestion['value'],
+                        'parent' => $chatBotQuestion['parent']
+                    ], $chatBotQuestion->google_response_id ?: null);
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->google_status = 'google sended';
+                        $chatBotQuestion->save();
+                    }
+                } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
+                    $ids = [];
+                    foreach ($chatBotQuestion->chatbotQuestionExamples as $qu) {
+                        $ids[] = $qu->types;
+                    }
+                    $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
+                    $entityId = $entityType->response_id;
+                    if (!$entityType->response_id) {
+                        $responseE = $dialogService->createEntityType($entityType->display_name, $entityType->kind);
+                        $responseE = explode('/', $responseE);
+                        $entityType->response_id = $responseE[count($responseE) - 1];
+                        $entityId = $responseE[count($responseE) - 1];
+                        $entityType->save();
+                    }
+                    $keywords = $chatBotQuestion->chatbotQuestionExamples->pluck('question')->toArray();
+                    if ($entityType->kind == '2') {
+                        $keywords = [$chatBotQuestion['value']];
+                    }
+                    if ($chatBotQuestion->google_response_id) {
+                        $response = $dialogService->updateEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    } else {
+                        $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
+                    }
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
+                        $chatBotQuestion->google_status = 'google sended';
+                        $chatBotQuestion->save();
+                    }
+                }
+                $dialogService->trainAgent();
+            }
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'send successfully']);
+        }
+
+        return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong, Please try again!']);
+    }
+
+    public function addEntityType(Request $request)
+    {
+        $params = $request->all();
+        $params['name'] = $request->name;
+        $params['display_name'] = $request->display_name;
+        $params['kind'] = $request->kind_name;
+        $validator = Validator::make($params, [
+            'name' => 'required',
+            'display_name' => 'required',
+            'kind' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['code' => 500, 'error' => $validator->errors()]);
+        }
+        $entity_type = DialogflowEntityType::create($params);
+        $route = route('chatbot.question.list');
+        return response()->json(['code' => 200, 'data' => $entity_type, 'redirect' => $route]);
+    }
+
+    public function simulator()
+    {
+        $google_accounts = GoogleDialogAccount::all();
+        return view('chatbot::google-chatbot.chatbot', compact('google_accounts'));
+    }
+
+    public function botReply(Request $request)
+    {
+        try {
+            $session = \Cache::get('chatbot-session');
+            if (!$session) {
+                $session = uniqid();
+                \Cache::set('chatbot-session', $session);
+            }
+            $googleAccount = GoogleDialogAccount::where('id', $request->googleAccount)->first();
+            $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
+                ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
+                ->where('chatbot_questions.google_account_id', $request->googleAccount)
+                ->where('chatbot_questions.keyword_or_question', 'intent')
+                ->where('chatbot_questions.value', 'like', '%' . $request->question . '%')->orWhere('cqe.question', 'like', '%' . $request->question . '%')
+                ->groupBy('chatbot_questions.id')
+                ->orderBy('chatbot_questions.id', 'desc')
+                ->first();
+
+            if ($chatQuestions) {
+                if ($chatQuestions->auto_approve) {
+                    return response()->json(['code' => 200, 'data' => $chatQuestions->suggested_reply]);
+                }
+            }
+            $dialogFlowService = new DialogFlowService($googleAccount);
+            $response = $dialogFlowService->detectIntent(null, $request->question);
+
+            $intentName = $response->getIntent()->getName();
+            $intentName = explode('/', $intentName);
+            $intentName = $intentName[count($intentName) - 1];
+
+            $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
+            if (!$question) {
+                $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
+                if (!$question) {
+                    $question = ChatbotQuestion::create([
+                        'keyword_or_question' => 'intent',
+                        'is_active' => true,
+                        'google_account_id' => $googleAccount->id,
+                        'google_status' => 'google sended',
+                        'google_response_id' => $intentName,
+                        'value' => $response->getIntent()->getDisplayName(),
+                        'suggested_reply' => $response->getFulfillmentText()
+                    ]);
+                }
+            }
+            $questionsE = ChatbotQuestionExample::where('question', 'like', '%' . $response->getQueryText() . '%')->first();
+            if (!$questionsE) {
+                ChatbotQuestionExample::create([
+                    'chatbot_question_id' => $question->id,
+                    'question' => $response->getQueryText()
+                ]);
+            }
+
+            $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
+            if (!$questionsR) {
+                $chatRply = new  ChatbotQuestionReply();
+                $chatRply->suggested_reply = $response->getFulfillmentText();
+                $chatRply->store_website_id = $googleAccount->site_id;
+                $chatRply->chatbot_question_id = $question->id;
+                $chatRply->save();
+            }
+            return response()->json(['code' => 200, 'data' => $response->getFulfillmentText()]);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 400, 'data' => $e->getMessage()]);
+        }
     }
 }

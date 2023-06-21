@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Modules\ChatBot\Http\Controllers\QuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/chatbot', function (Request $request) {
     return $request->user();
+});
+
+Route::group(['prefix' => 'chatbot'], function () {
+    Route::post('bot-reply', [QuestionController::class, 'botReply'])->name('chatbot-api.reply');
 });

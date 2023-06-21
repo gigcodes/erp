@@ -12,6 +12,7 @@ use Google\Service\Drive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\UploadGoogleDriveScreencast;
+use Exception;
 
 class GoogleScreencastController extends Controller
 {
@@ -50,13 +51,22 @@ class GoogleScreencastController extends Controller
             });
         }
         if ($keyword = request('task_id')) {
-            $data = $data->where(function ($q) use ($keyword) {
-                $q->where('developer_task_id', $keyword);
-            });
+            if (str_contains($keyword, 'TASK-')) {
+                $keyword = trim($keyword, 'TASK-');
+                $data = $data->where(function ($q) use ($keyword) {
+                    $q->where('belongable_id', $keyword);
+                });
+            } else {
+                $keyword = trim($keyword, 'DEV-');
+                $data = $data->where(function ($q) use ($keyword) {
+                    $q->where('developer_task_id', $keyword);
+                });
+            }
         }
-        if ($keyword = request('user_gmail')) {
+        
+        if ($keyword = request('user_id')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->whereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_drive_screencast_upload.write)");
+                $q->where('user_id', $keyword);
             });
         }
         if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {
@@ -162,9 +172,28 @@ class GoogleScreencastController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $data = $this->validate($request, [
+            'id' => ['required'],
+            'file_name' => ['required'],
+            'file_id' => ['required'],
+            'file_remark' => ['required']
+        ]);
+
+        try {
+            $googlescreencast = GoogleScreencast::find(request('id'));
+            $googlescreencast->file_name = $request->file_name;
+            $googlescreencast->google_drive_file_id = $request->file_id;
+            $googlescreencast->remarks = $request->file_remark;
+            $googlescreencast->save();
+            
+            return back()->with('success', 'Data updated successfully.');
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error while updating data.');
+
+        }
     }
 
     public function driveFilePermissionUpdate(Request $request)
@@ -264,7 +293,13 @@ class GoogleScreencastController extends Controller
         $driveFileData = '';
 
         foreach ($driveFiles as $driveFile) {
-            $driveFileData .= '<tr><td>' . $driveFile['file_name'] . '</td><td>' . $driveFile['file_creation_date'] . '</td><td><input class="fileUrl" type="text" value="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" /><button class="copy-button btn btn-secondary" data-message="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link">Copy</button></td><td>' . $driveFile['remarks'] . '</td></tr>';
+            $driveFileData .= '<tr><td>' . $driveFile['file_name'] . '</td>
+            <td>' . $driveFile['file_creation_date'] . '</td>
+            <td><a href="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" target="_blank"><input class="fileUrl" type="text" value="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" /></a>
+            <button class="copy-button btn btn-secondary" data-message="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link">Copy</button></td>
+            <td>' . $driveFile['remarks'] . '</td>
+        </tr>';
+        
         }
         if ($driveFileData == '') {
             $driveFileData = '<tr><td colspan="4">No data found.</td></tr>';

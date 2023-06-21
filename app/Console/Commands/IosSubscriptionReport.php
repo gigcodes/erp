@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\AppSubscriptionReport;
 use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class IosSubscriptionReport extends Command
 {
@@ -39,6 +40,7 @@ class IosSubscriptionReport extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try{
             // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
@@ -59,8 +61,9 @@ class IosSubscriptionReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
+                $url ="https://api.appfigures.com/v2/reports/subscriptions?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://api.appfigures.com/v2/reports/subscriptions?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -80,7 +83,11 @@ class IosSubscriptionReport extends Command
                 // print_r($res);
                 // print_r($res["apple:ios"]);
                 // print($res["apple:ios"]["downloads"]);
+
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosSubscriptionReport::class, 'handle');
                 curl_close($curl);
+            
                 LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call completed."]);
 
                 if ($res) {

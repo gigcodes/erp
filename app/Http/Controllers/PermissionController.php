@@ -150,6 +150,10 @@ class PermissionController extends Controller
         if (! empty($request->assign_permission) && in_array('1', $request->assign_permission) && ! in_array('0', $request->assign_permission)) {
             $users = $users->select('users.*')->join('permission_user', 'permission_user.user_id', '=', 'users.id')->join('permissions', 'permission_user.permission_id', '=', 'permissions.id')->groupBy('permission_user.user_id');
 
+            if ($request->search_row) {
+                $users = $users->whereIn('permissions.name', $request->search_row);
+            }
+
             if ($request->search_user) {
                 $permissions = \DB::table('permissions')->whereIn('permissions.id', function ($query) {
                     $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id', '=', 'permission_user.permission_id')->whereIn('permission_user.user_id', \Request::input('search_user'));
@@ -181,6 +185,11 @@ class PermissionController extends Controller
         }
 
         if ($request->search_row) {
+            if(!$request->assign_permission) {
+                $users = $users->select('users.*')->join('permission_user', 'permission_user.user_id', '=', 'users.id')->join('permissions', 'permission_user.permission_id', '=', 'permissions.id')->groupBy('permission_user.user_id');
+                $users = $users->whereIn('permissions.name', $request->search_row);
+            }
+            
             $permissions = $permissions->whereIn('permissions.name', $request->search_row);
         }
 

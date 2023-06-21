@@ -12,6 +12,7 @@ use App\Helpers\LogHelper;
 use App\ProductSupplier;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class SyncUpteamProducts extends Command
 {
@@ -46,6 +47,7 @@ class SyncUpteamProducts extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
         try {
             ini_set('max_execution_time', '300');
@@ -62,7 +64,9 @@ class SyncUpteamProducts extends Command
     
             // $output contains the output string
             $output = curl_exec($ch);
-            $products = json_decode($output);
+            $products = json_decode($output); //response deocdes
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $api, 'POST', json_encode([]), $products, $httpcode, \App\Console\Commands\SyncUpteamProducts::class, 'handle');
             // close curl resource to free up system resources
             curl_close($ch);
             $headings = $products[0];

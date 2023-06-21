@@ -8,6 +8,7 @@ use App\GoogleTranslate;
 use App\SocialWebhookLog;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class SocialAccountCommentController extends Controller
 {
@@ -47,6 +48,7 @@ class SocialAccountCommentController extends Controller
         $googleTranslate = new GoogleTranslate();
         $target = $socialConfig['page_language'] ? $socialConfig['page_language'] : 'en';
         $translationString = $googleTranslate->translate($target, $message);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         SocialWebhookLog::log(SocialWebhookLog::ERROR, 'Webhook (Comment Error) => Please check config id', ['data' => $configId]);
 
@@ -71,9 +73,12 @@ class SocialAccountCommentController extends Controller
 
             // Execute the cURL request and get the response
             $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountCommentController::class, 'devCommentsReply');
 
             // Close the cURL session
             curl_close($ch);
+            
 
             // Process the response
             // $result = json_decode($response, true);

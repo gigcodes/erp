@@ -48,6 +48,7 @@ class WebsiteLogController extends Controller
 
         $srchWebsite = request('website', '');
         $srchFilename = request('file_name', '');
+        $searchDate = request('date', '');
 
         $listSrchFiles = [];
 
@@ -81,9 +82,24 @@ class WebsiteLogController extends Controller
                     'Website' => '',
                     'Website' => $website,
                     'File_Path' => $filePath,
+                    'date' => date ("F d Y H:i:s.", filemtime($filePath)),
+                    'formatedDate' => date("Y-m-d", filemtime($filePath)),
                 ];
             }
         }
+
+        usort($dataArr, function ($a, $b) {
+            $dateA = strtotime($a["date"]);
+            $dateB = strtotime($b["date"]);
+            return $dateB - $dateA;
+        });
+
+        if($searchDate){
+            $dataArr = array_filter($dataArr, function ($item) use ($searchDate) {
+                return $item['formatedDate'] === $searchDate;
+              });
+        }
+        
         $directories = readFolders($logFiles);
         // _p($directories);
 
@@ -285,7 +301,7 @@ class WebsiteLogController extends Controller
     public function websiteLogStoreView()
     {
         try {
-            $dataArr = WebsiteLog::all();
+            $dataArr = WebsiteLog::latest()->paginate(25);
 
             return view('website-logs.website-log-view', compact('dataArr'));
         } catch (\Exception $e) {
@@ -296,20 +312,45 @@ class WebsiteLogController extends Controller
     public function searchWebsiteLogStoreView(Request $request)
     {
         try {
-            $dataArr = new WebsiteLog();
-            if ($request->sql_query) {
-                $dataArr = $dataArr->where('sql_query', 'LIKE', '%' . $request->sql_query . '%');
-            }
-            if ($request->time) {
-                $dataArr = $dataArr->where('time', 'LIKE', '%' . $request->time . '%');
-            }
-            $dataArr = $dataArr->get();
-            $sqlQuery = $request->sql_query;
-            $time = $request->time;
 
-            return view('website-logs.website-log-view', compact('dataArr', 'sqlQuery', 'time'));
+            $dataArr = new WebsiteLog();
+            if ($request->search_error) {
+                $dataArr = $dataArr->where('error', 'LIKE', '%' . $request->search_error . '%');
+            }
+            if ($request->search_type) {
+                $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
+            }  
+            if ($request->website_ids) {
+                $dataArr = $dataArr->WhereIn('website_id', $request->website_ids);
+            }
+            if ($request->date) {
+                $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
+            }
+            $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination',10));
+            $search_error = $request->search_error;
+            $search_type = $request->search_type;
+            $website_id = $request->website_ids;
+            $date = $request->date;
+
+            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type', 'website_id', 'date'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function websiteErrorShow(Request $request)
+    {     
+        $id = $request->input('id');
+        $errorData = WebsiteLog::where('id', $id)->value('error');
+        $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
+
+        return $htmlContent;
+    }
+
+    public function WebsiteLogTruncate()
+    {
+        WebsiteLog::truncate();
+
+        return redirect()->route('website.log.view')->withSuccess('data Removed succesfully!');
     }
 }

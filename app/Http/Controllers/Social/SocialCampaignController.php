@@ -14,6 +14,7 @@ use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Social\SocialCampaign;
 use App\Http\Controllers\Controller;
+use App\LogRequest;
 
 class SocialCampaignController extends Controller
 {
@@ -159,6 +160,7 @@ class SocialCampaignController extends Controller
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
         $this->ad_acc_id = $config->ads_manager;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -168,6 +170,7 @@ class SocialCampaignController extends Controller
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/campaigns';
+
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -181,8 +184,11 @@ class SocialCampaignController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //response decoder
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
+     
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
@@ -221,8 +227,11 @@ class SocialCampaignController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
-                    $resp = json_decode($resp);
+                    $resp = json_decode($resp); //response decoded
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
+
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -389,6 +398,7 @@ class SocialCampaignController extends Controller
         $token = $config->token;
         $page_id = $config->page_id;
         $url = "https://graph.facebook.com/v12.0/$page_id?fields=instagram_business_account&access_token=$token";
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -398,6 +408,14 @@ class SocialCampaignController extends Controller
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters['getIstanId'] =[
+            'config' => $config,
+            'fb' => $fb,
+            'post_id' => $post_id,
+        ];
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($resp), $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'getInstaID');
+
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true);
         if (isset($resp['instagram_business_account'])) {

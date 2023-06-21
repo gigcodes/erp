@@ -71,6 +71,7 @@ use IlluminUserFeedbackStatuspport\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2429,6 +2430,7 @@ class WhatsAppController extends FindByNumberController
                 $params['customer_id'] = $ticket->customer_id;
                 $params['approved'] = 1;
                 $params['status'] = 2;
+                $params['user_id'] = optional(auth()->user())->id;
                 $chat_message = ChatMessage::create($params);
 
                 // check if ticket has customer ?
@@ -2446,7 +2448,67 @@ class WhatsAppController extends FindByNumberController
                         $chat_message->save();
                     }
                 }
+                \Log::info('Start API CALL /rest/V1/ticket-counter/add');
+                if ($ticket) {
+                    $ticket_id=$ticket->ticket_id;
+                    $email=$ticket->email;
+                    $source_of_ticket=$ticket->source_of_ticket;
+                    $storeWebsite=\App\StoreWebsite::where('website', $source_of_ticket)->first();
+                    if($storeWebsite){
+                        $storeWebsiteCode = $storeWebsite->storeCode;
+                        $magento_url = $storeWebsite->magento_url;
+                        $api_token = $storeWebsite->api_token;
+                        if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
 
+                            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                            $curl = curl_init();
+                            $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
+                            curl_setopt_array($curl, array(
+                                CURLOPT_URL => trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add",
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_ENCODING => '',
+                                CURLOPT_MAXREDIRS => 10,
+                                CURLOPT_TIMEOUT => 0,
+                                CURLOPT_FOLLOWLOCATION => true,
+                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                CURLOPT_CUSTOMREQUEST => 'PUT',
+                                CURLOPT_POSTFIELDS =>'{
+                                "ticketData":
+                                {
+                                    "ticket_id": "'.$ticket_id.'",
+                                    "email": "'.$email.'"
+                                }
+                                }
+                                ',
+                                CURLOPT_HTTPHEADER => array(
+                                    'Content-Type: application/json',
+                                    'Authorization: Bearer '.$api_token,
+                                ),
+                            ));
+
+                            $response = curl_exec($curl);
+                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            \Log::info("API RESPONSE: ".$response);
+                            curl_close($curl);
+
+                            LogRequest::log($startTime, $url, 'PUT', '{
+                                "ticketData":
+                                {
+                                    "ticket_id": "'.$ticket_id.'",
+                                    "email": "'.$email.'"
+                                }
+                                }', json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendMessage');
+
+                        }else{
+                            \Log::info('Magento URL and Store Website code is not found:');
+                        }
+                    }else{
+                        \Log::info('Store Website not found: '.$source_of_ticket);
+                    }
+                }else{
+                    \Log::info('Ticket Data Not Found ticket_id: '.$request->ticket_id);
+                }
+                \Log::info('END API CALL /rest/V1/ticket-counter/add');
                 return response()->json(['message' => $chat_message]);
             } else {
                 if ($context == 'priority') {
@@ -3261,27 +3323,29 @@ class WhatsAppController extends FindByNumberController
             /** Sent To ChatbotMessage */
             $loggedUser = $request->user();
 
-            $roles = $loggedUser->roles->pluck('name')->toArray();
+            if ($loggedUser) {
+                $roles = $loggedUser->roles->pluck('name')->toArray();
 
-            if (! in_array('Admin', $roles)) {
-                \App\ChatbotReply::create([
-                    'question' => $request->message,
-                    'reply' => json_encode([
-                        'context' => 'vendor',
-                        'issue_id' => $data['vendor_id'],
-                        'from' => $loggedUser->id,
-                    ]),
-                    'replied_chat_id' => $chat_message->id,
-                    'reply_from' => 'database',
-                ]);
-            }
+                if (! in_array('Admin', $roles)) {
+                    \App\ChatbotReply::create([
+                        'question' => $request->message,
+                        'reply' => json_encode([
+                            'context' => 'vendor',
+                            'issue_id' => $data['vendor_id'],
+                            'from' => $loggedUser->id,
+                        ]),
+                        'replied_chat_id' => $chat_message->id,
+                        'reply_from' => 'database',
+                    ]);
+                }
 
-            $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+                $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
 
-            if ($messageReply) {
-                $messageReply->chat_id = $chat_message->id;
+                if ($messageReply) {
+                    $messageReply->chat_id = $chat_message->id;
 
-                $messageReply->save();
+                    $messageReply->save();
+                }
             }
         }
         //END - DEVTASK-4203
@@ -5076,7 +5140,7 @@ class WhatsAppController extends FindByNumberController
                 return;
             }
         }
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         if (Setting::get('whatsapp_number_change') == 1) {
@@ -5145,8 +5209,10 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'GET', json_encode($logDetail), $response, $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithWhatsApp');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5231,8 +5297,12 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $parameters = [];
         curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'pullApiwha');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5327,9 +5397,10 @@ class WhatsAppController extends FindByNumberController
             ];
 
             $curl = curl_init();
+            $url = "https://api.wassenger.com/v1/files?reference=$chat_message_id";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => "https://api.wassenger.com/v1/files?reference=$chat_message_id",
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -5345,8 +5416,12 @@ class WhatsAppController extends FindByNumberController
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             curl_close($curl);
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
             // throw new \Exception("cURL Error #: whatttt");
             if ($err) {
                 // DON'T THROW EXCEPTION
@@ -5393,9 +5468,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $curl = curl_init();
+        $url = "https://api.wassenger.com/v1/messages";
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.wassenger.com/v1/messages',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -5412,8 +5488,9 @@ class WhatsAppController extends FindByNumberController
         $response = curl_exec($curl);
         $err = curl_error($curl);
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
         curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5450,6 +5527,8 @@ class WhatsAppController extends FindByNumberController
             'enqueue' => $enqueue,
             'customer_id' => $customer_id,
         ];
+
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         // Get configs
         $config = \Config::get('apiwha.instances');
@@ -5624,10 +5703,13 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
+
+        LogRequest::log($startTime, $domain, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithThirdApi');
 
         if ($err) {
             // DON'T THROW EXCEPTION
@@ -5949,6 +6031,7 @@ class WhatsAppController extends FindByNumberController
     public function createGroup($task_id, $group_id, $number, $message, $whatsapp_number)
     {
         $encodedText = $message;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($whatsapp_number == '919004780634') { // Indian
             $instanceId = '43281';
@@ -5993,9 +6076,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $curl = curl_init();
+        $url = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -6011,13 +6095,13 @@ class WhatsAppController extends FindByNumberController
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
+        $result = json_decode($response, true);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
 
-        $result = json_decode($response, true);
-
+        LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendBulkNotification');
         if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);

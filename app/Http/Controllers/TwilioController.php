@@ -81,6 +81,7 @@ use Illuminate\Support\Facades\Auth;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
 use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\LogRequest;
 
 /**
  * Class TwilioController - active record
@@ -3702,6 +3703,7 @@ class TwilioController extends FindByNumberController
 
     public function twilioCallForward(Request $request)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $number_details = TwilioActiveNumber::where('id', $request->twilio_number_id)->first();
         $account_details = TwilioCredential::where('id', $request->twilio_account_id)->where('twiml_app_sid', '!=', null)->first();
         try {
@@ -3724,17 +3726,21 @@ class TwilioController extends FindByNumberController
             $base_url = config('env.APP_URL');
             //update webhook url on twilio console using api
             $ch = curl_init();
+            $url = "https://api.twilio.com/2010-04-01/Accounts/' . $account_details->account_id . '/IncomingPhoneNumbers/' . $number_details->sid . '.json'";
             curl_setopt($ch, CURLOPT_URL, 'https://api.twilio.com/2010-04-01/Accounts/' . $account_details->account_id . '/IncomingPhoneNumbers/' . $number_details->sid . '.json');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
             //curl_setopt($ch, CURLOPT_POSTFIELDS,"VoiceUrl=http://5be3e7a64b37.ngrok.io/run-webhook/".$number_details->sid."");
             curl_setopt($ch, CURLOPT_POSTFIELDS, 'VoiceUrl=' . $base_url . '/run-webhook/' . $number_details->sid . '');
             curl_setopt($ch, CURLOPT_USERPWD, $account_details->account_id . ':' . $account_details->auth_token);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $result = curl_exec($ch);
             if (curl_errno($ch)) {
                 echo 'Error:' . curl_error($ch);
             }
-            curl_close($ch);
+            curl_close($ch);     
+
+            LogRequest::log($startTime, $url, 'POST', json_encode(['VoiceUrl=' . $base_url . '/run-webhook/' . $number_details->sid]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
             return new JsonResponse(['status' => 1, 'message' => 'Number forwarded to agent successfully.']);
         } catch (\Exception $e) {
@@ -5001,12 +5007,14 @@ class TwilioController extends FindByNumberController
      */
     public function checkUrlExists($url)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         // don't download content
         curl_setopt($ch, CURLOPT_NOBODY, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $result = curl_exec($ch);
 
@@ -5019,6 +5027,7 @@ class TwilioController extends FindByNumberController
         }
 
         curl_close($ch);
+        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
         return false;
     }

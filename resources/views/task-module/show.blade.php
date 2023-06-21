@@ -919,7 +919,8 @@
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
                                                     <?php $text_box = "100"; ?>
-                                                    <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                    <textarea rows="2" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message"></textarea>
+                                                    {{-- <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value=""> --}}
                                                     <div class="d-flex">
                                                         <div style="">
                                                             <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
@@ -3906,7 +3907,8 @@
                         doc_type,
                         doc_name,
                         task_id,
-                        task_type: "TASK"
+                        task_type: "TASK",
+                        attach_task_detail: true
                     },
                     beforeSend: function() {
                         $("#loading-image").show();

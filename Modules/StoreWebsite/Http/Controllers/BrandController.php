@@ -335,8 +335,9 @@ class BrandController extends Controller
 
     public function liveBrands(Request $request)
     {
+        $heading = "Live Brands";
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
-        if ($storeWebsite) {
+        if ($storeWebsite && $storeWebsite->magento_url) {
             $client = new Client();
             $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
@@ -363,14 +364,17 @@ class BrandController extends Controller
 
             $total = $availableBrands->count();
 
-            return view('storewebsite::brand.live-compare', compact('availableBrands', 'total'));
+            return view('storewebsite::brand.live-compare', compact('availableBrands', 'total', 'heading'));
+        } else {
+            throw new \Exception("Magento URL missing");
         }
     }
 
     public function missingBrands(Request $request)
     {
+        $heading = "Missing Brands";
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
-        if ($storeWebsite) {
+        if ($storeWebsite && $storeWebsite->magento_url) {
             $client = new Client();
             $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
@@ -396,7 +400,9 @@ class BrandController extends Controller
 
             $total = $availableBrands->count();
 
-            return view('storewebsite::brand.live-compare', compact('availableBrands'));
+            return view('storewebsite::brand.live-compare', compact('availableBrands', 'heading'));
+        } else {
+            throw new \Exception("Magento URL missing");
         }
     }
 

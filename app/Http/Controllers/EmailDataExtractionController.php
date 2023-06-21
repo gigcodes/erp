@@ -17,6 +17,7 @@ use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\LogRequest;
 
 class EmailDataExtractionController extends Controller
 {
@@ -667,6 +668,7 @@ class EmailDataExtractionController extends Controller
     public static function downloadFromURL($url, $supplier)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (strpos($url, 'https://we.tl/') !== false) {
             $ch = curl_init($url);
@@ -678,7 +680,10 @@ class EmailDataExtractionController extends Controller
 
             $response = curl_exec($ch);
             preg_match_all('/^Location:(.*)$/mi', $response, $matches);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\EmailDataExtractionController::class, 'downloadFromURL');
             curl_close($ch);
+
 
             if (isset($matches[1])) {
                 if (isset($matches[1][0])) {
@@ -750,7 +755,9 @@ class EmailDataExtractionController extends Controller
 
         $real = curl_exec($ch);
 
-        $urlResponse = json_decode($real);
+        $urlResponse = json_decode($real); // respons decode
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $curlURL, 'POST',  json_encode([]) , $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 
@@ -787,6 +794,7 @@ class EmailDataExtractionController extends Controller
                 }
             }
         }
+       
     }
 
     public function bluckAction(Request $request)

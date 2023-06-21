@@ -435,6 +435,35 @@ $(document).ready(function() {
 
         }
     }
+
+    $(document).on("click",".push-system-size",function() {
+        if(!confirm('Are you sure you want to push system size?')){
+            return false;
+        }
+
+        var $this = $(this);
+        $.ajax({
+            url: "{{ url('system/size/push') }}",
+            type: 'POST',
+            data: {
+            _token: "{{ csrf_token() }}",
+            systemSizeManagerId: $this.data("id")
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+        }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    toastr["success"](response.message);
+                    // location.reload();
+                }else{
+                toastr["error"]('Something went wrong!');
+                }
+        }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+        });
+    });
 });
 
 </script>

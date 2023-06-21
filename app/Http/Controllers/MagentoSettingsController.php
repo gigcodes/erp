@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use App\MagentoSettingNameLog;
 use App\MagentoSettingPushLog;
 use Illuminate\Support\Facades\Auth;
+use App\AssetsManager;
+use App\LogRequest;
 
 class MagentoSettingsController extends Controller
 {
@@ -31,7 +33,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+            ->select('store_websites.website',  'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
 
         if (is_array($request->website)) {
             foreach ($request->website as $website) {
@@ -72,7 +74,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
         }
 
-        $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
@@ -108,6 +110,89 @@ class MagentoSettingsController extends Controller
                 'counter' => $counter,
             ]);
         }
+    }
+
+
+    public function getLogs(Request $request){
+        $storeWebsites = StoreWebsite::get();
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website','magento_setting_push_logs.id','magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at', 'magento_setting_push_logs.store_website_id', 'magento_setting_push_logs.job_id')
+        ->orderBy('magento_setting_push_logs.id', 'DESC');
+        if($request->website){
+            $pushLogs->where('store_website_id',$request->website);
+        }
+        if($request->date){
+            $pushLogs->whereDate('magento_setting_push_logs.created_at',$request->date);
+        }
+        $pushLogs = $pushLogs->paginate(25)->withQueryString();
+
+        $counter = MagentoSettingPushLog::select('*');
+        if($request->website){
+            $counter->where('store_website_id',$request->website);
+        }
+        if($request->date){
+            $counter->whereDate('magento_setting_push_logs.created_at',$request->date);
+        }
+        $counter = $counter->count();
+
+        foreach($pushLogs as $logs){
+            if($logs->store_website_id !='' && $logs->job_id!=''){
+                $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                if($assetsmanager && $assetsmanager->client_id!=''){
+                    $client_id=$assetsmanager->client_id;
+                    $job_id=$logs->job_id;
+                    $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                    $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL,$url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    
+                    $headers = [];
+                    $headers[] = 'Authorization: Basic '.$key;
+                    //$headers[] = 'Content-Type: application/json';
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                    $result = curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'getLogs');
+                    if (curl_errno($ch)) {
+                        
+                    }
+                    $response = json_decode($result);
+                    if(isset($response->data) && isset($response->data->result) ){
+                        $result=$response->data->result;
+                        $message='';
+                        if(isset($result->stdout) && $result->stdout!=''){
+                            $message.='Output: '.$result->stdout;
+                        }
+                        if(isset($result->stderr) && $result->stderr!=''){
+                            $message.='Error: '.$result->stderr;
+                        }
+                        if(isset($result->summary) && $result->summary!=''){
+                            $message.='summary: '.$result->summary;
+                        }
+                        if($message!=''){
+                            $logs->command_output=$message;
+                        }
+                    }
+
+                    curl_close($ch);
+                    
+                }
+                    
+                
+            }
+        }
+
+        return view('magento.settings.sync_logs', [
+            'pushLogs' => $pushLogs,
+            'storeWebsites' => $storeWebsites,
+            'counter' => $counter
+        ]);
+
     }
 
     public function magentoSyncLogSearch(Request $request)
@@ -287,7 +372,7 @@ class MagentoSettingsController extends Controller
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
         $website_ids = $request->websites;
-
+       
         $m = MagentoSetting::where('id', $request->id)->first();
         if ($m) {
             MagentoSettingNameLog::insert([
@@ -309,55 +394,120 @@ class MagentoSettingsController extends Controller
 
         if ($scope === 'default') {
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
-
+            
             foreach ($storeWebsites as $storeWebsite) {
+                $allOutput  = [];
+                $store_website_id=$storeWebsite->id;
+                \Log::info("Setting Pushed to : ".$store_website_id);
                 $git_repository = $storeWebsite->repository;
-                $magento_url = $storeWebsite->magento_url;
+                $server_ip = $storeWebsite->server_ip;
                 $server_name = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
-                    if (! $m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $storeWebsite->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID = 0;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
+                
+                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
+                if (! $m_setting) {
+                    $m_setting = MagentoSetting::Create([
+                        'scope' => $scope,
+                        'scope_id' => $storeWebsite->id,
+                        'name' => $name,
+                        'path' => $path,
+                        'value' => $value,
+                        'data_type' => $datatype,
+                    ]);
+                } else {
+                    $m_setting->name = $name;
+                    $m_setting->path = $path;
+                    $m_setting->value = $value;
+                    $m_setting->data_type = $datatype;
+                    $m_setting->save();
+                }
+                $scopeID = 0;
 
-                    //BASE SCRIPT
-                    if (! empty($git_repository)) {
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
+                //BASE SCRIPT
+                if (! empty($git_repository) && !empty($server_ip)) {
+                    $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_ip;
+                    
+                    $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                    if($assetsmanager && $assetsmanager->client_id!='')
+                    {
+                        
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            //'client_id' => $client_id, 
+                            'script' => base64_encode($cmd), 
+                            'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                            'is_sudo' => true 
+                        ]));
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode([ 'script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), 
+                        json_decode($result),
+                         $httpcode,
+                          \App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+                        \Log::info("API result: ".$result);
+                        if (curl_errno($ch)) {
+                            \Log::info("API Error: ".curl_error($ch));
+                            //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                        }
+                        \Log::info("API Response: ".$result);
+                        $response = json_decode($result);
+
+                            curl_close($ch);
+                            
+                        if(isset($response->errors)){ 
+                            $message='';
+                            foreach($response->errors as $error){
+                                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                            }
+                        // return response()->json(['code' => 500, 'message' => $message]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                            
+                        }else{
+                            if(isset($response->data) && isset($response->data->jid) ){
+                                $job_id=$response->data->jid;
+                                $status="Success";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                            }else{
+                                $status="Error";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                             }
                         }
-                        $m_setting->status = $status;
+                    }else{
+                        // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
+                        $m_setting->status ='Error';
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($result), 'status' => $status]);
-                        \Log::info(print_r(['Command Output', $allOutput], true));
-                    } else {
-                        return response()->json(['code' => 500, 'message' => 'Request has been failed on stage server please check laravel log']);
+                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                     }
+                } else {
+                    $m_setting->status ='Error';
+                    $m_setting->save();
+                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error', 'command_server' => $server_ip]);
+                    return response()->json(['code' => 500, 'message' => 'Request has been failed! Please check push logs']);
                 }
             }
 
@@ -370,54 +520,122 @@ class MagentoSettingsController extends Controller
             })->orWhere('id', $entity->scope_id)->get();
 
             foreach ($websiteStores as $websiteStore) {
+                $allOutput  = [];
+                $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
+                \Log::info("Setting Pushed to : ".$store_website_id);
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
-                $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
-                $server_name = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
-                    if (! $m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStore->id,
-                            'name' => $request->name,
-                            'path' => $request->path,
-                            'value' => $request->value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID = $websiteStore->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
 
-                    //BASE SCRIPT
-                    if (! empty($git_repository)) {
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
+                $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
+
+                $server_ip = isset($websiteStore->website->storeWebsite->server_ip) ? $websiteStore->website->storeWebsite->server_ip : null;
+
+                $server_name = config('database.connections.' . $git_repository . '.host');
+                
+                
+                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+                if (! $m_setting) {
+                    $m_setting = MagentoSetting::Create([
+                        'scope' => $scope,
+                        'scope_id' => $websiteStore->id,
+                        'name' => $request->name,
+                        'path' => $request->path,
+                        'value' => $request->value,
+                        'data_type' => $datatype,
+                    ]);
+                } else {
+                    $m_setting->name = $name;
+                    $m_setting->path = $path;
+                    $m_setting->value = $value;
+                    $m_setting->data_type = $datatype;
+                    $m_setting->save();
+                }
+                $scopeID = $websiteStore->platform_id;
+                
+                //BASE SCRIPT
+                if (! empty($git_repository) && !empty($server_ip)) {
+                    $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_ip;
+                    
+                    $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                    if($assetsmanager && $assetsmanager->client_id!='')
+                    {
+                        
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            //'client_id' => $client_id, 
+                            'script' => base64_encode($cmd), 
+                            'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                            'is_sudo' => true 
+                        ]));
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $parameters = [];
+                        LogRequest::log($startTime, $url, 'POST', json_encode([ 'script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+                        \Log::info("API result: ".$result);
+                        if (curl_errno($ch)) {
+                            \Log::info("API Error: ".curl_error($ch));
+                            //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                        }
+                        \Log::info("API Response: ".$result);
+                        $response = json_decode($result);
+
+                        curl_close($ch);
+                            
+
+                        if(isset($response->errors)){ 
+                            $message='';
+                            foreach($response->errors as $error){
+                                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                            }
+                        // return response()->json(['code' => 500, 'message' => $message]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                            
+                        }else{
+                            if(isset($response->data) && isset($response->data->jid) ){
+                                $job_id=$response->data->jid;
+                                $status="Success";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                            }else{
+                                $status="Error";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                             }
                         }
-                        $m_setting->status = $status;
+                    }else{
+                        $m_setting->status ='Error';
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                        \Log::info(print_r(['Command Output', $allOutput], true));
-                    } else {
-                        return response()->json(['code' => 500, 'message' => 'Request has been failed on stage server please check laravel log']);
+                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' =>json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                     }
+
+                } else {
+                    $m_setting->status ='Error';
+                    $m_setting->save();
+                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error', 'command_server' => $server_ip]);
+                    return response()->json(['code' => 500, 'message' => 'Request has been failed! Please check push logs']);
                 }
+            
             }
 
             return response()->json(['code' => 200, 'message' => 'Request pushed on website successfully']);
@@ -428,56 +646,120 @@ class MagentoSettingsController extends Controller
             $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
                 $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
             })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
-
+            
             foreach ($websiteStoresViews as $websiteStoresView) {
-                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
-                $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
-                $server_name = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
-                    if (! $m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStoresView->id,
-                            'name' => $request->name,
-                            'path' => $request->path,
-                            'value' => $request->value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID = $websiteStoresView->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
+                $allOutput  = [];
+                $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
+                \Log::info("Setting Pushed to : ".$store_website_id);
+                $git_repository = isset($websiteStoresView->websiteStore->website->storeWebsite->repository) ? $websiteStoresView->websiteStore->website->storeWebsite->repository : null;
 
-                    //BASE SCRIPT
-                    if (! empty($git_repository)) {
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput = [];
-                        $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput); //Execute command
-                        $status = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                $status = 'Success';
-                                break;
+                $server_ip = isset($websiteStoresView->websiteStore->website->storeWebsite->server_ip) ? $websiteStoresView->websiteStore->website->storeWebsite->server_ip : null;
+                
+                $server_name = config('database.connections.' . $git_repository . '.host');
+                
+                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+                if (! $m_setting) {
+                    $m_setting = MagentoSetting::Create([
+                        'scope' => $scope,
+                        'scope_id' => $websiteStoresView->id,
+                        'name' => $request->name,
+                        'path' => $request->path,
+                        'value' => $request->value,
+                        'data_type' => $datatype,
+                    ]);
+                } else {
+                    $m_setting->name = $name;
+                    $m_setting->path = $path;
+                    $m_setting->value = $value;
+                    $m_setting->data_type = $datatype;
+                    $m_setting->save();
+                }
+                $scopeID = $websiteStoresView->platform_id;
+                
+                //BASE SCRIPT
+                if (! empty($git_repository) && !empty($server_ip)) {
+                    $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_ip;                       
+                    $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                    if($assetsmanager && $assetsmanager->client_id!='')
+                    {
+                        
+                        $client_id=$assetsmanager->client_id;
+                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            //'client_id' => $client_id, 
+                            'script' => base64_encode($cmd), 
+                            'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                            'is_sudo' => true 
+                        ]));
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic '.$key;
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+                        \Log::info("API result: ".$result);
+                        if (curl_errno($ch)) {
+                            \Log::info("API Error: ".curl_error($ch));
+                            //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                        }
+                        \Log::info("API Response: ".$result);
+                        $response = json_decode($result); //response decoded
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                        'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                        'is_sudo' => true ]), $response, $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+
+                        curl_close($ch);
+                            
+                        if(isset($response->errors)){ 
+                            $message='';
+                            foreach($response->errors as $error){
+                                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                            }
+                        // return response()->json(['code' => 500, 'message' => $message]);
+                            $m_setting->status ='Error';
+                            $m_setting->save();
+                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                            
+                        }else{
+                            if(isset($response->data) && isset($response->data->jid) ){
+                                $job_id=$response->data->jid;
+                                $status="Success";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                            }else{
+                                $status="Error";
+                                $m_setting->status = $status;
+                                $m_setting->save();
+                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                             }
                         }
-                        $m_setting->status = $status;
+                    }else{
+                        $m_setting->status ='Error';
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                        \Log::info(print_r(['Command Output', $allOutput], true));
-                    } else {
-                        return response()->json(['code' => 500, 'message' => 'Request has been failed on stage server please check laravel log']);
+                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                     }
+
+                    
+                } else {
+                    $m_setting->status ='Error';
+                    $m_setting->save();
+                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error']);
+                    return response()->json(['code' => 500, 'message' => 'Request has been failed! Please check push logs', 'command_server' => $server_ip]);
                 }
+                
             }
 
             return response()->json(['code' => 200, 'message' => 'Request pushed on website successfully']);
@@ -486,38 +768,96 @@ class MagentoSettingsController extends Controller
 
     public function pushMagentoSettings(Request $request)
     {
-        $store_website_id = $request->store_website_id;
-        $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
-        $settings = '';
-        $storeWebsiteDetails = StoreWebsite::leftJoin('github_repositories', 'github_repositories.id', '=', 'store_websites.repository_id')
-            ->where('store_websites.id', $store_website_id)->select('github_repositories.name as repo_name')->first();
+        if($request->has('store_website_id') && $request->store_website_id!=''){
 
-        foreach ($magentoSettings as $magentoSetting) {
-            if ($magentoSetting['scope'] == 'default') {
-                $scopeId = 0;
-            } elseif ($magentoSetting['scope'] === 'websites') {
-                $scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
-            } elseif ($magentoSetting['scope'] === 'stores') {
-                $scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+            $store_website_id = $request->store_website_id;
+            $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
+            $settings = '';
+            $storeWebsiteDetails = StoreWebsite::leftJoin('github_repositories', 'github_repositories.id', '=', 'store_websites.repository_id')
+                ->where('store_websites.id', $store_website_id)->select('github_repositories.name as repo_name')->first();
+            $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+            if(!$assetsmanager && optional($assetsmanager)->client_id==''){
+                return redirect(route('magento.setting.index'))->with('error', 'Assets Manager & Client id not found the ERP PROD');
             }
-            $settings .= $magentoSetting['scope'] . ',' . $scopeId . ',' . $magentoSetting['path'] . ',' . $magentoSetting['value'] . PHP_EOL;
+            foreach ($magentoSettings as $magentoSetting) {
+                if ($magentoSetting['scope'] == 'default') {
+                    $scopeId = 0;
+                } elseif ($magentoSetting['scope'] === 'websites') {
+                    $scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+                } elseif ($magentoSetting['scope'] === 'stores') {
+                    $scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+                }
+                $settings .= $magentoSetting['scope'] . ',' . $scopeId . ',' . $magentoSetting['path'] . ',' . $magentoSetting['value'] . PHP_EOL;
+            }
+            if ($settings != '') {
+                $allOutput  = [];
+                $filePath = public_path() . '/uploads/temp-sync.txt';
+                $myfile = fopen($filePath, 'w') or exit('Unable to open file!');
+                fwrite($myfile, $settings);
+                fclose($myfile);
+
+                $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $storeWebsiteDetails['repo_name'] . " -f '" . $filePath . "'";
+                
+                $client_id=$assetsmanager->client_id;
+                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL,$url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                    //'client_id' => $client_id, 
+                    'script' => base64_encode($cmd), 
+                    'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                    'is_sudo' => true 
+                ]));
+
+                $headers = [];
+                $headers[] = 'Authorization: Basic '.$key;
+                $headers[] = 'Content-Type: application/json';
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                $result = curl_exec($ch);
+                \Log::info("API result: ".$result);
+                if (curl_errno($ch)) {
+                    \Log::info("API Error: ".curl_error($ch));
+                    return redirect(route('magento.setting.index'))->with('error', curl_error($ch));
+                }
+                \Log::info("API Response: ".$result);
+                $response = json_decode($result); //response deocde
+                $parameters = [];
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+                curl_close($ch);
+                
+                if(isset($response->errors)){ 
+                    $message='';
+                    foreach($response->errors as $error){
+                        $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                    }
+                    return redirect(route('magento.setting.index'))->with('error', $message);
+                }
+
+                if(isset($response->data) && isset($response->data->jid) ){
+                    $job_id=$response->data->jid;
+                    $status="Success";
+                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $magentoSetting['id'], 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id]);
+                }else{
+                    return redirect(route('magento.setting.index'))->with('error', 'Job Id not found in response');
+                }
+                
+                
+                
+            }
+            return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
-        if ($settings != '') {
-            $filePath = public_path() . '/uploads/temp-sync.txt';
-            $myfile = fopen($filePath, 'w') or exit('Unable to open file!');
-            fwrite($myfile, $settings);
-            fclose($myfile);
-
-            $cmd = 'bash ' . 'magento-config-deployment.sh -r ' . $storeWebsiteDetails['repo_name'] . " -f '" . $filePath . "'";
-            $allOutput = [];
-            $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput); //Execute command
-
-            \Log::info(print_r(['Command Output', $allOutput], true));
-            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $magentoSetting['id'], 'command_output' => json_encode($allOutput)]);
-        }
-
-        return redirect(route('magento.setting.index'));
+        return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
     }
 
     public function websiteStores(Request $request)
@@ -571,14 +911,62 @@ class MagentoSettingsController extends Controller
 
     public function magentoPushLogs($settingId)
     {
-        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->get();
+        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->orderBy('id','desc')->get();
         $data = '';
         foreach ($logs as $log) {
-            $cmdOutputs = json_decode($log['command_output']);
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['status'] . '</td><td>';
-            if (! empty($cmdOutputs)) {
-                foreach ($cmdOutputs as $cmdOutput) {
-                    $data .= $cmdOutput . '<br/>';
+            
+            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_server'] . '</td><td style="overflow-wrap: anywhere;">' . $log['status'] . '</td><td style="overflow-wrap: anywhere;">' . $log['job_id'] . '</td><td>';
+
+            if($log->store_website_id !='' && $log->job_id!=''){
+                $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                if($assetsmanager && $assetsmanager->client_id!=''){
+                    $client_id=$assetsmanager->client_id;
+                    $job_id=$log->job_id;
+                    $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
+                    $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                    
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL,$url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    
+                    $headers = [];
+                    $headers[] = 'Authorization: Basic '.$key;
+                    //$headers[] = 'Content-Type: application/json';
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                    $result = curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'magentoPushLogs');
+                    
+                    $response = json_decode($result);
+                    if(isset($response->data) && isset($response->data->result) ){
+                        $result=$response->data->result;
+                        $message='';
+                        if(isset($result->stdout) && $result->stdout!=''){
+                            $message.='Output: '.$result->stdout;
+                        }
+                        if(isset($result->stderr) && $result->stderr!=''){
+                            $message.='Error: '.$result->stderr;
+                        }
+                        if(isset($result->summary) && $result->summary!=''){
+                            $message.='summary: '.$result->summary;
+                        }
+                        if($message!=''){
+                            $data .=$message;
+                        }
+                    }
+                    curl_close($ch);
+                     
+                }
+            }else{
+                $cmdOutputs = json_decode($log['command_output']);
+                if (! empty($cmdOutputs)) {
+                    foreach ($cmdOutputs as $cmdOutput) {
+                        $data .= $cmdOutput . '<br/>';
+                    }
                 }
             }
             $data .= '</td></tr>';
@@ -595,119 +983,312 @@ class MagentoSettingsController extends Controller
                 $config = preg_split('/\r\n|\r|\n/', $data);
                 if (! empty($config) && is_array($config)) {
                     $total = 0;
+                    
                     foreach ($config as $c) {
                         $entity = MagentoSetting::where('path', $c)->get();
                         if (! $entity->isEmpty()) {
                             foreach ($entity as $m_setting) {
+                                $allOutput  = [];
                                 if ($m_setting->scope === 'default') {
                                     $storeWebsite = $m_setting->website;
                                     if ($storeWebsite) {
+                                        $store_website_id=$storeWebsite->id;
+                                        \Log::info("Setting Pushed to : ".$store_website_id);
                                         $git_repository = $storeWebsite->repository;
                                         $magento_url = $storeWebsite->magento_url;
+                                        $server_ip = $storeWebsite->server_ip;
                                         $server_name = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url = explode('//', $magento_url);
-                                            $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
+                                        $m_setting->data_type = 'sensitive';
+                                        $m_setting->save();
 
-                                            $scopeID = 0;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
+                                        $scopeID = 0;
+                                        
+                                        //BASE SCRIPT
+                                        if (! empty($git_repository) && !empty($server_ip)) {
+                                            $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_ip;
+                                            $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                                            if($assetsmanager && $assetsmanager->client_id!='')
+                                            {
+                                            
+                                                $client_id=$assetsmanager->client_id;
+                                                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                                                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                                $ch = curl_init();
+                                                curl_setopt($ch, CURLOPT_URL,$url);
+                                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                                curl_setopt($ch, CURLOPT_POST, 1);
+                                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                                                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                                                    //'client_id' => $client_id, 
+                                                    'script' => base64_encode($cmd), 
+                                                    'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                    'is_sudo' => true 
+                                                ]));
 
-                                            //BASE SCRIPT
-                                            if (! empty($git_repository)) {
-                                                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
+                                                $headers = [];
+                                                $headers[] = 'Authorization: Basic '.$key;
+                                                $headers[] = 'Content-Type: application/json';
+                                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                                $result = curl_exec($ch);
+                                                \Log::info("API result: ".$result);
+                                                if (curl_errno($ch)) {
+                                                    \Log::info("API Error: ".curl_error($ch));
+                                                    //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                }
+                                                \Log::info("API Response: ".$result);
+                                                $response = json_decode($result);
+                                                $parameters = [];
+                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                                                LogRequest::log($startTime, $url, 'POST', json_encode( ['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
+
+                                                curl_close($ch);
+                                                
+
+                                                if(isset($response->errors)){ 
+                                                    $message='';
+                                                    foreach($response->errors as $error){
+                                                        $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                                                    }                                                                                                   
+                                                // return response()->json(['code' => 500, 'message' => $message]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                    
+                                                }else{
+                                                    if(isset($response->data) && isset($response->data->jid) ){
+                                                        $job_id=$response->data->jid;
+                                                        $status="Success";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                                                    }else{
+                                                        $status="Error";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                                                     }
                                                 }
-                                                $m_setting->status = $status;
+                                            }else{
+                                                // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
+                                                $m_setting->status ='Error';
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(['Command Output', $allOutput], true));
+                                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                                             }
+                                        }else{
+                                            $m_setting->status ='Error';
+                                            $m_setting->save();
+                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error', 'command_server' => $server_ip]);
                                         }
+                                        
                                     }
                                 } elseif ($m_setting->scope === 'websites') {
                                     $storeWebsite = $m_setting->website;
                                     if ($storeWebsite) {
+                                        $store_website_id = $storeWebsite->id;
+                                        \Log::info("Setting Pushed to : ".$store_website_id);
                                         $git_repository = $storeWebsite->repository;
                                         $magento_url = $storeWebsite->magento_url;
+                                        $server_ip = $storeWebsite->server_ip;
+
                                         $server_name = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url = explode('//', $magento_url);
-                                            $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
+                                        
+                                        
+                                        $m_setting->data_type = 'sensitive';
+                                        $m_setting->save();
 
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
+                                        $scopeID = $m_setting->store->platform_id;
+                                       
+                                        //BASE SCRIPT
+                                        if (! empty($git_repository) && !empty($server_ip)) {
+                                            $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_ip;
 
-                                            $scopeID = $m_setting->store->platform_id;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
+                                            $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                                            if($assetsmanager && $assetsmanager->client_id!='')
+                                            {
+                                            
+                                                $client_id=$assetsmanager->client_id;
+                                                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                                                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                                                $ch = curl_init();
+                                                curl_setopt($ch, CURLOPT_URL,$url);
+                                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                                curl_setopt($ch, CURLOPT_POST, 1);
+                                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                                                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                                                    //'client_id' => $client_id, 
+                                                    'script' => base64_encode($cmd), 
+                                                    'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                    'is_sudo' => true 
+                                                ]));
 
-                                            //BASE SCRIPT
-                                            if (! empty($git_repository)) {
-                                                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
+                                                $headers = [];
+                                                $headers[] = 'Authorization: Basic '.$key;
+                                                $headers[] = 'Content-Type: application/json';
+                                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                                $result = curl_exec($ch);
+                                                \Log::info("API result: ".$result);
+                                                if (curl_errno($ch)) {
+                                                    \Log::info("API Error: ".curl_error($ch));
+                                                    //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                }
+                                                \Log::info("API Response: ".$result);
+                                                $response = json_decode($result);
+                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true ]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
+                                                curl_close($ch);
+                                                    
+                                                if(isset($response->errors)){ 
+                                                    $message='';
+                                                    foreach($response->errors as $error){
+                                                        $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                                                    }                                                
+                                                // return response()->json(['code' => 500, 'message' => $message]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                    
+                                                }else{
+                                                    if(isset($response->data) && isset($response->data->jid) ){
+                                                        $job_id=$response->data->jid;
+                                                        $status="Success";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                                                    }else{
+                                                        $status="Error";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                                                     }
                                                 }
-                                                $m_setting->status = $status;
+                                            }else{
+                                                // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
+                                                $m_setting->status ='Error';
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(['Command Output', $allOutput], true));
+                                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' =>json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                                             }
+
+                                            
+                                        }else{
+                                            $m_setting->status ='Error';
+                                            $m_setting->save();
+                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error', 'command_server' => $server_ip]);
                                         }
+                                        
                                     }
                                 } elseif ($m_setting->scope === 'stores') {
                                     $storeWebsite = $m_setting->website;
                                     if ($storeWebsite) {
+                                        $store_website_id = isset($storeWebsite->id) ? $storeWebsite->id : 0;
+                                        \Log::info("Setting Pushed to : ".$store_website_id);
                                         $git_repository = isset($storeWebsite->repository) ? $storeWebsite->repository : null;
                                         $magento_url = isset($storeWebsite->magento_url) ? $storeWebsite->magento_url : null;
+                                        $server_ip = isset($storeWebsite->server_ip) ? $storeWebsite->server_ip : null;
+
                                         $server_name = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url = explode('//', $magento_url);
-                                            $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
+                                        
+                                        $m_setting->data_type = 'sensitive';
+                                        $m_setting->save();
 
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
+                                        $scopeID = $m_setting->storeview->platform_id;
+                                        $magento_url = str_replace('www.', '', $magento_url);
+                                        $magento_url = str_replace('.com', '', $magento_url);
 
-                                            $scopeID = $m_setting->storeview->platform_id;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
+                                        //BASE SCRIPT
+                                        if (! empty($git_repository) && !empty($server_ip)) {
+                                            $cmd = 'bash ' . 'deployment_scripts/magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_ip;
+                                            
+                                            $assetsmanager = AssetsManager::where('name', 'ERP PROD')->first();
+                                            if($assetsmanager && $assetsmanager->client_id!='')
+                                            {
+                                            
+                                                $client_id=$assetsmanager->client_id;
+                                                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                                                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+                                                $startTime = date('Y-m-d H:i:s', LARAVEL_START);   
+                                                $ch = curl_init();
+                                                curl_setopt($ch, CURLOPT_URL,$url);
+                                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                                curl_setopt($ch, CURLOPT_POST, 1);
+                                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                                                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                                                    //'client_id' => $client_id, 
+                                                    'script' => base64_encode($cmd), 
+                                                    'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                    'is_sudo' => true 
+                                                ]));
 
-                                            //BASE SCRIPT
-                                            if (! empty($git_repository)) {
-                                                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput = [];
-                                                $allOutput[] = $cmd;
-                                                $result = exec($cmd, $allOutput); //Execute command
-                                                $status = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower('Pull Request Successfully merged')) {
-                                                        $status = 'Success';
-                                                        break;
+                                                $headers = [];
+                                                $headers[] = 'Authorization: Basic '.$key;
+                                                $headers[] = 'Content-Type: application/json';
+                                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                                $result = curl_exec($ch);
+                                                \Log::info("API result: ".$result);
+                                                if (curl_errno($ch)) {
+                                                    \Log::info("API Error: ".curl_error($ch));
+                                                    //return response()->json(['code' => 500, 'message' => curl_error($ch)]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([curl_error($ch)]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                }
+                                                \Log::info("API Response: ".$result);
+                                                $response = json_decode($result);
+                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 
+                                                'cwd' => '/var/www/erp.theluxuryunlimited.com/',
+                                                'is_sudo' => true]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoSettingsController::class, 'updateViaFile');
+
+                                                curl_close($ch);
+                                                
+                                                if(isset($response->errors)){ 
+                                                    $message='';
+                                                    foreach($response->errors as $error){
+                                                        $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                                                    }                                             
+                                                // return response()->json(['code' => 500, 'message' => $message]);
+                                                    $m_setting->status ='Error';
+                                                    $m_setting->save();
+                                                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode([$message]), 'status' => 'Error', 'command_server' => $server_ip]);
+                                                    
+                                                }else{
+                                                    if(isset($response->data) && isset($response->data->jid) ){
+                                                        $job_id=$response->data->jid;
+                                                        $status="Success";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode($response), 'status' => $status, 'job_id' => $job_id, 'command_server' => $server_ip]);
+                                                    }else{
+                                                        $status="Error";
+                                                        $m_setting->status = $status;
+                                                        $m_setting->save();
+                                                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Job Id not found in response']), 'status' => 'Error', 'command_server' => $server_ip]);
                                                     }
                                                 }
-                                                $m_setting->status = $status;
+                                            }else{
+                                                // return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the store website']);
+                                                $m_setting->status ='Error';
                                                 $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(['Command Output', $allOutput], true));
+                                                MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' =>json_encode(['Assets Manager & Client id not found the ERP PROD']), 'status' => 'Error', 'command_server' => $server_ip]);
                                             }
+                                            
+                                        }else{
+                                            $m_setting->status ='Error';
+                                            $m_setting->save();
+                                            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $m_setting->id, 'command_output' => json_encode(['Store website repository and server ip not found']), 'status' => 'Error', 'command_server' => $server_ip]);
                                         }
+                                        
                                     }
                                 }
                             }

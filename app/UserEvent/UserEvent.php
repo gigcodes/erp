@@ -3,9 +3,12 @@
 namespace App\UserEvent;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserEvent extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'user_id',
         'subject',
@@ -14,6 +17,7 @@ class UserEvent extends Model
         'start', // date time to determine the start of event
         'end',
         'daily_activity_id',
+        'asset_manager_id'
     ];
 
     public function attendees()

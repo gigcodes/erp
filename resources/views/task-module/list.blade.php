@@ -46,7 +46,7 @@
             </div>
             <div class="col-md-3 col-sm-12">
               <div class="form-group mr-3">
-                <select class="form-control select-multiple" name="user[]" multiple>
+                <select class="form-control" name="user[]" id="user_list_id" multiple>
                   @foreach ($users as $index => $name)
                     <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
                   @endforeach
@@ -684,11 +684,13 @@
 
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       
        $('.instruction-start-time').datetimepicker({
          format: 'YYYY-MM-DD HH:mm'
        });
-    });
 
+       $("#user_list_id").select2();
+    });
 
     $('.add-task').on('click', function(e) {
       e.preventDefault();

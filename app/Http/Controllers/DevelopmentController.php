@@ -520,7 +520,7 @@ class DevelopmentController extends Controller
             return  DeveloperModule::orderBy('name')->get();
         });
 
-        $usrlst = User::orderBy('name')->where('is_active', 1)->get();
+        $usrlst = User::orderBy('name')->get();
         $users = Helpers::getUserArray($usrlst);
 
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
@@ -2181,11 +2181,18 @@ class DevelopmentController extends Controller
             if ($teamUser) {
                 $team = $teamUser->team;
                 if ($team) {
-                    $task->team_lead_id = $team->user_id;
-                    $task->save();
+                    if(strlen($team->user_id) > 0 && $team->user_id > 0){
+                        $task->team_lead_id = $team->user_id;
+                        $task->save();
+                    }else if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                        $task->team_lead_id = $team->second_lead_id;
+                        $task->save();
+                    }
                 }
             } else {
-                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)->first();
+                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)
+                        ->orWhere('second_lead_id', $task->assigned_to)->first();
+
                 if ($isTeamLeader) {
                     $task->team_lead_id = $task->assigned_to;
                     $task->save();
@@ -3686,9 +3693,9 @@ class DevelopmentController extends Controller
         $status = 'ok';
         // Get all developers
         if (env('PRODUCTION', true)) {
-            $userlst = User::role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get(); // Production
+            $userlst = User::role('Developer')->orderby('name', 'asc')->get(); // Production
         } else {
-            $userlst = User::orderby('name', 'asc')->where('is_active', 1)->get(); // Local system
+            $userlst = User::orderby('name', 'asc')->get(); // Local system
         }
         $users = Helpers::getUserArray($userlst);
         //$users = Helpers::getUsersByRoleName('Developer');
@@ -4184,7 +4191,7 @@ class DevelopmentController extends Controller
         }
 
         $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
-        $usrlst = User::orderBy('name')->where('is_active', 1)->get();
+        $usrlst = User::orderBy('name')->get();
         $users = Helpers::getUserArray($usrlst);
         $issues = $issues->select('developer_tasks.*');
         $issues = $issues->paginate(20);
@@ -4273,6 +4280,7 @@ class DevelopmentController extends Controller
 
             return respJson(200, '', [
                 'data' => $single,
+                'user'=> $single->assignedUser ?? null
             ]);
         } catch (\Throwable $th) {
             return respException($th);
@@ -4839,7 +4847,7 @@ class DevelopmentController extends Controller
                 $developerTaskID = DeveloperTaskHistory::where([
                     'model'=> DeveloperTask::class,
                     'attribute' => "estimation_minute"
-                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
                 
                 $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
                 ->whereIn("developer_tasks_history.id", $developerTaskID)
@@ -4857,7 +4865,7 @@ class DevelopmentController extends Controller
                     $t_developerTaskID = DeveloperTaskHistory::where([
                         'model'=> Task::class,
                         'attribute' => "estimation_minute"
-                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', 'id')->get()->pluck('id')->toArray();
+                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
                     
                     $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
                     ->whereIn("developer_tasks_history.id", $t_developerTaskID)
@@ -4884,6 +4892,59 @@ class DevelopmentController extends Controller
                     // return view('task-module.partials.estimate-list', compact('t_developerTaskHistory'));
 
             
+        } catch (Exception $e) {
+            dd($e);
+            return '';
+        }
+    }
+
+    public function showTaskEstimateTimeAlert(Request $request)
+    {
+        try {
+                
+                $developerTaskID = DeveloperTaskHistory::where([
+                    'model'=> DeveloperTask::class,
+                    'attribute' => "estimation_minute"
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+                
+                $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
+                ->whereIn("developer_tasks_history.id", $developerTaskID)
+                ->where(function($query) use ($request) {
+                    if(isset($request->task_id)) {
+                        if(str_contains($request->task_id, "DEVTASK")){
+                            $query= $query->where('developer_tasks.id', trim($request->task_id, "DEVTASK-"));
+                        }
+                    }
+                    return $query;
+                })
+                ->where('developer_tasks_history.is_approved', 0)
+                ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->count();
+
+
+                $t_developerTaskID = DeveloperTaskHistory::where([
+                    'model'=> Task::class,
+                    'attribute' => "estimation_minute"
+                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+                
+                $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
+                ->whereIn("developer_tasks_history.id", $t_developerTaskID)
+                ->where(function($query) use ($request) {
+                    if(isset($request->task_id)) {
+                        if(!str_contains($request->task_id, "DEVTASK")){
+                            $query= $query->where('tasks.id', trim($request->task_id, "TASK-"));
+                        }
+                    }
+                    return $query;
+                })
+                ->where('developer_tasks_history.is_approved', 0)
+                ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->count();
+
+                $totalUnApproved = $developerTaskHistory + $t_developerTaskHistory;
+                
+                return response()->json([
+                    'code' => 200,
+                    'count' => $totalUnApproved
+                ]);
         } catch (Exception $e) {
             dd($e);
             return '';

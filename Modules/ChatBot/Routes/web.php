@@ -69,6 +69,8 @@ Route::group([
             Route::get('/edit', [QuestionController::class, 'edit'])->name('chatbot.question.edit');
             Route::post('/edit', [QuestionController::class, 'update'])->name('chatbot.question.update');
             Route::get('/delete', [QuestionController::class, 'destroy'])->name('chatbot.question.delete');
+            Route::get('/sync-watson', [QuestionController::class, 'syncWatson'])->name('chatbot.question.sync.watson');
+            Route::get('/sync-google', [QuestionController::class, 'syncGoogle'])->name('chatbot.question.sync.google');
             Route::group(['prefix' => 'values/{valueId}'], function () {
                 Route::get('/delete', [QuestionController::class, 'destroyValue'])->name('chatbot.question-example.delete');
             });
@@ -78,6 +80,8 @@ Route::group([
             Route::post('/save', [QuestionController::class, 'saveAutoreply'])->name('chatbot.question.autoreply.save');
         });
     });
+
+    Route::get('/bot-simulator', [QuestionController::class, 'simulator'])->name('chatbot-simulator');
 
     Route::group(['prefix' => 'dialog'], function () {
         Route::get('/', [DialogController::class, 'index'])->name('chatbot.dialog.list');
@@ -105,6 +109,8 @@ Route::group([
         Route::get('/', [DialogController::class, 'dialogGrid'])->name('chatbot.dialog-grid.list');
     });
 
+    Route::post('/add-entity-type', [QuestionController::class, 'addEntityType'])->name('chatbot.entity.type.create');
+
     // Route::prefix('rest/dialog-grid')->group(function () {
     //     Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
     //     Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
@@ -129,8 +135,27 @@ Route::group([
         Route::get('/resend-to-bot', [MessageController::class, 'resendToBot'])->name('chatbot.messages.resend-to-bot');
         Route::post('/update-read-status', [MessageController::class, 'updateReadStatus'])->name('chatbot.messages.update-read-status');
         Route::get('/update-emailaddress', [MessageController::class, 'updateEmailAddress']);
+
         Route::post('/upload-audio', [MessageController::class, 'uploadAudio'])->name('upload-audio');
+
+        Route::post('/update-simulator-setting', [MessageController::class, 'updateSimulator'])->name('chatbot.message.update.simulator.setting');
+        Route::post('/send-suggested-replay', [MessageController::class, 'sendSuggestedMessage'])->name('chatbot.send.suggested.message');
+
+//        Route::get('/chat-bot-replies/{message_id}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message');
+        Route::get('/message-list/{object?}/{object_id?}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message.list');
+        Route::get('/simulator-messages/{object?}/{object_id?}', [MessageController::class, 'simulatorMessageList'])->name('simulator.message.list');
+
+
     });
+
+    Route::group(['prefix' => 'simulate-message'], function () {
+        Route::post('/store-intent', [MessageController::class, 'storeIntent'])->name('simulate.message.store.intent');
+        Route::post('/store-replay', [MessageController::class, 'storeReplay'])->name('simulate.message.store.replay');
+    });
+
+
+    Route::post('/simulate-/{object?}/{object_id?}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message.list');
+
 
     Route::group(['prefix' => 'rest/dialog'], function () {
         Route::get('/create', [DialogController::class, 'restCreate'])->name('chatbot.rest.dialog.create');

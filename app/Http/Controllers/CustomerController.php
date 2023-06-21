@@ -3068,7 +3068,10 @@ class CustomerController extends Controller
 
     public function accounts(Request $request)
     {
+        // dd('hiii');
+        // dd($request);
         $customers_all = Customer::where('store_website_id', '>', 0);
+        // dd($customers_all);
         $customers_all->select('customers.*', 'store_websites.title');
         $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
 
@@ -3370,5 +3373,14 @@ class CustomerController extends Controller
         ]);
 
         return redirect()->back()->withSuccess('You have successfully Deleted');
+    }
+
+    public function  customerName(request $request) {
+
+        $id = $request->input('id');
+        $name = Customer::where('id', $id)->value('name');
+        $htmlContent = '<tr><td>' . $name . '</td></tr>';
+
+        return $htmlContent;
     }
 }

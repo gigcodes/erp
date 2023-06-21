@@ -146,6 +146,39 @@ class Task extends Model
 
     const TASK_STATUS_APPROVED = 20;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            try{
+                // Check the assinged user in any team ?
+                if ($model->assign_to > 0 && (empty($model->master_user_id) ||empty($model->second_master_user_id))) {
+                    $teamUser = \App\TeamUser::where('user_id', $model->assign_to)->first();
+                    if ($teamUser) {
+                        $team = $teamUser->team;
+                        if ($team) {
+                            $model->master_user_id = $team->user_id;
+
+                            if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                                $model->second_master_user_id = $team->second_lead_id;
+                            }
+                        }
+                    } else {
+                        $isTeamLeader = \App\Team::where('user_id', $model->assign_to)
+                                ->orWhere('second_lead_id', $model->assign_to)->first();
+                        if ($isTeamLeader) {
+                            $model->master_user_id = $model->assign_to;
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e){
+                //
+            }
+        });
+    }
+
     public static function hasremark($id)
     {
         $task = Task::find($id);
@@ -398,7 +431,7 @@ class Task extends Model
             $newStartDate = Carbon::parse($new);
             $estimateDate = Carbon::parse($this->due_date);
             if ($newStartDate->gte($estimateDate)) {
-                throw new Exception('Start date must be less then Estimate date.');
+                throw new Exception('Estimate start date time must be less then Estimate end date time.');
             }
         }
 
@@ -406,10 +439,10 @@ class Task extends Model
         if ($count) {
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
         } else {
-            $this->start_date = $new;
-            $this->save();
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 1);
         }
+        $this->start_date = $new;
+        $this->save();
     }
 
     public function updateDueDate($new)
@@ -420,7 +453,7 @@ class Task extends Model
             $startDate = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
             if ($newEstimateDate->lte($startDate)) {
-                throw new Exception('Estimate date must be greater then start date.');
+                throw new Exception('Estimate end date time must be greater then Estimate start date time.');
             }
         }
 
@@ -428,10 +461,10 @@ class Task extends Model
         if ($count) {
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
         } else {
-            $this->due_date = $new;
-            $this->save();
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
         }
+        $this->due_date = $new;
+        $this->save();
     }
 
     public static function getMessagePrefix($obj)

@@ -34,7 +34,7 @@
 					&nbsp;
 					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
 					&nbsp;
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-api-token"> Api Token Update</button>
+					<a target="_blank" href="/store-website/api-token" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Api Token Update</a>
 					&nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-tag"> Create Tag </button>
 					&nbsp;

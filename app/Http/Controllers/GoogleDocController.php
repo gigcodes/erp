@@ -360,7 +360,7 @@ class GoogleDocController extends Controller
             $authUser = Auth::user();
 
 
-            DB::transaction(function () use ($data, $authUser) {
+            DB::transaction(function () use ($data, $authUser, $request) {
                 $task = null;
                 $class = null;
 
@@ -378,6 +378,16 @@ class GoogleDocController extends Controller
                 $googleDoc->name = $data['doc_name'];
                 $googleDoc->created_by = Auth::user()->id;
                 $googleDoc->category = $data['doc_category'] ?? null;
+
+                // Add the task name and description in document name
+                if(isset($request->attach_task_detail)) {
+                    if ($data['task_type'] == 'DEVTASK') {
+                        $googleDoc->name .= " (DEVTASK-$task->id ".($task->subject ?? "-").")";
+                    }
+                    if ($data['task_type'] == 'TASK') {
+                        $googleDoc->name .= " (TASK-$task->id ".($task->task_subject ?? "-").")";
+                    }
+                }
 
                 if ($authUser->isAdmin()) {
                     $googleDoc->read = null;

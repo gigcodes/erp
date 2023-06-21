@@ -18,6 +18,8 @@ use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
+use App\UserEvent\UserEvent;
+use Exception;
 
 class AssetsManagerController extends Controller
 {
@@ -615,5 +617,27 @@ class AssetsManagerController extends Controller
         $linkuser = AssetManagerLinkUser::select(\DB::raw('group_concat(DISTINCT user_id) as userids'))->distinct()->where('asset_manager_id', $request->asset_id)->first();
 
         return response()->json(['code' => 200, 'data' => $linkuser, 'message' => 'Assets manager data link user data fetch successfully']);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            $asset_manager = AssetsManager::find($request->asset_id);
+            if($asset_manager) {
+                if($asset_manager->active == 1){
+                    $asset_manager->active = 0;
+                    $asset_manager->save();
+                    UserEvent::where("asset_manager_id", $asset_manager->id)->forceDelete();
+                } else {
+                    $asset_manager->active = 1;
+                    $asset_manager->save();
+                }
+                return response()->json(["status"=> true, "message"=> "Status updated"]);
+            } else {
+                throw new Exception("Asset not found");
+            }
+        } catch (\Exception $e) {
+            return response()->json(["status"=> false, "message"=> "Error while updating status"]);
+        }
     }
 }

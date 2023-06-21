@@ -100,6 +100,13 @@
     .select2-container .select2-search--inline .select2-search__field{
         margin-top: 0px !important;
     }
+    .select2-search--inline {
+    display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
+
+.select2-search__field:placeholder-shown {
+    width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
 </style>
 @extends('layouts.app')
 
@@ -124,6 +131,7 @@
                 <div class="row">
                     <div class="col-md-2 pr-0 mb-3">
                         <select class="form-control globalSelect21"  name="users_id" id="users_id">
+                           
                             @foreach($users as $key => $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -131,6 +139,7 @@
                     </div>
                     <div class="col-md-2 pl-3  pr-0">
                         <select class="form-control globalSelect22" name="ticket_id" id="ticket">
+                            
                             @foreach($data as $key => $ticket)
                             <option value="{{ $ticket->ticket_id }}">{{ $ticket->ticket_id }}</option>
                             @endforeach
@@ -138,11 +147,11 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id", [''=>'']+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", \App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
-                            <input type='text' class="form-control" id="date" name="date" value="" />
+                            <input placeholder="Select Date" type='text' class="form-control" id="date" name="date" value="" />
 
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
@@ -152,6 +161,7 @@
 
                     <div class="col-md-2 pl-3 pr-0">
                         <select class="form-control globalSelect23" name="term" id="term">
+                            
                             @foreach($data as $key => $user_name)
                                 <option value="{{ $user_name->name }}">{{ $user_name->name }}</option>
                             @endforeach
@@ -162,6 +172,7 @@
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <select class="form-control globalSelect25" name="user_email" id="user_email">
+                            
                             @foreach($data as $key => $user_email)
                                 <option value="{{ $user_email->email }}">{{ $user_email->email }}</option>
                             @endforeach
@@ -430,6 +441,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+$( document ).ready(function() {
     $(".globalSelect21").select2({
         multiple: true,
         placeholder: "Select Users",
@@ -455,12 +467,12 @@
         placeholder: "Select User Message",
     });
 
-    $('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
+    /*$('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect22').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect23').val($('option:eq(1)').val()).trigger('change');
     $('.globalSelect24').val($('.globalSelect21 option:eq(1)').val()).trigger('change');
     $('.globalSelect25').val($('option:eq(1)').val()).trigger('change');
-    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');*/
 
     $("#user_email option").each(function() {
         $(this).siblings('[value="'+ this.value +'"]').remove();
@@ -468,6 +480,7 @@
     $("#term option").each(function() {
         $(this).siblings('[value="'+ this.value +'"]').remove();
     });
+});
 
 function opnMsg(email) {
       console.log(email);
@@ -493,14 +506,6 @@ function opnMsg(email) {
 
     }
 
-        var page = 1;
-        function getScrollTop() {
-            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-        }
-        window.onscroll = function() {
-            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
-            loadMore(++page);
-        };
 
         function getDocumentHeight() {
             const body = document.body;
@@ -545,33 +550,7 @@ function opnMsg(email) {
               $("#loading-image").hide();
             });
         });
-        function loadMore(page) {
 
-            var url = "/livechat/tickets?page="+page;
-
-            page = page + 1;
-            $.ajax({
-                url: url,
-                type: 'GET',
-                data: $('.form-search-data').serialize(),
-                beforeSend:function(){
-                        $('.infinite-scroll-products-loader').show();
-                },
-                success: function (data) {
-                    if (data == '') {
-                        $('.infinite-scroll-products-loader').hide();
-                    }
-                    $('.globalSelect2').select2();
-
-                    $('.infinite-scroll-products-loader').hide();
-
-                    $('.infinite-scroll-pending-inner').append(data.tbody);
-                },
-                error: function () {
-                    $('.infinite-scroll-products-loader').hide();
-                }
-            });
-        }
 
     $(document).on('click', '.row-ticket', function () {
         /*DEVTASK-22731-START*/
@@ -753,55 +732,58 @@ function opnMsg(email) {
     }
     /*DEVTASK-22731-END*/
 
-    function submitSearch(){
-                //src = "{{url('whatsapp/pollTicketsCustomer')}}";
-                src = "{{url('livechat/tickets')}}";
-                term = $('#term').val();
-                user_email = $('#user_email').val();
-                user_message = $('#user_message').val();
-                erp_user = 152;
-                serach_inquiry_type = $('#serach_inquiry_type').val();
-                search_country = $('#search_country').val();
-                search_order_no = $('#search_order_no').val();
-                search_phone_no = $('#search_phone_no').val();
+    function submitSearch(page = 1) {
+           //src = "{{url('whatsapp/pollTicketsCustomer')}}";
+            src = "{{ url('livechat/tickets') }}";
+            term = $('#term').val();
+            user_email = $('#user_email').val();
+            user_message = $('#user_message').val();
+            erp_user = 152;
+            serach_inquiry_type = $('#serach_inquiry_type').val();
+            search_country = $('#search_country').val();
+            search_order_no = $('#search_order_no').val();
+            search_phone_no = $('#search_phone_no').val();
                 //search_category = $('#search_category').val();
-                ticket_id = $('#ticket').val();
-                status_id = $('#status_id').val();
-                date = $('#date').val();
-                users_id = $('#users_id').val();
-                search_source = $('#search_source').val();
-                $.ajax({
-                    url: src,
-                    dataType: "json",
-                    data: {
-                        erpUser:erp_user,
-                        term : term,
-                        user_email : user_email,
-                        user_message : user_message,
-                        serach_inquiry_type : serach_inquiry_type,
-                        search_country : search_country,
-                        search_order_no : search_order_no,
-                        search_phone_no : search_phone_no,
-                        ticket_id : ticket_id,
-                        status_id : status_id,
-                        date : date,
-                        users_id : users_id,
-                        search_source : search_source
-                    },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                }).done(function (message) {
-                    $("#loading-image").hide();
-                    //location.reload();
-                    //alert(ticket_id);
-                    $('#ticket').val(ticket_id);
-                    $('#content_data').html(message.tbody);
-                    var rendered = renderMessage(message, tobottom);
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-    }
+            ticket_id = $('#ticket').val();
+            status_id = $('#status_id').val();
+            date = $('#date').val();
+            users_id = $('#users_id').val();
+            search_source = $('#search_source').val();
+            $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                erpUser: erp_user,
+                term: term,
+                user_email: user_email,
+                user_message: user_message,
+                serach_inquiry_type: serach_inquiry_type,
+                search_country: search_country,
+                search_order_no: search_order_no,
+                search_phone_no: search_phone_no,
+                ticket_id: ticket_id,
+                status_id: status_id,
+                date: date,
+                users_id: users_id,
+                search_source: search_source,
+                page: page // Include the page parameter in the data
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function (message) {
+        $("#loading-image").hide();
+        $('#ticket').val(ticket_id);
+        $('#content_data').html(message.tbody);
+        $('#pagination-container').html(message.links);
+        var rendered = renderMessage(message, tobottom);
+
+        // Update the URL in the browser's address bar
+        history.pushState(null, null, src + '?page=' + page);
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        alert('No response from server');
+    });
+}
 
     function resetSearch(){
         $("#loading-image").hide();
@@ -1181,6 +1163,37 @@ function opnMsg(email) {
     function Ticketsbtn(id){
         $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
     }
+
+
+    // Load tickets on initial page load
+        $(document).ready(function() {
+        loadTickets('{{ Request::url() }}');
+    });
+
+   // Add an event listener to the pagination links
+   $(document).on('click', '#pagination-container .page-item .page-link', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        loadTickets(url);
+    });
+
+
+    function loadTickets(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            
+            success: function(response) {
+                $('#content_data').html(response.tbody);
+                $('#pagination-container').html(response.links);
+            },
+            error: function(xhr, status, error) {
+                alert('error')
+            }
+        });
+    }
+
 </script>
 @endsection
 

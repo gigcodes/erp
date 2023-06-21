@@ -5,6 +5,8 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
+use App\Models\ReplyLog;
 use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteCategory extends Model
@@ -34,7 +36,7 @@ class StoreWebsiteCategory extends Model
         return false;
     }
 
-    public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token)
+    public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyId = 0)
     {
         // \Log::info('Category Id generating');
 
@@ -42,12 +44,23 @@ class StoreWebsiteCategory extends Model
 
         $faqCategoryName = $categoryDetails->name ?? 'Question?';
 
+        $faqParentCategoryId = 0;
+        if ($categoryDetails->parent_id) {
+            $faqParentCategoryId = $this->getPlatformId($store_website_id, $categoryDetails->parent_id, $storeValue);
+            if(!$faqParentCategoryId) {
+                $faqParentCategoryId = 0;
+            }
+        }
+
+        $dataPost = "{\n        \"faq_category_name\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_category_description\": \"Answer!!\"\n}";
+
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faqcategory');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"$faqCategoryName??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $dataPost);
 
         $headers = [];
         $headers[] = 'Authorization: Bearer ' . $api_token;
@@ -55,8 +68,11 @@ class StoreWebsiteCategory extends Model
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
+        \Log::info(print_r(['API DETAIL Category', $url . '/' . $storeValue . '/rest/V1/faqcategory',$api_token,$dataPost,$result],true));
+        (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' dataPost ' . $dataPost . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'PushFAQCategory');
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
+            return false;
         }
         curl_close($ch);
 

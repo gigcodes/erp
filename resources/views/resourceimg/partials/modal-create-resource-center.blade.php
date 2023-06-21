@@ -1,5 +1,27 @@
+<style>
+	.multiselect-container > li > a,
+	.multiselect-container > li > a:focus {
+		outline: 0;
+		outline-offset: 0;
+	}
+	.multiselect-container > li  > a > label.radio{
+		position: relative;
+		padding: 8px 10px;
+	}
+	.multiselect-container > li  > a > label.radio input[type="radio"]{
+		opacity: 0;
+		margin: 0;
+		outline: 0;
+		outline-offset: 0;
+		visibility: hidden;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+</style>
 <div class="modal fade" id="addresource" tabindex="-1" role="dialog">
-	   	<div class="modal-dialog modal-lg">
+	   	<div class="modal-dialog modal-md">
 		    <div class="modal-content">
 		    	{!! Form::open(['route'=>'add.resource','files' => true]) !!}
 					<div class="modal-header">
@@ -10,7 +32,7 @@
 						<div class="row">
 							<div class="col-md-12">
 				                <div class="row">
-	        	                	<div class="col-md-8 col-md-offset-2">
+	        	                	<div class="col-12">
 	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
 	        			                     {!! Form::label('Select Category:') !!}
 					  		                	<div class="input-group {{ $errors->has('cat_id') ? 'has-error' : '' }}">
@@ -25,16 +47,16 @@
 				                </div>
 				            </div>
 				                <div class="row">
-	        	                	<div class="col-md-8 col-md-offset-2">
+	        	                	<div class="col-12">
 	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
-	        			                    
+												{!! Form::label('Select Sub Category:') !!}
 					  		                	<select id="sub_cat_id" name="sub_cat_id" class="form-control">
 												</select>
 	        			                </div>
 	        			            </div>
 				                </div>
 				                <div class="row">
-	        	                	<div class="col-md-8 col-md-offset-2">
+	        	                	<div class="col-12">
 	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
 	        			                    {!! Form::label('Upload Image:') !!}
 	        			                    <input type="file" name="image[]" placeholder="Upload Image" multiple>
@@ -43,7 +65,7 @@
 	        			            </div>
 				                </div>
 				                <div class="row">
-	        	                	<div class="col-md-8 col-md-offset-2">
+	        	                	<div class="col-12">
 				  		                <div class="form-group">
 					  		                {!! Form::label('Paste Image:') !!}
 					  		                <textarea class="form-control can_id" id="can_id" placeholder="Paste Image" style="resize: none"></textarea>
@@ -53,7 +75,7 @@
 				                	</div>
 	        	                </div>
 				                <div class="row">
-						        	<div class="col-md-8 col-md-offset-2">
+						        	<div class="col-12">
 				  		                <div class="form-group">
 					  		                {!! Form::label('Url:') !!}
 					  		                <input type="text" class="form-control" name="url" placeholder="Resource Url">
@@ -61,7 +83,7 @@
 				                	</div>
 				                </div>
 				                <div class="row">
-				                	<div class="col-md-8 col-md-offset-2">
+				                	<div class="col-12">
 				  		                <div class="form-group">
 					  		                {!! Form::label('Description:') !!}
 					  		                <textarea class="form-control" name="description" placeholder="Resource Description"></textarea>

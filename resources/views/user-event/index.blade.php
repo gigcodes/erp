@@ -13,10 +13,13 @@
         <h2 class="page-heading">User Events</h2>
     </div>
 </div>
-
+@include('partials.flash_messages')
 <p class="text-secondary">Calendar link:</p>
-<div class="border border-light p-2 my-3 text-info">
-    {{ URL::to('calendar/public/'.$link) }}
+<div class="border border-light p-2 my-3">
+    {{ URL::to('calendar/public/'.$link) }}  
+    <button class="btn btn-secondary"  data-toggle="modal" data-target="#calanderCommonEmailModal">
+        Send Email
+    </button>
 </div>
 
 <div class="text-right mb-4">
@@ -24,6 +27,101 @@
 </div>
 
 <div id="calendar"></div>
+<div id="calanderCommonEmailModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="{{ route('common.send.clanaderLinkEmail') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id">
+                {{-- <input type="hidden" name="object"> --}}
+                <input type="hidden" name="datatype" value="multi_user">
+                <input type="hidden" name="action" class="action" value="{{route('common.getmailtemplate')}}">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>User type</strong>
+                        <select class="form-control" name="object" required id="calander_email_object">
+                            <option selected disabled value="">Select</option>
+                            <option value="vendor">vendor</option>
+                            <option value="user">user</option>
+                            <option value="supplier">supplier</option>
+                            <option value="customer">customer</option>
+                            {{-- <option value="order">order</option> --}}
+                            <option value="charity">charity</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong>Send To</strong>
+                        <select name="send_to[]" id="send_to" multiple>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>From Mail</strong>
+                        <select class="form-control" name="from_mail">
+                          <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                          @foreach ($emailAddressArr as $emailAddress)
+                            <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                          @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Mail Templates</strong>
+                        <select class="form-control getTemplateData" name="mail_template" required>
+                          <?php $mail_templates = \App\MailinglistTemplate::whereNotNull('static_template')->get(); ?>
+                           <option value="">Select a template</option>
+                          @foreach ($mail_templates as $mail_template)
+                            <option value="{{ $mail_template->id }}">{{ $mail_template->name }}</option>
+                          @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong>Subject *</strong>
+                        <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Message *</strong>
+                        <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') ?? URL::to('calendar/public/'.$link) }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Files</strong>
+                        <input type="file" name="file[]" value="" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Send</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<style>
+    .fc-button{
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    .fc-button-primary:not(:disabled).fc-button-active ,.fc-button:hover{
+        background-color: #5a6268;
+        border-color: #5a6268;
+        color: #333;
+    }
+    .fc-event, .fc-event-dot {
+        background-color: #6c757d;
+        color: white!important;
+        border: 1px solid #6c757d;
+    }
+</style>
 @include('partials.modals.user-event-modal')
 
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
@@ -239,5 +337,25 @@
             elements[i].remove();
         }
     }
+    $("#send_to").select2({
+        multiple: true,
+        width: "100%"
+    });
+    $(document).ready(function () {
+        $("#calander_email_object").change(function (e) { 
+            e.preventDefault();
+            $.ajax({
+                type: "get",
+                url: "{{route('calendar.getObjectEmail')}}",
+                data: {
+                    object: $(this).val()
+                },
+                success: function (response) {
+                    $("#send_to").empty()
+                    $("#send_to").select2({multiple:true, data: response.data || []})
+                }
+            });
+        });
+    });
 </script>
 @endsection

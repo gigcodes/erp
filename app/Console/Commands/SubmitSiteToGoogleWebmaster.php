@@ -8,6 +8,7 @@ use App\Helpers\LogHelper;
 use App\WebsiteStoreView;
 use Illuminate\Console\Command;
 use App\WebsiteStoreViewsWebmasterHistory;
+use App\LogRequest;
 
 class SubmitSiteToGoogleWebmaster extends Command
 {
@@ -42,6 +43,7 @@ class SubmitSiteToGoogleWebmaster extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
@@ -79,6 +81,8 @@ class SubmitSiteToGoogleWebmaster extends Command
                 ]);
                 $response = curl_exec($curl);
                 $response = json_decode($response);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url_for_sites, 'PUT',json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\SubmitSiteToGoogleWebmaster::class, 'handle');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
@@ -88,6 +92,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
 
                 curl_close($curl);
+                
 
                 if (! empty($response)) {
                     $history = [

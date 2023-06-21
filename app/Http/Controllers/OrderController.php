@@ -78,6 +78,8 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
+use App\PurchaseProductOrder;
+use App\StatusMapping;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -328,7 +330,8 @@ class OrderController extends Controller
             $orders = $orders->whereIn('p.brand', $brandIds);
         }
 
-        $orders = $orders->groupBy('orders.id');
+        $orders = $orders->groupBy('orders.order_id');
+        
         $orders = $orders->select(['orders.*', 'cs.email as cust_email', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id']);
 
         $users = Helpers::getUserArray(User::all());
@@ -339,7 +342,7 @@ class OrderController extends Controller
         } else {
             $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
         }
-
+        
         $statusFilterList = $statusFilterList->leftJoin('order_statuses as os', 'os.id', 'orders.order_status_id')
             ->where('order_status', '!=', '')->groupBy('order_status')->select(\DB::raw('count(*) as total'), 'os.status as order_status', 'swo.website_id')->get()->toArray();
 
@@ -2830,7 +2833,7 @@ class OrderController extends Controller
         $status = $request->get('status');
         $message = $request->get('message');
         $sendmessage = $request->get('sendmessage');
-        $order_via = $request->order_via;
+        $order_via = $request->order_via ?: [];
         if (! empty($id) && ! empty($status)) {
             $order = \App\Order::where('id', $id)->first();
             $statuss = OrderStatus::where('id', $status)->first();
@@ -2945,7 +2948,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
@@ -3104,6 +3107,27 @@ class OrderController extends Controller
                 return response()->json(['code' => 200, 'data' => $orderError]);
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any error Log']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is use for List Order SMS send Log
+     *
+     * @param  Request  $request Request
+     *  @return JsonReponse;
+     */
+    public function getOrderSmsSendLog($id)
+    {
+        try {
+            $smsSendLogs = ChatMessage::where('order_id', $id)->latest()->get();
+
+            if (count($smsSendLogs) > 0) {
+                return response()->json(['code' => 200, 'data' => $smsSendLogs]);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Could not find any Log']);
             }
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -4039,7 +4063,7 @@ class OrderController extends Controller
         if (! $isExist) {
             Store_order_status::create($input);
 
-            store_order_status_history_create($request, '', '');
+            $this->store_order_status_history_create($request, '', '');
 
             return redirect()->back();
         } else {
@@ -4538,7 +4562,8 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        $from = config('env.MAIL_FROM_ADDRESS');
+        // $from = config('env.MAIL_FROM_ADDRESS');
+        $from = "";
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4550,6 +4575,14 @@ class OrderController extends Controller
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
                     $from = $emailAddress->from_address;
+                    $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
+                } else {
+                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
+                    foreach ($emailAddresses as $emailAddress) {
+                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                    }
+                    $fromTemplate .= "</select>";
                 }
             }
             $preview = "<table>
@@ -4558,7 +4591,7 @@ class OrderController extends Controller
                        <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $order->customer->email . "' >
                        </td></tr><tr>
                        <td>From </td> <td>
-                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
+                       $fromTemplate
                        </td></tr><tr>
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . '</textarea></td>
                     </tr>
@@ -4574,6 +4607,14 @@ class OrderController extends Controller
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
                     $from = $emailAddress->from_address;
+                    $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
+                } else {
+                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
+                    foreach ($emailAddresses as $emailAddress) {
+                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                    }
+                    $fromTemplate .= "</select>";
                 }
             }
             $preview = "<table>
@@ -4582,7 +4623,7 @@ class OrderController extends Controller
                        <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $order->customer->email . "' >
                        </td></tr><tr>
                        <td>From </td> <td>
-                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
+                       $fromTemplate
                        </td></tr><tr>
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . '</textarea></td>
                     </tr>
@@ -4778,7 +4819,7 @@ class OrderController extends Controller
                             $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
 
                             $receiverNumber = $order->contact_detail;
-                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id, $order->id);
                             $this->createEmailSendJourneyLog($id, 'Email type IVA SMS Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : ' . $receiverNumber . ' <br/> ' . $request->message, '', '', $website->website_id);
                         }
                     }
@@ -4839,6 +4880,39 @@ class OrderController extends Controller
         }
 
         return response()->json('Success', 200);
+    }
+
+    public function orderProductStatusChange(Request $request)
+    {
+        try {
+            // Get order product
+            $orderProduct = OrderProduct::FindOrFail($request->orderProductId);
+
+            if($orderProduct) {
+                // Get status from request
+                $orderProductStatusId = $request->orderProductStatusId;
+
+                // Update the order product status in order products table.
+                $orderProduct->order_product_status_id = $orderProductStatusId;
+                $orderProduct->save();
+
+                // Find mapped purchase status
+                $mappedStatus = StatusMapping::where("order_status_id", $orderProductStatusId)->first();
+                if ($mappedStatus) {
+                    $purchaseStatusId = $mappedStatus->purchase_status_id;
+                    if ($purchaseStatusId) {
+                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck("id")->toArray();
+                        if ($purchaseProductOrders) {
+                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id'=>$purchaseStatusId]);
+                        }
+                    }
+                }
+
+                return response()->json(['messages' => 'Order Product Status Updated Successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Order product not found!'], 404);
+        }
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)

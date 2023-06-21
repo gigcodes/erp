@@ -10,6 +10,7 @@ use App\SocialWebhookLog;
 use App\Social\SocialConfig;
 use App\SocialContactThread;
 use Illuminate\Http\Request;
+use App\LogRequest;
 
 class SocialWebhookController extends Controller
 {
@@ -420,6 +421,7 @@ class SocialWebhookController extends Controller
      */
     private function getUserInfo($userId, $pageAccessToken)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $userId, 'id,name', $pageAccessToken);
@@ -442,6 +444,7 @@ class SocialWebhookController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'getImageByCurl');
 
         return [
             'response' => $response,
@@ -457,6 +460,7 @@ class SocialWebhookController extends Controller
      */
     private function getIGMedia($mediaId, $pageAccessToken)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 
         $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $mediaId, 'caption,media_type,timestamp', $pageAccessToken);
@@ -479,6 +483,8 @@ class SocialWebhookController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
+       
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
 
         return [
             'response' => $response,

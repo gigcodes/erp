@@ -9,6 +9,7 @@ use App\Wetransfer;
 use App\WeTransferLog;
 use Illuminate\Http\Request;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\LogRequest;
 
 class WeTransferController extends Controller
 {
@@ -210,6 +211,7 @@ class WeTransferController extends Controller
     private function downloadWetransferFiles($url = null)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         try {
             if (strpos($url, 'https://we.tl/') !== false) {
@@ -294,6 +296,8 @@ class WeTransferController extends Controller
             $real = curl_exec($ch);
 
             $real = json_decode($real);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'sendWebNotification2');
 
             $url = $real->direct_link;
 
@@ -318,6 +322,7 @@ class WeTransferController extends Controller
     public static function downloadFromURL($id, $url, $supplier)
     {
         $payload = sprintf('{"id":%u,"url":"%s"}', $id, $url);
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => 'http://75.119.154.85:100/download',
@@ -333,10 +338,12 @@ class WeTransferController extends Controller
                 'Content-Type: text/plain',
             ],
         ]);
-
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = curl_exec($curl);
 
         curl_close($curl);
+        
+        LogRequest::log($startTime, $url, 'POST', json_encode($payload), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
         if ($response == 'Request Submitted!') {
             return true;
         } else {

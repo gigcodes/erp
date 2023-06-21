@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\VisitorLog;
 use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class VisitorLogs extends Command
 {
@@ -42,14 +43,15 @@ class VisitorLogs extends Command
     public function handle()
     {
         try {
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
 
             $curl = curl_init();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the visitors detail this api: https://api.livechatinc.com/v2/visitors']);
-
+            $url="https://api.livechatinc.com/v2/visitors";
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.livechatinc.com/v2/visitors',
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -64,6 +66,9 @@ class VisitorLogs extends Command
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\VisitorLogs::class, 'handle');
+            $duration = json_decode($response);
 
             if ($err) {
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'error found from curl request']);

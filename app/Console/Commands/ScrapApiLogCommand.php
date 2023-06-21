@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Scraper;
 use App\ScrapApiLog;
 use Illuminate\Console\Command;
+use App\LogRequest;
 
 class ScrapApiLogCommand extends Command
 {
@@ -39,6 +40,7 @@ class ScrapApiLogCommand extends Command
      */
     public function handle()
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         ScrapApiLog::where('created_at', '<', now()->subDays(7))->delete();
 
         $activeSuppliers = Scraper::with([
@@ -83,6 +85,9 @@ class ScrapApiLogCommand extends Command
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
             $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\ScrapApiLogCommand::class, 'handle');
 
             if (! empty($response)) {
                 $response = json_decode($response);

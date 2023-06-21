@@ -45,6 +45,41 @@
 
     </div>
 </div>
+<div id="updateUploadedFileDetailModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update Google File Details</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="{{ route('google-drive-screencast.update') }}" method="POST">
+                @csrf
+
+                <div class="modal-body">
+                    <input type="hidden" name="id" class="id">
+                    
+                    <label>File Name:</label>
+                    <input type="text" name="file_name" class="file_name form-control mb-3" required>
+
+                    <label>File Id:</label>
+                    <input type="text" name="file_id" class="file_id form-control mb-3" required>
+
+                    <label>Remark:</label>
+                    <textarea name="file_remark" class="file_remark form-control mb-3" cols="30" rows="10" required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Update</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>

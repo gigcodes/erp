@@ -5,27 +5,67 @@ namespace App\Http\Controllers;
 use Auth;
 use App\ResourceImage;
 use App\ResourceCategory;
+use Exception;
+use GPBMetadata\Google\Api\Log as ApiLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Log as GlobalLog;
 
 class ResourceImgController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = ResourceCategory::where('parent_id', '=', 0)->get();
-        $allresources = ResourceImage::orderby('id', 'desc')->where('is_pending', 0)->paginate(15);
         $old = $request->old('parent_id');
         $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
-                                    ->selected($old ? $old : 1)
-                                    ->renderAsDropdown();
+            ->selected($old ? $old : 1)
+            ->renderAsDropdown();
+        $categories = ResourceCategory::where('parent_id', '=', 0)->get();
+        $sub_categories = ResourceCategory::where('parent_id', '!=', 0)->get();
 
-        return view('resourceimg.index', compact('Categories', 'allresources', 'categories'));
+        $query = ResourceImage::where('is_pending', '=', 0);
+        if ($request->id) {
+            $query = $query->where('id', $request->id);
+        }
+        \DB::enableQueryLog();
+
+        // Log::info("termmmm" . $request->term);
+        $query->where(function($query) use ($request) {
+                if ($request->term) {
+                    $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+                }
+                if ($request->category) {
+                    $query = $query->orwhereIn('cat_id', $request->category);
+                }
+                if ($request->sub_category) {
+                    $query = $query->orwhereIn('sub_cat_id', $request->sub_category);
+                }
+                return $query;
+            });
+
+        $allresources = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->except(['page']));
+
+        if ($request->ajax()) {
+            Log::info("enter in ajax");
+            LOG::info(\DB::getQueryLog());
+
+            return response()->json([
+                'tbody' => view('resourceimg.partial_index', compact('allresources', 'Categories', 'categories', 'sub_categories'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string) $allresources->render(),
+                'count' => $allresources->total(),
+            ], 200);
+        } else {
+            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories'))
+                ->with('i', ($request->input('page', 1) - 1) * 5);
+        }
     }
 
     public function addResourceCat(Request $request)
     {
         $this->validate($request, ['title' => 'required']);
         $input = $request->all();
-        if (! ResourceCategory::create($input)) {
+        if (!ResourceCategory::create($input)) {
             return back()->with('danger', 'Something went wrong, Please try again.');
         } else {
             return back()->with('success', 'New resource category added successfully.');
@@ -41,7 +81,7 @@ class ResourceImgController extends Controller
                     $this->validate($request, ['title' => 'required']);
                     $category = $category->find($request->input('parent_id'));
                     $category->title = $request->input('title');
-                    if (! $category->save()) {
+                    if (!$category->save()) {
                         return redirect()->route('resourceimg.index')->with('danger', 'Something went wrong, Please try again.');
                     } else {
                         return redirect()->route('resourceimg.index')->with('success', 'Resource category updated successfully.');
@@ -49,8 +89,8 @@ class ResourceImgController extends Controller
                 } else {
                     $old = $request->input('parent_id');
                     $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
-                                                ->selected($old ? $old : 1)
-                                                ->renderAsDropdown();
+                        ->selected($old ? $old : 1)
+                        ->renderAsDropdown();
                     $category = $category->find($request->input('parent_id'));
                     $title = $category->title;
 
@@ -83,26 +123,50 @@ class ResourceImgController extends Controller
     public function addResource(Request $request)
     {
         $input = $request->all();
-
-        if ($request->input('cat_id') == 1) {
-            return back()->with('danger', 'Please Select Category.');
-        }
-
-        if ($request->hasFile('image')) {
-            $images = $request->file('image');
-            foreach ($images as $image) {
-                $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
-                $destinationPath = public_path('/category_images');
-                $image->move($destinationPath, $name);
-                $input['images'][] = $name;
+        // dd($request->all());
+        $request->validate([
+            'cat_id' => 'required',
+            'sub_cat_id' => 'required',
+            'url' => 'sometimes',
+            'description' => 'required',
+            'image' => 'sometimes',
+            'image2' => 'sometimes',
+        ]);
+        // if ($request->input('cat_id') == 1) {
+        //     return back()->with('danger', 'Please Select Category.');
+        // }
+        try {
+            if ($request->hasFile('image')) {
+                $images = $request->file('image');
+                foreach ($images as $image) {
+                    $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
+                    $destinationPath = public_path('/category_images');
+                    $image->move($destinationPath, $name);
+                    $input['images'][] = $name;
+                }
             }
-        }
-        $input['images'] = json_encode($input['images']);
 
-        if (ResourceImage::create($input)) {
-            return back()->with('success', 'New Resource image added successfully.');
-        } else {
-            return back()->with('danger', 'Something went wrong,Please try again.');
+            if($request->image2) {
+                $image = $request->image2;  // your base64 encoded
+                $image = str_replace('data:image/png;base64,', '', $image);
+                $image = str_replace(' ', '+', $image);
+                $imageName = uniqid() . time().'.'.'png';
+                $destinationPath = public_path('/category_images');
+                // dd();
+                \File::put($destinationPath."/".$imageName, base64_decode($image));
+                $input['images'][] = $imageName;
+                
+            }
+            $input['images'] = ($request->hasFile('image') || $request->image2) ? json_encode($input['images']) : '';
+    
+            if (ResourceImage::create($input)) {
+                return back()->with('success', 'New Resource image added successfully.');
+            } else {
+                return back()->with('danger', 'Something went wrong,Please try again.');
+            }
+        } catch (Exception $e) {
+            dd($e);
+            return back()->with('danger', 'Error while uploading file.');
         }
     }
 
@@ -168,7 +232,24 @@ class ResourceImgController extends Controller
             return redirect()->route('resourceimg.index');
         }
     }
-
+    /**
+     * This method used for show image in resourceimg page
+     */
+    public function showImagesResource(Request $request)
+    {
+        $ResourceImage = new ResourceImage();
+        $allresources = $ResourceImage->find($request->id);
+        $title = '';
+        if ($allresources) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'html' => view('resourceimg.partials.modal-show-images', compact('allresources'))->render(),
+                ], 200);
+            }
+        } else {
+            return redirect()->route('resourceimg.index');
+        }
+    }
     /**
      * @SWG\Post(
      *   path="/values-as-per-category",
@@ -202,15 +283,32 @@ class ResourceImgController extends Controller
 
     public function pending(Request $request)
     {
-        $categories = ResourceCategory::where('parent_id', '=', 0)->get();
-        $allresources = ResourceImage::orderby('id', 'desc')->where('is_pending', 1)->paginate(15);
         $old = $request->old('parent_id');
         $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
-                                    ->selected($old ? $old : 1)
-                                    ->renderAsDropdown();
-        //$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
-        //dd($parent_category);
-        return view('resourceimg.pending', compact('Categories', 'allresources', 'categories'));
+            ->selected($old ? $old : 1)
+            ->renderAsDropdown();
+        $categories = ResourceCategory::where('parent_id', '=', 0)->get();
+        $query = ResourceImage::where('is_pending', '=', 1);
+        if ($request->id) {
+            $query = $query->where('id', $request->id);
+        }
+        if ($request->term) {
+            $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+        }
+        $allresources = $query->orderby('id', 'desc')->paginate(15)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            Log::info("enter in ajax");
+            return response()->json([
+                'tbody' => view('resourceimg.partial_pending', compact('allresources', 'Categories', 'categories'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string) $allresources->render(),
+                'count' => $allresources->total(),
+            ], 200);
+        } else {
+            return view('resourceimg.pending', compact('Categories', 'categories', 'allresources'))
+                ->with('i', ($request->input('page', 1) - 1) * 5);
+        }
     }
 
     public function activateResourceCat(Request $request)

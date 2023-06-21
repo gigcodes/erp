@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Helpers\GuzzleHelper;
 use Intervention\Image\ImageManagerStatic as Image;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\LogRequest;
 
 class TemplatesController extends Controller
 {
@@ -370,11 +371,15 @@ class TemplatesController extends Controller
 
     public function getImageByCurl($url)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
         curl_close($ch);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'report');
 
         return $response;
     }

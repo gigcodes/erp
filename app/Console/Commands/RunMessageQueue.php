@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendMessageToSelected;
 use App\Helpers\LogHelper;
+use App\LogRequest;
 
 class RunMessageQueue extends Command
 {
@@ -193,15 +194,17 @@ class RunMessageQueue extends Command
         $instance = $this->getInstance($number);
         $instanceId = isset($instance['instance_id']) ? $instance['instance_id'] : 0;
         $token = isset($instance['token']) ? $instance['token'] : 0;
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $waiting = 0;
 
         if (! empty($instanceId) && ! empty($token)) {
             // executing curl
             $curl = curl_init();
+            $url ="https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token",
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -213,8 +216,12 @@ class RunMessageQueue extends Command
             ]);
 
             $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\RunMessageQueue::class, 'handle');
+
             $err = curl_error($curl);
             curl_close($curl);
+            
 
             if ($err) {
                 // throw some error if you want
