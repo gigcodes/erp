@@ -516,6 +516,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::resource('magento_modules', MagentoModuleController::class);
 
+    Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
+
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
 
     Route::post('magento_module_api_histories', [MagentoModuleApiHistoryController::class, 'store'])->name('magento_module_api_histories.store');
