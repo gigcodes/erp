@@ -34,7 +34,7 @@ class EmailAddressesController extends Controller
                 if ($request->status) {
                     $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
                 }
-            },
+            }, 'history_last_message_error'
         ]);
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
@@ -65,9 +65,16 @@ class EmailAddressesController extends Controller
         $allPort = EmailAddress::pluck('port')->unique();
         $allEncryption = EmailAddress::pluck('encryption')->unique();
 
+        // default values for add form
+        $defaultDriver = 'smtp';
+        $defaultPort = '587';
+        $defaultEncryption = 'tls';
+        $defaultHost = 'mail.mio-moda.com';
+
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
         $userEmails = EmailAddress::groupBy('username')->get(['username'])->toArray();
+        $fromAddresses = EmailAddress::groupBy('from_address')->pluck('from_address')->toArray();
 
         $ops = '';
         foreach ($users as $key => $user) {
@@ -84,6 +91,11 @@ class EmailAddressesController extends Controller
                 'users' => $users,
                 'uops' => $ops,
                 'userEmails' => $userEmails,
+                'defaultDriver' => $defaultDriver,
+                'defaultPort' => $defaultPort,
+                'defaultEncryption' => $defaultEncryption,
+                'defaultHost' => $defaultHost,
+                'fromAddresses' => $fromAddresses
             ]);
         } else {
             return view('email-addresses.index', [
@@ -95,6 +107,11 @@ class EmailAddressesController extends Controller
                 'users' => $users,
                 'uops' => $ops,
                 'userEmails' => $userEmails,
+                'defaultDriver' => $defaultDriver,
+                'defaultPort' => $defaultPort,
+                'defaultEncryption' => $defaultEncryption,
+                'defaultHost' => $defaultHost,
+                'fromAddresses' => $fromAddresses
             ]);
         }
     }

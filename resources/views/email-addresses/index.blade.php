@@ -120,8 +120,11 @@
           <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
           @endforeach --}}
           @foreach ($emailAddress as $server)
-          
-            <tr>
+          @php $bgColor = ""; @endphp
+          @if ($server->history_last_message_error != "") 
+            @php $bgColor = "#f4aeae!important";  @endphp
+          @endif
+            <tr style="background-color:{{$bgColor}}">
                <td>
 				        <input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}">
               </td>
@@ -301,7 +304,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>From Name:</strong>
+              <strong>From Name<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
               @if ($errors->has('from_name'))
@@ -309,8 +312,13 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>From Address:</strong>
-              <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+              <strong>From Address<span class="text-danger">*</span>:</strong>
+              <input list="fromaddress-lists" type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+              <datalist id="fromaddress-lists">
+                @foreach($fromAddresses as $fromAddress)
+                  <option value="{{$fromAddress}}">
+                @endforeach
+              </datalist>
 
               @if ($errors->has('from_address'))
                 <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
@@ -347,8 +355,8 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Driver:</strong>
-              <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+              <strong>Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="driver" class="form-control" value="{{ old('driver', $defaultDriver) }}" required>
 
               @if ($errors->has('driver'))
                 <div class="alert alert-danger">{{$errors->first('driver')}}</div>
@@ -357,16 +365,16 @@
           </div>
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>Host:</strong>
-              <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
+              <strong>Host<span class="text-danger">*</span>:</strong>
+              <input type="text" name="host" class="form-control" value="{{ old('host', $defaultHost) }}" required>
 
               @if ($errors->has('host'))
                 <div class="alert alert-danger">{{$errors->first('host')}}</div>
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Port:</strong>
-              <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
+              <strong>Port<span class="text-danger">*</span>:</strong>
+              <input type="text" name="port" class="form-control" value="{{ old('port', $defaultPort) }}" required>
 
               @if ($errors->has('port'))
                 <div class="alert alert-danger">{{$errors->first('port')}}</div>
@@ -374,8 +382,8 @@
             </div>
 
             <div class="form-group col-md-4">
-              <strong>Encryption:</strong>
-              <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
+              <strong>Encryption<span class="text-danger">*</span>:</strong>
+              <input type="text" name="encryption" class="form-control" value="{{ old('encryption', $defaultEncryption) }}" required>
 
               @if ($errors->has('encryption'))
                 <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
@@ -392,7 +400,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Username:</strong>
+              <strong>Username<span class="text-danger">*</span>:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
               @if ($errors->has('username'))
@@ -400,7 +408,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Password:</strong>
+              <strong>Password<span class="text-danger">*</span>:</strong>
               <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
               @if ($errors->has('password'))
@@ -590,7 +598,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>From Name:</strong>
+              <strong>From Name<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
               @if ($errors->has('from_name'))
@@ -598,7 +606,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>From Address:</strong>
+              <strong>From Address<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
 
               @if ($errors->has('from_address'))
@@ -636,7 +644,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Driver:</strong>
+              <strong>Driver<span class="text-danger">*</span>:</strong>
               <Select name="driver" id="edit_driver" class="form-control required">
                 <option value = ''>Select Driver</option>
                 @foreach ($allDriver as $driver)
@@ -650,7 +658,7 @@
           </div>
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>Host:</strong>
+              <strong>Host<span class="text-danger">*</span>:</strong>
               <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
 
               @if ($errors->has('host'))
@@ -658,7 +666,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Port:</strong>
+              <strong>Port<span class="text-danger">*</span>:</strong>
               <Select name="port" id="edit_port" class="form-control required">
                 <option value = ''>Select Port</option>
                 @foreach ($allPort as $port)
@@ -671,7 +679,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Encryption:</strong>
+              <strong>Encryption<span class="text-danger">*</span>:</strong>
               <Select name="encryption" id="edit_encryption" class="form-control required">
                 <option value = ''>Select Encryption</option>
                 @foreach ($allEncryption as $encryption)
@@ -694,7 +702,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Username:</strong>
+              <strong>Username<span class="text-danger">*</span>:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
               @if ($errors->has('username'))
@@ -702,7 +710,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Password:</strong>
+              <strong>Password<span class="text-danger">*</span>:</strong>
               <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
               @if ($errors->has('password'))

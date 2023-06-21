@@ -13,6 +13,8 @@ use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use Carbon\Carbon;
+use Auth;
 
 class TimeDoctorController extends Controller
 {
@@ -583,4 +585,23 @@ class TimeDoctorController extends Controller
             ]);
         }
     }
+
+    public function getTimerAlerts(Request $request)
+    {
+        $currentDate = Carbon::now()->format('Y-m-d');
+
+        $logs = TimeDoctorLog::query()->with(['user']);
+
+        if(!auth()->user()->isAdmin()) {
+            $logs->where('user_id', auth()->user()->id);
+        }
+
+        $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->get();
+
+         return response()->json([
+            'tbody' => view('partials.modals.timer-alerts-modal-html', compact('currentLogs'))->render(),
+            'count' => $currentLogs->count(),
+        ]);
+    }
+
 }

@@ -220,8 +220,11 @@
             <?php $text_box = "100"; ?>
             <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
             <div class="d-flex">
-                <div style="max-width: 30px;">
-                    <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+                <div style="">
+                    <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+
+                    <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
+                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
                 </div>
                 @if (isset($task->message))
                 <div style="max-width: 30px;">
@@ -236,7 +239,11 @@
                 </button>
             </div>
             @if (isset($task->message))
+                
             <div style="margin-bottom:10px;width: 100%;">
+                @if($task->is_audio)
+                <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio> 
+                @else
                 <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                     <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                         <?php
@@ -260,6 +267,7 @@
                         {{ $task->message }}
                     </span>
                 </div>
+                @endif
             </div>
             @endif
         </div>

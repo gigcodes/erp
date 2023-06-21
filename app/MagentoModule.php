@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\MagentoModuleVerifiedStatus;
+use App\User;
 
 class MagentoModule extends Model
 {
@@ -29,6 +31,8 @@ class MagentoModule extends Model
         'developer_name',
         'is_customized',
         'site_impact',
+        'dev_verified_by',
+        'dev_verified_status_id',
     ];
 
     public function module_category()
@@ -59,5 +63,14 @@ class MagentoModule extends Model
     public function module_type_data()
     {
         return $this->belongsTo(MagentoModuleType::class, 'module_type', 'id');
+    }
+
+    public function dev_verified()
+    {
+        return $this->belongsTo(User::class, 'dev_verified_by', 'id');
+    }
+    public function dev_verified_status()
+    {
+        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'dev_verified_status_id', 'id');
     }
 }

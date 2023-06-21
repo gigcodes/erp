@@ -686,9 +686,13 @@ var getHtml = function (response, listType = 'message-list') {
         '" id="main_message" data-message="' +
         message.message +
         '">' +
-        media +
-        message.message +
-        "</p></div></div>";
+        media;
+        if(message.is_audio){
+          li += '<audio controls="" src="'+message.message+'"></audio>';
+        }else{
+          li +=  message.message;  
+        }
+        li +=  "</p></div></div>";
       fromMsg =
         fromMsg +
         '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' +
@@ -724,9 +728,13 @@ var getHtml = function (response, listType = 'message-list') {
         '" id="main_message"  data-message="' +
         message.message +
         '">' +
-        media +
-        message.message +
-        "</p></div></div>";
+        media;
+      if(message.is_audio){
+        li += '<audio controls="" src="'+message.message+'"></audio>';
+      }else{
+        li +=  message.message;  
+      }
+      li +=  "</p></div></div>";
       fromMsg =
         fromMsg +
         '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' +

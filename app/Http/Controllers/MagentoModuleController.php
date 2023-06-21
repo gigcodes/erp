@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\MagentoModuleHistory;
 use App\MagentoModuleLogs;
 use App\MagentoModuleCategory;
+use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 
@@ -44,13 +45,14 @@ class MagentoModuleController extends Controller
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
+        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id')->get();
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
-                ->join('users', 'users.id', 'magento_modules.developer_name')
+                ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
                 ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
                 ->select(
                     'magento_modules.*',
@@ -59,7 +61,7 @@ class MagentoModuleController extends Controller
                     'task_statuses.name as task_name',
                     'store_websites.website',
                     'store_websites.title',
-                    'users.name as developer_name',
+                    'users.name as developer_name1',
                     'users.id as developer_id'
                 );
 
@@ -97,8 +99,8 @@ class MagentoModuleController extends Controller
             if (isset($request->status)) {
                 $items->where('magento_modules.status', $request->status);
             }
-
-            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->toJson();
+            $items->groupBy('magento_modules.module');
+            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->toJson();
         } else {
             $title = 'Magento Module';
             $users = $users->pluck('name', 'id');
@@ -330,10 +332,19 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList()
     {
-        $magento_modules = MagentoModule::orderBy('module', 'asc')->get();
         $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+
+        $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
+        $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
         
-        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites]);
+        $result = [];
+        array_walk($magento_modules_array, function ($value, $key) use (&$result) {
+            $result[$value['store_website_id']][] = $value;
+        });
+        $magento_modules_array=$result;
+        $magento_modules_count=MagentoModule::count();
+        
+        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request){
@@ -395,6 +406,67 @@ class MagentoModuleController extends Controller
             }  
         }
         return response()->json(['code' => 200, 'data' => $histories]);
+    }
+    public function runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd){
+        $updated_by=auth()->user()->id;
+        $cmd="bin/magento cache:flush";
+        \Log::info("Start cache:flush");
+
+        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        $parameters = [
+            'command' => $cmd, 
+            'cwd' => $cwd,
+            'is_sudo' => true, 
+            'timeout_sec' => 300, 
+        ];
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+
+        $headers = [];
+        $headers[] = 'Authorization: Basic '.$key;
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $result = curl_exec($ch);
+        
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        \Log::info("API result: ".$result);
+        \Log::info("API Error Number: ".curl_errno($ch));
+        if (curl_errno($ch)) {
+            \Log::info("API Error: ".curl_error($ch));
+            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => curl_error($ch)]);
+        }
+        $response = json_decode($result);
+
+        curl_close($ch);
+                
+        if(isset($response->errors)){
+            $message='';
+            foreach($response->errors as $error){
+                $message.=" ".$error->code.":".$error->title.":".$error->detail;
+            }
+            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
+            \Log::info($message);
+        }else{
+            if(isset($response->data) && isset($response->data->jid) ){
+                $job_id=$response->data->jid;
+                $status="Success";
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' => 'Success', 'job_id' => $job_id]);
+                \Log::info("Job Id:".$job_id);
+            }else{
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
+                    
+                \Log::info("Job Id not found in response!");
+            }
+        }
+
+        \Log::info("End cache:flush");
+        return true;
     }
     public function magentoModuleUpdateStatus(Request $request){
 
@@ -489,6 +561,7 @@ class MagentoModuleController extends Controller
                     $magento_modules->status=$status;
                     $magento_modules->save();
                     \Log::info("Job Id:".$job_id);
+                    $this->runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd);
                     return response()->json(['code' => 200, 'data' => $magento_modules,'message'=>'Magento module status change successfully']);
                 }else{
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
@@ -509,5 +582,27 @@ class MagentoModuleController extends Controller
         \Log::info("End Magento module change status");
 
         return response()->json(['status' => 500,  'message' => 'error!']);
+    }
+    
+    public function storeVerifiedStatus(Request $request)
+    {
+        $input = $request->except(['_token']);
+
+        $data = MagentoModuleVerifiedStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
     }
 }

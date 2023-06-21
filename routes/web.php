@@ -398,8 +398,10 @@ use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
+use App\Http\Controllers\ZabbixWebhookDataController;
 
 Auth::routes();
 
@@ -515,6 +517,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::resource('magento_modules', MagentoModuleController::class);
 
+    Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
+
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
 
     Route::post('magento_module_api_histories', [MagentoModuleApiHistoryController::class, 'store'])->name('magento_module_api_histories.store');
@@ -532,6 +536,9 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
 
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
+
+    Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
+    Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -642,6 +649,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('list-laravel-logs', [LaravelLogController::class, 'index'])->name('logging.laravel.log');
     Route::get('live-laravel-logs', [LaravelLogController::class, 'liveLogs'])->name('logging.live.logs');
+    Route::get('live-laravel-logs-summary', [LaravelLogController::class, 'liveLogsSummary'])->name('logging.live.logs-summary');
 
     Route::get('live-laravel-logs-single', [LaravelLogController::class, 'liveLogsSingle']);
 
@@ -2612,6 +2620,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('api-response', [ApiResponseMessageController::class, 'store'])->name('api-response-message.store');
     Route::post('/getEditModal', [ApiResponseMessageController::class, 'getEditModal'])->name('getEditModal');
     Route::post('api-response/lodeTranslation', [ApiResponseMessageController::class, 'lodeTranslation'])->name('api-response-message.lodeTranslation');
+    Route::post('api-response/message-translate', [ApiResponseMessageController::class, 'messageTranslate'])->name('api-response-message.messageTranslate');
+    Route::get('api-response/message-translate-list', [ApiResponseMessageController::class, 'messageTranslateList'])->name('api-response-message.messageTranslateList');
+    Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
 
@@ -2929,6 +2940,7 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
+    Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -4179,6 +4191,7 @@ Route::middleware('auth')->group(function () {
     Route::get('updateLog', [UpdateLogController::class, 'index'])->name('updateLog.get');
     Route::get('updateLog/search', [UpdateLogController::class, 'search'])->name('updateLog.get.search');
     Route::delete('updateLog/delete', [UpdateLogController::class, 'destroy'])->name('updateLog.delete');
+    Route::get('updateLog/request_headers/show', [UpdateLogController::class, 'requestHeaderShow'])->name('updateLog.request.header.show');
 
     Route::get('event/getSchedules', [EventController::class, 'getSchedules'])->name('event.getSchedules');
     Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');
