@@ -482,7 +482,7 @@ class MagentoModuleController extends Controller
         if($status){
             $cmd="bin/magento module:enable ". $magento_modules->module;
         }
-
+        $cmd.=" && bin/magento setup:upgrade && bin/magento setup:di:compile && bin/magento cache:flush";
         \Log::info("Start Magento module change status");
         $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
         $cwd='';
@@ -497,7 +497,8 @@ class MagentoModuleController extends Controller
             
             
             $client_id=$assetsmanager->client_id;
-            $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+            //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+            $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
             $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
             
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
@@ -508,10 +509,11 @@ class MagentoModuleController extends Controller
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
             $parameters = [
-                'command' => $cmd, 
+                //'command' => $cmd,
+                'script' => base64_encode($cmd), 
                 'cwd' => $cwd,
                 'is_sudo' => true, 
-                'timeout_sec' => 300, 
+                'timeout_sec' => 900, 
             ];
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
@@ -559,7 +561,7 @@ class MagentoModuleController extends Controller
                     $magento_modules->status=$status;
                     $magento_modules->save();
                     \Log::info("Job Id:".$job_id);
-                    $this->runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd);
+                    //$this->runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd);
                     return response()->json(['code' => 200, 'data' => $magento_modules,'message'=>'Magento module status change successfully']);
                 }else{
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
