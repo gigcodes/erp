@@ -39,6 +39,7 @@ use function GuzzleHttp\json_encode;
 use App\UserFeedbackCategorySopHistory;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
+use App\UserPemfileHistoryLog;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller
@@ -1813,34 +1814,7 @@ class UserManagementController extends Controller
         }
         
         $access_type=$pemHistory->access_type;
-        $var_t_sftp=true;
-        $var_b_ssh=false;
-        if($access_type=="ssh"){
-            $var_t_sftp=false;
-            $var_b_ssh=true;
-        }
-
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k '. $public_key .' 2>&1';
-        \Log::info("Download Pem Files:".$id);
-        $allOutput = [];
-        $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
-
-        \Log::info(print_r($allOutput, true));
-
-        $string = [];
-        if (! empty($allOutput)) {
-            $continuetoFill = false;
-            foreach ($allOutput as $ao) {
-                if (strpos($ao, 'PRIVATE KEY-----') !== false || $continuetoFill) {
-                    $string[] = $ao;
-                    $continuetoFill = true;
-                }
-            }
-        }
-
-        $content = implode("\n", $string);
-        $content = $content . "\n";
+        $content=$pemHistory->pem_content;
         $nameF = $pemHistory->server_name . '.pem';
 
         //header download
@@ -1873,19 +1847,55 @@ class UserManagementController extends Controller
         if(!$server){
             return response()->json(['code' => 500, 'message' => "Server data Not found!"]);
         }
-        
+        $user_role = $request->get('user_role');
         $username = str_replace(' ', '_', $user->name);
 
-        UserPemfileHistory::create([
+        $var_t_sftp=true;
+        $var_b_ssh=false;
+        if($access_type=="ssh"){
+            $var_t_sftp=false;
+            $var_b_ssh=true;
+        }
+        $server_ip=$server->ip;
+        
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k '. $public_key .' -R '.$user_role.' 2>&1';
+        \Log::info("Generate Pem Files:");
+        $allOutput = [];
+        $allOutput[] = $cmd;
+        $result = exec($cmd, $allOutput, $return_var);
+
+        \Log::info(print_r($allOutput, true));
+
+        $string = [];
+        if (! empty($allOutput)) {
+            $continuetoFill = false;
+            foreach ($allOutput as $ao) {
+                if (strpos($ao, 'PRIVATE KEY-----') !== false || $continuetoFill) {
+                    $string[] = $ao;
+                    $continuetoFill = true;
+                }
+            }
+        }
+
+        $content = implode("\n", $string);
+        $content = $content . "\n";
+
+        $userPemfileHistory = UserPemfileHistory::create([
             'user_id' => $request->userid,
             'server_id' => $server->id,
             'server_name' => $server->name,
+            'server_ip' => $server->ip,
             'username' => $username,
             'public_key' => $public_key,
             'access_type' => $access_type,
+            'user_role' => $user_role,
+            'pem_content' => $content,
             'action' => 'add',
             'created_by' => $request->user()->id,
         ]);
+
+        (new UserPemfileHistoryLog())->saveLog($userPemfileHistory->id, $cmd, $allOutput, $return_var);
+
         return response()->json(['code' => 200, 'message' => "PEM file generate sucessfully!"]);
         
     }
@@ -1919,11 +1929,13 @@ class UserManagementController extends Controller
 
             $allOutput = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
             $pemHistory->action='disable';
-            $pemHistory->user_id=auth()->user()->id;
+            $pemHistory->created_by=auth()->user()->id;
             $pemHistory->save();
+
+            (new UserPemfileHistoryLog())->saveLog($pemHistory->id, $cmd, $allOutput, $return_var);
             
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access disable successfully']);
         } else {
@@ -1944,12 +1956,14 @@ class UserManagementController extends Controller
             \Log::info("Delete Pem Access:".$id);
             $allOutput = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
             $pemHistory->action='delete';
-            $pemHistory->user_id=auth()->user()->id;
+            $pemHistory->created_by=auth()->user()->id;
             $pemHistory->save();
             $pemHistory->delete();
+
+            (new UserPemfileHistoryLog())->saveLog($pemHistory->id, $cmd, $allOutput, $return_var);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access remove successfully']);
         } else {
@@ -2727,5 +2741,12 @@ class UserManagementController extends Controller
             $whitelistValue = $request->action == 1 ? 1 : 0;
             User::whereIn('id', $request->users)->update(['is_whitelisted' => $whitelistValue]);
         }
+    }
+
+    public function userPemfileHistoryLogs(Request $request)
+    {
+        $historyLogs = UserPemfileHistoryLog::where('user_pemfile_history_id', $request->pemfileHistoryId)->latest()->get();
+
+        return response()->json(['code' => 200, 'data' => $historyLogs]);
     }
 }

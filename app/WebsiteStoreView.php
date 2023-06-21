@@ -49,4 +49,12 @@ class WebsiteStoreView extends Model
     {
         return $this->hasOne(MagentoSetting::class, 'store_website_view_id', 'id');
     }
+
+    /**
+     * Get all of the websiteStoreView's push logs.
+     */
+    public function websitePushLogs()
+    {
+        return $this->morphMany(WebsitePushLog::class, 'websitepushloggable');
+    }
 }

@@ -5,11 +5,13 @@ namespace App\Providers;
 use App\Brand;
 use App\Email;
 use App\Category;
+use App\ChatMessage;
 use App\ScrapedProducts;
 use Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
 use App\Observers\MediaObserver;
+use App\Observers\ChatMessageObserver;
 use Illuminate\Support\Facades\Event;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\Observers\ScrappedProductCategoryMappingObserver;
@@ -143,6 +145,7 @@ class EventServiceProvider extends ServiceProvider
         Brand::observe(BrandObserver::class);
         Email::observe(EmailObserver::class);
         Media::observe(MediaObserver::class);
+        ChatMessage::observe(ChatMessageObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 
