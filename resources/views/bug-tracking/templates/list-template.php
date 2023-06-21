@@ -27,8 +27,8 @@
 			      <tr style="background-color:{{:prop.bug_color}}">
 			      	<td><input type="checkbox" id="chkBugChange{{>prop.id}}" name="chkBugNameChange[]" class="chkBugNameClsChange"  value="{{>prop.id}}"></br> {{:prop.id}}</td>
 			      	<td>{{:prop.created_at_date}}</td>
-			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
-                        <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
+			        <td class='break expand-row' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip"><span class=" td-mini-container show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
+                        <span class="td-full-container show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
                     </td>
 			        <td class='break'  data-bug_type="{{:prop.bug_type_id_val}}">					
 					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
@@ -46,8 +46,9 @@
 					<?php } ?>	
 					
 					</td>
-			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"  data-toggle="tooltip"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
-                        <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
+			        <td class='break expand-row' data-name="step_to_reproduce" data-id="{{:prop.id}}"  data-toggle="tooltip">
+						<div class="td-mini-container td-mini-container-{{:prop.id}}">{{>prop.step_to_reproduce_short}}</div>
+                        <div class="td-full-container td-full-container-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</div>
                     </td>
 			        <td class='break'>{{:prop.bug_environment_id}} {{:prop.bug_environment_ver}}</td>
 			        <td class='break'>{{:prop.expected_result}}</td>
