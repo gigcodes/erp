@@ -330,9 +330,11 @@
 									<a title="Download" href="/user-management/download-pem-file/{{:prop.id}}/" class="btn btn-image download-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-download"></i></a>
 									<?php if (Auth::user()->isAdmin()) { ?>
 									<button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-ban"></i></button>
-									<button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
 									<?php }?>
 									{{/if}}
+									<?php if (Auth::user()->isAdmin()) { ?>
+									<button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
+									<?php }?>
 									{{if prop.action=='add' || prop.action=='disable'}}
 									<?php if (Auth::user()->isAdmin()) { ?>
 									<button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button>
