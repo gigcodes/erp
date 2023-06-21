@@ -136,6 +136,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     #event-alerts .event-alert-badge,
     #website_Off_status .status-alert-badge,
+    .permission-alert-badge,
     #timer-alerts .timer-alert-badge {
         position: absolute;
         top: -4px;
@@ -152,9 +153,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #website_Off_status .status-alert-badge {
-    left: 60px;
+    left: 130px;
     }
 
+    .permission-alert-badge{
+        left: 730px; 
+    }
     #timer-alerts .timer-alert-badge {
     left: 130px;
     }
@@ -3952,8 +3956,17 @@ if (!empty($notifications)) {
                                             class="fa fa-list fa-2x"></i></span></a>
                             </li>
                             <li>
-                                <a class="quick-icon permission-request" href="#"><span><i
-                                            class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
+                                @php 
+                                    $permissionCount = \App\PermissionRequest::count();
+                                @endphp 
+                                    <a class="quick-icon permission-request" href="#">
+                                        <span><i class="fa fa-reply fa-2x"></i>
+                                            @if($permissionCount)
+                                                <span class="permission-alert-badge"></span>
+                                            @endif
+                                        </span>
+                                    </a>
+
                             </li>
                             @endif
                             <li>
