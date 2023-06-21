@@ -135,7 +135,27 @@ Route::group([
         Route::get('/resend-to-bot', [MessageController::class, 'resendToBot'])->name('chatbot.messages.resend-to-bot');
         Route::post('/update-read-status', [MessageController::class, 'updateReadStatus'])->name('chatbot.messages.update-read-status');
         Route::get('/update-emailaddress', [MessageController::class, 'updateEmailAddress']);
+
+        Route::post('/upload-audio', [MessageController::class, 'uploadAudio'])->name('upload-audio');
+
+        Route::post('/update-simulator-setting', [MessageController::class, 'updateSimulator'])->name('chatbot.message.update.simulator.setting');
+        Route::post('/send-suggested-replay', [MessageController::class, 'sendSuggestedMessage'])->name('chatbot.send.suggested.message');
+
+//        Route::get('/chat-bot-replies/{message_id}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message');
+        Route::get('/message-list/{object?}/{object_id?}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message.list');
+        Route::get('/simulator-messages/{object?}/{object_id?}', [MessageController::class, 'simulatorMessageList'])->name('simulator.message.list');
+
+
     });
+
+    Route::group(['prefix' => 'simulate-message'], function () {
+        Route::post('/store-intent', [MessageController::class, 'storeIntent'])->name('simulate.message.store.intent');
+        Route::post('/store-replay', [MessageController::class, 'storeReplay'])->name('simulate.message.store.replay');
+    });
+
+
+    Route::post('/simulate-/{object?}/{object_id?}', [MessageController::class, 'chatBotReplayList'])->name('chatbot.message.list');
+
 
     Route::group(['prefix' => 'rest/dialog'], function () {
         Route::get('/create', [DialogController::class, 'restCreate'])->name('chatbot.rest.dialog.create');

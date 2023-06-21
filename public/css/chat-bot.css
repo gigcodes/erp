@@ -32,6 +32,13 @@
     margin-bottom: 5px;
 }
 
+.chat-message > p + p {
+    background-color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+}
+
 .chat-message.left-chat {
     background-color: #dddddd7a;
 }
@@ -59,4 +66,8 @@
 
 .chat-bot-footer .form-control {
     padding-right: 30px;
+}
+
+.intent-details select {
+    max-width: 200px;
 }

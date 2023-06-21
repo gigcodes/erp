@@ -84,8 +84,11 @@ class QuestionController extends Controller
         $watson_accounts = WatsonAccount::all();
         $google_accounts = GoogleDialogAccount::all();
         $store_websites = StoreWebsite::all();
+        $variables = DialogFlowService::VARIABLES;
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id' , '>', 0)
+            ->pluck('value', 'id')->toArray();
 
-        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType'));
+        return view('chatbot::question.index', compact('chatQuestions', 'allCategoryList', 'watson_accounts', 'task_category', 'userslist', 'modules', 'respositories', 'templates', 'store_websites', 'google_accounts', 'allEntityType', 'variables', 'parentIntents'));
     }
 
     public function create()
@@ -116,6 +119,9 @@ class QuestionController extends Controller
             return response()->json(['code' => 500, 'error' => $validator->errors()]);
         }
 
+        if ($request->has('parent') && $request->get('parent')) {
+            $params['parent'] = $request->get('parent');
+        }
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $validator = Validator::make($request->all(), [
                 'keyword' => 'sometimes|nullable|string',
@@ -1029,6 +1035,7 @@ class QuestionController extends Controller
                         'questions' => $questionArr,
                         'reply' => explode(',', $chatBotQuestion['suggested_reply']),
                         'name' => $chatBotQuestion['value'],
+                        'parent' => $chatBotQuestion['parent']
                     ], $chatBotQuestion->google_response_id ?: null);
                     if ($response) {
                         $name = explode('/', $response);

@@ -135,7 +135,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #event-alerts .event-alert-badge,
-    #website_Off_status .status-alert-badge {
+    #website_Off_status .status-alert-badge,
+    .permission-alert-badge,
+    #timer-alerts .timer-alert-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -151,7 +153,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #website_Off_status .status-alert-badge {
-    left: 60px;
+    left: 130px;
+    }
+
+    .permission-alert-badge{
+        left: 730px; 
+    }
+    #timer-alerts .timer-alert-badge {
+    left: 130px;
     }
     .red-alert-badge {
         position: absolute;
@@ -3828,6 +3837,11 @@ if (!empty($notifications)) {
                                     <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
+                            <li>
+                                <a title="Live laravel logs" id="live-laravel-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
                             <li>  
                                 @php
                                     $status = \App\Models\MonitorServer::where('status', 'off')->first();
@@ -3840,6 +3854,26 @@ if (!empty($notifications)) {
                                         <span class="status-alert-badge"></span>
                                         @endif
                                     </span>
+                                </a>
+                            </li>
+                            <li>
+                                @php
+                                    $currentDate = Illuminate\Support\Carbon::now()->format('Y-m-d');
+                                    $logs = \App\TimeDoctor\TimeDoctorLog::query()->with(['user']);
+
+                                    if(!auth()->user()->isAdmin()) {
+                                        $logs->where('user_id', auth()->user()->id);
+                                    }
+                                    
+                                    $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->count();
+                                @endphp
+                                <a title="Time-Doctor-logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                    <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    @if($currentLogs)
+                                    <span class="timer-alert-badge"></span>
+                                    @endif
+                                </span>
                                 </a>
                             </li>
                             <li>
@@ -3926,8 +3960,17 @@ if (!empty($notifications)) {
                                             class="fa fa-list fa-2x"></i></span></a>
                             </li>
                             <li>
-                                <a class="quick-icon permission-request" href="#"><span><i
-                                            class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
+                                @php 
+                                    $permissionCount = \App\PermissionRequest::count();
+                                @endphp 
+                                    <a class="quick-icon permission-request" href="#">
+                                        <span><i class="fa fa-reply fa-2x"></i>
+                                            @if($permissionCount)
+                                                <span class="permission-alert-badge"></span>
+                                            @endif
+                                        </span>
+                                    </a>
+
                             </li>
                             @endif
                             <li>
@@ -4488,12 +4531,15 @@ if (!empty($notifications)) {
         @include('partials.modals.shortcut-user-event-modal')
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
+        @include('partials.modals.live-laravel-logs-summary')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('googledrivescreencast.partials.upload');
 
+        @include('partials.modals.password-create-modal')
+        @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7195,6 +7241,24 @@ if (!\Auth::guest()) {
         $('#create-status-modal').modal('show');
     });
 
+    $(document).on('click','#live-laravel-logs',function(e){
+        $.ajax({
+            type: "GET",
+            url: "{{route('logging.live.logs-summary')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#live-laravel-logs-summary-modal-html').empty().html(response.html);
+            $('#live-laravel-logs-summary-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    });
+
     $(document).on('click','#create_event',function(e){
         e.preventDefault();
         $('#create-event-modal').modal('show');
@@ -7236,6 +7300,35 @@ if (!\Auth::guest()) {
             if(response.count > 0) {
                 $('.event-alert-badge').removeClass("hide");
             }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','#timer-alerts',function(e){
+        e.preventDefault();
+        getTimerAlerts(true);
+    });
+
+    function getTimerAlerts(showModal = false) {
+
+        $.ajax({
+            type: "GET",
+            url: "{{route('get.timer.alerts')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#timer-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#timer-alerts-modal').modal('show');
+            }
+            // if(response.count > 0) {
+            //     $('.timer-alert-badge').removeClass("hide");
+            // }
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
@@ -7481,6 +7574,10 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+    function showCreatePasswordModal() {
+      $('#searchPassswordModal').modal('hide');
+    }
 
     $(document).on("click", ".permission-delete-grant", function(e) {
         e.preventDefault();

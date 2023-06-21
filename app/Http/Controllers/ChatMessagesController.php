@@ -34,7 +34,7 @@ class ChatMessagesController extends Controller
     /**
      * Load more messages from chat_messages
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|array
      */
     public function loadMoreMessages(Request $request)
     {
@@ -145,7 +145,8 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $currentPage = request('page', 1);
+//        $currentPage = request('page', 1);
+        $currentPage = $request->get('page', 1);
         $skip = ($currentPage - 1) * $limit;
 
         $loadType = $request->get('load_type');
@@ -156,8 +157,14 @@ class ChatMessagesController extends Controller
             $onlyBroadcast = true;
             $loadType = 'images';
         }
-        
+
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+        if ($request->for_simulator) {
+            $chatMessages = $chatMessages->reorder('created_at', 'asc');
+        }
+        if ($request->has('order')) {
+            $chatMessages = $chatMessages->reorder('created_at', $request->get('order'));
+        }
         if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }
@@ -487,15 +494,23 @@ class ChatMessagesController extends Controller
                     'is_reviewed' => $chatMessage->is_reviewed,
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
+                    'is_auto_simulator' => $chatMessage->is_auto_simulator,
+                    'send_by_simulator' => $chatMessage->send_by_simulator
                 ];
 
                 if ($chatMessage->message_type == 'email') {
                     $arr['sendTo'] = $chatMessage->from_email;
                     $arr['sendBy'] = $chatMessage->to_email;
                 }
-
+                $arr['is_audio'] = $chatMessage->is_audio;
+                if($chatMessage->is_audio){
+                    $arr['message']=\App\Helpers::getAudioUrl($chatMessage->message);
+                }
                 $messages[] = $arr;
             }
+        }
+        if ($request->for_simulator || $request->plan_response) {
+            return $messages;
         }
 
         // Return JSON
@@ -717,12 +732,17 @@ class ChatMessagesController extends Controller
                 $type = 'customer';
                 $sender = optional($row->customer)->name;
             }
-
+            $message=$row->message;
+            if($row->is_audio){
+                $message=\App\Helpers::getAudioUrl($row->message);
+                //dd($message);
+            }
             $recorsArray[] = [
                 'id' => $row->id,
                 'created_at' => $row->created_at->format('d-m-y H:i:s'),
                 'type' => $type,
-                'message' => $row->message,
+                'message' => $message,
+                'is_audio' => $row->is_audio,
                 'sender' => $type,
                 'sender_name' => $sender,
                 'resent' => $row->resent,

@@ -645,6 +645,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('list-laravel-logs', [LaravelLogController::class, 'index'])->name('logging.laravel.log');
     Route::get('live-laravel-logs', [LaravelLogController::class, 'liveLogs'])->name('logging.live.logs');
+    Route::get('live-laravel-logs-summary', [LaravelLogController::class, 'liveLogsSummary'])->name('logging.live.logs-summary');
 
     Route::get('live-laravel-logs-single', [LaravelLogController::class, 'liveLogsSingle']);
 
@@ -2935,6 +2936,7 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
+    Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
