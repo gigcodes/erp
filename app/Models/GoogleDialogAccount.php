@@ -11,6 +11,7 @@ class GoogleDialogAccount extends Model
         'service_file',
         'site_id',
         'project_id',
+        'default_selected'
     ];
 
     public function storeWebsite()

@@ -34,6 +34,10 @@
                 @endif
             </div>
         </div>
+        <div class="form-group row d-flex align-items-center">
+            <label for="headline1" class="col-sm-4 col-form-label">Set default account</label>
+            <input class="m-0" type="checkbox" name="default_account" value="1">
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"

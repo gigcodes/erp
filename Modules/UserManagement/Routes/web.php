@@ -88,6 +88,7 @@ Route::group([
     Route::post('/user-generate-file-store', [UserManagementController::class, 'userGenerateStorefile'])->name('user-management.gent-file-store');
 
     Route::get('/user-generate-file-listing/{userid}', [UserManagementController::class, 'userPemfileHistoryListing'])->name('user-management-pem-history-list');
+    Route::get('/user-pemfile-history-logs/{pemfileHistoryId}', [UserManagementController::class, 'userPemfileHistoryLogs'])->name('user-management-pem-history-logs');
     Route::post('/disable-pem-file/{id}', [UserManagementController::class, 'disablePemFile'])->name('user-management-disable-pem-file');
     Route::post('/delete-pem-file/{id}', [UserManagementController::class, 'deletePemFile'])->name('user-management-delete-pem-file');
     Route::get('/download-pem-file/{id}', [UserManagementController::class, 'downloadPemFile'])->name('user-management-download-pem-file');

@@ -28,30 +28,30 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="website">Semrush Project Id</label>
-                  <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
+                  <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="semrush_project_id" placeholder="Enter Semrush Project Id">
                </div>
             </div>
             <div class="col-md-4">
                <div class="form-group">
                   <label for="country_duty">Mailing Service Id</label>
-                  <select name="mailing_service_id" class="form-control">
+                  <select id="mailing_service_id" name="mailing_service_id" class="form-control">
                      <option disabled>-- N/A --</option>
                      <?php
                         if (isset($services)) {
                             foreach ($services as $service) {
-                                ?>
-                     <option value="<?php echo $service->id; ?> {{if data}}{{:data.website==}}<?php echo $service->id; ?> SELECTED {{/if}} "><?php echo $service->name; ?>  </option>
-                     <?php
+                              $service_id=$service->id;
+                                 echo "<option {{if data.mailing_service_id == '" . ($service_id) . "'}} selected {{/if}} value='" . ($service_id) . "'>" . ($service->name) . '</option>';
+                                
                             }
                         }
-   ?>
+                     ?>
                   </select>
                </div>
             </div>
 			 <div class="col-md-4">
                <div class="form-group">
                   <label for="sale_old_products">Sale PreOwned Products</label>
-                    <select name="sale_old_products" class="form-control">
+                    <select id="sale_old_products" name="sale_old_products" class="form-control">
 					   <option value="0" {{if data.sale_old_products==0}} SELECTED {{/if}} > No </option>
 					   <option value="1" {{if data.sale_old_products==1}} SELECTED {{/if}} > Yes </option>
                     </select>
@@ -60,7 +60,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="is_debug_true">Database Log</label>
-                    <select name="is_debug_true" class="form-control">
+                    <select id="is_debug_true" name="is_debug_true" class="form-control">
                   <option value="0" {{if data.is_debug_true=='0'}} SELECTED {{/if}} > No </option>
                   <option value="1" {{if data.is_debug_true=='1'}} SELECTED {{/if}} > Yes </option>
                     </select>
@@ -69,7 +69,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="is_dev_website">Is Dev Website</label>
-                    <select name="is_dev_website" class="form-control">
+                    <select id="is_dev_website" name="is_dev_website" class="form-control">
                   <option value="0" {{if data.is_dev_website=='0'}} SELECTED {{/if}} > No </option>
                   <option value="1" {{if data.is_dev_website=='1'}} SELECTED {{/if}} > Yes </option>
                     </select>
@@ -96,7 +96,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="description">Send Blue SMTP Email API</label>
-                  <input type="text" name="send_in_blue_smtp_email_api" value="{{if data}}{{:data.send_in_blue_smtp_email_api}}{{/if}}" class="form-control" id="send_in_blue_sms_email_api" placeholder="Enter Send in Blue SMTP Mail APi">
+                  <input type="text" name="send_in_blue_smtp_email_api" value="{{if data}}{{:data.send_in_blue_smtp_email_api}}{{/if}}" class="form-control" id="send_in_blue_smtp_email_api" placeholder="Enter Send in Blue SMTP Mail APi">
                </div>
             </div>
             <div class="col-md-4">
@@ -228,7 +228,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="country_duty">Country Duty</label>
-                  <select name="country_duty" class="form-control">
+                  <select id="country_duty" name="country_duty" class="form-control">
                      <option value="">-- N/A --</option>
                      <?php
    foreach (\App\SimplyDutyCountry::all() as $k => $l) {
@@ -242,7 +242,7 @@
                <div class="form-row">
                   <div class="form-group col-md-12">
                      <label for="inputState">Is Published?</label>
-                     <select name="is_published" id="inputState" class="form-control">
+                     <select name="is_published" id="is_published" class="form-control">
                      <option {{if data && data.is_published == 0}}selected{{/if}} value="0">No</option>
                      <option {{if data && data.is_published == 1}}selected{{/if}} value="1">Yes</option>
                      </select>
@@ -253,7 +253,7 @@
                <div class="form-row">
                   <div class="form-group col-md-12">
                      <label for="inputState">Disable Push?</label>
-                     <select name="disable_push" id="inputState" class="form-control">
+                     <select name="disable_push" id="disable_push" class="form-control">
                      <option {{if data && data.disable_push == 0}}selected{{/if}} value="0">No</option>
                      <option {{if data && data.disable_push == 1}}selected{{/if}} value="1">Yes</option>
                      </select>
@@ -280,7 +280,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="country_duty">Repository</label>
-                  <select name="repository_id" class="form-control">
+                  <select id="repository_id" name="repository_id" class="form-control">
                      <option value="">-- N/A --</option>
                      <?php
    foreach (\App\Github\GithubRepository::all() as $k => $l) {
@@ -305,7 +305,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="store_code_id">Store Code</label>
-                  <select name="store_code_id" class="form-control">
+                  <select id="store_code_id" name="store_code_id" class="form-control">
                      <option value="">Choose store code</option>
                     <?php
                        foreach ($storeCodes as $storeCode) {
@@ -318,7 +318,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="site_folder">Site Folder</label>
-                  <select name="site_folder" id="site_folder" class="form-control siteFolder">
+                  <select id="site_folder" name="site_folder" id="site_folder" class="form-control siteFolder">
                      <option>--Select Site Folder--</option>
                   <?php
    foreach (\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
@@ -341,7 +341,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="country_duty">Working Directory</label>
-                  <input type="text" name="working_directory" value="{{if data}}{{:data.working_directory}}{{/if}}" class="form-control" id="project_id" placeholder="Enter Working Directory">
+                  <input type="text" name="working_directory" value="{{if data}}{{:data.working_directory}}{{/if}}" class="form-control" id="working_directory" placeholder="Enter Working Directory">
                </div>
             </div>
             <div class="col-md-4">

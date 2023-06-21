@@ -16,6 +16,11 @@ var page = {
       page.getResults($(this).attr("href"));
     });
 
+    $(document).on("click", "#website-push-log-table .page-link", function (e) {
+      e.preventDefault();
+      page.pushLogs(e, $(this).attr("href"));
+    });
+
     page.config.bodyView.on("click", ".btn-search-action", function (e) {
       e.preventDefault();
       page.getResults();
@@ -37,6 +42,10 @@ var page = {
 
     page.config.bodyView.on("click", ".btn-edit-template", function (e) {
       page.editRecord($(this));
+    });
+
+    page.config.bodyView.on("click", ".btn-push-log-template", function (e) {
+      page.pushLogs($(this));
     });
 
     $(".common-modal").on("click", ".submit-store-site", function () {
@@ -187,6 +196,25 @@ var page = {
     common.modal("show");
 
     common.find(".select-2").select2({ tags: true });
+  },
+
+  pushLogs: function (ele, href) {
+    var _z = {
+      url:
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/websites/push-logs/" + ele.data("id"),
+      method: "get",
+    };
+    this.sendAjax(_z, "pushLogsResult");
+  },
+
+  pushLogsResult: function (response) {
+    var websitePushLogsTemplate = $.templates("#template-website-push-logs");
+    var tplHtml = websitePushLogsTemplate.render(response);
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
   },
 
   submitFormSite: function (ele) {

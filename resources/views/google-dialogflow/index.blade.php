@@ -103,6 +103,11 @@
                         $('#updateAccount-group-form [name="account_id"]').val(id);
                         $('#updateAccount-group-form [name="edit_project_id"]').val(response.data.project_id);
                         $('#updateAccount-group-form [name="edit_site_id"]').val(response.data.site_id);
+                        if(response.data.default_selected) {
+                            $('#updateAccount-group-form [name="default_account"]').prop( "checked", true );
+                        } else {
+                            $('#updateAccount-group-form [name="default_account"]').prop( "checked", false );
+                        }
                     }
                 }
             })
