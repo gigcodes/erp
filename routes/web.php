@@ -401,6 +401,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
+use App\Http\Controllers\ZabbixWebhookDataController;
 
 Auth::routes();
 
@@ -537,6 +538,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
+    Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
