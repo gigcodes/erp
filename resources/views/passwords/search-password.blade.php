@@ -16,11 +16,6 @@
                                 <div class="col-12 pb-3">
                                     <input type="text" name="task_search" class="password-search-table" class="form-control" placeholder="Enter Website">
                                     <button type="button" class="btn btn-secondary btn-password-search-menu" ><i class="fa fa-search"></i></button>
-                                        <div class="pull-left mr-5">
-                                            {{ Form::open(array('url' => route('passwords.change'), 'method' => 'post')) }}
-                                            <input type="hidden" name="users" id="userIds">
-                                            {{ Form::close() }}
-                                        </div>
                                       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal" onclick="showCreatePasswordModal()">+</button>
                                 </div>
                                 <div class="col-12">
