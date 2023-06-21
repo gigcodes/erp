@@ -306,5 +306,15 @@ class GoogleScreencastController extends Controller
         }
 
         return $driveFileData;
+    } 
+
+    public function getGoogleScreencast (Request $request){
+
+        $datas = GoogleScreencast::get()->take(10);
+
+        return response()->json([
+            'tbody' => view('partials.modals.google-drive-screen-cast-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
     }
 }

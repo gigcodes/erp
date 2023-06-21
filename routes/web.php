@@ -5092,6 +5092,7 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
     Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
+    Route::get('/list/google-screen-cast', [GoogleScreencastController::class, 'getGoogleScreencast'])->name('.getGooglesScreencast');
 });
 
 //Queue Management::

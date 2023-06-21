@@ -108,8 +108,6 @@
         </table>
     </div>
 
-@include('googledrivescreencast.partials.upload')
-
 <div id="showFullMessageModel" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
@@ -126,68 +124,5 @@
 
     </div>
 </div>
-@endsection
-@section('scripts')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script type="text/javascript">
-$("#id_label_multiple_user_read").select2();
-$("#id_label_multiple_user_write").select2();
-$("#search_user").select2();
-$('#id_label_task').select2({
-  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-});
-$('#search_task').select2({
-  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-});
-
-$(document).on('click', '.filepermissionupdate', function (e) {
-		
-		$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
-		$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
-		
-        let data_read = $(this).data('readpermission');
-        let data_write = $(this).data('writepermission');
-		var file_id = $(this).data('fileid');
-        var id = $(this).data('id');
-		var permission_read = data_read.split(',');
-		var permission_write = data_write.split(',');
-		if(permission_read)
-		{
-			$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
-		}
-		if(permission_write)
-		{
-			$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
-		}
-		
-		$('#file_id').val(file_id);
-        $('#id').val(id);
-	
-	});
-
-    $(document).on("click",".showFullMessage", function () {
-        let title = $(this).data('title');
-        let message = $(this).data('message');
-        
-        $("#showFullMessageModel .modal-body").html(message);
-        $("#showFullMessageModel .modal-title").html(title);
-        $("#showFullMessageModel").modal("show");
-    });
-    
-    $(document).on("click",".filedetailupdate", function (e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-        let fileid = $(this).data('fileid');
-        let fileremark = $(this).data('file_remark');
-        let filename = $(this).data('file_name');
-
-        $("#updateUploadedFileDetailModal .id").val(id);
-        $("#updateUploadedFileDetailModal .file_id").val(fileid);
-        $("#updateUploadedFileDetailModal .file_remark").val(fileremark);
-        $("#updateUploadedFileDetailModal .file_name").val(filename);
-
-    });
-    </script>
 @endsection
 

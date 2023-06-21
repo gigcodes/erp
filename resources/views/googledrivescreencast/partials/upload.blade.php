@@ -1,3 +1,9 @@
+@php 
+    $tasks = App\DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+    $generalTask = App\Task::orderBy('id', 'desc');
+    $users = App\User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+@endphp
+
 <div id="uploadeScreencastModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
@@ -71,7 +77,7 @@
                         @endif
                     <div class="form-group">
                             <label>Remarks:</label>
-                            <textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks"></textarea>
+                            <textarea id="remarks" name="remarks" rows="4" cols="55" value="{{ old('remarks') }}" placeholder="Remarks"></textarea>
 
                             @if ($errors->has('remarks'))
                                 <div class="alert alert-danger">{{$errors->first('remarks')}}</div>
