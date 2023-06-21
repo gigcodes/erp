@@ -489,7 +489,10 @@ class MessageController extends Controller
                 $objectData['name'] = $supplier['name'];
             }
             $google_accounts = GoogleDialogAccount::with('storeWebsite')->where('default_selected', 1)->first();
-            $objectData['url'] = $google_accounts['storeWebsite']['website'];
+            if (empty($google_accounts)) {
+                $google_accounts = GoogleDialogAccount::with('storeWebsite')->first();
+            }
+            $objectData['url'] = $google_accounts ? $google_accounts['storeWebsite']['website'] : '';
         }
         $requestMessage = \Request::create('/', 'GET', [
             'limit' => 1,
@@ -561,7 +564,7 @@ class MessageController extends Controller
 
 
         if ($request->request_type == 'ajax') {
-            return response()->json(['code' => 200, 'data' => ['message' => $message[0], 'chatQuestion' => $chatQuestions, 'type' => $type, 'intent' => $intent], 'messages' => 'Get message successfully']);
+            return response()->json(['code' => 200, 'data' => ['message' => $message ? $message[0] : '', 'chatQuestion' => $chatQuestions, 'type' => $type, 'intent' => $intent], 'messages' => 'Get message successfully']);
         }
         $allIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->pluck('value', 'id')->toArray();
         return view('chatbot::message.partial.chatbot', compact('message', 'intent', 'type', 'chatQuestions', 'allIntents', 'objectData'));
@@ -607,6 +610,9 @@ class MessageController extends Controller
                     $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
                 } else {
                     $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
+                    if (empty($google_accounts)) {
+                        $googleAccount = GoogleDialogAccount::with('storeWebsite')->first();
+                    }
                 }
                 $chatBotQuestion = ChatbotQuestion::where('value', $request->question_id)->first();
                 if (!$chatBotQuestion) {
@@ -657,6 +663,9 @@ class MessageController extends Controller
             $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
         } else {
             $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
+            if (empty($google_accounts)) {
+                $googleAccount = GoogleDialogAccount::with('storeWebsite')->first();
+            }
         }
         $chatBotQuestion = ChatbotQuestion::where('id', $request->question_id)->first();
         $questionArr = [];
