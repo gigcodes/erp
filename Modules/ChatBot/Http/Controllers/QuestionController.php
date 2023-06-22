@@ -29,6 +29,7 @@ use App\ChatbotKeywordValueTypes;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Library\Watson\Model as WatsonManager;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 class QuestionController extends Controller
 {
@@ -1020,72 +1021,87 @@ class QuestionController extends Controller
 
     public function syncGoogle($id)
     {
-        $chatBotQuestion = ChatbotQuestion::where('id', $id)->first();
-        $chatBotQuestion->google_status = 'Pending google send';
-        $chatBotQuestion->save();
-        $questionArr = [];
-        foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
-            $questionArr[] = $question->question;
-        }
-        if ($chatBotQuestion) {
-            $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
+        try {
+            $chatBotQuestion = ChatbotQuestion::where('id', $id)->first();
+            $chatBotQuestion->google_status = 'Pending google send';
+            $chatBotQuestion->save();
+            $questionArr = [];
+            foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
+                $questionArr[] = $question->question;
+            }
+            if ($chatBotQuestion) {
+                $googleAccounts = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->get();
 
-            foreach ($googleAccounts as $googleAccount) {
-                $dialogService = new DialogFlowService($googleAccount);
-                if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
-                    $response = $dialogService->createIntent([
-                        'questions' => $questionArr,
-                        'reply' => explode(',', $chatBotQuestion['suggested_reply']),
-                        'name' => $chatBotQuestion['value'],
-                        'parent' => $chatBotQuestion['parent']
-                    ], $chatBotQuestion->google_response_id ?: null);
-                    if ($response) {
-                        $name = explode('/', $response);
-                        $chatBotQuestion->google_status = 'google sended';
-                        $chatBotQuestion->save();
+                foreach ($googleAccounts as $googleAccount) {
+                    $dialogService = new DialogFlowService($googleAccount);
+                    if ($chatBotQuestion->keyword_or_question == 'intent' || $chatBotQuestion->keyword_or_question == 'priority-customer' || $chatBotQuestion->keyword_or_question == 'simple') {
+                        try {
+                            $response = $dialogService->createIntent([
+                                'questions' => $questionArr,
+                                'reply' => explode(',', $chatBotQuestion['suggested_reply']),
+                                'name' => $chatBotQuestion['value'],
+                                'parent' => $chatBotQuestion['parent']
+                            ], $chatBotQuestion->google_response_id ?: null);
+                            if ($response) {
+                                $name = explode('/', $response);
+                                $chatBotQuestion->google_status = 'google sended';
+                                $chatBotQuestion->save();
 
-                        $store_response = new GoogleResponseId();
-                        $store_response->google_response_id = $name[count($name) - 1];
-                        $store_response->google_dialog_account_id = $googleAccount->id;
-                        $store_response->chatbot_question_id = $chatBotQuestion->id;
-                        $store_response->save();
+                                $store_response = new GoogleResponseId();
+                                $store_response->google_response_id = $name[count($name) - 1];
+                                $store_response->google_dialog_account_id = $googleAccount->id;
+                                $store_response->chatbot_question_id = $chatBotQuestion->id;
+                                $store_response->save();
+                            }
+                        } catch (\Exception $e) {
+                            $chatBotQuestion->google_status = $e->getMessage();
+                            $chatBotQuestion->save();
+                        }
+                    } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
+                        $ids = [];
+                        foreach ($chatBotQuestion->chatbotQuestionExamples as $qu) {
+                            $ids[] = $qu->types;
+                        }
+                        $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
+                        $entityId = $entityType->response_id;
+                        if (!$entityType->response_id) {
+                            $responseE = $dialogService->createEntityType($entityType->display_name, $entityType->kind);
+                            $responseE = explode('/', $responseE);
+                            $entityType->response_id = $responseE[count($responseE) - 1];
+                            $entityId = $responseE[count($responseE) - 1];
+                            $entityType->save();
+                        }
+                        $keywords = $chatBotQuestion->chatbotQuestionExamples->pluck('question')->toArray();
+                        if ($entityType->kind == '2') {
+                            $keywords = [$chatBotQuestion['value']];
+                        }
+                        try {
+                            if ($chatBotQuestion->google_response_id) {
+                                $response = $dialogService->updateEntity($entityId, $chatBotQuestion['value'], $keywords);
+                            } else {
+                                $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
+                            }
+                            if ($response) {
+                                $name = explode('/', $response);
+                                $store_response = new GoogleResponseId();
+                                $store_response->google_response_id = $name[count($name) - 1];
+                                $store_response->google_dialog_account_id = $googleAccount->id;
+                                $store_response->chatbot_question_id = $chatBotQuestion->id;
+                                $store_response->save();
+                            }
+                        } catch (\Exception $e) {
+                            $chatBotQuestion->google_status = $e->getMessage();
+                            $chatBotQuestion->save();
+                        }
+
                     }
-                } elseif ($chatBotQuestion->keyword_or_question == 'entity') {
-                    $ids = [];
-                    foreach ($chatBotQuestion->chatbotQuestionExamples as $qu) {
-                        $ids[] = $qu->types;
-                    }
-                    $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
-                    $entityId = $entityType->response_id;
-                    if (!$entityType->response_id) {
-                        $responseE = $dialogService->createEntityType($entityType->display_name, $entityType->kind);
-                        $responseE = explode('/', $responseE);
-                        $entityType->response_id = $responseE[count($responseE) - 1];
-                        $entityId = $responseE[count($responseE) - 1];
-                        $entityType->save();
-                    }
-                    $keywords = $chatBotQuestion->chatbotQuestionExamples->pluck('question')->toArray();
-                    if ($entityType->kind == '2') {
-                        $keywords = [$chatBotQuestion['value']];
-                    }
-                    if ($chatBotQuestion->google_response_id) {
-                        $response = $dialogService->updateEntity($entityId, $chatBotQuestion['value'], $keywords);
-                    } else {
-                        $response = $dialogService->createEntity($entityId, $chatBotQuestion['value'], $keywords);
-                    }
-                    if ($response) {
-                        $name = explode('/', $response);
-                        $chatBotQuestion->google_response_id = $name[count($name) - 1];
-                        $chatBotQuestion->google_status = 'google sended';
-                        $chatBotQuestion->save();
-                    }
+                    $dialogService->trainAgent();
                 }
-                $dialogService->trainAgent();
             }
             return response()->json(['code' => 200, 'data' => [], 'message' => 'send successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
-
-        return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong, Please try again!']);
     }
 
     public function addEntityType(Request $request)

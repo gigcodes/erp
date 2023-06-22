@@ -42,6 +42,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 
 class MessageController extends Controller
@@ -603,24 +604,30 @@ class MessageController extends Controller
                 $storeQuestion->save();
                 $questionArr[] = $request->value;
                 $dialogService = new DialogFlowService($googleAccount);
-                $response = $dialogService->createIntent([
-                    'questions' => $questionArr,
-                    'reply' => explode(',', $chatBotQuestion['suggested_reply']),
-                    'name' => $chatBotQuestion['value'],
-                    'parent' => $chatBotQuestion['parent']
-                ], $chatBotQuestion->google_response_id ?: null);
-                if ($response) {
-                    $chatBotQuestion->google_status = 'google sended';
-                    $chatBotQuestion->save();
+                try {
+                    $response = $dialogService->createIntent([
+                        'questions' => $questionArr,
+                        'reply' => explode(',', $chatBotQuestion['suggested_reply']),
+                        'name' => $chatBotQuestion['value'],
+                        'parent' => $chatBotQuestion['parent']
+                    ], $chatBotQuestion->google_response_id ?: null);
+                    if ($response) {
+                        $chatBotQuestion->google_status = 'google sended';
+                        $chatBotQuestion->save();
 
-                    $name = explode('/', $response);
-                    $store_response = new GoogleResponseId();
-                    $store_response->google_response_id = $name[count($name) - 1];
-                    $store_response->google_dialog_account_id = $googleAccount->id;
-                    $store_response->chatbot_question_id = $chatBotQuestion->id;
-                    $store_response->save();
+                        $name = explode('/', $response);
+                        $store_response = new GoogleResponseId();
+                        $store_response->google_response_id = $name[count($name) - 1];
+                        $store_response->google_dialog_account_id = $googleAccount->id;
+                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->save();
+                    }
+                    return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
+                } catch (\Exception $e) {
+                    $chatBotQuestion->google_status = $e->getMessage();
+                    $chatBotQuestion->save();
+                    return response()->json(['code' => 00, 'data' => $chatBotQuestion, 'message' => $e->getMessage()]);
                 }
-                return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
             } else {
                 if ($request->object === 'customer') {
                     $customer = Customer::find($request->object_id);
@@ -648,25 +655,31 @@ class MessageController extends Controller
                 $storeQuestion->save();
                 $questionArr[] = $request->value;
                 $dialogService = new DialogFlowService($googleAccount);
-                $response = $dialogService->createIntent([
-                    'questions' => $questionArr,
-                    'reply' => explode(',', $chatBotQuestion->suggested_reply),
-                    'name' => $chatBotQuestion->value,
-                    'parent' => $chatBotQuestion->parent
-                ], $chatBotQuestion->google_response_id ?: null);
+                try {
+                    $response = $dialogService->createIntent([
+                        'questions' => $questionArr,
+                        'reply' => explode(',', $chatBotQuestion->suggested_reply),
+                        'name' => $chatBotQuestion->value,
+                        'parent' => $chatBotQuestion->parent
+                    ], $chatBotQuestion->google_response_id ?: null);
 
-                if ($response) {
-                    $name = explode('/', $response);
-                    $chatBotQuestion->google_status = 'google sended';
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $chatBotQuestion->google_status = 'google sended';
+                        $chatBotQuestion->save();
+
+                        $store_response = new GoogleResponseId();
+                        $store_response->google_response_id = $name[count($name) - 1];
+                        $store_response->google_dialog_account_id = $googleAccount->id;
+                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->save();
+                    }
+                    return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
+                }catch (\Exception $e) {
+                    $chatBotQuestion->google_status = $e->getMessage();
                     $chatBotQuestion->save();
-
-                    $store_response = new GoogleResponseId();
-                    $store_response->google_response_id = $name[count($name) - 1];
-                    $store_response->google_dialog_account_id = $googleAccount->id;
-                    $store_response->chatbot_question_id = $chatBotQuestion->id;
-                    $store_response->save();
                 }
-                return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Intent Store successfully']);
+                return response()->json(['code' => 00, 'data' => null, 'message' => $e->getMessage()]);
             }
         }
         return response()->json(['code' => 00, 'data' => null, 'message' => 'Question not found']);
@@ -703,24 +716,31 @@ class MessageController extends Controller
             $chatRply->save();
             $replyArr[] = $request->value;
             $dialogService = new DialogFlowService($googleAccount);
-            $response = $dialogService->createIntent([
-                'questions' => $questionArr,
-                'reply' => $replyArr,
-                'name' => $chatBotQuestion['value'],
-                'parent' => $chatBotQuestion['parent']
-            ], $chatBotQuestion->google_response_id ?: null);
-            if ($response) {
-                $name = explode('/', $response);
-                $chatBotQuestion->google_status = 'google sended';
-                $chatBotQuestion->save();
+            try {
+                $response = $dialogService->createIntent([
+                    'questions' => $questionArr,
+                    'reply' => $replyArr,
+                    'name' => $chatBotQuestion['value'],
+                    'parent' => $chatBotQuestion['parent']
+                ], $chatBotQuestion->google_response_id ?: null);
+                if ($response) {
+                    $name = explode('/', $response);
+                    $chatBotQuestion->google_status = 'google sended';
+                    $chatBotQuestion->save();
 
-                $store_response = new GoogleResponseId();
-                $store_response->google_response_id = $name[count($name) - 1];
-                $store_response->google_dialog_account_id = $googleAccount->id;
-                $store_response->chatbot_question_id = $chatBotQuestion->id;
-                $store_response->save();
+                    $store_response = new GoogleResponseId();
+                    $store_response->google_response_id = $name[count($name) - 1];
+                    $store_response->google_dialog_account_id = $googleAccount->id;
+                    $store_response->chatbot_question_id = $chatBotQuestion->id;
+                    $store_response->save();
+                }
+                return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
+            } catch (\Exception $e) {
+                $chatBotQuestion->google_status = $e->getMessage();
+                $chatBotQuestion->save();
+                return response()->json(['code' => 400, 'data' => null, 'message' => $e->getMessage()]);
             }
-            return response()->json(['code' => 200, 'data' => $chatBotQuestion, 'message' => 'Reply Stored successfully']);
+
         }
         return response()->json(['code' => 400, 'data' => null, 'message' => 'Question not found']);
     }

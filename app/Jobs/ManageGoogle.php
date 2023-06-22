@@ -9,6 +9,7 @@ use App\Models\GoogleResponseId;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -53,19 +54,25 @@ class ManageGoogle implements ShouldQueue
             }
             foreach ($google_accounts as $google_account) {
                 $dialogService = new DialogFlowService($google_account);
-                $response = $dialogService->createIntent([
-                    'questions' => $questionArr,
-                    'reply' => $replyArr,
-                    'name' => $chatBotQuestion['value'],
-                    'parent' => $chatBotQuestion['parent']]);
-                if ($response) {
-                    $name = explode('/', $response);
-                    $store_response = new GoogleResponseId();
-                    $store_response->google_response_id = $name[count($name) - 1];
-                    $store_response->google_dialog_account_id = $google_account->id;
-                    $store_response->chatbot_question_id = $chatBotQuestion->id;
-                    $store_response->save();
+                try {
+                    $response = $dialogService->createIntent([
+                        'questions' => $questionArr,
+                        'reply' => $replyArr,
+                        'name' => $chatBotQuestion['value'],
+                        'parent' => $chatBotQuestion['parent']]);
+                    if ($response) {
+                        $name = explode('/', $response);
+                        $store_response = new GoogleResponseId();
+                        $store_response->google_response_id = $name[count($name) - 1];
+                        $store_response->google_dialog_account_id = $google_account->id;
+                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->save();
+                    }
+                } catch (\Exception $e) {
+                    $chatBotQuestion->google_status = $e->getMessage();
+                    $chatBotQuestion->save();
                 }
+
             }
         }
     }
