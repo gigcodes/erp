@@ -8,6 +8,7 @@
 
 @foreach ($data as $key => $file)
     <tr>
+        <td><input type="checkbox" name="myCheckbox" class="myCheckbox" value="{{ $file->id }}" data-file="{{ $file->google_drive_file_id }}"></td>
         <td>{{ ++$i }}</td>
         <td style="max-width: 150px">
             <div data-message="{{$file->file_name}}" data-title="File name" style="cursor: pointer" class="showFullMessage">

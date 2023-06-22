@@ -615,4 +615,113 @@ class GoogleDocController extends Controller
             ]);
         }
     }
+
+    public function googleDocRemovePermission(Request $request)
+    {
+        $fileId = request('id');
+        $readArray = [request('read')];
+        $writeArray =  [request('write')];
+
+        $files = GoogleDoc::where('docId', $fileId)->get();
+
+        foreach ($files as $file)
+        {
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($file->docId, $parameters);
+    
+            $is_already_have_permission = false;
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove old Permission
+                if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($file->docId, $permission['id']);
+                }
+            }
+
+            $readUsers = array_diff($readArray,explode(',', $file->read));
+            $writeUsers = array_diff($writeArray,explode(',', $file->write));
+            $file->read = implode(',', $readUsers);
+            $file->write = implode(',', $writeUsers);
+            $file->save();
+        }
+
+        return back()->with('success', 'Permission successfully removed');
+        
+    }
+    
+    public function addMulitpleDocPermission(Request $request)
+    {
+        $fileIds = request('ids');
+        $readData = request('read');
+        $writeData = request('write');
+        $permissionEmails = [];
+    
+    foreach ($fileIds as $fileId) {
+        $client = new Client();
+        $client->useApplicationDefaultCredentials();
+        $client->addScope(Drive::DRIVE);
+        $driveService = new Drive($client);
+        // Build a parameters array
+        $parameters = [];
+        // Specify what fields you want
+        $parameters['fields'] = 'permissions(*)';
+        // Call the endpoint to fetch the permissions of the file
+        $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
+        $fileData = GoogleDoc::find($fileId->id);
+        foreach ($permissions->getPermissions() as $permission) {
+            $permissionEmails[] = $permission['emailAddress'];
+            //Remove Permission
+            if ($permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                $driveService->permissions->delete($fileId, $permission['id']);
+            }
+        }
+        //assign permission based on requested data
+        $index = 1;
+        $driveService->getClient()->setUseBatch(true);
+        if (! empty($readData)) {
+            $batch = $driveService->createBatch();
+            foreach ($readData as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'reader',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user' . $index);
+                $index++;
+            }
+            $results = $batch->execute();
+        }
+        if (! empty($writeData)) {
+            $batch = $driveService->createBatch();
+            foreach ($writeData as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'writer',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user' . $index);
+                $index++;
+            }
+            $results = $batch->execute();
+        }
+        $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+        $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
+        $fileData->save();
+    }
+        return back()->with('success', 'Permission successfully updated.');
+        
+    }
 }
