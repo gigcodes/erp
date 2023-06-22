@@ -7421,6 +7421,45 @@ if (!\Auth::guest()) {
 
     function showCreateScreencastModal() {
       $('#google-drive-screen-cast-alerts-modal').modal('hide');
+      $.ajax({
+        url: "{{ route('getDropdownDatas') }}",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+
+            var tasks = response.tasks;
+            var users = response.users;
+            var generalTask = response.generalTask;
+
+            var $taskSelect = $("#id_label_task");
+            var $userReadSelect = $("#id_label_multiple_user_read");
+            var $userWriteSelect = $("#id_label_multiple_user_write");
+
+            $taskSelect.empty();
+            $taskSelect.append('<option value="" class="form-control">Select Task</option>');
+
+            tasks.forEach(function(task) {
+                $taskSelect.append('<option value="' + task.id + '">' + task.id + '-' + task.subject +  '</option>');
+            });
+             generalTask.forEach(function(generalTask) {
+                $taskSelect.append('<option value="' + generalTask.id + '">' + generalTask.id + '-' + generalTask.subject +  '</option>');
+            });
+
+            $userReadSelect.empty();
+            $userWriteSelect.empty();
+            $userReadSelect.append('<option value="" class="form-control">Select User</option>');
+            $userWriteSelect.append('<option value="" class="form-control">Select User</option>');
+
+            users.forEach(function(user) {
+                var optionText = user.name;
+                $userReadSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+                $userWriteSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+            });
+             },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+            }); 
     }
 
     function getgooglescreencast(showModal = false) {

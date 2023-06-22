@@ -1,8 +1,4 @@
-@php 
-    $tasks = App\DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
-    $generalTask = App\Task::orderBy('id', 'desc');
-    $users = App\User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
-@endphp
+
 
 <div id="uploadeScreencastModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -32,14 +28,6 @@
                         <select class="w-100 js-example-basic-multiple js-states"
                                 id="id_label_task" name="task_id">
                                 <option value="" class="form-control">Select Task</option>
-                                @foreach($tasks as $task)
-                                <option value="{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
-                                @endforeach
-                                @if (isset($generalTask) && !empty($generalTask))
-                                    @foreach($generalTask as $task)
-                                        <option value="TASK-{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
-                                    @endforeach
-                                @endif
                             </select>
                     </div>
                     <div class="form-group">
@@ -55,24 +43,17 @@
                     </div>
                         @if(auth()->user()->isAdmin())
                     <div class="form-group custom-select2 read_user">
-                        <label>Read Permission for Users
-                        </label>
-                        <select class="w-100 js-example-basic-multiple js-states"
-                                id="id_label_multiple_user_read" multiple="multiple" name="file_read[]">
-                                @foreach($users as $val)
-                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
-                                @endforeach
-                            </select>
+                        <label>Read Permission for Users</label>
+                        <select class="w-100 js-example-basic-multiple js-states" id="id_label_multiple_user_read" multiple="multiple" name="file_read[]">
+                            <option value="" class="form-control">Select User</option>
+                        </select>
                     </div>
                     <div class="form-group custom-select2 write_user">
                         <label>Write Permission for Users
                         </label>
-                        <select class="w-100 js-example-basic-multiple js-states"
-                                id="id_label_multiple_user_write" multiple="multiple" name="file_write[]">
-                                @foreach($users as $val)
-                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
-                                @endforeach
-                            </select>
+                        <select class="w-100 js-example-basic-multiple js-states" id="id_label_multiple_user_write" multiple="multiple" name="file_write[]">
+                             <option value="" class="form-control">Select user</option>
+                        </select>
                     </div>
                         @endif
                     <div class="form-group">

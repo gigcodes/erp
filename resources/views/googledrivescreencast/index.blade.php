@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">
                     + Upload Screencast/File
                 </button>
             </div>
@@ -103,7 +103,6 @@
             </thead>
             <tbody>
             @include('googledrivescreencast.partials.list')
-            @include('googledrivescreencast.partials.update-file-permissions')
             </tbody>
         </table>
     </div>

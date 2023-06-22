@@ -5087,6 +5087,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
 });
 
+Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');
+
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
