@@ -17,7 +17,7 @@ class MagentoModuleRemark extends Model
      * @SWG\Property(property="send_to",type="string")
      * @SWG\Property(property="remark",type="string")
      */
-    protected $fillable = ['magento_module_id', 'user_id', 'send_to', 'remark'];
+    protected $fillable = ['magento_module_id', 'user_id', 'send_to', 'remark', 'type'];
 
     public function user()
     {
