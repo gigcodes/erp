@@ -694,6 +694,8 @@ var page = {
     var store_code_id = $('#form-create-website #store_code_id').val();
     var working_directory = $('#form-create-website #working_directory').val();
     var assets_manager_id = $('#form-create-website #assets_manager_id').val();
+    var database_name = $('#form-create-website #database_name').val();
+    var instance_number = $('#form-create-website #instance_number').val();
 
     var formData = new FormData();
     formData.append("id", id);
@@ -751,6 +753,8 @@ var page = {
     formData.append("store_code_id", store_code_id);
     formData.append("working_directory", working_directory);
     formData.append("assets_manager_id", assets_manager_id);
+    formData.append("database_name", database_name);
+    formData.append("instance_number", instance_number);
 
     $.ajaxSetup({
       headers: {

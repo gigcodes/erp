@@ -38,6 +38,7 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
+    Route::get('/{id}/download/{type}/', [StoreWebsiteController::class, 'downloadDbEnv'])->name('store-website.downloadDbEnv');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');

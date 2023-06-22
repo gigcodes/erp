@@ -113,6 +113,8 @@ class StoreWebsite extends Model
         'store_code_id',
         'assets_manager_id',
         'working_directory',
+        'database_name',
+        'instance_number',
     ];
 
     const DB_CONNECTION = [

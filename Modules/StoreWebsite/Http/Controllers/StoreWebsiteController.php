@@ -1719,4 +1719,41 @@ class StoreWebsiteController extends Controller
         }
         return $result;
     }
+
+    public function downloadDbEnv(Request $request,$id,$type){
+        $storeWebsite=StoreWebsite::where('id', $id)->first();
+        if(!$storeWebsite){
+            return redirect()->back()->withErrors('Store Website data is not found!'); 
+        }
+        if($type!='db' && $type!='env'){
+            return redirect()->back()->withErrors('You can only download database or env data');
+        }
+        if($type=='db' && $storeWebsite->database_name==''){
+            return redirect()->back()->withErrors('Store Website database name is not found!');
+        }
+        if($storeWebsite->instance_number==''){
+            return redirect()->back()->withErrors('Store Website instance number is not found!');
+        }
+        
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' 2>&1';
+        if($type=='db'){
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' -d '.$storeWebsite->database_name. ' 2>&1';
+        }
+
+        \Log::info("Start Download DB/ENV");
+        
+        $result = exec($cmd, $output, $return_var);
+
+        
+
+        \Log::info("command:".$cmd);
+        \Log::info("output:".print_r($output,true));
+        \Log::info("return_var:".$return_var);
+
+        \Log::info("End Download DB/ENV");
+        (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
+
+        return redirect()->back()->withSuccess('Download successfully!');
+        
+    }
 }

@@ -68,10 +68,20 @@
 				</div>
 			</div>
 		</div>
+		@if ($errors->any())
+		<div class="alert alert-danger">
+			<ul>
+				@foreach ($errors->all() as $error)
+					<li>{{ $error }}</li>
+				@endforeach
+			</ul>
+		</div>
+		@endif
 		<div class="margin-tb" id="page-view-result">
 
 		</div>
 	</div>
+	
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
@@ -944,6 +954,15 @@
 		});
 	})
 
+	$(document).on('click','.btn-download-db-env',function(){
+		var id=$(this).attr('data-id');
+		var type=$(this).attr('data-type');
+		if( id === undefined || id === '' || type === undefined || type === '' ){
+			toastr["error"]("Something Went Wrong, Please Try Again Later!");
+			return false;
+		}
+		window.location.href = "{{url('/')}}/store-website/"+id+"/download/"+type;
+	});
 	$(document).on('click','.btn-refresh-admin-password',function(){
 		src = 'store-website/get-admin-password'
 		$.ajax({
