@@ -3841,6 +3841,11 @@ if (!empty($notifications)) {
                                 </a>
                             </li>
                             <li>
+                                <a title="Zabbix issues" id="zabbix-issues" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            <li>
                                 <a title="Live laravel logs" id="live-laravel-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
                                     <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
                                 </a>
@@ -4531,6 +4536,7 @@ if (!empty($notifications)) {
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
         @include('partials.modals.live-laravel-logs-summary')
+        @include('partials.modals.zabbix-issues-summary')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
@@ -7253,6 +7259,73 @@ if (!\Auth::guest()) {
             $('.ajax-loader').hide();
             console.log(response);
         });
+    });
+
+    function getZabbixIssues(page) {
+        var url = "/zabbix-webhook-data/issues-summary?page=" + page
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            var tableBody = $('#zabbix-issues-summary-modal-html');
+            tableBody.empty(); // Clear the table body
+            // Loop through the data and populate the table rows
+            $.each(response.data, function(index, item) {
+                var row = $('<tr>');
+                row.append($('<td>').text(item.subject));
+                row.append($('<td>').text(item.short_message));
+                row.append($('<td>').text(item.event_start));
+                row.append($('<td>').text(item.event_name));
+                row.append($('<td>').text(item.host));
+                row.append($('<td>').text(item.severity));
+                row.append($('<td>').text(item.short_operational_data));
+                row.append($('<td>').text(item.event_id));
+                // Add more table data cells as needed
+                tableBody.append(row);
+            });
+            var paginationLinks = $('#zabbix-issues-summary-modal-table-paginationLinks');
+            paginationLinks.empty(); // Clear the pagination links
+            // Generate the pagination links manually
+            var links = response.links;
+            var currentPage = response.current_page;
+            var lastPage = response.last_page;
+            var pagination = $('<ul class="pagination"></ul>');
+            // Previous page link
+            if (currentPage > 1) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+            }
+            // Individual page links
+            for (var i = 1; i <= lastPage; i++) {
+                var activeClass = (i === currentPage) ? 'active' : '';
+                pagination.append('<li class="page-item ' + activeClass + '"><a href="#" class="page-link" data-page="' + i + '">' + i + '</a></li>');
+            }
+            // Next page link
+            if (currentPage < lastPage) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage + 1) + '">Next</a></li>');
+            }
+            paginationLinks.append(pagination);
+            // Handle pagination link clicks
+            paginationLinks.find('a').on('click', function(event) {
+                event.preventDefault();
+                var page = $(this).data('page');
+                getZabbixIssues(page);
+            });
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','#zabbix-issues',function(e){
+        e.preventDefault();
+        $('#zabbix-issues-summary-modal').modal('show');
+        getZabbixIssues(1);
     });
 
     $(document).on('click','#create_event',function(e){
