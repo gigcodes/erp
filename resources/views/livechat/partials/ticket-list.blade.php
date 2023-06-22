@@ -175,6 +175,16 @@
             <button type="button" class="btn btn-xs  no_pd" onclick="showEmails('{{$ticket->id}}')" title="Show email">
                 <i class="fa fa-envelope" ></i></button>
 
+            @if($ticket->customer_id > 0)
+                <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image"
+                        onclick="changeSimulatorSetting('customer', {{ $ticket->customer_id }}, {{ $ticket->customer_auto_simulator == 0 }})">
+                    <i style="color: #757575c7;" class="fa fa-{{$ticket->customer_auto_simulator == 0 ? 'play' : 'pause'}}"
+                       aria-hidden="true"></i>
+                </button>
+                <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $ticket->customer_id]) }}"
+                   title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+            @endif
+
         </div>
     </td>
 </tr>
@@ -184,3 +194,7 @@
     <!-- Pagination links will be dynamically loaded here -->
 </div>
 
+<script type="text/javascript" src="/js/simulator.js"></script>
+<script>
+    var csrftoken = "{{ csrf_token() }}";
+</script>

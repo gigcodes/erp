@@ -507,7 +507,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
-    
+
 Route::middleware('auth')->group(function () {
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
@@ -4906,6 +4906,7 @@ Route::get('watson-journey-ajax', [LiveChatController::class, 'ajax'])->name('wa
 Route::post('pushwaston', [ChatbotMessageLogsController::class, 'pushwaston']);
 
 Route::get('sync-to-watson', [ChatbotMessageLogsController::class, 'pushQuickRepliesToWaston']);
+Route::get('sync-to-google', [ChatbotMessageLogsController::class, 'pushQuickRepliesToGoogle']);
 Route::post('push-reply-to-watson', [ChatbotMessageLogsController::class, 'pushRepyToWaston']);
 
 Route::get('chatbot-message-log/{id}/history', [ChatbotMessageLogsController::class, 'chatbotMessageLogHistory'])->name('chatbot.messages.chatbot.message.log.history');
