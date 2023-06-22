@@ -228,6 +228,8 @@
     @include('partials.plain-modal')
     {{-- #remark-area-list --}}
     @include('magento_module.partials.remark_list')
+    {{-- #verified-status-histories-list --}}
+    @include('magento_module.partials.verified_status_histories_list')
     {{-- moduleTypeCreateModal --}} {{-- moduleTypeEditModal --}}
     @include('magento_module_type.partials.form_modals')
     {{-- moduleCategoryCreateModal --}} {{-- moduleCategoryEditModal --}}
@@ -311,6 +313,9 @@
                     // Set the data-status attribute, and add a class
                     $(row).attr('role', 'row');
                     $(row).find("td").last().addClass('text-danger');
+                    if (data["row_bg_colour"] != "") {
+                        $(row).css("background-color", data["row_bg_colour"]);
+                    }
                 },
                 ajax: {
                     "url": "{{ route('magento_modules.index') }}",
@@ -519,7 +524,11 @@
                                 });
                                 dev_html +="</select>";
                             }
-                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+
+                            let dev_status_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                
+                            return `<div class="flex items-center justify-left">${dev_html} ${dev_status_history_button}</div>`;
                         }
                     },
                     {
@@ -571,7 +580,11 @@
                                 });
                                 dev_html +="</select>";
                             }
-                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+
+                            let lead_status_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            return `<div class="flex items-center justify-left">${dev_html} ${lead_status_history_button}</div>`;
                         }
                     },
                     {
@@ -852,6 +865,35 @@
                         // $("#blank-modal").find(".modal-title").html(response.title);
                         // $("#blank-modal").find(".modal-body").html(response.data);
                         $("#remark-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load status history
+        $(document).on('click', '.load-status-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module.get-verified-status-histories', ['', '']) }}/` + id + '/' + type,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.new_status.name } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verified-status-histories-list").find(".verified-status-histories-list-view").html(html);
+                        $("#verified-status-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

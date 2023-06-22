@@ -10,6 +10,8 @@ class MagentoModule extends Model
 {
     protected $guarded = ['id'];
 
+    protected $appends = ['row_bg_colour'];
+
     protected $fillable = [
         'module_category_id',
         'store_website_id',
@@ -86,5 +88,17 @@ class MagentoModule extends Model
     public function lead_verified_status()
     {
         return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'lead_verified_status_id', 'id');
+    }
+
+    public function getRowBgColourAttribute()
+    {
+        $colour = "";
+        if ($this->lead_verified_status) {
+            $colour = @$this->lead_verified_status->color;
+        } elseif ($this->dev_verified_status) {
+            $colour = @$this->dev_verified_status->color;
+        }
+
+        return $colour;
     }
 }

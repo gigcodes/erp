@@ -319,6 +319,18 @@ class MagentoModuleController extends Controller
         ], 200);
     }
 
+    public function getVerifiedStatusHistories($magento_module, $type)
+    {
+        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function updateMagentoModuleOptions(Request $request)
     {
         $oldData = MagentoModule::where('id', (int) $request->id)->first();
