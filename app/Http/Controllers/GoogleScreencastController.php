@@ -127,7 +127,7 @@ class GoogleScreencastController extends Controller
                 }
 
                 $googleScreencast->save();
-                // UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
         }
 
