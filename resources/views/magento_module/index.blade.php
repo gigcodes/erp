@@ -202,6 +202,10 @@
                         <th> Status </th>
                         <th> Dev Verified By </th>
                         <th> Dev Verified Status </th>
+                        <th width="200px"> Dev Remark </th>
+                        <th> Lead Verified By </th>
+                        <th> Lead Verified Status </th>
+                        <th width="200px"> Lead Remark </th>
                         <th> Developer Name </th>
                         <th> Customized </th>
                         <th> js/css </th>
@@ -344,7 +348,7 @@
                             let message = `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -519,6 +523,75 @@
                         }
                     },
                     {
+                        data: 'dev_last_remark',
+                        name: 'magento_modules.dev_last_remark',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="dev_last_remark_${row['id']}" name="dev_last_remark" class="form-control" placeholder="Dev Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'dev', 'dev_last_remark')"><img src="/images/filled-sent.png"></button>`;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
+                        data: 'lead_verified_by',
+                        name: 'lead_verified_by',
+                        render: function(data, type, row, meta) {
+                            var dev_list = row['developer_list'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="lead_verified_by" class="form-control edit_mm" name="lead_verified_by"><option selected="selected" value="">Select user </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                        }
+                    },
+                    {
+                        data: 'lead_verified_status_id',
+                        name: 'lead_verified_status_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['verified_status'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="lead_verified_status_id" class="form-control edit_mm" name="lead_verified_status_id"><option selected="selected" value="">Select Status </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                        }
+                    },
+                    {
+                        data: 'lead_last_remark',
+                        name: 'magento_modules.lead_last_remark',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="lead_last_remark_${row['id']}" name="lead_last_remark" class="form-control" placeholder="Lead Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'lead', 'lead_last_remark')"><img src="/images/filled-sent.png"></button>`;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
                         data: 'developer_id',
                         name: 'users.name',
                         render: function(data, type, row, meta) {
@@ -685,12 +758,12 @@
         });
         
         // Store Reark
-        function saveRemarks(row_id) {
+        function saveRemarks(row_id, type = 'general', selector = 'remark') {
             console.log(row_id);
-            var remark = $("#remark_" + row_id).val();
+            var remark = $("#"+selector+"_" + row_id).val();
             // var send_to = $("#send_to_" + row_id).val();
 
-            var val = $("#remark_" + row_id).val();
+            var val = $("#"+selector+"_" + row_id).val();
 
             $.ajax({
                 url: `{{ route('magento_module_remark.store') }}`,
@@ -701,14 +774,15 @@
                 data: {
                     remark: remark,
                     // send_to: send_to,
-                    magento_module_id: row_id
+                    magento_module_id: row_id,
+                    type: type
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
                 }
             }).done(function(response) {
                 if (response.status) {
-                    $("#remark_" + row_id).val('');
+                    $("#"+selector+"_" + row_id).val('');
                     $("#send_to_" + row_id).val('');
                     toastr["success"](response.message);
                     oTable.draw();
@@ -757,9 +831,10 @@
         // Load Remark
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
             $.ajax({
                 method: "GET",
-                url: `{{ route('magento_module_remark.get_remarks', '') }}/` + id,
+                url: `{{ route('magento_module_remark.get_remarks', ['', '']) }}/` + id + '/' + type,
                 dataType: "json",
                 success: function(response) {
                     if (response.status) {
