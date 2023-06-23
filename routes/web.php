@@ -539,6 +539,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
+
+    Route::get('zabbix-webhook-data/remark/{zabbix_webhook_data}', [ZabbixWebhookDataController::class, 'getRemarks'])->name('zabbix-webhook-data.get_remarks');
+    Route::get('zabbix-webhook-data/issues-summary', [ZabbixWebhookDataController::class, 'issuesSummary'])->name('zabbix-webhook-data.issues.summary');
+    Route::post('zabbix-webhook-data/change-status', [ZabbixWebhookDataController::class, 'updateStatus'])->name('zabbix-webhook-data.change.status');
+    Route::post('zabbix-webhook-data/store-remark', [ZabbixWebhookDataController::class, 'storeRemark'])->name('zabbix-webhook-data.store.remark');
+    Route::post('zabbix-webhook-data/store-zabbix-status', [ZabbixWebhookDataController::class, 'storeZabbixStatus'])->name('zabbix-webhook-data.store-zabbix-status');
     Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
 });
 /** redis Job Module */
