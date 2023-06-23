@@ -5,7 +5,7 @@
 @section('title', $title)
 
 @section('styles')
-
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style>
         .users {
             display: none;
@@ -20,6 +20,19 @@
         .copy_remark{
             cursor: pointer;
         }
+        .multiselect-native-select .btn-group{
+            width: 100%;
+            margin: 0px;
+            padding: 0;
+        }
+        .multiselect-native-select .checkbox input{
+            margin-top: -5px !important;
+        }
+        .multiselect-native-select .btn-group button.multiselect{
+            width: 100%;
+        
+        }
+
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -94,7 +107,7 @@
             <form method="POST" action="#" id="dateform">
 
                 <div class="row m-4">
-                    <div class="col-xs-3 col-sm-3">
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
                         </div>
@@ -117,12 +130,13 @@
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-
+                    <?php /*
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::select('store_website_id', $store_websites, null, ['placeholder' => 'Store Website', 'class' => 'form-control']) !!}
                         </div>
                     </div>
+                    */?>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Select Site Impact', 'class' => 'form-control']) !!}
@@ -133,7 +147,26 @@
                             {!! Form::select('status', ['Disabled', 'Enable'], null, ['placeholder' => 'Select Status', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('dev_verified_by[]', $users, null, ['class' => 'form-control multiselect-dev',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('lead_verified_by[]', $users, null, ['class' => 'form-control multiselect-lead',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('dev_verified_status_id[]', $verified_status_array, null, ['class' => 'form-control multiselect-dev-status',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('lead_verified_status_id[]', $verified_status_array, null, ['class' => 'form-control multiselect-lead-status',"multiple" => true]) !!}
+                        </div>
+                    </div>
 
                     <div class="col-xs-2 col-sm-1 pt-2 ">
                         <div class="d-flex" >
@@ -202,6 +235,10 @@
                         <th> Status </th>
                         <th> Dev Verified By </th>
                         <th> Dev Verified Status </th>
+                        <th width="200px"> Dev Remark </th>
+                        <th> Lead Verified By </th>
+                        <th> Lead Verified Status </th>
+                        <th width="200px"> Lead Remark </th>
                         <th> Developer Name </th>
                         <th> Customized </th>
                         <th> js/css </th>
@@ -224,6 +261,8 @@
     @include('partials.plain-modal')
     {{-- #remark-area-list --}}
     @include('magento_module.partials.remark_list')
+    {{-- #verified-status-histories-list --}}
+    @include('magento_module.partials.verified_status_histories_list')
     {{-- moduleTypeCreateModal --}} {{-- moduleTypeEditModal --}}
     @include('magento_module_type.partials.form_modals')
     {{-- moduleCategoryCreateModal --}} {{-- moduleCategoryEditModal --}}
@@ -263,8 +302,34 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-
+    <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
+        $(document).ready(function() {
+            $(".multiselect-dev").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Dev Verified By',
+            });
+            $(".multiselect-lead").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Lead Verified By',
+            });
+            $(".multiselect-dev-status").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                //enableFiltering: true,
+                nonSelectedText: 'Please Select Dev Verified Status',
+            });
+            $(".multiselect-lead-status").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+               // enableFiltering: true,
+                nonSelectedText: 'Please Select Lead Verified Status',
+            });
+        });
         $(document).on('click', '#searchReset', function(e) {
             //alert('success');
             $('#dateform').trigger("reset");
@@ -307,6 +372,9 @@
                     // Set the data-status attribute, and add a class
                     $(row).attr('role', 'row');
                     $(row).find("td").last().addClass('text-danger');
+                    if (data["row_bg_colour"] != "") {
+                        $(row).css("background-color", data["row_bg_colour"]);
+                    }
                 },
                 ajax: {
                     "url": "{{ route('magento_modules.index') }}",
@@ -319,6 +387,12 @@
                         d.store_website_id = $('select[name=store_website_id]').val();
                         d.site_impact = $('select[name=site_impact]').val();
                         d.status = $('select[name=status]').val();
+                        d.dev_verified_by = $('.multiselect-dev').val();
+                        d.dev_verified_status_id = $('.multiselect-dev-status').val();
+                        d.lead_verified_by = $('.multiselect-lead').val();
+                        d.lead_verified_status_id = $('.multiselect-lead-status').val();
+                        
+                        
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 }, 
@@ -344,7 +418,7 @@
                             let message = `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -515,7 +589,84 @@
                                 });
                                 dev_html +="</select>";
                             }
+
+                            let dev_status_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                
+                            return `<div class="flex items-center justify-left">${dev_html} ${dev_status_history_button}</div>`;
+                        }
+                    },
+                    {
+                        data: 'dev_last_remark',
+                        name: 'magento_modules.dev_last_remark',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="dev_last_remark_${row['id']}" name="dev_last_remark" class="form-control" placeholder="Dev Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'dev', 'dev_last_remark')"><img src="/images/filled-sent.png"></button>`;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
+                        data: 'lead_verified_by',
+                        name: 'lead_verified_by',
+                        render: function(data, type, row, meta) {
+                            var dev_list = row['developer_list'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="lead_verified_by" class="form-control edit_mm" name="lead_verified_by"><option selected="selected" value="">Select user </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
                             return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                        }
+                    },
+                    {
+                        data: 'lead_verified_status_id',
+                        name: 'lead_verified_status_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['verified_status'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="lead_verified_status_id" class="form-control edit_mm" name="lead_verified_status_id"><option selected="selected" value="">Select Status </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+
+                            let lead_status_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            return `<div class="flex items-center justify-left">${dev_html} ${lead_status_history_button}</div>`;
+                        }
+                    },
+                    {
+                        data: 'lead_last_remark',
+                        name: 'magento_modules.lead_last_remark',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="lead_last_remark_${row['id']}" name="lead_last_remark" class="form-control" placeholder="Lead Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'lead', 'lead_last_remark')"><img src="/images/filled-sent.png"></button>`;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
                         }
                     },
                     {
@@ -685,12 +836,12 @@
         });
         
         // Store Reark
-        function saveRemarks(row_id) {
+        function saveRemarks(row_id, type = 'general', selector = 'remark') {
             console.log(row_id);
-            var remark = $("#remark_" + row_id).val();
+            var remark = $("#"+selector+"_" + row_id).val();
             // var send_to = $("#send_to_" + row_id).val();
 
-            var val = $("#remark_" + row_id).val();
+            var val = $("#"+selector+"_" + row_id).val();
 
             $.ajax({
                 url: `{{ route('magento_module_remark.store') }}`,
@@ -701,14 +852,15 @@
                 data: {
                     remark: remark,
                     // send_to: send_to,
-                    magento_module_id: row_id
+                    magento_module_id: row_id,
+                    type: type
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
                 }
             }).done(function(response) {
                 if (response.status) {
-                    $("#remark_" + row_id).val('');
+                    $("#"+selector+"_" + row_id).val('');
                     $("#send_to_" + row_id).val('');
                     toastr["success"](response.message);
                     oTable.draw();
@@ -757,9 +909,10 @@
         // Load Remark
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
             $.ajax({
                 method: "GET",
-                url: `{{ route('magento_module_remark.get_remarks', '') }}/` + id,
+                url: `{{ route('magento_module_remark.get_remarks', ['', '']) }}/` + id + '/' + type,
                 dataType: "json",
                 success: function(response) {
                     if (response.status) {
@@ -777,6 +930,35 @@
                         // $("#blank-modal").find(".modal-title").html(response.title);
                         // $("#blank-modal").find(".modal-body").html(response.data);
                         $("#remark-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load status history
+        $(document).on('click', '.load-status-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module.get-verified-status-histories', ['', '']) }}/` + id + '/' + type,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.new_status.name } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verified-status-histories-list").find(".verified-status-histories-list-view").html(html);
+                        $("#verified-status-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

@@ -17,6 +17,7 @@ use App\MagentoModuleCategory;
 use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
+use App\MagentoModuleVerifiedStatusHistory;
 
 class MagentoModuleController extends Controller
 {
@@ -46,6 +47,7 @@ class MagentoModuleController extends Controller
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id')->get();
+        $verified_status_array = $verified_status->pluck('name', 'id');
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
@@ -99,6 +101,18 @@ class MagentoModuleController extends Controller
             if (isset($request->status)) {
                 $items->where('magento_modules.status', $request->status);
             }
+            if (isset($request->dev_verified_by)) {
+                $items->whereIn('magento_modules.dev_verified_by', $request->dev_verified_by);
+            }
+            if (isset($request->lead_verified_by)) {
+                $items->whereIn('magento_modules.lead_verified_by', $request->lead_verified_by);
+            }
+            if (isset($request->dev_verified_status_id)) {
+                $items->whereIn('magento_modules.dev_verified_status_id', $request->dev_verified_status_id);
+            }
+            if (isset($request->lead_verified_status_id)) {
+                $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
+            }
             $items->groupBy('magento_modules.module');
             return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->toJson();
         } else {
@@ -109,7 +123,7 @@ class MagentoModuleController extends Controller
             $task_statuses = $task_statuses->pluck('name', 'id');
             $store_websites = $store_websites->pluck('website', 'id');
 
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array'));
         }
     }
 
@@ -276,7 +290,15 @@ class MagentoModuleController extends Controller
         $magento_module_remark = MagentoModuleRemark::create($input);
 
         if ($magento_module_remark) {
-            $update = MagentoModule::where('id', $request->magento_module_id)->update(['last_message' => $request->remark]);
+            if($input['type'] == 'general') {
+                $update = MagentoModule::where('id', $request->magento_module_id)->update(['last_message' => $request->remark]);
+            }
+            if($input['type'] == 'dev') {
+                $update = MagentoModule::where('id', $request->magento_module_id)->update(['dev_last_remark' => $request->remark]);
+            }
+            if($input['type'] == 'lead') {
+                $update = MagentoModule::where('id', $request->magento_module_id)->update(['lead_last_remark' => $request->remark]);
+            }
             // dd($update, $request->magento_module_id, $request->remark);
             return response()->json([
                 'status' => true,
@@ -298,9 +320,9 @@ class MagentoModuleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getRemarks($magento_module)
+    public function getRemarks($magento_module, $type)
     {
-        $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->get();
+        $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
 
         return response()->json([
             'status' => true,
@@ -310,9 +332,34 @@ class MagentoModuleController extends Controller
         ], 200);
     }
 
+    public function getVerifiedStatusHistories($magento_module, $type)
+    {
+        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function updateMagentoModuleOptions(Request $request)
     {
+        $oldData = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+
+        if ($request->columnName == 'dev_verified_status_id' || $request->columnName == 'lead_verified_status_id') {
+            if ($request->columnName == 'dev_verified_status_id') {
+                $type = 'dev';
+                $oldStatusId = $oldData->dev_verified_status_id;
+            }
+            if ($request->columnName == 'lead_verified_status_id') {
+                $type = 'lead';
+                $oldStatusId = $oldData->lead_verified_status_id;
+            }
+            $this->saveVerifiedStatusHistory($oldData, $oldStatusId, $request->data, $type);
+        }
 
         if ($updateMagentoModule) {
             return response()->json([
@@ -606,5 +653,18 @@ class MagentoModuleController extends Controller
                 'status_name' => 'error',
             ], 500);
         }
+    }
+
+    protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
+    {
+        $history = new MagentoModuleVerifiedStatusHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_status_id = $oldStatusId;
+        $history->new_status_id = $newStatusId;
+        $history->type = $statusType;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
     }
 }

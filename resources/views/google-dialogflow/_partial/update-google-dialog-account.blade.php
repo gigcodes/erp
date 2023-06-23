@@ -13,6 +13,16 @@
             </div>
         </div>
         <div class="form-group row">
+            <label for="headline1" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="edit_email" name="edit_email"
+                       placeholder="email address" value="{{ old('email') }}">
+                @if ($errors->has('email'))
+                    <span class="text-danger">{{$errors->first('email')}}</span>
+                @endif
+            </div>
+        </div>
+        <div class="form-group row">
             <label for="headline1" class="col-sm-2 col-form-label">Site</label>
             <div class="col-sm-10">
                 <select name="edit_site_id" id="" class="form-control">

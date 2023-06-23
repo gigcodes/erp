@@ -401,6 +401,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
+use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 
 Auth::routes();
@@ -507,12 +508,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
-    
+
 Route::middleware('auth')->group(function () {
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
-    Route::get('magento_modules/remark/{magento_module}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::resource('magento_modules', MagentoModuleController::class);
@@ -538,7 +540,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
+
+    Route::get('zabbix-webhook-data/remark/{zabbix_webhook_data}', [ZabbixWebhookDataController::class, 'getRemarks'])->name('zabbix-webhook-data.get_remarks');
+    Route::get('zabbix-webhook-data/issues-summary', [ZabbixWebhookDataController::class, 'issuesSummary'])->name('zabbix-webhook-data.issues.summary');
+    Route::post('zabbix-webhook-data/change-status', [ZabbixWebhookDataController::class, 'updateStatus'])->name('zabbix-webhook-data.change.status');
+    Route::post('zabbix-webhook-data/store-remark', [ZabbixWebhookDataController::class, 'storeRemark'])->name('zabbix-webhook-data.store.remark');
+    Route::post('zabbix-webhook-data/store-zabbix-status', [ZabbixWebhookDataController::class, 'storeZabbixStatus'])->name('zabbix-webhook-data.store-zabbix-status');
     Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
+
+    Route::get('zabbix-task/assignee-histories/{zabbix_task}', [ZabbixTaskController::class, 'getAssigneeHistories'])->name('zabbix-task.get-assignee-histories');
+    Route::resource('zabbix-task', ZabbixTaskController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -4892,6 +4903,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+    Route::get('zabbix-webhook-data', [Select2Controller::class, 'zabbixWebhookData'])->name('select2.zabbix-webhook-data');
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
@@ -4905,6 +4917,7 @@ Route::get('watson-journey-ajax', [LiveChatController::class, 'ajax'])->name('wa
 Route::post('pushwaston', [ChatbotMessageLogsController::class, 'pushwaston']);
 
 Route::get('sync-to-watson', [ChatbotMessageLogsController::class, 'pushQuickRepliesToWaston']);
+Route::get('sync-to-google', [ChatbotMessageLogsController::class, 'pushQuickRepliesToGoogle']);
 Route::post('push-reply-to-watson', [ChatbotMessageLogsController::class, 'pushRepyToWaston']);
 
 Route::get('chatbot-message-log/{id}/history', [ChatbotMessageLogsController::class, 'chatbotMessageLogHistory'])->name('chatbot.messages.chatbot.message.log.history');

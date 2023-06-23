@@ -119,6 +119,8 @@
           $('#magento_module_edit_form #api').val(magento_module.api);
           $('#magento_module_edit_form #cron_job').val(magento_module.cron_job);
           $('#magento_module_edit_form #site_impact').val(magento_module.site_impact);
+          $('#magento_module_edit_form #composer').val(magento_module.composer);
+          $('#magento_module_edit_form #dependency').val(magento_module.dependency);
           $('#moduleEditModal').modal('show');
     });
 
