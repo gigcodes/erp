@@ -47,6 +47,7 @@ class MagentoModuleController extends Controller
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id')->get();
+        $verified_status_array = $verified_status->pluck('name', 'id');
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
@@ -100,6 +101,18 @@ class MagentoModuleController extends Controller
             if (isset($request->status)) {
                 $items->where('magento_modules.status', $request->status);
             }
+            if (isset($request->dev_verified_by)) {
+                $items->whereIn('magento_modules.dev_verified_by', $request->dev_verified_by);
+            }
+            if (isset($request->lead_verified_by)) {
+                $items->whereIn('magento_modules.lead_verified_by', $request->lead_verified_by);
+            }
+            if (isset($request->dev_verified_status_id)) {
+                $items->whereIn('magento_modules.dev_verified_status_id', $request->dev_verified_status_id);
+            }
+            if (isset($request->lead_verified_status_id)) {
+                $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
+            }
             $items->groupBy('magento_modules.module');
             return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->toJson();
         } else {
@@ -110,7 +123,7 @@ class MagentoModuleController extends Controller
             $task_statuses = $task_statuses->pluck('name', 'id');
             $store_websites = $store_websites->pluck('website', 'id');
 
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array'));
         }
     }
 

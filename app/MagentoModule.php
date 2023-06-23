@@ -38,7 +38,9 @@ class MagentoModule extends Model
         'lead_verified_by',
         'lead_verified_status_id',
         'dev_last_remark',
-        'lead_last_remark'
+        'lead_last_remark',
+        'dependency',
+        'composer',
     ];
 
     public function module_category()
