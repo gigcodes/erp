@@ -23,7 +23,8 @@ class ZabbixWebhookData extends Model
         'operational_data',
         'event_id',
         'zabbix_status_id',
-        'remarks'
+        'remarks',
+        'zabbix_task_id'
     ];
 
     public function getShortMessageAttribute()
@@ -34,5 +35,10 @@ class ZabbixWebhookData extends Model
     public function getShortOperationalDataAttribute()
     {
         return strlen($this->operational_data) > 15 ? substr($this->operational_data, 0, 15).'...' :  $this->operational_data;
+    }
+
+    public function zabbixTask()
+    {
+        return $this->belongsTo(ZabbixTask::class);
     }
 }

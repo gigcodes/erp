@@ -90,6 +90,11 @@ function initialize_select2(initial_skip = false) {
           ? $(elem).data("minimumresultsforsearch")
           : 10;
 
+      options["minimumInputLength"] =
+          typeof $(elem).data("minimuminputlength") !== "undefined"
+            ? $(elem).data("minimuminputlength")
+            : "";
+
       options["allowClear"] =
         typeof $(elem).data("allowclear") !== "undefined" &&
         $(elem).data("allowclear") == false
