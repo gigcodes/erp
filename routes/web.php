@@ -401,6 +401,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
+use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 
 Auth::routes();
@@ -546,6 +547,9 @@ Route::middleware('auth')->group(function () {
     Route::post('zabbix-webhook-data/store-remark', [ZabbixWebhookDataController::class, 'storeRemark'])->name('zabbix-webhook-data.store.remark');
     Route::post('zabbix-webhook-data/store-zabbix-status', [ZabbixWebhookDataController::class, 'storeZabbixStatus'])->name('zabbix-webhook-data.store-zabbix-status');
     Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
+
+    Route::get('zabbix-task/assignee-histories/{zabbix_task}', [ZabbixTaskController::class, 'getAssigneeHistories'])->name('zabbix-task.get-assignee-histories');
+    Route::resource('zabbix-task', ZabbixTaskController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -4899,6 +4903,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+    Route::get('zabbix-webhook-data', [Select2Controller::class, 'zabbixWebhookData'])->name('select2.zabbix-webhook-data');
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');

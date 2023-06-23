@@ -25,7 +25,10 @@
                     </form>
                 </div>
                 <div class="col-4">
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbixStatusCreate"> Create Status </button>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbixStatusCreate"> Create Status </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbix-task-create"> Create Task </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,7 +62,13 @@
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($zabbixWebhookDatas as $key => $zabbixWebhookData)
-                            <tr data-id="{{ $zabbixWebhookData->id }}">
+                            @php
+                                $bgColor = "";
+                            @endphp
+                            @if ($zabbixWebhookData->zabbix_task_id)
+                                @php $bgColor = "#f1f1f1 !important"; @endphp
+                            @endif
+                            <tr data-id="{{ $zabbixWebhookData->id }}" style="background-color: {{$bgColor}};" >
                                 <td>{{ $zabbixWebhookData->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -136,7 +145,7 @@
                             <tr class="action-btn-tr-{{$zabbixWebhookData->id}} d-none">
                                 <td>Action</td>
                                 <td id="zabbix_webhook_data_action"  colspan="9" >
-                                    <button type="button" class="btn btn-xs show-server-uptimes" title="Action colums" data-id="{{$zabbixWebhookData->id}}" data-type="developer">
+                                    <button type="button" class="btn btn-xs show-task-assignee-history" title="Task assignee history" data-zabbix_task_id="{{$zabbixWebhookData->zabbix_task_id}}" data-type="developer">
                                         <i class="fa fa-info-circle" style="color: #808080;"></i>
                                     </button>
                                 </td>
@@ -154,6 +163,10 @@
 @include('zabbix-webhook-data.partials.zabbix-status-create-modal')
 {{-- #remark-area-list --}}
 @include('zabbix-webhook-data.partials.remark_list')
+{{-- #assignee-history-list --}}
+@include('zabbix-webhook-data.partials.assignee-history-list')
+
+@include('partials.modals.zabbix-task-create-window')
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -192,6 +205,33 @@
                     });
                     $("#remark-area-list").find(".remark-action-list-view").html(html);
                     $("#remark-area-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    // Show task assignee histories
+    $(document).on('click', '.show-task-assignee-history', function() {
+        var zabbix_task_id = $(this).attr('data-zabbix_task_id');
+
+        $.ajax({
+            method: "GET",
+            url: `{{ route('zabbix-task.get-assignee-histories', '') }}/` + zabbix_task_id,
+            dataType: "json",
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.new_assignee !== undefined) ? v.new_assignee.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#assignee-history-list").find(".assignee-history-list-view").html(html);
+                    $("#assignee-history-list").modal("show");
                 } else {
                     toastr["error"](response.error, "Message");
                 }
@@ -258,6 +298,31 @@
             error: function(error) {
                 toastr["error"](error.responseJSON.message, "Message")
             }
+        });
+    });
+
+    $(document).on("click", ".save-zabbix-task-window", function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            data: form.serialize(),
+            beforeSend: function() {
+                $(this).text('Loading...');
+            },
+            success: function(response) {
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#zabbix-task-create").modal("hide");
+                    location.reload();
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            toastr['error'](response.responseJSON.message);
         });
     });
 </script>

@@ -10,6 +10,7 @@ use App\Category;
 use App\Customer;
 use App\Supplier;
 use App\DeveloperTask;
+use App\Models\ZabbixWebhookData;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorMember;
@@ -480,5 +481,27 @@ class Select2Controller extends Controller
             ];
         }
         return response()->json($result);*/
+    }
+
+    public function zabbixWebhookData(Request $request)
+    {
+        $zabbixWebhookDatas = ZabbixWebhookData::select('id', 'subject')->whereNull('zabbix_task_id');
+
+        if (!empty($request->q)) {
+            $zabbixWebhookDatas->where(function ($q) use ($request) {
+                $q->where('subject', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $zabbixWebhookDatas = $zabbixWebhookDatas->latest()->get();
+
+        foreach ($zabbixWebhookDatas as $zabbixWebhookData) {
+            $result['items'][] = [
+                'id' => $zabbixWebhookData->id,
+                'text' => $zabbixWebhookData->subject,
+            ];
+        }
+
+        return response()->json($result);
     }
 }
