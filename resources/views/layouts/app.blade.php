@@ -968,7 +968,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <!-- Right Side Of Navbar -->
 
                         <ul id="navs" class="navbar-nav ml-auto "
-                            style="display:flex;text-align: center;flex-grow: 1;gap:30px">
+                            style="display:flex;text-align: center;flex-grow: 1;gap:10px">
 
                             <!-- Authentication Links -->
 
@@ -2749,10 +2749,326 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @endif
                                 </ul>
                             </li>
+                            @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span
+                                        class="caret"></span></a>
+
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('products/pushproductlist') }}">
+                                            Push Product List</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('magento-setting-revision-history.index') }}">Magento Setting Revision Histories
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('magento-cron-data') }}">Magento Cron
+                                            Data</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('magento-productt-errors.index') }}">Magento product push
+                                            errors</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('magento_module_categories.index') }}">Magento Module
+                                            Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('magento_module_types.index') }}">Magento Module Type</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('magento_modules.index') }}">Magento
+                                            Modules</a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('payment-responses.index') }}">Payment Responses</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('site-development-status.stats') }}">Multi Site
+                                            status</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('content-management.index') }}">Content Management</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.environment.matrix') }}">Store Environment</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.environment.index') }}">Store Environment Table</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.category.list') }}">Store Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.color.list') }}">Store Color</a>
+                                        <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                        <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing
+                                            Page</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('newsletters.index') }}">Newsletters</a>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false" v-pre="">Review Newsletters Translate<span
+                                            class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                            aria-labelledby="twilioDropdown">
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate') }}">Review Arabic Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','English') }}">Review English Newsletters Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Chinese') }}">Review Chinese Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Japanese') }}">Review Japanese Newsletters Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Korean') }}">Review Korean Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Urdu') }}">Review Urdu Newsletters Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Russian') }}">Review Russian Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Italian') }}">Review Italian Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','French') }}">Review French Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Spanish') }}">Review Spanish Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','Dutch') }}">Review Dutch Newsletters Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('newsletters.review.translate','German') }}">Review German Newsletters Translate </a>
+                                                </li>
+
+                                            </ul>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.price-override.index') }}">Price
+                                            Override</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country
+                                            duty list</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country
+                                            duty search</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.country-group.index') }}">Country
+                                            Group</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.websites.index') }}">Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.website-stores.index') }}">Website
+                                            Store</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.website-store-views.index') }}">Website
+                                            Store View</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.page.index') }}">Website Page</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.page.histories') }}">Website Page
+                                            History</a>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false" v-pre="">Website Page Review Translate<span
+                                            class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                            aria-labelledby="twilioDropdown">
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Arabic') }}">Arabic Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','English') }}">English Page Review Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Chinese') }}">Chinese Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Japanese') }}">Japanese Page Review Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Korean') }}">Korean Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Urdu') }}">Urdu Page Review Translate </a>
+                                                </li>
+                                            <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Russian') }}">Russian Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Italian') }}">Italian Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','French') }}">French Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Spanish') }}">Spanish Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Dutch') }}">Dutch Page Review Translate </a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
+                                                </li>
+
+                                            </ul>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.product-attribute.index') }}">Product
+                                            Attribute</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site
+                                            Scrapper Python</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.site-attributes.index') }}">Site
+                                            Attributes</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.category-seo.index') }}">Category seo</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item"
+                                            href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item"
+                                            href="{{ route('logging.magento.product.api.call') }}">Magento API
+                                            call</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento
+                                            Product Pricing</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item"
+                                            href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item"
+                                            href="{{ url('/store-website-product-prices') }}">Store website product
+                                            price</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check
+                                            list</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento
+                                            Daily Product Push Log</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big
+                                            Data</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('zabbix.index') }}">Zabbix Items</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Zabbix
+                                            Problems</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('uicheck') }}">U I Check</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('uicheck.responsive') }}">U I
+                                            Responsive</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
+                                            Languages</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('site-development.store-website-category') }}">Store Website Category</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endif
+                            <li  class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <div id="nav-dotes" class="nav-item dropdown dots mr-3 ml-3">
                                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                        aria-haspopup="true" aria-expanded="false">
+                                        aria-haspopup="true" aria-expanded="false" style="padding: 1rem 1rem">
                                         <svg width="16" height="18" viewBox="0 0 16 4" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -2762,316 +3078,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
     
                                     <ul id="nav_dots" class="dropdown-menu multi-level ">
-    
-    
-                                        @if(auth()->user()->isAdmin())
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span
-                                                    class="caret"></span></a>
-    
-                                            <ul class="dropdown-menu multi-level">
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ url('products/pushproductlist') }}">
-                                                        Push Product List</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('magento-setting-revision-history.index') }}">Magento Setting Revision Histories
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('magento-cron-data') }}">Magento Cron
-                                                        Data</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('magento-productt-errors.index') }}">Magento product push
-                                                        errors</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('magento_module_categories.index') }}">Magento Module
-                                                        Category</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('magento_module_types.index') }}">Magento Module Type</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('magento_modules.index') }}">Magento
-                                                        Modules</a>
-                                                </li>
-    
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('payment-responses.index') }}">Payment Responses</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('site-development-status.stats') }}">Multi Site
-                                                        status</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('content-management.index') }}">Content Management</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.brand.list') }}">Store Brand</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.environment.matrix') }}">Store Environment</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.environment.index') }}">Store Environment Table</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.category.list') }}">Store Category</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.color.list') }}">Store Color</a>
-                                                    <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
-                                                    <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing
-                                                        Page</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('newsletters.index') }}">Newsletters</a>
-                                                </li>
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="false" v-pre="">Review Newsletters Translate<span
-                                                        class="caret"></span></a>
-                                                        <ul class="dropdown-menu dropdown-menu-right"
-                                                        aria-labelledby="twilioDropdown">
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate') }}">Review Arabic Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','English') }}">Review English Newsletters Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Chinese') }}">Review Chinese Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Japanese') }}">Review Japanese Newsletters Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Korean') }}">Review Korean Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Urdu') }}">Review Urdu Newsletters Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Russian') }}">Review Russian Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Italian') }}">Review Italian Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','French') }}">Review French Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Spanish') }}">Review Spanish Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','Dutch') }}">Review Dutch Newsletters Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('newsletters.review.translate','German') }}">Review German Newsletters Translate </a>
-                                                            </li>
-    
-                                                        </ul>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.price-override.index') }}">Price
-                                                        Override</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country
-                                                        duty list</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country
-                                                        duty search</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.country-group.index') }}">Country
-                                                        Group</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.websites.index') }}">Website</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.website-stores.index') }}">Website
-                                                        Store</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.website-store-views.index') }}">Website
-                                                        Store View</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.page.index') }}">Website Page</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.page.histories') }}">Website Page
-                                                        History</a>
-                                                </li>
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="false" v-pre="">Website Page Review Translate<span
-                                                        class="caret"></span></a>
-                                                        <ul class="dropdown-menu dropdown-menu-right"
-                                                        aria-labelledby="twilioDropdown">
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Arabic') }}">Arabic Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','English') }}">English Page Review Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Chinese') }}">Chinese Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Japanese') }}">Japanese Page Review Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Korean') }}">Korean Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Urdu') }}">Urdu Page Review Translate </a>
-                                                            </li>
-                                                        <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Russian') }}">Russian Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Italian') }}">Italian Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','French') }}">French Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Spanish') }}">Spanish Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Dutch') }}">Dutch Page Review Translate </a>
-                                                            </li>
-                                                            <li class="nav-item dropdown">
-                                                                <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
-                                                            </li>
-    
-                                                        </ul>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.product-attribute.index') }}">Product
-                                                        Attribute</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site
-                                                        Scrapper Python</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.site-attributes.index') }}">Site
-                                                        Attributes</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.category-seo.index') }}">Category seo</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('logging.magento.product.api.call') }}">Magento API
-                                                        call</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento
-                                                        Product Pricing</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item"
-                                                        href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item"
-                                                        href="{{ url('/store-website-product-prices') }}">Store website product
-                                                        price</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check
-                                                        list</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento
-                                                        Daily Product Push Log</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big
-                                                        Data</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Zabbix Items</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Zabbix
-                                                        Problems</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('uicheck') }}">U I Check</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('uicheck.responsive') }}">U I
-                                                        Responsive</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
-                                                        Languages</a>
-                                                </li>
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ route('site-development.store-website-category') }}">Store Website Category</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-    
-                                        @endif
                                         @if(auth()->user()->isAdmin())
                                         <li class="nav-item dropdown dropdown-submenu">
                                             {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
@@ -3734,15 +3740,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             </ul>
                                         </li>
                                     @endif
-                                    <li  class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
-                                    </li>
-                                    <li  class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
-                                    </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
-                                    </li>
+                                    
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                                     </li>
