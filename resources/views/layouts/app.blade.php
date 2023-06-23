@@ -4066,15 +4066,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <li class="nav-item dropdown dropdown-submenu">
                                                 <a class="dropdown-item" href="{{ url('order/invoices/saveLaterList') }}">Save Later Invoices</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('monitor-jenkins-build.index') }}">Monitor Jenkins Build</a>
+                                                <a class="dropdown-item" href="{{ route('monitor-server.index') }}">Website Monitor</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('zabbix-webhook-data.index') }}">Zabbix Webhook Data</a>
+                                            </li>
                                         </ul>
                                     </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('monitor-jenkins-build.index') }}">Monitor Jenkins Build</a>
-                                        <a class="dropdown-item" href="{{ route('monitor-server.index') }}">Website Monitor</a>
-                                    </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('zabbix-webhook-data.index') }}">Zabbix Webhook Data</a>
-                                    </li>
+                                    
                                     </ul>
                                 </div>
                             </li>
