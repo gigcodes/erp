@@ -78,6 +78,20 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             margin-left: 0px;
         }
 
+        #nav_dots .dropdown-submenu > .dropdown-menu {
+            top: 0px;
+            left: -350px !important;
+            border-radius: 2px;
+        }
+
+        #nav_dots .dropdown-submenu .dropdown-menu.multi-level{
+            min-width: 350px;
+        }
+
+        #nav_dots {
+            min-width: 180px;
+        }
+
         /* New Header design CSS */
         .select2-container--open{
             z-index:9999999
@@ -968,7 +982,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <!-- Right Side Of Navbar -->
 
                         <ul id="navs" class="navbar-nav ml-auto "
-                            style="display:flex;text-align: center;flex-grow: 1;gap:10px">
+                            style="display:flex;text-align: center;flex-grow: 1;gap:6px">
 
                             <!-- Authentication Links -->
 
@@ -3142,11 +3156,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <ul class="dropdown-menu multi-level">
         
                                                     <li class="nav-item dropdown ">
-                                                        <a id="queueDropdown" href="{{ url('task-summary') }}" class="nav-link "
+                                                        <a id="queueDropdown" href="{{ url('task-summary') }}" class=""
                                                             role="button" aria-haspopup="true" aria-expanded="false">Task Summary</a>
                                                     </li>
                                                     <li class="nav-item dropdown dropdown-submenu">
-                                                        <a id="queueDropdown" href="#" class="nav-link dropdown-toggle"
+                                                        <a id="queueDropdown" href="#" class="dropdown-toggle"
                                                             data-toggle="dropdown" role="button" aria-haspopup="true"
                                                             aria-expanded="false">Queue<span class="caret"></span></a>
                                                         <ul class="dropdown-menu dropdown-menu-right"
@@ -3168,7 +3182,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         </ul>
                                                     </li>
                                                     <li class="nav-item dropdown dropdown-submenu">
-                                                        <a id="queueDropdown" href="#" class="nav-link dropdown-toggle"
+                                                        <a id="queueDropdown" href="#" class="dropdown-toggle"
                                                             data-toggle="dropdown" role="button" aria-haspopup="true"
                                                             aria-expanded="false">Zabbix<span class="caret"></span></a>
                                                         <ul class="dropdown-menu dropdown-menu-right"
@@ -3184,16 +3198,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         </ul>
                                                     </li>
                                                     <li class="nav-item dropdown ">
-                                                        <a id="queueDropdown" href="{{ url('todolist') }}" class="nav-link "
+                                                        <a id="queueDropdown" href="{{ url('todolist') }}" class=""
                                                             role="button" aria-haspopup="true" aria-expanded="false">TodoList</a>
                                                     </li>
                                                     <li class="nav-item dropdown ">
-                                                        <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
+                                                        <a id="queueDropdown" href="{{ url('test-cases') }}" class=""
                                                             role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
                                                     </li>
         
                                                     <li class="nav-item dropdown ">
-                                                        <a id="queueDropdown" href="{{ url('test-suites') }}" class="nav-link "
+                                                        <a id="queueDropdown" href="{{ url('test-suites') }}" class=""
                                                             role="button" aria-haspopup="true" aria-expanded="false">Test Suites</a>
                                                     </li>
                                                     <li class="nav-item">
@@ -3201,7 +3215,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                             messages</a>
                                                     </li>
                                                     <li class="nav-item dropdown dropdown-submenu">
-                                                        <a id="bugDropdown" href="#" class="nav-link dropdown-toggle"
+                                                        <a id="bugDropdown" href="#" class="dropdown-toggle"
                                                             data-toggle="dropdown" role="button" aria-haspopup="true"
                                                             aria-expanded="false">Bug Track<span class="caret"></span></a>
                                                         <ul class="dropdown-menu dropdown-menu-right"
@@ -3745,7 +3759,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                                     </li>
                                     <li class="nav-item dropdown dropdown-submenu">
-                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                             aria-haspopup="true" aria-expanded="false">Development <span
                                                 class="caret"></span></a>
                                         <ul class="dropdown-menu multi-level">
