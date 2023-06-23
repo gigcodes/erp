@@ -72,8 +72,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             margin-left: 0px !important;
         }
         #quick-sidebars ul {
-            justify-content: space-around;
+            gap: 5px;
         }
+        .primary-header .list-unstyled.components {
+            margin-left: 0px;
+        }
+
         /* New Header design CSS */
         .select2-container--open{
             z-index:9999999
@@ -695,9 +699,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             <!--<div class="container container-wide">-->
 
             <div class="container-fluid pr-0">
-
+                <a class="navbar-brand pl-0" href="{{ url('/task') }}">
+                    {{ config('app.name', 'Laravel') }}
+                </a>
                 
-
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                     aria-label="{{ __('Toggle navigation') }}">
@@ -709,9 +714,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                 <div class="collapse navbar-collapse pr-0" id="navbarSupportedContent">
                     <div class="primary-header">
-                        <a class="navbar-brand pl-0" href="{{ url('/task') }}">
-                            {{ config('app.name', 'Laravel') }}
-                        </a>
+                        
                         @if(Auth::check())
                         <nav id="quick-sidebars">
                             <ul class="list-unstyled components mr-1">
