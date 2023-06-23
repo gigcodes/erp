@@ -5,7 +5,7 @@
 @section('title', $title)
 
 @section('styles')
-
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style>
         .users {
             display: none;
@@ -20,6 +20,19 @@
         .copy_remark{
             cursor: pointer;
         }
+        .multiselect-native-select .btn-group{
+            width: 100%;
+            margin: 0px;
+            padding: 0;
+        }
+        .multiselect-native-select .checkbox input{
+            margin-top: -5px !important;
+        }
+        .multiselect-native-select .btn-group button.multiselect{
+            width: 100%;
+        
+        }
+
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -94,7 +107,7 @@
             <form method="POST" action="#" id="dateform">
 
                 <div class="row m-4">
-                    <div class="col-xs-3 col-sm-3">
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
                         </div>
@@ -117,12 +130,13 @@
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-
+                    <?php /*
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::select('store_website_id', $store_websites, null, ['placeholder' => 'Store Website', 'class' => 'form-control']) !!}
                         </div>
                     </div>
+                    */?>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Select Site Impact', 'class' => 'form-control']) !!}
@@ -133,7 +147,26 @@
                             {!! Form::select('status', ['Disabled', 'Enable'], null, ['placeholder' => 'Select Status', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('dev_verified_by[]', $users, null, ['class' => 'form-control multiselect-dev',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('lead_verified_by[]', $users, null, ['class' => 'form-control multiselect-lead',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('dev_verified_status_id[]', $verified_status_array, null, ['class' => 'form-control multiselect-dev-status',"multiple" => true]) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('lead_verified_status_id[]', $verified_status_array, null, ['class' => 'form-control multiselect-lead-status',"multiple" => true]) !!}
+                        </div>
+                    </div>
 
                     <div class="col-xs-2 col-sm-1 pt-2 ">
                         <div class="d-flex" >
@@ -269,8 +302,34 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-
+    <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
+        $(document).ready(function() {
+            $(".multiselect-dev").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Dev Verified By',
+            });
+            $(".multiselect-lead").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Lead Verified By',
+            });
+            $(".multiselect-dev-status").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+                //enableFiltering: true,
+                nonSelectedText: 'Please Select Dev Verified Status',
+            });
+            $(".multiselect-lead-status").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+               // enableFiltering: true,
+                nonSelectedText: 'Please Select Lead Verified Status',
+            });
+        });
         $(document).on('click', '#searchReset', function(e) {
             //alert('success');
             $('#dateform').trigger("reset");
@@ -328,6 +387,12 @@
                         d.store_website_id = $('select[name=store_website_id]').val();
                         d.site_impact = $('select[name=site_impact]').val();
                         d.status = $('select[name=status]').val();
+                        d.dev_verified_by = $('.multiselect-dev').val();
+                        d.dev_verified_status_id = $('.multiselect-dev-status').val();
+                        d.lead_verified_by = $('.multiselect-lead').val();
+                        d.lead_verified_status_id = $('.multiselect-lead-status').val();
+                        
+                        
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 }, 
