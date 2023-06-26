@@ -312,6 +312,10 @@ class GoogleScreencastController extends Controller
 
         $datas = GoogleScreencast::latest()->take(10)->get();
 
+        if (! Auth::user()->isAdmin()) {
+            $datas = GoogleScreencast::where('user_id','=', Auth::id())->latest()->take(10)->get();
+        }
+
         return response()->json([
             'tbody' => view('partials.modals.google-drive-screen-cast-modal-html', compact('datas'))->render(),
             'count' => $datas->count(),
