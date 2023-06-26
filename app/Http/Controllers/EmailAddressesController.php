@@ -494,7 +494,7 @@ class EmailAddressesController extends Controller
     {
         $mailHelper = new VirtualminHelper();
         $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
-        $vmHost = $result['host'] ? $result['host'] : '';
+        $vmHost = isset($result['host']) ? $result['host'] : '';
         $status = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->createMail($smtpHost, $user, $password);
