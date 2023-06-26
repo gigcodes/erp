@@ -59,8 +59,7 @@
                 @csrf
 
                 <div class="modal-body">
-                    <input type="hidden" name="docs_ids" id = "docs_ids">
-                    <input type="hidden" name="ids" id = "ids">
+                    <input type="hidden" name="add_doc_ids" id = "add_doc_ids">
                     <div class="form-group custom-select2">
                         <label>Read Permission for Users
                         </label>
@@ -85,7 +84,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Update</button>
+                    <button type="submit" class="btn btn-secondary">Update</button>     
                 </div>
             </form>
         </div>
@@ -106,8 +105,7 @@
                 @csrf
 
                 <div class="modal-body">
-                    <input type="hidden" name="docs_ids" id = "docs_ids">
-                    <input type="hidden" name="ids" id = "ids">
+                    <input type="hidden" name="remove_doc_ids" id = "remove_doc_ids">
                     <div class="form-group custom-select2">
                         <label>Read Permission remove for Users
                         </label>

@@ -226,8 +226,7 @@ $(document).on('click', '.filepermissionupdate', function (e) {
             return;
         }
 
-        $('#multiple_file_id').val(fileIDs.join(','));
-        $('#ids').val(selectedCheckboxes.join(','));
+        $('#multiple_file_id').val(selectedCheckboxes.join(','));
 
         $(this).unbind('submit').submit();
     });
@@ -269,8 +268,7 @@ $(document).on('click', '.filepermissionupdate', function (e) {
             return;
         }
 
-        $('#multiple_file_id').val(fileIDs.join(','));
-        $('#ids').val(selectedCheckboxes.join(','));
+        $('#remove_file_ids').val(selectedCheckboxes.join(','));
 
         $(this).unbind('submit').submit();
     });

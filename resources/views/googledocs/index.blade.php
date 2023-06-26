@@ -379,7 +379,7 @@ $(document).on('click', '.permissionview', function (e) {
                 return;
             }
 
-        $('#ids').val(selectedCheckboxes.join(','));
+        $('#add_doc_ids').val(selectedCheckboxes.join(','));
 
         $(this).unbind('submit').submit()
         });
@@ -391,8 +391,7 @@ $(document).on('click', '.permissionview', function (e) {
     });
 
     $('#GoogleDocRemovePermissionModal').on('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
-
+        e.preventDefault(); 
         var selectedCheckboxes = [];
         var fileIDs = [];
 
@@ -419,7 +418,7 @@ $(document).on('click', '.permissionview', function (e) {
                 return;
             }
 
-        $('#ids').val(selectedCheckboxes.join(','));
+        $('#remove_doc_ids').val(selectedCheckboxes.join(','));
 
         $(this).unbind('submit').submit()
         });

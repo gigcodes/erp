@@ -94,8 +94,7 @@
                 @csrf
 
                 <div class="modal-body">
-                    <input type="hidden" name="file_ids" id = "file_ids">
-                    <input type="hidden" name="ids" id = "ids">
+                    <input type="hidden" name="remove_file_ids" id = "remove_file_ids">
                     <div class="form-group custom-select2">
                         <label>Read Permission remove for Users
                         </label>
@@ -109,7 +108,6 @@
                     <div class="form-group custom-select2">
                         <label>Write Permission remove for Users
                         </label>
-                        {{-- @dd($val->gmail); --}}
                         <select class="w-100 js-example-basic-multiple js-states"
                                 id="id_label_file_remove_permission_write" multiple="multiple" name="write[]">
                                 @foreach($users as $val)
@@ -142,9 +140,7 @@
                 @csrf
 
                 <div class="modal-body">
-                    <input type="hidden" name="multiple_file_id" id = "multiple_file_id">
-                    <input type="hidden" name="ids" id = "ids">
-                    <div class="form-group custom-select2">
+                    <input type="hidden" name="multiple_file_id" id = "multiple_file_id">                    <div class="form-group custom-select2">
                         <label>Read Permission for Users
                         </label>
                         <select class="w-100 js-example-basic-multiple js-states"

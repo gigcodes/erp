@@ -380,14 +380,14 @@ class GoogleScreencastController extends Controller
 
     public function driveFileRemovePermission(Request $request)
     {
-        $fileIds = explode(',', request('multiple_file_id'));
+        $fileIds = explode(',', request('remove_file_ids'));
         $fileIds = array_map('intval', $fileIds);
-        $readArray = [request('read')];
-        $writeArray =  [request('write')];
+        $readArray = request('read');
+        $writeArray =  request('write');
 
         foreach ($fileIds as $fileId)
         {
-            $file = GoogleScreencast::where('google_drive_file_id', $fileId)->get();
+            $file = GoogleScreencast::find($fileId);
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -407,8 +407,7 @@ class GoogleScreencastController extends Controller
                 if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
                     $driveService->permissions->delete($file->google_drive_file_id->docId, $permission['id']);
                 }
-            }
-
+            }    
             $readUsers = array_diff($readArray,explode(',', $file->read));
             $writeUsers = array_diff($writeArray,explode(',', $file->write));
             $file->read = implode(',', $readUsers);
