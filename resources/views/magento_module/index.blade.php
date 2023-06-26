@@ -87,7 +87,7 @@
 
 @section('content')
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;z-index: 9999;" />
     </div>
 
     @php
@@ -109,25 +109,25 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
+                            {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control filter-module']) !!}
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
+                            {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control filter-module_type']) !!}
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::select('module_category_id', $module_categories, null, ['placeholder' => 'Select Module Category', 'class' => 'form-control']) !!}
+                            {!! Form::select('module_category_id', $module_categories, null, ['placeholder' => 'Select Module Category', 'class' => 'form-control filter-module_category_id']) !!}
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
+                            {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control filter-is_customized']) !!}
                         </div>
                     </div>
                     <?php /*
@@ -139,12 +139,12 @@
                     */?>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Select Site Impact', 'class' => 'form-control']) !!}
+                            {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Select Site Impact', 'class' => 'form-control filter-site_impact']) !!}
                         </div>
                     </div>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::select('status', ['Disabled', 'Enable'], null, ['placeholder' => 'Select Status', 'class' => 'form-control']) !!}
+                            {!! Form::select('modules_status', ['Disabled', 'Enable'], null, ['placeholder' => 'Select Status', 'class' => 'form-control','id'=>"modules_status"]) !!}
                         </div>
                     </div>
                     <div class="col-xs-3 col-sm-2">
@@ -235,10 +235,8 @@
                         <th> Status </th>
                         <th> Dev Verified By </th>
                         <th> Dev Verified Status </th>
-                        <th width="200px"> Dev Remark </th>
                         <th> Lead Verified By </th>
                         <th> Lead Verified Status </th>
-                        <th width="200px"> Lead Remark </th>
                         <th> Developer Name </th>
                         <th> Customized </th>
                         <th> js/css </th>
@@ -379,14 +377,14 @@
                 ajax: {
                     "url": "{{ route('magento_modules.index') }}",
                     data: function(d) {
-                        d.module = $('input[name=module]').val();
-                        d.module_type = $('select[name=module_type]').val();
-                        d.is_customized = $('select[name=is_customized]').val();
-                        d.module_category_id = $('select[name=module_category_id]').val();
-                        d.task_status = $('select[name=task_status]').val();
-                        d.store_website_id = $('select[name=store_website_id]').val();
-                        d.site_impact = $('select[name=site_impact]').val();
-                        d.status = $('select[name=status]').val();
+                        d.module = $('.filter-module').val();
+                        d.module_type = $('.filter-module_type').val();
+                        d.is_customized = $('.filter-is_customized').val();
+                        d.module_category_id = $('.filter-module_category_id').val();
+                        d.task_status = $('.filter-task_status').val();
+                        d.store_website_id = $('.filter-store_website_id').val();
+                        d.site_impact = $('.filter-site_impact').val();
+                        d.modules_status = $('#modules_status').val();
                         d.dev_verified_by = $('.multiselect-dev').val();
                         d.dev_verified_status_id = $('.multiselect-dev-status').val();
                         d.lead_verified_by = $('.multiselect-lead').val();
@@ -571,7 +569,11 @@
                                 });
                                 dev_html +="</select>";
                             }
-                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                            let remark_history_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="dev" data-id="${row['id']}" title="Add New Dev Remark" ><img src="/images/add.png"></button>
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            return `<div class="">${dev_html} <br><b>Remark:</b> ${remark_history_button}</div>`;
                         }
                     },
                     {
@@ -593,10 +595,10 @@
                             let dev_status_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                                 
-                            return `<div class="flex items-center justify-left">${dev_html} ${dev_status_history_button}</div>`;
+                            return `<div class="">${dev_html} ${dev_status_history_button}</div>`;
                         }
                     },
-                    {
+                    /*{
                         data: 'dev_last_remark',
                         name: 'magento_modules.dev_last_remark',
                         render: function(data, type, row, meta) {
@@ -612,7 +614,7 @@
                             
                             return retun_data;
                         }
-                    },
+                    },*/
                     {
                         data: 'lead_verified_by',
                         name: 'lead_verified_by',
@@ -627,7 +629,12 @@
                                 });
                                 dev_html +="</select>";
                             }
-                            return `<div class="flex items-center justify-left">${dev_html}</div>`;
+                            let remark_history_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="lead" data-id="${row['id']}" title="Add New Lead Remark" ><img src="/images/add.png"></button>
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            return `<div class="">${dev_html} <br><b>Remark:</b> ${remark_history_button}</div>`;
+                            
                         }
                     },
                     {
@@ -649,10 +656,10 @@
                             let lead_status_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            return `<div class="flex items-center justify-left">${dev_html} ${lead_status_history_button}</div>`;
+                            return `<div class="">${dev_html} ${lead_status_history_button}</div>`;
                         }
                     },
-                    {
+                    /*{
                         data: 'lead_last_remark',
                         name: 'magento_modules.lead_last_remark',
                         render: function(data, type, row, meta) {
@@ -668,7 +675,7 @@
                             
                             return retun_data;
                         }
-                    },
+                    },*/
                     {
                         data: 'developer_id',
                         name: 'users.name',
@@ -907,6 +914,65 @@
         });
         
         // Load Remark
+        $(document).on('click', '.btn-mmanr-save-remark', function() {
+            var magento_module_id=$("#mmanr-magento_module_id").val();
+            var type=$("#mmanr-type ").val();
+            var remark=$("#mmanr-remark").val();
+            var frontend_issues=$("#mmanr-frontend_issues").val();
+            var backend_issues=$("#mmanr-backend_issues").val();
+            var security_issues=$("#mmanr-security_issues").val();
+            var performance_issues=$("#mmanr-performance_issues").val();
+            var best_practices=$("#mmanr-best_practices").val();
+            var conclusion=$("#mmanr-conclusion").val();
+            var other=$("#mmanr-other").val();
+
+            $.ajax({
+                url: `{{ route('magento_module_remark.store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remark: remark,
+                    magento_module_id: magento_module_id,
+                    type: type,
+                    frontend_issues: frontend_issues,
+                    backend_issues: backend_issues,
+                    security_issues: security_issues,
+                    performance_issues: performance_issues,
+                    best_practices: best_practices,
+                    conclusion: conclusion,
+                    other: other,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    toastr["success"](response.message);
+                    $("#modal-add-new-remark").modal("hide");
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        });
+        $(document).on('click', '#add-remark-module-open', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            $("#modal-add-new-remark #mmanr-magento_module_id").val(id);
+            $("#modal-add-new-remark #mmanr-type").val(type);
+            $("#modal-add-new-remark").modal("show");
+        });
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
             var type = $(this).attr('data-type');
@@ -914,16 +980,43 @@
                 method: "GET",
                 url: `{{ route('magento_module_remark.get_remarks', ['', '']) }}/` + id + '/' + type,
                 dataType: "json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
                 success: function(response) {
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
+                            remarkText=v.remark;
+                            if(v.frontend_issues!='' && v.frontend_issues!=null){
+                                remarkText+="<br><br><b>Frontend Issues:</b><br>"+v.frontend_issues;
+                            }
+                            if(v.backend_issues!='' && v.backend_issues!=null){
+                                remarkText+="<br><br><b>Backend Issues:</b><br>"+v.backend_issues;
+                            }
+                            if(v.security_issues!='' && v.security_issues!=null){
+                                remarkText+="<br><br><b>Security Issues:</b><br>"+v.security_issues;
+                            }
+                            if(v.performance_issues!='' && v.performance_issues!=null){
+                                remarkText+="<br><br><b>Performance Issues:</b><br>"+v.performance_issues;
+                            }
+                            if(v.best_practices!='' && v.best_practices!=null){
+                                remarkText+="<br><br><b>Best Practices:</b><br>"+v.best_practices;
+                            }
+                            if(v.conclusion!='' && v.conclusion!=null){
+                                remarkText+="<br><br><b>Conclusion:</b><br>"+v.conclusion;
+                            }
+                            if(v.other!='' && v.other!=null){
+                                remarkText+="<br><br><b>Other:</b><br>"+v.other;
+                            }
                             html += `<tr>
                                         <td> ${k + 1} </td>
-                                        <td> ${v.remark } </td>
+                                        <td> 
+                                            ${remarkText}
+                                        </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
-                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${v.remark}'></i></td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
                         $("#remark-area-list").find(".remark-action-list-view").html(html);
@@ -933,6 +1026,7 @@
                     } else {
                         toastr["error"](response.error, "Message");
                     }
+                    $("#loading-image").hide();
                 }
             });
         });
