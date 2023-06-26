@@ -98,8 +98,8 @@ class MagentoModuleController extends Controller
                 $items->where('magento_modules.site_impact', $request->site_impact);
             }
 
-            if (isset($request->status)) {
-                $items->where('magento_modules.status', $request->status);
+            if (isset($request->modules_status)) {
+                $items->where('magento_modules.status', $request->modules_status);
             }
             if (isset($request->dev_verified_by)) {
                 $items->whereIn('magento_modules.dev_verified_by', $request->dev_verified_by);
@@ -322,7 +322,7 @@ class MagentoModuleController extends Controller
      */
     public function getRemarks($magento_module, $type)
     {
-        $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
+        $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->where('type', $type)->latest()->get();
 
         return response()->json([
             'status' => true,
