@@ -4888,6 +4888,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+    Route::get('task-categories', [Select2Controller::class, 'taskCategory'])->name('select2.taskcategories');
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');

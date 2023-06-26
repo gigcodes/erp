@@ -15,6 +15,7 @@ use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
+use App\TaskCategory;
 
 class Select2Controller extends Controller
 {
@@ -480,5 +481,25 @@ class Select2Controller extends Controller
             ];
         }
         return response()->json($result);*/
+    }
+
+    public function taskCategory(Request $request)
+    {
+        $taskCategories = TaskCategory::where('is_approved', 1)->where('parent_id', 0)->get()->toArray();
+
+        if (! empty($request->q)) {
+            $taskCategories->where(function ($q) use ($request) {
+                $q->where('title', 'LIKE', $request->q . '%');
+            });
+        }
+
+        foreach ($taskCategories as $cat) {
+            $result['items'][] = [
+                'id' => $cat['id'],
+                'text' => $cat['title'],
+            ];
+        }
+
+        return response()->json($result);
     }
 }
