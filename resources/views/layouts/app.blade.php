@@ -72,7 +72,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             margin-left: 0px !important;
         }
         #quick-sidebars ul {
-            gap: 5px;
+            gap: 2px;
         }
         .primary-header .list-unstyled.components {
             margin-left: 0px;

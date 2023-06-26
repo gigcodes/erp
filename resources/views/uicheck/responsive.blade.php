@@ -8,6 +8,26 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style type="text/css">
+	.btn.btn-image {
+		margin-top: 0;
+	}
+	.gap-5 {
+		gap: 5px;
+	}
+
+	.items-center {
+		align-items: center;
+	}
+
+	.uicheck-username {
+		width: 130px;
+	}
+
+	.btn-group-xs > .btn, .btn-xs {
+		padding: 1px 1px !important;
+		font-size: 15px !important;
+	}
+	
 	.preview-category input.form-control {
 		width: auto;
 	}
@@ -216,7 +236,7 @@
 						@if (Auth::user()->isAdmin())
 							<th style="width: auto">User Name</th>
 						@endif
-						<th style="width: 5%">Type</th>
+						<th style="width: 7%">Type</th>
 						<th style="width: auto">Device1 (1024px)</th>
 						<th style="width: auto">Device2 (767px)</th>
 						<th style="width: auto">Device3 (1920px)</th>
@@ -250,12 +270,12 @@
 							<tr>
 								{{-- <td>{{$uiDevData->id}}</td> --}}
 								<td>{{$uiDevData->uicheck_id}}</td>
-								<td class="expand-row-msg" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 30, '..')}} @else   @endif</span>
+								<td class="expand-row-msg uicheck-username" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 12, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
 								</td>
-								<td class="expand-row-msg" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span style="word-break:break-all;" class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->website, 30, '..')}} @else   @endif</span>
+								<td class="expand-row-msg uicheck-username" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span style="word-break:break-all;" class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->website != '') {{ Str::limit($uiDevData->website, 10, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
 								</td>
 								{{-- <td>
@@ -267,15 +287,17 @@
 									</button>
 								</td> --}}
 								@if (Auth::user()->isAdmin())
-									<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 30, '..')}} @else   @endif</span>
+									<td class="expand-row-msg uicheck-username" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 12, '..')}} @else   @endif</span>
 										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
-										<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
-										<input data-id="{{$uiDevData->uicheck_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
+										<div class="flex items-center gap-5">
+											<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+											<input class="mt-0 shadow-none" data-id="{{$uiDevData->uicheck_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
+										</div>
 									</td>
 								@endif
 
-								<td>{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
+								<td class="uicheck-username">{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
 							
 								<td>
 									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
@@ -392,7 +414,7 @@
 											?>
 								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
 									
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:80% !important;float: left;"]); ?>
+									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
 									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
 							</tr>
 						
