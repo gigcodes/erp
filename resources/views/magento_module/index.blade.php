@@ -7,6 +7,20 @@
 @section('styles')
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style>
+        .general-remarks {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gap-5 {
+            gap: 5px;
+        }
+
+        .module-text {
+            width: 80px;
+        }
+
         .users {
             display: none;
         }
@@ -75,11 +89,15 @@
             }
         }
         .table  select.form-control{
-            width: 60px !important;
-             padding: 5px;
+            width: 130px !important;
+            padding: 5px;
         }
        .table input.form-control{
             width: 90px !important;
+        }
+
+        .general-remarks input.remark-input {
+            width: 130px !important;
         }
     </style>
 @endsection
@@ -223,7 +241,7 @@
                 <thead>
                     <tr>
                         <th> Id </th>
-                        <th width="200px"> Remark </th>
+                        <th> Remark </th>
                         <th> Category </th>
                         <th> Description </th>
                         <th> Name </th>
@@ -413,15 +431,16 @@
                         name: 'magento_modules.last_message',
                         render: function(data, type, row, meta) {
                             
-                            let message = `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`;
+                            let message = `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="Remark" />`;
 
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
-                            let retun_data = `${data} <div class=""> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                                // data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                                data = (data == null) ? '' : '';
+                            let retun_data = `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
                             
                             return retun_data;
                         }
@@ -457,13 +476,18 @@
                         name: 'magento_modules.module_description',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
                     {
                         data: 'module',
                         name: 'magento_modules.module',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            data=(data == null) ? '' : `<div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
+                        }
                     },
                     {
                         data: 'api',
@@ -477,9 +501,9 @@
                             let html_data = ``;
                             
                             if(data == 1){
-                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -498,9 +522,9 @@
                             let show_button = `<button type="button" class="btn btn-xs show-cron_job-modal" title="Show Cron History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             
                             if(data == 1){
-                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button} </div>`;
                             }
                             return  html_data;
                         }
@@ -573,7 +597,7 @@
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="dev" data-id="${row['id']}" title="Add New Dev Remark" ><img src="/images/add.png"></button>
                                 <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            return `<div class="">${dev_html} <br><b>Remark:</b> ${remark_history_button}</div>`;
+                            return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                         }
                     },
                     {
@@ -595,7 +619,7 @@
                             let dev_status_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                                 
-                            return `<div class="">${dev_html} ${dev_status_history_button}</div>`;
+                            return `<div class="flex items-center gap-5">${dev_html} ${dev_status_history_button}</div>`;
                         }
                     },
                     /*{
@@ -633,7 +657,7 @@
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="lead" data-id="${row['id']}" title="Add New Lead Remark" ><img src="/images/add.png"></button>
                                 <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            return `<div class="">${dev_html} <br><b>Remark:</b> ${remark_history_button}</div>`;
+                            return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                             
                         }
                     },
@@ -656,7 +680,7 @@
                             let lead_status_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            return `<div class="">${dev_html} ${lead_status_history_button}</div>`;
+                            return `<div class="flex items-center gap-5">${dev_html} ${lead_status_history_button}</div>`;
                         }
                     },
                     /*{
@@ -707,9 +731,9 @@
                             let show_button = `<button type="button" class="btn btn-xs show-is_customized-modal" title="Show 3rd party JS History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             
                             if(data == 1){
-                                html_data = `<div class=""> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class=""> ${html}  ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -740,9 +764,9 @@
                             
                             
                             if(data == 1){
-                                html_data = `<div class=""> ${html} ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html} ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class=""> ${html} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html} ${show_button} </div>`;
                             }
                             return html_data;
                         }
