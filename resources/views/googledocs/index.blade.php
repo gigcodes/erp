@@ -384,11 +384,6 @@ $(document).on('click', '.permissionview', function (e) {
         $(this).unbind('submit').submit()
         });
 
-        $('.select_all_doc').on('change', function() {
-            var isChecked = $(this).prop('checked');
-            $('.google_doc_check').prop('checked', isChecked);
-      });
-    });
 
     $('#GoogleDocRemovePermissionModal').on('submit', function(e) {
         e.preventDefault(); 
@@ -426,7 +421,8 @@ $(document).on('click', '.permissionview', function (e) {
         $('.select_all_doc').on('change', function() {
             var isChecked = $(this).prop('checked');
             $('.google_doc_check').prop('checked', isChecked);
-      });
+        });
+    });
     
     </script>
 @endsection

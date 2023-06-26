@@ -197,85 +197,79 @@ $(document).on('click', '.filepermissionupdate', function (e) {
     });
 
     $(document).ready(function() {
-    $('#updateMulitipleGoogleFilePermissionModal').on('submit', function(e) {
-        e.preventDefault();
+        $('#updateMulitipleGoogleFilePermissionModal').on('submit', function(e) {
+            e.preventDefault();
 
-        var selectedCheckboxes = [];
-        var fileIDs = [];
+            var selectedCheckboxes = [];
+            var fileIDs = [];
 
-        if ($('.select_all').prop('checked')) {
-            $('.fileCheckbox').each(function() {
-                var fileID = $(this).data('id');
-                var checkboxValue = $(this).val();
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
 
-                fileIDs.push(fileID);
-                selectedCheckboxes.push(checkboxValue);
-            });
-        } else {
-            $('input[name="fileCheckbox"]:checked').each(function() {
-                var fileID = $(this).data('id');
-                var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
 
-                fileIDs.push(fileID);
-                selectedCheckboxes.push(checkboxValue);
-            });
-        }
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
 
-        if (selectedCheckboxes.length === 0) {
-            alert('Please select at least one checkbox.');
-            return;
-        }
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
 
-        $('#multiple_file_id').val(selectedCheckboxes.join(','));
+            $('#multiple_file_id').val(selectedCheckboxes.join(','));
 
-        $(this).unbind('submit').submit();
-    });
+            $(this).unbind('submit').submit();
+        });
 
-    $('.select_all').on('change', function() {
-        var isChecked = $(this).prop('checked');
-        $('.fileCheckbox').prop('checked', isChecked);
-    });
-});
+        $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
+            e.preventDefault();
 
+            var selectedCheckboxes = [];
+            var fileIDs = [];
 
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
 
-    $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
-        e.preventDefault();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
 
-        var selectedCheckboxes = [];
-        var fileIDs = [];
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
 
-        if ($('.select_all').prop('checked')) {
-            $('.fileCheckbox').each(function() {
-                var fileID = $(this).data('id');
-                var checkboxValue = $(this).val();
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
 
-                fileIDs.push(fileID);
-                selectedCheckboxes.push(checkboxValue);
-            });
-        } else {
-            $('input[name="fileCheckbox"]:checked').each(function() {
-                var fileID = $(this).data('id');
-                var checkboxValue = $(this).val();
+            $('#remove_file_ids').val(selectedCheckboxes.join(','));
 
-                fileIDs.push(fileID);
-                selectedCheckboxes.push(checkboxValue);
-            });
-        }
+            $(this).unbind('submit').submit();
+        });
 
-        if (selectedCheckboxes.length === 0) {
-            alert('Please select at least one checkbox.');
-            return;
-        }
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.fileCheckbox').prop('checked', isChecked);
+        });
 
-        $('#remove_file_ids').val(selectedCheckboxes.join(','));
-
-        $(this).unbind('submit').submit();
-    });
-
-    $('.select_all').on('change', function() {
-        var isChecked = $(this).prop('checked');
-        $('.fileCheckbox').prop('checked', isChecked);
     });
     </script>
 @endsection
