@@ -648,8 +648,8 @@ class GoogleDocController extends Controller
                 }
             }
 
-            $readUsers = array_diff($readArray,explode(',', $file->read));
-            $writeUsers = array_diff($writeArray,explode(',', $file->write));
+            $readUsers = array_diff(explode(',', $file->read),$readArray);
+            $writeUsers = array_diff(explode(',', $file->write),$writeArray);
             $file->read = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();

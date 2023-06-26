@@ -408,8 +408,8 @@ class GoogleScreencastController extends Controller
                     $driveService->permissions->delete($file->google_drive_file_id->docId, $permission['id']);
                 }
             }    
-            $readUsers = array_diff($readArray,explode(',', $file->read));
-            $writeUsers = array_diff($writeArray,explode(',', $file->write));
+            $readUsers = array_diff(explode(',', $file->read),$readArray,);
+            $writeUsers = array_diff(explode(',', $file->write),$writeArray,);
             $file->read = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();
