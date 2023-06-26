@@ -510,6 +510,7 @@ Route::middleware('auth')->group(function () {
 /** Magento Module */
 
 Route::middleware('auth')->group(function () {
+    Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');

@@ -46,7 +46,7 @@ class MagentoModuleController extends Controller
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
-        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id')->get();
+        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
         $verified_status_array = $verified_status->pluck('name', 'id');
 
         if ($request->ajax()) {
@@ -666,5 +666,18 @@ class MagentoModuleController extends Controller
         $history->save();
 
         return true;
+    }
+
+    public function verifiedStatusUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = MagentoModuleVerifiedStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The verified status color updated successfully.');
     }
 }

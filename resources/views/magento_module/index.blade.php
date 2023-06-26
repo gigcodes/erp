@@ -208,7 +208,8 @@
 
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magento Module Create </button>
 
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatus"> Verified Status </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatus"> Add Verified Status </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatusList"> List Verified Status </button>
                     </div>
                 </div>
             </form>
@@ -287,6 +288,8 @@
     @include('magento_module.partials.form_modals')
     {{-- magentoModuleVerifiedStatus --}} {{-- magentoModuleVerifiedStatus --}}
     @include('magento_module.partials.mm_verified_status_form_modals')
+    {{-- magentoModuleVerifiedStatusList --}} {{-- magentoModuleVerifiedStatusList --}}
+    @include('magento_module.partials.mm_verified_status_list_modals')
     {{-- apiDataAddModal --}}
     @include('magento_module.partials.api_form_modals')
     {{-- cronJobDataAddModal --}}
