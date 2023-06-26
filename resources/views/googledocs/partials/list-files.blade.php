@@ -7,7 +7,7 @@
 @endphp
 @foreach ($data as $key => $file)
 <tr>
-    <td><input type="checkbox" name="google_doc_check" class="google_doc_check" value="{{ $file->id }}" data-file="{{ $file->docId }}"></td>
+    <td><input type="checkbox" name="google_doc_check" class="google_doc_check" value="{{ $file->id }}" data-file="{{ $file->docId }}" data-id="{{ $file->id }}"></td>
     <td>{{ ++$i }}</td>
     <td>{{ $file->name }}</td>
     <td>

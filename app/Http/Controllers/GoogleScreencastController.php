@@ -311,12 +311,13 @@ class GoogleScreencastController extends Controller
 
     public function addMultipleDocPermission(Request $request)
     {
-        $fileIds = request('file_id');
+        $fileIds = explode(',', request('multiple_file_id'));
+        $fileIds = array_map('intval', $fileIds);
         $readData = request('read');
         $writeData = request('write');
 
         foreach ($fileIds as $fileId) {
-            $fileData = GoogleScreencast::find($fileId->id);
+            $fileData = GoogleScreencast::find($fileId);
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -379,14 +380,14 @@ class GoogleScreencastController extends Controller
 
     public function driveFileRemovePermission(Request $request)
     {
-        $fileId = request('id');
+        $fileIds = explode(',', request('multiple_file_id'));
+        $fileIds = array_map('intval', $fileIds);
         $readArray = [request('read')];
         $writeArray =  [request('write')];
 
-        $files = GoogleScreencast::where('google_drive_file_id', $fileId)->get();
-
-        foreach ($files as $file)
+        foreach ($fileIds as $fileId)
         {
+            $file = GoogleScreencast::where('google_drive_file_id', $fileId)->get();
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -415,7 +416,6 @@ class GoogleScreencastController extends Controller
             $file->save();
         }
 
-        return back()->with('success', 'Permission successfully removed');
-        
+        return back()->with('success', 'Permission successfully removed');     
     }
 }

@@ -618,14 +618,15 @@ class GoogleDocController extends Controller
 
     public function googleDocRemovePermission(Request $request)
     {
-        $fileId = request('id');
+        $fileIds = explode(',', request('ids'));
+        $fileIds = array_map('intval', $fileIds);
         $readArray = [request('read')];
         $writeArray =  [request('write')];
 
-        $files = GoogleDoc::where('docId', $fileId)->get();
 
-        foreach ($files as $file)
+        foreach ($fileIds as $fileId)
         {
+            $file = GoogleDoc::where('docId', $fileId)->get();
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -660,7 +661,8 @@ class GoogleDocController extends Controller
     
     public function addMulitpleDocPermission(Request $request)
     {
-        $fileIds = request('ids');
+        $fileIds = explode(',', request('ids'));
+        $fileIds = array_map('intval', $fileIds);
         $readData = request('read');
         $writeData = request('write');
         $permissionEmails = [];
@@ -676,7 +678,7 @@ class GoogleDocController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
-            $fileData = GoogleDoc::find($fileId->id);
+            $fileData = GoogleDoc::find($fileId);
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
                 //Remove Permission

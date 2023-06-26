@@ -74,7 +74,7 @@
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateGoogleDocPermissionModal">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updatemultipleGoogleDocPermissionModal">
                     Add Permission
                   </button>   
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleDocRemovePermissionModal">
@@ -350,75 +350,84 @@ $(document).on('click', '.permissionview', function (e) {
     });
 
     $(document).ready(function() {
-        $('#updateGoogleDocPermissionModal').on('submit', function(e) {
-            e.preventDefault();
-            var selectedCheckboxes = [];
-            if ($('.select_all_doc').prop('checked')) {
-                // "select_all" checkbox is checked, get all file IDs
-                selectedCheckboxes = $('.google_doc_check').map(function() {
-                    return $(this).data('file');
-                }).get();
+        $('#updatemultipleGoogleDocPermissionModal').on('submit', function(e) {
+        e.preventDefault();
+
+        var selectedCheckboxes = [];
+        var fileIDs = [];
+
+        if ($('.select_all_doc').prop('checked')) {
+                $('.google_doc_check').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
             } else {
-                // Individual checkboxes are checked, get selected file IDs
                 $('input[name="google_doc_check"]:checked').each(function() {
-                    var fileId = $(this).data('file');
-                    selectedCheckboxes.push(fileId);
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
                 });
             }
 
             if (selectedCheckboxes.length === 0) {
-                // Display an alert or perform any other action
                 alert('Please select at least one checkbox.');
-                return; // Stop further execution
+                return;
             }
 
-            // You can use the selected values as desired (e.g., assign them to a hidden input field)
-            $('#id').val(selectedCheckboxes);
+        $('#ids').val(selectedCheckboxes.join(','));
 
-            console.log(selectedCheckboxes);
-
-            // Submit the form
-            $(this).unbind('submit').submit();
+        $(this).unbind('submit').submit()
         });
 
         $('.select_all_doc').on('change', function() {
             var isChecked = $(this).prop('checked');
             $('.google_doc_check').prop('checked', isChecked);
-        });
+      });
     });
 
-    $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
-            e.preventDefault(); // Prevent the default form submission
+    $('#GoogleDocRemovePermissionModal').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
 
-            var selectedCheckboxes = [];
+        var selectedCheckboxes = [];
+        var fileIDs = [];
 
-            if ($('.select_all').prop('checked')) {
-                // "select_all" checkbox is checked, get all file IDs
-                selectedCheckboxes = $('.myCheckbox').map(function() {
-                    return $(this).data('file');
-                }).get();
+        if ($('.select_all_doc').prop('checked')) {
+                $('.google_doc_check').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
             } else {
-                // Individual checkboxes are checked, get selected file IDs
-                $('input[name="myCheckbox"]:checked').each(function() {
-                    var fileId = $(this).data('file');
-                    selectedCheckboxes.push(fileId);
+                $('input[name="google_doc_check"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
                 });
             }
 
             if (selectedCheckboxes.length === 0) {
-                // Display an alert or perform any other action
                 alert('Please select at least one checkbox.');
-                return; // Stop further execution
+                return;
             }
 
-            // You can use the selected values as desired (e.g., assign them to a hidden input field)
-            $('#ids').val(selectedCheckboxes);
+        $('#ids').val(selectedCheckboxes.join(','));
 
-            console.log(selectedCheckboxes);
-
-            // Submit the form
-            $(this).unbind('submit').submit();
+        $(this).unbind('submit').submit()
         });
+        
+        $('.select_all_doc').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.google_doc_check').prop('checked', isChecked);
+      });
     
     </script>
 @endsection

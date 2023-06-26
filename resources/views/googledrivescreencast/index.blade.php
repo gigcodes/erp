@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateGoogleFilePermissionModal">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateMulitipleGoogleFilePermissionModal">
                   Add Permission
                 </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleFileRemovePermissionModal">
@@ -196,81 +196,89 @@ $(document).on('click', '.filepermissionupdate', function (e) {
 
     });
 
-        $(document).ready(function() {
-        $('#updateGoogleFilePermissionModal').on('submit', function(e) {
-            e.preventDefault(); // Prevent the default form submission
-
-            var selectedCheckboxes = [];
-
-            if ($('.select_all').prop('checked')) {
-                // "select_all" checkbox is checked, get all file IDs
-                selectedCheckboxes = $('.myCheckbox').map(function() {
-                    return $(this).data('file');
-                }).get();
-            } else {
-                // Individual checkboxes are checked, get selected file IDs
-                $('input[name="myCheckbox"]:checked').each(function() {
-                    var fileId = $(this).data('file');
-                    selectedCheckboxes.push(fileId);
-                });
-            }
-
-            if (selectedCheckboxes.length === 0) {
-                // Display an alert or perform any other action
-                alert('Please select at least one checkbox.');
-                return; // Stop further execution
-            }
-
-            // You can use the selected values as desired (e.g., assign them to a hidden input field)
-            $('#id').val(selectedCheckboxes);
-
-            console.log(selectedCheckboxes);
-
-            // Submit the form
-            $(this).unbind('submit').submit();
-        });
-
-        $('.select_all').on('change', function() {
-            var isChecked = $(this).prop('checked');
-            $('.myCheckbox').prop('checked', isChecked);
-        });
-    });
-
-
-
-    $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
+    $(document).ready(function() {
+    $('#updateMulitipleGoogleFilePermissionModal').on('submit', function(e) {
+        e.preventDefault();
 
         var selectedCheckboxes = [];
+        var fileIDs = [];
 
         if ($('.select_all').prop('checked')) {
-            // "select_all" checkbox is checked, get all file IDs
-            selectedCheckboxes = $('.myCheckbox').map(function() {
-                return $(this).data('file');
-            }).get();
+            $('.fileCheckbox').each(function() {
+                var fileID = $(this).data('id');
+                var checkboxValue = $(this).val();
+
+                fileIDs.push(fileID);
+                selectedCheckboxes.push(checkboxValue);
+            });
         } else {
-            // Individual checkboxes are checked, get selected file IDs
-            $('input[name="myCheckbox"]:checked').each(function() {
-                var fileId = $(this).data('file');
-                selectedCheckboxes.push(fileId);
+            $('input[name="fileCheckbox"]:checked').each(function() {
+                var fileID = $(this).data('id');
+                var checkboxValue = $(this).val();
+
+                fileIDs.push(fileID);
+                selectedCheckboxes.push(checkboxValue);
             });
         }
 
         if (selectedCheckboxes.length === 0) {
-            // Display an alert or perform any other action
             alert('Please select at least one checkbox.');
-            return; // Stop further execution
+            return;
         }
 
-        // You can use the selected values as desired (e.g., assign them to a hidden input field)
-        $('#ids').val(selectedCheckboxes);
+        $('#multiple_file_id').val(fileIDs.join(','));
+        $('#ids').val(selectedCheckboxes.join(','));
 
-        console.log(selectedCheckboxes);
-
-        // Submit the form
         $(this).unbind('submit').submit();
-        });
+    });
 
+    $('.select_all').on('change', function() {
+        var isChecked = $(this).prop('checked');
+        $('.fileCheckbox').prop('checked', isChecked);
+    });
+});
+
+
+
+    $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
+        e.preventDefault();
+
+        var selectedCheckboxes = [];
+        var fileIDs = [];
+
+        if ($('.select_all').prop('checked')) {
+            $('.fileCheckbox').each(function() {
+                var fileID = $(this).data('id');
+                var checkboxValue = $(this).val();
+
+                fileIDs.push(fileID);
+                selectedCheckboxes.push(checkboxValue);
+            });
+        } else {
+            $('input[name="fileCheckbox"]:checked').each(function() {
+                var fileID = $(this).data('id');
+                var checkboxValue = $(this).val();
+
+                fileIDs.push(fileID);
+                selectedCheckboxes.push(checkboxValue);
+            });
+        }
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
+
+        $('#multiple_file_id').val(fileIDs.join(','));
+        $('#ids').val(selectedCheckboxes.join(','));
+
+        $(this).unbind('submit').submit();
+    });
+
+    $('.select_all').on('change', function() {
+        var isChecked = $(this).prop('checked');
+        $('.fileCheckbox').prop('checked', isChecked);
+    });
     </script>
 @endsection
 
