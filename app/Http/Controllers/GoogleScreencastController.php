@@ -311,13 +311,15 @@ class GoogleScreencastController extends Controller
 
     public function addMultipleDocPermission(Request $request)
     {
-        $fileIds = explode(',', request('multiple_file_id'));
-        $fileIds = array_map('intval', $fileIds);
+        $filePKIds = explode(',', request('multiple_file_id'));
+        $filePKIds = array_map('intval', $filePKIds);
         $readData = request('read');
         $writeData = request('write');
 
-        foreach ($fileIds as $fileId) {
-            $fileData = GoogleScreencast::find($fileId);
+        foreach ($filePKIds as $filePKId) {
+            $fileData = GoogleScreencast::find($filePKId);
+            $fileId = $fileData->google_drive_file_id;
+
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -404,12 +406,12 @@ class GoogleScreencastController extends Controller
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
                 //Remove old Permission
-                if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
-                    $driveService->permissions->delete($file->google_drive_file_id->docId, $permission['id']);
+                if (in_array($permission['emailAddress'], $readArray) && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($file->google_drive_file_id, $permission['id']);
                 }
             }    
-            $readUsers = array_diff(explode(',', $file->read),$readArray,);
-            $writeUsers = array_diff(explode(',', $file->write),$writeArray,);
+            $readUsers = array_diff(explode(',', $file->read), $readArray);
+            $writeUsers = array_diff(explode(',', $file->write), $writeArray);
             $file->read = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();

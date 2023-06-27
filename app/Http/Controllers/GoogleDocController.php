@@ -643,7 +643,7 @@ class GoogleDocController extends Controller
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
                 //Remove old Permission
-                if ($permission['emailAddress'] == $request->remove_permission && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                if (in_array($permission['emailAddress'], $readArray) && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
                     $driveService->permissions->delete($file->docId, $permission['id']);
                 }
             }
@@ -668,6 +668,7 @@ class GoogleDocController extends Controller
         $permissionEmails = [];
     
         foreach ($fileIds as $fileId) {
+            $fileData = GoogleDoc::find($fileId);
             $client = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
@@ -677,13 +678,13 @@ class GoogleDocController extends Controller
             // Specify what fields you want
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
-            $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
-            $fileData = GoogleDoc::find($fileId);
+            $permissions = $driveService->permissions->listPermissions($fileData->docId, $parameters);
+            
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
                 //Remove Permission
                 if ($permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
-                    $driveService->permissions->delete($fileId, $permission['id']);
+                    $driveService->permissions->delete($fileData->docId, $permission['id']);
                 }
             }
             //assign permission based on requested data
@@ -698,7 +699,7 @@ class GoogleDocController extends Controller
                         'emailAddress' => $email,
                     ]);
 
-                    $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                    $request = $driveService->permissions->create($fileData->docId, $userPermission, ['fields' => 'id']);
                     $batch->add($request, 'user' . $index);
                     $index++;
                 }
@@ -713,7 +714,7 @@ class GoogleDocController extends Controller
                         'emailAddress' => $email,
                     ]);
 
-                    $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                    $request = $driveService->permissions->create($fileData->docId, $userPermission, ['fields' => 'id']);
                     $batch->add($request, 'user' . $index);
                     $index++;
                 }
