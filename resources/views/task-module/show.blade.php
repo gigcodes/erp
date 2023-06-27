@@ -923,8 +923,11 @@
                                                     <textarea rows="2" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message"></textarea>
                                                     {{-- <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value=""> --}}
                                                     <div class="d-flex">
-                                                        <div style="max-width: 30px;">
-                                                            <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+                                                        <div style="">
+                                                            <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+
+                                                            <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
+                                                            <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
                                                         </div>
                                                         @if (isset($task->message))
                                                             <div style="max-width: 30px;">
@@ -940,6 +943,9 @@
                                                     </div>
                                                     @if (isset($task->message))
                                                         <div style="margin-bottom:10px;width: 100%;">
+                                                            @if (isset($task->is_audio))
+                                                                <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
+                                                            @else
                                                             <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                 <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                 <?php
@@ -963,6 +969,7 @@
                                                                 {{ $task->message }}
                                                                 </span>
                                                             </div>
+                                                            @endif
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1698,7 +1705,52 @@
 
 	</div>
 </div>
+<div id="record-voice-notes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Record & Send Voice Message</h4>
+            </div>
+            <div class="modal-body" >
+                <Style>
+                    #rvn_status:after {
+                        overflow: hidden;
+                        display: inline-block;
+                        vertical-align: bottom;
+                        -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+                        animation: ellipsis steps(4, end) 900ms infinite;
+                        content: "\2026";
+                        /* ascii code for the ellipsis character */
+                        width: 0px;
+                        }
 
+                        @keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+
+                        @-webkit-keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+                    </style>
+                <input type="hidden" name="rvn_id" id="rvn_id" value="">
+                <input type="hidden" name="rvn_tid" id="rvn_tid" value="">
+                <button id="rvn_recordButton" class="btn btn-s btn-secondary">Start Recording</button>
+                <button id="rvn_pauseButton" class="btn btn-s btn-secondary"disabled>Pause Recording</button>
+                <button id="rvn_stopButton" class="btn btn-s btn-secondary"disabled>Stop Recording</button>
+                <div id="formats">Format: start recording to see sample rate</div>
+                <div id="rvn_status">Status: Not started...</div>
+                <div id="recordingsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -1710,6 +1762,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 
     <script src="{{asset('js/bootstrap-multiselect.min.js')}}"></script>
+    <script type="text/javascript" src="/js/recorder.js"></script>
+    <script type="text/javascript" src="/js/record-voice-notes.js"></script>
     <script>
         function Showactionbtn(id){
             $(".action-btn-tr-"+id).toggleClass('d-none')
@@ -2273,10 +2327,12 @@
             var task_id = $("#confirm_task_id").val();
             var message = $("#confirm_message").val();
             var status = $("#confirm_status").val();
+            var is_audio=$("#is_audio_"+task_id).val();
             //    alert(message)
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", status);
+            data.append("is_audio", is_audio);
             // var checkedValue = $('.send_message_recepients:checked').val();
             var checkedValue = [];
             var i = 0;
@@ -3907,6 +3963,24 @@
                     }
                 });
             });
+        });
+        $( document ).ready(function() {
+            $(document).on('click', '.btn-trigger-rvn-modal',function () {
+                var id=$(this).attr('data-id')
+                var tid=$(this).attr('data-tid')
+                $("#record-voice-notes #rvn_id").val(id);
+                $("#record-voice-notes #rvn_tid").val(tid);
+                $("#record-voice-notes").modal("show");
+            });
+            $('#record-voice-notes').on('hidden.bs.modal', function () {
+                $("#rvn_stopButton").trigger("click");
+                $("#formats").html("Format: start recording to see sample rate");
+                $("#rvn_id").val(0);
+                $("#rvn_tid").val(0);
+                setTimeout(function () {
+                    $("#recordingsList").html('');
+                }, 2500);
+            })
         });
     </script>
 @endsection

@@ -40,12 +40,19 @@ class DialogFlowService
         $this->credentials = ['credentials' => $googleAccount->service_file];
     }
 
-    public function createIntent($parameters, $updateId)
+    public function createIntent($parameters, $updateId = null)
     {
-        $detectIntent = $this->detectIntent(null, $parameters['name']);
-        if ($detectIntent->getIntent()->getDisplayName() == $parameters['name']) {
-            $name = explode('/', $detectIntent->getIntent()->getName());
-            $updateId = $name[count($name) - 1];
+//        $detectIntent = $this->detectIntent(null, $parameters['name']);
+//        if ($detectIntent->getIntent()->getDisplayName() == $parameters['name']) {
+//            $name = explode('/', $detectIntent->getIntent()->getName());
+//            $updateId = $name[count($name) - 1];
+//        }
+        if (!$updateId) {
+            $intents = $this->listIntents();
+            $findIntent = array_search($parameters['name'], array_column($intents, 'display_name'));
+            if ($findIntent) {
+                $updateId = $intents[$findIntent]['id'];
+            }
         }
         // Create Intents
         $intentClient = new IntentsClient($this->credentials);
@@ -103,6 +110,21 @@ class DialogFlowService
         $response = $intentsClient->deleteIntent($intentName);
         $intentsClient->close();
         return $response;
+    }
+
+    public function listIntents() {
+        $intentsClient = new IntentsClient($this->credentials);
+        $parent = $intentsClient->agentName($this->googleAccount->project_id);
+        $response = $intentsClient->listIntents($parent, ['pageSize' => 1000]);
+
+        $intents = [];
+        foreach ($response->iterateAllElements() as $intent) {
+            $name = explode('/', $intent->getName());
+            $name = $name[count($name) - 1];
+            $intents[] = ['display_name' => $intent->getDisplayName(), 'id' => $name];
+        }
+
+        return $intents;
     }
 
     public function createEntity($entityTypeId, $entityValue, $synonyms = [])
@@ -228,7 +250,7 @@ class DialogFlowService
     {
         $variables = [];
         foreach (self::VARIABLES as $VARIABLE) {
-            if (str_contains($text, "#{$VARIABLE}")) {
+            if (str_contains($text, "#{" . $VARIABLE. "}")) {
                 $variables[] = $VARIABLE;
             }
         }
