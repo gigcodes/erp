@@ -5283,11 +5283,14 @@ Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleS
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 
 Route::middleware('auth')->group(function () {
+    Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
 });
 
 /** Website Monitor */
 Route::middleware('auth')->group(function () {
+    Route::get('monitor-server/list', [MonitorServerController::class, 'list'])->name('monitor-server.list');
+
     Route::resource('monitor-server', MonitorServerController::class);
     Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
     Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
