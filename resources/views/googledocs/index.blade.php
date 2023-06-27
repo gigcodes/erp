@@ -74,6 +74,12 @@
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updatemultipleGoogleDocPermissionModal">
+                    Add Permission
+                  </button>   
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleDocRemovePermissionModal">
+                    Remove Permission for mulitiple users
+                  </button>   
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#AddGoogleDocCategoryModal">
                     Create Category
                 </button>
@@ -94,6 +100,7 @@
         <table class="table table-bordered" id="googlefiletranslator-table">
             <thead>
             <tr>
+                <th><input type="checkbox" name="select_all_doc" class="select_all_doc"></th>
                 <th>No</th>
                 <th>File Name</th>
                 <th>Category</th>
@@ -341,5 +348,81 @@ $(document).on('click', '.permissionview', function (e) {
         }
         
     });
+
+    $(document).ready(function() {
+        $('#updatemultipleGoogleDocPermissionModal').on('submit', function(e) {
+        e.preventDefault();
+
+        var selectedCheckboxes = [];
+        var fileIDs = [];
+
+        if ($('.select_all_doc').prop('checked')) {
+                $('.google_doc_check').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="google_doc_check"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+
+        $('#add_doc_ids').val(selectedCheckboxes.join(','));
+
+        $(this).unbind('submit').submit()
+        });
+
+
+    $('#GoogleDocRemovePermissionModal').on('submit', function(e) {
+        e.preventDefault(); 
+        var selectedCheckboxes = [];
+        var fileIDs = [];
+
+        if ($('.select_all_doc').prop('checked')) {
+                $('.google_doc_check').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="google_doc_check"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+
+        $('#remove_doc_ids').val(selectedCheckboxes.join(','));
+
+        $(this).unbind('submit').submit()
+        });
+        
+        $('.select_all_doc').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.google_doc_check').prop('checked', isChecked);
+        });
+    });
+    
     </script>
 @endsection

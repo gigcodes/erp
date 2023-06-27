@@ -169,8 +169,10 @@
                                         <button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"style="padding: 0px 1px;"></i></button>
                                         <?php if (Auth::user()->isAdmin()) { ?>
                                             <button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true" style="padding: 0px 1px;"></i></button>
-                                            <button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
                                         <?php } ?>
+										
+										<button title="Server Access List" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
+
                                         <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true" style="padding: 0px 1px;"><i class="fa fa comment" aria-hidden="true"></i></button>
 
                                         <button type="button" title="Flagged for Plan Task" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}" onclick="updateUserFlagForTaskPlan(this)" class="btn" style="padding: 0px 1px;">
@@ -216,20 +218,45 @@
 						<div class="row">
 					  		<div class="col-md-12">
 					    		<div class="form-group">
-
-					    				<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
+									<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
 
 						         	<label for="meta_title">Server List</label>
 						         	<select class="form-control select2" name="for_server">
-						         		<option value="Erp-Server">Erp-Server</option>
+						         		<option value="">Select Server</option>
 						         		<?php if (isset($servers)) { ?>
                                             <?php foreach ($servers as $server) { ?>
-						         		        <option value="<?php echo $server->name; ?>"><?php echo $server->name; ?></option>
+						         		        <option value="<?php echo $server->id; ?>"><?php echo $server->name; ?></option>
 						         		    <?php } ?>
                                         <?php } ?>
 
 						         	</select>
-						         </div>
+						        </div>
+								<div class="form-group">
+									<label for="public_key">Public Key</label>
+									<textarea class="form-control" name="public_key"></textarea>
+						        </div>
+								<div class="form-group">
+									<label for="access_type">Access Type</label>
+									<div>
+									<div class="form-check form-check-inline">
+											<input class="form-check-input" type="radio" name="access_type" id="access_type_sftp" checked="checked" value="sftp">
+											<label class="form-check-label" for="access_type_sftp">SFTP</label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="radio" name="access_type" id="access_type_ssh" value="ssh">
+											<label class="form-check-label" for="access_type_ssh">SSH</label>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="meta_title">Role</label>
+						         	<select class="form-control select2" name="user_role">
+						         		    <option value="user">User</option>
+						         		    <option value="magento">Magento User</option>
+						         		    <option value="super">Super User</option>
+						         		
+						         	</select>
+						        </div>
 					        </div> 
 					        <div class="col-md-12">
 						    	<div class="form-group">
@@ -247,22 +274,23 @@
 <script type="text/x-jsrender" id="pem-file-user-history-lising">
 	<div class="modal-content">
 	   <div class="modal-header">
-	      <h5 class="modal-title">User Listing</h5>
+	      <h5 class="modal-title">User Access Listing</h5>
 	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	      	<span aria-hidden="true">&times;</span>
 	      </button>
 	   </div>
 	   <div class="modal-body">
-			<div class="row mt-5">		
+			<div class="row">		
 				<div class="col-lg-12">
 					<table class="table table-bordered">
 					    <thead>
 					      <tr>
+					      	<th>Id</th>
 					      	<th>User Id</th>
 					        <th>Server</th>
 					        <th>Username</th>
 					        <th>Event</th>
-					        <th>Created Date</th>
+					        <th>Date</th>
 					        <th>Action</th>
 					      </tr>
 					    </thead>
@@ -273,11 +301,16 @@
 						      	<td>
 						      		<input type="hidden" class="pem_history_id"  value="{{:prop.id}}"/>
 						      		
-						      		{{:prop.user_id}}
+						      		{{:prop.id}}
 
 						      	</td>
+						      	<td>
+								 	{{if prop.user}}
+						      		{{:prop.user.name}}
+									{{/if}}
+						      	</td>
 						        <td>
-						        	{{:prop.server_name}}
+						        	{{:prop.server_name}} ({{:prop.server_ip}})
 						        </td>
 
 						        <td>
@@ -289,10 +322,76 @@
 						        </td>
 
 						        <td>
-						        	{{:prop.created_at}}
+						        	{{:prop.updated_at}}
 						        </td>
 
-						        <td><button title="Delete user" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button></td>
+						        <td>
+									{{if prop.action=='add'}}
+									<a title="Download" href="/user-management/download-pem-file/{{:prop.id}}/" class="btn btn-image download-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-download"></i></a>
+									<?php if (Auth::user()->isAdmin()) { ?>
+									<button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-ban"></i></button>
+									<?php }?>
+									{{/if}}
+									<?php if (Auth::user()->isAdmin()) { ?>
+									<button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
+									<?php }?>
+									{{if prop.action=='add' || prop.action=='disable'}}
+									<?php if (Auth::user()->isAdmin()) { ?>
+									<button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button>
+									<?php }?>
+									{{/if}}
+								</td>
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
+</script>
+
+<script type="text/x-jsrender" id="pem-file-user-history-logs">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Pem file history logs</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>Id</th>
+					        <th>Cmd</th>
+					        <th>Output</th>
+					        <th>Error code</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr class='subMagentoUser'>
+						      	<td>
+						      		{{:prop.id}}
+						      	</td>
+						        <td>
+						        	{{:prop.cmd}}
+						        </td>
+						        <td>
+									<span class="tooltip-cmd-output" title="{{:prop.output_string}}">
+									{{if prop.output_string.length > 30}}
+						        		{{:prop.output_string.substring(0, 30)}}...
+									{{else}}
+										{{:prop.output_string}}
+									{{/if}}
+									</span>
+						        </td>
+						        <td>
+						        	{{:prop.return_var}}
+						        </td>
 						      </tr>
 						    {{/props}}  
 					    </tbody>

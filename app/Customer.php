@@ -109,6 +109,11 @@ class Customer extends Model
         return $this->hasMany(\App\ReturnExchange::class)->orderBy('created_at', 'DESC')->first();
     }
 
+    public function refunds()
+    {
+        return $this->hasMany(\App\ReturnExchange::class)->orderBy('created_at', 'DESC');
+    }
+
     public function suggestion()
     {
         return $this->hasOne(\App\SuggestedProduct::class);
@@ -350,5 +355,15 @@ class Customer extends Model
     public function maillistCustomerHistory()
     {
         return  $this->hasOne(\App\MaillistCustomerHistory::class, 'customer_id', 'id');
+    }
+
+    public function getOrderById($id)
+    {
+        return  $this->orders()->where('id', $id)->first();
+    }
+
+    public function getRefundById($id)
+    {
+        return  $this->refunds()->where('id', $id)->first();
     }
 }

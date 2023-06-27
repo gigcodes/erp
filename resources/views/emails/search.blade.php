@@ -20,14 +20,14 @@
   </td>
   <td>{{ $email->type }}</td>
   <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-  <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
+  {{-- <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
     <span id="td-mini-container-{{$email->id}}" data-body="{{ $email->message }}" class="emailBodyContent">
       <iframe src="" frameborder="0"></iframe>
     </span>
     <span id ="td-full-container-{{$email->id}}" class="hidden">
     <iframe src="data:text/html,rawr" id="listFrame-{{$email->id}}" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('listFrame-{{$email->id}}');"></iframe>
     </span>
-  </td>
+  </td> --}}
   <td width="1%">
     @if($email->status != 'bin')
     <select class="form-control selecte2 status">
@@ -114,7 +114,31 @@
     <a style="padding:3px;" type="button" title="Email Category Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailCategoryChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
 
     <a style="padding:3px;" type="button" title="Email Status Change Logs" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openEmailStatusChangeLogModelPopup(this);"> <i class="fa fa-calendar" aria-hidden="true"></i> </a>
-
+      @if($email->customer_id > 0)
+        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image"
+                onclick="changeSimulatorSetting('customer', {{ $email->customer_id }}, {{ $email->customer_auto_simulator == 0 }})">
+          <i style="color: #757575c7;" class="fa fa-{{$email->customer_auto_simulator == 0 ? 'play' : 'pause'}}"
+             aria-hidden="true"></i>
+        </button>
+        <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $email->customer_id]) }}"
+           title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+      @elseif($email->vendor_id > 0)
+        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image"
+                onclick="changeSimulatorSetting('vendor', {{ $email->vendor_id }}, {{ $email->vendor_auto_simulator == 0 }})">
+          <i style="color: #757575c7;" class="fa fa-{{$email->vendor_auto_simulator == 0 ? 'play' : 'pause'}}"
+             aria-hidden="true"></i>
+        </button>
+        <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $email->vendor_id]) }}"
+           title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+      @elseif($email->supplier_id > 0)
+        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image"
+                onclick="changeSimulatorSetting('vendor', {{ $email->supplier_id }}, {{ $email->supplier_auto_simulator == 0 }})">
+          <i style="color: #757575c7;" class="fa fa-{{$email->supplier_auto_simulator == 0 ? 'play' : 'pause'}}"
+             aria-hidden="true"></i>
+        </button>
+        <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $email->supplier_id]) }}"
+           title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
+      @endif
   </td>
 </tr>
 @endforeach

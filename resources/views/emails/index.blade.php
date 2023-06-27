@@ -187,8 +187,8 @@
         <th width="5%">Receiver</th>
         <th width="4%">Model <br> Type</th>
         <th width="4%">Mail <br> Type</th>
-        <th width="5%">Subject</th>
-        <th width="14%">Body</th>
+        <th width="5%">Subject & Body</th>
+        {{-- <th width="14%">Body</th> --}}
         <th width="8%">Status</th>
         <th width="1%">Draft</th>
         <th width="6%">Error <br> Message</th>
@@ -781,7 +781,9 @@
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="/js/simulator.js"></script>
 <script type="text/javascript">
+  var csrftoken = "{{ csrf_token() }}";
   $(window).scroll(function() {
       if($(window).scrollTop() == $(document).height() - $(window).height()) {
         console.log('ajax call or some other logic to show data here');

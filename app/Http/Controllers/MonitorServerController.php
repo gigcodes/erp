@@ -55,6 +55,17 @@ class MonitorServerController extends Controller
         return view('monitor-server.index', compact('monitorServers'));
     }
 
+    public function list(Request $request)
+    {
+        $perPage = 10; // Number of records per page
+
+        $monitorServers = MonitorServer::latest();
+        $monitorServers = $monitorServers->where('status', 'Off');
+        $monitorServers = $monitorServers->paginate($perPage);
+
+        return response()->json($monitorServers);    
+    }
+
     public function getServerUptimes(Request $request, $id)
     {
         $data = MonitorServersUptime::where('server_id', $id)->orderby('created_at', 'desc')->paginate(20);

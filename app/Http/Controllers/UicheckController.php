@@ -1170,12 +1170,26 @@ class UicheckController extends Controller
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
                                     ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
-
+            $isAdmin = Auth::user()->isAdmin();
+            $show_inactive=0;
+            if($request->show_inactive == 1){
+                $show_inactive=1;
+                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1);
+            }else{
+                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
+            }
+            
+            
+            
+            
             if ($request->status != '') {
                 $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);
             }
-            if ($request->categories != '') {
-                $uiDevDatas = $uiDevDatas->where('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');
+            if (!empty($request->categories) && $request->categories[0] != null) {
+                $uiDevDatas = $uiDevDatas->whereIn('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');
+            }
+            if (!empty($request->store_webs) && $request->store_webs[0] != null) {
+                $uiDevDatas = $uiDevDatas->whereIn('uic.website_id', $request->store_webs)->where('ui_devices.device_no', '1');
             }
             if ($request->id != '') {
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);
@@ -1203,7 +1217,7 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where('ui_devices.user_id', $request->user);
             }
 
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 'uic.lock_developer',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable')
             )->orderBy('uic.id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
 
@@ -1219,7 +1233,7 @@ class UicheckController extends Controller
             $store_websites = StoreWebsite::get()->pluck('website', 'id');
             $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
 
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes'));
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes','show_inactive'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1249,6 +1263,32 @@ class UicheckController extends Controller
             $this->uicheckResponsiveUpdateHistory($request, $old_status);
 
             return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function responseDeviceIsApprovedChange(Request $request)
+    {
+        try {
+            $uiDevDatas = UiDevice::where('device_no', $request->device_no)
+                    ->where('uicheck_id', $request->uicheck_id)
+                    ->first();
+
+            if($uiDevDatas) {
+                if($uiDevDatas->is_approved == 1){
+                    $uiDevDatas->is_approved = 0;
+                    $uiDevDatas->save();
+                } else {
+                    $uiDevDatas->is_approved = 1;
+                    $uiDevDatas->save();
+                }
+                return response()->json(['code' => 200, "status"=> true, "message"=> "Status updated"]);
+            } else {
+                throw new Exception("Record not found");
+            }
+
+            return response()->json(['code' => 200, 'message' => 'Approved succesfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }

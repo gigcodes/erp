@@ -632,7 +632,7 @@ class LiveChatController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'POST', json_encode(['file' => new CURLFILE('/Users/satyamtripathi/PhpstormProjects/untitled/images/1592232591.png')]),
-        json_decode($response), 
+        json_decode($response),
          $httpcode, \App\Http\Controllers\LiveChatController::class, 'curlCall');
         echo $response;
     }
@@ -1418,7 +1418,7 @@ class LiveChatController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
-        $url = 'https://api.livechatinc.com/v2/tickets'; 
+        $url = 'https://api.livechatinc.com/v2/tickets';
 
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -1458,11 +1458,13 @@ class LiveChatController extends Controller
 
         $selectArray[] = 'tickets.*';
         $selectArray[] = 'users.name AS assigned_to_name';
+        $selectArray[] = 'customers.is_auto_simulator AS customer_auto_simulator';
         $query = Tickets::query();
         $query = $query->leftjoin('users', 'users.id', '=', 'tickets.assigned_to');
+        $query = $query->leftjoin('customers', 'customers.id', '=', 'tickets.customer_id');
 
         $query = $query->select($selectArray);
-        //dd($request->all());
+
         if ($request->ticket_id !='') {
             $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
@@ -1517,18 +1519,18 @@ class LiveChatController extends Controller
             $query = $query->whereDate('tickets.created_at', $request->date);
         }
 
-        $pageSize = Setting::get('pagination');
+        $pageSize = Setting::get('pagination',25);
         if ($pageSize == '') {
             $pageSize = 1;
         }
-        
+
         $query = $query->groupBy('tickets.ticket_id');
         $data = $query->orderBy('created_at', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-       
-        if ($request->ajax()) { 
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                'links' => (string) $data->render(),
+                'links' => (string) $data->links(),
                 'count' => $data->total(),
             ], 200);
         }
@@ -2047,7 +2049,7 @@ class LiveChatController extends Controller
                         $jsonResult = json_decode($result); //response decode
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'GET', json_encode($post), $jsonResult, $httpcode, \App\Http\Controllers\LiveChatController::class, 'creditRepush');
-                        curl_close($ch); 
+                        curl_close($ch);
                         $status = 'failure';
                         $code = 500;
                         if ($result == '[]') {

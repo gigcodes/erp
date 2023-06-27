@@ -8,6 +8,26 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style type="text/css">
+	.btn.btn-image {
+		margin-top: 0;
+	}
+	.gap-5 {
+		gap: 5px;
+	}
+
+	.items-center {
+		align-items: center;
+	}
+
+	.uicheck-username {
+		width: 130px;
+	}
+
+	.btn-group-xs > .btn, .btn-xs {
+		padding: 1px 1px !important;
+		font-size: 15px !important;
+	}
+	
 	.preview-category input.form-control {
 		width: auto;
 	}
@@ -99,10 +119,10 @@
 <br />
 <div class="col-lg-12 margin-tb">
 	<div class="row">
-		<div class="col-md-9">
+		<div class="col-md-12">
 			<form>
 				<div class="row">
-					<div class="col-md-2">
+					<div class="col-md-1">
 						<div class="form-group">
 							<input type="text" name="id" id="id" class="form-control" value="{{request('id')}}" placeholder="Please Enter Uicheck Id" />
 						</div>
@@ -114,17 +134,32 @@
 								if(request('categories')){   $categoriesArr = request('categories'); }
 								else{ $categoriesArr = ''; }
 							  ?>
-							<select name="categories" id="store-categories" class="form-control select2">
+							<select name="categories[]" id="store-categories" class="form-control select2" multiple>
 								<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
 								@forelse($site_development_categories as $ctId => $ctName)
-								<option value="{{ $ctId }}" @if($categoriesArr==$ctId) selected @endif>{!! $ctName !!}</option>
+								<option value="{{ $ctId }}" @if($categoriesArr!='' && in_array($ctId,$categoriesArr)) selected @endif>{!! $ctName !!}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
+								if(request('store_webs')){   $store_websArr = request('store_webs'); }
+								else{ $store_websArr = []; }
+							  ?>
+							<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
+								<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
+								@forelse($store_websites as $id=>$asw)
+								<option value="{{ $id }}" @if($store_websArr!='' && in_array($id,$store_websArr)) selected @endif>{{ $asw }}</option>
 								@empty
 								@endforelse
 							</select>
 						</div>
 					</div>
 
-					<div class="col-md-2">
+					<div class="col-md-1">
 						<div class="form-group">
 							{{Form::select('type', [''=>'Select a type']+$allUicheckTypes, request('type') ?? '', array('class'=>'form-control select2'))}}
 						</div>
@@ -160,14 +195,21 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-2 flex" style="align-items: start;">
+						@if (Auth::user()->isAdmin())
+						<select name="show_inactive" id="show_inactive" class="form-control">
+							<option value="">-- Status --</option>
+							<option value="0" @if(request('show_inactive') == 0) selected @endif>Active Records</option>
+							<option value="1" @if(request('show_inactive') == 1) selected @endif>InActive Records</option>
+						</select>
+						@endif
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
 						<a href="{{route('uicheck.responsive')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
 				</div>
 			</form>
 		</div>
-		<div class="col-md-3">
+		<div class="col-md-12 text-right">
 				<a href="/uicheck/device-logs" class="btn btn-secondary my-3"> UI Check Logs</a>&nbsp;
 				@if (Auth::user()->isAdmin())
 				@php
@@ -177,7 +219,10 @@
 				@endphp
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
-			@endif
+				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
+				{{-- <label for="usr">Show Inactive Records:</label>
+				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}> --}}
+				@endif
 		</div>
 	</div>
 </div>
@@ -195,17 +240,17 @@
 						@if (Auth::user()->isAdmin())
 							<th style="width: auto">User Name</th>
 						@endif
-						<th style="width: 5%">Type</th>
-						<th style="width: auto">Device1</th>
-						<th style="width: auto">Device2</th>
-						<th style="width: auto">Device3</th>
-						<th style="width: auto">Device4</th>
-						<th style="width: auto">Device5</th>
-						<th style="width: auto">Device6</th>
-						<th style="width: auto">Device7</th>
-						<th style="width: auto">Device8</th>
+						<th style="width: 7%">Type</th>
+						<th style="width: auto">Device1 (1024px)</th>
+						<th style="width: auto">Device2 (767px)</th>
+						<th style="width: auto">Device3 (1920px)</th>
+						<th style="width: auto">Device4 (1366px)</th>
+						<th style="width: auto">Device5 (320px)</th>
+						<th style="width: auto">Device6 (375px)</th>
+						<th style="width: auto">Device7 (430px)</th>
+						{{-- <th style="width: auto">Device8</th>
 						<th style="width: auto">Device9</th>
-						<th style="width: auto">Device10</th>
+						<th style="width: auto">Device10</th> --}}
 						<th style="width: 150px">Status</th>
 						
 					</tr>
@@ -229,12 +274,12 @@
 							<tr>
 								{{-- <td>{{$uiDevData->id}}</td> --}}
 								<td>{{$uiDevData->uicheck_id}}</td>
-								<td class="expand-row-msg" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 30, '..')}} @else   @endif</span>
+								<td class="expand-row-msg uicheck-username" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 12, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
 								</td>
-								<td class="expand-row-msg" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span style="word-break:break-all;" class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->website, 30, '..')}} @else   @endif</span>
+								<td class="expand-row-msg uicheck-username" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span style="word-break:break-all;" class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->website != '') {{ Str::limit($uiDevData->website, 10, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
 								</td>
 								{{-- <td>
@@ -246,14 +291,17 @@
 									</button>
 								</td> --}}
 								@if (Auth::user()->isAdmin())
-									<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 30, '..')}} @else   @endif</span>
+									<td class="expand-row-msg uicheck-username" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 12, '..')}} @else   @endif</span>
 										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
-										<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+										<div class="flex items-center gap-5">
+											<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+											<input class="mt-0 shadow-none" data-id="{{$uiDevData->uicheck_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
+										</div>
 									</td>
 								@endif
 
-								<td>{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
+								<td class="uicheck-username">{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
 							
 								<td>
 									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
@@ -263,6 +311,9 @@
 									@include('uicheck.partials.device-google-screencast-button')
 									
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '1')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
@@ -271,6 +322,9 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '2')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['3']}} !important" />
@@ -279,6 +333,9 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '3')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
@@ -287,6 +344,9 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '4')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['5']}} !important" />
@@ -295,6 +355,9 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '5')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
@@ -303,6 +366,9 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '6')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
@@ -311,8 +377,11 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '7')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-toggle-off"></i>
+									</button>
 								</td>
-								<td>
+								{{-- <td>
 									<input type="text"  name="uidevmessage8{{$uiDevData->uicheck_id}}" class="uidevmessage8{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['8']}} !important" />
 									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="8" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('8', '{{$uiDevData->uicheck_id}}', '8');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
 									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('8', '{{$uiDevData->uicheck_id}}');"></i>
@@ -335,7 +404,7 @@
 									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="10"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="10" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
-								</td>
+								</td> --}}
 								
 								<?php 
 										$devid = '';
@@ -349,7 +418,7 @@
 											?>
 								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
 									
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:80% !important;float: left;"]); ?>
+									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
 									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
 							</tr>
 						
@@ -748,6 +817,38 @@
 		});
 	});	
 
+	function updateIsApprove(ele, uicheckId, device_no) {
+		approveBtn = jQuery(ele);
+
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/responsive/approve",
+			type: 'POST',
+			data: {
+				device_no : device_no,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			if (response.code == 200) {
+				toastr["success"](response.message);
+				if(approveBtn.find(".fa").hasClass("fa-toggle-on")) {
+					approveBtn.find(".fa").removeClass("fa-toggle-on").addClass("fa-toggle-off");
+				} else {
+					approveBtn.find(".fa").removeClass("fa-toggle-off").addClass("fa-toggle-on");
+				}
+			} else {
+				toastr["error"](response.message);
+			}
+		}).fail(function(errObj) {
+			console.log(errObj);
+			toastr["error"](errObj.message);
+		});
+	}
 	
 	$(document).on("click", "#uidev_update_esttime", function(e) {
 		var uicheckId = $("#uidev_uicheck_id").val();
@@ -938,6 +1039,42 @@
       });
 
 	jQuery(document).ready(function() {
+		$(document).on("change", "#show_lock_rec", function(e) {
+			if (this.checked) {
+				$("#show_inactive").val('1');
+			}else{
+				$("#show_inactive").val('0');
+			}
+			$(".custom-filter").click();
+
+		});
+		$(document).on("change", "#lock_developer", function(e) {
+			console.log("te");
+			var id=$(this).attr('data-id');
+			var type="developer";
+			
+			if (confirm('Are you sure, do you want to perform this action?')) {
+				siteLoader(1);
+				jQuery.ajax({
+					url: "{{ route('uicheck.update.lock') }}",
+					type: 'POST',
+					data: {
+						_token: "{{ csrf_token() }}",
+						id: id,
+						type: type
+					},
+					beforeSend: function() {},
+					success: function(response) {
+						siteLoader(0);
+						siteSuccessAlert(response);
+						location.reload;
+					}
+				}).fail(function(response) {
+					siteErrorAlert(response);
+					siteLoader(0);
+				});
+			}
+		});
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
 
 

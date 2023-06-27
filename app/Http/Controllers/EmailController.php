@@ -70,7 +70,10 @@ class EmailController extends Controller
         $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
-
+        $query = $query->leftJoin('chat_messages','chat_messages.email_id', 'emails.id')
+            ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
+            ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
+            ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id');
         if (count($usernames) > 0) {
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
@@ -104,14 +107,14 @@ class EmailController extends Controller
         // If type is bin, check for status only
         if ($type == 'bin') {
             $trash_query = true;
-            $query = $query->where('status', 'bin');
+            $query = $query->where('emails.status', 'bin');
         } elseif ($type == 'draft') {
-            $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
+            $query = $query->where('is_draft', 1)->where('emails.status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
-            $query = $query->where('status', 'pre-send');
+            $query = $query->where('emails.status', 'pre-send');
         } elseif (! empty($request->type)) {
             $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
+                $query->where('type', $type)->where('emails.status', '<>', 'bin')->where('is_draft', '<>', 1)->where('emails.status', '<>', 'pre-send');
             });
         } else {
             $query = $query->where(function ($query) use ($type) {
@@ -152,7 +155,7 @@ class EmailController extends Controller
             if ($status) {
                 $status = explode(',', $request->status);
                 $query = $query->where(function ($query) use ($status) {
-                    $query->whereIn('status', $status);
+                    $query->whereIn('emails..status', $status);
                 });
             }
             if ($category) {
@@ -181,12 +184,13 @@ class EmailController extends Controller
             $query = $query->where(function ($query) use ($type) {
                 $isDraft = ($type == 'draft') ? 1 : 0;
 
-                return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
+                return $query->where('emails.status', '<>', 'bin')->orWhereNull('emails.status')->where('is_draft', $isDraft);
             });
         }
-
+        $query = $query->select('emails.*', 'chat_messages.customer_id','chat_messages.supplier_id','chat_messages.vendor_id','c.is_auto_simulator as customer_auto_simulator',
+            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
         if ($admin == 1) {
-            $query = $query->orderByDesc('created_at');
+            $query = $query->orderByDesc('emails.created_at');
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
             if (count($usernames) > 0) {
@@ -202,7 +206,7 @@ class EmailController extends Controller
                     }
                 });
 
-                $query = $query->orderByDesc('created_at');
+                $query = $query->orderByDesc('emails.created_at');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             } else {
                 $emails = (new Email())->newQuery();

@@ -37,16 +37,22 @@ class GoogleDialogFlowController extends Controller
                 'site_id' => 'required|integer',
                 'project_id' => 'required|string',
                 'service_file' => 'required|mimes:json',
+                'email' => 'required|email',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
             }
             $serviceFile = MediaUploader::fromSource($request->file('service_file'))
                 ->toDirectory('googleDialogService/')->upload();
+            if ($request->get('default_account')) {
+                $defaultAccount =  GoogleDialogAccount::where('default_selected', true)->update(['default_selected' => false]);
+            }
             GoogleDialogAccount::create([
                 'service_file' => $serviceFile->getAbsolutePath(),
                 'site_id' => $request->get('site_id'),
-                'project_id' => $request->get('project_id')
+                'project_id' => $request->get('project_id'),
+                'default_selected' => $request->get('default_account'),
+                'email' => $request->get('email'),
             ]);
             return Redirect::route('google-chatbot-accounts')->with('success', 'google dialog account added successfully!');
         } catch (\Exception $e) {
@@ -67,6 +73,7 @@ class GoogleDialogFlowController extends Controller
                 'edit_site_id' => 'required|integer',
                 'edit_project_id' => 'required|string',
                 'edit_service_file' => 'sometimes|mimes:json',
+                'edit_email' => 'required|email',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
@@ -75,8 +82,13 @@ class GoogleDialogFlowController extends Controller
             if (!$googleAccount) {
                 return Redirect::route('google-chatbot-accounts')->with('error', 'Account not found');
             }
+            if ($request->get('default_account')) {
+               $defaultAccount =  GoogleDialogAccount::where('default_selected', true)->update(['default_selected' => false]);
+            }
             $googleAccount->site_id = $request->get('edit_site_id');
             $googleAccount->project_id = $request->get('edit_project_id');
+            $googleAccount->default_selected = $request->get('default_account');
+            $googleAccount->email = $request->get('edit_email');
             if ($request->hasFile('edit_service_file')) {
                 $serviceFile = MediaUploader::fromSource($request->file('edit_service_file'))
                     ->toDirectory('googleDialogService/')->upload();

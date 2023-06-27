@@ -23,7 +23,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h2 class="page-heading">Update Log</h2>
+    <h2 class="page-heading">Update Log({{$updateLog->total()}})</h2>
   </div>
   <div class="col-12 mb-3">
     <div class="pull-left">
@@ -109,8 +109,8 @@
           <thead>
             <tr>
               <th style="width: 3%;">ID</th>
-              <th style="width: 12%;">API Url</th>
-              <th style="width: 6%;">Device</th>
+              <th style="width: 15%;">API Url</th>
+              <th style="width: 7%;">Device</th>
               <th style="width: 6%;">Api Type</th>
               <th style="width: 10%;">Email</th>
               <th style="width: 6%;">Response Code</th>
@@ -128,17 +128,26 @@
               <?php foreach ($updateLog as $key => $logData) { ?>
                 <tr>
                   <td>{!! $logData->id !!}</td>
-                  <td style="word-break: break-word;">{!! $logData->api_url !!}</td>
+                  <td> 
+                    <a href="{!! $logData->api_url !!}" target="_blank">
+                      {!! strlen($logData->api_url) > 10 ? substr($logData->api_url, 0, 30).'...' : $logData->api_url !!}
+                    </a>
+                    @if(!is_null($logData->api_url))
+                    <i class="fa fa-eye show_logs show-logs-icon" data-full_api_url="{{ $logData->api_url }}" data-id="{{ $logData->id }}" style="color: #808080;float: right;"></i> 
+                    @endif
+                  </td>
                   <td>{!! $logData->device !!}</td>
                   <td>{!! $logData->api_type !!}</td>
                   <td>{!! $logData->email !!}</td>
                   <td>{!! $logData->response_code !!}</td>
-                  <td>{!! $logData->request_header !!}</td>
+                  <td> {!! strlen($logData->request_header) > 10 ? substr($logData->request_header, 0, 30).'...' : $logData->request_header !!}
+                    @if(!is_null($logData->request_header))<i class="fa fa-eye show_logs show-request-icon" data-id="{{ $logData->id }}" style="color: #808080;float: right;"></i>  @endif</td>
                   <td>{!! $logData->user_id !!}</td>
                   <td>{!! $logData->app_version !!}</td>
-                  <td>{!! $logData->start_time ?: 0 !!}</td>
-                  <td>{!! $logData->end_time ?: 0 !!}</td>
-                  <td>{!! $logData->created_at !!}</td>
+                  {{-- {{date('Ymd', strtotime('+1 month'))}} --}}
+                  <td>{!! $logData->start_time ? date('Y-m-d', strtotime($logData->start_time)) : 0 !!}</td>
+                  <td>{!! $logData->end_time ?date('Y-m-d', strtotime($logData->end_time)): 0 !!}</td>
+                  <td>{!! date('Y-m-d', strtotime($logData->created_at)) !!}</td>
                   <td>
                     <a class="btn btn-xs" href="javascript:void(0);" onclick="funViewLog(this)" title="View Record"><i class="fa fa-eye"></i></a>
                     <a class="btn btn-xs delete-updateLog-btn" title="Delete Record" data-id="{{ $logData->id }}" href="#"><i class="fa fa-trash"></i></a>
@@ -183,6 +192,57 @@
   </div>
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="api_url_modal">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">API URL</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-12" id="api_url_div">
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="request_modal">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Request Headers</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-12" id="request_modal_div">
+                      <table class="table">
+                          <thead>
+                              <tr>
+                              </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
 
 <div id="modalUpdateLog" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg" style="max-width: none !important;width: 85% !important;">
@@ -331,5 +391,31 @@
   jQuery(document).ready(function() {
     applySelect2(jQuery('.select2'));
   });
+
+  $(document).on('click', '.show-logs-icon', function() {
+      var id = $(this).data('id');
+      var fullApiUrl = $(this).data('full_api_url');
+      $('#api_url_modal').modal('show');
+      $('#api_url_div').text(fullApiUrl);
+  });
+
+    $(document).on('click', '.show-request-icon', function() {
+		var id = $(this).data('id');
+			$.ajax({
+				url: '{{route('updateLog.request.header.show')}}',
+				method: 'GET',
+				data: {
+					id: id
+				},
+				success: function(response) {
+					$('#request_modal').modal('show');
+					$('#request_modal_div').html(response);
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});
+		});
+
 </script>
 @endsection

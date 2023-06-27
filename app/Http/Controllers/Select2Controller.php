@@ -10,9 +10,12 @@ use App\Category;
 use App\Customer;
 use App\Supplier;
 use App\DeveloperTask;
+use App\Models\ZabbixWebhookData;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorAccount;
+use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorProject;
+use Illuminate\Support\Facades\Auth;
 
 class Select2Controller extends Controller
 {
@@ -384,6 +387,18 @@ class Select2Controller extends Controller
             });
         }
 
+        // If I am the member of TimeDoctor, then get my latest time_doctor_account_id
+        if (isset(Auth::user()->id)) {
+            $myTimeDoctorMember = TimeDoctorMember::where('user_id', Auth::user()->id)->latest()->first();
+            if ($myTimeDoctorMember) {
+                // Check record exist, Otherwise it will ignore the below condition & get all the remaining accounts as usual. 
+                $accountExists = TimeDoctorAccount::where('id', $myTimeDoctorMember->time_doctor_account_id)->where('auth_token', '!=', '')->exists();
+                if($accountExists) {
+                    $time_doctor_accounts = $time_doctor_accounts->where('id', $myTimeDoctorMember->time_doctor_account_id);
+                }
+            }
+        }
+
         $time_doctor_accounts = $time_doctor_accounts->where('auth_token', '!=', '');
 
         $time_doctor_accounts = $time_doctor_accounts->orderBy('time_doctor_email', 'asc')->paginate(30);
@@ -466,5 +481,27 @@ class Select2Controller extends Controller
             ];
         }
         return response()->json($result);*/
+    }
+
+    public function zabbixWebhookData(Request $request)
+    {
+        $zabbixWebhookDatas = ZabbixWebhookData::select('id', 'subject')->whereNull('zabbix_task_id');
+
+        if (!empty($request->q)) {
+            $zabbixWebhookDatas->where(function ($q) use ($request) {
+                $q->where('subject', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $zabbixWebhookDatas = $zabbixWebhookDatas->latest()->get();
+
+        foreach ($zabbixWebhookDatas as $zabbixWebhookData) {
+            $result['items'][] = [
+                'id' => $zabbixWebhookData->id,
+                'text' => $zabbixWebhookData->subject,
+            ];
+        }
+
+        return response()->json($result);
     }
 }

@@ -22,7 +22,7 @@ class LogAfterRequest
     public function terminate($request, $response)
     {
         $logApis = Setting::where('name', '=', 'log_apis')->first();
-        if ($logApis->val == 1) {
+        if ($logApis && $logApis->val == 1) {
             $url = $request->fullUrl();
             $ip = $request->ip();
 

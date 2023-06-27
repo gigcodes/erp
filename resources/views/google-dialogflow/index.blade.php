@@ -23,15 +23,20 @@
                         <th style="width:5%;" class="text-center">Sl no</th>
                         <th style="width:15%;" class="text-center">Site</th>
                         <th style="width:15%;" class="text-center">Project Id</th>
+                        <th style="width:15%;" class="text-center">Email</th>
+                        <th style="width:15%;" class="text-center">Created</th>
                         <th style="width:5%;" class="text-center">Action</th>
                     </tr>
                     </thead>
                     <tbody class="text-center" style="word-wrap: break-word;">
                     @foreach($google_dialog_accounts as $key => $google_dialog_account)
+{{--                        {{ _p($google_dialog_account) }}--}}
                         <tr>
                             <td>{{$key+1}}</td>
                             <td>{{ $google_dialog_account->storeWebsite->title }}</td>
                             <td>{{ $google_dialog_account->project_id }}</td>
+                            <td>{{ $google_dialog_account->email }}</td>
+                            <td>{{ $google_dialog_account->created_at }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a onclick="editData('{{ $google_dialog_account->id }}')" class="btn btn-sm edit_account"
@@ -103,6 +108,12 @@
                         $('#updateAccount-group-form [name="account_id"]').val(id);
                         $('#updateAccount-group-form [name="edit_project_id"]').val(response.data.project_id);
                         $('#updateAccount-group-form [name="edit_site_id"]').val(response.data.site_id);
+                        $('#updateAccount-group-form [name="edit_email"]').val(response.data.email);
+                        if(response.data.default_selected) {
+                            $('#updateAccount-group-form [name="default_account"]').prop( "checked", true );
+                        } else {
+                            $('#updateAccount-group-form [name="default_account"]').prop( "checked", false );
+                        }
                     }
                 }
             })
