@@ -5283,6 +5283,7 @@ Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleS
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 
 Route::middleware('auth')->group(function () {
+    Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
 });
 

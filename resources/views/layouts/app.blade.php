@@ -7434,7 +7434,63 @@ if (!\Auth::guest()) {
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();
         $('#create-jenkins-status-modal').modal('show');
+        getJenkinsStatus(1);
     });
+
+    function getJenkinsStatus(page) {
+        var url = "/monitor-jenkins-build/list?page=" + page
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            var tableBody = $('#jenkins-status-modal-html');
+            tableBody.empty(); // Clear the table body
+            // Loop through the data and populate the table rows
+            $.each(response.data, function(index, item) {
+                var row = $('<tr>');
+                row.append($('<td>').text(item.id));
+                row.append($('<td>').text(item.project));
+                row.append($('<td>').text(item.failuare_status_list));
+                tableBody.append(row);
+            });
+            var paginationLinks = $('#jenkins-status-modal-table-paginationLinks');
+            paginationLinks.empty(); // Clear the pagination links
+            // Generate the pagination links manually
+            var links = response.links;
+            var currentPage = response.current_page;
+            var lastPage = response.last_page;
+            var pagination = $('<ul class="pagination"></ul>');
+            // Previous page link
+            if (currentPage > 1) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+            }
+            // Individual page links
+            for (var i = 1; i <= lastPage; i++) {
+                var activeClass = (i === currentPage) ? 'active' : '';
+                pagination.append('<li class="page-item ' + activeClass + '"><a href="#" class="page-link" data-page="' + i + '">' + i + '</a></li>');
+            }
+            // Next page link
+            if (currentPage < lastPage) {
+                pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage + 1) + '">Next</a></li>');
+            }
+            paginationLinks.append(pagination);
+            // Handle pagination link clicks
+            paginationLinks.find('a').on('click', function(event) {
+                event.preventDefault();
+                var page = $(this).data('page');
+                getJenkinsStatus(page);
+            });
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
 
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();
