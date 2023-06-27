@@ -196,7 +196,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     .permission-alert-badge{
-        left: 730px;
+        left: 790px;
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
