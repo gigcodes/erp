@@ -76,6 +76,7 @@
                     </div>
                 </div>
             </div>
+        @if(Auth::user()->isAdmin())
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateMulitipleGoogleFilePermissionModal">
                   Add Permission
@@ -87,6 +88,7 @@
                     + Upload Screencast/File
                 </button>
             </div>
+        @endif
         </div>
     </div>
 
@@ -96,7 +98,9 @@
         <table class="table table-bordered">
             <thead>
             <tr>
+                @if(Auth::user()->isAdmin())
                 <th><input type="checkbox" name="select_all" class="select_all"></th>
+                @endif
                 <th>No</th>
                 <th style="max-width: 150px">File Name</th>
                 <th>Dev Task</th>
@@ -110,6 +114,7 @@
             </thead>
             <tbody>
             @include('googledrivescreencast.partials.list')
+            @include('googledrivescreencast.partials.update-file-permissions')
             </tbody>
         </table>
     </div>
@@ -130,5 +135,67 @@
 
     </div>
 </div>
+@endsection
+@section('scripts')
+<script>
+$(document).ready(function() {
+        $('#updateMulitipleGoogleFilePermissionModal').on('submit', function(e) {
+            e.preventDefault();
+            var selectedCheckboxes = [];
+            var fileIDs = [];
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+            $('#multiple_file_id').val(selectedCheckboxes.join(','));
+            $(this).unbind('submit').submit();
+        });
+        $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
+            e.preventDefault();
+            var selectedCheckboxes = [];
+            var fileIDs = [];
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+            $('#remove_file_ids').val(selectedCheckboxes.join(','));
+            $(this).unbind('submit').submit();
+        });
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.fileCheckbox').prop('checked', isChecked);
+        });
+    });
+    </script>
 @endsection
 
