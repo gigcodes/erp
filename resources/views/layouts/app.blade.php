@@ -42,6 +42,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sticky-notes.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
@@ -3906,6 +3907,10 @@ if (!empty($notifications)) {
                                             class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
+                                    <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
+                            </li>
+                            <li>
                                 <a class="daily-planner-button quick-icon" target="__blank"
                                     href="{{ route('dailyplanner.index') }}">
                                     <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
@@ -4456,6 +4461,10 @@ if (!empty($notifications)) {
         @include('partials.modals.event-alerts-modal')
         @include('partials.modals.create-event')
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
+
+        <div id="sticky_note_boxes" class="sticknotes_content">
+        </div>
+  
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -6348,6 +6357,65 @@ if (!empty($notifications)) {
         //$('.help-button-wrapper').toggleClass('expanded');
         //$('.instruction-notes-list-rt').toggleClass('dis-none');
     });
+
+
+        var url = "{{ route('notesCreate') }}";
+        var page = "{{ request()->fullUrl() }}";
+
+        var x = `<div class='darkYellow'>
+            <div class="icon-check">
+              <div class='close-icon'><i class='fa fa-times'></i></div>
+                <div class='check-icon'><i class='fa fa-check'></i></div>
+                </div>
+                   <h6> sticky note </h6>
+                    <div class='lightYellow'>
+                        <textarea maxlength='100' rows='14' cols='27' class='limited' name='limited' data-url='${url}' data-page='${page}'></textarea>
+                    </div>
+                </div>`;
+
+        $('.sticky-notes').on('click', function() {
+            StickyBox();
+        });
+
+        $(function () {
+            $(".sticknotes_content").draggable();
+        });
+
+        $(document).ready(function() {
+            StickyBox();
+        });
+
+        function StickyBox () {
+            $('#sticky_note_boxes').append(x);
+                $(".darkYellow").draggable();
+                $('.close-icon').each(function(){
+                    $('.close-icon').click(function() {
+                        $(this).closest('.darkYellow').remove()
+                    });
+                });
+                $('.check-icon').on('click', function() {
+                    var textareaValue = $(this).parent().siblings('.lightYellow').find('textarea').val();
+                     var page = $(this).parent().siblings('.lightYellow').find('textarea').data('page');
+
+                    $.ajax({
+                        url: '{{ route('notesCreate') }}',
+                        method: 'POST',
+                        data: {
+                            value: textareaValue,
+                            page: page,
+                            _token: "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                            console.log('Save Successful');
+                            // Handle the success response
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Save Error:', error);
+                            // Handle the error response
+                        }
+                    });
+            });
+        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
