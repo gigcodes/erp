@@ -159,7 +159,7 @@
 						</div>
 					</div>
 
-					<div class="col-md-2">
+					<div class="col-md-1">
 						<div class="form-group">
 							{{Form::select('type', [''=>'Select a type']+$allUicheckTypes, request('type') ?? '', array('class'=>'form-control select2'))}}
 						</div>
@@ -195,9 +195,13 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-1">
+					<div class="col-md-2 flex" style="align-items: start;">
 						@if (Auth::user()->isAdmin())
-						<input type="hidden" value="0" name="show_inactive" id="show_inactive">
+						<select name="show_inactive" id="show_inactive" class="form-control">
+							<option value="">-- Status --</option>
+							<option value="0" @if(request('show_inactive') == 0) selected @endif>Active Records</option>
+							<option value="1" @if(request('show_inactive') == 1) selected @endif>InActive Records</option>
+						</select>
 						@endif
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
 						<a href="{{route('uicheck.responsive')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
@@ -216,8 +220,8 @@
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
-				<label for="usr">Show Inactive Records:</label>
-				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}>
+				{{-- <label for="usr">Show Inactive Records:</label>
+				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}> --}}
 				@endif
 		</div>
 	</div>
