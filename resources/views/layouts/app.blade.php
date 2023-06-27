@@ -3907,7 +3907,7 @@ if (!empty($notifications)) {
                                             class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
-                                <a class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
+                                <a title="Sticky-Notes" class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
                                     <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                             </li>
                             <li>
@@ -6362,40 +6362,38 @@ if (!empty($notifications)) {
         var url = "{{ route('notesCreate') }}";
         var page = "{{ request()->fullUrl() }}";
 
-        var x = `<div class='darkYellow'>
+        var x = `<div class='sticky_notes_container'>
             <div class="icon-check">
-              <div class='close-icon'><i class='fa fa-times'></i></div>
-                <div class='check-icon'><i class='fa fa-check'></i></div>
+            <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
+              <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
-                   <h6> sticky note </h6>
-                    <div class='lightYellow'>
-                        <textarea maxlength='100' rows='14' cols='27' class='limited' name='limited' data-url='${url}' data-page='${page}'></textarea>
+                   Sticky Note
+                    <div class='text_box'>
+                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${url}' data-page='${page}'></textarea>
                     </div>
                 </div>`;
 
         $('.sticky-notes').on('click', function() {
             StickyBox();
         });
-
-        $(function () {
-            $(".sticknotes_content").draggable();
-        });
-
+  
         $(document).ready(function() {
             StickyBox();
         });
 
         function StickyBox () {
+            $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
-                $(".darkYellow").draggable();
+                $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
-                        $(this).closest('.darkYellow').remove()
+                        $(this).closest('.sticky_notes_container').remove()
+                        toastr.warning('Sticky note discard successfully!', 'Note Closed');
                     });
                 });
                 $('.check-icon').on('click', function() {
-                    var textareaValue = $(this).parent().siblings('.lightYellow').find('textarea').val();
-                     var page = $(this).parent().siblings('.lightYellow').find('textarea').data('page');
+                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
+                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
 
                     $.ajax({
                         url: '{{ route('notesCreate') }}',
@@ -6406,14 +6404,13 @@ if (!empty($notifications)) {
                             _token: "{{ csrf_token() }}",
                         },
                         success: function(response) {
-                            console.log('Save Successful');
-                            // Handle the success response
+                        toastr['success'](response.message, 'success');
                         },
                         error: function(xhr, status, error) {
                             console.log('Save Error:', error);
-                            // Handle the error response
                         }
                     });
+                    $(this).closest('.sticky_notes_container').remove();
             });
         }
 

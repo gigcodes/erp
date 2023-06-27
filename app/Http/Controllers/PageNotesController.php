@@ -171,6 +171,6 @@ class PageNotesController extends Controller
         $pageNotes->save();
 
 
-        return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
+        return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
     }
 }
