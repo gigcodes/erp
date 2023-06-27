@@ -173,7 +173,24 @@
             @endif
         </div>
     </div>
-
+    <div class="col-xs-12 col-sm-12">
+        <div class="form-group">
+            <strong>Module dependency:</strong>
+            {!! Form::textarea('dependency', null, ['id'=>'dependency','placeholder' => 'Module Dependency', 'class' => 'form-control', 'rows' => 2, 'cols' => 40]) !!}
+            @if ($errors->has('dependency'))
+                <span style="color:red">{{ $errors->first('dependency') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12">
+        <div class="form-group">
+            <strong>Module Composer.json File:</strong>
+            {!! Form::textarea('composer', null, ['id'=>'composer','placeholder' => 'Module Composer', 'class' => 'form-control', 'rows' => 2, 'cols' => 40]) !!}
+            @if ($errors->has('composer'))
+                <span style="color:red">{{ $errors->first('composer') }}</span>
+            @endif
+        </div>
+    </div>
     {{-- <div class="col-xs-12 col-sm-10 ml-5 text-right">
         <button type="submit" class="btn btn-primary">Submit</button>
     </div> --}}

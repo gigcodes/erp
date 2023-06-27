@@ -77,6 +77,12 @@
                 </div>
             </div>
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateMulitipleGoogleFilePermissionModal">
+                  Add Permission
+                </button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleFileRemovePermissionModal">
+                   Remove Permission
+                </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">
                     + Upload Screencast/File
                 </button>
@@ -90,6 +96,7 @@
         <table class="table table-bordered">
             <thead>
             <tr>
+                <th><input type="checkbox" name="select_all" class="select_all"></th>
                 <th>No</th>
                 <th style="max-width: 150px">File Name</th>
                 <th>Dev Task</th>
