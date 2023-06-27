@@ -195,7 +195,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     .permission-alert-badge{
-        left: 730px; 
+        left: 730px;
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
@@ -716,7 +716,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 <a class="navbar-brand pl-0" href="{{ url('/task') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
-                
+
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                     aria-label="{{ __('Toggle navigation') }}">
@@ -728,7 +728,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                 <div class="collapse navbar-collapse pr-0" id="navbarSupportedContent">
                     <div class="primary-header">
-                        
+
                         @if(Auth::check())
                         <nav id="quick-sidebars">
                             <ul class="list-unstyled components mr-1">
@@ -754,11 +754,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <span><i class="fa fa-file-text fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
-                                <li>  
+                                <li>
                                     @php
                                         $status = \App\Models\MonitorServer::where('status', 'off')->first();
                                     @endphp
-                                    
+
                                     <a title="Monitor Status" type="button" class="quick-icon" id="website_Off_status" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
@@ -776,7 +776,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         if(!auth()->user()->isAdmin()) {
                                             $logs->where('user_id', auth()->user()->id);
                                         }
-                                        
+
                                         $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->count();
                                     @endphp
                                     <a title="Time-Doctor-logs" id="timer-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
@@ -868,9 +868,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
-                                    @php 
+                                    @php
                                         $permissionCount = \App\PermissionRequest::count();
-                                    @endphp 
+                                    @endphp
                                         <a class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
@@ -3837,7 +3837,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                 </ul>
                             </li>
-                            
+
                             <li class="nav-item dropdown">
                                 <div id="nav-dotes" class="nav-item dropdown dots mr-3 ml-3">
                                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3849,23 +3849,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 fill="#757575"></path>
                                         </svg>
                                     </a>
-    
+
                                     <ul id="nav_dots" class="dropdown-menu multi-level ">
-                                        
-                                    
+
+
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                                     </li>
-                                    
+
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false"
                                             v-pre="">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span
                                                 class="caret"></span></a>
-    
+
                                         <ul class="dropdown-menu multi-level">
                                             {{-- Sub Menu Product --}}
-    
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master
                                                     Control</a>
@@ -3901,15 +3901,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
-    
+
                                                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
                                                             role="button" data-toggle="dropdown" aria-haspopup="true"
                                                             aria-expanded="false" v-pre>
                                                             Development<span class="caret"></span>
                                                         </a>
-    
+
                                                         <div class="dropdown-menu dropdown-menu-right"
                                                             aria-labelledby="navbarDropdown">
                                                             <a class="dropdown-item"
@@ -3924,27 +3924,27 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                                 href="{{ route('development.overview') }}">Overview</a>
                                                         </div>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item"
                                                             href="{{route('category-segment.index')}}">Category Segment</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('category')}}">Category</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item"
                                                             href="{{action('\App\Http\Controllers\CategoryController@mapCategory')}}">Category
                                                             Reference</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="/category/new-references">New Category
                                                             Reference</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                                     </li>
@@ -3986,7 +3986,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         <a class="dropdown-item" href="{{route('reply.index')}}">Quick
                                                             Replies</a>
                                                     </li>
-    
+
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto
                                                             Reples</a>
@@ -4017,7 +4017,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge
                                                     Base</a>
                                             </li>
-    
+
                                             <li class="nav-item dropdown dropdown-submenu">
                                                 <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Time Doctor<span class="caret"></span></a>
                                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -4026,7 +4026,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     </li>
                                                 </ul>
                                             </li>
-    
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -4038,31 +4038,31 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             </li>
                                         </ul>
                                     </li>
-    
+
                                     <!------    System Menu     !-------->
                                     <li class="nav-item dropdown dropdown-submenu">
                                         {{--                                        <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>--}}
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre="">System <span
                                                 class="caret"></span></a>
-    
+
                                         <ul class="dropdown-menu multi-level">
                                             {{-- Sub Menu Product --}}
-    
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
                                             </li>
                                         </ul>
                                     </li>
-    
-    
-    
+
+
+
                                     <li class="nav-item dropdown dropdown-submenu">
                                         {{--                                        <a href="#" class="nav-link dropdown-item dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>--}}
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre="">Admin Menu <span
                                                 class="caret"></span></a>
-    
+
                                         <ul class="dropdown-menu multi-level">
                                             {{-- Sub Menu Admin Menu --}}
                                             <li class="nav-item dropdown dropdown-submenu">
@@ -4092,7 +4092,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             </li>
                                         </ul>
                                     </li>
-                                    
+
                                     </ul>
                                 </div>
                             </li>
@@ -5104,19 +5104,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </select>
                             </tr>
                             <tr>
-                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>
-                                    <option value="">Select Books</option>
-                                    @php
-                                    $books =
-                                    Illuminate\Support\Facades\Cache::remember('Modules\BookStack\Entities\Book::get',
-                                    60 * 60 * 24 * 7, function(){
-                                    return Modules\BookStack\Entities\Book::get();
-                                    });
-                                    @endphp
-                                    @foreach ($books as $book)
-                                    <option value="{{ $book->name }}">{{ $book->name }}</option>
-                                    @endforeach
-                                </select>
+{{--                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>--}}
+{{--                                    <option value="">Select Books</option>--}}
+{{--                                    @php--}}
+{{--                                    $books =--}}
+{{--                                    Illuminate\Support\Facades\Cache::remember('Modules\BookStack\Entities\Book::get',--}}
+{{--                                    60 * 60 * 24 * 7, function(){--}}
+{{--                                    return Modules\BookStack\Entities\Book::get();--}}
+{{--                                    });--}}
+{{--                                    @endphp--}}
+{{--                                    @foreach ($books as $book)--}}
+{{--                                    <option value="{{ $book->name }}">{{ $book->name }}</option>--}}
+{{--                                    @endforeach--}}
+{{--                                </select>--}}
                                 <span class="books_error" style="color:red;"></span>
                             </tr>
                             <tr>
