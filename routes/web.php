@@ -5103,6 +5103,9 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('category/create', [GoogleDocController::class, 'createGoogleDocCategory'])->name('.category.create');
     Route::get('list', [GoogleDocController::class, 'getGoogleDocList'])->name('.list');
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
+    Route::post('/remove/permission', [GoogleDocController::class, 'googleDocRemovePermission'])->name('.googleDocRemovePermission');
+    Route::post('/add/mulitple/permission', [GoogleDocController::class, 'addMulitpleDocPermission'])->name('.addMulitpleDocPermission');
+
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
@@ -5112,6 +5115,8 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
     Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
+    Route::post('/remove/permission', [GoogleScreencastController::class, 'driveFileRemovePermission'])->name('.driveFileRemovePermission');
+    Route::post('/add/mulitple/permission', [GoogleScreencastController::class, 'addMultipleDocPermission'])->name('.addMultipleDocPermission');
 });
 
 //Queue Management::
