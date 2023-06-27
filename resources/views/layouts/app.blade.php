@@ -6387,8 +6387,7 @@ if (!empty($notifications)) {
                 $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
-                        $(this).closest('.sticky_notes_container').remove()
-                        toastr.warning('Sticky note discard successfully!', 'Note Closed');
+                        $(this).closest('.sticky_notes_container').remove();
                     });
                 });
                 $('.check-icon').on('click', function() {
