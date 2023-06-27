@@ -1174,7 +1174,7 @@ class UicheckController extends Controller
             $show_inactive=0;
             if($request->show_inactive == 1){
                 $show_inactive=1;
-                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1)->orWhere('uic.lock_developer', 0);
+                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1);
             }else{
                 $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
             }
@@ -1185,10 +1185,10 @@ class UicheckController extends Controller
             if ($request->status != '') {
                 $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);
             }
-            if (!empty($request->categories)) {
+            if (!empty($request->categories) && $request->categories[0] != null) {
                 $uiDevDatas = $uiDevDatas->whereIn('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');
             }
-            if (!empty($request->store_webs)) {
+            if (!empty($request->store_webs) && $request->store_webs[0] != null) {
                 $uiDevDatas = $uiDevDatas->whereIn('uic.website_id', $request->store_webs)->where('ui_devices.device_no', '1');
             }
             if ($request->id != '') {
