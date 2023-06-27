@@ -5288,6 +5288,8 @@ Route::middleware('auth')->group(function () {
 
 /** Website Monitor */
 Route::middleware('auth')->group(function () {
+    Route::get('monitor-server/list', [MonitorServerController::class, 'list'])->name('monitor-server.list');
+
     Route::resource('monitor-server', MonitorServerController::class);
     Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
     Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
