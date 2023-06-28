@@ -797,6 +797,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Google-Drive-ScreenCast" type="button" class="quick-icon" id="google-drive-screen-cast" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
@@ -4582,6 +4586,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
+        @include('partials.modals.google-drive-screen-cast-modal')
+        @include('googledrivescreencast.partials.upload');
+
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
@@ -7635,6 +7642,76 @@ if (!\Auth::guest()) {
         });
     });
 
+
+    $(document).on('click','#google-drive-screen-cast',function(e){
+        e.preventDefault();
+        $('#google-drive-screen-cast-alerts-modal').modal('show');
+        getgooglescreencast(true);
+    });
+
+    function showCreateScreencastModal() {
+      $('#google-drive-screen-cast-alerts-modal').modal('hide');
+      $.ajax({
+        url: "{{ route('getDropdownDatas') }}",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+
+            var tasks = response.tasks;
+            var users = response.users;
+            var generalTask = response.generalTask;
+
+            var $taskSelect = $("#id_label_task");
+            var $userReadSelect = $("#id_label_multiple_user_read");
+            var $userWriteSelect = $("#id_label_multiple_user_write");
+
+            $taskSelect.empty();
+            $taskSelect.append('<option value="" class="form-control">Select Task</option>');
+
+            tasks.forEach(function(task) {
+                $taskSelect.append('<option value="' + task.id + '">' + task.id + '-' + task.subject +  '</option>');
+            });
+             generalTask.forEach(function(generalTask) {
+                $taskSelect.append('<option value="' + generalTask.id + '">' + generalTask.id + '-' + generalTask.subject +  '</option>');
+            });
+
+            $userReadSelect.empty();
+            $userWriteSelect.empty();
+            $userReadSelect.append('<option value="" class="form-control">Select User</option>');
+            $userWriteSelect.append('<option value="" class="form-control">Select User</option>');
+
+            users.forEach(function(user) {
+                var optionText = user.name;
+                $userReadSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+                $userWriteSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+            });
+             },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+            }); 
+    }
+
+    function getgooglescreencast(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('google-drive-screencast.getGooglesScreencast')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#google-drive-screen-cast-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#google-drive-screen-cast-modal').modal('show');
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
     $(document).on("click", ".permission-request", function(e) {
         e.preventDefault();
         $.ajax({
@@ -7794,6 +7871,64 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+        $("#id_label_multiple_user_read").select2();
+        $("#id_label_multiple_user_write").select2();
+        $("#search_user").select2();
+        $('#id_label_task').select2({
+        minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+        });
+        $('#search_task').select2({
+        minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+        });
+
+        $(document).on('click', '.filepermissionupdate', function (e) {
+                
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
+                
+                let data_read = $(this).data('readpermission');
+                let data_write = $(this).data('writepermission');
+                var file_id = $(this).data('fileid');
+                var id = $(this).data('id');
+                var permission_read = data_read.split(',');
+                var permission_write = data_write.split(',');
+                if(permission_read)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
+                }
+                if(permission_write)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
+                }
+                
+                $('#file_id').val(file_id);
+                $('#id').val(id);
+            
+            });
+
+            $(document).on("click",".showFullMessage", function () {
+                let title = $(this).data('title');
+                let message = $(this).data('message');
+                
+                $("#showFullMessageModel .modal-body").html(message);
+                $("#showFullMessageModel .modal-title").html(title);
+                $("#showFullMessageModel").modal("show");
+            });
+            
+            $(document).on("click",".filedetailupdate", function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let fileid = $(this).data('fileid');
+                let fileremark = $(this).data('file_remark');
+                let filename = $(this).data('file_name');
+
+                $("#updateUploadedFileDetailModal .id").val(id);
+                $("#updateUploadedFileDetailModal .file_id").val(fileid);
+                $("#updateUploadedFileDetailModal .file_remark").val(fileremark);
+                $("#updateUploadedFileDetailModal .file_name").val(filename);
+
+            });
 
 	function todoHomeStatusChange(id, xvla) {
 			$.ajax({

@@ -306,6 +306,36 @@ class GoogleScreencastController extends Controller
         }
 
         return $driveFileData;
+    } 
+
+    public function getGoogleScreencast (Request $request){
+
+        $datas = GoogleScreencast::latest()->take(10)->get();
+
+        if (! Auth::user()->isAdmin()) {
+            $datas = GoogleScreencast::where('user_id','=', Auth::id())->latest()->take(10)->get();
+        }
+
+        return response()->json([
+            'tbody' => view('partials.modals.google-drive-screen-cast-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
+    }
+
+    public function getDropdownDatas(Request $request)
+    {
+        $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+        $generalTask = Task::orderBy('id', 'desc');
+
+        if (! Auth::user()->isAdmin()) {
+            $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $generalTask = $generalTask->where('assign_to', Auth::id());
+        }
+        $tasks = $taskList->select('id', 'subject')->get();
+        $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
+        $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+
+        return response()->json(['tasks' => $tasks, 'users' => $users , 'generalTask' => $generalTask]);
     }
 
 

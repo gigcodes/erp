@@ -100,7 +100,9 @@
         <table class="table table-bordered" id="googlefiletranslator-table">
             <thead>
             <tr>
+                @if(Auth::user()->isAdmin())
                 <th><input type="checkbox" name="select_all_doc" class="select_all_doc"></th>
+                @endif
                 <th>No</th>
                 <th>File Name</th>
                 <th>Category</th>
