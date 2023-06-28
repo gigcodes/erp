@@ -5072,6 +5072,8 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', [VoucherCouponController::class, 'couponCodeOrderList'])->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', [VoucherCouponController::class, 'couponCodeDelete'])->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', [VoucherCouponController::class, 'couponCodeOrderDelete'])->name('voucher.code.order.delete');
+    Route::post('/coupon-type/create', [VoucherCouponController::class, 'coupontypeStore'])->name('voucher.coupon.type.create');
+    Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');  
 });
 
 //TODOLIST::
