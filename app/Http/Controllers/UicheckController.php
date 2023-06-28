@@ -1831,6 +1831,7 @@ class UicheckController extends Controller
                 'site_development_category_id' => $site_development_category_id,
                 'created_at' => now(),
                 'uicheck_type_id' => $ui_type,
+                'lock_developer' => 1 // By default we have to lock for developer - New requirement. 
             ]);
 
             $uidevice = UiDevice::create([
