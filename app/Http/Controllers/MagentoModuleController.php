@@ -357,6 +357,13 @@ class MagentoModuleController extends Controller
     {
         $oldData = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+        $newData = MagentoModule::where('id', (int) $request->id)->first();
+
+        $input_data = $newData->toArray();
+        $input_data['magento_module_id'] = $newData->id;
+        unset($input_data['id']);
+        $input_data['user_id'] = auth()->user()->id;
+        MagentoModuleHistory::create($input_data);
 
         if ($request->columnName == 'dev_verified_status_id' || $request->columnName == 'lead_verified_status_id') {
             if ($request->columnName == 'dev_verified_status_id') {
@@ -389,6 +396,12 @@ class MagentoModuleController extends Controller
     public function magentoModuleList(Request $request)
     {
         $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+        $all_store_websites = StoreWebsite::pluck('title', 'id')->toArray();
+        $selecteStoreWebsites = $request->store_webs;
+
+        if (isset($request->store_webs) && $request->store_webs) {
+            $storeWebsites = StoreWebsite::whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+        }
 
         $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
         $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
@@ -409,7 +422,7 @@ class MagentoModuleController extends Controller
         });
         $magento_modules_array=$result;
         
-        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
+        return view('magento_module.magento-listing', ['all_store_websites' => $all_store_websites, 'selecteStoreWebsites' => $selecteStoreWebsites, 'magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request){
