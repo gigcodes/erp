@@ -7706,9 +7706,6 @@ if (!\Auth::guest()) {
             if (showModal) {
                 $('#google-drive-screen-cast-modal').modal('show');
             }
-            if(response.count > 0) {
-                $('.event-alert-badge').removeClass("hide");
-            }
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
