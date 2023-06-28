@@ -41,7 +41,7 @@
                         <strong>File Creation Date:</strong>
                         <input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
                     </div>
-                        @if(auth()->user()->isAdmin())
+                        @if(auth()->user() && auth()->user()->isAdmin())
                     <div class="form-group custom-select2 read_user">
                         <label>Read Permission for Users</label>
                         <select class="w-100 js-example-basic-multiple js-states" id="id_label_multiple_user_read" multiple="multiple" name="file_read[]">

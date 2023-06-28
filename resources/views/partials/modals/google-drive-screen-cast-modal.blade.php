@@ -7,11 +7,12 @@
                 <br>
                 <form method="get" id="screen_cast_search" style="margin-left:auto">
                     <input id="search-input" type="text" placeholder="Search..">       
-                <button type="button" class="btn btn-secondary" data-toggle="modal"
-                    data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">+</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal"
+                        data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">+</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </form>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -24,7 +25,6 @@
                     </div>
                 </div>
             </div>
-        </form>
         </div>
     </div>
 </div>
