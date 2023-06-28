@@ -304,8 +304,15 @@ class VoucherCouponController extends Controller
     {
         try {
             $perPage = 10;
-            $couponTypeLists = VoucherCouponCode::latest();
-            $couponTypeLists = $couponTypeLists->paginate($perPage);
+            $couponTypeLists = new VoucherCouponCode();
+            
+            $couponTypeLists = $couponTypeLists->select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name','Vct.name AS couponType')
+                ->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
+                ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
+                ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
+                ->leftJoin('voucher_coupon_types AS Vct', 'Vct.id', 'voucher_coupon_codes.coupon_type_id')
+                ->latest()
+                ->paginate($perPage);
 
             return response()->json(['code' => 200, 'data' => $couponTypeLists, 'count'=> count($couponTypeLists), 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {

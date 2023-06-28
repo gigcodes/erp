@@ -47,7 +47,7 @@
             <h2 class="page-heading">Voucher Coupons</h2>
               <div class="col-sm">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#list-coupon-type-Modal" onclick="listCouponTypes()">List Coupons</button>
+                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#list-coupon-type-Modal" onclick="listCouponTypes()">List Coupon Codes</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#coupontypeModal"><i class="fa fa-plus"></i>Add Coupon Type</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Platform</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#addvoucherModel"><i class="fa fa-plus"></i>Add Voucher</button>
@@ -402,10 +402,10 @@
     
   <!-- List Coupon type Modal-->
   <div id="list-coupon-type-Modal" class="modal fade in" role="dialog">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">List Coupon Types</h4>
+          <h4 class="modal-title">List Coupon codes</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -413,10 +413,13 @@
             <thead class="thead-light">
               <tr>
                 <th>S.No</th>
-                <th>Vouchers</th>
-                <th>Coupon Type name</th>
-                <th>Remark</th>
-                <th>validate date</th>
+                <th>Coupon code</th>
+                <th>Platform Name	</th>
+                <th>Coupon Type	</th>
+                <th>Added By	</th>
+                <th>Valid Date</th>
+                <th>Remarks</th>
+                <th> Action </th>
               </tr>
             </thead>
             <tbody class="coupon-type-list">
@@ -459,9 +462,9 @@
                               @endif
                         </div>
                         <div class="form-group">
-                          {!! Form::label('couponType', 'couponType', ['class' => 'form-control-label']) !!}
+                          {!! Form::label('CouponType', 'CouponType', ['class' => 'form-control-label']) !!}
                           <select class="form-control select" name="coupon_type_id" id="coupon_type_id" required style="width: 100%;">
-                            <option value="">Select Coupon type</option>
+                            <option value="">Select Coupon Type</option>
                             @foreach($coupontypes as $key => $coupontype)
                               <option value="{{ $key }}">{{ $coupontype }}</option>
                             @endforeach
@@ -1063,11 +1066,15 @@
             var sNo = startIndex + index + 1; 
             html += "<tr>";
             html += "<td>" + sNo + "</td>";
-            html += "<td>" + couponType.voucher_coupons_id + "</td>";
             html += "<td>" + couponType.coupon_code + "</td>";
+            html += "<td>" + couponType.plateform_name + "</td>";
+            var CouponType = couponType.couponType || "-"
+            html += "<td>" + CouponType	 + "</td>";
             var couponremark = couponType.remark || "-";
-            html += "<td>" + couponremark + "</td>";
+            html += "<td>" + couponType.userName + "</td>";
             html += "<td>" + couponType.valid_date + "</td>";
+            html += "<td>" + couponType.remark + "</td>";
+            html += '<td><a class="code-delete" data-type="code" data-id='+couponType.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
             html += "</tr>";
           });
           $(".coupon-type-list").html(html);
