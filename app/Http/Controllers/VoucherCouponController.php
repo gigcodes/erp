@@ -8,6 +8,7 @@ use App\VoucherCoupon;
 use App\VoucherCouponCode;
 use App\VoucherCouponOrder;
 use App\VoucherCouponRemark;
+use App\CouponType;
 use Illuminate\Http\Request;
 
 class VoucherCouponController extends Controller
@@ -43,8 +44,9 @@ class VoucherCouponController extends Controller
         $platform = Platform::get()->pluck('name', 'id');
         $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
         $emails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
+        $coupontypes = CouponType::get()->pluck('name', 'id');
 
-        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails'));
+        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails','coupontypes'));
     }
 
     /**
@@ -175,6 +177,7 @@ class VoucherCouponController extends Controller
             $code->coupon_code = $request->coupon_code ?? '';
             $code->valid_date = date('Y-m-d', strtotime($request->valid_date)) ?? '';
             $code->remark = $request->code_remark ?? '';
+            $code->coupon_type_id = $request->coupon_type_id ?? '';
             $code->save();
 
             return response()->json(['code' => 200, 'message' => 'Coupon Code Added successfully!!!']);
@@ -186,11 +189,12 @@ class VoucherCouponController extends Controller
     public function couponCodeList(Request $request)
     {
         try {
-            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name')
+            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name','Vct.name AS couponType')
                 ->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
                 ->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)
                     ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
                     ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
+                    ->leftJoin('voucher_coupon_types AS Vct', 'Vct.id', 'voucher_coupon_codes.coupon_type_id')
                 ->get();
 
             return response()->json(['code' => 200, 'data' => $vouCode, 'message' => 'Listed successfully!!!']);
@@ -279,6 +283,33 @@ class VoucherCouponController extends Controller
 
             return response()->json(['code' => 200, 'message' => 'Remark Updated successfully!!!']);
         } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function coupontypeStore(Request $request)
+    {
+        try {
+            $couponType = new CouponType();
+            $couponType->name = $request->coupon_type_name;
+            $couponType->save();
+
+            return response()->json(['code' => 200, 'message' => 'Coupon type Created successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function couponTypeList()
+    {
+        try {
+            $perPage = 10;
+            $couponTypeLists = VoucherCouponCode::latest();
+            $couponTypeLists = $couponTypeLists->paginate($perPage);
+
+            return response()->json(['code' => 200, 'data' => $couponTypeLists, 'count'=> count($couponTypeLists), 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

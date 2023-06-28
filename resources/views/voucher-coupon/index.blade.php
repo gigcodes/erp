@@ -47,6 +47,8 @@
             <h2 class="page-heading">Voucher Coupons</h2>
               <div class="col-sm">
                 <div class="pull-right">
+                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#list-coupon-type-Modal" onclick="listCouponTypes()">List Coupon Types</button>
+                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#coupontypeModal"><i class="fa fa-plus"></i>Add Coupon Type</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Platform</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#addvoucherModel"><i class="fa fa-plus"></i>Add Voucher</button>
                     
@@ -60,7 +62,7 @@
         <form action="{{ route('list.voucher') }}" method="GET" class="form-inline align-items-start voucher-search" id="searchForm">
           <div class="row m-0 full-width" style="width: 100%;">
               <div class="col-md-2 col-sm-12">
-              <select class="form-control select-multiple" name="plateform_id" id="plateform_id">
+              <select class="form-control select" name="plateform_id" id="plateform_id">
                   <option value="">Select Platform</option>
                   @foreach($platform as $key => $plate)
                     <option value="{{ $key }}" @if(request('plateform_id') == $plate) selected @endif >{{ $plate }}</option>
@@ -68,7 +70,7 @@
                 </select>
               </div>
               <div class="col-md-2 col-sm-12">
-                <select class="form-control select-multiple" name="email_add" id="email_add">
+                <select class="form-control select" name="email_add" id="email_add">
                   <option value="">Select Email</option>
                   @foreach($emails as $ekey => $emailid)
                     <option value="{{ $emailid }}" @if(request('email_add') == $emailid) selected @endif>{{ $ekey }}</option>
@@ -80,7 +82,7 @@
               </div>
 
               <div class="col-md-2 col-sm-12">
-                  <select class="form-control select-multiple" name="whatsapp_id" id="whatsapp_id">
+                  <select class="form-control select" name="whatsapp_id" id="whatsapp_id">
                     <option value="">Select Number</option>
                     @foreach($whatsapp_configs as $key => $num)
                       <option value="{{ $key }}" @if(request('whatsapp_id') == $key) selected @endif >{{ $num }}</option>
@@ -199,6 +201,38 @@
             </div>
         </div>
     </div>
+    
+     <!-- Coupon type Modal content-->
+    <div id="coupontypeModal" class="modal fade in" role="dialog">
+      <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add Coupon Type</h4>
+              <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+              <form action="#" method="POST" id="coupon_type_form">
+                  @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            {!! Form::label('coupon_type_name', 'Name', ['class' => 'form-control-label']) !!}
+                            {!! Form::text('coupon_type_name', null, ['class'=>'form-control  '.($errors->has('coupon_type_name')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required','rows'=>3]) !!}
+                                @if($errors->has('coupon_type_name'))
+                        <div class="form-control-feedback">{{$errors->first('coupon_type_name')}}</div>
+                                    @endif
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default save-coupon-type">Save</button>
+                    </div>
+                  </div>
+              </form>
+          </div>
+
+      </div>
+  </div>
 
     <div id="plateformModal" class="modal fade in" role="dialog">
         <div class="modal-dialog">
@@ -244,7 +278,7 @@
                     <div class="modal-body">
                             <div class="form-group">
                                 {!! Form::label('plateform_id', 'Plateform', ['class' => 'form-control-label']) !!}
-                                <select class="form-control select-multiple" name="plateform_id" id="plateformadd_id" required style="width: 100%;">
+                                <select class="form-control select" name="plateform_id" id="plateformadd_id" required style="width: 100%;">
                                   <option value="">Select Plateform Name</option>
                                   @foreach($platform as $key => $plat)
                                     <option value="{{ $key }}">{{ $plat }}</option>
@@ -258,7 +292,7 @@
 
                             <div class="form-group">
                               {!! Form::label('email_id', 'Email', ['class' => 'form-control-label']) !!}
-                              <select class="form-control select-multiple" name="email_id" id="email_id" required style="width: 100%;">
+                              <select class="form-control select" name="email_id" id="email_id" required style="width: 100%;">
                                 <option value="">Select Email</option>
                                 @foreach($emails as $ekey => $emailid)
 
@@ -272,7 +306,7 @@
 
                             <div class="form-group">
                                 {!! Form::label('whatsapp_config_id', 'Number', ['class' => 'form-control-label']) !!}
-                                <select class="form-control select-multiple" name="whatsapp_config_id" id="whatsapp_config_id" required style="width: 100%;">
+                                <select class="form-control select" name="whatsapp_config_id" id="whatsapp_config_id" required style="width: 100%;">
                                   <option value="">Select Number</option>
                                   @foreach($whatsapp_configs as $key => $num)
                                     <option value="{{ $key }}">{{ $num }}</option>
@@ -336,7 +370,7 @@
     </div>
     
       <div id="voucher-code-list-model" class="modal fade in" role="dialog">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title">List Coupon Code</h4>
@@ -351,10 +385,11 @@
                 <th>ID</th>
                 <th>Coupon code</th>
                 <th>Platform Name</th>
+                <th>Coupon Type</th>
                 <th>Added By</th>
                 <th>Valid Date</th>
                 <th>Remark</th>
-                <th >Action</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody class="voucher-code-list">
@@ -365,6 +400,35 @@
       </div>
     </div>
     
+  <!-- List Coupon type Modal-->
+  <div id="list-coupon-type-Modal" class="modal fade in" role="dialog">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">List Coupon Types</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th>S.No</th>
+                <th>Vouchers</th>
+                <th>Coupon Type name</th>
+                <th>Remark</th>
+                <th>validate date</th>
+              </tr>
+            </thead>
+            <tbody class="coupon-type-list">
+              
+            </tbody>
+          </table>
+          <!-- Pagination links -->
+          <div class="pagination-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
     <div id="addVoucherCouponCodeModel" class="modal fade" role="dialog">
@@ -392,6 +456,18 @@
                               
                               @if($errors->has('valid_date'))
                                 <div class="form-control-plateform">{{$errors->first('valid_date')}}</div>
+                              @endif
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('couponType', 'couponType', ['class' => 'form-control-label']) !!}
+                          <select class="form-control select" name="coupon_type_id" id="coupon_type_id" required style="width: 100%;">
+                            <option value="">Select Coupon type</option>
+                            @foreach($coupontypes as $key => $coupontype)
+                              <option value="{{ $key }}">{{ $coupontype }}</option>
+                            @endforeach
+                          </select>
+                              @if($errors->has('coupon_type_id'))
+                                <div class="form-control-plateform">{{$errors->first('coupon_type_id')}}</div>
                               @endif
                         </div>
                         <div class="form-group">
@@ -575,6 +651,31 @@
   }
    
 
+  $(document).on("click",".save-coupon-type",function(e){
+    e.preventDefault();
+    var $this = $(this);
+    var formData = new FormData($this.closest("form")[0]);
+    $.ajax({
+      url: '{{route("voucher.coupon.type.create")}}',
+      type: 'POST',
+      headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        dataType:"json",
+      data: $this.closest("form").serialize(),
+      beforeSend: function() {
+        $("#loading-image").show();
+            }
+    }).done(function (data) {
+      $("#loading-image").hide();
+      toastr["success"](data.message);
+      location.reload();
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {      
+      toastr["error"](jqXHR.responseJSON.message);
+      $("#loading-image").hide();
+    });
+  });
+
   $(document).on("click",".save-plateform",function(e){
     e.preventDefault();
     var $this = $(this);
@@ -671,7 +772,14 @@
       $("#loading-image").hide();
     });
   });
-  $('.select-multiple').select2({width: '100%'});
+
+  $("#plateform_id").select2();
+  $("#email_add").select2();
+  $("#whatsapp_id").select2();
+  $("#plateformadd_id").select2()
+  $("#whatsapp_config_id").select2();
+  $("#email_id").select2()
+  $("#coupon_type_id").select2();
 
   $(document).on("click",".btn-store-development-remark",function() {
       var $this = $(this);
@@ -780,6 +888,8 @@
                 html += "<td>"+v.id+"</td>";
                 html += "<td>"+v.coupon_code+"</td>";
                 html += "<td>"+v.plateform_name+"</td>";
+                var couponType = v.couponType || "-";
+                html += "<td>"+v.couponType+"</td>";
                 html += "<td>"+v.userName+"</td>";
                 html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
                 html += "<td><div class='form-row'>"+v.remark+"</div></td>";
@@ -912,6 +1022,8 @@
               html += "<td>"+v.id+"</td>";
               html += "<td>"+v.coupon_code+"</td>";
               html += "<td>"+v.plateform_name+"</td>";
+              var couponType = v.couponType || "-";
+              html += "<td>"+couponType+"</td>";
               html += "<td>"+v.userName+"</td>";
               html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
               html += "<td><div class='form-row'>"+v.remark+"</div></td>";
@@ -927,7 +1039,74 @@
         });
       });
 
-      
+      function listCouponTypes(pageNumber = 1) {
+        $.ajax({
+          url: '{{route("voucher.coupon.type.list")}}',
+          type: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          },
+          data: {
+            page: pageNumber
+          },
+          dataType: "json",
+          beforeSend: function () {
+            $("#loading-image").show();
+          }
+        }).done(function (response) {
+          console.log(response.data);
+          $("#loading-image").hide();
+          var html = "";
+          var startIndex = (response.data.current_page - 1) * response.data.per_page;
+
+          $.each(response.data.data, function (index, couponType) {
+            var sNo = startIndex + index + 1; 
+            html += "<tr>";
+            html += "<td>" + sNo + "</td>";
+            html += "<td>" + couponType.voucher_coupons_id + "</td>";
+            html += "<td>" + couponType.coupon_code + "</td>";
+            var couponremark = couponType.remark || "-";
+            html += "<td>" + couponremark + "</td>";
+            html += "<td>" + couponType.valid_date + "</td>";
+            html += "</tr>";
+          });
+          $(".coupon-type-list").html(html);
+          $("#list-coupon-type-Modal").modal("show");
+          renderPagination(response.data);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+
+      }
+
+      function renderPagination(data) {
+          var paginationContainer = $(".pagination-container");
+          var currentPage = data.current_page;
+          var totalPages = data.last_page;
+
+          var html = "";
+          if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            for (var i = 1; i <= totalPages; i++) {
+              html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+            }
+            if (currentPage < totalPages) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+            }
+            html += "</ul>";
+          }
+
+        paginationContainer.html(html);
+      }
+
+      function changePage(pageNumber) {
+        listCouponTypes(pageNumber);
+      }
+  
       $(document).on("click",".code-delete",function(e) {
         e.preventDefault();
         var id = $(this).data("id");
