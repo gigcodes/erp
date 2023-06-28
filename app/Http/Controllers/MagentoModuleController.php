@@ -48,6 +48,15 @@ class MagentoModuleController extends Controller
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
         $verified_status_array = $verified_status->pluck('name', 'id');
+        $moduleNames = MagentoModule::with(['lastRemark'])
+            ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+            ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+            ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
+            ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
+            ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
+            ->groupBy('magento_modules.module')
+            ->pluck('module', 'module')
+            ->toArray();
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
@@ -123,7 +132,7 @@ class MagentoModuleController extends Controller
             $task_statuses = $task_statuses->pluck('name', 'id');
             $store_websites = $store_websites->pluck('website', 'id');
 
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames'));
         }
     }
 

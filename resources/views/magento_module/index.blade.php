@@ -127,7 +127,7 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control filter-module']) !!}
+                            {!! Form::select('module', $moduleNames, null, ['placeholder' => 'Module Name', 'class' => 'form-control filter-module']) !!}
                         </div>
                     </div>
 
@@ -324,6 +324,10 @@
     <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
         $(document).ready(function() {
+            $(".filter-module").multiselect({
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Module',
+            });
             $(".multiselect-dev").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
