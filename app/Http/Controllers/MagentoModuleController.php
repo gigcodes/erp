@@ -386,21 +386,30 @@ class MagentoModuleController extends Controller
         }
     }
 
-    public function magentoModuleList()
+    public function magentoModuleList(Request $request)
     {
         $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
 
         $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
         $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
+        $magento_modules_count = MagentoModule::count();
+
+        // For Filter
+        $allMagentoModules = $magento_modules->pluck('module', 'module')->toArray();
+
+        if(isset($request->module_name) && $request->module_name != "") {
+            $magento_modules = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->groupBy('module')->orderBy('module', 'asc')->get();
+            $magento_modules_array = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->orderBy('module', 'asc')->get()->toArray();
+            $magento_modules_count = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->count();
+        }
         
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
         $magento_modules_array=$result;
-        $magento_modules_count=MagentoModule::count();
         
-        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count]);
+        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request){
