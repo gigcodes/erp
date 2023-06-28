@@ -3,10 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\MagentoModuleVerifiedStatus;
+use App\User;
 
 class MagentoModule extends Model
 {
     protected $guarded = ['id'];
+
+    protected $appends = ['row_bg_colour'];
 
     protected $fillable = [
         'module_category_id',
@@ -29,6 +33,14 @@ class MagentoModule extends Model
         'developer_name',
         'is_customized',
         'site_impact',
+        'dev_verified_by',
+        'dev_verified_status_id',
+        'lead_verified_by',
+        'lead_verified_status_id',
+        'dev_last_remark',
+        'lead_last_remark',
+        'dependency',
+        'composer',
     ];
 
     public function module_category()
@@ -59,5 +71,36 @@ class MagentoModule extends Model
     public function module_type_data()
     {
         return $this->belongsTo(MagentoModuleType::class, 'module_type', 'id');
+    }
+
+    public function dev_verified()
+    {
+        return $this->belongsTo(User::class, 'dev_verified_by', 'id');
+    }
+    public function dev_verified_status()
+    {
+        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'dev_verified_status_id', 'id');
+    }
+
+    public function lead_verified()
+    {
+        return $this->belongsTo(User::class, 'lead_verified_by', 'id');
+    }
+
+    public function lead_verified_status()
+    {
+        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'lead_verified_status_id', 'id');
+    }
+
+    public function getRowBgColourAttribute()
+    {
+        $colour = "";
+        if ($this->lead_verified_status) {
+            $colour = @$this->lead_verified_status->color;
+        } elseif ($this->dev_verified_status) {
+            $colour = @$this->dev_verified_status->color;
+        }
+
+        return $colour;
     }
 }

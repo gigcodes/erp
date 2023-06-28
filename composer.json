@@ -90,7 +90,8 @@
     "willdurand/email-reply-parser": "^2.9",
     "yajra/laravel-datatables-oracle": "^9.11",
     "zircote/swagger-php": "2.*",
-    "symfony/css-selector": "^4.0"
+    "symfony/css-selector": "^4.0",
+    "ext-bcmath": "*"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.5",
@@ -112,7 +113,6 @@
       "Database\\Seeders\\": "database/seeders/"
     },
     "files": [
-      "Modules/BookStack/helpers.php",
       "app/Helpers/common_functions.php",
       "app/Helpers/semrush_helper.php"
     ]

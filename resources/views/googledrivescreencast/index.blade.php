@@ -44,18 +44,23 @@
                                     </div>
                                     <div class="form-group m-1">
                                         <select name="task_id" id="search_task" class="form-control" placeholder="Search Dev Task">
-                                        <option value="">Search Dev Task</option>
+                                        <option value="">Search Tasks</option>
                                             @foreach ($tasks as $key => $task )
-                                                <option value="{{$task->id}}" @if(request()->get('task_id')==$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
+                                                <option value="DEV-{{$task->id}}" @if(request()->get('task_id') == "DEV-".$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
                                             @endforeach
+                                            @if (isset($generalTask) && !empty($generalTask))
+                                            @foreach($generalTask as $task)
+                                                <option value="TASK-{{$task->id}}" @if(request()->get('task_id') == "TASK-".$task->id) selected @endif class="form-control">#TASK-{{$task->id}}</option>
+                                            @endforeach
+                                        @endif
                                         </select>
                                     </div>
                                     @if(Auth::user()->isAdmin())
                                     <div class="form-group m-1">
-                                        <select name="user_gmail" id="search_user" class="form-control" placeholder="Search User">
+                                        <select name="user_id" id="search_user" class="form-control" placeholder="Search User">
                                         <option value="">Search User</option>
                                             @foreach ($users as $key => $val )
-                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                                <option value="{{$val->id}}" @if(request()->get('user_id')==$val->id) selected @endif>{{$val->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -71,11 +76,19 @@
                     </div>
                 </div>
             </div>
+        @if(Auth::user()->isAdmin())
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateMulitipleGoogleFilePermissionModal">
+                  Add Permission
+                </button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleFileRemovePermissionModal">
+                   Remove Permission
+                </button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">
                     + Upload Screencast/File
                 </button>
             </div>
+        @endif
         </div>
     </div>
 
@@ -85,6 +98,9 @@
         <table class="table table-bordered">
             <thead>
             <tr>
+                @if(Auth::user()->isAdmin())
+                <th><input type="checkbox" name="select_all" class="select_all"></th>
+                @endif
                 <th>No</th>
                 <th style="max-width: 150px">File Name</th>
                 <th>Dev Task</th>
@@ -102,8 +118,6 @@
             </tbody>
         </table>
     </div>
-
-@include('googledrivescreencast.partials.upload')
 
 <div id="showFullMessageModel" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -123,65 +137,64 @@
 </div>
 @endsection
 @section('scripts')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script type="text/javascript">
-$("#id_label_multiple_user_read").select2();
-$("#id_label_multiple_user_write").select2();
-$("#search_user").select2();
-$('#id_label_task').select2({
-  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-});
-$('#search_task').select2({
-  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-});
-
-$(document).on('click', '.filepermissionupdate', function (e) {
-		
-		$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
-		$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
-		
-        let data_read = $(this).data('readpermission');
-        let data_write = $(this).data('writepermission');
-		var file_id = $(this).data('fileid');
-        var id = $(this).data('id');
-		var permission_read = data_read.split(',');
-		var permission_write = data_write.split(',');
-		if(permission_read)
-		{
-			$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
-		}
-		if(permission_write)
-		{
-			$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
-		}
-		
-		$('#file_id').val(file_id);
-        $('#id').val(id);
-	
-	});
-
-    $(document).on("click",".showFullMessage", function () {
-        let title = $(this).data('title');
-        let message = $(this).data('message');
-        
-        $("#showFullMessageModel .modal-body").html(message);
-        $("#showFullMessageModel .modal-title").html(title);
-        $("#showFullMessageModel").modal("show");
-    });
-    
-    $(document).on("click",".filedetailupdate", function (e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-        let fileid = $(this).data('fileid');
-        let fileremark = $(this).data('file_remark');
-        let filename = $(this).data('file_name');
-
-        $("#updateUploadedFileDetailModal .id").val(id);
-        $("#updateUploadedFileDetailModal .file_id").val(fileid);
-        $("#updateUploadedFileDetailModal .file_remark").val(fileremark);
-        $("#updateUploadedFileDetailModal .file_name").val(filename);
-
+<script>
+$(document).ready(function() {
+        $('#updateMulitipleGoogleFilePermissionModal').on('submit', function(e) {
+            e.preventDefault();
+            var selectedCheckboxes = [];
+            var fileIDs = [];
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+            $('#multiple_file_id').val(selectedCheckboxes.join(','));
+            $(this).unbind('submit').submit();
+        });
+        $('#GoogleFileRemovePermissionModal').on('submit', function(e) {
+            e.preventDefault();
+            var selectedCheckboxes = [];
+            var fileIDs = [];
+            if ($('.select_all').prop('checked')) {
+                $('.fileCheckbox').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            } else {
+                $('input[name="fileCheckbox"]:checked').each(function() {
+                    var fileID = $(this).data('id');
+                    var checkboxValue = $(this).val();
+                    fileIDs.push(fileID);
+                    selectedCheckboxes.push(checkboxValue);
+                });
+            }
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }
+            $('#remove_file_ids').val(selectedCheckboxes.join(','));
+            $(this).unbind('submit').submit();
+        });
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.fileCheckbox').prop('checked', isChecked);
+        });
     });
     </script>
 @endsection

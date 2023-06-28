@@ -2215,6 +2215,7 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'task') {
                 $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
                 $data['task_id'] = $request->task_id;
+                $data['is_audio'] = $request->get('is_audio',0);
                 $task = Task::find($request->task_id);
 
                 if ($task->is_statutory != 1) {
@@ -2458,7 +2459,7 @@ class WhatsAppController extends FindByNumberController
                         $magento_url = $storeWebsite->magento_url;
                         $api_token = $storeWebsite->api_token;
                         if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
-                            
+
                             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             $curl = curl_init();
                             $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
@@ -2583,6 +2584,7 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'issue') {
                     $sendTo = $request->get('sendTo', 'to_developer');
                     $params['issue_id'] = $request->get('issue_id');
+                    $params['is_audio'] = $request->get('is_audio',0);
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId = $issue->assigned_to;
@@ -3321,27 +3323,29 @@ class WhatsAppController extends FindByNumberController
             /** Sent To ChatbotMessage */
             $loggedUser = $request->user();
 
-            $roles = $loggedUser->roles->pluck('name')->toArray();
+            if ($loggedUser) {
+                $roles = $loggedUser->roles->pluck('name')->toArray();
 
-            if (! in_array('Admin', $roles)) {
-                \App\ChatbotReply::create([
-                    'question' => $request->message,
-                    'reply' => json_encode([
-                        'context' => 'vendor',
-                        'issue_id' => $data['vendor_id'],
-                        'from' => $loggedUser->id,
-                    ]),
-                    'replied_chat_id' => $chat_message->id,
-                    'reply_from' => 'database',
-                ]);
-            }
+                if (! in_array('Admin', $roles)) {
+                    \App\ChatbotReply::create([
+                        'question' => $request->message,
+                        'reply' => json_encode([
+                            'context' => 'vendor',
+                            'issue_id' => $data['vendor_id'],
+                            'from' => $loggedUser->id,
+                        ]),
+                        'replied_chat_id' => $chat_message->id,
+                        'reply_from' => 'database',
+                    ]);
+                }
 
-            $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+                $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
 
-            if ($messageReply) {
-                $messageReply->chat_id = $chat_message->id;
+                if ($messageReply) {
+                    $messageReply->chat_id = $chat_message->id;
 
-                $messageReply->save();
+                    $messageReply->save();
+                }
             }
         }
         //END - DEVTASK-4203
@@ -5416,7 +5420,7 @@ class WhatsAppController extends FindByNumberController
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             curl_close($curl);
-            
+
             LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
             // throw new \Exception("cURL Error #: whatttt");
             if ($err) {
@@ -5485,7 +5489,7 @@ class WhatsAppController extends FindByNumberController
         $err = curl_error($curl);
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-       
+
         LogRequest::log($startTime, $url, 'POST', json_encode($array), json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendWithNewApi');
 
         if ($err) {

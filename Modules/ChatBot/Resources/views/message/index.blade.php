@@ -148,6 +148,52 @@
             </div>
         </div>
     </div>
+    <div id="record-voice-notes" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Record & Send Voice Message</h4>
+                </div>
+                <div class="modal-body" >
+                    <Style>
+                    #rvn_status:after {
+                        overflow: hidden;
+                        display: inline-block;
+                        vertical-align: bottom;
+                        -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+                        animation: ellipsis steps(4, end) 900ms infinite;
+                        content: "\2026";
+                        /* ascii code for the ellipsis character */
+                        width: 0px;
+                        }
+
+                        @keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+
+                        @-webkit-keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+                    </style>
+                    <input type="hidden" name="rvn_id" id="rvn_id" value="">
+                    <input type="hidden" name="rvn_tid" id="rvn_tid" value="">
+                    <button id="rvn_recordButton" class="btn btn-s btn-secondary">Start Recording</button>
+                    <button id="rvn_pauseButton" class="btn btn-s btn-secondary"disabled>Pause Recording</button>
+                    <button id="rvn_stopButton" class="btn btn-s btn-secondary"disabled>Stop Recording</button>
+                    <div id="formats">Format: start recording to see sample rate</div>
+                    <div id="rvn_status">Status: Not started...</div>
+                    <div id="recordingsList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     @include("partials.customer-new-ticket")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
@@ -155,6 +201,8 @@
     <script src="/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/js/jsrender.min.js"></script>
     <script type="text/javascript" src="/js/common-helper.js"></script>
+    <script type="text/javascript" src="/js/recorder.js"></script>
+    <script type="text/javascript" src="/js/record-voice-notes.js"></script>
     <script type="text/javascript">
 
         var callQuickCategory = function () {
@@ -405,6 +453,11 @@
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
+            var is_audio=0;
+            if( $("#is_audio_"+id).length )  {
+                is_audio=$("#is_audio_"+id).val();
+            }
+            
             data.append("chat_id", id);
             console.log(type);
 
@@ -447,6 +500,7 @@
 
                 data.append('issue_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("sendTo", 'to_developer');
                 data.append("status", 2)
                 data.append("chat_reply_message_id", chatMessageReplyId)
@@ -454,6 +508,7 @@
             }else if(type === 'issue'){
                 data.append('issue_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("status", 1)
                 data.append("chat_reply_message_id", chatMessageReplyId)
             }
@@ -461,6 +516,7 @@
             else if(type === 'task'){
                 data.append('task_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("status", 2)
                 data.append("sendTo", 'to_developer');
                 data.append("chat_reply_message_id", chatMessageReplyId)
@@ -672,6 +728,24 @@
             message = $(this).attr('data-msg');
             $('.sop_description').val(message);
         });
-
+        $( document ).ready(function() {
+            $(document).on('click', '.btn-trigger-rvn-modal',function () {
+                var id=$(this).attr('data-id')
+                var tid=$(this).attr('data-tid')
+                $("#record-voice-notes #rvn_id").val(id);
+                $("#record-voice-notes #rvn_tid").val(tid);
+                $("#record-voice-notes").modal("show");
+            });
+            $('#record-voice-notes').on('hidden.bs.modal', function () {
+                $("#rvn_stopButton").trigger("click");
+                $("#formats").html("Format: start recording to see sample rate");
+                $("#rvn_id").val(0);
+                $("#rvn_tid").val(0);
+                setTimeout(function () {
+                     $("#recordingsList").html('');
+                }, 2500);
+            })
+        });
+ 
     </script>
 @endsection

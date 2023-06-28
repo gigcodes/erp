@@ -2,6 +2,7 @@
 
 namespace App\Library\Google\DialogFlow;
 
+use App\ChatbotQuestion;
 use App\Models\DialogflowEntityType;
 use Google\Cloud\Dialogflow\V2\AgentsClient;
 use Google\Cloud\Dialogflow\V2\EntityType;
@@ -20,6 +21,16 @@ use Google\Cloud\Dialogflow\V2\TextInput;
 
 class DialogFlowService
 {
+    const VARIABLES = [
+        'order_id',
+        'order_status',
+        'website',
+        'estimate_date',
+        'delivery_date',
+        'awb_number',
+        'refund_status',
+        'refund_id',
+    ];
     private $googleAccount;
     private $credentials;
 
@@ -29,8 +40,20 @@ class DialogFlowService
         $this->credentials = ['credentials' => $googleAccount->service_file];
     }
 
-    public function createIntent($parameters, $updateId)
+    public function createIntent($parameters, $updateId = null)
     {
+//        $detectIntent = $this->detectIntent(null, $parameters['name']);
+//        if ($detectIntent->getIntent()->getDisplayName() == $parameters['name']) {
+//            $name = explode('/', $detectIntent->getIntent()->getName());
+//            $updateId = $name[count($name) - 1];
+//        }
+        if (!$updateId) {
+            $intents = $this->listIntents();
+            $findIntent = array_search($parameters['name'], array_column($intents, 'display_name'));
+            if ($findIntent) {
+                $updateId = $intents[$findIntent]['id'];
+            }
+        }
         // Create Intents
         $intentClient = new IntentsClient($this->credentials);
         if ($updateId) {
@@ -59,6 +82,15 @@ class DialogFlowService
             ->setTrainingPhrases($trainingPhrases)
             ->setMessages($messages);
 
+        if (isset($parameters['parent']) && !empty($parameters['parent'])) {
+            $parentQuestion = ChatbotQuestion::find($parameters['parent']);
+            if ($parentQuestion && $parentQuestion->google_response_id) {
+                $parentClient = new IntentsClient($this->credentials);
+                $parentFollowupName = $parentClient->intentName($this->googleAccount->project_id, $parentQuestion->google_response_id);
+                $intent->setParentFollowupIntentName($parentFollowupName);
+            }
+        }
+
         if ($updateId) {
             $intent->setName($parent);
             $response = $intentClient->updateIntent($intent);
@@ -78,6 +110,21 @@ class DialogFlowService
         $response = $intentsClient->deleteIntent($intentName);
         $intentsClient->close();
         return $response;
+    }
+
+    public function listIntents() {
+        $intentsClient = new IntentsClient($this->credentials);
+        $parent = $intentsClient->agentName($this->googleAccount->project_id);
+        $response = $intentsClient->listIntents($parent, ['pageSize' => 1000]);
+
+        $intents = [];
+        foreach ($response->iterateAllElements() as $intent) {
+            $name = explode('/', $intent->getName());
+            $name = $name[count($name) - 1];
+            $intents[] = ['display_name' => $intent->getDisplayName(), 'id' => $name];
+        }
+
+        return $intents;
     }
 
     public function createEntity($entityTypeId, $entityValue, $synonyms = [])
@@ -197,5 +244,91 @@ class DialogFlowService
             $entityType = DialogflowEntityType::whereIn('id', $ids)->first();
             $this->deleteEntity($entityType->response_id, $question->value);
         }
+    }
+
+    public function findVariables($text): array
+    {
+        $variables = [];
+        foreach (self::VARIABLES as $VARIABLE) {
+            if (str_contains($text, "#{" . $VARIABLE. "}")) {
+                $variables[] = $VARIABLE;
+            }
+        }
+        return $variables;
+    }
+
+    public function purifyResponse($text, $customer = null, $orderId = null, $refundId = null)
+    {
+        $variables = $this->findVariables($text);
+        if (count($variables) > 0) {
+            foreach ($variables as $variable) {
+                $text = $this->getReplacement($text, $variable, $customer, $orderId, $refundId);
+            }
+        }
+        return $text;
+    }
+
+
+    public function getReplacement($text, $variable, $customer, $orderId = null, $refundId = null)
+    {
+        $lastOrder = null;
+        $latestRefund = null;
+        if ($customer) {
+            if ($orderId) {
+                $lastOrder = $customer->getOrderById($orderId);
+            } else {
+                $lastOrder = $customer->latestOrder();
+            }
+            if ($refundId) {
+                $latestRefund = $customer->getRefundById($refundId);
+            } else {
+                $latestRefund = $customer->latestRefund();
+            }
+        }
+        switch ($variable) {
+            case 'order_id':
+                if ($lastOrder) {
+                    $text = str_replace('#{order_id}', $lastOrder->order_id, $text);
+                }
+                break;
+            case 'order_status':
+                if ($lastOrder) {
+                    $text = str_replace('#{order_status}', $lastOrder->status->status, $text);
+                }
+                break;
+            case 'website':
+                if ($lastOrder) {
+                    $text = str_replace('#{website}', $lastOrder->getWebsiteTitle(), $text);
+                }
+                break;
+            case 'estimate_date':
+                if ($lastOrder) {
+                    $text = str_replace('#{estimate_date}', $lastOrder->estimated_delivery_date, $text);
+                }
+                break;
+            case 'delivery_date':
+                if ($lastOrder) {
+                    $text = str_replace('#{delivery_date}', $lastOrder->date_of_delivery, $text);
+                }
+                break;
+            case 'awb_number':
+                if ($lastOrder) {
+                    $text = str_replace('#{awb_number}', $lastOrder->totalWayBills(), $text);
+                }
+                break;
+            case 'refund_status':
+                if ($latestRefund && $latestRefund->returnExchangeStatus) {
+                    $text = str_replace('#{refund_status}', $latestRefund->returnExchangeStatus->status_name, $text);
+                }
+                break;
+            case 'refund_id':
+                if ($latestRefund && $latestRefund->returnExchangeStatus) {
+                    $text = str_replace('#{refund_id}', $latestRefund->id, $text);
+                }
+                break;
+            default:
+                break;
+        }
+        return $text;
     }
 }

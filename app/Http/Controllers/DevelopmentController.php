@@ -485,6 +485,7 @@ class DevelopmentController extends Controller
 
         $issues = $issues->select('developer_tasks.*',
             'chat_messages.message',
+            'chat_messages.is_audio',
             'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id'
         );
 

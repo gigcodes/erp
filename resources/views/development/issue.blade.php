@@ -239,7 +239,52 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         </div>
     </div>
 </div>
+<div id="record-voice-notes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Record & Send Voice Message</h4>
+            </div>
+            <div class="modal-body" >
+                <Style>
+                    #rvn_status:after {
+                        overflow: hidden;
+                        display: inline-block;
+                        vertical-align: bottom;
+                        -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+                        animation: ellipsis steps(4, end) 900ms infinite;
+                        content: "\2026";
+                        /* ascii code for the ellipsis character */
+                        width: 0px;
+                        }
 
+                        @keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+
+                        @-webkit-keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+                    </style>
+                <input type="hidden" name="rvn_id" id="rvn_id" value="">
+                <input type="hidden" name="rvn_tid" id="rvn_tid" value="">
+                <button id="rvn_recordButton" class="btn btn-s btn-secondary">Start Recording</button>
+                <button id="rvn_pauseButton" class="btn btn-s btn-secondary"disabled>Pause Recording</button>
+                <button id="rvn_stopButton" class="btn btn-s btn-secondary"disabled>Stop Recording</button>
+                <div id="formats">Format: start recording to see sample rate</div>
+                <div id="rvn_status">Status: Not started...</div>
+                <div id="recordingsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @include("development.actions-update-modal")
 @include("development.partials.time-history-modal")
 
@@ -251,6 +296,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+<script type="text/javascript" src="/js/recorder.js"></script>
+<script type="text/javascript" src="/js/record-voice-notes.js"></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 
 <script>
@@ -755,6 +802,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
     $(document).on('click', '.send-message-open', function(event) {
         var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
+        var is_audio = $(this).closest(".expand-row").find(".is_audio").val();
         var sendToStr = $(this).closest(".expand-row").find(".send-message-number").val();
         var add_autocomplete = $(this).closest(".expand-row").find("[name=add_to_autocomplete]").is(':checked');
 
@@ -775,7 +823,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 "sendTo": sendToStr,
                 "_token": "{{csrf_token()}}",
                 "status": 2,
-                "add_autocomplete": add_autocomplete
+                "add_autocomplete": add_autocomplete,
+                "is_audio": is_audio
             },
             dataType: "json",
             success: function(response) {
@@ -1742,7 +1791,22 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             });
 
         });
-
+        $(document).on('click', '.btn-trigger-rvn-modal',function () {
+            var id=$(this).attr('data-id')
+            var tid=$(this).attr('data-tid')
+            $("#record-voice-notes #rvn_id").val(id);
+            $("#record-voice-notes #rvn_tid").val(tid);
+            $("#record-voice-notes").modal("show");
+        });
+        $('#record-voice-notes').on('hidden.bs.modal', function () {
+            $("#rvn_stopButton").trigger("click");
+            $("#formats").html("Format: start recording to see sample rate");
+            $("#rvn_id").val(0);
+            $("#rvn_tid").val(0);
+            setTimeout(function () {
+                $("#recordingsList").html('');
+            }, 2500);
+        })
     });
 </script>
 @endsection

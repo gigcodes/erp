@@ -30,6 +30,9 @@
 			        	{{/if}}
 			        </td>
 			        <td>
+						<button type="button" title="Push Log" data-id="{{>prop.id}}" class="btn btn-push-log-template">
+			        		<i class="fa fa-info-circle" aria-hidden="true"></i>
+			        	</button>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>

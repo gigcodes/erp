@@ -18,8 +18,8 @@
 .chat-bot-body {
     background-color: #dddddd36;
     padding: 10px;
-    min-height: 450px;
-    max-height: 450px;
+    min-height: 80vh;
+    max-height: 80vh;
     overflow: hidden;
     overflow-y: scroll;
 }
@@ -30,6 +30,13 @@
     border-radius: 6px;
     padding: 5px 10px;
     margin-bottom: 5px;
+}
+
+.chat-message > p + p {
+    background-color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
+    margin-bottom: 2px;
 }
 
 .chat-message.left-chat {
@@ -59,4 +66,21 @@
 
 .chat-bot-footer .form-control {
     padding-right: 30px;
+}
+
+.intent-details select {
+    max-width: 200px;
+}
+
+.save-btn {
+    padding: 2px 8px;
+    margin-top: -15px;
+}
+
+.intent-details {
+    width: fit-content;
+}
+
+.get-type {
+    white-space: nowrap;
 }

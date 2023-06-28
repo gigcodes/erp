@@ -311,6 +311,81 @@ class LaravelLogController extends Controller
         return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords, 'ChatMessages' => $ChatMessages]);
     }
 
+    public function liveLogsSummary()
+    {
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+        //$filename = '/laravel-2020-09-10.log';
+        $path = storage_path('logs');
+        $fullPath = $path . $filename;
+        $errSelection = [];
+        try {
+            $content = File::get($fullPath);
+            preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+            $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeSeparated = implode('|', $errorTypeArr);
+
+            $defaultSearchTerm = 'ERROR';
+
+            foreach ($match[0] as $value) {
+                foreach ($errorTypeArr as $errType) {
+                    if (preg_match('/' . $errType . '/', $value)) {
+                        $errSelection[] = $errType;
+                        break;
+                    }
+                }
+
+                if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
+                    $str = $value;
+                    $temp1 = explode('.', $str);
+                    $temp2 = explode(' ', $temp1[0]);
+                    $type = $temp2[2];
+                    array_push($this->channel_filter, $type);
+
+                    $errors[] = $value . '===' . str_replace('/', '', $filename);
+                }
+            }
+            $errors = array_reverse($errors);
+        } catch (\Exception $e) {
+            $errors = [];
+        }
+
+        $allErrorTypes = array_values(array_unique($errSelection));
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $final = $key = [];
+        foreach ($errors as $key => $error) {
+            $str = $error;
+            $temp1 = explode('.', $str);
+            $temp2 = explode(' ', $temp1[0]);
+            $type = $temp2[2];
+
+            $if_available = false;
+
+            foreach ($final as $value) {
+                if (stripos(strtolower($value), $temp1[1]) !== false) {
+                    $if_available = true;
+                }
+            }
+            if ($if_available) {
+                continue;
+            } else {
+                array_push($final, $error);
+            }
+        }
+
+        $errors = [];
+        $errors = array_unique($final);
+        $logs = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
+
+        $html = view('partials.modals.live-laravel-logs-summary-ajax')
+            ->with('logs', $logs)
+            ->with('filename', str_replace('/', '', $filename))
+            ->with('errSelection', $allErrorTypes)
+            ->render();
+
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render']);
+    }
+
     public function LogKeyword(Request $request)
     {
         if ($request->title) {

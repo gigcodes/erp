@@ -8,6 +8,9 @@
 
 @foreach ($data as $key => $file)
     <tr>
+        @if(Auth::user()->isAdmin())
+         <td><input type="checkbox" name="fileCheckbox" class="fileCheckbox" value="{{ $file->id }}" data-file="{{ $file->google_drive_file_id }}" data-id="{{ $file->id }}" data-select="true"></td>
+        @endif
         <td>{{ ++$i }}</td>
         <td style="max-width: 150px">
             <div data-message="{{$file->file_name}}" data-title="File name" style="cursor: pointer" class="showFullMessage">

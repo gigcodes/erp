@@ -16,6 +16,7 @@
                                 <div class="col-12 pb-3">
                                     <input type="text" name="task_search" class="password-search-table" class="form-control" placeholder="Enter Website">
                                     <button type="button" class="btn btn-secondary btn-password-search-menu" ><i class="fa fa-search"></i></button>
+                                      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal" onclick="showCreatePasswordModal()">+</button>
                                 </div>
                                 <div class="col-12">
                                     <table class="table table-sm table-bordered">

@@ -91,6 +91,7 @@ class SiteAssetController extends Controller
         $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
         $data['categories'] = SiteDevelopmentCategory::all()->pluck('title', 'id');
         $data['search_website'] = isset($request->store_webs) ? $request->store_webs : ['1', '2', '3', '5', '9'];
+        $data['search_website_string'] = implode("," , $data['search_website']);
         $data['search_category'] = isset($request->categories) ? $request->categories : [];
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');

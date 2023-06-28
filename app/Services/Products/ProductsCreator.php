@@ -181,7 +181,14 @@ class ProductsCreator
 
                     // Check for material_used key
                     if (isset($image->properties['material_used'])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties['material_used'] ?? '', 'composition'));
+                        // Below code copying from controller ScrapController.php function syncProductsFromNodeApp line 313
+                        if (is_array($image->properties['material_used'])) {
+                            $compositionForScrapedProducts = implode(',', $image->properties['material_used']);
+                        } else {
+                            $compositionForScrapedProducts = $image->properties['material_used'];
+                        }
+
+                        $product->composition = trim(ProductHelper::getRedactedText($compositionForScrapedProducts ?? '', 'composition'));
                     }
                 }
 
