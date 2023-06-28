@@ -117,13 +117,16 @@
                 <div class="col-12">
                     <form action="{{ route('magento_module_listing') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-2 pd-sm">
+                            {{-- <div class="col-md-2 pd-sm">
 								<input id="search-input" type="text" placeholder="type to Search here...">
-                                {{-- <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}"> --}}
-                            </div>
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                            </div> --}}
                             <div class="col-md-2 pd-sm">
 								{!! Form::select('module_name', $allMagentoModules, request()->get('module_name'), ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
                             </div>
+							<div class="col-md-3">
+								{{ Form::select('store_webs[]', $all_store_websites, $selecteStoreWebsites, ['class' => 'form-control  globalSelect22','placeholder' => '-- All Website --',  "multiple" => "multiple"]) }}
+							</div>
                             <div class="col-md-2 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
@@ -275,6 +278,10 @@
 	});
 
 	$( document ).ready(function() {
+		$('.globalSelect22').select2({
+                multiple: true,
+            });
+			
 		$(document).on('click', '.expand-row', function () {
 			var selection = window.getSelection();
 			if (selection.toString().length === 0) {
