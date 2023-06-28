@@ -51,6 +51,11 @@ function actionShowButton(url) {
 }
 
 // Show details page button
+function actionShowButtonWithTitle(url, title) {
+  return `<a href="${url}" title="${title}" class="btn btn-image padding-10-3"><i class="fa fa-file-text" aria-hidden="true"></i></a>`;
+}
+
+// Show details page button
 function actionShowButtonWithClass(cls, id) {
   return `<button type="button" title="Details Page"  class="btn btn-image padding-10-3 ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
 }

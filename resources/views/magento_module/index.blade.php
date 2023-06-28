@@ -492,7 +492,7 @@
                         name: 'magento_modules.module',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
@@ -821,11 +821,17 @@
                             row["categories"] = "";
                             row["website_list"] = "";
                             row["verified_status"] = "";
+                            var listing_route = '{{ route("magento_module_listing") }}?module_name=' + row['module']; 
+                            var list_data = actionShowButtonWithTitle(listing_route, "Listing page");
+
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
+                            var del_data = "";
+                            <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
+                            del_data = actionDeleteButton(row['id']);
+                            <?php } ?>
+                            return `<div class="flex justify-left items-center">${list_data} ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
                         }
                     },
                 ],
