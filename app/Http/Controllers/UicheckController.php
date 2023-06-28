@@ -1172,10 +1172,16 @@ class UicheckController extends Controller
                                     ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
             $isAdmin = Auth::user()->isAdmin();
             $show_inactive=0;
-            if($request->show_inactive == 1){
-                $show_inactive=1;
-                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1);
-            }else{
+            if ($isAdmin) {
+                if($request->show_inactive == 'inactive'){
+                    $show_inactive=1;
+                    $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1);
+                }elseif($request->show_inactive == 'active'){
+                    $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
+                }
+                // otherwise show all.
+            } else {
+                // Non admin user - Show only lock = 0 records
                 $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
             }
             
@@ -1204,8 +1210,8 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);
             }
 
-            if ($request->type != '') {
-                $uiDevDatas = $uiDevDatas->where('uic.uicheck_type_id', $request->type);
+            if (!empty($request->type) && $request->type[0] != null) {
+                $uiDevDatas = $uiDevDatas->whereIn('uic.uicheck_type_id', $request->type);
             }
 
             if ($request->website != '') {
