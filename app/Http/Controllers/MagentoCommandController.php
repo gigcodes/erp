@@ -45,13 +45,13 @@ class MagentoCommandController extends Controller
         $magentoCommand = MagentoCommand::whereNotNull('id');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type','command_name')->toArray();
         if (! empty($request->website)) {
-            $magentoCommand->where('website_ids', $request->website);
+            $magentoCommand->whereIn('website_ids', $request->website);
         }
         if (! empty($request->command_name)) {
-            $magentoCommand->where('command_name', 'like', '%' . $request->command_name . '%');
+            $magentoCommand->whereIn('command_name', $request->command_name);
         }
         if (! empty($request->user_id)) {
-            $magentoCommand->where('user_id', '=', $request->user_id);
+            $magentoCommand->whereIn('user_id', $request->user_id);
         }
         $limit = Setting::get('pagination') ?? config('site.pagination.limit');
         $magentoCommand = $magentoCommand->paginate($limit);
