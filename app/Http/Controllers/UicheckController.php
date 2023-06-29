@@ -1194,8 +1194,9 @@ class UicheckController extends Controller
 
             $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
             $allUsers = User::where('is_active', '1')->get();
+            $siteDevelopmentStatuses = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
 
-            return view('uicheck.device-histories', compact('uiDeviceHistories', 'siteDevelopmentCategories', 'allUsers'))->with('i', ($request->input('page', 1) - 1) * 25);
+            return view('uicheck.device-histories', compact('uiDeviceHistories', 'siteDevelopmentCategories', 'allUsers', 'siteDevelopmentStatuses'))->with('i', ($request->input('page', 1) - 1) * 25);
         } catch (\Exception $e) {
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
         }

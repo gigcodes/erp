@@ -88,6 +88,7 @@
                     <th>Message</th>
                     <th>Estimated Time</th>
                     <th>Expected Completion Time</th>
+                    <th>Status</th>
                     <th>Is Time Approved</th>
                 </tr>
             </thead>
@@ -114,11 +115,22 @@
                                 {{ show_short_message($uiDeviceHistory->message, 25) }}
                             </div>
                         </td>
-                        <td>{{ $uiDeviceHistory->estimated_time }} Mins</td>
+                        <td>{{ $uiDeviceHistory->estimated_time }} @if ($uiDeviceHistory->estimated_time) Mins @endif</td>
                         <td>{{ $uiDeviceHistory->expected_completion_time }}</td>
                         <td>
                             <div class="select">
-                                <select class="form-control is_time_approve" name="status" id="status" data-id="{{$uiDeviceHistory->id}}">
+                                <select class="form-control historystatus" name="status" id="status" data-id="{{$uiDeviceHistory->id}}">
+                                    <option value="">Select</option>
+                                    @forelse($siteDevelopmentStatuses as $sID => $siteDevelopmentStatus)
+									<option value="{{ $sID }}" {{$uiDeviceHistory->status == $sID ? 'selected' : ''}}>{!! $siteDevelopmentStatus !!}</option>
+									@empty
+									@endforelse
+                                </select>
+                           </div>
+                        </td>
+                        <td>
+                            <div class="select">
+                                <select class="form-control is_time_approve" name="is_time_approve" id="is_time_approve" data-id="{{$uiDeviceHistory->id}}">
                                     <option value="0">Select</option>
                                     <option {{$uiDeviceHistory->is_estimated_time_approved == 1 ? 'selected' : ''}} value="1">Approve</option>
                                 </select>
@@ -166,6 +178,29 @@
             $("#showFullMessageModel .modal-body").html(message);
             $("#showFullMessageModel .modal-title").html(title);
             $("#showFullMessageModel").modal("show");
+        });
+
+        $(document).on("change", ".historystatus", function(e) {
+            var id = $(this).data("id");
+            var status_id = $(this).val();
+            $.ajax({
+                url: "{{route('uicheck.device.status')}}",
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                dataType:"json",
+                data: { id : id, status_id:status_id},
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                $("#loading-image").hide();
+                toastr["success"](response.message);
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {      
+                toastr["error"](jqXHR.responseJSON.message);
+                $("#loading-image").hide();
+            });
         });
 
         $(".is_time_approve").change(function(){
