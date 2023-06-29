@@ -227,6 +227,7 @@
 						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
 					}
 				@endphp
+				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
@@ -242,7 +243,7 @@
 			<table class="table table-bordered" style="width: 135%;max-width:unset" id="uicheck_table1">
 				<thead>
 					<tr>
-						{{-- <th width="10%">ID</th> --}}
+						<th></th>
 						<th >#</th>
 						<th style="width: auto">Categories</th>
 						<th style="width: auto">Website</th>
@@ -282,7 +283,7 @@
 							}
 						@endphp
 							<tr>
-								{{-- <td>{{$uiDevData->id}}</td> --}}
+								<td><input type="checkbox" name="bulk_delete[]" class="d-inline bulk_delete" value="{{$uiDevData->uicheck_id}}"></td>
 								<td>{{$uiDevData->uicheck_id}}</td>
 								<td class="expand-row-msg uicheck-username" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
 									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 12, '..')}} @else   @endif</span>
@@ -583,7 +584,8 @@
 								<th width="5%">ID</th>
 								<th width="8%">Update By</th>
 								<th width="25%" style="word-break: break-all;">Message</th>
-								<th width="15%" style="word-break: break-all;">Estimated Time</th>
+								<th width="20%" style="word-break: break-all;">Expected completion time</th>
+								<th width="10%" style="word-break: break-all;">Estimated Time</th>
 								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
@@ -734,7 +736,7 @@
 							<tr>
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
-								<th width="22%" style="word-break: break-all;">Message & Estimated Time[In Minutes]</th>
+								<th width="35%" style="word-break: break-all;">Expected completion time, Message & Estimated Time[In Minutes]</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -742,13 +744,21 @@
 								<td><input type="text" readonly id="uidev_id" name="uidev_id" value="" style="margin-top: 0px;width:80% !important;"></td>
 								<td>Device <span id="uidev_num"></span></td>
 								<td>
-									<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
-									<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
-									<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
-									
-									<button id="uidev_update_esttime" class="btn pr-0 btn-xs btn-image div-message-language">
-										<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;">
-									</button>
+									<div class="form-group flex gap-5">
+										<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
+										<div class='input-group date cls-start-due-date'>
+											<input placeholder="Expected completion time" type="text" class="form-control" id="modal_expected_completion_time" name="modal_expected_completion_time" value="" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+										<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
+										<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
+										
+										<button id="uidev_update_esttime" class="btn pr-0 btn-xs btn-image div-message-language">
+											<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;">
+										</button>
+									</div>
 									
 								</td>
 								
@@ -827,6 +837,46 @@
 		});
 	});	
 
+	function bulkDelete()
+    {
+        event.preventDefault();
+        var uiCheckIds = [];
+
+		$(".bulk_delete").each(function () {
+			if ($(this).prop("checked") == true) {
+				uiCheckIds.push($(this).val());
+			}
+		});
+
+		if (uiCheckIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(uiCheckIds);
+			return false;
+		}
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('uicheck.bulk-delete') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                uiCheckIds: uiCheckIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"]("Deleted successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"](error.responseJSON.message);
+        });
+    }
+
 	function updateIsApprove(ele, uicheckId, device_no) {
 		approveBtn = jQuery(ele);
 
@@ -866,6 +916,7 @@
 		let uidevstatus = '';
 		var device_no = jQuery('#uidev_id').val();
 		let uidevdatetime = jQuery('#uidev_estimated_time').val();
+		let uidevExpectedCompletionTime = jQuery('#modal_expected_completion_time').val();
 		let mdl = jQuery('#modalCreateDevice');
 		//console.log(uidevmessage);
 		//console.log(uidevdatetime);
@@ -880,7 +931,8 @@
 				uicheck_id : uicheckId,
 				message : uidevmessage,
 				uidevdatetime : uidevdatetime,
-				uidevstatus : uidevstatus
+				uidevstatus : uidevstatus,
+				uidevExpectedCompletionTime: uidevExpectedCompletionTime
 			},
 			beforeSend: function() {
 				//jQuery("#loading-image").show();
@@ -906,6 +958,7 @@
 		$("#uidev_uicheck_id").val(uidev_uicheck_id);
 		$("#uidev_message").val('');
 		$("#uidev_estimated_time").val('');
+		$("#modal_expected_completion_time").val('');
 		$("#uidev_num").html(uidev_id);
 		
 		mdl.modal("show");

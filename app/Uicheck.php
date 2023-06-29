@@ -4,9 +4,12 @@ namespace App;
 
 use App\Models\UicheckHistory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Uicheck extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'uichecks';
 
     protected $fillable = [

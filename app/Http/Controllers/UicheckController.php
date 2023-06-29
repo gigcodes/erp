@@ -1036,14 +1036,22 @@ class UicheckController extends Controller
             $uiDev['user_id'] = \Auth::user()->id;
             $uiDev['device_no'] = $request->device_no;
             $uiDev['uicheck_id'] = $request->uicheck_id;
+            $logHistory = false;
             if ($request->message) {
+                $logHistory = true;
                 $uiDev['message'] = $request->message;
             }
             if ($request->uidevstatus) {
+                $logHistory = true;
                 $uiDev['status'] = $request->uidevstatus;
             }
             if ($request->uidevdatetime) {
+                $logHistory = true;
                 $uiDev['estimated_time'] = $request->uidevdatetime;
+            }
+            if ($request->uidevExpectedCompletionTime) {
+                $logHistory = true;
+                $uiDev['expected_completion_time'] = $request->uidevExpectedCompletionTime;
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {
@@ -1056,7 +1064,7 @@ class UicheckController extends Controller
 
             $uiMess = $uiDevData->message ?? '';
             $uiDev['ui_devices_id'] = $uiData->id;
-            if ($request->message != $uiMess) {
+            if ($request->message != $uiMess && $logHistory) {
                 $reData = $this->uicheckDevUpdateHistory($uiDev);
             }
             $uistatus = $uiData->status ?? '';
@@ -1170,6 +1178,8 @@ class UicheckController extends Controller
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
                                     ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+            $uiDevDatas->whereNull('uic.deleted_at');
+            
             $isAdmin = Auth::user()->isAdmin();
             $show_inactive=0;
             if ($isAdmin) {
@@ -1572,6 +1582,7 @@ class UicheckController extends Controller
                             </div>
                             <i class="fa fa-copy" data-text="' . $value->message . '"></i>
                         </td>',
+                        '<td>' . ($value->expected_completion_time ?: '-') . '</td>',
                         '<td>' . ($value->estimated_time ?: '-') . '</td>',
                         '<td>' . ($select) . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
@@ -1581,7 +1592,7 @@ class UicheckController extends Controller
             } else {
                 $html[] = implode('', [
                     '<tr>',
-                    '<td colspan="6">No records found.</td>',
+                    '<td colspan="7">No records found.</td>',
                     '</tr>',
                 ]);
             }
@@ -1683,6 +1694,7 @@ class UicheckController extends Controller
                 $deviceNo = $udh->device_no;
                 $message = $udh->message;
                 $estimatedTime = $udh->estimated_time;
+                $expectedCompletionTime = $udh->expected_completion_time;
 
                 UiDeviceHistory::create(
                     [
@@ -1692,6 +1704,7 @@ class UicheckController extends Controller
                         'device_no' => $deviceNo ?? '',
                         'status' => $oldStatus ?? '',
                         'estimated_time' => $estimatedTime,
+                        'expected_completion_time' => $expectedCompletionTime,
                         'message' => $message,
                     ]
                 );
@@ -2019,5 +2032,11 @@ class UicheckController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Something went wrong.']);
         }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        Uicheck::whereIn('id', $request->uiCheckIds)->delete();
+        return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
     }
 }

@@ -4075,6 +4075,7 @@ Route::middleware('auth')->group(function () {
         Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
         Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
         Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
+        Route::post('bulk-delete', [UicheckController::class, 'bulkDelete'])->name('uicheck.bulk-delete');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
