@@ -6487,7 +6487,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     });
 
 
-        var url = "{{ route('notesCreate') }}";
+        var url = "{{ route('stickyNotesCreate') }}";
         var page = "{{ request()->fullUrl() }}";
 
         var x = `<div class='sticky_notes_container'>
@@ -6523,7 +6523,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                      var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
 
                     $.ajax({
-                        url: '{{ route('notesCreate') }}',
+                        url: '{{ route('stickyNotesCreate') }}',
                         method: 'POST',
                         data: {
                             value: textareaValue,

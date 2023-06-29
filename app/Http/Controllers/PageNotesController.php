@@ -164,12 +164,21 @@ class PageNotesController extends Controller
 
     public function notesCreate(Request $request)
     {
+        \App\PageNotes::create([
+            'url' => $request->url,
+            'category_id' => '',
+            'note' => $request->data,
+            'user_id' => \Auth::user()->id,
+        ]);
+    }
+
+    public function stickyNotesCreate(Request $request)
+    {
         $pageNotes = new PageNotes;
         $pageNotes->url = $request->get('page');
         $pageNotes->note = $request->get('value');
         $pageNotes->user_id = \Auth::user()->id;
         $pageNotes->save();
-
 
         return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
     }
