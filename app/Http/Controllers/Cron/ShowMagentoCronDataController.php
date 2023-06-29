@@ -44,6 +44,22 @@ class ShowMagentoCronDataController extends Controller
             $data = $data->where('cron_created_at', 'like', $date . '%');
         }
 
+        if (isset($request->sort_by)) {
+
+            if($request->sort_by === "created_at"){
+                $data = $data->orderBy('cron_created_at', 'desc');
+            }
+            if($request->sort_by === "scheduled_at"){
+                $data = $data->orderBy('cron_scheduled_at', 'desc');
+            }
+            if($request->sort_by === "executed_at"){
+                $data = $data->orderBy('cron_executed_at', 'desc');
+            }
+            if($request->sort_by === "finished_at"){
+                $data = $data->orderBy('cron_finished_at', 'desc');
+            }      
+        }
+
         $data = $data->where(function ($query) {
             $query->orWhere([
                 ["cronstatus", "=", 'pending'],
@@ -213,5 +229,15 @@ class ShowMagentoCronDataController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function showMagentoCronErrorList()
+    {
+        $magentoCronErrorLists = new MagentoCronData();
+        $perPage = 25;
+        $magentoCronErrorLists = $magentoCronErrorLists->where('cronstatus' ,'=' , "error")->latest()
+        ->paginate($perPage);
+  
+        return response()->json(['code' => 200, 'data' => $magentoCronErrorLists, 'message' => 'Listed successfully!!!']);
     }
 }

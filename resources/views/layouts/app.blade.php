@@ -734,6 +734,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <ul class="list-unstyled components mr-1">
                                 @if (Auth::user()->hasRole('Admin'))
                                 <li>
+                                    <a title="Magento Cron Error Status Alerts" id="magento-cron-error-status-alerts" type="button" class="quick-icon" onclick="listmagnetoerros()" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                        <span class="magento-cron-error-status-badge hide"></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
                                         <span class="event-alert-badge hide"></span>
@@ -4116,7 +4122,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
 
         </nav>
-
+ 
         @php
         $route = request()->route()->getName();
         @endphp
@@ -4588,9 +4594,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('googledrivescreencast.partials.upload');
-
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
+        @include('partials.modals.magento-cron-error-status-modal')
+
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7499,6 +7506,95 @@ if (!\Auth::guest()) {
         });
     }
 
+    function listmagnetoerros(pageNumber = 1) {
+        $.ajax({
+          url: '{{route("magento-cron-error-list")}}',
+          type: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          },
+          data: {
+            page: pageNumber
+          },
+          dataType: "json",
+          beforeSend: function () {
+            $("#loading-image").show();
+          }
+        }).done(function (response) {
+            console.log(response);
+          $("#loading-image").hide();
+          var html = "";
+          var startIndex = (response.data.current_page - 1) * response.data.per_page;
+          $.each(response.data.data, function (index, cronData) {
+            var sNo = startIndex + index + 1; 
+            html += "<tr>";
+            html += "<td>" + sNo + "</td>";
+            html += "<td>" + (cronData.website.length > 15 ? cronData.website.substring(0, 15) + "..." : cronData.website) + "</td>";
+            html += "<td>" + cronData.cron_id + "</td>";
+            html += "<td>" + (cronData.job_code.length > 15 ? cronData.job_code.substring(0, 15) + "..." : cronData.job_code) + "</td>";
+            html += "<td>" + (cronData.cron_message.length > 15 ? cronData.cron_message.substring(0, 15) + "..." : cronData.cron_message) + "</td>";
+            html += "<td>" + cronData.cron_created_at + "</td>";
+            html += "<td>" + cronData.cron_scheduled_at + "</td>";
+            html += "<td>" + cronData.cron_executed_at + "</td>";
+            html += "<td>" + cronData.cron_finished_at + "</td>";
+            html += "</tr>";
+          });
+          $(".magneto-error-list").html(html);
+          $("#magento-cron-error-status-modal").modal("show");
+          renderPagination(response.data);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+      }
+   
+      function renderPagination(data) {
+        var paginationContainer = $(".pagination-container");
+        var currentPage = data.current_page;
+        var totalPages = data.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+
+    function changePage(pageNumber) {
+        listmagnetoerros(pageNumber);
+    }
+
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();
         getEventAlerts(true);
@@ -7556,9 +7652,9 @@ if (!\Auth::guest()) {
             if (showModal) {
                 $('#timer-alerts-modal').modal('show');
             }
-            // if(response.count > 0) {
-            //     $('.timer-alert-badge').removeClass("hide");
-            // }
+            if(response.count > 0) {
+                $('.timer-alert-badge').removeClass("hide");
+            }
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
