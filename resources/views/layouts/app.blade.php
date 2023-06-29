@@ -734,12 +734,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <ul class="list-unstyled components mr-1">
                                 @if (Auth::user()->hasRole('Admin'))
                                 <li>
-                                    <a title="Magento Cron Error Status Alerts" id="magento-cron-error-status-alerts" type="button" class="quick-icon" onclick="listmagnetoerros()" style="padding: 0px 1px;">
-                                        <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
-                                        <span class="magento-cron-error-status-badge hide"></span>
-                                    </a>
-                                </li>
-                                <li>
                                     <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
                                         <span class="event-alert-badge hide"></span>
@@ -748,6 +742,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Create Event" id="create_event" type="button" data-toggle="modal" data-target="#createcalender" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-calendar fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Magento Cron Error Status Alerts" id="magento-cron-error-status-alerts" type="button" class="quick-icon" onclick="listmagnetoerros()" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
