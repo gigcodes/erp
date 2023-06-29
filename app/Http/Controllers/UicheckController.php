@@ -2039,4 +2039,32 @@ class UicheckController extends Controller
         Uicheck::whereIn('id', $request->uiCheckIds)->delete();
         return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
     }
+
+    public function bulkDeleteUserWise(Request $request)
+    {
+        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)->pluck('uicheck_id')->toArray();
+        Uicheck::whereIn('id', $uicheckIds)->delete();
+        return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
+    }
+
+    public function userAccessList(Request $request)
+    {
+        try {
+            $perPage = 10;
+            $uicheckUserAccess = new UicheckUserAccess();
+            
+            $uicheckUserAccess = $uicheckUserAccess->with('user')
+                ->select('uicheck_user_accesses.*', DB::raw('count(*) as total'))  
+                ->groupBy('user_id')  
+                ->leftJoin('users', 'users.id', 'uicheck_user_accesses.user_id')
+                ->leftJoin('uichecks', 'uichecks.id', 'uicheck_user_accesses.uicheck_id')
+                ->whereNull('uichecks.deleted_at')
+                ->paginate($perPage);
+
+            return response()->json(['code' => 200, 'data' => $uicheckUserAccess, 'count'=> count($uicheckUserAccess), 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
 }

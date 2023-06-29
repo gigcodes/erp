@@ -228,6 +228,7 @@
 					}
 				@endphp
 				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
+				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#list-user-access-modal" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
@@ -717,6 +718,35 @@
 	</div>
 </div>
 
+<!-- List user access modal-->
+<div id="list-user-access-modal" class="modal fade in" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">User Access Details</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th>S.No</th>
+                <th>User Name</th>
+                <th>Total Uicheck count</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody class="user-access-list">
+              
+            </tbody>
+          </table>
+          <!-- Pagination links -->
+          <div class="pagination-container"></div>
+        </div>
+      </div>
+    </div>
+</div>
+
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -909,6 +939,100 @@
 			toastr["error"](errObj.message);
 		});
 	}
+
+	function listUserAccess(pageNumber = 1) {
+		$.ajax({
+			url: '{{route("uicheck.user-access-list")}}',
+			type: 'GET',
+			headers: {
+			'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			data: {
+			page: pageNumber
+			},
+			dataType: "json",
+			beforeSend: function () {
+			$("#loading-image").show();
+			}
+		}).done(function (response) {
+			console.log(response.data);
+			$("#loading-image").hide();
+			var html = "";
+			var startIndex = (response.data.current_page - 1) * response.data.per_page;
+
+			$.each(response.data.data, function (index, userAccess) {
+			var sNo = startIndex + index + 1; 
+			html += "<tr>";
+			html += "<td>" + sNo + "</td>";
+			html += "<td>" + userAccess.user.name + "</td>";
+			html += "<td>" + userAccess.total + "</td>";
+			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+			html += "</tr>";
+			});
+			$(".user-access-list").html(html);
+			$("#list-user-access-modal").modal("show");
+			renderPagination(response.data);
+		}).fail(function (response, ajaxOptions, thrownError) {
+			toastr["error"](response.message);
+			$("#loading-image").hide();
+		});
+
+	}
+
+	function renderPagination(data) {
+		var paginationContainer = $(".pagination-container");
+		var currentPage = data.current_page;
+		var totalPages = data.last_page;
+
+		var html = "";
+		if (totalPages > 1) {
+		html += "<ul class='pagination'>";
+		if (currentPage > 1) {
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+		}
+		for (var i = 1; i <= totalPages; i++) {
+			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+		}
+		if (currentPage < totalPages) {
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+		}
+		html += "</ul>";
+		}
+
+		paginationContainer.html(html);
+	}
+
+	function changePage(pageNumber) {
+		listUserAccess(pageNumber);
+	}
+
+	$(document).on("click",".user-access-delete",function(e) {
+		e.preventDefault();
+		var userId = $(this).data("user_id");
+		var $this = $(this);
+		if(confirm("Are you sure you want to delete records ?")) {
+			$.ajax({
+				url:'{{route("uicheck.bulk-delete-user-wise")}}',
+				type: 'POST',
+				headers: {
+					'X-CSRF-TOKEN': "{{ csrf_token() }}"
+				},
+				dataType:"json",
+				data: { userId : userId},
+				beforeSend: function() {
+					$("#loading-image").show();
+				}
+			}).done(function (data) {
+				$("#loading-image").hide();
+				toastr["success"]("Records deleted successfully");
+				$this.closest("tr").remove();
+				window.location.reload();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+		}
+	});
 	
 	$(document).on("click", "#uidev_update_esttime", function(e) {
 		var uicheckId = $("#uidev_uicheck_id").val();
