@@ -220,6 +220,7 @@
 			</form>
 		</div>
 		<div class="col-md-12 text-right">
+				<a href="/uicheck/device-histories" class="btn btn-secondary my-3"> Device Time History</a>&nbsp;
 				<a href="/uicheck/device-logs" class="btn btn-secondary my-3"> UI Check Logs</a>&nbsp;
 				@if (Auth::user()->isAdmin())
 				@php
@@ -1042,6 +1043,10 @@
 		let uidevdatetime = jQuery('#uidev_estimated_time').val();
 		let uidevExpectedCompletionTime = jQuery('#modal_expected_completion_time').val();
 		let mdl = jQuery('#modalCreateDevice');
+		if (uidevmessage == '' || uidevdatetime == '' || uidevExpectedCompletionTime == '') {
+			alert("Please fill all (Expected completion time, Message & Estimated Time) the fields");
+			return false;
+		}
 		//console.log(uidevmessage);
 		//console.log(uidevdatetime);
 		jQuery.ajax({

@@ -1166,6 +1166,41 @@ class UicheckController extends Controller
         }
     }
 
+    public function deviceHistories(Request $request)
+    {
+        try {
+            $uiDeviceHistories = UiDeviceHistory::join('ui_devices as uid', 'uid.id', 'ui_device_histories.ui_devices_id')
+                ->leftJoin('users', 'users.id', 'ui_device_histories.user_id')
+                ->leftJoin('uichecks as uic', 'uic.id', 'ui_device_histories.uicheck_id')
+                ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id');
+
+            if ($request->category != '') {
+                $uiDeviceHistories = $uiDeviceHistories->where('uic.site_development_category_id', $request->category);
+            } 
+
+            if ($request->user_name != null and $request->user_name != 'undefined') {
+                $uiDeviceHistories = $uiDeviceHistories->whereIn('ui_device_histories.user_id', $request->user_name);
+            }
+            
+            // If not an admin, then get logged in user logs only.
+            if (! Auth::user()->hasRole('Admin')) {
+                $uiDeviceHistories = $uiDeviceHistories->where('ui_device_histories.user_id', \Auth::user()->id);
+            }
+                
+            $uiDeviceHistories = $uiDeviceHistories->select('ui_device_histories.*', 'sw.website', 'sdc.title', 'users.name')
+                ->orderBy('ui_device_histories.id', 'DESC')
+                ->paginate(25);
+
+            $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
+            $allUsers = User::where('is_active', '1')->get();
+
+            return view('uicheck.device-histories', compact('uiDeviceHistories', 'siteDevelopmentCategories', 'allUsers'))->with('i', ($request->input('page', 1) - 1) * 25);
+        } catch (\Exception $e) {
+            return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
+        }
+    }
+
     public function responseDevicePage(Request $request)
     {
         try {
@@ -1688,26 +1723,27 @@ class UicheckController extends Controller
             $statusId = $request->status_id;
             $udh = UiDeviceHistory::find($id);
             if ($udh) {
-                $oldStatus = $udh->status;
-                $uiDeviceId = $udh->ui_devices_id;
-                $uicheckId = $udh->uicheck_id;
-                $deviceNo = $udh->device_no;
-                $message = $udh->message;
-                $estimatedTime = $udh->estimated_time;
-                $expectedCompletionTime = $udh->expected_completion_time;
+                // $oldStatus = $udh->status;
+                // $uiDeviceId = $udh->ui_devices_id;
+                // $uicheckId = $udh->uicheck_id;
+                // $deviceNo = $udh->device_no;
+                // $message = $udh->message;
+                // $estimatedTime = $udh->estimated_time;
+                // $expectedCompletionTime = $udh->expected_completion_time;
 
-                UiDeviceHistory::create(
-                    [
-                        'user_id' => \Auth::user()->id ?? '',
-                        'ui_devices_id' => $uiDeviceId ?? '',
-                        'uicheck_id' => $uicheckId ?? '',
-                        'device_no' => $deviceNo ?? '',
-                        'status' => $oldStatus ?? '',
-                        'estimated_time' => $estimatedTime,
-                        'expected_completion_time' => $expectedCompletionTime,
-                        'message' => $message,
-                    ]
-                );
+                //  Virendra Jadeja, 2 months ago   (April 20th, 2023 10:55 AM) Again creating one record, Is this need ? 
+                // UiDeviceHistory::create(
+                //     [
+                //         'user_id' => \Auth::user()->id ?? '',
+                //         'ui_devices_id' => $uiDeviceId ?? '',
+                //         'uicheck_id' => $uicheckId ?? '',
+                //         'device_no' => $deviceNo ?? '',
+                //         'status' => $oldStatus ?? '',
+                //         'estimated_time' => $estimatedTime,
+                //         'expected_completion_time' => $expectedCompletionTime,
+                //         'message' => $message,
+                //     ]
+                // );
                 $udh->status = $statusId == '-' ? null : $statusId;
                 $udh->save();
                 if ($udh->save()) {
@@ -1715,7 +1751,7 @@ class UicheckController extends Controller
 
                     return respJson(200, '', [
                         'message' => 'Status updated successfully',
-                        'data' => $status->color,
+                        'data' => $status?->color,
                     ]);
                 } else {
                     return respJson(500, '', [
@@ -2066,5 +2102,17 @@ class UicheckController extends Controller
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function deviceHistoryIstimeApprove(Request $request)
+    {
+        $uiDeviceHistory = UiDeviceHistory::find($request->id);
+        if ($request->isEstimatedTimeApproved != '' && $uiDeviceHistory) {
+            $uiDeviceHistory->update(['is_estimated_time_approved' => $request->isEstimatedTimeApproved]);
+
+            return response()->json(['messages' => 'Successfull', 'code' => 200]);
+        }
+
+        return response()->json(['messages' => 'Not changed', 'code' => 500]);
     }
 }
