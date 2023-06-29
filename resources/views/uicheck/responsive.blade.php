@@ -122,13 +122,13 @@
 		<div class="col-md-12">
 			<form>
 				<div class="row">
-					<div class="col-md-1">
+					<div class="col-md-3">
 						<div class="form-group">
 							<input type="text" name="id" id="id" class="form-control" value="{{request('id')}}" placeholder="Please Enter Uicheck Id" />
 						</div>
 					</div>
 					
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<div class="form-group">
 							<?php 
 								if(request('categories')){   $categoriesArr = request('categories'); }
@@ -143,7 +143,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<div class="form-group">
 							<?php 
 								if(request('store_webs')){   $store_websArr = request('store_webs'); }
@@ -159,20 +159,30 @@
 						</div>
 					</div>
 
-					<div class="col-md-1">
+					<div class="col-md-3">
 						<div class="form-group">
-							{{Form::select('type', [''=>'Select a type']+$allUicheckTypes, request('type') ?? '', array('class'=>'form-control select2'))}}
+							<?php 
+								if(request('type')){   $typeArr = request('type'); }
+								else{ $typeArr = []; }
+							?>
+							<select name="type[]" class="form-control select2" multiple>
+								<option value="" @if(count($typeArr) == 0) selected @endif>-- Select type --</option>
+								@forelse($allUicheckTypes as $typeId => $typeName)
+								<option value="{{ $typeId }}" @if(in_array($typeId, $typeArr)) selected @endif>{!! $typeName !!}</option>
+								@empty
+								@endforelse
+							</select>
 						</div>
 					</div>
 
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<div class="form-group">
 							<?php 
 								if(request('user_name')){   $userNameArr = request('user_name'); }
 								else{ $userNameArr = []; }
 							?>
 							<select name="user_name[]" id="user_name" class="form-control select2" multiple>
-								<option value="" @if($userNameArr=='') selected @endif>-- Select a User --</option>
+								<option value="" @if(count($userNameArr) == 0) selected @endif>-- Select a User --</option>
 								@forelse($allUsers as $uId => $uName)
 								<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
 								@empty
@@ -180,7 +190,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<div class="form-group">
 							<?php 
 								if(request('status')){   $statusArr = request('status'); }
@@ -195,12 +205,12 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-2 flex" style="align-items: start;">
+					<div class="col-md-3 flex" style="align-items: start;">
 						@if (Auth::user()->isAdmin())
 						<select name="show_inactive" id="show_inactive" class="form-control">
-							<option value="">-- Status --</option>
-							<option value="0" @if(request('show_inactive') == 0) selected @endif>Active Records</option>
-							<option value="1" @if(request('show_inactive') == 1) selected @endif>InActive Records</option>
+							<option value="all" @if(request('show_inactive') == 'all') selected @endif>All Records</option>
+							<option value="active" @if(request('show_inactive') == 'active') selected @endif>Active Records</option>
+							<option value="inactive" @if(request('show_inactive') == 'inactive') selected @endif>InActive Records</option>
 						</select>
 						@endif
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
