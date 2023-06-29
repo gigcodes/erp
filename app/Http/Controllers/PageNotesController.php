@@ -170,6 +170,8 @@ class PageNotesController extends Controller
             'note' => $request->data,
             'user_id' => \Auth::user()->id,
         ]);
+
+        return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
     }
 
     public function stickyNotesCreate(Request $request)
