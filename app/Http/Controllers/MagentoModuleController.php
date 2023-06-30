@@ -54,7 +54,7 @@ class MagentoModuleController extends Controller
         $verified_status_array = $verified_status->pluck('name', 'id');
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
-            ->join('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+            ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
             ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
             ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
             ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
@@ -66,7 +66,7 @@ class MagentoModuleController extends Controller
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
-                ->join('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+                ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
                 ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
