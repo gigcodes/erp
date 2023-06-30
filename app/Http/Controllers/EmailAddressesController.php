@@ -58,7 +58,7 @@ class EmailAddressesController extends Controller
         //$query->where('id', 1);
 
         // dd($query);
-        $emailAddress = $query->paginate(setting('pagination',10))->appends(request()->query());
+        $emailAddress = $query->paginate(\App\Setting::get('pagination',10))->appends(request()->query());
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         $allDriver = EmailAddress::pluck('driver')->unique();
