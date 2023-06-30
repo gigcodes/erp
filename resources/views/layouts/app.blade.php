@@ -4101,6 +4101,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('list.voucher') }}">Vouchers Coupons</a>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.ip.logs') }}">Ip log</a>
+                                    </li>
 
                                     </ul>
                                 </div>
