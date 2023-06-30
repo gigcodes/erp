@@ -4077,7 +4077,13 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
         Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
         Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
+        Route::get('device-histories', [UicheckController::class, 'deviceHistories'])->name('uicheck.device-histories');
+        Route::post('device-history/time-approve', [UicheckController::class, 'deviceHistoryIstimeApprove'])->name('uicheck.device-history.time-approve');
         Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
+        Route::post('bulk-delete', [UicheckController::class, 'bulkDelete'])->name('uicheck.bulk-delete');
+        Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
+        Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
+
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');

@@ -220,6 +220,7 @@
 			</form>
 		</div>
 		<div class="col-md-12 text-right">
+				<a href="/uicheck/device-histories" class="btn btn-secondary my-3"> Device Time History</a>&nbsp;
 				<a href="/uicheck/device-logs" class="btn btn-secondary my-3"> UI Check Logs</a>&nbsp;
 				@if (Auth::user()->isAdmin())
 				@php
@@ -227,6 +228,8 @@
 						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
 					}
 				@endphp
+				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
+				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#list-user-access-modal" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
@@ -242,7 +245,7 @@
 			<table class="table table-bordered" style="width: 135%;max-width:unset" id="uicheck_table1">
 				<thead>
 					<tr>
-						{{-- <th width="10%">ID</th> --}}
+						<th></th>
 						<th >#</th>
 						<th style="width: auto">Categories</th>
 						<th style="width: auto">Website</th>
@@ -282,7 +285,7 @@
 							}
 						@endphp
 							<tr>
-								{{-- <td>{{$uiDevData->id}}</td> --}}
+								<td><input type="checkbox" name="bulk_delete[]" class="d-inline bulk_delete" value="{{$uiDevData->uicheck_id}}"></td>
 								<td>{{$uiDevData->uicheck_id}}</td>
 								<td class="expand-row-msg uicheck-username" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
 									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 12, '..')}} @else   @endif</span>
@@ -583,7 +586,8 @@
 								<th width="5%">ID</th>
 								<th width="8%">Update By</th>
 								<th width="25%" style="word-break: break-all;">Message</th>
-								<th width="15%" style="word-break: break-all;">Estimated Time</th>
+								<th width="20%" style="word-break: break-all;">Expected completion time</th>
+								<th width="10%" style="word-break: break-all;">Estimated Time</th>
 								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
@@ -715,6 +719,35 @@
 	</div>
 </div>
 
+<!-- List user access modal-->
+<div id="list-user-access-modal" class="modal fade in" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">User Access Details</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th>S.No</th>
+                <th>User Name</th>
+                <th>Total Uicheck count</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody class="user-access-list">
+              
+            </tbody>
+          </table>
+          <!-- Pagination links -->
+          <div class="pagination-container"></div>
+        </div>
+      </div>
+    </div>
+</div>
+
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -734,7 +767,7 @@
 							<tr>
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
-								<th width="22%" style="word-break: break-all;">Message & Estimated Time[In Minutes]</th>
+								<th width="35%" style="word-break: break-all;">Expected completion time, Message & Estimated Time[In Minutes]</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -742,13 +775,21 @@
 								<td><input type="text" readonly id="uidev_id" name="uidev_id" value="" style="margin-top: 0px;width:80% !important;"></td>
 								<td>Device <span id="uidev_num"></span></td>
 								<td>
-									<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
-									<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
-									<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
-									
-									<button id="uidev_update_esttime" class="btn pr-0 btn-xs btn-image div-message-language">
-										<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;">
-									</button>
+									<div class="form-group flex gap-5">
+										<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
+										<div class='input-group date cls-start-due-date'>
+											<input placeholder="Expected completion time" type="text" class="form-control" id="modal_expected_completion_time" name="modal_expected_completion_time" value="" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+										<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
+										<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
+										
+										<button id="uidev_update_esttime" class="btn pr-0 btn-xs btn-image div-message-language">
+											<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;">
+										</button>
+									</div>
 									
 								</td>
 								
@@ -827,6 +868,46 @@
 		});
 	});	
 
+	function bulkDelete()
+    {
+        event.preventDefault();
+        var uiCheckIds = [];
+
+		$(".bulk_delete").each(function () {
+			if ($(this).prop("checked") == true) {
+				uiCheckIds.push($(this).val());
+			}
+		});
+
+		if (uiCheckIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(uiCheckIds);
+			return false;
+		}
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('uicheck.bulk-delete') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                uiCheckIds: uiCheckIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"]("Deleted successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"](error.responseJSON.message);
+        });
+    }
+
 	function updateIsApprove(ele, uicheckId, device_no) {
 		approveBtn = jQuery(ele);
 
@@ -859,6 +940,100 @@
 			toastr["error"](errObj.message);
 		});
 	}
+
+	function listUserAccess(pageNumber = 1) {
+		$.ajax({
+			url: '{{route("uicheck.user-access-list")}}',
+			type: 'GET',
+			headers: {
+			'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			data: {
+			page: pageNumber
+			},
+			dataType: "json",
+			beforeSend: function () {
+			$("#loading-image").show();
+			}
+		}).done(function (response) {
+			console.log(response.data);
+			$("#loading-image").hide();
+			var html = "";
+			var startIndex = (response.data.current_page - 1) * response.data.per_page;
+
+			$.each(response.data.data, function (index, userAccess) {
+			var sNo = startIndex + index + 1; 
+			html += "<tr>";
+			html += "<td>" + sNo + "</td>";
+			html += "<td>" + userAccess.user.name + "</td>";
+			html += "<td>" + userAccess.total + "</td>";
+			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+			html += "</tr>";
+			});
+			$(".user-access-list").html(html);
+			$("#list-user-access-modal").modal("show");
+			renderPagination(response.data);
+		}).fail(function (response, ajaxOptions, thrownError) {
+			toastr["error"](response.message);
+			$("#loading-image").hide();
+		});
+
+	}
+
+	function renderPagination(data) {
+		var paginationContainer = $(".pagination-container");
+		var currentPage = data.current_page;
+		var totalPages = data.last_page;
+
+		var html = "";
+		if (totalPages > 1) {
+		html += "<ul class='pagination'>";
+		if (currentPage > 1) {
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+		}
+		for (var i = 1; i <= totalPages; i++) {
+			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+		}
+		if (currentPage < totalPages) {
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+		}
+		html += "</ul>";
+		}
+
+		paginationContainer.html(html);
+	}
+
+	function changePage(pageNumber) {
+		listUserAccess(pageNumber);
+	}
+
+	$(document).on("click",".user-access-delete",function(e) {
+		e.preventDefault();
+		var userId = $(this).data("user_id");
+		var $this = $(this);
+		if(confirm("Are you sure you want to delete records ?")) {
+			$.ajax({
+				url:'{{route("uicheck.bulk-delete-user-wise")}}',
+				type: 'POST',
+				headers: {
+					'X-CSRF-TOKEN': "{{ csrf_token() }}"
+				},
+				dataType:"json",
+				data: { userId : userId},
+				beforeSend: function() {
+					$("#loading-image").show();
+				}
+			}).done(function (data) {
+				$("#loading-image").hide();
+				toastr["success"]("Records deleted successfully");
+				$this.closest("tr").remove();
+				window.location.reload();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+		}
+	});
 	
 	$(document).on("click", "#uidev_update_esttime", function(e) {
 		var uicheckId = $("#uidev_uicheck_id").val();
@@ -866,7 +1041,12 @@
 		let uidevstatus = '';
 		var device_no = jQuery('#uidev_id').val();
 		let uidevdatetime = jQuery('#uidev_estimated_time').val();
+		let uidevExpectedCompletionTime = jQuery('#modal_expected_completion_time').val();
 		let mdl = jQuery('#modalCreateDevice');
+		if (uidevmessage == '' || uidevdatetime == '' || uidevExpectedCompletionTime == '') {
+			alert("Please fill all (Expected completion time, Message & Estimated Time) the fields");
+			return false;
+		}
 		//console.log(uidevmessage);
 		//console.log(uidevdatetime);
 		jQuery.ajax({
@@ -880,7 +1060,8 @@
 				uicheck_id : uicheckId,
 				message : uidevmessage,
 				uidevdatetime : uidevdatetime,
-				uidevstatus : uidevstatus
+				uidevstatus : uidevstatus,
+				uidevExpectedCompletionTime: uidevExpectedCompletionTime
 			},
 			beforeSend: function() {
 				//jQuery("#loading-image").show();
@@ -906,6 +1087,7 @@
 		$("#uidev_uicheck_id").val(uidev_uicheck_id);
 		$("#uidev_message").val('');
 		$("#uidev_estimated_time").val('');
+		$("#modal_expected_completion_time").val('');
 		$("#uidev_num").html(uidev_id);
 		
 		mdl.modal("show");

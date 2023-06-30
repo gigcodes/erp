@@ -1036,14 +1036,22 @@ class UicheckController extends Controller
             $uiDev['user_id'] = \Auth::user()->id;
             $uiDev['device_no'] = $request->device_no;
             $uiDev['uicheck_id'] = $request->uicheck_id;
+            $logHistory = false;
             if ($request->message) {
+                $logHistory = true;
                 $uiDev['message'] = $request->message;
             }
             if ($request->uidevstatus) {
+                $logHistory = true;
                 $uiDev['status'] = $request->uidevstatus;
             }
             if ($request->uidevdatetime) {
+                $logHistory = true;
                 $uiDev['estimated_time'] = $request->uidevdatetime;
+            }
+            if ($request->uidevExpectedCompletionTime) {
+                $logHistory = true;
+                $uiDev['expected_completion_time'] = $request->uidevExpectedCompletionTime;
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {
@@ -1056,7 +1064,7 @@ class UicheckController extends Controller
 
             $uiMess = $uiDevData->message ?? '';
             $uiDev['ui_devices_id'] = $uiData->id;
-            if ($request->message != $uiMess) {
+            if ($request->message != $uiMess && $logHistory) {
                 $reData = $this->uicheckDevUpdateHistory($uiDev);
             }
             $uistatus = $uiData->status ?? '';
@@ -1158,6 +1166,42 @@ class UicheckController extends Controller
         }
     }
 
+    public function deviceHistories(Request $request)
+    {
+        try {
+            $uiDeviceHistories = UiDeviceHistory::join('ui_devices as uid', 'uid.id', 'ui_device_histories.ui_devices_id')
+                ->leftJoin('users', 'users.id', 'ui_device_histories.user_id')
+                ->leftJoin('uichecks as uic', 'uic.id', 'ui_device_histories.uicheck_id')
+                ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id');
+
+            if ($request->category != '') {
+                $uiDeviceHistories = $uiDeviceHistories->where('uic.site_development_category_id', $request->category);
+            } 
+
+            if ($request->user_name != null and $request->user_name != 'undefined') {
+                $uiDeviceHistories = $uiDeviceHistories->whereIn('ui_device_histories.user_id', $request->user_name);
+            }
+            
+            // If not an admin, then get logged in user logs only.
+            if (! Auth::user()->hasRole('Admin')) {
+                $uiDeviceHistories = $uiDeviceHistories->where('ui_device_histories.user_id', \Auth::user()->id);
+            }
+                
+            $uiDeviceHistories = $uiDeviceHistories->select('ui_device_histories.*', 'sw.website', 'sdc.title', 'users.name')
+                ->orderBy('ui_device_histories.id', 'DESC')
+                ->paginate(25);
+
+            $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
+            $allUsers = User::where('is_active', '1')->get();
+            $siteDevelopmentStatuses = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
+
+            return view('uicheck.device-histories', compact('uiDeviceHistories', 'siteDevelopmentCategories', 'allUsers', 'siteDevelopmentStatuses'))->with('i', ($request->input('page', 1) - 1) * 25);
+        } catch (\Exception $e) {
+            return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
+        }
+    }
+
     public function responseDevicePage(Request $request)
     {
         try {
@@ -1170,6 +1214,8 @@ class UicheckController extends Controller
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
                                     ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+            $uiDevDatas->whereNull('uic.deleted_at');
+            
             $isAdmin = Auth::user()->isAdmin();
             $show_inactive=0;
             if ($isAdmin) {
@@ -1572,6 +1618,7 @@ class UicheckController extends Controller
                             </div>
                             <i class="fa fa-copy" data-text="' . $value->message . '"></i>
                         </td>',
+                        '<td>' . ($value->expected_completion_time ?: '-') . '</td>',
                         '<td>' . ($value->estimated_time ?: '-') . '</td>',
                         '<td>' . ($select) . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
@@ -1581,7 +1628,7 @@ class UicheckController extends Controller
             } else {
                 $html[] = implode('', [
                     '<tr>',
-                    '<td colspan="6">No records found.</td>',
+                    '<td colspan="7">No records found.</td>',
                     '</tr>',
                 ]);
             }
@@ -1677,24 +1724,27 @@ class UicheckController extends Controller
             $statusId = $request->status_id;
             $udh = UiDeviceHistory::find($id);
             if ($udh) {
-                $oldStatus = $udh->status;
-                $uiDeviceId = $udh->ui_devices_id;
-                $uicheckId = $udh->uicheck_id;
-                $deviceNo = $udh->device_no;
-                $message = $udh->message;
-                $estimatedTime = $udh->estimated_time;
+                // $oldStatus = $udh->status;
+                // $uiDeviceId = $udh->ui_devices_id;
+                // $uicheckId = $udh->uicheck_id;
+                // $deviceNo = $udh->device_no;
+                // $message = $udh->message;
+                // $estimatedTime = $udh->estimated_time;
+                // $expectedCompletionTime = $udh->expected_completion_time;
 
-                UiDeviceHistory::create(
-                    [
-                        'user_id' => \Auth::user()->id ?? '',
-                        'ui_devices_id' => $uiDeviceId ?? '',
-                        'uicheck_id' => $uicheckId ?? '',
-                        'device_no' => $deviceNo ?? '',
-                        'status' => $oldStatus ?? '',
-                        'estimated_time' => $estimatedTime,
-                        'message' => $message,
-                    ]
-                );
+                //  Virendra Jadeja, 2 months ago   (April 20th, 2023 10:55 AM) Again creating one record, Is this need ? 
+                // UiDeviceHistory::create(
+                //     [
+                //         'user_id' => \Auth::user()->id ?? '',
+                //         'ui_devices_id' => $uiDeviceId ?? '',
+                //         'uicheck_id' => $uicheckId ?? '',
+                //         'device_no' => $deviceNo ?? '',
+                //         'status' => $oldStatus ?? '',
+                //         'estimated_time' => $estimatedTime,
+                //         'expected_completion_time' => $expectedCompletionTime,
+                //         'message' => $message,
+                //     ]
+                // );
                 $udh->status = $statusId == '-' ? null : $statusId;
                 $udh->save();
                 if ($udh->save()) {
@@ -1702,7 +1752,7 @@ class UicheckController extends Controller
 
                     return respJson(200, '', [
                         'message' => 'Status updated successfully',
-                        'data' => $status->color,
+                        'data' => $status?->color,
                     ]);
                 } else {
                     return respJson(500, '', [
@@ -2019,5 +2069,51 @@ class UicheckController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Something went wrong.']);
         }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        Uicheck::whereIn('id', $request->uiCheckIds)->delete();
+        return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
+    }
+
+    public function bulkDeleteUserWise(Request $request)
+    {
+        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)->pluck('uicheck_id')->toArray();
+        Uicheck::whereIn('id', $uicheckIds)->delete();
+        return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
+    }
+
+    public function userAccessList(Request $request)
+    {
+        try {
+            $perPage = 10;
+            $uicheckUserAccess = new UicheckUserAccess();
+            
+            $uicheckUserAccess = $uicheckUserAccess->with('user')
+                ->select('uicheck_user_accesses.*', DB::raw('count(*) as total'))  
+                ->groupBy('user_id')  
+                ->leftJoin('users', 'users.id', 'uicheck_user_accesses.user_id')
+                ->leftJoin('uichecks', 'uichecks.id', 'uicheck_user_accesses.uicheck_id')
+                ->whereNull('uichecks.deleted_at')
+                ->paginate($perPage);
+
+            return response()->json(['code' => 200, 'data' => $uicheckUserAccess, 'count'=> count($uicheckUserAccess), 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deviceHistoryIstimeApprove(Request $request)
+    {
+        $uiDeviceHistory = UiDeviceHistory::find($request->id);
+        if ($request->isEstimatedTimeApproved != '' && $uiDeviceHistory) {
+            $uiDeviceHistory->update(['is_estimated_time_approved' => $request->isEstimatedTimeApproved]);
+
+            return response()->json(['messages' => 'Successfull', 'code' => 200]);
+        }
+
+        return response()->json(['messages' => 'Not changed', 'code' => 500]);
     }
 }
