@@ -308,6 +308,8 @@
     @include('magento_module.partials.is_customized_show_modals')
     {{-- magentoModuleHistoryShowModal --}}
     @include('magento_module.partials.show_history_modals')
+    {{-- magentoModuleverifiedShowModal --}}
+    @include('magento_module.verified_by_list')
 
 
 @endsection
@@ -602,7 +604,8 @@
                             }
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="dev" data-id="${row['id']}" title="Add New Dev Remark" ><img src="/images/add.png"></button>
-                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                         }
@@ -662,7 +665,8 @@
                             }
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="lead" data-id="${row['id']}" title="Add New Lead Remark" ><img src="/images/add.png"></button>
-                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                             
@@ -1083,6 +1087,7 @@
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${k + 1} </td>
+                                        <td> ${v.old_status.name } </td>
                                         <td> ${v.new_status.name } </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
@@ -1097,6 +1102,38 @@
             });
         });
 
+         // Load status history
+         $(document).on('click', '.load-user-dev-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.verified.User')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                    type:type,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_verified_by.name } </td>
+                                        <td> ${v.new_verified_by.name } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verified_by_list").find(".verified-by-histories-list-view").html(html);
+                        $("#verified_by_list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
         // Load Api Modal
         $(document).on('click', '.show-api-modal', function() {
             var id = $(this).attr('data-id');

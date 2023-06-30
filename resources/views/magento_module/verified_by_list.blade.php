@@ -1,4 +1,4 @@
-<div id="verified-status-histories-list" class="modal fade" role="dialog">
+<div id="verified_by_list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body">
@@ -8,13 +8,13 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Old status</th>
-                                <th width="30%">New Status</th>
+                                <th width="30%">Old Verify user</th>
+                                <th width="30%">New Verify user</th>
                                 <th width="20%">Updated BY</th>
                                 <th width="20%">Created Date</th>
                             </tr>
                         </thead>
-                        <tbody class="verified-status-histories-list-view">
+                        <tbody class="verified-by-histories-list-view">
                         </tbody>
                     </table>
                 </div>

@@ -18,6 +18,7 @@ use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 use App\MagentoModuleVerifiedStatusHistory;
+use App\MagentoModuleVerifiedBy;
 
 class MagentoModuleController extends Controller
 {
@@ -343,7 +344,7 @@ class MagentoModuleController extends Controller
 
     public function getVerifiedStatusHistories($magento_module, $type)
     {
-        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
+        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus','oldStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
 
         return response()->json([
             'status' => true,
@@ -375,6 +376,21 @@ class MagentoModuleController extends Controller
                 $oldStatusId = $oldData->lead_verified_status_id;
             }
             $this->saveVerifiedStatusHistory($oldData, $oldStatusId, $request->data, $type);
+        }
+
+        if ($request->columnName == 'dev_verified_by' || $request->columnName == 'lead_verified_by') {
+
+            if ($request->columnName == 'dev_verified_by') {
+                $type = 'dev';
+                $oldStatusId = $oldData->dev_verified_by;
+            }
+            if ($request->columnName == 'lead_verified_by') {
+                $type = 'lead';
+                $oldStatusId = $oldData->lead_verified_by;
+            }
+
+            $this->saveVerifiedByHistory($oldData, $oldStatusId, $request->data, $type);
+
         }
 
         if ($updateMagentoModule) {
@@ -699,6 +715,19 @@ class MagentoModuleController extends Controller
         return true;
     }
 
+    protected function saveVerifiedByHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
+    {
+        $history = new MagentoModuleVerifiedBy();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_verified_by_id = $oldStatusId;
+        $history->new_verified_by_id = $newStatusId;
+        $history->type = $statusType;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+    
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -710,5 +739,17 @@ class MagentoModuleController extends Controller
         }
 
         return redirect()->back()->with('success', 'The verified status color updated successfully.');
+    }
+
+    public function verifiedByUser(Request $request)
+    {
+        $histories = MagentoModuleVerifiedBy::with(['user', 'newVerifiedBy','oldVerifiedBy'])->where('magento_module_id', $request->id)->where('type', $request->type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
     }
 }
