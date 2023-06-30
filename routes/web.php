@@ -2693,6 +2693,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
         Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
+        Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
