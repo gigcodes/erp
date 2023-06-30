@@ -366,6 +366,7 @@ use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
+use App\Http\Controllers\MagentoLocationController;
 
 Auth::routes();
 
@@ -522,6 +523,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('magento_modules', MagentoModuleController::class);
 
+    Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
+    Route::resource('magento_module_locations', MagentoLocationController::class);
+    
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
 
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
