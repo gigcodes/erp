@@ -19,6 +19,7 @@ use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 use App\MagentoModuleVerifiedStatusHistory;
 use App\MagentoModuleVerifiedBy;
+use App\MagnetoReviewStandardHistory;
 
 class MagentoModuleController extends Controller
 {
@@ -356,6 +357,7 @@ class MagentoModuleController extends Controller
 
     public function updateMagentoModuleOptions(Request $request)
     {
+        // dd($request);
         $oldData = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
         $newData = MagentoModule::where('id', (int) $request->id)->first();
@@ -393,6 +395,12 @@ class MagentoModuleController extends Controller
 
         }
 
+        if ($request->columnName == 'module_review_standard') {
+
+            $this->savereviewStandard($oldData, $request->data);
+        }
+
+
         if ($updateMagentoModule) {
             return response()->json([
                 'status' => true,
@@ -407,6 +415,17 @@ class MagentoModuleController extends Controller
                 'status_name' => 'error',
             ], 500);
         }
+    }
+
+    protected function savereviewStandard($magentoModule, $reviewValue)
+    {
+        $history = new MagnetoReviewStandardHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->review_standard = $reviewValue;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
     }
 
     public function magentoModuleList(Request $request)
@@ -728,6 +747,7 @@ class MagentoModuleController extends Controller
         return true;
     }
     
+    
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -752,4 +772,17 @@ class MagentoModuleController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function reviewStandardHistories(Request $request)
+    {
+        $histories = MagnetoReviewStandardHistory::with(['user'])->where('magento_module_id', $request->id)->get();
+        
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get review status',
+            'status_name' => 'success',
+        ], 200);
+    }
+    
 }

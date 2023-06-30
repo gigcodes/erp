@@ -263,6 +263,7 @@
                         <th> Sql </th>
                         <th> 3rd Party plugin </th>
                         <th> Site Impact </th>
+                        <th> Review Standard </th>
                         <th> Action </th>
     
                     </tr>
@@ -310,6 +311,9 @@
     @include('magento_module.partials.show_history_modals')
     {{-- magentoModuleverifiedShowModal --}}
     @include('magento_module.verified_by_list')
+     {{-- magentoreviewdShowModal --}}
+    @include('magento_module.review-standard-list')
+   
 
 
 @endsection
@@ -816,6 +820,30 @@
                         }
                     },
                     {
+                        data: 'module_review_standard',
+                        name: 'magento_modules.module_review_standard',
+                        render: function(data, type, row, meta) {
+                            var html = '<select id="module_review_standard" class="form-control edit_mm" name="module_review_standard">';
+                            html += '<option value="">Review Standard</option>';
+                            html += '<option value="1" ' + (data == '1' ? 'selected' : '') + '>Yes</option>';
+                            html += '<option value="0" ' + (data == '0' ? 'selected' : '') + '>No</option>';
+                            html += '</select>';
+
+                            if (data === null) {
+                                html = '<select id="module_review_standard" class="form-control edit_mm" name="module_review_standard">';
+                                html += '<option value="">No</option>';
+                                html += '<option value="1">Yes</option>';
+                                html += '</select>';
+                            }
+
+                            let remark_history_button =
+                                `  <button type="button" class="btn btn-xs btn-image load-review-standard-history ml-2"  data-id="${row['id']}" title="Review standard Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+                            
+                            return `<div class="flex items-center gap-5">${html} ${remark_history_button}</div>`;
+   
+                        }
+                    },
+                    {
                         data: 'id',
                         name: 'magento_modules.id',
                         // visible:false,
@@ -1253,6 +1281,36 @@
                         // $("#blank-modal").find(".modal-title").html(response.title);
                         // $("#blank-modal").find(".modal-body").html(response.data);
                         $("#isCustomizedDataShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-review-standard-history', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.review.standard.histories')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.review_standard === 0 ? 'No' : v.review_standard === 1 ? 'Yes' : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#review_list").find(".review_histories-list-view").html(html);
+                        $("#review_list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
