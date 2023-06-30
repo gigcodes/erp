@@ -218,7 +218,7 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
                                 $requestParams = [
                                     'command' => $magCom->command_type, 
-                                    'cwd' => $magCom->working_directory, 
+                                    'cwd' => $website->working_directory, 
                                     'is_sudo' => true 
                                 ];
                                 
