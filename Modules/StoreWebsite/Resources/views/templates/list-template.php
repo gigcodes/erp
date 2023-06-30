@@ -109,6 +109,10 @@
 								<i class="fa fa-download"></i> 
 							</button>
 
+							<button type="button" class="btn btn-xs btn-image  btn-download-db-env-logs mt-1"   data-id="{{>prop.id}}" data-type="db" title="Download Database/Env Logs" style="color:gray;">
+								<i class="fa fa-info-circle"></i>
+							</button>
+
                             {{if prop.is_dev_website == 1 }}
                                 <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{>prop.site_folder}}" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
                                     <img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">

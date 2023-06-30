@@ -154,6 +154,37 @@
 </div>
 </div>
 
+<div id="download_db_env_logs" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header">
+				<h4 class="modal-title">Download Database/Env Logs</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>User</th>
+								<th>Type</th>
+								<th>Command</th>
+								<th>Output</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody id="download_db_env_logs_tbody">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="magentoSettingUpdateHistoryModal" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<!-- Modal content-->
@@ -963,6 +994,33 @@
 		}
 		window.location.href = "{{url('/')}}/store-website/"+id+"/download/"+type;
 	});
+
+	$(document).on("click", ".btn-download-db-env-logs", function(href) {
+		$.ajax({
+			type: 'POST',
+			url: 'store-website/'+ $(this).data('id') +'/download-db-env-logs',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				
+				$('#download_db_env_logs_tbody').html(response.data);
+			 	$('#download_db_env_logs').modal('show');
+				toastr['success'](response.message, 'success');
+			}
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			console.log("Sorry, something went wrong");
+		});
+	});
+
 	$(document).on('click','.btn-refresh-admin-password',function(){
 		src = 'store-website/get-admin-password'
 		$.ajax({
