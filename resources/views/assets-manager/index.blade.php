@@ -709,13 +709,14 @@
       });
 
       $(".assets-create-modal").on("click", function(){
-        var createPermission = "<?= userCan('assets-manager-create'); ?>";
+        $("#assetsCreateModal").modal("show");
+        /*var createPermission = "<? /*userCan('assets-manager-create'); ?>";
         if(createPermission){
           $("#assetsCreateModal").modal("show");
         }else{
           $(".unauthorised").removeClass("hidden");
           $(".unauthorised").html("<p> Unauthorised permission</p>")
-        }
+        }*/
       });
 
       $("#asset_user_name").select2({
