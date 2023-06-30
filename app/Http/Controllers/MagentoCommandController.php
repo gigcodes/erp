@@ -288,7 +288,7 @@ class MagentoCommandController extends Controller
                             ]
                         );
                     }
-                    $assetsmanager = AssetsManager::where('website_id', $websites_id)->first();
+                    $assetsmanager = AssetsManager::where('id', $websites->assets_manager_id)->first();
                     if($assetsmanager && $assetsmanager->client_id!=''){
                         \Log::info("client_id: ".$assetsmanager->client_id);
                         $client_id=$assetsmanager->client_id;
@@ -430,7 +430,11 @@ class MagentoCommandController extends Controller
                     if($logs->website_ids=='ERP'){
                         $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
                     }else{
-                        $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                        $storeWebsite=StoreWebsite::where('id', $logs->website_ids)->first();
+                        $assetsmanager = new AssetsManager();
+                        if($storeWebsite){
+                            $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+                        }
                     }
                     
                     if($assetsmanager && $assetsmanager->client_id!=''){
@@ -530,10 +534,10 @@ class MagentoCommandController extends Controller
                 $logs->status='';
                 if($logs->website_ids !='' && $logs->job_id!=''){
                     $magCom = MagentoCommand::find($logs->command_id);
-                    if($magCom->website_ids==$logs->website_ids){
-                        $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
-                    }else{
-                        $assetsmanager = AssetsManager::where('website_id', $logs->website_ids)->first();
+                    $storeWebsite=StoreWebsite::where('id', $logs->website_ids)->first();
+                    $assetsmanager = new AssetsManager();
+                    if($storeWebsite){
+                        $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
                     }
                     
                     if($assetsmanager && $assetsmanager->client_id!=''){

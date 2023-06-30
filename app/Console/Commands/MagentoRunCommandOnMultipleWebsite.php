@@ -210,7 +210,7 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             Log::info("website server_ip: ".$website->server_ip);
                             $job_id='';
                             $website_id=$website->id;
-                            $assetsmanager = AssetsManager::where('website_id', $website_id)->first();
+                            $assetsmanager = AssetsManager::where('id', $website->assets_manager_id)->first();
                             if($assetsmanager && $assetsmanager->client_id!=''){
                                 Log::info("client_id: ".$assetsmanager->client_id);
                                 $client_id=$assetsmanager->client_id;
