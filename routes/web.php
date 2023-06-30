@@ -518,6 +518,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
+    Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
+
     Route::resource('magento_modules', MagentoModuleController::class);
 
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');

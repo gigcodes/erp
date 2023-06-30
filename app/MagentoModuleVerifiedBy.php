@@ -7,21 +7,24 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 
-class MagentoModuleVerifiedStatusHistory extends Model
+class MagentoModuleVerifiedBy extends Model
 {
+    protected $table = 'magento_module_verified_by_histories';
+
+    
     public function magentoModule()
     {
         return $this->belongsTo(\App\MagentoModule::class);
     }
 
-    public function newStatus()
+    public function newVerifiedBy()
     {
-        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'new_status_id');
+        return $this->belongsTo(user::class, 'new_verified_by_id');
     }
 
-    public function oldStatus()
+    public function oldVerifiedBy()
     {
-        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'old_status_id');
+        return $this->belongsTo(user::class, 'old_verified_by_id');
     }
     
     public function user()
