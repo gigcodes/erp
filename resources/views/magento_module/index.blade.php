@@ -605,7 +605,7 @@
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="dev" data-id="${row['id']}" title="Add New Dev Remark" ><img src="/images/add.png"></button>
                                 <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
-                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="dev" data-id="${row['id']}" title="Load status histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="dev" data-id="${row['id']}" title="Dev User Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                         }
@@ -666,7 +666,7 @@
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="lead" data-id="${row['id']}" title="Add New Lead Remark" ><img src="/images/add.png"></button>
                                 <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
-                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="lead" data-id="${row['id']}" title="Load status histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="lead" data-id="${row['id']}" title="Lead-user-dev-history" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                             
@@ -1087,8 +1087,8 @@
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${k + 1} </td>
-                                        <td> ${v.old_status.name } </td>
-                                        <td> ${v.new_status.name } </td>
+                                        <td> ${v.old_status ? v.old_status.name : ''} </td>
+                                        <td> ${v.new_status ? v.new_status.name : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
                                     </tr>`;
@@ -1120,8 +1120,8 @@
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${k + 1} </td>
-                                        <td> ${v.old_verified_by.name } </td>
-                                        <td> ${v.new_verified_by.name } </td>
+                                        <td> ${v.old_verified_by ? v.old_verified_by.name : ''} </td>
+                                        <td> ${v.new_verified_by ? v.new_verified_by.name : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
                                     </tr>`;

@@ -8,8 +8,8 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Old Verify user</th>
-                                <th width="30%">New Verify user</th>
+                                <th width="30%">Old Verify User</th>
+                                <th width="30%">New Verify User</th>
                                 <th width="20%">Updated BY</th>
                                 <th width="20%">Created Date</th>
                             </tr>
