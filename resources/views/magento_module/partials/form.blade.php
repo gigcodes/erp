@@ -10,6 +10,15 @@
     </div>
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
+            <strong>Module Location :</strong>
+            {!! Form::select('magneto_location_id', $module_locations, null, ['id'=>'magneto_location_id', 'placeholder' => 'Select Module location', 'class' => 'form-control', 'required' => 'required']) !!}
+            @if ($errors->has('magneto_location_id'))
+                <span style="color:red">{{ $errors->first('magneto_location_id') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
             <strong>Website :</strong>
             {!! Form::select('store_website_id', $store_websites, null, ['id'=>'module_category_id', 'placeholder' => 'Select Module Category', 'class' => 'form-control', 'required' => 'required']) !!}
             @if ($errors->has('module_category_id'))
