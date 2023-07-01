@@ -1719,4 +1719,30 @@ class StoreWebsiteController extends Controller
         }
         return $result;
     }
+
+    public function runFilePermissions(Request $request, $id)
+    {
+        $storeWebsite = StoreWebsite::where('id', $id)->first();
+        if(!$storeWebsite){
+            return response()->json(['code' => 500, 'message' => 'Store Website is not found!']);
+        }
+        $website=$storeWebsite->website;
+        $server_ip=$storeWebsite->server_ip;
+        $working_directory=$storeWebsite->working_directory;
+        if($server_ip==''){
+            return response()->json(['code' => 500, 'message' => 'Store Website server ip not found!']);
+        }
+        if($working_directory==''){
+            return response()->json(['code' => 500, 'message' => 'Store Website working directory not found!']);
+        }
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'file_permission.sh -w ' . $website . ' -s ' . $server_ip . ' -d '.$working_directory.' 2>&1';
+        \Log::info("Start run File Permissions");
+        $result = exec($cmd, $output, $return_var);
+        \Log::info("command:".$cmd);
+        \Log::info("output:".print_r($output,true));
+        \Log::info("return_var:".$return_var);
+        \Log::info("End run File Permissions");
+
+        return response()->json(['code' => 200, 'message' => 'Run Successfully']);
+    }
 }
