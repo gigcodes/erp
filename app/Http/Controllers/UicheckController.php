@@ -1152,14 +1152,15 @@ class UicheckController extends Controller
                 $uiDeviceLogs = $uiDeviceLogs->where('ui_device_logs.user_id', \Auth::user()->id);
             }
                 
-            $uiDeviceLogs = $uiDeviceLogs->select('ui_device_logs.*', 'sw.website', 'sdc.title', 'users.name')
+            $uiDeviceLogs = $uiDeviceLogs->select('ui_device_logs.*', 'sw.website', 'sdc.title', 'users.name','uic.uicheck_type_id')
                 ->orderBy('ui_device_logs.id', 'DESC')
                 ->get();
 
             $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
             $allUsers = User::where('is_active', '1')->get();
-
-            return view('uicheck.device-logs', compact('uiDeviceLogs', 'siteDevelopmentCategories', 'allUsers'))->with('i', ($request->input('page', 1) - 1) * 5);;
+            $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+            $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
+            return view('uicheck.device-logs', compact('uiDeviceLogs', 'siteDevelopmentCategories', 'allUsers','allStatus','allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 5);;
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1169,6 +1170,7 @@ class UicheckController extends Controller
     public function deviceHistories(Request $request)
     {
         try {
+
             $uiDeviceHistories = UiDeviceHistory::join('ui_devices as uid', 'uid.id', 'ui_device_histories.ui_devices_id')
                 ->leftJoin('users', 'users.id', 'ui_device_histories.user_id')
                 ->leftJoin('uichecks as uic', 'uic.id', 'ui_device_histories.uicheck_id')
@@ -1213,7 +1215,7 @@ class UicheckController extends Controller
                                     ->leftJoin('users as u', 'u.id', 'uua.user_id')
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
-                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.ui_devices_id');
             $uiDevDatas->whereNull('uic.deleted_at');
             
             $isAdmin = Auth::user()->isAdmin();
