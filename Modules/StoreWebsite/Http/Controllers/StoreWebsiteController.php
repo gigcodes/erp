@@ -1735,7 +1735,7 @@ class StoreWebsiteController extends Controller
         if($working_directory==''){
             return response()->json(['code' => 500, 'message' => 'Store Website working directory not found!']);
         }
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'file_permission.sh -w ' . $website . ' -s ' . $server_ip . ' -d '.$working_directory.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'file_permission.sh -w=' . $website . ' -s=' . $server_ip . ' -d='.$working_directory.' 2>&1';
         \Log::info("Start run File Permissions");
         $result = exec($cmd, $output, $return_var);
         \Log::info("command:".$cmd);
