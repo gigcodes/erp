@@ -228,6 +228,21 @@ class SopController extends Controller
         }
     }
 
+    public function updateSopCategory(Request $request)
+    {
+        $sop = Sop::findOrFail($request->id);
+
+        if ($sop && $request->type == 'attach') {
+            $sop->sopCategory()->attach($request->updateCategoryId);
+        }
+
+        if ($sop && $request->type == 'detach') {
+            $sop->sopCategory()->detach($request->updateCategoryId);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Category updated successfully']);
+    }
+
     public function search(Request $request)
     {
         $searchsop = $request->get('search');

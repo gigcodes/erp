@@ -416,13 +416,23 @@ float: left;
                                     <span style="word-break:break-all;" class="show-full-name-{{$value->id}} hidden">{{$value->name}}</span>
                                 </td>
                                 <td class="expand-row-msg" data-name="category" data-id="{{$value->id}}">
-                                    @if (isset($value->sopCategory) && count($value->sopCategory) > 0)
+                                    {{-- @if (isset($value->sopCategory) && count($value->sopCategory) > 0)
                                         {{ implode(',', $value->sopCategory->pluck('category_name')->toArray() ?? []) }}
                                     @else
                                         -
-                                    @endif
+                                    @endif --}}
+                                    Old Value: 
                                     <span class="show-short-category-{{$value->id}}">{{ Str::limit($value->category, 17, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
+                                        
+                                    {{-- NEW CONCEPT --}}
+                                    <select data-row_id="{{$value->id}}" class="form-control sop_list_category_select" name="category[]" multiple>
+                                        @if(isset($category_result) && $category_result!='')
+                                        @foreach($category_result as $category_value)
+                                        <option value="{{$category_value->id}}" {{!empty($value->selected_category_ids) && in_array($category_value->id, $value->selected_category_ids) ? 'selected' : ''}}>{{$category_value->category_name}}</option>
+                                        @endforeach
+                                        @endif
+                                    </select>
                                 </td>
                                 <td class="expand-row-msg" data-name="content" data-id="{{$value->id}}">
                                     <span class="show-content" id="show_content_{{$value->id}}" data-content="{!! $value->content !!}" data-id="{{$value->id}}">{{ strip_tags(Str::limit($value->content, 50, '..')) }}</span>
@@ -773,6 +783,62 @@ float: left;
         $('#categoryFilter').select2({
             multiple: true,
             placeholder: "Select sop category"
+        });
+        $('.sop_list_category_select').select2({
+            width: "100%",
+            multiple: true,
+            placeholder: "Select sop category"
+        });
+        $('.sop_list_category_select').on('select2:selecting', function(e) {
+            var rowId = $(this).data("row_id");
+            var updateCategoryId = e.params.args.data.id;
+            $.ajax({
+                url: "{{ route('sop.update-sop-category') }}",
+                method: 'POST',
+                data: {
+                    "id": rowId,
+                    "updateCategoryId": updateCategoryId,
+                    "type": "attach",
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function(response) {
+                    // Handle the AJAX response
+                    toastr["success"]("Category updated successfully", "Message");
+                    // console.log('Selection AJAX success:', response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle AJAX errors
+                    toastr["error"]("Category update failed", "Message");
+                    // console.error('Selection AJAX error:', error);
+                }
+            });
+        });
+
+        $('.sop_list_category_select').on('select2:unselecting', function(e) {
+            var rowId = $(this).data("row_id");
+            var updateCategoryId = e.params.args.data.id;
+            $.ajax({
+                url: "{{ route('sop.update-sop-category') }}",
+                method: 'POST',
+                data: {
+                    "id": rowId,
+                    "updateCategoryId": updateCategoryId,
+                    "type": "detach",
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function(response) {
+                    // Handle the AJAX response
+                    console.log('Selection AJAX success:', response);
+                    toastr["success"]("Category updated successfully", "Message");
+                },
+                error: function(xhr, status, error) {
+                    // Handle AJAX errors
+                    console.error('Selection AJAX error:', error);
+                    toastr["error"]("Category update failed", "Message");
+                }
+            });
         });
     </script>
     <script>

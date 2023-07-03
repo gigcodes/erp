@@ -496,11 +496,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
                                 <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
                                     <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <button type="button" class="btn btn-secondary1 mr-2 addnotesop" data-toggle="modal" data-target="#exampleModalAppLayout">Add Notes</button>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="table-responsive mt-3">
-                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
                                     <thead>
                                     <tr>
                                         <th width="2%">ID</th>
@@ -540,6 +541,43 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sop-add Modal-->
+    <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="FormModalAppLayout">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name-app-layout" name="name" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select name="category[]" id="categorySelect-app-layout" class="globalSelect2 form-control" data-ajax="{{route('select2.sop-categories')}}" data-minimuminputlength="1" multiple></select>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <input type="text" class="form-control" id="content-app-layout" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -5311,6 +5349,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
+        CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
@@ -5409,7 +5448,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             }else{
                 //var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
                 //var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
-                $("#NameTable tbody").prepend(`
+                $("#NameTable-app-layout tbody").prepend(`
                         <tr id="sid`+data.sopedit.id+`" data-id="`+data.sopedit.id+`" class="parent_tr">
                                 <td class="sop_table_id">`+data.sopedit.id+`</td>
                                 <td class="expand-row-msg" data-name="name" data-id="`+data.sopedit.id+`">
@@ -5477,6 +5516,42 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             console.log(data);
         });
     });
+
+    $('#FormModalAppLayout').submit(function(e) {
+            e.preventDefault();
+            let name = $("#name-app-layout").val();
+            let category = $("#categorySelect-app-layout").val();
+            if(category.length==0){
+                toastr["error"]('Select Category', "Message");
+                return false;
+            }
+            let content = CKEDITOR.instances['content-app-layout'].getData(); //$('#cke_content').html();//$("#content").val();
+            if(content==''){
+                toastr["error"]('Content not', "Message");
+                return false;
+            }
+            let _token = $("input[name=_token]").val();
+            $.ajax({
+                url: "{{ route('sop.store') }}",
+                type: "POST",
+                data: {
+                    name: name,
+                    category: category,
+                    content: content,
+                    _token: _token
+                },
+                success: function(response) {
+                    if (response) {
+                        if(response.success==false){
+                            toastr["error"](response.message, "Message");
+                            return false;
+                        }
+                        location.reload();
+                    }
+                }
+
+            });
+        });
 
     $(document).on("click", ".menu-sop-search", function(e) {
         e.preventDefault();
