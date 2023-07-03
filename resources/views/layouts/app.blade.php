@@ -4105,6 +4105,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('get.ip.logs') }}">Ip log</a>
                                     </li>
 
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.ssh.logins') }}">Ssh Logins</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.file.permissions') }}">File Permissions</a>
+                                    </li>
+
                                     </ul>
                                 </div>
                             </li>
