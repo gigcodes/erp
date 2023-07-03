@@ -42,6 +42,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sticky-notes.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
@@ -195,7 +196,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     .permission-alert-badge{
-        left: 730px;
+        left: 790px;
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
@@ -892,6 +893,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    <a title="Sticky-Notes" class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
+                                        <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
                                     <a class="daily-planner-button quick-icon" target="__blank"
@@ -4604,6 +4609,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
+
+        <div id="sticky_note_boxes" class="sticknotes_content">
+        </div>
+
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -6496,6 +6505,61 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         //$('.help-button-wrapper').toggleClass('expanded');
         //$('.instruction-notes-list-rt').toggleClass('dis-none');
     });
+
+
+        var url = "{{ route('stickyNotesCreate') }}";
+        var page = "{{ request()->fullUrl() }}";
+
+        var x = `<div class='sticky_notes_container'>
+            <div class="icon-check">
+            <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
+              <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
+                </div>
+                   Sticky Note
+                    <div class='text_box'>
+                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${url}' data-page='${page}'></textarea>
+                    </div>
+                </div>`;
+
+        $('.sticky-notes').on('click', function() {
+            StickyBox();
+        });
+  
+        $(document).ready(function() {
+            StickyBox();
+        });
+
+        function StickyBox () {
+            $(".sticknotes_content").draggable();
+            $('#sticky_note_boxes').append(x);
+                $(".sticky_notes_container").draggable();
+                $('.close-icon').each(function(){
+                    $('.close-icon').click(function() {
+                        $(this).closest('.sticky_notes_container').remove();
+                    });
+                });
+                $('.check-icon').on('click', function() {
+                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
+                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
+
+                    $.ajax({
+                        url: '{{ route('stickyNotesCreate') }}',
+                        method: 'POST',
+                        data: {
+                            value: textareaValue,
+                            page: page,
+                            _token: "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                        toastr['success'](response.message, 'success');
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Save Error:', error);
+                        }
+                    });
+                    $(this).closest('.sticky_notes_container').remove();
+            });
+        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
