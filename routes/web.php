@@ -367,6 +367,8 @@ use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
 use App\Http\Controllers\MagentoLocationController;
+use App\Http\Controllers\SshLoginController;
+use App\Http\Controllers\FilePermissionController;
 
 Auth::routes();
 
@@ -5299,6 +5301,9 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
+Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
