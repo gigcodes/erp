@@ -173,6 +173,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #event-alerts .event-alert-badge,
+    #database-backup-monitoring .database-alert-badge,
     #website_Off_status .status-alert-badge,
     .permission-alert-badge,
     #timer-alerts .timer-alert-badge {
@@ -199,6 +200,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
+    }
+    #database-backup-monitoring .database-alert-badge{
+        left: 310px;
     }
     .red-alert-badge {
         position: absolute;
@@ -795,6 +799,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    @php
+                                        $dbBackupList = \App\Models\DatabaseBackupMonitoring::where('is_resolved', 0)->count();
+                                    @endphp
+                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring"><span>
+                                        <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                                        @if ($dbBackupList)
+                                        <span class="database-alert-badge"></span>
+                                        @endif
+                                    </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <a title="Google-Drive-ScreenCast" type="button" class="quick-icon" id="google-drive-screen-cast" style="padding: 0px 1px;"><span><i
@@ -4604,9 +4620,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('googledrivescreencast.partials.upload');
-
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
+        @include('databse-Backup.db-errors-list')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7453,6 +7469,102 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $('#create-event-modal').modal('show');
     });
+
+    $(document).on('click','#database-backup-monitoring',function(e){        e.preventDefault();
+        $('#db-errors-list-modal').modal('show');
+        getdbbackupList(1);
+    });
+
+    function getdbbackupList(pageNumber = 1){
+    $.ajax({
+          url: '{{route("get.backup.monitor.lists")}}',
+          type: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          },
+          data: {
+            page: pageNumber
+          },
+          dataType: "json",
+          beforeSend: function () {
+            $("#loading-image").show();
+          }
+        }).done(function (response) {
+          console.log(response.data);
+          $("#loading-image").hide();
+          var html = "";
+          var startIndex = (response.data.current_page - 1) * response.data.per_page;
+          $.each(response.data.data, function (index, dberrorlist) {
+            var sNo = startIndex + index + 1; 
+            html += "<tr>";
+            html += "<td>" + sNo + "</td>";
+            html += "<td>" + dberrorlist.server_name + "</td>";
+            html += "<td>" + dberrorlist.instance + "</td>";
+            html += "<td>" + dberrorlist.database_name + "</td>";
+            html += "<td class='expand-row' style='word-break: break-all'>";
+            html += "<span class='td-mini-container'>" + (dberrorlist.error.length > 15 ? dberrorlist.error.substr(0, 15) + '...' : dberrorlist.error) + "</span>";
+            html += "<span class='td-full-container hidden'>" + dberrorlist.error + "</span>";
+            html += "</td>";
+            html += "<td><input type='checkbox' name='is_resolved' value='1' data-id='" + dberrorlist.id + "' onchange='updateIsResolved(this)'></td>";
+            html += "<td>" + dberrorlist.date + "</td>";
+            html += "<td>" + dberrorlist.status + "</td>";
+            html += "</tr>";
+          });
+          $(".db-list").html(html);
+          $("#db-errors-list-modal").modal("show");
+            if(response.count > 0) {
+                $('.database-alert-badge').removeClass("hide");
+            }
+          renderPagination(response.data);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+    }
+
+
+    function renderPagination(data) {
+          var paginationContainer = $(".pagination-container");
+          var currentPage = data.current_page;
+          var totalPages = data.last_page;
+          var html = "";
+          if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            for (var i = 1; i <= totalPages; i++) {
+              html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+            }
+            if (currentPage < totalPages) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+            }
+            html += "</ul>";
+          }
+        paginationContainer.html(html);
+      }
+      function changePage(pageNumber) {
+        getdbbackupList(pageNumber);
+      }
+
+      function updateIsResolved(checkbox) {
+			var dbListId = checkbox.getAttribute('data-id');
+			$.ajax({	
+				url: '{{route('db.update.isResolved')}}',
+				method: 'GET',
+				data: {
+					id:dbListId
+				},
+				success: function(response) {
+				// 	console.log(response);
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});	
+		};
+
+		
 
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();

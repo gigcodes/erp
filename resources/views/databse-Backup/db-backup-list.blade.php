@@ -14,6 +14,11 @@
 		    <h2 class="page-heading">Database Backup Monitoring ({{$dbLists->total()}})</h2>
 		</div>
 	</div>
+	@if(session('success'))
+	<div class="alert alert-success">
+		{{ session('success') }}
+	</div>
+	@endif
     <div class="mt-3 col-md-12">
 		<form action="{{route('get.backup.monitor.lists')}}" method="get" class="search">
             @csrf
@@ -54,6 +59,7 @@
 			        <th width="10%">Instance</th>
 			        <th width="10%">Database Name</th>
 			        <th width="30%">Error</th>
+					<th width="5%">Is Resolved</th>
 			        <th width="10%">date</th>
                     <th width="10%">Status</th>
                 </tr>
@@ -64,11 +70,14 @@
                             <td>{{$dbList->server_name}}</td>
 							<td>{{$dbList->instance}}</td>
 							<td>{{$dbList->database_name}}</td>
-                            <td>
+							<td>
 								<div>
 								{{ strlen($dbList->error) > 10 ? substr($dbList->error, 0, 70).'...' : $dbList->error }}
 								<i class="fa fa-eye show_logs show-logs-icon" data-id="{{ $dbList->id }}" style="color: #808080;float: right;"></i>
 							    </div>
+							</td>
+							<td>
+								<input type="checkbox" name="is_resolved" value="1" data-id="{{ $dbList->id }}" onchange="updateIsResolved(this)">
 							</td>
 							<td>{{$dbList->date}}</td>
                             <td>{{$dbList->status}}</td>   
