@@ -469,11 +469,12 @@
 				<div class="col-lg-12">
 					<form>
 						<?php echo csrf_field(); ?>
-						<input type="hidden" name="database_user_id" id="database-user-id" value="{{:data.user_id}}">
+						<input type="hidden" name="database_user_id" id="database_user_id" value="{{:data.user_id}}">
 					  	<div class="row">
 					  		<div class="col">
 					      		<select class="form-control choose-db" name="connection">
-					      			<?php foreach (\App\StoreWebsite::DB_CONNECTION as $k => $connection) { ?>
+								  <option {{if data.connection == "mysql" }} selected='selected' {{/if}} value="mysql">Erp</option>
+					      			<?php foreach (\App\StoreWebsite::pluck('title','id')->toArray() as $k => $connection) { ?>
 					      				<option {{if data.connection == "<?php echo $k; ?>" }} selected='selected' {{/if}} value="<?php echo $k; ?>"><?php echo $connection; ?></option>
 					      			<?php } ?>		
 					      		</select>
