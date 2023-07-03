@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Illuminate\Support\Facades\Storage;
 
 class StoreWebsiteController extends Controller
 {
@@ -1268,6 +1269,49 @@ class StoreWebsiteController extends Controller
         }
     }
 
+    public function getDownloadDbEnvLogs(Request $request, $store_website_id)
+    {
+        try {
+            $responseLog = \App\DownloadDatabaseEnvLogs::where('store_website_id', '=', $store_website_id)->get();
+            //dd($responseLog);
+            if ($responseLog != null) {
+                $html = '';
+                foreach ($responseLog as $res) {
+                    //dd($res->created_at);
+                    $html .= '<tr>';
+                    $html .= '<td>' . $res->id . '</td>';
+                    if(isset($res->user->name)){
+                    $html .= '<td>' .  $res->user->name .'</td>';
+                    }else{
+                        $html .= '<td></td>';
+                    } 
+                    $html .= '<td>' . $res->type . '</td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-response-' . $res->id . '">' . Str::limit($res->cmd, 50, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . $res->cmd . '</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-response-' . $res->id . '">' . Str::limit(json_encode($res->output), 100, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . json_encode($res->output) . '</span>
+                    </td>';
+                    $html .= '<td>' . $res->created_at . '</td>';
+                    $html .= '</tr>';
+                }
+
+                return response()->json([
+                    'code' => 200,
+                    'data' => $html,
+                    'message' => '',
+                ]);
+            }
+
+            return response()->json(['code' => 500, 'error' => 'Wrong site id!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'data' => [], 'message' => $msg]);
+        }
+    }
     public function getMagentoUpdateWebsiteSetting(Request $request, $store_website_id)
     {
         try {
@@ -1720,6 +1764,59 @@ class StoreWebsiteController extends Controller
         return $result;
     }
 
+    public function downloadDbEnv(Request $request,$id,$type){
+
+        $storeWebsite=StoreWebsite::where('id', $id)->first();
+        if(!$storeWebsite){
+            return redirect()->back()->withErrors('Store Website data is not found!'); 
+        }
+        if($type!='db' && $type!='env'){
+            return redirect()->back()->withErrors('You can only download database or env data');
+        }
+        if($type=='db' && $storeWebsite->database_name==''){
+            return redirect()->back()->withErrors('Store Website database name is not found!');
+        }
+        if($storeWebsite->instance_number==''){
+            return redirect()->back()->withErrors('Store Website instance number is not found!');
+        }
+        
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' 2>&1';
+        $filename=".env";
+        if($type=='db'){
+            $filename=storeWebsite->database_name.".sql";
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' -d '.$storeWebsite->database_name. ' 2>&1';
+        }
+
+        \Log::info("Start Download DB/ENV");
+        
+        $result = exec($cmd, $output, $return_var);
+
+        (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
+        \Log::info("command:".$cmd);
+        \Log::info("output:".print_r($output,true));
+        \Log::info("return_var:".$return_var);
+
+        \Log::info("End Download DB/ENV");
+
+        $response=json_decode($result);
+        if(isset($response->status)  && $response->status){
+            $path=Storage::path('download_db');
+            $path.="/".$filename;
+            return response()->download($path)->deleteFileAfterSend(true);
+        }else{
+            $message="Something Went Wrong! Please check Logs for more details";
+            if(isset($response->message) && $response->message!=''){
+                $message=$response->message;
+            }
+            return redirect()->back()->withSuccess($message);
+        }
+
+        
+        
+
+        return redirect()->back()->withSuccess('Download successfully!');
+    }
+  
     public function runFilePermissions(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where('id', $id)->first();
@@ -1744,5 +1841,6 @@ class StoreWebsiteController extends Controller
         \Log::info("End run File Permissions");
 
         return response()->json(['code' => 200, 'message' => 'Run Successfully']);
+
     }
 }
