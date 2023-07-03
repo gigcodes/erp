@@ -368,6 +368,8 @@ use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
 use App\Http\Controllers\MagentoLocationController;
 use App\Http\Controllers\DatabaseBackupMonitoringController;
+use App\Http\Controllers\SshLoginController;
+use App\Http\Controllers\FilePermissionController;
 
 Auth::routes();
 
@@ -5302,6 +5304,8 @@ Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleS
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
+Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
+Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
 
 
 Route::middleware('auth')->group(function () {
