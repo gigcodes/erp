@@ -1022,6 +1022,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
     Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
     Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
+    Route::post('sop/update-sop-category', [SopController::class, 'updateSopCategory'])->name('sop.update-sop-category');
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
