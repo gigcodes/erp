@@ -1783,7 +1783,7 @@ class StoreWebsiteController extends Controller
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' 2>&1';
         $filename=".env";
         if($type=='db'){
-            $filename=storeWebsite->database_name.".sql";
+            $filename=$storeWebsite->database_name.".sql";
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' -d '.$storeWebsite->database_name. ' 2>&1';
         }
 
@@ -1808,12 +1808,8 @@ class StoreWebsiteController extends Controller
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
-            return redirect()->back()->withSuccess($message);
+            return redirect()->back()->withErrors($message);
         }
-
-        
-        
-
         return redirect()->back()->withSuccess('Download successfully!');
     }
   
