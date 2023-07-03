@@ -380,15 +380,14 @@
 						        <td>
 						        	{{:prop.cmd}}
 						        </td>
-						        <td>
-									<span class="tooltip-cmd-output" title="{{:prop.output_string}}">
-									{{if prop.output_string.length > 30}}
-						        		{{:prop.output_string.substring(0, 30)}}...
-									{{else}}
+						        <td class="expand-row-msg">
+									<div class="td-mini-container">
+										{{:prop.output_string.substring(0, 30)}}...
+									</div>
+									<div class="td-full-container hidden">
 										{{:prop.output_string}}
-									{{/if}}
-									</span>
-						        </td>
+									</div>
+								</td>
 						        <td>
 						        	{{:prop.return_var}}
 						        </td>
