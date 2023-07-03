@@ -370,8 +370,7 @@ var page = {
     var tplHtml = addProductTpl.render(response);
 
     $(".count-text").html("(" + response.total + ")");
-
-    page.config.bodyView.find("#page-view-result").html(tplHtml);
+    this.config.bodyView.find("#page-view-result").html(tplHtml);
   },
   deleteRecord: function (ele) {
     var _z = {
