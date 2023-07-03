@@ -1,7 +1,4 @@
 <!-- Modal -->
-@php
- $status = \App\Models\MonitorServer::where('status', '=','Off')->get();
-@endphp
 <div id="create-status-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -14,23 +11,18 @@
                 <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
-                            <th width="5%">s.no</th>
+                            <th width="5%">ID</th>
                             <th width="20%">Website</th>
                         </tr>
                     </thead>
-                    <tbody class="show-search-password-list">
-                        @if (count($status) > 0)
-                        @foreach($status as $key =>$stat)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$stat->ip }}</td>
-                        </tr>
-                        @endforeach
-                        @else
-                        <tr><td colspan="2">No records found</td></tr>
-                        @endif
+                    <tbody class="show-search-password-list" id="website-monitor-status-modal-html">
+                        <!-- Table rows will be dynamically populated here -->
                     </tbody>
                 </table> 
+                <!-- Pagination links -->
+                <div id="website-monitor-status-modal-table-paginationLinks">
+                    <!-- Pagination links will be dynamically populated here -->
+                </div>
            </div>
         </div>
     </div>

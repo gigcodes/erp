@@ -65,6 +65,7 @@ Route::group([
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
+    
 
     // Create Tags for multiple website
     Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
@@ -77,6 +78,7 @@ Route::group([
         'prefix' => '{id}',
     ], function () {
         Route::post('download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
+        Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
         Route::post('magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
 
         Route::post('magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);

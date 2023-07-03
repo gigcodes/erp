@@ -532,7 +532,7 @@
         }
         $(".select2").select2();
 
-        var selectedValues = [ '1','2','3', '5','9'];
+        var selectedValues = [{{$search_website_string}}];
         $(document).ready(function() {
             $('.globalSelect22').select2({
                 multiple: true,
@@ -574,6 +574,9 @@
                 dataType: "json",
                 beforeSend: function() {
                     $("#loading-image").show();
+                },
+                complete: function() {
+                    $("#loading-image").hide();
                 },
                 success: function(response) {
                     if (response.code == 200) {

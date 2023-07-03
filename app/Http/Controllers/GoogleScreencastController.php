@@ -306,5 +306,147 @@ class GoogleScreencastController extends Controller
         }
 
         return $driveFileData;
+    } 
+
+    public function getGoogleScreencast (Request $request){
+
+        $datas = GoogleScreencast::latest()->take(10)->get();
+
+        if (! Auth::user()->isAdmin()) {
+            $datas = GoogleScreencast::where('user_id','=', Auth::id())->latest()->take(10)->get();
+        }
+
+        return response()->json([
+            'tbody' => view('partials.modals.google-drive-screen-cast-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
+    }
+
+    public function getDropdownDatas(Request $request)
+    {
+        $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+        $generalTask = Task::orderBy('id', 'desc');
+
+        if (! Auth::user()->isAdmin()) {
+            $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $generalTask = $generalTask->where('assign_to', Auth::id());
+        }
+        $tasks = $taskList->select('id', 'subject')->get();
+        $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
+        $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+
+        return response()->json(['tasks' => $tasks, 'users' => $users , 'generalTask' => $generalTask]);
+    }
+
+
+    public function addMultipleDocPermission(Request $request)
+    {
+        $filePKIds = explode(',', request('multiple_file_id'));
+        $filePKIds = array_map('intval', $filePKIds);
+        $readData = request('read');
+        $writeData = request('write');
+
+        foreach ($filePKIds as $filePKId) {
+            $fileData = GoogleScreencast::find($filePKId);
+            $fileId = $fileData->google_drive_file_id;
+
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
+
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove Permission
+                if ($permission['role'] != 'owner' && $permission['emailAddress'] != (env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($fileId, $permission['id']);
+                }
+            }
+            //assign permission based on requested data
+            $index = 1;
+            $driveService->getClient()->setUseBatch(true);
+            if (! empty($readData)) {
+                $batch = $driveService->createBatch();
+                foreach ($readData as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'reader',
+                        'emailAddress' => $email,
+                    ]);
+
+                    $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user' . $index);
+                    $index++;
+                }
+                $results = $batch->execute();
+            }
+            if (! empty($writeData)) {
+                $batch = $driveService->createBatch();
+                foreach ($writeData as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'writer',
+                        'emailAddress' => $email,
+                    ]);
+
+                    $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user' . $index);
+                    $index++;
+                }
+                $results = $batch->execute();
+            }
+            $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+            $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
+            $fileData->save();
+        }
+
+        return back()->with('success', 'Permission successfully updated.');
+    }
+
+    public function driveFileRemovePermission(Request $request)
+    {
+        $fileIds = explode(',', request('remove_file_ids'));
+        $fileIds = array_map('intval', $fileIds);
+        $readArray = request('read');
+        $writeArray =  request('write');
+
+        foreach ($fileIds as $fileId)
+        {
+            $file = GoogleScreencast::find($fileId);
+            $permissionEmails = [];
+            $client = new Client();
+            $client->useApplicationDefaultCredentials();
+            $client->addScope(Drive::DRIVE);
+            $driveService = new Drive($client);
+            // Build a parameters array
+            $parameters = [];
+            // Specify what fields you want
+            $parameters['fields'] = 'permissions(*)';
+            // Call the endpoint to fetch the permissions of the file
+            $permissions = $driveService->permissions->listPermissions($file->google_drive_file_id, $parameters);
+    
+            $is_already_have_permission = false;
+            foreach ($permissions->getPermissions() as $permission) {
+                $permissionEmails[] = $permission['emailAddress'];
+                //Remove old Permission
+                if (in_array($permission['emailAddress'], $readArray) && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
+                    $driveService->permissions->delete($file->google_drive_file_id, $permission['id']);
+                }
+            }    
+            $readUsers = array_diff(explode(',', $file->read), $readArray);
+            $writeUsers = array_diff(explode(',', $file->write), $writeArray);
+            $file->read = implode(',', $readUsers);
+            $file->write = implode(',', $writeUsers);
+            $file->save();
+        }
+
+        return back()->with('success', 'Permission successfully removed');     
     }
 }

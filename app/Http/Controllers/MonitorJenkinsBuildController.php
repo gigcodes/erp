@@ -43,4 +43,27 @@ class MonitorJenkinsBuildController extends Controller
         return view('monitor.jenkins_build_index', compact('monitorJenkinsBuilds'));
     }
 
+    public function list(Request $request)
+    {
+        // 1 = Failure, 0 = Success
+        $perPage = 10; // Number of records per page
+
+        $monitorJenkinsBuild = MonitorJenkinsBuild::where('clone_repository', 1)
+            ->orwhere('lock_build', 1)
+            ->orwhere('update_code', 1)
+            ->orwhere('composer_install', 1)
+            ->orwhere('make_config', 1)
+            ->orwhere('setup_upgrade', 1)
+            ->orwhere('compile_code', 1)
+            ->orwhere('static_content', 1)
+            ->orwhere('reindexes', 1)
+            ->orwhere('magento_cache_flush', 1)
+            ->orwhere('build_status', 1)
+            ->orwhere('meta_update', 1);
+
+        $monitorJenkinsBuild = $monitorJenkinsBuild->paginate($perPage);
+
+        return response()->json($monitorJenkinsBuild);    
+    }
+
 }

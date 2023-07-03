@@ -122,6 +122,9 @@
                                 </button>
 
                             {{/if}}
+							<button title="Run File Permissions" data-id="{{>prop.id}}" type="button"  class="btn run_file_permissions" style="padding:1px 0px;">
+                                    <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-file"></i></a>
+                                </button>
 			        </td>
 			        </tr>
 			    {{/props}}  
