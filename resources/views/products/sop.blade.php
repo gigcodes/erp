@@ -804,11 +804,13 @@ float: left;
                 dataType: "json",
                 success: function(response) {
                     // Handle the AJAX response
-                    console.log('Selection AJAX success:', response);
+                    toastr["success"]("Category updated successfully", "Message");
+                    // console.log('Selection AJAX success:', response);
                 },
                 error: function(xhr, status, error) {
                     // Handle AJAX errors
-                    console.error('Selection AJAX error:', error);
+                    toastr["error"]("Category update failed", "Message");
+                    // console.error('Selection AJAX error:', error);
                 }
             });
         });
@@ -829,10 +831,12 @@ float: left;
                 success: function(response) {
                     // Handle the AJAX response
                     console.log('Selection AJAX success:', response);
+                    toastr["success"]("Category updated successfully", "Message");
                 },
                 error: function(xhr, status, error) {
                     // Handle AJAX errors
                     console.error('Selection AJAX error:', error);
+                    toastr["error"]("Category update failed", "Message");
                 }
             });
         });
