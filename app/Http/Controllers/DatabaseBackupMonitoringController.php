@@ -58,7 +58,7 @@ class DatabaseBackupMonitoringController extends Controller
         $dbList->is_resolved = 1;
         $dbList->update();
 
-        return redirect()->back();       
+        return response()->json(['code' => 200, 'data' => $dbList, 'message' => 'Resolved successfully!!!']);     
     }
 
 }

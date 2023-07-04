@@ -7556,7 +7556,7 @@ if (!\Auth::guest()) {
 					id:dbListId
 				},
 				success: function(response) {
-				// 	console.log(response);
+                    toastr["success"](response.message, "Message");
 				},
 				error: function(xhr, status, error) {
 					alert("Error occured.please try again");
