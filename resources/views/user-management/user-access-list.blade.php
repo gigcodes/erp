@@ -10,28 +10,28 @@
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
-		    <h2 class="page-heading">User Access ({{$userAccessLists->total()}})</h2>
+		    <h2 class="page-heading">User Access List({{$userAccessLists->total()}})</h2>
 		</div>
 	</div>
-	@if(session('success'))
-	<div class="alert alert-success">
-		{{ session('success') }}
-	</div>
-	@endif
+	@include('partials.flash_messages')
+
     <div class="mt-3 col-md-12">
 		<form action="{{route('user-management.user-access-listing')}}" method="get" class="search">
             @csrf
-			<div class="col-lg-2">
-				<input class="form-control" type="text" id="user" placeholder="Search User" name="user" value="{{ $user ?? '' }}">
-			</div>
-			<div class="col-lg-2">
-				<input class="form-control" type="date" name="date">
+            <div class="col-md-2 pd-sm">
+				{{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(),request('user_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select User"]) }}
 			</div>
             <div class="col-md-2 pd-sm">
 				{{ Form::select("s_ids[]", \App\UserPemfileHistory::pluck('server_name','server_name')->toArray(),request('s_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Server Name"]) }}
 			</div>
             <div class="col-lg-2">
-				<input class="form-control" type="text" id="search_event" placeholder="Search Event" name="search_event" value="{{ $search_status ?? '' }}">
+				<input class="form-control" type="text" id="search_username" placeholder="Search UserName" name="search_username" value="{{ $search_username ?? '' }}">
+			</div>
+            <div class="col-lg-2">
+				<input class="form-control" type="text" id="search_event" placeholder="Search Event" name="search_event" value="{{ $search_event ?? '' }}">
+			</div>
+            <div class="col-lg-2">
+				<input class="form-control" type="date" name="date">
 			</div>
 
 			<div class="col-lg-2">
@@ -52,6 +52,7 @@
 			        <th width="10%">Server</th>
 			        <th width="10%">User Name</th>
 			        <th width="10%">Event</th>
+                    <th width="10%">Created By</th>
 			        <th width="10%">Date</th>
                     <th width="10%">Action</th>
                 </tr>
@@ -59,15 +60,28 @@
                     @foreach ($userAccessLists as $key => $userAccessList)
                         <tr>
                             <td>{{$key+1}}</td>
-                            <td>{{$userAccessList->server_name}}</td>
+                            <td>{{$userAccessList->user->name}}</td>
 							<td>{{$userAccessList->server_name}}</td>
 							<td>{{$userAccessList->username}}</td>
                             <td>{{$userAccessList->action}}</td>
-							<td>{{$userAccessList->created_at}}</td>
+                            <td>{{$userAccessList->created_by}}</td>
+                            <td>{{$userAccessList->created_at}}</td>
+							
                             <td>
-                                @if(Auth::user()->isAdmin())
-                                    <button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{$userAccessList->id}}" ><i class="fa fa-info-circle show-logs-icon"></i></button>
+                             @if($userAccessList->action == 'add')
+                                <a title="Download" href="/user-management/download-pem-file/{{$userAccessList->id}}/" class="btn btn-image download-pem-user pd-5" data-id="{{$userAccessList->id}}"><i class="fa fa-download"></i></a>
+                             @if(Auth::user()->isAdmin())
+                                    <button title="Disable access" type="button" class="btn btn-image disable-pem-user pd-5" data-id="{{$userAccessList->id}}" onclick="return confirm('Are you sure you want to disable access for this user?');"><i class="fa fa-ban"></i></button>
                                 @endif
+                            @endif
+                            @if(Auth::user()->isAdmin())
+                                <button title="View Logs" type="button" class="btn btn-image view-pem-logs pd-5" data-id="{{$userAccessList->id}}"><i class="fa fa-info-circle"></i></button>
+                            @endif
+                            @if($userAccessList->action == 'add' || $userAccessList->action == 'disable')
+                                @if(Auth::user()->isAdmin())
+                                    <button title="Delete access" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{$userAccessList->id}}" onclick="return confirm('Are you sure you want to delete ?');"><i class="fa fa-trash"></i></button>
+                                @endif
+                            @endif
                             </td> 
 						</tr>                        
                     @endforeach
@@ -110,39 +124,33 @@
     </div>
 </div>
 
-<div class="modal" tabindex="-1" role="dialog" id="error_logs_modal">
-    <div class="modal-dialog modal-lg" role="document">
+<div id="user-pem-logs-summary-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Error details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <h4 class="modal-title">Pem file history logs</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12" id="error_logs_div">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th width="10%">Title</th>
-                                    <th width="10%">Alert Date</th>
-                                    <th width="10%">Event Type</th>
-                                    <th width="8%">Is Read ?</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="5%">Id</th>
+                            <th width="10%">Cmd</th>
+                            <th width="40%">Output</th>
+                            <th width="30%">Error code</th>
+                        </tr>
+                    </thead>
+                    <tbody class="show-search-password-list" id="user-pem-logs-summary-modal-html">
+                        
+                    </tbody>
+                </table> 
+           </div>
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
@@ -151,32 +159,107 @@
 
 $(document).on('click', '.view-pem-logs', function() {
         var pemfileHistoryId = $(this).data('id');
+        $.ajax({
+            url: "/user-management/user-pemfile-history-logs/" + pemfileHistoryId,
+            method: 'GET',
+            data: {
+            pemfileHistoryId: pemfileHistoryId
+            },
+            success: function(data) {
+                var html = "";
+                if (data.code === 200 && data.data && data.data.length > 0) {
+                    $.each(data.data, function(index, loglist) {
+                        html += "<tr>";
+                        html += "<td>" + loglist.id + "</td>";
+                        html += "<td>" + loglist.cmd + "</td>";
+
+                        html += "<td class='expand-row-msg'>";
+                        html += "<div class='td-mini-container' onclick='expandRow(this)'>";
+
+                        if (typeof loglist.output_string === "string" && loglist.output_string.trim() !== "") {
+                        html += loglist.output_string.substring(0, 30) + "...";
+                        html += "</div>";
+                        html += "<div class='td-full-container hidden'>" + loglist.output_string + "</div>";
+                        } else {
+                        html += "-";
+                        }
+
+                        html += "</div>";
+                        html += "</td>";
+                        html += "<td>" + (loglist.return_var !== null ? loglist.return_var : "") + "</td>";
+
+                        html += "</tr>";
+                    });
+                    } else {
+                    html += "<tr><td colspan='4'>No data available</td></tr>";
+                    }
+                    $('#user-pem-logs-summary-modal-html').html(html);
+                    $('#user-pem-logs-summary-modal').modal('show');
+                }, 
+                error: function(xhr, status, error) {
+                alert("An error occurred. Please try again.");
+                }
+            });
+});
+
+
+        $(document).on('click', '.delete-pem-user', function() {
+        var id = $(this).data('id');
 			$.ajax({
-              url:  "/user-management/user-pemfile-history-logs/" + pemfileHistoryId,
-				method: 'GET',
+              url:  "/user-management/delete-pem-file/" + id,
+				method: 'POST',
 				data: {
-					pemfileHistoryId: pemfileHistoryId
+                    _token: "{{ csrf_token() }}",
+					id: id
 				},
                     success: function(data) {
-                    var html = "";
-                    $.each(data.data, function(index, loglist) {
-                    html += "<tr>";
-                    html +=  "<td>" + loglist.cmd + "</td>";
-                    html += "<td>" + loglist.output + "</td>";
-                    html += "<td>" + loglist.return_var + "</td>";
-                    html += "</tr>";
-                    });
-
-                    var tableHeader = "<tr><th>Command</th><th>Output</th><th>Code</th></tr>";
-                    $('#error_logs_modal').modal('show');
-                    $('#error_logs_div thead').html(tableHeader);
-                    $('#error_logs_div tbody').html(html);
+                        toastr["error"](data.message);
                 },
-                error: function(xhr, status, error) {
+                 error: function(xhr, status, error) {
                     alert("An error occurred. Please try again.");
                 }
 			});
 		});
+
+        $(document).on('click', '.disable-pem-user', function() {
+        var id = $(this).data('id');
+			$.ajax({
+              url:  "/user-management/disable-pem-file/" + id,
+				method: 'POST',
+				data: {
+                    _token: "{{ csrf_token() }}",
+					id: id
+				},
+                    success: function(data) {
+                        toastr["error"](data.message);
+                },
+                 error: function(xhr, status, error) {
+                    alert("An error occurred. Please try again.");
+                }
+			});
+		});
+
+        $(document).on('click', '.download-pem-user', function() {
+        var id = $(this).data('id');
+			$.ajax({
+              url:  "/user-management/download-pem-file/" + id,
+				method: 'GET',
+				data: {
+                    _token: "{{ csrf_token() }}",
+					id: id
+				},
+                    success: function(data) {
+                },
+                 error: function(xhr, status, error) {
+                    alert("An error occurred. Please try again.");
+                }
+			});
+		});
+
+        function expandRow(element) {
+            $(element).toggleClass('expanded');
+            $(element).parent().find('.td-full-container').toggleClass('hidden');
+        }
 </script> 
 
 @endsection

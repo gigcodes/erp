@@ -2838,9 +2838,8 @@ class UserManagementController extends Controller
 
         $userAccessLists = New UserPemfileHistory();
       
-
-        if ($request->user) {
-            $userAccessLists = $userAccessLists->where('username', 'LIKE', '%' . $request->user . '%');
+        if ($request->user_ids) {
+            $userAccessLists = $userAccessLists->whereIn('user_id', $request->user_ids );
         }
         if ($request->s_ids) {
             $userAccessLists = $userAccessLists->WhereIn('server_name', $request->s_ids);
@@ -2850,6 +2849,9 @@ class UserManagementController extends Controller
         } 
         if ($request->date) {
             $userAccessLists = $userAccessLists->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        if ($request->search_username) {
+            $userAccessLists = $userAccessLists->where('username', 'LIKE', '%' . $request->search_username . '%');
         }
 
         $userAccessLists = $userAccessLists->with('user')->latest()->paginate(25);
