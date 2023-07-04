@@ -167,7 +167,9 @@ $(document).on('click', '.view-pem-logs', function() {
                     html += "</tr>";
                     });
 
+                    var tableHeader = "<tr><th>Command</th><th>Output</th><th>Code</th></tr>";
                     $('#error_logs_modal').modal('show');
+                    $('#error_logs_div thead').html(tableHeader);
                     $('#error_logs_div tbody').html(html);
                 },
                 error: function(xhr, status, error) {
