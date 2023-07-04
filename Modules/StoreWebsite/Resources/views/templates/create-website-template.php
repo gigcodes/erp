@@ -357,6 +357,19 @@
                   </select>
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="database_name">Database Name</label>
+                  <input type="text" name="database_name" value="{{if data}}{{:data.database_name}}{{/if}}" class="form-control" id="database_name" placeholder="Enter Database Name">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="instance_number">Instance Number</label>
+                  <input type="number" name="instance_number" value="{{if data}}{{:data.instance_number}}{{/if}}" class="form-control" id="instance_number" placeholder="Enter Instance Number">
+                  The Instance Number is 1 or 2, based on the instance on the server 
+               </div>
+            </div>
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}

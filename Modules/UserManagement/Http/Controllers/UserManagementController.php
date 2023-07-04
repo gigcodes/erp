@@ -1597,11 +1597,27 @@ class UserManagementController extends Controller
             return response()->json(['code' => 500, 'message' => 'Please enter password and more then 6 length']);
         }
 
+
         $connectionInformation = config("database.connections.$connection");
+        if($connection!='mysql'){
+            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
+            if($storeWebsite){
+                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
+                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
+                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
+                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
+                $connectionInformation['host']=$storeWebsite->server_ip;
+                $connectionInformation['database']=$storeWebsite->database_name;
+                $connectionInformation['username']=$storeWebsite->mysql_username;
+                $connectionInformation['password']=$storeWebsite->mysql_password;
+            }else{
+                return response()->json(['code' => 500, 'message' => 'Site details is not found']);
+            }
+        }
         if (empty($connectionInformation)) {
             return response()->json(['code' => 500, 'message' => 'No , database connection is not available']);
         }
-
+        
         $user = \App\User::find($id);
         if ($user) {
             $database = \App\UserDatabase::where('user_id', $user->id)->where('database', $connection)->first();
@@ -1644,6 +1660,21 @@ class UserManagementController extends Controller
         }
 
         $connectionInformation = config("database.connections.$connection");
+        if($connection!='mysql'){
+            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
+            if($storeWebsite){
+                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
+                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
+                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
+                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
+                $connectionInformation['host']=$storeWebsite->server_ip;
+                $connectionInformation['database']=$storeWebsite->database_name;
+                $connectionInformation['username']=$storeWebsite->mysql_username;
+                $connectionInformation['password']=$storeWebsite->mysql_password;
+            }else{
+                return response()->json(['code' => 500, 'message' => 'Site details is not found']);
+            }
+        }
         if (empty($connectionInformation)) {
             return response()->json(['code' => 500, 'message' => 'No , database connection is not available']);
         }
@@ -1711,6 +1742,21 @@ class UserManagementController extends Controller
         }
 
         $connectionInformation = config("database.connections.$connection");
+        if($connection!='mysql'){
+            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
+            if($storeWebsite){
+                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
+                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
+                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
+                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
+                $connectionInformation['host']=$storeWebsite->server_ip;
+                $connectionInformation['database']=$storeWebsite->database_name;
+                $connectionInformation['username']=$storeWebsite->mysql_username;
+                $connectionInformation['password']=$storeWebsite->mysql_password;
+            }else{
+                return response()->json(['code' => 500, 'message' => 'Site details is not found']);
+            }
+        }
         if (empty($connectionInformation)) {
             return response()->json(['code' => 500, 'message' => 'No , database connection is not available']);
         }
@@ -1736,7 +1782,7 @@ class UserManagementController extends Controller
     public function chooseDatabase(Request $request, $id)
     {
         $connection = $request->get('connection');
-
+        
         $database = \App\UserDatabase::where('database', $connection)->where('user_id', $id)->first();
         $tablesExisting = [];
         if ($database) {
@@ -1746,7 +1792,44 @@ class UserManagementController extends Controller
         $user = \App\User::find($id);
 
         $list = [];
-        $tables = \DB::connection($connection)->select('SHOW TABLES');
+        $tables = [];
+        if($connection!='mysql'){
+            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
+            if($storeWebsite){
+                $server_ip=$storeWebsite->server_ip;
+                $database_name=$storeWebsite->database_name;
+                $mysql_username=$storeWebsite->mysql_username;
+                $mysql_password=$storeWebsite->mysql_password;
+                if($server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
+                if($database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
+                if($mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
+                if($mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
+                
+                //dd([$server_ip,$mysql_username,$mysql_password,$database_name]);
+                //Creating a connection
+                try{
+                    $conn  = new \mysqli($server_ip, $mysql_username, $mysql_password, $database_name);
+
+                    if($conn ->connect_error){
+                        return response()->json(['code' => 500, 'message' => "Connection failed:".$conn ->connect_error]);
+                    }else{
+                        if($result = $conn->query('SHOW TABLES')){
+                            $tables =$result->fetch_all(MYSQLI_ASSOC);
+                        }
+                    }
+
+                    //Closing the connection
+                    $conn->close();
+                } catch (\Exception $e) {
+                    return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+                }
+            }else{
+                return response()->json(['code' => 500, 'message' => 'Site details is not found']);
+            }
+        }else{
+            $tables = \DB::connection($connection)->select('SHOW TABLES');
+        }
+
         if (! empty($tables)) {
             foreach ($tables as $table) {
                 foreach ($table as $t) {
@@ -1766,7 +1849,7 @@ class UserManagementController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data]);
     }
-
+    
     public function updateStatus(Request $request)
     {
         if ($request->type == 'TASK') {
@@ -1850,11 +1933,11 @@ class UserManagementController extends Controller
         $user_role = $request->get('user_role');
         $username = str_replace(' ', '_', $user->name);
 
-        $var_t_sftp=true;
-        $var_b_ssh=false;
+        $var_t_sftp="true";
+        $var_b_ssh="false";
         if($access_type=="ssh"){
-            $var_t_sftp=false;
-            $var_b_ssh=true;
+            $var_t_sftp="false";
+            $var_b_ssh="true";
         }
         $server_ip=$server->ip;
         
