@@ -50,6 +50,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
+    <link href="{{ asset('css/sticky-notes.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
@@ -173,6 +174,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #event-alerts .event-alert-badge,
+    #database-backup-monitoring .database-alert-badge,
     #website_Off_status .status-alert-badge,
     .permission-alert-badge,
     #timer-alerts .timer-alert-badge {
@@ -195,10 +197,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     .permission-alert-badge{
-        left: 730px;
+        left: 790px;
     }
     #timer-alerts .timer-alert-badge {
     left: 130px;
+    }
+    #database-backup-monitoring .database-alert-badge{
+        left: 310px;
     }
     .red-alert-badge {
         position: absolute;
@@ -495,11 +500,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
                                 <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
                                     <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <button type="button" class="btn btn-secondary1 mr-2 addnotesop" data-toggle="modal" data-target="#exampleModalAppLayout">Add Notes</button>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="table-responsive mt-3">
-                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
                                     <thead>
                                     <tr>
                                         <th width="2%">ID</th>
@@ -539,6 +545,43 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sop-add Modal-->
+    <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="FormModalAppLayout">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name-app-layout" name="name" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select name="category[]" id="categorySelect-app-layout" class="globalSelect2 form-control" data-ajax="{{route('select2.sop-categories')}}" data-minimuminputlength="1" multiple></select>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <input type="text" class="form-control" id="content-app-layout" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -797,6 +840,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    @php
+                                        $dbBackupList = \App\Models\DatabaseBackupMonitoring::where('is_resolved', 0)->count();
+                                    @endphp
+                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring"><span>
+                                        <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                                        @if ($dbBackupList)
+                                        <span class="database-alert-badge"></span>
+                                        @endif
+                                    </span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a title="Google-Drive-ScreenCast" type="button" class="quick-icon" id="google-drive-screen-cast" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -892,6 +947,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    <a title="Create Sticky Notes" class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
+                                        <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
                                     <a class="daily-planner-button quick-icon" target="__blank"
@@ -4095,6 +4154,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('zabbix-webhook-data.index') }}">Zabbix Webhook Data</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('config-refactor.index') }}">Config Refactors</a>
+                                            </li>
                                         </ul>
                                     </li>
 
@@ -4105,12 +4167,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('get.ip.logs') }}">Ip log</a>
                                     </li>
 
-                                    <li class="nav-item dropdown">
+                                    <li class="nav-item dropdown">                                 
                                         <a class="dropdown-item" href="{{ route('get.ssh.logins') }}">Ssh Logins</a>
                                     </li>
 
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('get.file.permissions') }}">File Permissions</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.backup.monitor.lists') }}">Database Backup Monitoring</a>
                                     </li>
 
                                     </ul>
@@ -4603,10 +4668,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
-        @include('googledrivescreencast.partials.upload');
-
+        @include('googledrivescreencast.partials.upload')
+        <div id="sticky_note_boxes" class="sticknotes_content">
+        </div>
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
+        @include('databse-Backup.db-errors-list')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -5305,6 +5372,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
+        CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
@@ -5403,7 +5471,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             }else{
                 //var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
                 //var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
-                $("#NameTable tbody").prepend(`
+                $("#NameTable-app-layout tbody").prepend(`
                         <tr id="sid`+data.sopedit.id+`" data-id="`+data.sopedit.id+`" class="parent_tr">
                                 <td class="sop_table_id">`+data.sopedit.id+`</td>
                                 <td class="expand-row-msg" data-name="name" data-id="`+data.sopedit.id+`">
@@ -5471,6 +5539,42 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             console.log(data);
         });
     });
+
+    $('#FormModalAppLayout').submit(function(e) {
+            e.preventDefault();
+            let name = $("#name-app-layout").val();
+            let category = $("#categorySelect-app-layout").val();
+            if(category.length==0){
+                toastr["error"]('Select Category', "Message");
+                return false;
+            }
+            let content = CKEDITOR.instances['content-app-layout'].getData(); //$('#cke_content').html();//$("#content").val();
+            if(content==''){
+                toastr["error"]('Content not', "Message");
+                return false;
+            }
+            let _token = $("input[name=_token]").val();
+            $.ajax({
+                url: "{{ route('sop.store') }}",
+                type: "POST",
+                data: {
+                    name: name,
+                    category: category,
+                    content: content,
+                    _token: _token
+                },
+                success: function(response) {
+                    if (response) {
+                        if(response.success==false){
+                            toastr["error"](response.message, "Message");
+                            return false;
+                        }
+                        location.reload();
+                    }
+                }
+
+            });
+        });
 
     $(document).on("click", ".menu-sop-search", function(e) {
         e.preventDefault();
@@ -6500,6 +6604,57 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         //$('.instruction-notes-list-rt').toggleClass('dis-none');
     });
 
+
+        var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
+        var stickyNotesPage = "{{ request()->fullUrl() }}";
+
+        var x = `<div class='sticky_notes_container'>
+            <div class="icon-check">
+            <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
+              <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
+                </div>
+                   Sticky Note
+                    <div class='text_box'>
+                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}'></textarea>
+                    </div>
+                </div>`;
+
+        $('.sticky-notes').on('click', function() {
+            StickyBox();
+        });
+
+        function StickyBox () {
+            $(".sticknotes_content").draggable();
+            $('#sticky_note_boxes').append(x);
+                $(".sticky_notes_container").draggable();
+                $('.close-icon').each(function(){
+                    $('.close-icon').click(function() {
+                        $(this).closest('.sticky_notes_container').remove();
+                    });
+                });
+                $('.check-icon').on('click', function() {
+                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
+                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
+
+                    $.ajax({
+                        url: '{{ route('stickyNotesCreate') }}',
+                        method: 'POST',
+                        data: {
+                            value: textareaValue,
+                            page: page,
+                            _token: "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                        toastr['success'](response.message, 'success');
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Save Error:', error);
+                        }
+                    });
+                    $(this).closest('.sticky_notes_container').remove();
+            });
+        }
+
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
         $("#quick_notes_modal").modal("show");
@@ -7453,6 +7608,102 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $('#create-event-modal').modal('show');
     });
+
+    $(document).on('click','#database-backup-monitoring',function(e){        e.preventDefault();
+        $('#db-errors-list-modal').modal('show');
+        getdbbackupList(1);
+    });
+
+    function getdbbackupList(pageNumber = 1){
+    $.ajax({
+          url: '{{route("get.backup.monitor.lists")}}',
+          type: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          },
+          data: {
+            page: pageNumber
+          },
+          dataType: "json",
+          beforeSend: function () {
+            $("#loading-image").show();
+          }
+        }).done(function (response) {
+          console.log(response.data);
+          $("#loading-image").hide();
+          var html = "";
+          var startIndex = (response.data.current_page - 1) * response.data.per_page;
+          $.each(response.data.data, function (index, dberrorlist) {
+            var sNo = startIndex + index + 1; 
+            html += "<tr>";
+            html += "<td>" + sNo + "</td>";
+            html += "<td>" + dberrorlist.server_name + "</td>";
+            html += "<td>" + dberrorlist.instance + "</td>";
+            html += "<td>" + dberrorlist.database_name + "</td>";
+            html += "<td class='expand-row' style='word-break: break-all'>";
+            html += "<span class='td-mini-container'>" + (dberrorlist.error.length > 15 ? dberrorlist.error.substr(0, 15) + '...' : dberrorlist.error) + "</span>";
+            html += "<span class='td-full-container hidden'>" + dberrorlist.error + "</span>";
+            html += "</td>";
+            html += "<td><input type='checkbox' name='is_resolved' value='1' data-id='" + dberrorlist.id + "' onchange='updateIsResolved(this)'></td>";
+            html += "<td>" + dberrorlist.date + "</td>";
+            html += "<td>" + dberrorlist.status + "</td>";
+            html += "</tr>";
+          });
+          $(".db-list").html(html);
+          $("#db-errors-list-modal").modal("show");
+            if(response.count > 0) {
+                $('.database-alert-badge').removeClass("hide");
+            }
+          renderPagination(response.data);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+    }
+
+
+    function renderPagination(data) {
+          var paginationContainer = $(".pagination-container");
+          var currentPage = data.current_page;
+          var totalPages = data.last_page;
+          var html = "";
+          if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            for (var i = 1; i <= totalPages; i++) {
+              html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+            }
+            if (currentPage < totalPages) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+            }
+            html += "</ul>";
+          }
+        paginationContainer.html(html);
+      }
+      function changePage(pageNumber) {
+        getdbbackupList(pageNumber);
+      }
+
+      function updateIsResolved(checkbox) {
+			var dbListId = checkbox.getAttribute('data-id');
+			$.ajax({	
+				url: '{{route('db.update.isResolved')}}',
+				method: 'GET',
+				data: {
+					id:dbListId
+				},
+				success: function(response) {
+                    toastr["success"](response.message, "Message");
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});	
+		};
+
+		
 
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();

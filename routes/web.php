@@ -364,10 +364,12 @@ use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
+use App\Http\Controllers\ConfigRefactorController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
 use App\Http\Controllers\MagentoLocationController;
 use App\Http\Controllers\IpLogController;
+use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
 
@@ -560,6 +562,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('zabbix-task/assignee-histories/{zabbix_task}', [ZabbixTaskController::class, 'getAssigneeHistories'])->name('zabbix-task.get-assignee-histories');
     Route::resource('zabbix-task', ZabbixTaskController::class);
+    
+    // Config Refactors 
+    Route::post('config-refactor/store-remark', [ConfigRefactorController::class, 'storeRemark'])->name('config-refactor.store.remark');
+    Route::post('config-refactor/change-status', [ConfigRefactorController::class, 'updateStatus'])->name('config-refactor.change.status');
+    Route::post('config-refactor/change-user', [ConfigRefactorController::class, 'updateUser'])->name('config-refactor.change.user');
+    Route::post('config-refactor/store-status', [ConfigRefactorController::class, 'storeStatus'])->name('config-refactor.store-status');
+
+    Route::resource('config-refactor', ConfigRefactorController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -1025,6 +1035,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
     Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
     Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
+    Route::post('sop/update-sop-category', [SopController::class, 'updateSopCategory'])->name('sop.update-sop-category');
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
@@ -3799,6 +3810,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('notesCreate', [PageNotesController::class, 'notesCreate'])->name('notesCreate'); //Purpose : Create Route for Insert Note - DEVTASK-4289
+    Route::post('stickyNotesCreate', [PageNotesController::class, 'stickyNotesCreate'])->name('stickyNotesCreate');
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
@@ -4921,6 +4933,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
     Route::get('zabbix-webhook-data', [Select2Controller::class, 'zabbixWebhookData'])->name('select2.zabbix-webhook-data');
+    Route::get('sop-categories', [Select2Controller::class, 'sopCategories'])->name('select2.sop-categories');
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
@@ -5303,6 +5316,9 @@ Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, '
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 Route::get('ip/logs', [IpLogController::class, 'getIPLogs'])->name('get.ip.logs');
+Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
+Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
+Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');;
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
 

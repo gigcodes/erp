@@ -97,6 +97,13 @@
 	#uicheck_table1 td .upload-ui-responsive-button, #uicheck_table1 td .devHistorty{
 		font-size: 14px!important;
 	}
+	.select2-search--inline {
+		display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+	}
+
+	.select2-search__field:placeholder-shown {
+		width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+	}
 </style>
 @endsection
 
@@ -134,8 +141,8 @@
 								if(request('categories')){   $categoriesArr = request('categories'); }
 								else{ $categoriesArr = ''; }
 							  ?>
-							<select name="categories[]" id="store-categories" class="form-control select2" multiple>
-								<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
+							<select data-placeholder="Select a categories" name="categories[]" id="store-categories" class="form-control select2" multiple>
+								<option></option>
 								@forelse($site_development_categories as $ctId => $ctName)
 								<option value="{{ $ctId }}" @if($categoriesArr!='' && in_array($ctId,$categoriesArr)) selected @endif>{!! $ctName !!}</option>
 								@empty
@@ -149,8 +156,8 @@
 								if(request('store_webs')){   $store_websArr = request('store_webs'); }
 								else{ $store_websArr = []; }
 							  ?>
-							<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
-								<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
+							<select data-placeholder="Select a website" name="store_webs[]" id="store_webiste" multiple class="form-control select2">
+								<option></option>
 								@forelse($store_websites as $id=>$asw)
 								<option value="{{ $id }}" @if($store_websArr!='' && in_array($id,$store_websArr)) selected @endif>{{ $asw }}</option>
 								@empty
@@ -165,8 +172,8 @@
 								if(request('type')){   $typeArr = request('type'); }
 								else{ $typeArr = []; }
 							?>
-							<select name="type[]" class="form-control select2" multiple>
-								<option value="" @if(count($typeArr) == 0) selected @endif>-- Select type --</option>
+							<select name="type[]" data-placeholder="Select a type"  class="form-control select2" multiple>
+								<option></option>
 								@forelse($allUicheckTypes as $typeId => $typeName)
 								<option value="{{ $typeId }}" @if(in_array($typeId, $typeArr)) selected @endif>{!! $typeName !!}</option>
 								@empty
@@ -181,8 +188,8 @@
 								if(request('user_name')){   $userNameArr = request('user_name'); }
 								else{ $userNameArr = []; }
 							?>
-							<select name="user_name[]" id="user_name" class="form-control select2" multiple>
-								<option value="" @if(count($userNameArr) == 0) selected @endif>-- Select a User --</option>
+							<select data-placeholder="Select a User" name="user_name[]" id="user_name" class="form-control select2" multiple>
+								<option></option>
 								@forelse($allUsers as $uId => $uName)
 								<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
 								@empty
@@ -196,8 +203,8 @@
 								if(request('status')){   $statusArr = request('status'); }
 								else{ $statusArr = ''; }
 							  ?>
-							<select name="status" id="status" class="form-control select2">
-								<option value="" @if($statusArr=='') selected @endif>-- Status --</option>
+							<select data-placeholder="Select Status" name="status" id="status" class="form-control select2">
+								<option></option>
 								@forelse($allStatus as $key => $as)
 								<option value="{{ $key }}" @if($statusArr==$key) selected @endif>{{ $as }}</option>
 								@empty
