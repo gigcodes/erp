@@ -368,6 +368,7 @@ use App\Http\Controllers\ConfigRefactorController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
 use App\Http\Controllers\MagentoLocationController;
+use App\Http\Controllers\IpLogController;
 use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
@@ -5314,6 +5315,7 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+Route::get('ip/logs', [IpLogController::class, 'getIPLogs'])->name('get.ip.logs');
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
 Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');;
