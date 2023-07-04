@@ -108,8 +108,10 @@
 					@if (Auth::user()->isAdmin())
                     <th>User Name</th>
 					@endif
+                    <th>Type</th>
                     <th>Estimated Time</th>
                     <th>Device No</th>
+                    <th>Status</th>
                     <th>Start Time</th>
                     <th>End Time</th>
                 </tr>
@@ -129,9 +131,11 @@
                         </td>
 						@if (Auth::user()->isAdmin())
                         <td>{{ $uiDeviceLog->name }}</td>
+                        <td>{{$uiDeviceLog->uicheck_type_id ? $allUicheckTypes[$uiDeviceLog->uicheck_type_id] : ''}}</td>
 						@endif
                         <td>{{ $uiDeviceLog->uiDevice->estimated_time }} Mins</td>
                         <td>{{ $uiDeviceLog->uiDevice->device_no }}</td>
+                        <td>{{$uiDeviceLog->uiDevice->status ? $allStatus[$uiDeviceLog->uiDevice->status] : ''}}</td>
                         <td>{{ $uiDeviceLog->start_time }}</td>
                         <td>{{ $uiDeviceLog->end_time }}</td>
                     </tr>

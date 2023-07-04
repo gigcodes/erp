@@ -366,6 +366,9 @@ use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
+use App\Http\Controllers\MagentoLocationController;
+use App\Http\Controllers\SshLoginController;
+use App\Http\Controllers\FilePermissionController;
 
 Auth::routes();
 
@@ -518,8 +521,13 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
+    Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
+
     Route::resource('magento_modules', MagentoModuleController::class);
 
+    Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
+    Route::resource('magento_module_locations', MagentoLocationController::class);
+    
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
 
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
@@ -1016,6 +1024,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
     Route::delete('sop/category/delete', [SopController::class, 'categoryDelete'])->name('sop.category.delete'); // sop category store route
     Route::post('sop/category/update', [SopController::class, 'categoryUpdate'])->name('sop.category.update'); // sop category store route
+    Route::post('sop/update-sop-category', [SopController::class, 'updateSopCategory'])->name('sop.update-sop-category');
 
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
@@ -2691,6 +2700,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
         Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
+        Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -4075,7 +4085,13 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
         Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
         Route::get('device-logs', [UicheckController::class, 'deviceLogs'])->name('uicheck.device-logs');
+        Route::get('device-histories', [UicheckController::class, 'deviceHistories'])->name('uicheck.device-histories');
+        Route::post('device-history/time-approve', [UicheckController::class, 'deviceHistoryIstimeApprove'])->name('uicheck.device-history.time-approve');
         Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
+        Route::post('bulk-delete', [UicheckController::class, 'bulkDelete'])->name('uicheck.bulk-delete');
+        Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
+        Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
+
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -4906,6 +4922,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
     Route::get('zabbix-webhook-data', [Select2Controller::class, 'zabbixWebhookData'])->name('select2.zabbix-webhook-data');
+    Route::get('sop-categories', [Select2Controller::class, 'sopCategories'])->name('select2.sop-categories');
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
@@ -5073,6 +5090,8 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', [VoucherCouponController::class, 'couponCodeOrderList'])->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', [VoucherCouponController::class, 'couponCodeDelete'])->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', [VoucherCouponController::class, 'couponCodeOrderDelete'])->name('voucher.code.order.delete');
+    Route::post('/coupon-type/create', [VoucherCouponController::class, 'coupontypeStore'])->name('voucher.coupon.type.create');
+    Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');  
 });
 
 //TODOLIST::
@@ -5109,6 +5128,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 
 });
 
+Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');
+
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
@@ -5116,6 +5137,7 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
     Route::post('/update', [GoogleScreencastController::class, 'update'])->name('.update');
+    Route::get('/list/google-screen-cast', [GoogleScreencastController::class, 'getGoogleScreencast'])->name('.getGooglesScreencast');
     Route::post('/remove/permission', [GoogleScreencastController::class, 'driveFileRemovePermission'])->name('.driveFileRemovePermission');
     Route::post('/add/mulitple/permission', [GoogleScreencastController::class, 'addMultipleDocPermission'])->name('.addMultipleDocPermission');
 });
@@ -5282,6 +5304,9 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
+Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
+Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');

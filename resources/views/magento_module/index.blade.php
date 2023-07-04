@@ -119,15 +119,16 @@
 
     <div class="row ">
         <div class="col-lg-12 ">
-            <h2 class="page-heading">{{ $title }}
+            <h2 class="page-heading">
+                {{ $title }}
+                (<span id="total-count"></span>)
             </h2>
-
             <form method="POST" action="#" id="dateform">
 
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control filter-module']) !!}
+                            {!! Form::select('module', $moduleNames, null, ['placeholder' => 'Module Name', 'class' => 'form-control filter-module']) !!}
                         </div>
                     </div>
 
@@ -143,6 +144,11 @@
                         </div>
                     </div>
 
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('magneto_location_id', $module_locations, null, ['placeholder' => 'Select Module Location', 'class' => 'form-control filter-magneto_location_id']) !!}
+                        </div>
+                    </div>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control filter-is_customized']) !!}
@@ -210,6 +216,8 @@
 
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatus"> Add Verified Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatusList"> List Verified Status </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleLocationCreateModal"> Module Location Create  </button>
+
                     </div>
                 </div>
             </form>
@@ -246,6 +254,7 @@
                         <th> Category </th>
                         <th> Description </th>
                         <th> Name </th>
+                        <th> Location </th>
                         <th> API </th>
                         <th> Cron </th>
                         <th> Version </th>
@@ -308,6 +317,14 @@
     @include('magento_module.partials.is_customized_show_modals')
     {{-- magentoModuleHistoryShowModal --}}
     @include('magento_module.partials.show_history_modals')
+    {{-- magentoModuleverifiedShowModal --}}
+    @include('magento_module.verified_by_list')
+     {{-- moduleLocationCreateModal --}} {{-- moduleLocationEditModal --}}
+    @include('magneto_module_location.partials.form_modal')
+    {{-- moduleLocationnListodal --}} 
+    @include('magento_module.location-listing')
+
+
 
 
 @endsection
@@ -324,6 +341,10 @@
     <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
         $(document).ready(function() {
+            $(".filter-module").multiselect({
+                enableFiltering: true,
+                nonSelectedText: 'Please Select Module',
+            });
             $(".multiselect-dev").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
@@ -386,7 +407,7 @@
 
                 oLanguage: {
                     sLengthMenu: "Show _MENU_",
-                },
+                }, 
                 createdRow: function(row, data, dataIndex) {
                     // Set the data-status attribute, and add a class
                     $(row).attr('role', 'row');
@@ -401,7 +422,8 @@
                         d.module = $('.filter-module').val();
                         d.module_type = $('.filter-module_type').val();
                         d.is_customized = $('.filter-is_customized').val();
-                        d.module_category_id = $('.filter-module_category_id').val();
+                        d.module_category_id = $('.filter-module_category_id').val();   
+                        d.magneto_location_id = $('.filter-magneto_location_id').val();
                         d.task_status = $('.filter-task_status').val();
                         d.store_website_id = $('.filter-store_website_id').val();
                         d.site_impact = $('.filter-site_impact').val();
@@ -488,9 +510,40 @@
                         name: 'magento_modules.module',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
+                    },
+                    {
+                        data: 'magento_module_locations',
+                        name: 'magento_module_locations.magento_module_locations',
+                        render: function(data, type, row, meta) {
+                            var m_types = row['locations'];
+                            console.log( m_types);
+                            var m_types =  m_types.replace(/&quot;/g, '"');
+                            if(m_types && m_types != "" ){
+                                var m_types = JSON.parse(m_types);
+                                var m_types_html = '<select id="magneto_location_id" class="form-control edit_mm" required="required" name="magneto_location_id"><option selected="selected" value="">Select Module location</option>';
+                                m_types.forEach(function(m_type){
+                                    if(m_type.magento_module_locations == data){
+                                        m_types_html += `<option value="${m_type.id}" selected>${m_type.magento_module_locations}</option>`;
+                                    }else{
+                                        m_types_html += `<option value="${m_type.id}" >${m_type.magento_module_locations}</option>`;
+                                    }
+                                    
+                                });
+                                m_types_html += '</select>';
+                                let remark_history_button =
+                                `  <button type="button" class="btn btn-xs btn-image load-location-history ml-2" data-type="dev" data-id="${row['id']}" title="Dev User Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+
+                                return `<div class="flex items-center gap-5">${m_types_html} ${remark_history_button}</div>`;
+                            
+                            }else{
+                                return `<div class="flex items-center justify-left">${data}</div>`;
+                            }
+                            
+                        }
+                        
                     },
                     {
                         data: 'api',
@@ -598,7 +651,8 @@
                             }
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="dev" data-id="${row['id']}" title="Add New Dev Remark" ><img src="/images/add.png"></button>
-                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="dev" data-id="${row['id']}" title="Dev Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="dev" data-id="${row['id']}" title="Dev User Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                         }
@@ -658,7 +712,8 @@
                             }
                             let remark_history_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-remark-module-open" data-type="lead" data-id="${row['id']}" title="Add New Lead Remark" ><img src="/images/add.png"></button>
-                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="lead" data-id="${row['id']}" title="Lead Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                <button type="button" class="btn btn-xs btn-image load-user-dev-history ml-2" data-type="lead" data-id="${row['id']}" title="Lead-user-dev-history" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${remark_history_button}</div>`;
                             
@@ -817,14 +872,27 @@
                             row["categories"] = "";
                             row["website_list"] = "";
                             row["verified_status"] = "";
+                            var listing_route = '{{ route("magento_module_listing") }}?module_name=' + row['module']; 
+                            var list_data = actionShowButtonWithTitle(listing_route, "Listing page");
+
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
+                            var del_data = "";
+                            <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
+                            del_data = actionDeleteButton(row['id']);
+                            <?php } ?>
+                            return `<div class="flex justify-left items-center">${list_data} ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
                         }
                     },
                 ],
+
+                    drawCallback: function(settings) {
+                    var api = this.api();
+                    var recordsTotal = api.page.info().recordsTotal;
+                    var recordsFiltered = api.page.info().recordsFiltered;
+                    $('#total-count').text(recordsTotal);
+                },
             });
             
         });
@@ -1073,7 +1141,8 @@
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${k + 1} </td>
-                                        <td> ${v.new_status.name } </td>
+                                        <td> ${v.old_status ? v.old_status.name : ''} </td>
+                                        <td> ${v.new_status ? v.new_status.name : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
                                     </tr>`;
@@ -1087,6 +1156,38 @@
             });
         });
 
+         // Load status history
+         $(document).on('click', '.load-user-dev-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.verified.User')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                    type:type,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_verified_by ? v.old_verified_by.name : ''} </td>
+                                        <td> ${v.new_verified_by ? v.new_verified_by.name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verified_by_list").find(".verified-by-histories-list-view").html(html);
+                        $("#verified_by_list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
         // Load Api Modal
         $(document).on('click', '.show-api-modal', function() {
             var id = $(this).attr('data-id');
@@ -1206,6 +1307,39 @@
                         // $("#blank-modal").find(".modal-title").html(response.title);
                         // $("#blank-modal").find(".modal-body").html(response.data);
                         $("#isCustomizedDataShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-location-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.location.history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                    type:type,
+                },
+                success: function(response) {
+                    console.log(response)
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_location ? v.old_location.magento_module_locations : ''} </td>
+                                        <td> ${v.new_location ? v.new_location.magento_module_locations : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#location-listing").find(".location-listing-view").html(html);
+                        $("#location-listing").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

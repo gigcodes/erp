@@ -1850,11 +1850,11 @@ class UserManagementController extends Controller
         $user_role = $request->get('user_role');
         $username = str_replace(' ', '_', $user->name);
 
-        $var_t_sftp=true;
-        $var_b_ssh=false;
+        $var_t_sftp="true";
+        $var_b_ssh="false";
         if($access_type=="ssh"){
-            $var_t_sftp=false;
-            $var_b_ssh=true;
+            $var_t_sftp="false";
+            $var_b_ssh="true";
         }
         $server_ip=$server->ip;
         

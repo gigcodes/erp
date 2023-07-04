@@ -214,7 +214,7 @@ class MagentoRunCommand extends Command
                         Log::info("website server_ip: ".$website->server_ip);
                         $job_id='';
                         $website_id=$website->id;
-                        $assetsmanager = AssetsManager::where('id', $magCom->assets_manager_id)->first();
+                        $assetsmanager = AssetsManager::where('id', $website->assets_manager_id)->first();
                         
                         if($assetsmanager && $assetsmanager->client_id!=''){
                             Log::info("client_id: ".$assetsmanager->client_id);
@@ -230,7 +230,7 @@ class MagentoRunCommand extends Command
                             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 'command' => $magCom->command_type, 
-                                'cwd' => $magCom->working_directory, 
+                                'cwd' => $website->working_directory, 
                                 'is_sudo' => true 
                             ]));
 
@@ -260,7 +260,7 @@ class MagentoRunCommand extends Command
                             curl_close($ch);
                             
                             LogRequest::log($startTime, $url, 'POST', json_encode(['command' => $magCom->command_type, 
-                            'cwd' => $magCom->working_directory, 
+                            'cwd' => $website->working_directory, 
                             'is_sudo' => true ]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                             
                             if(isset($response->errors)){ 

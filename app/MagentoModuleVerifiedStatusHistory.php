@@ -19,6 +19,11 @@ class MagentoModuleVerifiedStatusHistory extends Model
         return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'new_status_id');
     }
 
+    public function oldStatus()
+    {
+        return $this->belongsTo(MagentoModuleVerifiedStatus::class, 'old_status_id');
+    }
+    
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

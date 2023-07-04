@@ -42,7 +42,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/sticky-notes.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
@@ -51,6 +50,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
+    <link href="{{ asset('css/sticky-notes.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
@@ -496,11 +496,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
                                 <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
                                     <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <button type="button" class="btn btn-secondary1 mr-2 addnotesop" data-toggle="modal" data-target="#exampleModalAppLayout">Add Notes</button>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="table-responsive mt-3">
-                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
                                     <thead>
                                     <tr>
                                         <th width="2%">ID</th>
@@ -540,6 +541,43 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sop-add Modal-->
+    <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="FormModalAppLayout">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name-app-layout" name="name" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select name="category[]" id="categorySelect-app-layout" class="globalSelect2 form-control" data-ajax="{{route('select2.sop-categories')}}" data-minimuminputlength="1" multiple></select>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <input type="text" class="form-control" id="content-app-layout" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -796,6 +834,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    <a title="Google-Drive-ScreenCast" type="button" class="quick-icon" id="google-drive-screen-cast" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
@@ -4092,10 +4134,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{ route('monitor-jenkins-build.index') }}">Monitor Jenkins Build</a>
                                                 <a class="dropdown-item" href="{{ route('monitor-server.index') }}">Website Monitor</a>
                                             </li>
+                                            
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('zabbix-webhook-data.index') }}">Zabbix Webhook Data</a>
                                             </li>
                                         </ul>
+                                    </li>
+
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('list.voucher') }}">Vouchers Coupons</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.ssh.logins') }}">Ssh Logins</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('get.file.permissions') }}">File Permissions</a>
                                     </li>
 
                                     </ul>
@@ -4587,12 +4642,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('resourceimg.partials.short-cut-modal-create-resource-center')
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
-        @include('partials.modals.password-create-modal')
-        @include('partials.modals.timer-alerts-modal')
+        @include('partials.modals.google-drive-screen-cast-modal')
+        @include('googledrivescreencast.partials.upload');
 
         <div id="sticky_note_boxes" class="sticknotes_content">
         </div>
-
+        @include('partials.modals.password-create-modal')
+        @include('partials.modals.timer-alerts-modal')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -5291,6 +5347,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
+        CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
@@ -5389,7 +5446,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             }else{
                 //var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
                 //var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
-                $("#NameTable tbody").prepend(`
+                $("#NameTable-app-layout tbody").prepend(`
                         <tr id="sid`+data.sopedit.id+`" data-id="`+data.sopedit.id+`" class="parent_tr">
                                 <td class="sop_table_id">`+data.sopedit.id+`</td>
                                 <td class="expand-row-msg" data-name="name" data-id="`+data.sopedit.id+`">
@@ -5457,6 +5514,42 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             console.log(data);
         });
     });
+
+    $('#FormModalAppLayout').submit(function(e) {
+            e.preventDefault();
+            let name = $("#name-app-layout").val();
+            let category = $("#categorySelect-app-layout").val();
+            if(category.length==0){
+                toastr["error"]('Select Category', "Message");
+                return false;
+            }
+            let content = CKEDITOR.instances['content-app-layout'].getData(); //$('#cke_content').html();//$("#content").val();
+            if(content==''){
+                toastr["error"]('Content not', "Message");
+                return false;
+            }
+            let _token = $("input[name=_token]").val();
+            $.ajax({
+                url: "{{ route('sop.store') }}",
+                type: "POST",
+                data: {
+                    name: name,
+                    category: category,
+                    content: content,
+                    _token: _token
+                },
+                success: function(response) {
+                    if (response) {
+                        if(response.success==false){
+                            toastr["error"](response.message, "Message");
+                            return false;
+                        }
+                        location.reload();
+                    }
+                }
+
+            });
+        });
 
     $(document).on("click", ".menu-sop-search", function(e) {
         e.preventDefault();
@@ -7695,6 +7788,76 @@ if (!\Auth::guest()) {
         });
     });
 
+
+    $(document).on('click','#google-drive-screen-cast',function(e){
+        e.preventDefault();
+        $('#google-drive-screen-cast-alerts-modal').modal('show');
+        getgooglescreencast(true);
+    });
+
+    function showCreateScreencastModal() {
+      $('#google-drive-screen-cast-alerts-modal').modal('hide');
+      $.ajax({
+        url: "{{ route('getDropdownDatas') }}",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+
+            var tasks = response.tasks;
+            var users = response.users;
+            var generalTask = response.generalTask;
+
+            var $taskSelect = $("#id_label_task");
+            var $userReadSelect = $("#id_label_multiple_user_read");
+            var $userWriteSelect = $("#id_label_multiple_user_write");
+
+            $taskSelect.empty();
+            $taskSelect.append('<option value="" class="form-control">Select Task</option>');
+
+            tasks.forEach(function(task) {
+                $taskSelect.append('<option value="' + task.id + '">' + task.id + '-' + task.subject +  '</option>');
+            });
+             generalTask.forEach(function(generalTask) {
+                $taskSelect.append('<option value="' + generalTask.id + '">' + generalTask.id + '-' + generalTask.subject +  '</option>');
+            });
+
+            $userReadSelect.empty();
+            $userWriteSelect.empty();
+            $userReadSelect.append('<option value="" class="form-control">Select User</option>');
+            $userWriteSelect.append('<option value="" class="form-control">Select User</option>');
+
+            users.forEach(function(user) {
+                var optionText = user.name;
+                $userReadSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+                $userWriteSelect.append('<option value="' + user.gmail + '">' + optionText + '</option>');
+            });
+             },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+            }); 
+    }
+
+    function getgooglescreencast(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('google-drive-screencast.getGooglesScreencast')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#google-drive-screen-cast-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#google-drive-screen-cast-modal').modal('show');
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
     $(document).on("click", ".permission-request", function(e) {
         e.preventDefault();
         $.ajax({
@@ -7854,6 +8017,64 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+        $("#id_label_multiple_user_read").select2();
+        $("#id_label_multiple_user_write").select2();
+        $("#search_user").select2();
+        $('#id_label_task').select2({
+        minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+        });
+        $('#search_task').select2({
+        minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+        });
+
+        $(document).on('click', '.filepermissionupdate', function (e) {
+                
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
+                
+                let data_read = $(this).data('readpermission');
+                let data_write = $(this).data('writepermission');
+                var file_id = $(this).data('fileid');
+                var id = $(this).data('id');
+                var permission_read = data_read.split(',');
+                var permission_write = data_write.split(',');
+                if(permission_read)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
+                }
+                if(permission_write)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
+                }
+                
+                $('#file_id').val(file_id);
+                $('#id').val(id);
+            
+            });
+
+            $(document).on("click",".showFullMessage", function () {
+                let title = $(this).data('title');
+                let message = $(this).data('message');
+                
+                $("#showFullMessageModel .modal-body").html(message);
+                $("#showFullMessageModel .modal-title").html(title);
+                $("#showFullMessageModel").modal("show");
+            });
+            
+            $(document).on("click",".filedetailupdate", function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let fileid = $(this).data('fileid');
+                let fileremark = $(this).data('file_remark');
+                let filename = $(this).data('file_name');
+
+                $("#updateUploadedFileDetailModal .id").val(id);
+                $("#updateUploadedFileDetailModal .file_id").val(fileid);
+                $("#updateUploadedFileDetailModal .file_remark").val(fileremark);
+                $("#updateUploadedFileDetailModal .file_name").val(filename);
+
+            });
 
 	function todoHomeStatusChange(id, xvla) {
 			$.ajax({

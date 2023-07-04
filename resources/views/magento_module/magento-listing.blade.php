@@ -112,6 +112,32 @@
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Magento Modules ({{$magento_modules_count}})</h2>
+		<div class="pull">
+            <div class="row" style="margin:10px;">
+                <div class="col-12">
+                    <form action="{{ route('magento_module_listing') }}" method="get" class="search">
+                        <div class="row">
+                            {{-- <div class="col-md-2 pd-sm">
+								<input id="search-input" type="text" placeholder="type to Search here...">
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                            </div> --}}
+                            <div class="col-md-2 pd-sm">
+								{!! Form::select('module_name', $allMagentoModules, request()->get('module_name'), ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
+                            </div>
+							<div class="col-md-3">
+								{{ Form::select('store_webs[]', $all_store_websites, $selecteStoreWebsites, ['class' => 'form-control  globalSelect22','placeholder' => '-- All Website --',  "multiple" => "multiple"]) }}
+							</div>
+                            <div class="col-md-2 pd-sm pl-0 mt-2">
+                                 <button type="submit" class="btn btn-image search">
+                                    <img src="{{ asset('images/search.png') }}" alt="Search">
+                                </button>
+                                <a href="{{ route('magento_module_listing') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     <br>
     @if(session()->has('success'))
@@ -121,10 +147,6 @@
 		    </div>
 		</div>    
 	@endif
-	<h4>Search Here</h4>
-	<input id="search-input" type="text" placeholder="type to Search here...">
-	<br>
-
     <div class="col-lg-12 margin-tb">
 		<div class="col-md-12 margin-tb" id="page-view-result">
 			<div class="row table-horizontal-scroll">
@@ -256,6 +278,10 @@
 	});
 
 	$( document ).ready(function() {
+		$('.globalSelect22').select2({
+                multiple: true,
+            });
+			
 		$(document).on('click', '.expand-row', function () {
 			var selection = window.getSelection();
 			if (selection.toString().length === 0) {

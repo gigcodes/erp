@@ -18,6 +18,9 @@ use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 use App\MagentoModuleVerifiedStatusHistory;
+use App\MagentoModuleVerifiedBy;
+use App\MagentoModuleLocation;
+use App\MagnetoLocationHistory;
 
 class MagentoModuleController extends Controller
 {
@@ -43,15 +46,27 @@ class MagentoModuleController extends Controller
             $users = User::select('name', 'id')->where('is_active', 1)->orderby('name', 'asc')->get();
         }
         $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
+        $module_locations = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
         $verified_status_array = $verified_status->pluck('name', 'id');
+        $moduleNames = MagentoModule::with(['lastRemark'])
+            ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+            ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+            ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+            ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
+            ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
+            ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
+            ->groupBy('magento_modules.module')
+            ->pluck('module', 'module')
+            ->toArray();
 
         if ($request->ajax()) {
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+                ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
                 ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
@@ -59,6 +74,7 @@ class MagentoModuleController extends Controller
                 ->select(
                     'magento_modules.*',
                     'magento_module_categories.category_name',
+                    'magento_module_locations.magento_module_locations',
                     'magento_module_types.magento_module_type',
                     'task_statuses.name as task_name',
                     'store_websites.website',
@@ -114,16 +130,17 @@ class MagentoModuleController extends Controller
                 $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
             }
             $items->groupBy('magento_modules.module');
-            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->toJson();
+            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->toJson();
         } else {
             $title = 'Magento Module';
             $users = $users->pluck('name', 'id');
             $module_categories = $module_categories->pluck('category_name', 'id');
+            $module_locations = $module_locations->pluck('magento_module_locations', 'id');
             $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
             $task_statuses = $task_statuses->pluck('name', 'id');
             $store_websites = $store_websites->pluck('website', 'id');
 
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames', 'module_locations'));
         }
     }
 
@@ -136,10 +153,12 @@ class MagentoModuleController extends Controller
     {
         $title = 'Magento Module';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
+        $module_locations = MagentoModuleLocation::pluck('magento_module_locations', 'id');
+
         $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
         $task_statuses = TaskStatus::pluck('name', 'id');
 
-        return view($this->create_view, compact('module_categories', 'title', 'task_statuses', 'magento_module_types'));
+        return view($this->create_view, compact('module_categories', 'title', 'task_statuses', 'magento_module_types','module_locations'));
     }
 
     /**
@@ -150,7 +169,6 @@ class MagentoModuleController extends Controller
      */
     public function store(MagentoModuleRequest $request)
     {
-        // dd($request->all());
         $input = $request->except(['_token']);
 
         $data = MagentoModule::create($input);
@@ -214,9 +232,10 @@ class MagentoModuleController extends Controller
     {
         $title = 'Magento Module';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
+        $module_locations = MagentoModuleLocation::pluck('module_locations', 'id');
         $task_statuses = TaskStatus::pluck('name', 'id');
 
-        return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses'));
+        return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses','module_locations'));
     }
 
     /**
@@ -334,7 +353,7 @@ class MagentoModuleController extends Controller
 
     public function getVerifiedStatusHistories($magento_module, $type)
     {
-        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
+        $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus','oldStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
 
         return response()->json([
             'status' => true,
@@ -348,6 +367,13 @@ class MagentoModuleController extends Controller
     {
         $oldData = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+        $newData = MagentoModule::where('id', (int) $request->id)->first();
+
+        $input_data = $newData->toArray();
+        $input_data['magento_module_id'] = $newData->id;
+        unset($input_data['id']);
+        $input_data['user_id'] = auth()->user()->id;
+        MagentoModuleHistory::create($input_data);
 
         if ($request->columnName == 'dev_verified_status_id' || $request->columnName == 'lead_verified_status_id') {
             if ($request->columnName == 'dev_verified_status_id') {
@@ -359,6 +385,27 @@ class MagentoModuleController extends Controller
                 $oldStatusId = $oldData->lead_verified_status_id;
             }
             $this->saveVerifiedStatusHistory($oldData, $oldStatusId, $request->data, $type);
+        }
+
+        if ($request->columnName == 'dev_verified_by' || $request->columnName == 'lead_verified_by') {
+
+            if ($request->columnName == 'dev_verified_by') {
+                $type = 'dev';
+                $oldStatusId = $oldData->dev_verified_by;
+            }
+            if ($request->columnName == 'lead_verified_by') {
+                $type = 'lead';
+                $oldStatusId = $oldData->lead_verified_by;
+            }
+
+            $this->saveVerifiedByHistory($oldData, $oldStatusId, $request->data, $type);
+
+        }
+        if ($request->columnName == 'magneto_location_id') {
+                $oldStatusId = $oldData->magneto_location_id;
+
+            $this->saveLocationHistory($oldData, $oldStatusId , $request->data);
+
         }
 
         if ($updateMagentoModule) {
@@ -377,21 +424,36 @@ class MagentoModuleController extends Controller
         }
     }
 
-    public function magentoModuleList()
+    public function magentoModuleList(Request $request)
     {
         $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
+        $all_store_websites = StoreWebsite::pluck('title', 'id')->toArray();
+        $selecteStoreWebsites = $request->store_webs;
+
+        if (isset($request->store_webs) && $request->store_webs) {
+            $storeWebsites = StoreWebsite::whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+        }
 
         $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
         $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
+        $magento_modules_count = MagentoModule::count();
+
+        // For Filter
+        $allMagentoModules = $magento_modules->pluck('module', 'module')->toArray();
+
+        if(isset($request->module_name) && $request->module_name != "") {
+            $magento_modules = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->groupBy('module')->orderBy('module', 'asc')->get();
+            $magento_modules_array = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->orderBy('module', 'asc')->get()->toArray();
+            $magento_modules_count = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->count();
+        }
         
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
         $magento_modules_array=$result;
-        $magento_modules_count=MagentoModule::count();
         
-        return view('magento_module.magento-listing', ['magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count]);
+        return view('magento_module.magento-listing', ['all_store_websites' => $all_store_websites, 'selecteStoreWebsites' => $selecteStoreWebsites, 'magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites,'magento_modules_array'=>$magento_modules_array,'magento_modules_count'=>$magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request){
@@ -668,6 +730,19 @@ class MagentoModuleController extends Controller
         return true;
     }
 
+    protected function saveVerifiedByHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
+    {
+        $history = new MagentoModuleVerifiedBy();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_verified_by_id = $oldStatusId;
+        $history->new_verified_by_id = $newStatusId;
+        $history->type = $statusType;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+    
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -679,5 +754,41 @@ class MagentoModuleController extends Controller
         }
 
         return redirect()->back()->with('success', 'The verified status color updated successfully.');
+    }
+
+    public function verifiedByUser(Request $request)
+    {
+        $histories = MagentoModuleVerifiedBy::with(['user', 'newVerifiedBy','oldVerifiedBy'])->where('magento_module_id', $request->id)->where('type', $request->type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function locationHistory(Request $request)
+    {
+        $histories = MagnetoLocationHistory::with(['newLocation','oldLocation','user'])->where('magento_module_id', $request->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagnetoLocationHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_location_id = $oldStatusId;
+        $history->new_location_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
     }
 }

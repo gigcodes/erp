@@ -30,6 +30,9 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         <div class="form-group col-lg-2">
             {{ Form::select('show', ['' => '- Show all -', '0' => 'Not Mapped only', '1' => 'Mapped only'] , $show, ['class' => 'form-control select2']) }}
         </div>
+        <div class="form-group col-lg-2">
+            {{ Form::select('category_id[]', $allCategories, $selectedCategoryIds, ['placeholder' => 'Select Categories', 'class' => 'select2 globalSelect2', 'id' => 'category_id', 'style' => 'float:left', 'multiple' => true]) }}
+        </div>
         <div class="p-0 form-group col-lg-2">
             {{ Form::select('search_master_category_id', ['' => '- Select Master Category -'] + $masterCategories, '', ['class' => 'select2 globalSelect2', 'id' => 'search_master_category_id', 'style' => 'float:left']) }}
         </div>

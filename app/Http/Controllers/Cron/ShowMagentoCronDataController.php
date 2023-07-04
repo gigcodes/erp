@@ -26,6 +26,7 @@ class ShowMagentoCronDataController extends Controller
 
         $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
         $magentoCronWebsites = MagentoCronData::whereNotNull('website')->where("website", "!=", "NULL")->groupby('website')->pluck("website");
+        $magentoCronJobCodes = MagentoCronData::whereNotNull('job_code')->where("job_code", "!=", "NULL")->groupby('job_code')->pluck("job_code");
 
         $data = new MagentoCronData();
         $skip = empty($request->page) ? 0 : $request->page;
@@ -34,14 +35,19 @@ class ShowMagentoCronDataController extends Controller
             $data = $data->where('website', $request->website);
         }
 
+        if (isset($request->job_code)) {
+            $data = $data->where('job_code', $request->job_code);
+        }
+
         if (isset($request->status)) {
             $data = $data->where('cronstatus', $request->status);
         }
 
         if (isset($request->create_at)) {
-            $date = \Carbon\Carbon::parse($request->create_at)->format('Y-m-d');
-            // $date = date('Y-m-d', strtotime($request->create_at));
-            $data = $data->where('cron_created_at', 'like', $date . '%');
+            $date = explode('-', $request->create_at);
+            $datefrom = date('Y-m-d', strtotime($date[0]));
+            $dateto = date('Y-m-d', strtotime($date[1]));
+            $data = $data->whereRaw("date(cron_created_at) between date('$datefrom') and date('$dateto')");
         }
 
         $data = $data->where(function ($query) {
@@ -67,7 +73,7 @@ class ShowMagentoCronDataController extends Controller
             return response()->json(['html' => $view, 'page' => $request->page, 'count' => $count]);
         }
 
-        return view('magento_cron_data.index', compact('data', 'status', 'website', 'magentoCronWebsites'));
+        return view('magento_cron_data.index', compact('data', 'status', 'website', 'magentoCronWebsites', 'magentoCronJobCodes'));
     }
     public function runMagentoCron(Request $request)
     {

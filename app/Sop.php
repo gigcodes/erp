@@ -15,6 +15,8 @@ class Sop extends Model
 
     protected $fillable = ['name', 'content', 'user_id'];
 
+    protected $appends = ['selected_category_ids'];
+
     public function purchaseProductOrderLogs()
     {
         return $this->hasOne(PurchaseProductOrderLog::class, 'purchase_product_order_id', 'id');
@@ -38,5 +40,13 @@ class Sop extends Model
     public function hasSopCategory()
     {
         return $this->hasMany(SopHasCategory::class, "sop_id", "id");
+    }
+
+    /**
+     * Model accrssor and mutator
+     */
+    public function getSelectedCategoryIdsAttribute()
+    {
+        return $this->sopCategory()->pluck('sops_category.id')->toArray();
     }
 }

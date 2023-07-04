@@ -8,6 +8,15 @@
             @endif
         </div>
     </div>
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Module Location :</strong>
+            {!! Form::select('magneto_location_id', $module_locations, null, ['placeholder' => 'Select Module location', 'class' => 'form-control']) !!}
+            @if ($errors->has('magneto_location_id'))
+                <span style="color:red">{{ $errors->first('magneto_location_id') }}</span>
+            @endif
+        </div>
+    </div>
 
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
