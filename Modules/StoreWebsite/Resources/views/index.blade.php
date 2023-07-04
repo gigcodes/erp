@@ -746,7 +746,7 @@
 	});
 	$(document).on("click", ".open-build-process-history", function(href) {
 		$.ajax({
-			url: 'store-website/' + $(this).data('id') + '/build-process/history',
+			url: '/store-website/' + $(this).data('id') + '/build-process/history',
 			success: function(data) {
 				$('#buildHistory').html(data);
 				$('#buildHistoryModal').modal('show');
@@ -756,7 +756,7 @@
 
 	$(document).on("click", ".sync_stage_to_master", function(href) {
 		$.ajax({
-			url: 'store-website/' + $(this).data('id') + '/sync-stage-to-master',
+			url: '/store-website/' + $(this).data('id') + '/sync-stage-to-master',
 			success: function(data) {
 				if (data.code == 200) {
 					toastr["success"](data.message);
@@ -770,7 +770,7 @@
 	$(document).on("click", ".response_history", function(href) {
 		$.ajax({
 			type: 'POST',
-			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
+			url: '/store-website/'+ $(this).data('id') +'/magento-setting-update-history',
 			beforeSend: function () {
 				$("#loading-image").show();
 			},
@@ -797,7 +797,7 @@
 		
 			$.ajax({
 				type: 'POST',
-				url: 'store-website/'+ $(this).data('id') +'/magento-dev-update-script-history',
+				url: '/store-website/'+ $(this).data('id') +'/magento-dev-update-script-history',
 				beforeSend: function () {
 					$("#loading-image").show();
 				},
@@ -824,7 +824,7 @@
 		
 		$.ajax({
 			type: 'POST',
-			url: 'store-website/'+ $(this).data('id') +'/run-file-permissions',
+			url: '/store-website/'+ $(this).data('id') +'/run-file-permissions',
 			beforeSend: function () {
 				$("#loading-image").show();
 			},
@@ -872,7 +872,7 @@
 			
 			$.ajax({
 				type: 'POST',
-				url: 'store-website/'+ $(this).data('id') +'/magento-dev-script-update',
+				url: '/store-website/'+ $(this).data('id') +'/magento-dev-script-update',
 				beforeSend: function () {
 					$("#loading-image").show();
 				},
@@ -946,7 +946,7 @@
 	});
 
 	$(document).on('click','.btn-search-api-token',function(){
-		src = 'store-website/get-api-token'
+		src = '/store-website/get-api-token'
 		search = $('.api-token-search').val()
 		$.ajax({
 			url: src,
@@ -967,7 +967,7 @@
 	})
 
 	$(document).on('click','.btn-refresh-api-token',function(){
-		src = 'store-website/get-api-token'
+		src = '/store-website/get-api-token'
 		$.ajax({
 			url: src,
 			dataType: "json",
@@ -993,7 +993,7 @@
 	})
 
 	$(document).on('click','.btn-search-admin-password',function(){
-		src = 'store-website/get-admin-password'
+		src = '/store-website/get-admin-password'
 		search = $('.admin-password-search').val()
 		$.ajax({
 			url: src,
@@ -1026,7 +1026,7 @@
 	$(document).on("click", ".btn-download-db-env-logs", function(href) {
 		$.ajax({
 			type: 'POST',
-			url: 'store-website/'+ $(this).data('id') +'/download-db-env-logs',
+			url: '/store-website/'+ $(this).data('id') +'/download-db-env-logs',
 			beforeSend: function () {
 				$("#loading-image").show();
 			},
@@ -1050,7 +1050,7 @@
 	});
 
 	$(document).on('click','.btn-refresh-admin-password',function(){
-		src = 'store-website/get-admin-password'
+		src = '/store-website/get-admin-password'
 		$.ajax({
 			url: src,
 			dataType: "json",
