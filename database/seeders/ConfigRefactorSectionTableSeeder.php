@@ -15,13 +15,23 @@ class ConfigRefactorSectionTableSeeder extends Seeder
 
     public function run()
     {
-        $sampleDatas = self::sampleData();
+        $sampleDataNDs = self::sampleDataND();
 
-        foreach($sampleDatas as $sampleData)
+        foreach($sampleDataNDs as $sampleDataND)
         {
             ConfigRefactorSection::firstOrCreate([
-                'name' => $sampleData['name'], 
-                'type' => $sampleData['type']
+                'name' => $sampleDataND, 
+                'type' => "ND"
+            ]);
+        }
+
+        $sampleDataDEs = self::sampleDataDE();
+
+        foreach($sampleDataDEs as $sampleDataDE)
+        {
+            ConfigRefactorSection::firstOrCreate([
+                'name' => $sampleDataDE, 
+                'type' => "DE"
             ]);
         }
 
@@ -34,403 +44,160 @@ class ConfigRefactorSectionTableSeeder extends Seeder
         }
     }
 
-    public static function sampleData()
+    public static function sampleDataND()
     {
         return [
-            [
-                'name' => 'amasty_base',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amgeoip',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amasty_cross_links',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amasty_checkout',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'ammeta',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amseohtmlsitemap',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amseotoolkit',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amasty_seourl',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amseorichdata',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amsorting',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'amxmlsitemap',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'region',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'multicurrency',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'client',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'widget',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'bss_geoip',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'bss_geoip_currency',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'bss_sociallogin',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'bss_store_flag',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'settings',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_api_credentials',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'sync_settings',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'abandoned_carts',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_automation',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_dynamic_content',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'transactional_emails',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_configuration',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_data_mapping',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'connector_developer_settings',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'abandonedcartapi',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'cmspagemanager',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'homepagemanager',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mytickets',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'notifyme',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'buynow',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'orderreturn',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'referfriend',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'firas_donation_product',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'webp',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'admin_activity',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'klarna',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'msp_securitysuite_twofactorauth',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mage360_brands',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mfblog',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mfgeoip',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mageplaza',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'layered_navigation',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mpcronschedule',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'mpsearch',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'magepow_ajaxwishlist',
-                'type' => 'ND'
-            ],
-            [
-                'name' => 'magepow_ajaxcart',
-                'type' => 'ND'
-            ],
+            'amasty_base',
+            'amgeoip',
+            'amasty_cross_links',
+            'amasty_checkout',
+            'ammeta',
+            'amseohtmlsitemap',
+            'amseotoolkit',
+            'amasty_seourl',
+            'amseorichdata',
+            'amsorting',
+            'amxmlsitemap',
+            'region',
+            'multicurrency',
+            'client',
+            'widget',
+            'bss_geoip',
+            'bss_geoip_currency',
+            'bss_sociallogin',
+            'bss_store_flag',
+            'settings',
+            'connector_api_credentials',
+            'sync_settings',
+            'abandoned_carts',
+            'connector_automation',
+            'connector_dynamic_content',
+            'transactional_emails',
+            'connector_configuration',
+            'connector_data_mapping',
+            'connector_developer_settings',
+            'abandonedcartapi',
+            'cmspagemanager',
+            'homepagemanager',
+            'mytickets',
+            'notifyme',
+            'buynow',
+            'orderreturn',
+            'referfriend',
+            'firas_donation_product',
+            'webp',
+            'admin_activity',
+            'klarna',
+            'msp_securitysuite_twofactorauth',
+            'mage360_brands',
+            'mfblog',
+            'mfgeoip',
+            'mageplaza',
+            'layered_navigation',
+            'mpcronschedule',
+            'mpsearch',
+            'magepow_ajaxwishlist',
+            'magepow_ajaxcart',
+            'magepow_core',
+            'giftcard',
+            'mtoptimization',
+            'plumbase',
+            'pramp',
+            'sidebar',
+            'sw_dailydeal',
+            'sw_megamenu',
+            'porto_settings',
+            'sw_socialfeeds',
+            'strategery_infinitescroll',
+            'swarming_credits',
+            'weltpixel_quickview',
+            'yotpo',
+            'porto_design',
+            'porto_license',
+            'sociallogin',
+            'iwd_opc',
+            'currencyswitcher',
+            'pwa_connector',
+            'progressivewebapp',
+            'smartsupp',
+            'elsner_geoip',
+            'sendinblue',
+            'geoip',
+            'alsoviewed',
+            'amshopby_brand',
+            'amshopby_root',
+            'amshopby',
+            'free',
+            'smtp',
+            'magemojo',
+            'sebwite_sidebar',
+            'phpro_cookie_consent',
+            'drefer',
+            'sizeapi',
+            'internationaltelephoneinput',
+            'ordertracking_reason',
+            'orderreturn_reason',
+            'productdeliverydate',
+            'amasty_shopby_seo',
+            'amoptimizer',
+            'custom',
+            'amlazyload',
+            'email_marketing',
+            'smile_elasticsuite_ajax_settings',
+            'hyva_react_checkout'
+        ];
+    }
 
-
-            [
-                'name' => 'admin',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'design',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'dev',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'system',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'web',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'general',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'theme',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'currency',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'customer',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'cms',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'catalog',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'indexer',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'export',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'cataloginventory',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sales',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'payment',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sales_email',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sales_pdf',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'dashboard',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'checkout',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'captcha',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'contact',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'oauth',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'carriers',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'trans_email',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'import',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'three_d_secure',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'google',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sales_channels',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'analytics',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'shipping',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'multishipping',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'newrelicreporting',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'newsletter',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'promo',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'paypal',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'persistent',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'reports',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'url_rewrite',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sendfriend',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'fraud_protection',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'sitemap',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'crontab',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'tax',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'msp_securitysuite_recaptcha',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'webapi',
-                'type' => 'DE'
-            ],
-            [
-                'name' => 'wishlist',
-                'type' => 'DE'
-            ]
+    public static function sampleDataDE()
+    {
+        return [
+            'admin',
+            'design',
+            'dev',
+            'system',
+            'web',
+            'general',
+            'theme',
+            'currency',
+            'customer',
+            'cms',
+            'catalog',
+            'indexer',
+            'export',
+            'cataloginventory',
+            'sales',
+            'payment',
+            'sales_email',
+            'sales_pdf',
+            'dashboard',
+            'checkout',
+            'captcha',
+            'contact',
+            'oauth',
+            'carriers',
+            'trans_email',
+            'import',
+            'three_d_secure',
+            'google',
+            'sales_channels',
+            'analytics',
+            'shipping',
+            'multishipping',
+            'newrelicreporting',
+            'newsletter',
+            'promo',
+            'paypal',
+            'persistent',
+            'reports',
+            'url_rewrite',
+            'sendfriend',
+            'fraud_protection',
+            'sitemap',
+            'crontab',
+            'tax',
+            'msp_securitysuite_recaptcha',
+            'webapi',
+            'wishlist'
         ];
     }
 }
