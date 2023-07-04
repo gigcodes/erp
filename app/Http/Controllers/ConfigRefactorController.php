@@ -30,31 +30,28 @@ class ConfigRefactorController extends Controller
      */
     public function index(Request $request)
     {
-        // $keyword = $request->get('keyword');
-        // $eventStart = $request->get('event_start');
+        $section = $request->get('section');
+        $section_type = $request->get('section_type');
 
         $configRefactors = ConfigRefactor::with('configRefactorSection')
             ->join('config_refactor_sections', 'config_refactor_sections.id', 'config_refactors.config_refactor_section_id');
 
-        // if (! empty($keyword)) {
-        //     $zabbixWebhookDatas = $zabbixWebhookDatas->where(function ($q) use ($keyword) {
-        //         $q->orWhere('subject', 'LIKE', '%' . $keyword . '%')
-        //             ->orWhere('message', 'LIKE', '%' . $keyword . '%')
-        //             ->orWhere('event_name', 'LIKE', '%' . $keyword . '%');
-        //     });
-        // }
+        if ($section) {
+            $configRefactors = $configRefactors->where('config_refactor_section_id', $section);
+        }
 
-        // if ($eventStart) {
-        //     $zabbixWebhookDatas = $zabbixWebhookDatas->whereDate('event_start', $eventStart);
-        // }
+        if ($section_type) {
+            $configRefactors = $configRefactors->where('config_refactor_sections.type', $section_type);
+        }
 
         $configRefactors = $configRefactors->paginate(10);
 
         $configRefactorStatuses = ConfigRefactorStatus::pluck("name", "id")->toArray();
+        $configRefactorSections = ConfigRefactorSection::pluck("name", "id")->toArray();
         $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
         $users = $users->pluck('name', 'id');
 
-        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users'));
+        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users', 'configRefactorSections'));
     }
 
     public function storeStatus(Request $request)

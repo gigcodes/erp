@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style type="text/css">
 	table#config-refactor-data-list {
 		width: 100% !important;
@@ -17,22 +18,42 @@
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-8">
-                    {{-- <form action="{{ route('zabbix-webhook-data.index') }}" method="get" class="search">
+                    <form action="{{ route('config-refactor.index') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-4 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                                <?php 
+                                    if(request('section')){   $section = request('section'); }
+                                    else{ $section = ''; }
+                                ?>
+                                <select name="section" id="section" class="form-control select2">
+                                    <option value="" @if($section=='') selected @endif>-- Select a section --</option>
+                                    @forelse($configRefactorSections as $id => $name)
+                                    <option value="{{ $id }}" @if($section==$id) selected @endif>{!! $name !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
                             </div>
-                            <div class="col-lg-4">
-                                <input class="form-control" type="date" name="event_start" value="{{ request()->get('event_start') }}">
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('section_type')){   $sectionType = request('section_type'); }
+                                    else{ $sectionType = ''; }
+                                ?>
+                                <select name="section_type" id="section_type" class="form-control select2">
+                                    <option value="" @if($sectionType=='') selected @endif>-- Select a section type --</option>
+                                    @forelse($types as $id => $name)
+                                    <option value="{{ $id }}" @if($sectionType==$id) selected @endif>{!! $name !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
                             </div>
                             <div class="col-md-4 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('zabbix-webhook-data.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                                <a href="{{ route('config-refactor.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
-                    </form> --}}
+                    </form>
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
@@ -234,10 +255,19 @@
 @include('config-refactor.partials.status_list')
 {{-- #user-area-list --}}
 @include('config-refactor.partials.users_list')
-
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
+    $('.select2').select2();
     $(document).ready(function(){
     })
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     // Load users Histories
     $(document).on('click', '.load-refactor-users', function() {
