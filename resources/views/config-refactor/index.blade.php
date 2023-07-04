@@ -3,11 +3,9 @@
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style type="text/css">
-	table#config-refactor-data-list {
-		width: 100% !important;
-		display: inline-block !important;
-		overflow-x: scroll !important;
-	}
+    #config-refactor-data-list .select2.select2-container.select2-container--default {
+        width: 130px !important;
+    }
 </style>
 @endsection
 @section('content')
@@ -75,23 +73,23 @@
     <div class="tab-pane active" id="1">
         <div class="row" style="margin:10px;">
             <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-bordered" style="table-layout: fixed;" id="config-refactor-data-list">
+                <div class="table-responsive" style="overflow-x: auto!important">
+                    <table class="table table-bordered" style="width: 135%;max-width:unset" id="config-refactor-data-list">
                         <tr>
-                            <th>ID</th>
-                            <th>Section Name</th>
-                            <th>Section Type</th>
-                            <th>User</th>
-                            <th>Step1 Status</th>
-                            <th>Step1 Remark</th>
-                            <th>Step2 Status</th>
-                            <th>Step2 Remark</th>
-                            <th>Step3 Status</th>
-                            <th>Step3 Remark</th>
-                            <th>Step3.1 Status</th>
-                            <th>Step3.1 Remark</th>
-                            <th>Step3.2 Status</th>
-                            <th>Step3.2 Remark</th>
+                            <th style="width: auto">ID</th>
+                            <th style="width: 7%">Section Name</th>
+                            <th style="width: 5%">Section Type</th>
+                            <th style="width: auto">User</th>
+                            <th style="width: auto">Step1 Status</th>
+                            <th style="width: auto">Step1 Remark</th>
+                            <th style="width: auto">Step2 Status</th>
+                            <th style="width: auto">Step2 Remark</th>
+                            <th style="width: auto">Step3 Status</th>
+                            <th style="width: auto">Step3 Remark</th>
+                            <th style="width: auto">Step3.1 Status</th>
+                            <th style="width: auto">Step3.1 Remark</th>
+                            <th style="width: auto">Step3.2 Status</th>
+                            <th style="width: auto">Step3.2 Remark</th>
                         </tr>
                         @foreach ($configRefactors as $key => $configRefactor)
                             <tr data-id="{{ $configRefactor->id }}">
@@ -240,8 +238,8 @@
                             </tr>
                         @endforeach
                     </table>
+                    {!! $configRefactors->appends(request()->except('page'))->links() !!}
                 </div>
-                {!! $configRefactors->appends(request()->except('page'))->links() !!}
             </div>
         </div>
     </div>
