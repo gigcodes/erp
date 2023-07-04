@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\ConfigRefactor;
+use App\ConfigRefactorRemarkHistory;
 use App\ConfigRefactorSection;
 use App\ConfigRefactorStatus;
+use App\ConfigRefactorStatusHistory;
 use App\Models\ZabbixWebhookData;
 use App\User;
 use App\ZabbixStatus;
@@ -76,9 +78,13 @@ class ConfigRefactorController extends Controller
         }
     }
 
-    public function getRemarks($zabbix_webhook_data)
+    public function getRemarks($config_refactor, $column_name)
     {
-        $remarks = ZabbixWebhookDataRemarkHistory::with(['user'])->where('zabbix_webhook_data_id', $zabbix_webhook_data)->get();
+        $remarks = ConfigRefactorRemarkHistory::with(['user'])
+            ->where('config_refactor_id', $config_refactor)
+            ->where('column_name', $column_name)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -92,18 +98,15 @@ class ConfigRefactorController extends Controller
     {
         try {
             $configRefactor = ConfigRefactor::findOrFail($request->id);
-            $old_remark = $configRefactor->{$request->column};
-
             $configRefactor->{$request->column} = $request->remark;
-
             $configRefactor->save();
 
-            // $history = new ZabbixWebhookDataStatusHistory();
-            // $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
-            // $history->old_status_id = $old_status;
-            // $history->new_status_id = $request->status;
-            // $history->user_id = Auth::user()->id;
-            // $history->save();
+            $history = new ConfigRefactorRemarkHistory();
+            $history->config_refactor_id = $configRefactor->id;
+            $history->column_name = $request->column;
+            $history->remarks = $request->remark;
+            $history->user_id = Auth::user()->id;
+            $history->save();
 
             return response()->json(
                 [
@@ -115,7 +118,7 @@ class ConfigRefactorController extends Controller
             return response()->json(
                 [
                     'status' => false,
-                    'message' => 'Status not updated.',
+                    'message' => 'Remark not updated.',
                 ], 500
             );
         }
@@ -131,12 +134,13 @@ class ConfigRefactorController extends Controller
 
             $configRefactor->save();
 
-            // $history = new ZabbixWebhookDataStatusHistory();
-            // $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
-            // $history->old_status_id = $old_status;
-            // $history->new_status_id = $request->status;
-            // $history->user_id = Auth::user()->id;
-            // $history->save();
+            $history = new ConfigRefactorStatusHistory();
+            $history->config_refactor_id = $configRefactor->id;
+            $history->column_name = $request->column;
+            $history->old_status_id = $old_status;
+            $history->new_status_id = $request->status;
+            $history->user_id = Auth::user()->id;
+            $history->save();
 
             return response()->json(
                 [
@@ -152,6 +156,22 @@ class ConfigRefactorController extends Controller
                 ], 500
             );
         }
+    }
+
+    public function getStatuses($config_refactor, $column_name)
+    {
+        $statuses = ConfigRefactorStatusHistory::with(['user'])
+            ->where('config_refactor_id', $config_refactor)
+            ->where('column_name', $column_name)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $statuses,
+            'message' => 'Status get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function updateUser(Request $request)
