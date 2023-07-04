@@ -2832,4 +2832,30 @@ class UserManagementController extends Controller
 
         return response()->json(['code' => 200, 'data' => $historyLogs]);
     }
+
+    public function userAccessListing(Request $request)
+    {
+
+        $userAccessLists = New UserPemfileHistory();
+      
+
+        if ($request->user) {
+            $userAccessLists = $userAccessLists->where('username', 'LIKE', '%' . $request->user . '%');
+        }
+        if ($request->s_ids) {
+            $userAccessLists = $userAccessLists->WhereIn('server_name', $request->s_ids);
+        }
+        if ($request->search_event) {
+            $userAccessLists = $userAccessLists->where('action', 'LIKE', '%' . $request->search_event . '%');
+        } 
+        if ($request->date) {
+            $userAccessLists = $userAccessLists->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $userAccessLists = $userAccessLists->with('user')->latest()->paginate(25);
+
+
+        return view('user-management.user-access-list', compact('userAccessLists'));
+
+    }
 }
