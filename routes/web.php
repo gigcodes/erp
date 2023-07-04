@@ -3799,6 +3799,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('notesCreate', [PageNotesController::class, 'notesCreate'])->name('notesCreate'); //Purpose : Create Route for Insert Note - DEVTASK-4289
+    Route::post('stickyNotesCreate', [PageNotesController::class, 'stickyNotesCreate'])->name('stickyNotesCreate');
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
