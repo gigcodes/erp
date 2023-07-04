@@ -564,6 +564,7 @@ Route::middleware('auth')->group(function () {
     // Config Refactors 
     Route::get('config-refactor/remark/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getRemarks'])->name('config-refactor.get_remarks');
     Route::get('config-refactor/status/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getStatuses'])->name('config-refactor.get_status_histories');
+    Route::get('config-refactor/user/{config_refactor}', [ConfigRefactorController::class, 'getUsers'])->name('config-refactor.get_users_histories');
     Route::post('config-refactor/store-remark', [ConfigRefactorController::class, 'storeRemark'])->name('config-refactor.store.remark');
     Route::post('config-refactor/change-status', [ConfigRefactorController::class, 'updateStatus'])->name('config-refactor.change.status');
     Route::post('config-refactor/change-user', [ConfigRefactorController::class, 'updateUser'])->name('config-refactor.change.user');

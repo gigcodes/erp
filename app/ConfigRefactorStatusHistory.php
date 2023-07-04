@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ConfigRefactorStatusHistory extends Model
 {
+    protected $appends = [
+        'old_status_name',
+        'new_status_name',
+    ];
+
     public function configRefactor()
     {
         return $this->belongsTo(ConfigRefactor::class);
@@ -29,4 +34,14 @@ class ConfigRefactorStatusHistory extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getOldStatusNameAttribute()
+    {
+        return $this->oldStatus?->name;
+    } 
+
+    public function getNewStatusNameAttribute()
+    {
+        return $this->newStatus?->name;
+    } 
 }

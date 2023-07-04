@@ -92,6 +92,7 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <div class="flex items-center">
                                     <select class="form-control change-config-refactor-user select2" data-id="{{$configRefactor->id}}" data-column="user_id" name="user_id">
                                         <option value="">Select...</option>
                                         @foreach($users as $id => $user)
@@ -102,6 +103,8 @@
                                             @endif
                                         @endforeach
                                     </select>
+                                    <button type="button" class="btn btn-xs btn-image load-refactor-users ml-2" data-id="{{$configRefactor->id}}" title="Load user histories"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="flex items-center">
@@ -227,10 +230,43 @@
 @include('config-refactor.partials.config-refactor-status-create-modal')
 {{-- #remark-area-list --}}
 @include('config-refactor.partials.remark_list')
+{{-- #status-area-list --}}
+@include('config-refactor.partials.status_list')
+{{-- #user-area-list --}}
+@include('config-refactor.partials.users_list')
 
 <script type="text/javascript">
     $(document).ready(function(){
     })
+
+    // Load users Histories
+    $(document).on('click', '.load-refactor-users', function() {
+        var id = $(this).attr('data-id');
+
+        $.ajax({
+            method: "GET",
+            url: `{{ route('config-refactor.get_users_histories', [""]) }}/` + id,
+            dataType: "json",
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.old_user_name != null) ? v.old_user_name : ' - ' } </td>
+                                    <td> ${(v.new_user_name != null) ? v.new_user_name : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#user-area-list").find(".user-action-list-view").html(html);
+                    $("#user-area-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
 
     // Load Status Histories
     $(document).on('click', '.load-refactor-status', function() {
@@ -247,8 +283,8 @@
                     $.each(response.data, function(k, v) {
                         html += `<tr>
                                     <td> ${k + 1} </td>
-                                    <td> ${v.oldStatus.name } </td>
-                                    <td> ${v.newStatus.name } </td>
+                                    <td> ${(v.old_status_name != null) ? v.old_status_name : ' - ' } </td>
+                                    <td> ${(v.new_status_name != null) ? v.new_status_name : ' - ' } </td>
                                     <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                     <td> ${v.created_at} </td>
                                 </tr>`;

@@ -7,6 +7,7 @@ use App\ConfigRefactorRemarkHistory;
 use App\ConfigRefactorSection;
 use App\ConfigRefactorStatus;
 use App\ConfigRefactorStatusHistory;
+use App\ConfigRefactorUserHistory;
 use App\Models\ZabbixWebhookData;
 use App\User;
 use App\ZabbixStatus;
@@ -160,7 +161,7 @@ class ConfigRefactorController extends Controller
 
     public function getStatuses($config_refactor, $column_name)
     {
-        $statuses = ConfigRefactorStatusHistory::with(['user'])
+        $statuses = ConfigRefactorStatusHistory::with(['user', 'newStatus', 'oldStatus'])
             ->where('config_refactor_id', $config_refactor)
             ->where('column_name', $column_name)
             ->latest()
@@ -179,17 +180,15 @@ class ConfigRefactorController extends Controller
         try {
             $configRefactor = ConfigRefactor::findOrFail($request->id);
             $old_user_id = $configRefactor->user_id;
-
             $configRefactor->user_id = $request->user_id;
-
             $configRefactor->save();
 
-            // $history = new ZabbixWebhookDataStatusHistory();
-            // $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
-            // $history->old_status_id = $old_status;
-            // $history->new_status_id = $request->status;
-            // $history->user_id = Auth::user()->id;
-            // $history->save();
+            $history = new ConfigRefactorUserHistory();
+            $history->config_refactor_id = $configRefactor->id;
+            $history->old_user = $old_user_id;
+            $history->new_user = $request->user_id;
+            $history->user_id = Auth::user()->id;
+            $history->save();
 
             return response()->json(
                 [
@@ -205,6 +204,21 @@ class ConfigRefactorController extends Controller
                 ], 500
             );
         }
+    }
+
+    public function getUsers($config_refactor)
+    {
+        $users = ConfigRefactorUserHistory::with(['user', 'newUser', 'oldUser'])
+            ->where('config_refactor_id', $config_refactor)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $users,
+            'message' => 'User get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function issuesSummary(Request $request)
