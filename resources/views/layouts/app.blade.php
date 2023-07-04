@@ -891,7 +891,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <a title="Sticky-Notes" class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
+                                    <a title="Create Sticky Notes" class="sticky-notes quick-icon" id="sticky-notes" href="#"><span>
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
@@ -6487,8 +6487,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     });
 
 
-        var url = "{{ route('stickyNotesCreate') }}";
-        var page = "{{ request()->fullUrl() }}";
+        var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
+        var stickyNotesPage = "{{ request()->fullUrl() }}";
 
         var x = `<div class='sticky_notes_container'>
             <div class="icon-check">
@@ -6497,15 +6497,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
                    Sticky Note
                     <div class='text_box'>
-                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${url}' data-page='${page}'></textarea>
+                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}'></textarea>
                     </div>
                 </div>`;
 
         $('.sticky-notes').on('click', function() {
-            StickyBox();
-        });
-  
-        $(document).ready(function() {
             StickyBox();
         });
 
