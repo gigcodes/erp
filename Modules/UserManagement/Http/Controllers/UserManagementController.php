@@ -1941,7 +1941,7 @@ class UserManagementController extends Controller
         }
         $server_ip=$server->ip;
         
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k '. $public_key .' -R '.$user_role.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k "'. $public_key .'" -R '.$user_role.' 2>&1';
         \Log::info("Generate Pem Files:");
         $allOutput = [];
         $allOutput[] = $cmd;
