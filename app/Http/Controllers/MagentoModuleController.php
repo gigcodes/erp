@@ -792,7 +792,7 @@ class MagentoModuleController extends Controller
 
     public function reviewStandardHistories(Request $request)
     {
-        $histories = MagnetoReviewStandardHistory::with(['user'])->where('magento_module_id', $request->id)->get();
+        $histories = MagnetoReviewStandardHistory::with(['user'])->where('magento_module_id', $request->id)->latest()->get();
         
         return response()->json([
             'status' => true,
