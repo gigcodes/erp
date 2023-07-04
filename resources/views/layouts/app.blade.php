@@ -4133,6 +4133,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('zabbix-webhook-data.index') }}">Zabbix Webhook Data</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('config-refactor.index') }}">Config Refactors</a>
+                                            </li>
                                         </ul>
                                     </li>
 
