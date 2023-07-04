@@ -150,9 +150,18 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Customized:</strong>
-            {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
+            {!! Form::select('is_customized', ['No', 'Yes'], null, [ 'class' => 'form-control']) !!}
             @if ($errors->has('is_customized'))
                 <span style="color:red">{{ $errors->first('is_customized') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Review Standard :</strong>
+            {!! Form::select('module_review_standard', ['No' => '0', 'Yes' => '1'], 'No', ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
+            @if ($errors->has('module_review_standard'))
+                <span style="color:red">{{ $errors->first('module_review_standard') }}</span>
             @endif
         </div>
     </div>

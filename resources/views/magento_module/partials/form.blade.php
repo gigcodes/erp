@@ -171,6 +171,15 @@
             @endif
         </div>
     </div>
+    <div class="col-xs-3 col-sm-3">
+        <div class="form-group">
+            <strong>Review Standard :</strong>
+            {!! Form::select('module_review_standard', ['No','Yes'], 'No', [ 'class' => 'form-control']) !!}
+            @if ($errors->has('module_review_standard'))
+                <span style="color:red">{{ $errors->first('module_review_standard') }}</span>
+            @endif
+        </div>
+    </div>
 </div>
 <div class="row ml-2 mr-2">
     <div class="col-xs-12 col-sm-12">
