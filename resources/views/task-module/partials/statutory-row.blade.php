@@ -121,7 +121,7 @@
         @if (isset($task->message))
         <div style="margin-bottom:10px;width: 100%;">
             <div class="d-flex justify-content-between">
-                @if($task->is_audio)
+                @if (isset($task->is_audio) && $task->is_audio)
                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio> 
                 @else
                 <span class="td-mini-container">
