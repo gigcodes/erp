@@ -77,15 +77,15 @@ Route::group([
     Route::group([
         'prefix' => '{id}',
     ], function () {
-        Route::post('download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
+        Route::post('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
         Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
-        Route::post('magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
+        Route::post('/magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
 
-        Route::post('magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
+        Route::post('/magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
 
-        Route::post('select-folder', [StoreWebsiteController::class, 'getFolderName']);
+        Route::post('/select-folder', [StoreWebsiteController::class, 'getFolderName']);
 
-        Route::post('magento-dev-script-update/{folder_name?}', [StoreWebsiteController::class, 'magentoDevScriptUpdate']);
+        Route::post('/magento-dev-script-update/{folder_name?}', [StoreWebsiteController::class, 'magentoDevScriptUpdate']);
 
         Route::get('/sync-stage-to-master', [StoreWebsiteController::class, 'syncStageToMaster']);
 
