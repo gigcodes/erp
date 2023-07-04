@@ -55,6 +55,7 @@
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#config-refactor-create"> Create Config Refactor </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#configRefactorStatusCreate"> Create Status </button>
                     </div>
                 </div>
@@ -93,7 +94,7 @@
                         </tr>
                         @foreach ($configRefactors as $key => $configRefactor)
                             <tr data-id="{{ $configRefactor->id }}">
-                                <td>{{ $configRefactor->id }}</td>
+                                <td>{{ ++$i }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
                                        {{ strlen($configRefactor->configRefactorSection->name) > 12 ? substr($configRefactor->configRefactorSection->name, 0, 12).'...' :  $configRefactor->configRefactorSection->name }}
@@ -244,7 +245,8 @@
         </div>
     </div>
 </div>
-
+{{-- config-refactor-create --}}
+@include('config-refactor.partials.config-refactor-create-modal')
 {{-- configRefactorStatusCreate --}}
 @include('config-refactor.partials.config-refactor-status-create-modal')
 {{-- #remark-area-list --}}
@@ -257,7 +259,32 @@
 <script type="text/javascript">
     $('.select2').select2();
     $(document).ready(function(){
-    })
+    });
+
+    $(document).on("click", ".save-config-refactor-window", function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            data: form.serialize(),
+            beforeSend: function() {
+                $(this).text('Loading...');
+            },
+            success: function(response) {
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#config-refactor-create").modal("hide");
+                    location.reload();
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            toastr['error'](response.responseJSON.message);
+        });
+    });
 
     $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();
