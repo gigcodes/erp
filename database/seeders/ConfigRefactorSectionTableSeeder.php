@@ -149,6 +149,99 @@ class ConfigRefactorSectionTableSeeder extends Seeder
                 'name' => 'connector_data_mapping',
                 'type' => 'ND'
             ],
+            [
+                'name' => 'connector_developer_settings',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'abandonedcartapi',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'cmspagemanager',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'homepagemanager',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mytickets',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'notifyme',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'buynow',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'orderreturn',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'referfriend',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'firas_donation_product',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'webp',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'admin_activity',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'klarna',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'msp_securitysuite_twofactorauth',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mage360_brands',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mfblog',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mfgeoip',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mageplaza',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'layered_navigation',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mpcronschedule',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'mpsearch',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'magepow_ajaxwishlist',
+                'type' => 'ND'
+            ],
+            [
+                'name' => 'magepow_ajaxcart',
+                'type' => 'ND'
+            ],
+
 
             [
                 'name' => 'admin',
