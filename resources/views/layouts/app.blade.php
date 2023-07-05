@@ -2125,6 +2125,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     href="{{route('user-management.user-delivered.index')}}">User
                                                     Delivered</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item"
+                                                    href="{{route('user-management.user-access-listing')}}">User Access Listing</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item dropdown dropdown-submenu">
