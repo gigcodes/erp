@@ -462,7 +462,7 @@
 			<div class="modal-body" id="">
 				<div class="from-group">
 					<label for="">Select User:</label>
-					<select name="users" id="assign-new-user" class="form-control select2" style="width: 100%!important">
+					<select name="users" id="assign-new-user" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a user --</option>
 						@forelse($allUsers as $key => $user)
 								<option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -472,7 +472,7 @@
 				</div>
 				<div class="from-group mt-3">
 					<label for="">Select Website:</label>
-					<select name="users" id="assign-new-website" class="form-control select2" style="width: 100%!important">
+					<select name="users" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a Website --</option>
 						@forelse($store_websites as $website_id => $website_name)
 							<option value="{{ $website_id }}">{{ $website_name }}</option>
@@ -482,7 +482,7 @@
 				</div>
 				<div class="from-group mt-3">
 					<label for="">Select Type:</label>
-					<select name="uicheck_type" id="assign-new-type" class="form-control select2" style="width: 100%!important">
+					<select name="uicheck_type" id="assign-new-type" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a Type --</option>
 						@forelse($allUicheckTypes as $uicheckTypeId => $uicheckTypeName)
 							<option value="{{ $uicheckTypeId }}">{{ $uicheckTypeName }}</option>
@@ -1378,11 +1378,11 @@
 			let website = $("#assign-new-website").val()
 			let type = $("#assign-new-type").val()
 
-			if(user == null) {
+			if(user == null || $.isEmptyObject(user)) {
 				toastr['error']("Please select user.");
 				return
 			}
-			if(website == null) {
+			if(website == null || $.isEmptyObject(website)) {
 				toastr['error']("Please select website.");
 				return
 			}
