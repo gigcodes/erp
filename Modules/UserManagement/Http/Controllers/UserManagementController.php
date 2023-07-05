@@ -2837,6 +2837,7 @@ class UserManagementController extends Controller
     {
 
         $userAccessLists = New UserPemfileHistory();
+        $userAccessLists = $userAccessLists->withTrashed();
       
         if ($request->user_ids) {
             $userAccessLists = $userAccessLists->whereIn('user_id', $request->user_ids );
