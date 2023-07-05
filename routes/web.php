@@ -5331,6 +5331,7 @@ Route::get('file/permissions', [FilePermissionController::class, 'getFilePermiss
 Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
+    Route::get('jenkins-build/truncate', [MonitorJenkinsBuildController::class, 'truncateJenkinsbulids'])->name('monitor-jenkins-build.truncate');
 });
 
 /** Website Monitor */

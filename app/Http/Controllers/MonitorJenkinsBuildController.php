@@ -18,7 +18,7 @@ class MonitorJenkinsBuildController extends Controller
         $projectId = $request->get('project_id');
         $workerId = $request->get('worker_id');
         
-        $monitorJenkinsBuilds = MonitorJenkinsBuild::latest();
+        $monitorJenkinsBuilds = new MonitorJenkinsBuild;
 
         if (!empty($keyword)) {
             $monitorJenkinsBuilds = $monitorJenkinsBuilds->where(function ($q) use ($keyword) {
@@ -38,7 +38,17 @@ class MonitorJenkinsBuildController extends Controller
             $monitorJenkinsBuilds = $monitorJenkinsBuilds->WhereIn('id', $workerId);
         } 
 
-        $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(25);
+        if ($request->get('id_sort_by')) {
+            if ($request->get('id_sort_by') === "desc") {
+                $monitorJenkinsBuilds = $monitorJenkinsBuilds->orderBy('id', 'desc');
+            }
+            if ($request->get('id_sort_by') === "asc") {
+                $monitorJenkinsBuilds = $monitorJenkinsBuilds->orderBy('id', 'asc');
+            }
+        }
+
+            $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(10);
+        
 
         return view('monitor.jenkins_build_index', compact('monitorJenkinsBuilds'));
     }
@@ -64,6 +74,14 @@ class MonitorJenkinsBuildController extends Controller
         $monitorJenkinsBuild = $monitorJenkinsBuild->paginate($perPage);
 
         return response()->json($monitorJenkinsBuild);    
+    }
+
+
+    public function truncateJenkinsbulids(Request $request)
+    {
+        MonitorJenkinsBuild::truncate();
+
+        return redirect()->route('monitor-jenkins-build.index')->withSuccess('data Removed succesfully!');
     }
 
 }
