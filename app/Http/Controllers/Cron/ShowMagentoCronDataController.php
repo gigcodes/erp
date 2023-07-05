@@ -44,20 +44,8 @@ class ShowMagentoCronDataController extends Controller
             $data = $data->where('cron_created_at', 'like', $date . '%');
         }
 
-        if (isset($request->sort_by)) {
-
-            if($request->sort_by === "created_at"){
-                $data = $data->orderBy('cron_created_at', 'desc');
-            }
-            if($request->sort_by === "scheduled_at"){
-                $data = $data->orderBy('cron_scheduled_at', 'desc');
-            }
-            if($request->sort_by === "executed_at"){
-                $data = $data->orderBy('cron_executed_at', 'desc');
-            }
-            if($request->sort_by === "finished_at"){
-                $data = $data->orderBy('cron_finished_at', 'desc');
-            }      
+        if (isset($request->jobcode)) {
+            $data = $data->where('job_code', 'like', $request->jobcode . '%');
         }
 
         $data = $data->where(function ($query) {
@@ -74,7 +62,24 @@ class ShowMagentoCronDataController extends Controller
             ->orWhere("cronstatus", "=", 'success');
         });
 
-        $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25')->get();
+        $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25');
+
+        if (isset($request->sort_by)) {
+            if ($request->sort_by === "created_at") {
+                $data = $data->orderBy('cron_created_at', 'desc');
+            }
+            if ($request->sort_by === "scheduled_at") {
+                $data = $data->orderBy('cron_scheduled_at', 'desc');
+            }
+            if ($request->sort_by === "executed_at") {
+                $data = $data->orderBy('cron_executed_at', 'desc');
+            }
+            if ($request->sort_by === "finished_at") {
+                $data = $data->orderBy('cron_finished_at', 'desc');
+            }
+        }
+        
+        $data = $data->get();
 
         if ($request->ajax()) {
             $count = $request->count;
@@ -148,6 +153,9 @@ class ShowMagentoCronDataController extends Controller
             if(!$commands){
                 return response()->json(['code' => 500, 'message' => 'Magento Cron Command is not found!']);
             }
+
+            $commands_id = []; // Initialize the $commands_id array
+        
             foreach($commands as $command){
                 $commands_id[]=$command->id;
             }

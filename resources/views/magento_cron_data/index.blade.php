@@ -68,7 +68,9 @@
                 <div class="form-group mr-3">
                     <input type="date" name="create_at" class="form-control" >
                 </div>
-    
+                <div class="form-group mr-3">
+                    <input type="text" name="jobcode" class="form-control" placeholder="Search by jobcode">
+                </div>
                 <div class="form-group mr-3">
                 <select name="sort_by" id="sort_by" class="form-control globalSelect" data-placeholder="Sort By">
                     <option  Value="created_at">Created At sort By</option>
@@ -85,9 +87,6 @@
             <div class="form-inline mr-3">
                 <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#cronStatusColor"> Status Color</button>
             </div>
-            <div class="form-inline mr-3">
-                <input type="text" id="jobcode" placeholder="Search by jobcode">
-                </div>
         </div>
     </div>
 </div>
@@ -495,12 +494,7 @@ $(document).on('click', '.expand-row', function () {
   }
 });
 
-$(document).on("keydown", "#jobcode", function() {
-    var query = $(this).val().toLowerCase();
-        $("#product-price tr").filter(function() {
-        $(this).toggle($(this).text().toLowerCase().indexOf(query) > -1)
-    });
-});
+
 </script>
 
 @endsection

@@ -88,6 +88,9 @@
                <a title="Run Cron" class="btn btn-image magentoCom-run-btn pd-5     btn-ht" data-id="{{ $dat['id']}}" href="javascript:;">
                   <i class="fa fa-paper-plane" aria-hidden="true"></i>
                </a>
+               <a title="Preview Response" data-id="{{ $dat['id']}}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;">
+                  <i class="fa fa-product-hunt" aria-hidden="true"></i>
+              </a>
             </td>
 
        </tr> 
