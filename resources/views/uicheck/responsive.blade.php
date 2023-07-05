@@ -110,7 +110,7 @@
 @section('large_content')
 
 <div id="myDiv">
-	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
+	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;z-index: 999999;" />
 </div>
 
 <div class="row" id="common-page-layout">
@@ -236,7 +236,7 @@
 					}
 				@endphp
 				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
-				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#list-user-access-modal" onclick="listUserAccess()"> User Access </button>
+				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
@@ -740,6 +740,8 @@
               <tr>
                 <th>S.No</th>
                 <th>User Name</th>
+                <th>Website</th>
+                <th>Type</th>
                 <th>Total Uicheck count</th>
                 <th>Action</th>
               </tr>
@@ -972,9 +974,11 @@
 			var sNo = startIndex + index + 1; 
 			html += "<tr>";
 			html += "<td>" + sNo + "</td>";
-			html += "<td>" + userAccess.user.name + "</td>";
+			html += "<td>" + userAccess.username + "</td>";
+			html += "<td>" + userAccess.website + "</td>";
+			html += "<td>" + userAccess.type + "</td>";
 			html += "<td>" + userAccess.total + "</td>";
-			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+' style="cursor: pointer;"><i class="fa fa-trash" aria-hidden="true"></i></a> <a style="padding-left: 10px;cursor: pointer;"class="user-access-reassign" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'><i class="fa fa-refresh" aria-hidden="true"></i></a></td>';
 			html += "</tr>";
 			});
 			$(".user-access-list").html(html);
@@ -1372,6 +1376,57 @@
 	});
 	
 	$(document).ready(function () {
+		$(document).on("click",".user-access-reassign",function (e) { 
+			e.preventDefault();
+			let user = [];
+			user.push($(this).attr('data-user_id'));
+			let website = [];
+			website.push($(this).attr('data-uicheck_website'));
+			let type = [];
+			type.push($(this).attr('data-uicheck_type'));
+			
+			//let website = $(this).attr('data-uicheck_website');
+			//let type = $(this).attr('data-uicheck_type');
+
+			if(user == null || $.isEmptyObject(user)) {
+				toastr['error']("Please select user.");
+				return
+			}
+			if(website == null || $.isEmptyObject(website)) {
+				toastr['error']("Please select website.");
+				return
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "{{route('uicheck.assignNewuser')}}",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+				data: {
+					_token: "{{csrf_token()}}",
+					website,
+					user,
+					type
+				},
+				success: function (response) {
+					if(response.status == true) {
+						toastr['success'](response.message, 'success');
+					} else {
+						toastr['error'](response.message, 'error');
+					}
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+					listUserAccess();
+					//window.location.assign("{{route('uicheck.responsive')}}?website=" + website + "&user=" + user);
+				},
+				error: function (error) {
+					toastr['error']("Something went wrong", 'error');
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+				}
+			});
+		});
 		$("#assign_user_to_website").click(function (e) { 
 			e.preventDefault();
 			let user = $("#assign-new-user").val()
