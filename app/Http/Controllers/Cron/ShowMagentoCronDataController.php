@@ -62,7 +62,7 @@ class ShowMagentoCronDataController extends Controller
             ->orWhere("cronstatus", "=", 'success');
         });
 
-        $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25');
+        $data =$data->skip($skip * Setting::get('pagination'))->limit('25');
 
         if (isset($request->sort_by)) {
             if ($request->sort_by === "created_at") {
@@ -77,6 +77,8 @@ class ShowMagentoCronDataController extends Controller
             if ($request->sort_by === "finished_at") {
                 $data = $data->orderBy('cron_finished_at', 'desc');
             }
+        } else {
+            $data = $data->orderBy('id', 'desc');
         }
         
         $data = $data->get();
