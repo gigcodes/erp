@@ -749,7 +749,7 @@
             </tbody>
           </table>
           <!-- Pagination links -->
-          <div class="pagination-container"></div>
+          <div class="pagination-container-for-user-access"></div>
         </div>
       </div>
     </div>
@@ -979,7 +979,7 @@
 			});
 			$(".user-access-list").html(html);
 			$("#list-user-access-modal").modal("show");
-			renderPagination(response.data);
+			renderPaginationForUserAccess(response.data);
 		}).fail(function (response, ajaxOptions, thrownError) {
 			toastr["error"](response.message);
 			$("#loading-image").hide();
@@ -987,8 +987,8 @@
 
 	}
 
-	function renderPagination(data) {
-		var paginationContainer = $(".pagination-container");
+	function renderPaginationForUserAccess(data) {
+		var paginationContainer = $(".pagination-container-for-user-access");
 		var currentPage = data.current_page;
 		var totalPages = data.last_page;
 
@@ -996,13 +996,13 @@
 		if (totalPages > 1) {
 		html += "<ul class='pagination'>";
 		if (currentPage > 1) {
-			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + (currentPage - 1) + ")'>Previous</a></li>";
 		}
 		for (var i = 1; i <= totalPages; i++) {
-			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + i + ")'>" + i + "</a></li>";
 		}
 		if (currentPage < totalPages) {
-			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + (currentPage + 1) + ")'>Next</a></li>";
 		}
 		html += "</ul>";
 		}
@@ -1010,7 +1010,7 @@
 		paginationContainer.html(html);
 	}
 
-	function changePage(pageNumber) {
+	function changePageForUserAccess(pageNumber) {
 		listUserAccess(pageNumber);
 	}
 
