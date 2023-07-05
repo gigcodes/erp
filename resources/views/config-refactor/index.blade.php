@@ -18,7 +18,7 @@
                 <div class="col-8">
                     <form action="{{ route('config-refactor.index') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-4 pd-sm">
+                            <div class="col-md-3 pd-sm">
                                 <?php 
                                     if(request('section')){   $section = request('section'); }
                                     else{ $section = ''; }
@@ -44,7 +44,20 @@
                                     @endforelse
                                 </select>
                             </div>
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('status')){   $status = request('status'); }
+                                    else{ $status = ''; }
+                                ?>
+                                <select name="status" id="status" class="form-control select2">
+                                    <option value="" @if($status=='') selected @endif>-- Select a status --</option>
+                                    @forelse($configRefactorStatuses as $id => $name)
+                                    <option value="{{ $id }}" @if($status==$id) selected @endif>{!! $name !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>

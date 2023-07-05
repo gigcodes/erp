@@ -32,6 +32,7 @@ class ConfigRefactorController extends Controller
     {
         $section = $request->get('section');
         $section_type = $request->get('section_type');
+        $status = $request->get('status');
 
         $configRefactors = ConfigRefactor::with('configRefactorSection')
             ->join('config_refactor_sections', 'config_refactor_sections.id', 'config_refactors.config_refactor_section_id');
@@ -42,6 +43,16 @@ class ConfigRefactorController extends Controller
 
         if ($section_type) {
             $configRefactors = $configRefactors->where('config_refactor_sections.type', $section_type);
+        }
+
+        if ($status) {
+            $configRefactors = $configRefactors->where(function ($q) use ($status) {
+                $q->orWhere('config_refactors.step_1_status', 'LIKE', '%' . $status . '%')
+                    ->orWhere('config_refactors.step_2_status', 'LIKE', '%' . $status . '%')
+                    ->orWhere('config_refactors.step_3_status', 'LIKE', '%' . $status . '%')
+                    ->orWhere('config_refactors.step_3_1_status', 'LIKE', '%' . $status . '%')
+                    ->orWhere('config_refactors.step_3_2_status', 'LIKE', '%' . $status . '%');
+            });
         }
 
         $configRefactors = $configRefactors->latest('config_refactors.created_at')->paginate(10);
