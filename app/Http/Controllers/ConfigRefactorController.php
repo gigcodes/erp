@@ -44,14 +44,46 @@ class ConfigRefactorController extends Controller
             $configRefactors = $configRefactors->where('config_refactor_sections.type', $section_type);
         }
 
-        $configRefactors = $configRefactors->paginate(10);
+        $configRefactors = $configRefactors->latest('config_refactors.created_at')->paginate(10);
 
         $configRefactorStatuses = ConfigRefactorStatus::pluck("name", "id")->toArray();
         $configRefactorSections = ConfigRefactorSection::pluck("name", "id")->toArray();
         $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
         $users = $users->pluck('name', 'id');
 
-        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users', 'configRefactorSections'));
+        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users', 'configRefactorSections'))->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    public function store(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'name' => 'required|unique:config_refactor_sections,name',
+                'type' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Save
+        $configRefactorSection = new ConfigRefactorSection();
+        $configRefactorSection->name = $data['name'];
+        $configRefactorSection->type = $data['type'];
+        $configRefactorSection->save();
+
+        // Save one entry in config refactor table
+        $configRefactor = new ConfigRefactor();
+        $configRefactor->config_refactor_section_id = $configRefactorSection->id;
+        $configRefactor->save();
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Config refactor has been created!',
+            ]
+        );
     }
 
     public function storeStatus(Request $request)

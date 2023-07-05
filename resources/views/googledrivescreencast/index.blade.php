@@ -76,19 +76,19 @@
                     </div>
                 </div>
             </div>
-        @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                @if(Auth::user()->isAdmin())
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateMulitipleGoogleFilePermissionModal">
                   Add Permission
                 </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#GoogleFileRemovePermissionModal">
                    Remove Permission
                 </button>
+                @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal" onclick="showCreateScreencastModal()">
                     + Upload Screencast/File
                 </button>
             </div>
-        @endif
         </div>
     </div>
 
