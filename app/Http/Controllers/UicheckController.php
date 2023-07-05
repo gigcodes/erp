@@ -1790,41 +1790,52 @@ class UicheckController extends Controller
                 return response()->json(['status' => false, 'message' => 'Category not found.']);
             }
 
-            $userId = $request->user;
-            $websiteId = $request->website;
-            $uicheckTypeId = $request->type;
+            $userIds = $request->user;
+            $websiteIds = $request->website;
+            $uicheckTypeIds = $request->type;
 
-            $all_site_development = $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryIds, $siteDevelopmentDesignMasterCategoryId);
+            $noDataFoundMessage = [];
 
-            if (isset($all_site_development) && ! empty($all_site_development)) {
-                foreach ($all_site_development as $site_development_id => $site_development_category_id) {
-                        $uicheck = Uicheck::where([
-                            'website_id' => $websiteId,
-                            'site_development_id' => $site_development_id,
-                            'site_development_category_id' => $site_development_category_id,
-                            'uicheck_type_id' => $uicheckTypeId,
-                        ])->get();
+            foreach($userIds as $userId) {
+                foreach($websiteIds as $websiteId) {
+                    $all_site_development = $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryIds, $siteDevelopmentDesignMasterCategoryId);
+                    if (isset($all_site_development) && ! empty($all_site_development)) {
+                        foreach ($all_site_development as $site_development_id => $site_development_category_id) {
+                            foreach ($uicheckTypeIds as $uicheckTypeId) {
+                                $uicheck = Uicheck::where([
+                                    'website_id' => $websiteId,
+                                    'site_development_id' => $site_development_id,
+                                    'site_development_category_id' => $site_development_category_id,
+                                    'uicheck_type_id' => $uicheckTypeId,
+                                ])->get();
 
-                        if ($uicheck->count() == 0) {
-                            $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $uicheckTypeId, $userId);
-                        } else {
-                            $uicheck = $uicheck->first();
-                            if ($uicheck->uiDeviceCount() == 0) {
-                                UiDevice::create([
-                                    'user_id' => $userId ?? 0,
-                                    'device_no' => '1',
-                                    'uicheck_id' => $uicheck->id,
-                                    'message' => '',
-                                ]);
+                                if ($uicheck->count() == 0) {
+                                    $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $uicheckTypeId, $userId);
+                                } else {
+                                    $uicheck = $uicheck->first();
+                                    if ($uicheck->uiDeviceCount() == 0) {
+                                        UiDevice::create([
+                                            'user_id' => $userId ?? 0,
+                                            'device_no' => '1',
+                                            'uicheck_id' => $uicheck->id,
+                                            'message' => '',
+                                        ]);
+                                    }
+
+                                    UicheckUserAccess::provideAccess($uicheck->id, $userId);
+                                }
                             }
-
-                            UicheckUserAccess::provideAccess($uicheck->id, $userId);
                         }
+                    } else {
+                        $noDataFoundMessage[] = "No data found for User {$userId} and Website {$websiteId}";
+                    }
                 }
+            }
 
-                return response()->json(['status' => true, 'message' => 'User has assigned successfully.']);
+            if ($noDataFoundMessage) {
+                return response()->json(['status' => false, 'message' => implode(", ", $noDataFoundMessage)]);
             } else {
-                return response()->json(['status' => false, 'message' => 'No data found.']);
+                return response()->json(['status' => true, 'message' => 'User has assigned successfully.']);
             }
         } catch (\Exception $e) {
             Log::info($e);
@@ -2098,6 +2109,8 @@ class UicheckController extends Controller
                 ->leftJoin('users', 'users.id', 'uicheck_user_accesses.user_id')
                 ->leftJoin('uichecks', 'uichecks.id', 'uicheck_user_accesses.uicheck_id')
                 ->whereNull('uichecks.deleted_at')
+                ->whereNotNull('uicheck_user_accesses.user_id')
+                ->whereNotNull('uicheck_user_accesses.uicheck_id')
                 ->paginate($perPage);
 
             return response()->json(['code' => 200, 'data' => $uicheckUserAccess, 'count'=> count($uicheckUserAccess), 'message' => 'Listed successfully!!!']);
