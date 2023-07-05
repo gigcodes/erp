@@ -48,7 +48,7 @@
         </div-->
 
         <!-- class="expand-row" -->
-        @if($issue->is_audio)
+        @if (isset($issue->is_audio) && $issue->is_audio)
             <audio controls="" src="{{\App\Helpers::getAudioUrl($issue->message)}}"></audio>
         @else
         <span class="{{ ($issue->message && $issue->message_status == 0) ||$issue->message_is_reminder == 1 ||($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0)? 'text-danger': '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
