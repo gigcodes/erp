@@ -7540,14 +7540,14 @@ if (!\Auth::guest()) {
           });
           $(".magneto-error-list").html(html);
           $("#magento-cron-error-status-modal").modal("show");
-          renderPagination(response.data);
+          renderMangetoErrorPagination(response.data);
         }).fail(function (response, ajaxOptions, thrownError) {
           toastr["error"](response.message);
           $("#loading-image").hide();
         });
       }
    
-      function renderPagination(data) {
+      function renderMangetoErrorPagination(data) {
         var paginationContainer = $(".pagination-container");
         var currentPage = data.current_page;
         var totalPages = data.last_page;
@@ -7557,7 +7557,7 @@ if (!\Auth::guest()) {
         if (totalPages > 1) {
             html += "<ul class='pagination'>";
             if (currentPage > 1) {
-            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoErrorPage(" + (currentPage - 1) + ")'>Previous</a></li>";
             }
 
             var startPage = 1;
@@ -7574,7 +7574,7 @@ if (!\Auth::guest()) {
             }
 
             if (startPage > 1) {
-                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(1)'>1</a></li>";
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoErrorPage(1)'>1</a></li>";
                 if (startPage > 2) {
                 html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
                 }
@@ -7582,7 +7582,7 @@ if (!\Auth::guest()) {
             }
 
             for (var i = startPage; i <= endPage; i++) {
-            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoErrorPage(" + i + ")'>" + i + "</a></li>";
             }
             html += "</ul>";
         }
@@ -7590,7 +7590,7 @@ if (!\Auth::guest()) {
     }
 
 
-    function changePage(pageNumber) {
+    function changeMagnetoErrorPage(pageNumber) {
         listmagnetoerros(pageNumber);
     }
 
