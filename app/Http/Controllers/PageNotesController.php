@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request; //Purpose : Add Setting - DEVTASK-4289
+use App\PageNotes;
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -171,5 +172,16 @@ class PageNotesController extends Controller
         ]);
 
         return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
+    }
+
+    public function stickyNotesCreate(Request $request)
+    {
+        $pageNotes = new PageNotes;
+        $pageNotes->url = $request->get('page');
+        $pageNotes->note = $request->get('value');
+        $pageNotes->user_id = \Auth::user()->id;
+        $pageNotes->save();
+
+        return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
     }
 }

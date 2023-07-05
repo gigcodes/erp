@@ -41,11 +41,18 @@ class MagentoModule extends Model
         'lead_last_remark',
         'dependency',
         'composer',
+        'module_review_standard',
+        'magneto_location_id'
     ];
 
     public function module_category()
     {
         return $this->belongsTo(MagentoModuleCategory::class, 'module_category_id');
+    }
+
+    public function module_location()
+    {
+        return $this->belongsTo(MagentoModulLocation::class, 'magneto_location_id');
     }
 
     public function store_website()

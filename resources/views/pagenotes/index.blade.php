@@ -43,7 +43,7 @@
         <table cellspacing="0" role="grid" class="page-notes table table-bordered datatable mdl-data-table dataTable page-notes" style="width:100%">
           <thead>
               <tr>
-                  <th width="5%">#</th>
+                  <th width="5%">S.No</th>
                   <th width="8%">Category</th>
                   <th width="60%">Note</th>
                   <th width="7%">User Name</th>
@@ -55,7 +55,7 @@
           <!-- START - Purpose : Get Data - DEVTASK-4289 -->
           @foreach($records as $key => $value)
               <tr>
-                  <td>{{$value->id}}</td>
+                  <td>{{$key+1}}</td>
                   <td>{{$value->category_name}}</td>
                   @if (strlen($value->note) > 200)
                       <td style="word-break: break-word;" data-log_message="{!!$value->note !!}" class="page-note-popup">{{ substr($value->note,0,200) }}...</td>
@@ -167,19 +167,19 @@
     $('#note').richText();
   });
 
-  $('.pagenote-scroll').jscroll({
+  // $('.pagenote-scroll').jscroll({
 
-    autoTrigger: true,
-    debug: true,
-    loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-    padding: 20,
-    nextSelector: '.pagination li.active + li a',
-    contentSelector: 'div.pagenote-scroll',
-    callback: function () {
-        $('ul.pagination').first().remove();
-        $('ul.pagination').hide();
-    }
-  });
+  //   autoTrigger: true,
+  //   debug: true,
+  //   loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+  //   padding: 20,
+  //   nextSelector: '.pagination li.active + li a',
+  //   contentSelector: 'div.pagenote-scroll',
+  //   callback: function () {
+  //       $('ul.pagination').first().remove();
+  //       $('ul.pagination').hide();
+  //   }
+  // });
   //END - DEVTASK-4289
 
   $(document).on('click', '.editor_edit', function () {

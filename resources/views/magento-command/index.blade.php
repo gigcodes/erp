@@ -32,7 +32,13 @@
         border-color: #343a40 !important;
         color: white !important
     }
+    .select2-search--inline {
+    display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
 
+.select2-search__field:placeholder-shown {
+    width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
 </style>
 
 @endsection
@@ -57,14 +63,14 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <select name="website" class="form-control" id="website">
-                        <option value="">--Select Website--</option>
-                        <option value="ERP" @if(request('website') == 'ERP' ) selected @endif>ERP</option>
+                    <select name="website[]" class="form-control select2" data-placeholder="Select Websites" id="website" multiple>
+                        <option></option>
+                        <option value="ERP" @if(!empty(request('website')) && in_array('ERP',request('website'))) selected @endif>ERP</option>
                         <?php
                       $ops = 'id';
                     ?>
                         @foreach($websites as $website)
-                            <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                            <option @if(!empty(request('website')) && in_array($website->id ,request('website'))) selected @endif value="{{$website->id}}">{{$website->title}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -73,10 +79,10 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <select name="command_name" class="form-control" id="command_name">
-                        <option value="">--Select Command Name--</option>
+                    <select name="command_name[]" class="form-control select2" id="command_name" multiple data-placeholder="Select Command Name">
+                        <option></option>
                         @foreach ($magentoCommandListArray as $comName => $comType)
-                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
+                        <option @if(!empty(request('command_name')) && in_array($comName ,request('command_name'))) selected @endif value="{{$comName}}">{{$comName}}</option>
                         @endforeach
                     </select>
                     {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
@@ -86,10 +92,10 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <select name="user_id" class="form-control select2" id="user_id">
-                        <option value="">--Select User Name--</option>
+                    <select name="user_id[]" class="form-control select2" id="user_id" multiple data-placeholder="Select User Name">
+                        <option></option>
                         @foreach ($users as $key => $user)
-                        <option @if($user->id == request('user_id')) selected @endif value="{{$user->id}}">{{$user->name}}</option>
+                        <option @if(!empty(request('user_id')) &&  in_array($user->id ,request('user_id'))) selected @endif value="{{$user->id}}">{{$user->name}}</option>
                         @endforeach
                     </select>
                     {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
@@ -974,7 +980,10 @@
         $(mini).toggleClass('hidden');
     });
     $(document).ready(function() {
-        $('.select2').select2();
+        $('.select2').select2({
+           // placeholder: "Select a state",
+
+        });
         $("#command_name_search").select2({
             tags: true
         });

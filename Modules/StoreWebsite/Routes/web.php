@@ -38,6 +38,7 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
+    Route::get('/{id}/download/{type}/', [StoreWebsiteController::class, 'downloadDbEnv'])->name('store-website.downloadDbEnv');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
@@ -64,6 +65,7 @@ Route::group([
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
+    
 
     // Create Tags for multiple website
     Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
@@ -75,13 +77,15 @@ Route::group([
     Route::group([
         'prefix' => '{id}',
     ], function () {
-        Route::post('magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
+        Route::post('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
+        Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
+        Route::post('/magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
 
-        Route::post('magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
+        Route::post('/magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
 
-        Route::post('select-folder', [StoreWebsiteController::class, 'getFolderName']);
+        Route::post('/select-folder', [StoreWebsiteController::class, 'getFolderName']);
 
-        Route::post('magento-dev-script-update/{folder_name?}', [StoreWebsiteController::class, 'magentoDevScriptUpdate']);
+        Route::post('/magento-dev-script-update/{folder_name?}', [StoreWebsiteController::class, 'magentoDevScriptUpdate']);
 
         Route::get('/sync-stage-to-master', [StoreWebsiteController::class, 'syncStageToMaster']);
 

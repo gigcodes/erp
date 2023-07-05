@@ -5,6 +5,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <style>.hidden {
     display:none;
 }
@@ -47,6 +48,22 @@
                         @endif
                     </select>
                 </div>
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Job Code" name="job_code" id="magentojobcode">
+                         <option value="">Select Job Code</option>
+                    @php
+                    $select_job_code ='';
+                    if(isset($_GET['job_code'])){
+                      $select_job_code =$_GET['job_code'];
+                    }
+                    @endphp
+                        @if ($magentoCronJobCodes)
+                            @foreach($magentoCronJobCodes as $id => $code)
+                                <option value="{{ $code }}" @if($select_job_code == $code) selected @endif  >{{ $code }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
 
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Status" name="status" id="magentowebsitestatus">
@@ -66,7 +83,7 @@
                 </div>
 
                 <div class="form-group mr-3">
-                    <input type="date" name="create_at" class="form-control" >
+                    <input name="create_at" type="text" class="form-control" value="" placeholder="Select Date Range" id="term">
                 </div>
                 <div class="form-group mr-3">
                     <input type="text" name="jobcode" class="form-control" placeholder="Search by jobcode">
@@ -82,6 +99,9 @@
 
                 <div class="form-group mr-3">
                     <button type="submit" class="btn btn-secondary">Search</button>
+                    <a href="/show-magento-cron-data" class="btn btn-secondary" id="">
+                        Reset
+                    </a>
                  </div>
             </form> 
             <div class="form-inline mr-3">
@@ -269,8 +289,21 @@
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
-
+    $(function() {
+        $('input[name="create_at"]').daterangepicker({
+            opens: 'left'
+        }, function(start, end, label) {
+            console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+        });
+        $('input[name="create_at"]').val("");
+        $('input[name="create_at"]').on('cancel.daterangepicker', function(ev, picker) {
+            picker.setStartDate({});
+            picker.setEndDate({});
+            $(this).val('');
+        });
+    });
     $(document).ready(function () {
         $(document).on('click', '.expand-row-msg', function() {
         var name = $(this).data('name');
@@ -376,22 +409,25 @@
         
 
       $(".filter_form").submit(function (event) {
-
+        page = 0; // Every time form submit, Reset page from 1.
         event.preventDefault();
         let data = $('.filter_form').serialize();
 
         page = page + 1;
+        $('#loading-image-preview').show();
         $.ajax({
         url: "{{url('/show-magento-cron-data')}}?page="+ page + '&count=' + {{$i}} + '&' + data,
         type: 'GET',
         data: $('.filter_form').serialize(),
         success: function (data) {
             console.log(data);
+            $('#loading-image-preview').hide();
             // $loader.hide();
              $('#product-price tbody').html($.trim(data['html']));
             // isLoading = false;
         },
         error: function () {
+            $('#loading-image-preview').hide();
             // $loader.hide();
             // isLoading = false;
         }

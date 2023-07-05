@@ -798,7 +798,7 @@ table{border-collapse: collapse;}
 		});
 
 		$( document ).ready(function() {
-			$(document).on('click', '.expand-row', function () {
+			$(document).on('click', '.expand-row,.expand-row-msg', function () {
 				var selection = window.getSelection();
 				if (selection.toString().length === 0) {
 					$(this).find('.td-mini-container').toggleClass('hidden');

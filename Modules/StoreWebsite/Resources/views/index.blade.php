@@ -68,10 +68,20 @@
 				</div>
 			</div>
 		</div>
+		@if ($errors->any())
+		<div class="alert alert-danger">
+			<ul>
+				@foreach ($errors->all() as $error)
+					<li>{{ $error }}</li>
+				@endforeach
+			</ul>
+		</div>
+		@endif
 		<div class="margin-tb" id="page-view-result">
 
 		</div>
 	</div>
+	
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
@@ -142,6 +152,37 @@
 		</div>
 	</div>
 </div>
+</div>
+
+<div id="download_db_env_logs" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header">
+				<h4 class="modal-title">Download Database/Env Logs</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>User</th>
+								<th>Type</th>
+								<th>Command</th>
+								<th>Output</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody id="download_db_env_logs_tbody">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div id="magentoSettingUpdateHistoryModal" class="modal fade" role="dialog">
@@ -705,7 +746,7 @@
 	});
 	$(document).on("click", ".open-build-process-history", function(href) {
 		$.ajax({
-			url: 'store-website/' + $(this).data('id') + '/build-process/history',
+			url: '/store-website/' + $(this).data('id') + '/build-process/history',
 			success: function(data) {
 				$('#buildHistory').html(data);
 				$('#buildHistoryModal').modal('show');
@@ -715,7 +756,7 @@
 
 	$(document).on("click", ".sync_stage_to_master", function(href) {
 		$.ajax({
-			url: 'store-website/' + $(this).data('id') + '/sync-stage-to-master',
+			url: '/store-website/' + $(this).data('id') + '/sync-stage-to-master',
 			success: function(data) {
 				if (data.code == 200) {
 					toastr["success"](data.message);
@@ -729,7 +770,7 @@
 	$(document).on("click", ".response_history", function(href) {
 		$.ajax({
 			type: 'POST',
-			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
+			url: '/store-website/'+ $(this).data('id') +'/magento-setting-update-history',
 			beforeSend: function () {
 				$("#loading-image").show();
 			},
@@ -756,7 +797,7 @@
 		
 			$.ajax({
 				type: 'POST',
-				url: 'store-website/'+ $(this).data('id') +'/magento-dev-update-script-history',
+				url: '/store-website/'+ $(this).data('id') +'/magento-dev-update-script-history',
 				beforeSend: function () {
 					$("#loading-image").show();
 				},
@@ -778,6 +819,34 @@
 			});
 		
 	});
+
+	$(document).on("click", ".run_file_permissions", function(href) {
+		
+		$.ajax({
+			type: 'POST',
+			url: '/store-website/'+ $(this).data('id') +'/run-file-permissions',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				toastr['success'](response.message, 'success');
+			}else{
+				toastr['error'](response.message, 'error');
+			}
+			
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			toastr['error']("Sorry, something went wrong", 'error');
+		});
+	
+});
 	
 	$(document).on("click", ".execute-bash-command-select-folder", function(href) {
 		var folder_name = $(this).data('folder_name');
@@ -803,7 +872,7 @@
 			
 			$.ajax({
 				type: 'POST',
-				url: 'store-website/'+ $(this).data('id') +'/magento-dev-script-update',
+				url: '/store-website/'+ $(this).data('id') +'/magento-dev-script-update',
 				beforeSend: function () {
 					$("#loading-image").show();
 				},
@@ -877,7 +946,7 @@
 	});
 
 	$(document).on('click','.btn-search-api-token',function(){
-		src = 'store-website/get-api-token'
+		src = '/store-website/get-api-token'
 		search = $('.api-token-search').val()
 		$.ajax({
 			url: src,
@@ -898,7 +967,7 @@
 	})
 
 	$(document).on('click','.btn-refresh-api-token',function(){
-		src = 'store-website/get-api-token'
+		src = '/store-website/get-api-token'
 		$.ajax({
 			url: src,
 			dataType: "json",
@@ -924,7 +993,7 @@
 	})
 
 	$(document).on('click','.btn-search-admin-password',function(){
-		src = 'store-website/get-admin-password'
+		src = '/store-website/get-admin-password'
 		search = $('.admin-password-search').val()
 		$.ajax({
 			url: src,
@@ -944,8 +1013,44 @@
 		});
 	})
 
+	$(document).on('click','.btn-download-db-env',function(){
+		var id=$(this).attr('data-id');
+		var type=$(this).attr('data-type');
+		if( id === undefined || id === '' || type === undefined || type === '' ){
+			toastr["error"]("Something Went Wrong, Please Try Again Later!");
+			return false;
+		}
+		window.location.href = "{{url('/')}}/store-website/"+id+"/download/"+type;
+	});
+
+	$(document).on("click", ".btn-download-db-env-logs", function(href) {
+		$.ajax({
+			type: 'POST',
+			url: '/store-website/'+ $(this).data('id') +'/download-db-env-logs',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				
+				$('#download_db_env_logs_tbody').html(response.data);
+			 	$('#download_db_env_logs').modal('show');
+				toastr['success'](response.message, 'success');
+			}
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			console.log("Sorry, something went wrong");
+		});
+	});
+
 	$(document).on('click','.btn-refresh-admin-password',function(){
-		src = 'store-website/get-admin-password'
+		src = '/store-website/get-admin-password'
 		$.ajax({
 			url: src,
 			dataType: "json",

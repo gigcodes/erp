@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
 use App\Supplier;
-
+use App\CodeShortCutPlatform;
 
 class CodeShortcut extends Model
 {
@@ -15,7 +15,10 @@ class CodeShortcut extends Model
         'user_id',
         'supplier_id',
         'code',
-        'description'
+        'description',
+        'code_shortcuts_platform_id',
+        'title',
+        'solution',
     ];
 
     public function user_detail()
@@ -27,4 +30,10 @@ class CodeShortcut extends Model
     {
         return $this->hasOne(Supplier::class, 'id', 'supplier_id');
     }
+
+    public function platform()
+    {
+        return $this->hasOne(CodeShortCutPlatform::class , 'id', 'code_shortcuts_platform_id');
+    }
+
 }

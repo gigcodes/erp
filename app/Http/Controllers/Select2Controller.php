@@ -11,6 +11,7 @@ use App\Customer;
 use App\Supplier;
 use App\DeveloperTask;
 use App\Models\ZabbixWebhookData;
+use App\SopCategory;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorMember;
@@ -499,6 +500,28 @@ class Select2Controller extends Controller
             $result['items'][] = [
                 'id' => $zabbixWebhookData->id,
                 'text' => $zabbixWebhookData->subject,
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+    public function sopCategories(Request $request)
+    {
+        $sopCategories = SopCategory::select('id', 'category_name');
+
+        if (!empty($request->q)) {
+            $sopCategories->where(function ($q) use ($request) {
+                $q->where('category_name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $sopCategories = $sopCategories->latest()->get();
+
+        foreach ($sopCategories as $sopCategory) {
+            $result['items'][] = [
+                'id' => $sopCategory->id,
+                'text' => $sopCategory->category_name,
             ];
         }
 

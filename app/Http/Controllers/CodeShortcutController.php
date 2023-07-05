@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Supplier;
 use App\User;
+use App\CodeShortCutPlatform;
 
 class CodeShortcutController extends Controller
 {
@@ -19,6 +20,8 @@ class CodeShortcutController extends Controller
         $data['codeshortcut'] = CodeShortcut::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $data['suppliers'] = Supplier::select('id', 'supplier')->get();
         $data['users'] = User::select('id', 'name')->get();
+        $data['platforms'] = CodeShortCutPlatform::select('id', 'name')->get();
+
         if ($request->ajax()) {
             $query = CodeShortcut::select('*');
             if($request->term){
@@ -27,6 +30,19 @@ class CodeShortcutController extends Controller
             if($request->id){
                 $query = $query->where('supplier_id', '=', $request->id);
             }
+            if($request->platformIds){
+                $query = $query->whereIn('code_shortcuts_platform_id', $request->platformIds);
+            }
+            if($request->codeTitle){
+                $query = $query->where('title', 'like', '%' . $request->codeTitle . '%');
+            }
+            if($request->createdAt === "asc"){
+                $query = $query->orderBy('created_at', 'asc');
+            }
+            if($request->createdAt === "desc"){
+                $query = $query->orderBy('created_at', 'desc');
+            }
+
             $data['codeshortcut'] = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
             return response()->json([
                 'tbody' => view('code-shortcut.partials.list-code', $data)->render(),
@@ -42,6 +58,10 @@ class CodeShortcutController extends Controller
         $validated->supplier_id = $request->supplier;
         $validated->code = $request->code;
         $validated->description = $request->description;
+        $validated->code = $request->code;
+        $validated->solution = $request->solution;
+        $validated->title = $request->title;
+        $validated->code_shortcuts_platform_id = $request->platform_id;
         $validated->save();
         return back()->with('success', 'Code Shortcuts successfully saved.');
     }
@@ -51,7 +71,10 @@ class CodeShortcutController extends Controller
         CodeShortcut::where('id', '=', $id)->update([
             'supplier_id' => $request->supplier,
             'code' => $request->code,
-            'description' => $request->description
+            'description' => $request->description,
+            'code_shortcuts_platform_id' => $request->platform_id,
+            'title' => $request->title,
+            'solution' => $request->solution,
         ]);
         return back()->with('success', 'Code Shortcuts successfully updated.');
     }
@@ -60,5 +83,14 @@ class CodeShortcutController extends Controller
     {
         CodeShortcut::where('id', $id)->delete();
         return back()->with('success', 'Code Shortcuts successfully removed.');
+    }
+
+    public function shortcutPlatformStore(Request $request)
+    {
+        $platform = new CodeShortCutPlatform();
+        $platform->name = $request->platform_name;
+        $platform->save();
+
+        return back()->with('success', 'Platform successfully created.');
     }
 }

@@ -1484,6 +1484,13 @@
     }
     
     //});
+    $( document ).ready(function() {
+        $(document).on('click', '.expand-row,.expand-row-msg', function () {
+		    $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+		});
+    });
+	
 </script>
 
 @endsection
