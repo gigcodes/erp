@@ -22,13 +22,15 @@
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
-        <h2 class="page-heading">Product pricing</h2>
+        @php
+        $magentoStatusCount = \App\MagentoCronData::count();
+        @endphp 
+        <h2 class="page-heading">Product pricing({{$magentoStatusCount}})</h2>
     </div>
 </div>
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
-
             <form class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Websites" name="website" id="magentowebsite">
@@ -83,13 +85,24 @@
                 <div class="form-group mr-3">
                     <input name="create_at" type="text" class="form-control" value="" placeholder="Select Date Range" id="term">
                 </div>
+                <div class="form-group mr-3">
+                    <input type="text" name="jobcode" class="form-control" placeholder="Search by jobcode">
+                </div>
+                <div class="form-group mr-3">
+                <select name="sort_by" id="sort_by" class="form-control globalSelect" data-placeholder="Sort By">
+                    <option  Value="created_at">Created At sort By</option>
+                    <option value="scheduled_at">Scheduled At sort By</option>
+                    <option value="executed_at">Executed At sort By</option>
+                    <option value="finished_at">Finished At sort By</option>
+                    </select>
+                </div>
 
                 <div class="form-group mr-3">
-                   <button type="submit" class="btn btn-secondary">Search</button>
-                   <a href="/show-magento-cron-data" class="btn btn-secondary" id="">
-                    Reset
-                   </a>
-                </div>
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <a href="/show-magento-cron-data" class="btn btn-secondary" id="">
+                        Reset
+                    </a>
+                 </div>
             </form> 
             <div class="form-inline mr-3">
                 <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#cronStatusColor"> Status Color</button>
@@ -516,6 +529,8 @@ $(document).on('click', '.expand-row', function () {
     $(this).find('.td-full-container').toggleClass('hidden');
   }
 });
+
+
 </script>
 
 @endsection
