@@ -574,6 +574,7 @@ Route::middleware('auth')->group(function () {
     Route::post('config-refactor/change-status', [ConfigRefactorController::class, 'updateStatus'])->name('config-refactor.change.status');
     Route::post('config-refactor/change-user', [ConfigRefactorController::class, 'updateUser'])->name('config-refactor.change.user');
     Route::post('config-refactor/store-status', [ConfigRefactorController::class, 'storeStatus'])->name('config-refactor.store-status');
+    Route::post('config-refactor/duplicate-create', [ConfigRefactorController::class, 'duplicateCreate'])->name('config-refactor.duplicate-create');
 
     Route::resource('config-refactor', ConfigRefactorController::class);
 });
