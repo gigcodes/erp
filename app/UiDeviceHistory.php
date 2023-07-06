@@ -8,7 +8,7 @@ class UiDeviceHistory extends Model
 {
     protected $table = 'ui_device_histories';
 
-    protected $fillable = ['id', 'user_id', 'ui_devices_id', 'uicheck_id',  'device_no', 'message', 'status', 'estimated_time', 'expected_completion_time', 'is_estimated_time_approved', 'created_at'];
+    protected $fillable = ['id', 'user_id', 'ui_devices_id', 'uicheck_id',  'device_no', 'message', 'status', 'estimated_time', 'expected_start_time', 'expected_completion_time', 'is_estimated_time_approved', 'created_at'];
 
     public function stausColor()
     {

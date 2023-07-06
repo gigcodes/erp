@@ -593,7 +593,8 @@
 								<th width="5%">ID</th>
 								<th width="8%">Update By</th>
 								<th width="25%" style="word-break: break-all;">Message</th>
-								<th width="20%" style="word-break: break-all;">Expected completion time</th>
+								<th width="10%" style="word-break: break-all;">Expected start time</th>
+								<th width="10%" style="word-break: break-all;">Expected completion time</th>
 								<th width="10%" style="word-break: break-all;">Estimated Time</th>
 								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
@@ -776,7 +777,7 @@
 							<tr>
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
-								<th width="35%" style="word-break: break-all;">Expected completion time, Message & Estimated Time[In Minutes]</th>
+								<th width="35%" style="word-break: break-all;">Expected start & completion time, Message & Estimated Time[In Minutes]</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -787,11 +788,19 @@
 									<div class="form-group flex gap-5">
 										<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
 										<div class='input-group date cls-start-due-date'>
+											<input placeholder="Expected start time" type="text" class="form-control" id="modal_expected_start_time" name="modal_expected_start_time" value="" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+										<div class='input-group date cls-start-due-date'>
 											<input placeholder="Expected completion time" type="text" class="form-control" id="modal_expected_completion_time" name="modal_expected_completion_time" value="" />
 											<span class="input-group-addon">
 												<span class="glyphicon glyphicon-calendar"></span>
 											</span>
 										</div>
+									</div>
+									<div class="form-group flex gap-5">
 										<input type="text" name="uidev_message" class="uidev_message" style="margin-top: 0px;width:40% !important;" id="uidev_message" placeholder="Message"/>
 										<input type="number" name="uidev_estimated_time" class="uidev_estimated_time" id="uidev_estimated_time" style="margin-top: 0px;width:40% !important;" placeholder="Estimated Time[In Minutes]"/>
 										
@@ -1052,6 +1061,7 @@
 		let uidevstatus = '';
 		var device_no = jQuery('#uidev_id').val();
 		let uidevdatetime = jQuery('#uidev_estimated_time').val();
+		let uidevExpectedStartTime = jQuery('#modal_expected_start_time').val();
 		let uidevExpectedCompletionTime = jQuery('#modal_expected_completion_time').val();
 		let mdl = jQuery('#modalCreateDevice');
 		if (uidevmessage == '' || uidevdatetime == '' || uidevExpectedCompletionTime == '') {
@@ -1072,6 +1082,7 @@
 				message : uidevmessage,
 				uidevdatetime : uidevdatetime,
 				uidevstatus : uidevstatus,
+				uidevExpectedStartTime: uidevExpectedStartTime,
 				uidevExpectedCompletionTime: uidevExpectedCompletionTime
 			},
 			beforeSend: function() {
@@ -1098,6 +1109,7 @@
 		$("#uidev_uicheck_id").val(uidev_uicheck_id);
 		$("#uidev_message").val('');
 		$("#uidev_estimated_time").val('');
+		$("#modal_expected_start_time").val('');
 		$("#modal_expected_completion_time").val('');
 		$("#uidev_num").html(uidev_id);
 		

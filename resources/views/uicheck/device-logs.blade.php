@@ -40,6 +40,32 @@
 									@endforelse
 								</select>
                             </div>
+                            <div class="form-group m-1">
+                                <?php 
+									if(request('uicheck_type')){   $uicheck_type = request('uicheck_type'); }
+									else{ $uicheck_type = ''; }
+								?>
+								<select name="uicheck_type" id="uicheck-type" class="form-control select2">
+									<option value="" @if($uicheck_type=='') selected @endif>-- Select a type --</option>
+									@forelse($allUicheckTypes as $typeId => $uicheckType)
+									<option value="{{ $typeId }}" @if($uicheck_type==$typeId) selected @endif>{!! $uicheckType !!}</option>
+									@empty
+									@endforelse
+								</select>
+                            </div>
+                            <div class="form-group m-1">
+                                <?php 
+									if(request('status')){   $status = request('status'); }
+									else{ $status = ''; }
+								?>
+								<select name="status" id="status" class="form-control select2">
+									<option value="" @if($status=='') selected @endif>-- Select a status --</option>
+									@forelse($allStatus as $sId => $sName)
+									<option value="{{ $sId }}" @if($status==$sId) selected @endif>{!! $sName !!}</option>
+									@empty
+									@endforelse
+								</select>
+                            </div>
 							<div class="form-group m-1">
                                 <?php 
 									if(request('user_name')){   $userNameArr = request('user_name'); }
@@ -109,40 +135,43 @@
                     <th>User Name</th>
 					@endif
                     <th>Type</th>
-                    <th>Estimated Time</th>
                     <th>Device No</th>
+                    <th>Estimated Time</th>
+                    <th>Expected Start Time</th>
+                    <th>Expected Completion Time</th>
                     <th>Status</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($uiDeviceLogs as $key => $uiDeviceLog)
-                    <tr>
+                @foreach ($uiDevices as $key => $uiDevice)
+                    <tr style="background-color: {{$uiDevice->color}}!important;" >
                         <td>{{ ++$i }}</td>
                         <td style="max-width: 150px">
-                            <div data-message="{{ $uiDeviceLog->title }}" data-title="Title" style="cursor: pointer"
+                            <div data-message="{{ $uiDevice->title }}" data-title="Title" style="cursor: pointer"
                                 class="showFullMessage">
-                                {{ show_short_message($uiDeviceLog->title, 25) }}
+                                {{ show_short_message($uiDevice->title, 25) }}
                             </div>
                         </td>
                         <td>
-                            {{ $uiDeviceLog->website }}
+                            {{ $uiDevice->website }}
                         </td>
 						@if (Auth::user()->isAdmin())
-                        <td>{{ $uiDeviceLog->name }}</td>
-                        <td>{{$uiDeviceLog->uicheck_type_id ? $allUicheckTypes[$uiDeviceLog->uicheck_type_id] : ''}}</td>
+                        <td>{{ $uiDevice->name }}</td>
 						@endif
-                        <td>{{ $uiDeviceLog->uiDevice->estimated_time }} Mins</td>
-                        <td>{{ $uiDeviceLog->uiDevice->device_no }}</td>
-                        <td>{{$uiDeviceLog->uiDevice->status ? $allStatus[$uiDeviceLog->uiDevice->status] : ''}}</td>
-                        <td>{{ $uiDeviceLog->start_time }}</td>
-                        <td>{{ $uiDeviceLog->end_time }}</td>
+                        <td>{{ $uiDevice->uicheck_type_id ? $allUicheckTypes[$uiDevice->uicheck_type_id] : ''}}</td>
+                        <td>{{ $uiDevice->device_no }}</td>
+                        <td>{{ $uiDevice->estimated_time }} Mins</td>
+                        <td>{{ $uiDevice->expected_start_time }}</td>
+                        <td>{{ $uiDevice->expected_completion_time }}</td>
+                        <td>{{ $uiDevice->status ? $allStatus[$uiDevice->status] : ''}}</td>
+                        <td><i class="btn btn-xs fa fa-info-circle devHistorty" title="Estimate time history" onclick="funGetDevHistory({{$uiDevice->device_no}}, {{$uiDevice->uicheck_id}});"></i></td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+    {!! $uiDevices->appends(request()->except('page'))->links() !!}
 
     <div id="showFullMessageModel" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -154,6 +183,40 @@
                 </div>
                 <div class="modal-body">
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalGetDevMessageHistory" class="modal fade" role="dialog" >
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Ui Device Message History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="5%">ID</th>
+                                    <th width="8%">Update By</th>
+                                    <th width="25%" style="word-break: break-all;">Message</th>
+                                    <th width="10%" style="word-break: break-all;">Expected start time</th>
+                                    <th width="10%" style="word-break: break-all;">Expected completion time</th>
+                                    <th width="10%" style="word-break: break-all;">Estimated Time</th>
+                                    <th width="15%" style="word-break: break-all;">Status</th>
+                                    <th width="15%">Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -188,5 +251,33 @@
 				console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
 			});
 		});
+
+        function funGetDevHistory(id, uicheckId) {
+            //siteLoader(true);
+            let mdl = jQuery('#modalGetDevMessageHistory');
+            var uicheckId = uicheckId;
+            
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/uicheck/get/message/history/dev",
+                type: 'POST',
+                data: {
+                    device_no: id,
+                    uicheck_id : uicheckId,
+                },
+                beforeSend: function() {
+                    //jQuery("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#modalCreateLanguage").modal("hide");
+                mdl.find('tbody').html(response.html);
+                mdl.modal("show");
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {      
+                toastr["error"](jqXHR.responseJSON.message);
+                $("#loading-image").hide();
+            });
+        }
     </script>
 @endsection
