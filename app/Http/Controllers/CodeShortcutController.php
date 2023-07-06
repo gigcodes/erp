@@ -53,44 +53,55 @@ class CodeShortcutController extends Controller
 
     public function store(Request $request)
     {
-
-        $file = $request->file('notesfile');
-        $originalName = $file->getClientOriginalName();
-      
         $validated = new CodeShortcut();
+        if($request->supplier) {
+            $validated->supplier_id = $request->supplier;  
+        }
+        if ($request->hasFile('notesfile')) {
+            $file = $request->file('notesfile');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/codeshortcut-image');
+            $file->move($destinationPath, $name); 
+            $validated->filename  = $name;   
+        }
         $validated->user_id = auth()->user()->id;
-        $validated->supplier_id = $request->supplier;
         $validated->code = $request->code;
         $validated->description = $request->description;
         $validated->code = $request->code;
         $validated->solution = $request->solution;
         $validated->title = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
-        $validated->filename  = $originalName;
-        $destinationPath = public_path('/codeshortcut-image');
-        $file->move($destinationPath, $originalName);
-
-        $validated->save();
+        $validated->save();     
+         
         return back()->with('success', 'Code Shortcuts successfully saved.');
     }
 
     public function update(Request $request, $id)
     {
-
-        $file = $request->file('notesfile');
-        $originalName = $file->getClientOriginalName();
-        $destinationPath = public_path('/codeshortcut-image');
-        $file->move($destinationPath, $originalName); 
-
-        CodeShortcut::where('id', '=', $id)->update([
+        if ($request->hasFile('notesfile')) {
+            $file = $request->file('notesfile');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/codeshortcut-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+        
+        $updateData = [
             'supplier_id' => $request->supplier,
             'code' => $request->code,
             'description' => $request->description,
             'code_shortcuts_platform_id' => $request->platform_id,
             'title' => $request->title,
-            'solution' => $request->solution,
-            'filename' => $originalName
-        ]);
+            'solution' => $request->solution
+        ];
+        
+        if (!is_null($name)) {
+            $updateData['filename'] = $name;
+        }
+        
+        CodeShortcut::where('id', $id)->update($updateData);
+        
         return back()->with('success', 'Code Shortcuts successfully updated.');
     }
 

@@ -574,11 +574,20 @@ class Select2Controller extends Controller
         }
 
 
-        foreach ($dataPlatforms as $dataPlatform) {
+        $result = [];
+
+        if (empty($dataPlatforms)) {
             $result['items'][] = [
-                'id' => $dataPlatform->id,
-                'text' => $dataPlatform->name,
+                'id' => '',
+                'text' => 'Supplier not available',
             ];
+        } else {
+            foreach ($dataPlatforms as $dataPlatform) {
+                $result['items'][] = [
+                    'id' => $dataPlatform->id,
+                    'text' => $dataPlatform->name,
+                ];
+            }
         }
 
         return response()->json($result);
@@ -586,7 +595,6 @@ class Select2Controller extends Controller
 
     public function shortcutSuppliers(Request $request)
     {
-
         $dataSuppliers = Supplier::select('id', 'supplier')->get();
 
         if (!empty($request->q)) {
@@ -595,12 +603,20 @@ class Select2Controller extends Controller
             });
         }
 
-
-        foreach ($dataSuppliers as $dataSupplier) {
+        $result = [];
+  
+        if (empty($dataSuppliers)) {
             $result['items'][] = [
-                'id' => $dataSupplier->id,
-                'text' => $dataSupplier->supplier,
+                'id' => '',
+                'text' => 'Supplier not available',
             ];
+        } else {
+            foreach ($dataSuppliers as $dataSupplier) {
+                $result['items'][] = [
+                    'id' => $dataSupplier->id,
+                    'text' => $dataSupplier->supplier,
+                ];
+            }
         }
 
         return response()->json($result);
