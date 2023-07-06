@@ -16,6 +16,7 @@ class ConfigRefactor extends Model
      * @SWG\Property(property="name",type="string")
      */
     protected $fillable = [
+        'store_website_id',
         'config_refactor_section_id', 
         'user_id',
         'step_1_status',
@@ -29,6 +30,11 @@ class ConfigRefactor extends Model
         'step_3_2_status',
         'step_3_2_remark'
     ];
+
+    public function storeWebsite()
+    {
+        return $this->belongsTo(\App\StoreWebsite::class);
+    }
 
     public function configRefactorSection()
     {

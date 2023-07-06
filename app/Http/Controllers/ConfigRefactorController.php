@@ -9,6 +9,7 @@ use App\ConfigRefactorStatus;
 use App\ConfigRefactorStatusHistory;
 use App\ConfigRefactorUserHistory;
 use App\Models\ZabbixWebhookData;
+use App\StoreWebsite;
 use App\User;
 use App\ZabbixStatus;
 use App\ZabbixWebhookDataRemarkHistory;
@@ -33,7 +34,7 @@ class ConfigRefactorController extends Controller
         $section = $request->get('section');
         $section_type = $request->get('section_type');
 
-        $configRefactors = ConfigRefactor::with('configRefactorSection')
+        $configRefactors = ConfigRefactor::with(['storeWebsite', 'configRefactorSection'])
             ->join('config_refactor_sections', 'config_refactor_sections.id', 'config_refactors.config_refactor_section_id');
 
         if ($section) {
@@ -50,8 +51,9 @@ class ConfigRefactorController extends Controller
         $configRefactorSections = ConfigRefactorSection::pluck("name", "id")->toArray();
         $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
         $users = $users->pluck('name', 'id');
+        $store_websites = StoreWebsite::get()->pluck('website', 'id');
 
-        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users', 'configRefactorSections'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('config-refactor.index', compact('configRefactors', 'configRefactorStatuses', 'users', 'configRefactorSections', 'store_websites'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function store(Request $request)
@@ -84,6 +86,28 @@ class ConfigRefactorController extends Controller
                 'message' => 'Config refactor has been created!',
             ]
         );
+    }
+
+    public function duplicateCreate(Request $request)
+    {
+        $configRefactors = ConfigRefactor::find(explode("," , $request->config_refactors));
+
+        if (!$request->store_website_id) {
+            return response()->json(['status' => false, 'message' => 'No website selected']);
+        }
+
+        if($configRefactors) {
+            foreach($configRefactors as $configRefactor) {
+                foreach($request->store_website_id as $store_website_id) {
+                    ConfigRefactor::firstOrCreate([
+                        'store_website_id' => $store_website_id, 
+                        'config_refactor_section_id' => $configRefactor->config_refactor_section_id
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['status' => true, 'message' => 'Duplicate entries created successfully']);
     }
 
     public function storeStatus(Request $request)

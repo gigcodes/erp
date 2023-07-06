@@ -55,6 +55,7 @@
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" id="duplicate-config-refactor-button"> Duplicate Config Refactor </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#config-refactor-create"> Create Config Refactor </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#configRefactorStatusCreate"> Create Status </button>
                     </div>
@@ -77,7 +78,9 @@
                 <div class="table-responsive" style="overflow-x: auto!important">
                     <table class="table table-bordered" style="width: 135%;max-width:unset" id="config-refactor-data-list">
                         <tr>
+                            <th style="width: auto"></th>
                             <th style="width: auto">ID</th>
+                            <th style="width: 6%">Store Website</th>
                             <th style="width: 7%">Section Name</th>
                             <th style="width: 5%">Section Type</th>
                             <th style="width: auto">User</th>
@@ -94,7 +97,16 @@
                         </tr>
                         @foreach ($configRefactors as $key => $configRefactor)
                             <tr data-id="{{ $configRefactor->id }}">
+                                <td><input type="checkbox" name="bulk_duplicate[]" class="d-inline bulk_duplicate" value="{{$configRefactor->id}}"></td>
                                 <td>{{ ++$i }}</td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                       {{ strlen($configRefactor->storeWebsite->title) > 12 ? substr($configRefactor->storeWebsite->title, 0, 12).'...' :  $configRefactor->storeWebsite->title }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ $configRefactor->storeWebsite->title }}
+                                    </span>
+                                </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
                                        {{ strlen($configRefactor->configRefactorSection->name) > 12 ? substr($configRefactor->configRefactorSection->name, 0, 12).'...' :  $configRefactor->configRefactorSection->name }}
@@ -245,6 +257,8 @@
         </div>
     </div>
 </div>
+{{-- config-refactor-duplicate --}}
+@include('config-refactor.partials.config-refactor-duplicate-modal')
 {{-- config-refactor-create --}}
 @include('config-refactor.partials.config-refactor-create-modal')
 {{-- configRefactorStatusCreate --}}
@@ -258,7 +272,52 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
     $('.select2').select2();
+
     $(document).ready(function(){
+        var selected_config_refactors = [];
+
+        $(document).on('click', '.bulk_duplicate', function () {
+            var checked = $(this).prop('checked');
+            var id = $(this).val();
+             if (checked) {
+                selected_config_refactors.push(id);
+            } else {
+                var index = selected_config_refactors.indexOf(id);
+                selected_config_refactors.splice(index, 1);
+            }
+        });
+
+        $(document).on("click","#duplicate-config-refactor-button",function(e){
+            e.preventDefault();
+            if(selected_config_refactors.length < 1) {
+                toastr['error']("Select some rows first");
+                return;
+            }
+
+            $('#config-refactor-duplicate').modal('show');
+        });
+
+        $(document).on('submit', '#config-refactor-duplicate-form', function (e) {
+            e.preventDefault();
+            var data = $(this).serializeArray();
+            data.push({name: 'config_refactors', value: selected_config_refactors});
+            $.ajax({
+                url: "{{route('config-refactor.duplicate-create')}}",
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    if(!response.status) {
+                        toastr['error'](response.message, 'error');    
+                    } else {
+                        toastr['success']('Successful', 'success');
+                        location.reload();
+                    }
+                },
+                error: function () {
+                    alert('There was error loading priority task list data');
+                }
+            });
+        });
     });
 
     $(document).on("click", ".save-config-refactor-window", function(e) {
