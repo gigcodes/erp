@@ -17,6 +17,7 @@ use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
+use App\CodeShortCutPlatform;
 
 class Select2Controller extends Controller
 {
@@ -522,6 +523,50 @@ class Select2Controller extends Controller
             $result['items'][] = [
                 'id' => $sopCategory->id,
                 'text' => $sopCategory->category_name,
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+
+    public function shortcutplatform(Request $request)
+    {
+        $dataPlatforms = CodeShortCutPlatform::select('id', 'name')->get();
+
+        if (!empty($request->q)) {
+            $dataPlatforms->where(function ($q) use ($request) {
+                $q->where('subject', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+
+        foreach ($dataPlatforms as $dataPlatform) {
+            $result['items'][] = [
+                'id' => $dataPlatform->id,
+                'text' => $dataPlatform->name,
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+    public function shortcutSuppliers(Request $request)
+    {
+
+        $dataSuppliers = Supplier::select('id', 'supplier')->get();
+
+        if (!empty($request->q)) {
+            $dataSuppliers->where(function ($q) use ($request) {
+                $q->where('subject', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+
+        foreach ($dataSuppliers as $dataSupplier) {
+            $result['items'][] = [
+                'id' => $dataSupplier->id,
+                'text' => $dataSupplier->supplier,
             ];
         }
 

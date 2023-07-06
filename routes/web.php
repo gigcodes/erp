@@ -2718,6 +2718,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
         Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
+        Route::get('/shortcut/notes', [CodeShortcutController::class, 'getShortcutnotes'])->name('code.get.Shortcut.notes');
+
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -4945,6 +4947,10 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
     Route::get('time-doctor-projects-ajax', [Select2Controller::class, 'timeDoctorProjectsAjax'])->name('select2.time_doctor_projects_ajax');
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
+    Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
+    Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
+
+
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');

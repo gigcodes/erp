@@ -101,6 +101,7 @@
 					<th>User Name</th>
 					<th>Supplier Name</th>
 					<th>Created At</th>
+					<th>Image</th>
 					<th>Action</th>
 				</tr>
 			</thead>
@@ -115,107 +116,9 @@
 
 <!-- Modal -->
      <!-- Platform Modal content-->
-	 <div id="code-shortcut-platform" class="modal fade in" role="dialog">
-		<div class="modal-dialog">
-  
-			<!-- Modal content-->
-			<div class="modal-content">
-			  <div class="modal-header">
-				<h4 class="modal-title">Add Platform</h4>
-				<button type="button" class="close" data-dismiss="modal">×</button>
-			  </div>
-				<form action="{{route('code-shortcuts.platform.store')}}" method="POST" id="code-shortcut-platform-form">
-					@csrf
-					@method('POST')
-					  <div class="modal-body">
-						  <div class="form-group">
-							  {!! Form::label('platform_name', 'Name', ['class' => 'form-control-label']) !!}
-							  {!! Form::text('platform_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
-						</div>
-						<div class="modal-footer">
-						  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						  <button type="submit" class="btn btn-primary">Save</button>
-					  </div>
-					</div>
-				</form>
-			</div>
-  
-		</div>
-	</div>
+	
 
 
-<div class="modal fade" id="create_code_shortcut" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLongTitle">Create Code Shortcut</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<form method="post" enctype="multipart/form-data" id="code-shortcut-from" action="{{route('code-shortcuts.store')}}">
-				@csrf
-				@method('POST')
-
-				<div class="modal-body">
-
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Supplier</label>
-							<select name="supplier" class="form-control code">
-								<option value="0">Selet Supplier</option>
-								@foreach($suppliers as $supplier)
-								<option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
-								@endforeach
-							</select>
-
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Platform</label>
-							<select name="platform_id" class="form-control code">
-								<option value="0">Selet Platform</option>
-								@foreach($platforms as $platform)
-								<option value="{{$platform->id}}">{{$platform->name}}</option>
-								@endforeach
-							</select>
-
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Code</label>
-							<?php echo Form::text('code', null, ['class' => 'form-control code', 'required' => 'true', 'value' => "{{old('code')}}"]); ?>
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Title</label>
-							<?php echo Form::text('title', null, ['class' => 'form-control title', 'required' => 'true', 'value' => "{{old('title')}}"]); ?>
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Solution</label>
-							<?php echo Form::text('solution', null, ['class' => 'form-control solution', 'required' => 'true', 'value' => "{{old('solution')}}"]); ?>
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="form-group">
-							<label>Description</label>
-							<?php echo Form::text('description', null, ['class' => 'form-control description', 'required' => 'true', 'value' => "{{old('description')}}"]); ?>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Save changes</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
 <div class="modal fade" id="edit_code_shortcut" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -254,6 +157,13 @@
 							</select>
 						</div>
 					</div>
+					<div class="col-sm-12">
+						<div class="form-group">
+						<label>filename</label>
+						<input type="file" name="notesfile" id="shortnotefileInput">
+						<img src="" alt="Existing Image" height='50' width="50" id="filename">	
+					</div>		
+				</div>			
 					<div class="col-sm-12">
 						<div class="form-group">
 							<label>Code</label>
@@ -370,6 +280,9 @@
 			$('#codetitle').val($(this).attr("data-title"));
 			$('#solution').val($(this).attr("data-solution"));
 			$('#platform_id').val($(this).attr("data-platformId"));
+			var imageUrl = $(this).attr("data-shortcutfilename"); 
+			var image = "./codeshortcut-image/" + imageUrl; 
+			$('#filename').attr('src', image);
 			$('#edit_code_shortcut').modal('show');
 		})
 	});

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddNewcolumnReviewToMagentoModulesTable extends Migration
+class AddFileToCodeShortcutsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddNewcolumnReviewToMagentoModulesTable extends Migration
      */
     public function up()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            $table->integer('module_review_standard')->nullable();
+        Schema::table('code_shortcuts', function (Blueprint $table) {
+            $table->text('filename')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AddNewcolumnReviewToMagentoModulesTable extends Migration
      */
     public function down()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            $table->dropColumn("module_review_standard");
+        Schema::table('code_shortcuts', function (Blueprint $table) {
+            //
         });
     }
 }

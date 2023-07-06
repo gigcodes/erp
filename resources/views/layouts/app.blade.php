@@ -857,6 +857,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
+                                    <a title="Code-Shortcuts" id="code-shortcuts" type="button"  class="quick-icon" style="padding: 0px 1px;"><span><i
+                                    class="fa fa-cog fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="Google-Drive-ScreenCast" type="button" class="quick-icon" id="google-drive-screen-cast" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -4685,6 +4689,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.password-create-modal')
         @include('partials.modals.timer-alerts-modal')
         @include('databse-Backup.db-errors-list')
+        @include('partials.modals.short-cut-notes-alerts-modal')
+        @include('code-shortcut.partials.short-cut-notes-create');
+
+
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -7865,6 +7873,90 @@ if (!\Auth::guest()) {
     function changeMagnetoErrorPage(pageNumber) {
         listmagnetoerros(pageNumber);
     }
+
+
+    $(document).on('click','#code-shortcuts',function(e){
+        e.preventDefault();
+        getShortcutNotes(true)
+    });
+
+    function getShortcutNotes(pageNumber = 1) {
+        $.ajax({
+          url: '{{route("code.get.Shortcut.notes")}}',
+          type: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          },
+          data: {
+            page: pageNumber
+          },
+          dataType: "json",
+          beforeSend: function () {
+            $("#loading-image").show();
+          }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          var startIndex = (response.data.current_page - 1) * response.data.per_page;
+          $.each(response.data, function (index, shortnote) {
+            html += "<tr>";
+            html += "<td>" + shortnote.id + "</td>";
+            if (shortnote.platform !== null) {
+            html += "<td>" + shortnote.platform.name + "</td>"; 
+            } else {
+            html += "<td>-</td>"; 
+            }
+            html += "<td>" + shortnote.title + "</td>";
+            html += "<td>" + shortnote.code + "</td>";
+            html += "<td>" + shortnote.description + "</td>"; 
+            html += "<td>" + shortnote.solution + "</td>"; 
+            html += "<td>" + shortnote.user_detail.name + "</td>";
+            if (shortnote.supplier_detail !== null) {
+            html += "<td>" + shortnote.supplier_detail.supplier + "</td>"; 
+            } else {
+            html += "<td>-</td>";
+            }
+            if (shortnote.filename !== null) {
+            html += "<td><img src='./codeshortcut-image/" + shortnote.filename + " 'height='50' width='50' ></td>"; 
+            } else {
+            html += "<td>-</td>";
+            }
+            html += "<td>" + shortnote.created_at + "</td>";
+            html += "</tr>";
+            });
+
+        $(".short-cut-notes-alerts-list").html(html);
+        $("#short-cut-notes-alerts-modal").modal("show");
+          renderShortcutNotesPagination(response.data);
+        }).fail(function (data, ajaxOptions, thrownError) {
+          toastr["error"](data.message);
+          $("#loading-image").hide();
+        });
+      }
+
+      function renderShortcutNotesPagination(data) {
+          var codePagination = $(".pagination-container-short-cut-notes-alerts");
+          var currentPage = data.current_page;
+          var totalPages = data.last_page;
+          var html = "";
+          if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForShortCut(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            for (var i = 1; i <= totalPages; i++) {
+              html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePageForShortCut(" + i + ")'>" + i + "</a></li>";
+            }
+            if (currentPage < totalPages) {
+              html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForShortCut(" + (currentPage + 1) + ")'>Next</a></li>";
+            }
+            html += "</ul>";
+          }
+          codePagination.html(html);
+      }
+      function changePageForShortCut(pageNumber) {
+        getShortcutNotes(pageNumber);
+      }
 
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();

@@ -53,6 +53,10 @@ class CodeShortcutController extends Controller
 
     public function store(Request $request)
     {
+
+        $file = $request->file('notesfile');
+        $originalName = $file->getClientOriginalName();
+      
         $validated = new CodeShortcut();
         $validated->user_id = auth()->user()->id;
         $validated->supplier_id = $request->supplier;
@@ -62,12 +66,22 @@ class CodeShortcutController extends Controller
         $validated->solution = $request->solution;
         $validated->title = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
+        $validated->filename  = $originalName;
+        $destinationPath = public_path('/codeshortcut-image');
+        $file->move($destinationPath, $originalName);
+
         $validated->save();
         return back()->with('success', 'Code Shortcuts successfully saved.');
     }
 
     public function update(Request $request, $id)
     {
+
+        $file = $request->file('notesfile');
+        $originalName = $file->getClientOriginalName();
+        $destinationPath = public_path('/codeshortcut-image');
+        $file->move($destinationPath, $originalName); 
+
         CodeShortcut::where('id', '=', $id)->update([
             'supplier_id' => $request->supplier,
             'code' => $request->code,
@@ -75,6 +89,7 @@ class CodeShortcutController extends Controller
             'code_shortcuts_platform_id' => $request->platform_id,
             'title' => $request->title,
             'solution' => $request->solution,
+            'filename' => $originalName
         ]);
         return back()->with('success', 'Code Shortcuts successfully updated.');
     }
@@ -92,5 +107,12 @@ class CodeShortcutController extends Controller
         $platform->save();
 
         return back()->with('success', 'Platform successfully created.');
+    }
+
+    public function getShortcutnotes(Request $request)
+    {
+        $data = CodeShortcut::with('platform','user_detail','supplier_detail')->orderBy('id', 'desc')->get();
+
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Listed successfully!!!']);
     }
 }
