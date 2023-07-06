@@ -26,6 +26,7 @@ class ShowMagentoCronDataController extends Controller
 
         $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
         $magentoCronWebsites = MagentoCronData::whereNotNull('website')->where("website", "!=", "NULL")->groupby('website')->pluck("website");
+        $magentoCronJobCodes = MagentoCronData::whereNotNull('job_code')->where("job_code", "!=", "NULL")->groupby('job_code')->pluck("job_code");
 
         $data = new MagentoCronData();
         $skip = empty($request->page) ? 0 : $request->page;
@@ -34,14 +35,23 @@ class ShowMagentoCronDataController extends Controller
             $data = $data->where('website', $request->website);
         }
 
+        if (isset($request->job_code)) {
+            $data = $data->where('job_code', $request->job_code);
+        }
+
         if (isset($request->status)) {
             $data = $data->where('cronstatus', $request->status);
         }
 
         if (isset($request->create_at)) {
-            $date = \Carbon\Carbon::parse($request->create_at)->format('Y-m-d');
-            // $date = date('Y-m-d', strtotime($request->create_at));
-            $data = $data->where('cron_created_at', 'like', $date . '%');
+            $date = explode('-', $request->create_at);
+            $datefrom = date('Y-m-d', strtotime($date[0]));
+            $dateto = date('Y-m-d', strtotime($date[1]));
+            $data = $data->whereRaw("date(cron_created_at) between date('$datefrom') and date('$dateto')");
+        }
+
+        if (isset($request->jobcode)) {
+            $data = $data->where('job_code', 'like', $request->jobcode . '%');
         }
 
         $data = $data->where(function ($query) {
@@ -58,7 +68,26 @@ class ShowMagentoCronDataController extends Controller
             ->orWhere("cronstatus", "=", 'success');
         });
 
-        $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25')->get();
+        $data =$data->skip($skip * Setting::get('pagination'))->limit('25');
+
+        if (isset($request->sort_by)) {
+            if ($request->sort_by === "created_at") {
+                $data = $data->orderBy('cron_created_at', 'desc');
+            }
+            if ($request->sort_by === "scheduled_at") {
+                $data = $data->orderBy('cron_scheduled_at', 'desc');
+            }
+            if ($request->sort_by === "executed_at") {
+                $data = $data->orderBy('cron_executed_at', 'desc');
+            }
+            if ($request->sort_by === "finished_at") {
+                $data = $data->orderBy('cron_finished_at', 'desc');
+            }
+        } else {
+            $data = $data->orderBy('id', 'desc');
+        }
+        
+        $data = $data->get();
 
         if ($request->ajax()) {
             $count = $request->count;
@@ -67,7 +96,7 @@ class ShowMagentoCronDataController extends Controller
             return response()->json(['html' => $view, 'page' => $request->page, 'count' => $count]);
         }
 
-        return view('magento_cron_data.index', compact('data', 'status', 'website', 'magentoCronWebsites'));
+        return view('magento_cron_data.index', compact('data', 'status', 'website', 'magentoCronWebsites', 'magentoCronJobCodes'));
     }
     public function runMagentoCron(Request $request)
     {
@@ -132,6 +161,9 @@ class ShowMagentoCronDataController extends Controller
             if(!$commands){
                 return response()->json(['code' => 500, 'message' => 'Magento Cron Command is not found!']);
             }
+
+            $commands_id = []; // Initialize the $commands_id array
+        
             foreach($commands as $command){
                 $commands_id[]=$command->id;
             }
@@ -213,5 +245,15 @@ class ShowMagentoCronDataController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function showMagentoCronErrorList()
+    {
+        $magentoCronErrorLists = new MagentoCronData();
+        $perPage = 25;
+        $magentoCronErrorLists = $magentoCronErrorLists->where('cronstatus' ,'=' , "error")->latest()
+        ->paginate($perPage);
+  
+        return response()->json(['code' => 200, 'data' => $magentoCronErrorLists, 'message' => 'Listed successfully!!!']);
     }
 }

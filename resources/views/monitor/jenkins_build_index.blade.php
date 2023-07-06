@@ -14,19 +14,32 @@
                             </div>
                             <div class="col-md-2 pd-sm">
                                 <label> Search Projects </label>
-                                {{ Form::select("project_id[]", \app\Models\MonitorJenkinsBuild::pluck('project','id')->toArray(),request('project_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website",]) }}
+                                {{ Form::select("project_id[]", \app\Models\MonitorJenkinsBuild::pluck('project','id')->toArray(),request('project_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
                             </div>
                             <div class="col-md-2 pd-sm">
                                 <label>Search worker </label>
                                 {{ Form::select("worker_id[]", \app\Models\MonitorJenkinsBuild::pluck('worker','id')->toArray(),request('worker_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
                             </div>
+                            <div class="col-md-2 pd-sm">
+                                <label> Sort By </label>
+                                <select name="id_sort_by" id="id_sort_by" class="form-control globalSelect" data-placeholder="Sort By">
+                                    <option  Value="asc">ASC</option>
+                                    <option value="desc">DSEC</option>
+                                    </select>
+                                </div>       
                             <div class="col-md-2 pd-sm pl-0 mt-2">
+                                <label> </label>
                                  <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
+                               </button>
+                               <a href="{{route('monitor-jenkins-build.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
                     </form>
+                    <br>
+                    <div class="col-md-2 pd-sm">
+                        <a href="{{route('monitor-jenkins-build.truncate')}}" class="btn btn-primary" class= "form-control" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data? Note : It will Remove all the data)') }}')">Truncate Data </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -46,25 +59,25 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="5%">S.No</th>
-                            <th width="10%">Build Number</th>
-                            <th width="20%">Project</th>
-                            <th width="20%">Worker</th>
-                            <th width="10%">StoreId</th>
-                            <th width="15%">Clone Repository</th>
-                            <th width="15%">LockBuild</th>
-                            <th width="15%">Update Code</th>
-                            <th width="15%">Composer Install</th>
-                            <th width="15%">Make Config</th>
-                            <th width="15%">Setup Upgrade</th>
-                            <th width="15%">Compile Code</th>
-                            <th width="15%">Static Content</th>
-                            <th width="15%">Reindexes</th>
-                            <th width="15%">Magento Cache Flush</th>
+                            <th width="7%">No</th>
+                            <th width="15%">Build No</th>
+                            <th width="30%">Project</th>
+                            <th width="30%">Worker</th>
+                            <th width="15%">StoreId</th>
+                            <th width="20%">Clone Repository</th>
+                            <th width="20%">LockBuild</th>
+                            <th width="20%">Update Code</th>
+                            <th width="20%">Composer Install</th>
+                            <th width="20%">Make Config</th>
+                            <th width="20%">Setup Upgrade</th>
+                            <th width="20%">Compile Code</th>
+                            <th width="20%">Static Content</th>
+                            <th width="20%">Reindexes</th>
+                            <th width="20%">Magento Cache Flush</th>
                             <th width="45%">Error</th>
-                            <th width="15%">Build Status</th>
-                            <th width="25%">Full Log</th>
-                            <th width="15%">Meta Update</th>
+                            <th width="20%">Build Status</th>
+                            <th width="35%">Full Log</th>
+                            <th width="20%">Meta Update</th>
                             <th width="20%">Date Time</th>
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)

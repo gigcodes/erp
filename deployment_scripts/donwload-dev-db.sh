@@ -52,14 +52,11 @@ do
 	fi
 done
 
-ssh -n -p $SSH_PORT -i $SSH_KEY root@$ip "mysqldump --ignore-table=$database$db_instance.sales_order $database$db_instance" >  /tmp/$database$db_instance.sql
+ssh -n -p $SSH_PORT -i $SSH_KEY root@$ip "mysqldump --ignore-table=$database.sales_order $database" >  /tmp/$database.sql
 echo "port number is = $SSH_PORT"
-ssh -n -p $SSH_PORT -i $SSH_KEY root@$ip "mysqldump --no-data $database$db_instance sales_order >>  /tmp/$database$db_instance.sql"
+ssh -n -p $SSH_PORT -i $SSH_KEY root@$ip "mysqldump --no-data $database sales_order >>  /tmp/$database.sql"
 
 if [ "$?" -eq "0" ]
 then
 	scp -P $SSH_PORT -i $SSH_KEY root@$ip:/tmp/$database$db_instance.sql $DOWNLOAD_PATH/$database.sql
 fi
-
-
-

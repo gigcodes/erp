@@ -97,13 +97,20 @@
 	#uicheck_table1 td .upload-ui-responsive-button, #uicheck_table1 td .devHistorty{
 		font-size: 14px!important;
 	}
+	.select2-search--inline {
+		display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+	}
+
+	.select2-search__field:placeholder-shown {
+		width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+	}
 </style>
 @endsection
 
 @section('large_content')
 
 <div id="myDiv">
-	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
+	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;z-index: 999999;" />
 </div>
 
 <div class="row" id="common-page-layout">
@@ -134,8 +141,8 @@
 								if(request('categories')){   $categoriesArr = request('categories'); }
 								else{ $categoriesArr = ''; }
 							  ?>
-							<select name="categories[]" id="store-categories" class="form-control select2" multiple>
-								<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
+							<select data-placeholder="Select a categories" name="categories[]" id="store-categories" class="form-control select2" multiple>
+								<option></option>
 								@forelse($site_development_categories as $ctId => $ctName)
 								<option value="{{ $ctId }}" @if($categoriesArr!='' && in_array($ctId,$categoriesArr)) selected @endif>{!! $ctName !!}</option>
 								@empty
@@ -149,8 +156,8 @@
 								if(request('store_webs')){   $store_websArr = request('store_webs'); }
 								else{ $store_websArr = []; }
 							  ?>
-							<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
-								<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
+							<select data-placeholder="Select a website" name="store_webs[]" id="store_webiste" multiple class="form-control select2">
+								<option></option>
 								@forelse($store_websites as $id=>$asw)
 								<option value="{{ $id }}" @if($store_websArr!='' && in_array($id,$store_websArr)) selected @endif>{{ $asw }}</option>
 								@empty
@@ -165,8 +172,8 @@
 								if(request('type')){   $typeArr = request('type'); }
 								else{ $typeArr = []; }
 							?>
-							<select name="type[]" class="form-control select2" multiple>
-								<option value="" @if(count($typeArr) == 0) selected @endif>-- Select type --</option>
+							<select name="type[]" data-placeholder="Select a type"  class="form-control select2" multiple>
+								<option></option>
 								@forelse($allUicheckTypes as $typeId => $typeName)
 								<option value="{{ $typeId }}" @if(in_array($typeId, $typeArr)) selected @endif>{!! $typeName !!}</option>
 								@empty
@@ -181,8 +188,8 @@
 								if(request('user_name')){   $userNameArr = request('user_name'); }
 								else{ $userNameArr = []; }
 							?>
-							<select name="user_name[]" id="user_name" class="form-control select2" multiple>
-								<option value="" @if(count($userNameArr) == 0) selected @endif>-- Select a User --</option>
+							<select data-placeholder="Select a User" name="user_name[]" id="user_name" class="form-control select2" multiple>
+								<option></option>
 								@forelse($allUsers as $uId => $uName)
 								<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
 								@empty
@@ -196,8 +203,8 @@
 								if(request('status')){   $statusArr = request('status'); }
 								else{ $statusArr = ''; }
 							  ?>
-							<select name="status" id="status" class="form-control select2">
-								<option value="" @if($statusArr=='') selected @endif>-- Status --</option>
+							<select data-placeholder="Select Status" name="status" id="status" class="form-control select2">
+								<option></option>
 								@forelse($allStatus as $key => $as)
 								<option value="{{ $key }}" @if($statusArr==$key) selected @endif>{{ $as }}</option>
 								@empty
@@ -229,7 +236,7 @@
 					}
 				@endphp
 				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
-				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#list-user-access-modal" onclick="listUserAccess()"> User Access </button>
+				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
@@ -455,7 +462,7 @@
 			<div class="modal-body" id="">
 				<div class="from-group">
 					<label for="">Select User:</label>
-					<select name="users" id="assign-new-user" class="form-control select2" style="width: 100%!important">
+					<select name="users" id="assign-new-user" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a user --</option>
 						@forelse($allUsers as $key => $user)
 								<option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -465,7 +472,7 @@
 				</div>
 				<div class="from-group mt-3">
 					<label for="">Select Website:</label>
-					<select name="users" id="assign-new-website" class="form-control select2" style="width: 100%!important">
+					<select name="users" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a Website --</option>
 						@forelse($store_websites as $website_id => $website_name)
 							<option value="{{ $website_id }}">{{ $website_name }}</option>
@@ -475,7 +482,7 @@
 				</div>
 				<div class="from-group mt-3">
 					<label for="">Select Type:</label>
-					<select name="uicheck_type" id="assign-new-type" class="form-control select2" style="width: 100%!important">
+					<select name="uicheck_type" id="assign-new-type" class="form-control select2" style="width: 100%!important" multiple>
 						<option value="" selected disabled>-- Select a Type --</option>
 						@forelse($allUicheckTypes as $uicheckTypeId => $uicheckTypeName)
 							<option value="{{ $uicheckTypeId }}">{{ $uicheckTypeName }}</option>
@@ -733,6 +740,8 @@
               <tr>
                 <th>S.No</th>
                 <th>User Name</th>
+                <th>Website</th>
+                <th>Type</th>
                 <th>Total Uicheck count</th>
                 <th>Action</th>
               </tr>
@@ -742,7 +751,7 @@
             </tbody>
           </table>
           <!-- Pagination links -->
-          <div class="pagination-container"></div>
+          <div class="pagination-container-for-user-access"></div>
         </div>
       </div>
     </div>
@@ -965,14 +974,16 @@
 			var sNo = startIndex + index + 1; 
 			html += "<tr>";
 			html += "<td>" + sNo + "</td>";
-			html += "<td>" + userAccess.user.name + "</td>";
+			html += "<td>" + userAccess.username + "</td>";
+			html += "<td>" + userAccess.website + "</td>";
+			html += "<td>" + userAccess.type + "</td>";
 			html += "<td>" + userAccess.total + "</td>";
-			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+' style="cursor: pointer;"><i class="fa fa-trash" aria-hidden="true"></i></a> <a style="padding-left: 10px;cursor: pointer;"class="user-access-reassign" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'><i class="fa fa-refresh" aria-hidden="true"></i></a></td>';
 			html += "</tr>";
 			});
 			$(".user-access-list").html(html);
 			$("#list-user-access-modal").modal("show");
-			renderPagination(response.data);
+			renderPaginationForUserAccess(response.data);
 		}).fail(function (response, ajaxOptions, thrownError) {
 			toastr["error"](response.message);
 			$("#loading-image").hide();
@@ -980,8 +991,8 @@
 
 	}
 
-	function renderPagination(data) {
-		var paginationContainer = $(".pagination-container");
+	function renderPaginationForUserAccess(data) {
+		var paginationContainer = $(".pagination-container-for-user-access");
 		var currentPage = data.current_page;
 		var totalPages = data.last_page;
 
@@ -989,13 +1000,13 @@
 		if (totalPages > 1) {
 		html += "<ul class='pagination'>";
 		if (currentPage > 1) {
-			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage - 1) + ")'>Previous</a></li>";
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + (currentPage - 1) + ")'>Previous</a></li>";
 		}
 		for (var i = 1; i <= totalPages; i++) {
-			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + i + ")'>" + i + "</a></li>";
+			html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + i + ")'>" + i + "</a></li>";
 		}
 		if (currentPage < totalPages) {
-			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePage(" + (currentPage + 1) + ")'>Next</a></li>";
+			html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changePageForUserAccess(" + (currentPage + 1) + ")'>Next</a></li>";
 		}
 		html += "</ul>";
 		}
@@ -1003,7 +1014,7 @@
 		paginationContainer.html(html);
 	}
 
-	function changePage(pageNumber) {
+	function changePageForUserAccess(pageNumber) {
 		listUserAccess(pageNumber);
 	}
 
@@ -1365,17 +1376,68 @@
 	});
 	
 	$(document).ready(function () {
+		$(document).on("click",".user-access-reassign",function (e) { 
+			e.preventDefault();
+			let user = [];
+			user.push($(this).attr('data-user_id'));
+			let website = [];
+			website.push($(this).attr('data-uicheck_website'));
+			let type = [];
+			type.push($(this).attr('data-uicheck_type'));
+			
+			//let website = $(this).attr('data-uicheck_website');
+			//let type = $(this).attr('data-uicheck_type');
+
+			if(user == null || $.isEmptyObject(user)) {
+				toastr['error']("Please select user.");
+				return
+			}
+			if(website == null || $.isEmptyObject(website)) {
+				toastr['error']("Please select website.");
+				return
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "{{route('uicheck.assignNewuser')}}",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+				data: {
+					_token: "{{csrf_token()}}",
+					website,
+					user,
+					type
+				},
+				success: function (response) {
+					if(response.status == true) {
+						toastr['success'](response.message, 'success');
+					} else {
+						toastr['error'](response.message, 'error');
+					}
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+					listUserAccess();
+					//window.location.assign("{{route('uicheck.responsive')}}?website=" + website + "&user=" + user);
+				},
+				error: function (error) {
+					toastr['error']("Something went wrong", 'error');
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+				}
+			});
+		});
 		$("#assign_user_to_website").click(function (e) { 
 			e.preventDefault();
 			let user = $("#assign-new-user").val()
 			let website = $("#assign-new-website").val()
 			let type = $("#assign-new-type").val()
 
-			if(user == null) {
+			if(user == null || $.isEmptyObject(user)) {
 				toastr['error']("Please select user.");
 				return
 			}
-			if(website == null) {
+			if(website == null || $.isEmptyObject(website)) {
 				toastr['error']("Please select website.");
 				return
 			}

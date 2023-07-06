@@ -98,12 +98,8 @@ class Task extends Model
     ];
 
     const TASK_TYPES = [
-        'Other Task',
-        'Statutory Task',
-        'Calendar Task',
-        'Discussion Task',
         'Developer Task',
-        'Developer Issue',
+        'Regular Task',
     ];
 
     const TASK_STATUS_DONE = 1;

@@ -96,7 +96,7 @@
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
             @if (isset($task->message))
                 <div class="d-flex">
-                    @if($task->is_audio)
+                    @if (isset($task->is_audio) && $task->is_audio)
                         <p style="width:85%" class="td-full-container">
                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                         </p>

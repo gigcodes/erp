@@ -41,6 +41,7 @@ class MagentoModule extends Model
         'lead_last_remark',
         'dependency',
         'composer',
+        'module_review_standard',
         'magneto_location_id'
     ];
 

@@ -407,7 +407,7 @@ var page = {
   },
 
   chooseDb: function (ele) {
-    var database_user_id = $("#database-user-id").val();
+    var database_user_id = $("#database_user_id").val();
     var _z = {
       url: this.config.mainUrl + "/" + database_user_id + "/choose-database",
       method: "post",

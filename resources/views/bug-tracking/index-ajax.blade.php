@@ -8,8 +8,8 @@
 			      <tr style="background-color:<?php echo  $prop->bug_color;  ?>">
 			      	<td><input type="checkbox" id="chkBugChange<?php echo $prop->id; ?>"  name="chkBugNameChange[]" class="chkBugNameClsChange"  value="<?php echo $prop->id; ?>"> </br> <?php echo $prop->id; ?></td>
 			      	<td><?php echo  $prop->created_at_date;  ?></td>
-			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
-                        <span class="show-full-summary-<?php echo  $prop->id  ?> hidden" ><?php echo  $prop->summary;  ?></span>
+			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
+                        <span class="show-full-summary-<?php echo  $prop->id  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->summary;  ?></span>
                     </td>
 			        <td class='break'  data-bug_type="<?php echo  $prop->bug_type_id_val;  ?>">
 					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
@@ -30,20 +30,27 @@
 					</td>
 					
 					
-			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip"> <span class="show-short-Steps to reproduce-<?php echo  $prop->id;  ?>"><?php echo  $prop->step_to_reproduce_short  ?></span>
-                        <span class="show-full-step_to_reproduce-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->step_to_reproduce;  ?></span>
+			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip"> 
+						<span class="show-short-Steps to td-mini-container td-mini-container--<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?>"><?php echo  $prop->step_to_reproduce_short  ?></span>
+                        <span class="show-full-step_to_reproduce-<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->step_to_reproduce;  ?></span>
                     </td>
 			        <td class='break'><?php echo  $prop->bug_environment_id;  ?> <?php echo  $prop->bug_environment_ver  ?></td>
 			        <td class='break'><?php echo  $prop->expected_result;  ?></td>
 
 			        <td class='break expand-row-msg' data-name="url" data-id="<?php echo  $prop->id;  ?>">
-			            <a href="<?php echo  $prop->url  ?>" target="_blank">
+			            <button class="btn btn-sm upload-bugs-files-button" type="button" title="Uploaded Files" data-bug_id="<?php echo  $prop->id  ?>">
+							<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+						</button>
+						<button class="btn btn-sm view-bugs-files-button" type="button" title="View Uploaded Files" data-bug_id="<?php echo  $prop->id  ?>">
+							<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
+						</button>
+						<?php /*<a href="<?php echo  $prop->url  ?>" target="_blank">
 			                <span href="" class="show-short-url-<?php echo  $prop->id  ?>"><?php echo  $prop->url_short;  ?></span>
                             <span href="" class="show-full-url-<?php echo  $prop->id  ?> hidden" ><?php echo  $prop->url;  ?></span>
                         </a>
 
                         <button type="button"  class="btn btn-copy-url btn-sm" data-id="<?php echo  $prop->url;  ?>" >
-                            <i class="fa fa-clone" aria-hidden="true"></i></button>
+                            <i class="fa fa-clone" aria-hidden="true"></i></button>*/?>
                      </td>
                      <td class='break'><?php echo  $prop->created_by;  ?></td>
 
