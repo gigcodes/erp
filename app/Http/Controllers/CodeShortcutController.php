@@ -54,28 +54,54 @@ class CodeShortcutController extends Controller
     public function store(Request $request)
     {
         $validated = new CodeShortcut();
+        if($request->supplier) {
+            $validated->supplier_id = $request->supplier;  
+        }
+        if ($request->hasFile('notesfile')) {
+            $file = $request->file('notesfile');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/codeshortcut-image');
+            $file->move($destinationPath, $name); 
+            $validated->filename  = $name;   
+        }
         $validated->user_id = auth()->user()->id;
-        $validated->supplier_id = $request->supplier;
         $validated->code = $request->code;
         $validated->description = $request->description;
         $validated->code = $request->code;
         $validated->solution = $request->solution;
         $validated->title = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
-        $validated->save();
+        $validated->save();     
+         
         return back()->with('success', 'Code Shortcuts successfully saved.');
     }
 
     public function update(Request $request, $id)
     {
-        CodeShortcut::where('id', '=', $id)->update([
+        if ($request->hasFile('notesfile')) {
+            $file = $request->file('notesfile');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/codeshortcut-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+        
+        $updateData = [
             'supplier_id' => $request->supplier,
             'code' => $request->code,
             'description' => $request->description,
             'code_shortcuts_platform_id' => $request->platform_id,
             'title' => $request->title,
-            'solution' => $request->solution,
-        ]);
+            'solution' => $request->solution
+        ];
+        
+        if (!is_null($name)) {
+            $updateData['filename'] = $name;
+        }
+        
+        CodeShortcut::where('id', $id)->update($updateData);
+        
         return back()->with('success', 'Code Shortcuts successfully updated.');
     }
 
@@ -92,5 +118,12 @@ class CodeShortcutController extends Controller
         $platform->save();
 
         return back()->with('success', 'Platform successfully created.');
+    }
+
+    public function getShortcutnotes(Request $request)
+    {
+        $data = CodeShortcut::with('platform','user_detail','supplier_detail')->orderBy('id', 'desc')->get();
+
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Listed successfully!!!']);
     }
 }
