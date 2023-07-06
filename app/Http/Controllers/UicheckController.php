@@ -1049,6 +1049,10 @@ class UicheckController extends Controller
                 $logHistory = true;
                 $uiDev['estimated_time'] = $request->uidevdatetime;
             }
+            if ($request->uidevExpectedStartTime) {
+                $logHistory = true;
+                $uiDev['expected_start_time'] = $request->uidevExpectedStartTime;
+            }
             if ($request->uidevExpectedCompletionTime) {
                 $logHistory = true;
                 $uiDev['expected_completion_time'] = $request->uidevExpectedCompletionTime;
@@ -1126,41 +1130,51 @@ class UicheckController extends Controller
     public function deviceLogs(Request $request)
     {
         try {
-            $uiDeviceLogs = UiDeviceLog::join('ui_devices as uid', 'uid.id', 'ui_device_logs.ui_device_id')
-                ->leftJoin('users', 'users.id', 'ui_device_logs.user_id')
-                ->leftJoin('uichecks as uic', 'uic.id', 'ui_device_logs.uicheck_id')
+            $uiDevices = UiDevice::has('uiDeviceHistories')
+                ->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+                ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
+                ->leftJoin('users as u', 'u.id', 'uua.user_id')
                 ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
-                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id');
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status');
 
             if ($request->category != '') {
-                $uiDeviceLogs = $uiDeviceLogs->where('uic.site_development_category_id', $request->category);
+                $uiDevices = $uiDevices->where('uic.site_development_category_id', $request->category);
+            } 
+
+            if ($request->uicheck_type != '') {
+                $uiDevices = $uiDevices->where('uic.uicheck_type_id', $request->uicheck_type);
+            } 
+
+            if ($request->status != '') {
+                $uiDevices = $uiDevices->where('ui_devices.status', $request->status);
             } 
 
             if ($request->user_name != null and $request->user_name != 'undefined') {
-                $uiDeviceLogs = $uiDeviceLogs->whereIn('ui_device_logs.user_id', $request->user_name);
+                $uiDevices = $uiDevices->whereIn('u.id', $request->user_name);
             }
             
             if ($request->daterange != '') {
                 $date = explode('-', $request->daterange);
                 $datefrom = date('Y-m-d', strtotime($date[0]));
                 $dateto = date('Y-m-d', strtotime($date[1]));
-                $uiDeviceLogs = $uiDeviceLogs->whereRaw("date(ui_device_logs.start_time) between date('$datefrom') and date('$dateto')");
+                $uiDevices = $uiDevices->whereRaw("date(ui_devices.expected_completion_time) between date('$datefrom') and date('$dateto')");
             }
             
             // If not an admin, then get logged in user logs only.
             if (! Auth::user()->hasRole('Admin')) {
-                $uiDeviceLogs = $uiDeviceLogs->where('ui_device_logs.user_id', \Auth::user()->id);
+                $uiDevices = $uiDevices->where(['uua.user_id' => \Auth::user()->id]);
             }
                 
-            $uiDeviceLogs = $uiDeviceLogs->select('ui_device_logs.*', 'sw.website', 'sdc.title', 'users.name','uic.uicheck_type_id')
-                ->orderBy('ui_device_logs.id', 'DESC')
-                ->get();
+            $uiDevices = $uiDevices->select('ui_devices.*', 'sw.website', 'sdc.title', 'u.name','uic.uicheck_type_id', 'sds.color')
+                ->orderBy('ui_devices.updated_at', 'DESC')
+                ->paginate(10);
 
             $siteDevelopmentCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
             $allUsers = User::where('is_active', '1')->get();
             $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
-            return view('uicheck.device-logs', compact('uiDeviceLogs', 'siteDevelopmentCategories', 'allUsers','allStatus','allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 5);;
+            return view('uicheck.device-logs', compact('uiDevices', 'siteDevelopmentCategories', 'allUsers','allStatus','allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 5);;
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1620,6 +1634,7 @@ class UicheckController extends Controller
                             </div>
                             <i class="fa fa-copy" data-text="' . $value->message . '"></i>
                         </td>',
+                        '<td>' . ($value->expected_start_time ?: '-') . '</td>',
                         '<td>' . ($value->expected_completion_time ?: '-') . '</td>',
                         '<td>' . ($value->estimated_time ?: '-') . '</td>',
                         '<td>' . ($select) . '</td>',
@@ -1749,6 +1764,11 @@ class UicheckController extends Controller
                 // );
                 $udh->status = $statusId == '-' ? null : $statusId;
                 $udh->save();
+
+                // Update status also in ui_devices table
+                $udh->uiDevice->status = $statusId == '-' ? null : $statusId;
+                $udh->uiDevice->save();
+                
                 if ($udh->save()) {
                     $status = SiteDevelopmentStatus::find($statusId);
 
