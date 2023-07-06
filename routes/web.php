@@ -4940,6 +4940,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+    Route::get('task-categories', [Select2Controller::class, 'taskCategory'])->name('select2.taskcategories');
     Route::get('zabbix-webhook-data', [Select2Controller::class, 'zabbixWebhookData'])->name('select2.zabbix-webhook-data');
     Route::get('sop-categories', [Select2Controller::class, 'sopCategories'])->name('select2.sop-categories');
 

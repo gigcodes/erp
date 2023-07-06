@@ -425,8 +425,9 @@
                                 <div class="cls_categoryfilter_box">
                                     <div class="cls_categoryfilter_first">
                                         <div class="">
+                                            <?php echo Form::select("category",['' => ''],null,["class" => "form-control  category_ globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.taskcategories'), 'data-placeholder' => 'Category To select..']); ?>
                                             {{-- <strong>Category:</strong> --}}
-                                            {!! $task_categories_dropdown !!}
+                                            {{-- {!! $task_categories_dropdown !!} --}}
                                             {{-- <select class="form-control input-sm" name="category" id="required_category" required>
                                           <option value="">Select a Category</option>
                                           @foreach ($task_categories_dropdown as $category)

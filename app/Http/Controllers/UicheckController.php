@@ -2104,15 +2104,17 @@ class UicheckController extends Controller
             $uicheckUserAccess = new UicheckUserAccess();
             
             $uicheckUserAccess = $uicheckUserAccess->with('user')
-                ->select('uicheck_user_accesses.*', DB::raw('count(*) as total'))  
-                ->groupBy('user_id')  
                 ->leftJoin('users', 'users.id', 'uicheck_user_accesses.user_id')
                 ->leftJoin('uichecks', 'uichecks.id', 'uicheck_user_accesses.uicheck_id')
+                ->leftJoin('store_websites', 'store_websites.id', 'uichecks.website_id')
+                ->leftJoin('uicheck_types', 'uicheck_types.id', 'uichecks.uicheck_type_id')
                 ->whereNull('uichecks.deleted_at')
                 ->whereNotNull('uicheck_user_accesses.user_id')
                 ->whereNotNull('uicheck_user_accesses.uicheck_id')
+                ->select('uicheck_user_accesses.*','uichecks.uicheck_type_id','uichecks.website_id','users.name as username','store_websites.title as website','uicheck_types.name as type', DB::raw('count(*) as total'))  
+                ->groupBy('uicheck_user_accesses.user_id','uichecks.website_id','uichecks.uicheck_type_id')
                 ->paginate($perPage);
-
+           
             return response()->json(['code' => 200, 'data' => $uicheckUserAccess, 'count'=> count($uicheckUserAccess), 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
 

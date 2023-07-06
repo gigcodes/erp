@@ -18,6 +18,7 @@ use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
+use App\TaskCategory;
 
 class Select2Controller extends Controller
 {
@@ -485,6 +486,39 @@ class Select2Controller extends Controller
         return response()->json($result);*/
     }
 
+    public function taskCategory(Request $request)
+    {
+        if (!empty($request->q)) {
+            $taskCategories = TaskCategory::where('is_approved', 1)
+                ->where('parent_id', 0)
+                ->where('title', 'LIKE', $request->q . '%')
+                ->get()
+                ->toArray();
+        } else {
+            $taskCategories = TaskCategory::where('is_approved', 1)
+                ->where('parent_id', 0)
+                ->get()
+                ->toArray();
+        }
+        
+        $result = [];
+        
+        if (empty($taskCategories)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'Category not available',
+            ];
+        } else {
+            foreach ($taskCategories as $cat) {
+                $result['items'][] = [
+                    'id' => $cat['id'],
+                    'text' => $cat['title'],
+                ];
+            }
+        }
+        return response()->json($result);
+    }
+
     public function zabbixWebhookData(Request $request)
     {
         $zabbixWebhookDatas = ZabbixWebhookData::select('id', 'subject')->whereNull('zabbix_task_id');
@@ -504,7 +538,6 @@ class Select2Controller extends Controller
             ];
         }
 
-        return response()->json($result);
     }
 
     public function sopCategories(Request $request)
