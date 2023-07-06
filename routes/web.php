@@ -580,7 +580,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('config-refactor', ConfigRefactorController::class);
 
     // Projects
-    Route::resource('project', ProjectController::class);
+   // Route::resource('project', ProjectController::class);
+    
+    Route::get('project',[ProjectController::class, 'index'])->name('project.index');
+    Route::post('project',[ProjectController::class, 'store'])->name('project.store');
+    Route::delete('project/{id}/destroy',[ProjectController::class, 'destroy'])->name('project.destroy');
+    
+    Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
+    Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
+    Route::post('project/buildProcessLogs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {

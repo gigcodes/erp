@@ -25,6 +25,17 @@
                         @endforelse
                     </select>
                 </div>
+                <div class="form-group">
+                    <strong>Eerverenv:</strong>
+                    <select name="serverenv" class="form-control select2" style="width: 100%!important">
+                        <option value="" selected disabled>-- Select a Serverenv --</option>
+                        <option value="brands-prod" >brands-prod</option>
+                        <option value="brands-stage" >brands-stage</option>
+                        <option value="qa" >qa</option>
+                        
+                        
+                    </select>
+                </div>
             </div>
             
             <div class="modal-footer">
