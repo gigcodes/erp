@@ -11,6 +11,7 @@ use App\MagentoCommandRunLog;
 use App\MysqlCommandRunLog;
 use App\AssetsManager;
 use App\LogRequest;
+use App\MagentoMulitipleCommand;
 
 class MagentoCommandController extends Controller
 {
@@ -132,6 +133,14 @@ class MagentoCommandController extends Controller
     {
         $command_id= $request->command_id;
         $websites_ids= $request->websites_ids;
+
+        MagentoMulitipleCommand::create([
+                'website_ids' => json_encode($websites_ids),
+                'command_id' => $command_id,
+                'user_id' => \Auth::user()->id
+
+        ]);
+
         try {
             $comd = \Artisan::call('command:MagentoRunCommandOnMultipleWebsite', ['id' => $command_id,'websites_ids' => $websites_ids] );
 
@@ -649,5 +658,12 @@ class MagentoCommandController extends Controller
             //$this->PostmanErrorLog($request->id ?? '', 'Postman User permission Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function getMulitipleCommands() 
+    {
+        $mulitipleCommands = MagentoMulitipleCommand::with(['website' ,'user','command'])->paginate(25);
+
+        return view('magento-command.multiple-command-list', compact('mulitipleCommands'));
     }
 }

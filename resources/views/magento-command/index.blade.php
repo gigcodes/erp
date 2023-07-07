@@ -111,6 +111,7 @@
     <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#rcmw_runCommand">Run Command</button>
     <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#run_ms_query">Run MySql Query</button>
     <a target="_blank" href="/magento/command/run-mysql-command-logs" class="btn custom-button float-right mr-3" >MySql Query Logs</a>
+    <a target="_blank" href="/magento/command/run-mulitiple-command-logs" class="btn custom-button float-right mr-3" >View Mulitple Command Lists</a>
 
 </div>
 
