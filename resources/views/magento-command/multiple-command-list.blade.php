@@ -50,10 +50,8 @@
                                 @endphp
                             </td>
                             <td>
-
-                                <button type="button" id="test" class="btn btn-secondary" data-websiteIds="{{$mulitipleCommand->website_ids}}" data-command="{{$mulitipleCommand->command_id}}"> <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
-                
-                                   
+                                <button type="button" id="re_run_command" class="btn btn-secondary" data-websiteIds="{{$mulitipleCommand->website_ids}}" data-command="{{$mulitipleCommand->command_id}}" onclick="return confirm('{{ __('Re Run For Same website and Same Command') }}')"> <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#multi_runCommand" onclick="return confirm('{{ __('For Same Websites  you Can To Run Different Command') }}')"><img src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></button>
                                 </a>
                             </td>
                         </tr>                        
@@ -69,15 +67,54 @@
 </div>
 
 
+<div id="multi_runCommand" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Run Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                            <div class="form-group col-md-12">
+                                <label for="multi_command_id">Command</label>
+                                <select name="multi_command_id" class="form-control" id="multi_command_id" style="width: 100%" required>
+                                    <option value="">--Select Command--</option>
+                                    @foreach ($magentoCommands as $id => $magentoCommand)
+                                    <option value="{{$magentoCommand->id}}">{{$magentoCommand->command_name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="multi_runCommand-btn" class="btn btn-secondary" data-websiteIds="{{$mulitipleCommand->website_ids}}">Run Command</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
 
 <script type="text/javascript">
 
-
-    $(document).on("click", "#test", function(e) {
+    $(document).on("click", "#re_run_command", function(e) {
         e.preventDefault();
         var websiteIds = $(this).data('websiteids');
-        var commandId = $(this).data('command');
-            if(commandId==''){
+        var commandId = $(this).data('command');   
+        multiRunWebsite (websiteIds ,commandId ) 
+    });
+
+    $(document).on("click", "#multi_runCommand-btn", function(e) {
+        e.preventDefault();
+        var websiteIds = $(this).data("websiteids");
+        var commandId=$("#multi_command_id").val();   
+        multiRunWebsite (websiteIds, commandId) 
+    });
+   
+    function multiRunWebsite(websiteIds, commandId){
+        if(commandId==''){
                 toastr['error']('Please select Command', 'error');
                 return;
             }
@@ -115,9 +152,7 @@
                 }
                 toastr['error'](errObj.message, 'error');
             });
-        
-    });
-   
+    }
 
 </script>
 @endsection
