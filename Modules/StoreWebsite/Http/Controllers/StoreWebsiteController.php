@@ -1798,15 +1798,25 @@ class StoreWebsiteController extends Controller
 
         \Log::info("End Download DB/ENV");
 
-        $response=json_decode($result);
-        if(isset($response->status)  && $response->status){
-            $path=Storage::path('download_db');
-            $path.="/".$filename;
-            return response()->download($path)->deleteFileAfterSend(true);
+        $response=json_decode($output);
+        if(isset($response['status'])  && ($response['status']=='true' || $response['status'])){
+            if(isset($response['url']) && $response['url']!=''){
+                $path=$response['url'];
+
+            }else{
+                $path=Storage::path('download_db');
+                $path.="/".$filename;
+            }
+            if(file_exists($path)){
+                return response()->download($path)->deleteFileAfterSend(true);
+            }else{
+                return redirect()->back()->withErrors("File Not found on server!");
+            }
+            
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
-            if(isset($response->message) && $response->message!=''){
-                $message=$response->message;
+            if(isset($response['message']) && $response['message']!=''){
+                $message=$response['message'];
             }
             return redirect()->back()->withErrors($message);
         }
