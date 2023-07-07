@@ -108,7 +108,7 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
-                                    <button title="Build Process" data-id="{{ $project->id }}" type="button" class="btn open-build-process-template" style="padding:1px 0px;">
+                                    <button title="Build Process" data-job="{{ $project->job_name }}" data-id="{{ $project->id }}" type="button" class="btn open-build-process-template" style="padding:1px 0px;">
                                         <a href="javascript:void(0);" style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
                                     </button>
 
@@ -170,7 +170,9 @@
         $(document).on("click",".open-build-process-template",function(e) {
             e.preventDefault();
             var id=$(this).attr("data-id");
+            var job=$(this).attr("data-job");
             $(".build_process_project_id").val(id);
+            $("#build-process #job_name").val(job);
             $('#build-process-modal').modal('show'); 
         });
 
