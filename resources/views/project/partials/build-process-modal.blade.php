@@ -22,13 +22,19 @@
                                         {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
                                     </div>
                                     <div class="form-group">
+                                        <strong>Organizations:</strong>
+                                        <select name="organization" id="build_organization" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Organizations --</option>
+                                            @forelse($organizations as $organization)
+                                                <option value="{{ $organization->id }}">{{ $organization->name }}</option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <strong>Repository:</strong>
                                         <select name="repository" id="build_repository" class="form-control select2" style="width: 100%!important">
                                             <option value="" selected disabled>-- Select a Repository --</option>
-                                            @forelse($repositories as $repository)
-                                                <option value="{{ $repository->id }}">{{ $repository->name }}</option>
-                                            @empty
-                                            @endforelse
                                         </select>
                                     </div>
                                 </div>                            
