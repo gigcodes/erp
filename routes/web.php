@@ -622,8 +622,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/update', [MagentoSettingsController::class, 'update'])->name('magento.setting.update');
 
     Route::post('magento-admin-settings/push-settings', [MagentoSettingsController::class, 'pushMagentoSettings'])->name('magento.setting.pushMagentoSettings');
-    Route::post('magento-admin-settings/update-via-file', [MagentoSettingsController::class, 'updateViaFile'])->name('magento.setting.updateViaFile');
-
+    
     Route::post('magento-admin-settings/website/stores', [MagentoSettingsController::class, 'websiteStores'])->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', [MagentoSettingsController::class, 'deleteSetting'])->name('delete.setting');
