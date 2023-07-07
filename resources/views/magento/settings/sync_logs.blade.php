@@ -14,7 +14,7 @@
     <div class="col-12 p-0">
 
 
-        <h2 class="page-heading">Magento Settings Logs ({{$counter}})</h2>
+        <h2 class="page-heading">Magento Settings Logs ({{$pushLogs->total()}})</h2>
     </div>
     @if($errors->any())
         <div class="row m-2">
@@ -50,30 +50,20 @@
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <input class="form-control" type="text" id="search_status" placeholder="Search Status" name="search_status">
                     </div>
-                   
-                   
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <input class="form-control" type="text" id="search_url" placeholder="Search Url" name="search_url">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <input class="form-control" type="text" id="request_data" placeholder="Search Request Data" name="request_data">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <input class="form-control" type="text" id="request_setting" placeholder="Search Setting" name="request_setting">
+                    </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <select class="form-control select2" name="setting">
-                            <option value="">Setting search</option> 
-                            @foreach($magentoSettings as $magentoSetting)
-                                <?php $selected = '';
-                                $webArr = request('settings_id') ? request('settings_id') : 0;
-                                ?>
-                                @if($magentoSetting->id == $webArr)
-                                    <?php $selected = 'selected';?>
-                                @endif
-                               <option value="{{ $magentoSetting->id }}" {{ $selected }}>{{ $magentoSetting->name }}</option>
-                           @endforeach
-                        </select>
-                     </div> 
-                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <?php $base_url = URL::to('/');?> 
                         <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                         <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                      </div> 
-                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <input type="text" id="search_url" placeholder="Search By Url,Response.....">
-                    </div>
                  </form>
 
              </div>
@@ -181,16 +171,6 @@
         }
     });
 
-    $(document).on("keydown", "#search_url", function() {
-        var query = $(this).val().toLowerCase();
-        $("#magentosetting_log tr").filter(function() {
-            var fifthTdText = $(this).find("td:eq(4)").text().toLowerCase();
-            var sixthTdText = $(this).find("td:eq(5)").text().toLowerCase();
-            var matchFifth = fifthTdText.indexOf(query) > -1;
-            var matchSixth = sixthTdText.indexOf(query) > -1;
-            $(this).toggle(matchFifth || matchSixth);
-        });
-	});
 
 </script>
 @endsection

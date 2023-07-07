@@ -133,9 +133,18 @@ class MagentoSettingsController extends Controller
         if($request->search_status){
             $pushLogs = $pushLogs->where('status',  $request->search_status);
         }
-        if($request->setting){
-            $pushLogs = $pushLogs->where('setting_id',$request->setting);
+        if ($request->search_url) {
+            $pushLogs = $pushLogs->where('command_server', 'LIKE', '%' . $request->search_url . '%');
         }
+        if ($request->request_data) {
+            $pushLogs = $pushLogs->where('command', 'LIKE', '%' . $request->request_data . '%');
+        }
+        if ($request->request_setting) {
+            $pushLogs = $pushLogs->whereHas('setting', function ($query) use ($request) {
+                $query->where('name', 'LIKE', '%' . $request->request_setting . '%');
+            });
+        }
+        
         $pushLogs = $pushLogs->paginate(25)->withQueryString();
 
         $counter = $counter->count();
