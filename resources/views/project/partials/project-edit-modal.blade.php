@@ -29,7 +29,6 @@
                 <div class="form-group">
                     <strong>Serverenv:</strong>
                     <select name="serverenv" id="serverenv" class="form-control select2" style="width: 100%!important">
-                        <option value="" selected disabled>-- Select a Serverenv --</option>
                         @forelse($serverenvs as $id => $serverenvs)
                             <option value="{{ $serverenvs }}">{{ $serverenvs }}</option>
                         @empty
@@ -70,7 +69,7 @@
                 button.addClass('disabled');
             },
             complete: function() {
-                button.html('Add');
+                button.html('Edit');
                 button.prop('disabled', false);
                 button.removeClass('disabled');
             },
