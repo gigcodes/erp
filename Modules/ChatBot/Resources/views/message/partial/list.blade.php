@@ -18,6 +18,12 @@
     .background-grey {
         color: grey;
     }
+    .btn-toolbar {
+        align-items: center;
+    }
+    .add_to_autocomplete {
+        height: auto;
+    }
     @media(max-width:1400px){
         .btns{
 padding: 3px 2px;
@@ -45,26 +51,30 @@ padding: 3px 2px;
     .read-message{
         float: right;
     }
+    .actions .btn.btn-image{
+        line-height: unset;
+        margin-top: unset;
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
     $isHod  = Auth::user()->hasRole('HOD of CRM');
 
 @endphp
-<div class="table-responsive">
-<table class="table table-bordered chatbot page-template-{{ $page }}">
+<div class="table-responsive" style="overflow-x: auto!important">
+<table class="table table-bordered chatbot page-template-{{ $page }}" style="width: 120%;max-width:unset">
     <thead>
     <tr>
-        <th width="2%">Name</th>
-        <th width="2%">Website</th>
-        <th width="2%">Message Type</th>
-        <th width="8%">User input</th>
-        <th width="8%">Bot Replied</th>
-        <th width="8%">Bot Suggested Reply</th>
-        <th width="30%">Message Box </th>
-        <th width="2%">From</th>
-        <th width="2%">Shortcuts</th>
-        <th width="2%">Action</th>
+        <th width="5%">Name</th>
+        <th width="auto">Website</th>
+        <th width="auto">Message Type</th>
+        <th width="10%">User input</th>
+        <th width="auto">Bot Replied</th>
+        <th width="auto">Bot Suggested Reply</th>
+        <th width="25%">Message Box </th>
+        <th width="5%">From</th>
+        <th width="15%">Shortcuts</th>
+        <th width="auto">Action</th>
 
     </tr>
     </thead>
@@ -202,7 +212,13 @@ padding: 3px 2px;
         @if($pam->answer_is_audio)
         <td class="boat-replied"><audio controls="" src="{{ \App\Helpers::getAudioUrl($pam->answer) }}"></audio></td>
         @else
-            <td class="boat-replied">{{ $pam->answer }}
+            <td class="boat-replied expand-row" style="word-break: break-all">
+                <span class="td-mini-container">
+                    {{ strlen($pam->answer) > 15 ? substr($pam->answer, 0, 15).'...' :  $pam->answer }}
+                 </span>
+                 <span class="td-full-container hidden">
+                     {{ $pam->answer }}
+                 </span>
             </td>
         @endif
 
@@ -241,13 +257,13 @@ padding: 3px 2px;
                     @endif
 
 
-        <td class="message-input p-0 pt-2 pl-3">
+        <td class="message-input p-0 py-2 pl-3">
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
-                    <div class="w-75">
+                    <div class="w-75 message-input-box">
                         <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
                     </div>
-                    <div class="w-25 pl-2" role="group" aria-label="First group">
+                    <div class="w-25 pl-2 my-auto message-input-box-icons" role="group" aria-label="First group">
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1">
                             <input name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
                         </button>
@@ -633,6 +649,14 @@ padding: 3px 2px;
             microphoneSlash.style.display = "none";
         });
     })
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     $(document).on('click','.log-message-popup',function(){
         $('#logMessageModel p').text($(this).data('log_message'));

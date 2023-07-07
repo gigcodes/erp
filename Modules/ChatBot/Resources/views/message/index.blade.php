@@ -26,6 +26,9 @@
         .chatbot-form-1{
             justify-content: space-between;
         }
+        table th, table td{
+            white-space: nowrap;
+        }
         /* / Responsive styles / */
         /* / // X-Small devices (portrait phones, less than 576px) / */
         @media (max-width: 575.98px) { 
@@ -39,12 +42,16 @@
 
         /* / // Medium devices (tablets, 768px and up) / */
         @media (min-width: 768px) and (max-width: 991.98px) { 
-        
+            .message-input-box, .message-input-box-icons{
+                width: 100% !important;
+            }
         }
 
         /* / // Large devices (desktops, 992px and up) / */
         @media (min-width: 992px) and (max-width: 1199.98px) { 
-        
+            .message-input-box, .message-input-box-icons{
+                width: 100% !important;
+            }
         }
 
         /* / // Extra large devices (large desktops, 1200px and up) / */
