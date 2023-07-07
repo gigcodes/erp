@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ProjectServerenv;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 
@@ -20,12 +21,44 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $projects = Project::latest();
+
+        if ($request->keyword) {
+            $projects = $projects->where('name', 'LIKE', '%' . $request->keyword . '%');
+        }
+
+        if ($searchStoreWebsite = $request->store_websites_search) {
+            $projects->whereHas('storeWebsites', function ($query) use ($searchStoreWebsite) {
+                $query->whereIn("store_website_id", $searchStoreWebsite);
+            });
+        }
+
         $projects = $projects->paginate(10);
 
         $store_websites = StoreWebsite::get()->pluck('title', 'id');
+        $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
         $repositories = \App\Github\GithubRepository::All();
+        $organizations = \App\Github\GithubOrganization::All();
         
-        return view('project.index', compact('projects', 'store_websites','repositories'));
+        return view('project.index', compact('projects', 'store_websites','repositories', 'organizations', 'serverenvs'));
+    }
+
+    public function getGithubRepos()
+    {
+        if ($build_organization = request('build_organization')) {
+            $repositories = \App\Github\GithubRepository::where('github_organization_id', $build_organization)->orderBy('created_at', 'desc')->get()->pluck('name', 'id')->toArray();  
+            if ($repositories) {
+                $options = ['<option value="" >--  Select a Repository --</option>'];
+                foreach ($repositories as $key => $value) {
+                    $options[] = '<option value="' . $key . '" ' . ($key == request('selected') ? 'selected' : '') . ' >' . $value . '</option>';
+                }
+            } else {
+                $options = ['<option value="" >No records found.</option>'];
+            }
+        } else {
+            $options = ['<option value="" >Please Select a Organizations</option>'];
+        }
+
+        return response()->json(['data' => implode('', $options)]);
     }
 
     public function getGithubBranches()
@@ -186,6 +219,73 @@ class ProjectController extends Controller
 
         return redirect()->route('project.index')
             ->with('success', 'Project deleted successfully');
+    }
+
+    public function edit(Request $request, $id)
+    {
+        $project = Project::with('storeWebsites')->where('id', $id)->first();
+
+        if ($project) {
+            return response()->json(['code' => 200, 'data' => $project]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'name' => 'required',
+                'store_website_id' => 'required',
+                'serverenv' => 'required'
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Save Project
+        $project = Project::find($data['id']);
+        $project->name = $data['name'];
+        $project->serverenv = $data['serverenv'];
+        $project->save();
+
+        $project->storeWebsites()->detach();
+        $project->storeWebsites()->attach($data['store_website_id']);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Project updated successfully!',
+            ]
+        );
+    }
+
+    public function serverenvStore(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'name' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Save Project server env
+        $projectServerenv = new ProjectServerenv();
+        $projectServerenv->name = $data['name'];
+        $projectServerenv->save();
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Project server env created successfully!',
+            ]
+        );
     }
 
 }

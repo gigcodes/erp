@@ -7,25 +7,39 @@
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-8">
-                    {{-- <form action="{{ route('project.index') }}" method="get" class="search">
+                    <form action="{{ route('project.index') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-4 pd-sm">
+                            <div class="col-md-3 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-lg-4">
-                                <input class="form-control" type="date" name="event_start" value="{{ request()->get('event_start') }}">
+                            <div class="col-md-3">
+                                <?php 
+									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
+									else{ $store_websites_search = []; }
+								?>
+								<select name="store_websites_search[]" id="store_websites_search" class="form-control select2" multiple>
+									<option value="" @if($store_websites_search=='') selected @endif>-- Select a Store website --</option>
+									@forelse($store_websites as $swId => $swName)
+									<option value="{{ $swId }}" @if(in_array($swId, $store_websites_search)) selected @endif>{!! $swName !!}</option>
+									@empty
+									@endforelse
+								</select>
                             </div>
+                            
                             <div class="col-md-4 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('project.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                                <a href="{{ route('project.index') }}" class="btn btn-image" id="">
+                                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
+                                </a>
                             </div>
                         </div>
-                    </form> --}}
+                    </form>
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
                     </div>
                 </div>
@@ -76,6 +90,10 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <button type="button" data-id="{{ $project->id }}" class="btn btn-xs btn-edit-project">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+
                                     {!! Form::open(['method' => 'DELETE','route' => ['project.destroy', $project->id],'style'=>'display:inline']) !!}
                                     <button type="submit" class="btn btn-xs">
                                         <i class="fa fa-trash" style="color: #808080;"></i>
@@ -130,6 +148,8 @@
 	</div>
 </div>
 @include('project.partials.project-create-modal')
+@include('project.partials.project-edit-modal')
+@include('project.partials.serverenv-create-modal')
 @include('project.partials.build-process-modal')
 
 <script type="text/javascript">
@@ -141,6 +161,24 @@
             $(".build_process_project_id").val(id);
             $('#build-process-modal').modal('show'); 
         });
+
+        $("#build_organization").on('change', function(e) {
+            var url = "{{ route('project.getGithubRepo') }}";
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_organization: jQuery('#build_organization').val(),
+                }
+            }).done(function(response) {
+                jQuery('#build_repository').html(response.data);
+                jQuery('#build_branch_name').html("");
+            }).fail(function(response) {});
+        });
+
         $("#build_repository").on('change', function(e) {
             var url = "{{ route('project.getGithubBranches') }}";
             jQuery.ajax({
@@ -182,6 +220,31 @@
                 console.log("Sorry, something went wrong");
             });
         });
+
+        $(".btn-edit-project").on('click', function(e) {
+            var url = "{{ route('project.edit', '') }}/" + $(this).data("id");
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+            }).done(function(response) {
+                $("#project-edit-form #id").val(response.data.id);
+                $("#project-edit-form #name").val(response.data.name);
+                $("#project-edit-form #serverenv").val(response.data.serverenv);
+                $("#project-edit").modal("show");
+            }).fail(function(response) {});
+        });
     })
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+   
 </script>
 @endsection
