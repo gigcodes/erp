@@ -1797,7 +1797,7 @@ class StoreWebsiteController extends Controller
         \Log::info("return_var:".$return_var);
 
         \Log::info("End Download DB/ENV");
-        if(!issuet($output[0])){
+        if(!isset($output[0])){
             return redirect()->back()->withErrors("The response is not found!");
         }
         $response=json_decode($output[0]);
