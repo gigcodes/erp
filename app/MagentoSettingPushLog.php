@@ -17,4 +17,10 @@ class MagentoSettingPushLog extends Model
         'job_id',
         'command_server',
     ];
+
+
+    public function setting()
+    {
+        return $this->belongsTo(MagentoSetting::class, 'setting_id');
+    }
 }
