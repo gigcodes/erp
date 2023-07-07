@@ -232,7 +232,7 @@
             }).done(function(response) {
                 $("#project-edit-form #id").val(response.data.id);
                 $("#project-edit-form #name").val(response.data.name);
-                $("#project-edit-form #serverenv").val(response.data.serverenv);
+                $("#project-edit-form #serverenv").val(response.data.serverenv).trigger('change');
                 var selectedWebsites = [];
                 $(response.data.store_websites).each(function(index, store_websites) {
                     selectedWebsites.push(store_websites.id);
