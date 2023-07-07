@@ -19,7 +19,6 @@
                 <div class="form-group">
                     <strong>Store Website:</strong>
                     <select name="store_website_id[]" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
-                        <option value="" selected disabled>-- Select a Website --</option>
                         @forelse($store_websites as $website_id => $website_name)
                             <option value="{{ $website_id }}">{{ $website_name }}</option>
                         @empty

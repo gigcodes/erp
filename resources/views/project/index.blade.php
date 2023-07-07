@@ -233,6 +233,11 @@
                 $("#project-edit-form #id").val(response.data.id);
                 $("#project-edit-form #name").val(response.data.name);
                 $("#project-edit-form #serverenv").val(response.data.serverenv);
+                var selectedWebsites = [];
+                $(response.data.store_websites).each(function(index, store_websites) {
+                    selectedWebsites.push(store_websites.id);
+                });
+                $("#project-edit-form #assign-new-website").val(selectedWebsites).trigger('change');
                 $("#project-edit").modal("show");
             }).fail(function(response) {});
         });
