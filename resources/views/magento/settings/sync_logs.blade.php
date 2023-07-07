@@ -66,13 +66,13 @@
                         <thead>
                             <tr>
                                 <th width="5%">ID </th>
-                                <th width="15%">Website </th>
+                                <th width="10%">Website </th>
                                 <th width="8%">Synced on</th>
-                                <th width="30%">Command</th>
-                                <th width="10%">Command Server</th>
-                                <th width="10%">Job Id</th>
-                                <th width="35%">Command Output</th>
-                                <th width="7%">Error Status</th>
+                                <th width="10%">URL</th>
+                                <th width="30%">Request Data</th>
+                                <th width="10%">Response</th>
+                                <th width="10%">Status Code</th>
+                                <th width="7%">Status</th>
                             </tr>
                         </thead>
     
@@ -82,10 +82,10 @@
                                     <td >{{ $log->id }}</td>
                                     <td>{{ $log->website }}</td>
                                     <td>{{ $log->created_at }}</td>
-                                    <td>{{ $log->command }}</td>
                                     <td>{{ $log->command_server }}</td>
-                                    <td>{{ $log->job_id }}</td>
+                                    <td>{{ $log->command }}</td>
                                     <td>{{ $log->command_output }}</td>
+                                    <td>{{ $log->job_id }}</td>
                                     <td>{{ $log->status }}</td>
                                 </tr>
                             @endforeach

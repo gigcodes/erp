@@ -99,8 +99,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
                      </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                        <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                        
                      </div> 
                  </form>
 				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
@@ -366,7 +367,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                    
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
-                        <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
+                        <select id="apply_websites"class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
                             @foreach($storeWebsites as $w)
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
@@ -492,12 +493,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					<thead>
 					  <tr>
 						<th width="10%">Date</th>
-						<th width="20%">Command</th>
-						<th width="10%">Command Server</th>
+						<th width="30%">URL</th>
+                        <th width="30%">Request Data</th>
+						<th width="10%">Response</th>
+                        <th width="10%">Status Code</th>
                         <th width="10%">Status</th>
-                        <th width="10%">Job Id</th>
-						<th width="40%">Command Output</th>
-					  </tr>
+                      </tr>
 					</thead>
 					<tbody id="settingsPushLogs">
 
