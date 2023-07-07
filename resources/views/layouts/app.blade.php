@@ -4170,6 +4170,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('config-refactor.index') }}">Config Refactors</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.index') }}">Projects</a>
+                                            </li>
                                         </ul>
                                     </li>
 

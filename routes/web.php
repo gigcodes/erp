@@ -407,6 +407,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 
@@ -577,6 +578,17 @@ Route::middleware('auth')->group(function () {
     Route::post('config-refactor/duplicate-create', [ConfigRefactorController::class, 'duplicateCreate'])->name('config-refactor.duplicate-create');
 
     Route::resource('config-refactor', ConfigRefactorController::class);
+
+    // Projects
+   // Route::resource('project', ProjectController::class);
+    
+    Route::get('project',[ProjectController::class, 'index'])->name('project.index');
+    Route::post('project',[ProjectController::class, 'store'])->name('project.store');
+    Route::delete('project/{id}/destroy',[ProjectController::class, 'destroy'])->name('project.destroy');
+    
+    Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
+    Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
+    Route::post('project/buildProcessLogs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
