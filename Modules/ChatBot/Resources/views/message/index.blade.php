@@ -23,6 +23,50 @@
         form.chatbot .col{
             flex-grow: unset !important;
         }
+        .chatbot-form-1{
+            justify-content: space-between;
+        }
+        /* / Responsive styles / */
+        /* / // X-Small devices (portrait phones, less than 576px) / */
+        @media (max-width: 575.98px) { 
+
+        }
+
+        /* / // Small devices (landscape phones, 576px and up) / */
+        @media (min-width: 576px) and (max-width: 767.98px) { 
+
+        }
+
+        /* / // Medium devices (tablets, 768px and up) / */
+        @media (min-width: 768px) and (max-width: 991.98px) { 
+        
+        }
+
+        /* / // Large devices (desktops, 992px and up) / */
+        @media (min-width: 992px) and (max-width: 1199.98px) { 
+        
+        }
+
+        /* / // Extra large devices (large desktops, 1200px and up) / */
+        @media (min-width: 1200px) and (max-width: 1400.98px) {
+        
+        }
+
+        /* / // For 2k Monitors, (more than 1401 px) / */
+        @media(max-width: 1599.98px) {
+            .chatbot-form-1{
+                justify-content: start;
+                gap: 6px;
+            }
+        }
+
+        @media (min-width: 1600px) and (max-width: 2559.98px) {
+        
+        }
+
+        @media (min-width: 2560px) {
+
+        }
     </style>
     <div class="row m-0">
         <div class="col-lg-12 margin-tb p-0">
@@ -32,18 +76,16 @@
 
     <div class="row m-0">
         <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
-            <div class="pull-left">
+            <div class="">
                 <div class="form-inline">
-                    <form method="get" class="chatbot mr-3">
-                        <div class="row">
-
-
+                    <form method="get" class="chatbot mr-3 w-100">
+                        <div class="row chatbot-form-1" >
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
 
 
-                            <div class="col">
+                            <div class="">
                                 <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
@@ -54,7 +96,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col">
+                            <div class="">
                                 <select style="width: 200px !important" name="message_type" class="chatboat-message-type form-control">
                                     <option value="">Select Message Type</option>
                                     <option value="email" {{request()->get('message_type') == 'email' ? 'selected' : ''}}>Email</option>
@@ -108,9 +150,9 @@
                     </form>
 
 
-                    <form method="post" class="pt-3">
+                    <form method="post" class="pt-3 d-flex align-items-center">
                         <?php echo csrf_field(); ?>
-                        <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>
+                        <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:300px;"]); ?>
                         <button type="submit" style="display: inline-block;width: 10%"
                                 class="btn btn-sm btn-image btn-forward-images">
                             <i class="glyphicon glyphicon-send"></i>

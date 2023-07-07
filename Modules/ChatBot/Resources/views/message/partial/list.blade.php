@@ -60,7 +60,7 @@ padding: 3px 2px;
         <th width="2%">Message Type</th>
         <th width="8%">User input</th>
         <th width="8%">Bot Replied</th>
-        <th width="8%">Bot Suggested Replay</th>
+        <th width="8%">Bot Suggested Reply</th>
         <th width="30%">Message Box </th>
         <th width="2%">From</th>
         <th width="2%">Shortcuts</th>
