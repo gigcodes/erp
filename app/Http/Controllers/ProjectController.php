@@ -88,6 +88,7 @@ class ProjectController extends Controller
         $repository = $request->repository;
         $branch_name = $request->branch_name;
         $job_name = $request->job_name;
+        $organization = $request->organization;
         if($repository==''){
             return response()->json(['code' => 500, 'message' => 'Please select repository']);
         }
@@ -123,7 +124,17 @@ class ProjectController extends Controller
                         
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
                         
-                        $record = ['store_website_id' => $request->project_id, 'created_by' =>auth()->user()->id, 'text' => $buildDetail, 'build_name' => $jobName, 'build_number' => $builds[0]->getNumber()];
+                        $record = [
+                            'store_website_id' => $request->project_id, 
+                            'created_by' =>auth()->user()->id, 
+                            'text' => $buildDetail, 
+                            'build_name' => $jobName, 
+                            'build_number' => $builds[0]->getNumber(), 
+                            'github_organization_id' => $organization,
+                            'github_repository_id' => $repository,
+                            'github_branch_state_name' => $branch_name
+                        ];
+
                         \App\BuildProcessHistory::create($record);
 
                         return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
@@ -143,43 +154,56 @@ class ProjectController extends Controller
         
     }
 
+    // New concept in page
     public function buildProcessLogs(Request $request, $id)
     {
-        try {
-            $responseLog = \App\BuildProcessHistory::leftJoin('users as u','u.id','=','build_process_histories.created_by')->where('store_website_id', '=', $id)->select('build_process_histories.*','u.name as usersname')->latest()->get();
-            //dd($responseLog);
-            if ($responseLog != null) {
-                $html = '';
-                foreach ($responseLog as $res) {
-                    //dd($res->created_at);
-                    $html .= '<tr>';
-                    $html .= '<td>' . $res->id . '</td>';
-                    
-                    $html .= '<td>' .  $res->usersname .'</td>';
-                    
-                    $html .= '<td>' . $res->build_number . '</td>';
-                    $html .= '<td>' . $res->build_name . '</td>';
-                    $html .= '<td>' . $res->text . '</td>';
-                    $html .= '<td>' . $res->status . '</td>';
-                    
-                    $html .= '<td>' . $res->created_at . '</td>';
-                    $html .= '</tr>';
-                }
+        $responseLogs = \App\BuildProcessHistory::leftJoin('users as u','u.id','=','build_process_histories.created_by')
+            ->where('store_website_id', '=', $id)
+            ->select('build_process_histories.*','u.name as usersname')
+            ->latest()
+            ->get();
 
-                return response()->json([
-                    'code' => 200,
-                    'data' => $html,
-                    'message' => '',
-                ]);
-            }
-
-            return response()->json(['code' => 500, 'error' => 'Wrong site id!']);
-        } catch (\Exception $e) {
-            $msg = $e->getMessage();
-
-            return response()->json(['code' => 500, 'data' => [], 'message' => $msg]);
-        }
+        return view('project.build-process-logs', compact('responseLogs'));
     }
+
+    // Old concept in modal popup
+    // public function buildProcessLogs(Request $request, $id)
+    // {
+    //     try {
+    //         $responseLog = \App\BuildProcessHistory::leftJoin('users as u','u.id','=','build_process_histories.created_by')->where('store_website_id', '=', $id)->select('build_process_histories.*','u.name as usersname')->latest()->get();
+    //         //dd($responseLog);
+    //         if ($responseLog != null) {
+    //             $html = '';
+    //             foreach ($responseLog as $res) {
+    //                 //dd($res->created_at);
+    //                 $html .= '<tr>';
+    //                 $html .= '<td>' . $res->id . '</td>';
+                    
+    //                 $html .= '<td>' .  $res->usersname .'</td>';
+                    
+    //                 $html .= '<td>' . $res->build_number . '</td>';
+    //                 $html .= '<td>' . $res->build_name . '</td>';
+    //                 $html .= '<td>' . $res->text . '</td>';
+    //                 $html .= '<td>' . $res->status . '</td>';
+                    
+    //                 $html .= '<td>' . $res->created_at . '</td>';
+    //                 $html .= '</tr>';
+    //             }
+
+    //             return response()->json([
+    //                 'code' => 200,
+    //                 'data' => $html,
+    //                 'message' => '',
+    //             ]);
+    //         }
+
+    //         return response()->json(['code' => 500, 'error' => 'Wrong site id!']);
+    //     } catch (\Exception $e) {
+    //         $msg = $e->getMessage();
+
+    //         return response()->json(['code' => 500, 'data' => [], 'message' => $msg]);
+    //     }
+    // }
 
     public function store(Request $request)
     {
@@ -187,6 +211,7 @@ class ProjectController extends Controller
         $this->validate(
             $request, [
                 'name' => 'required',
+                'job_name' => 'required',
                 'store_website_id' => 'required',
                 'serverenv' => 'required'
             ]
@@ -197,6 +222,7 @@ class ProjectController extends Controller
         // Save Project
         $project = new Project();
         $project->name = $data['name'];
+        $project->job_name = $data['job_name'];
         $project->serverenv = $data['serverenv'];
         $project->save();
 
@@ -238,6 +264,7 @@ class ProjectController extends Controller
         $this->validate(
             $request, [
                 'name' => 'required',
+                'job_name' => 'required',
                 'store_website_id' => 'required',
                 'serverenv' => 'required'
             ]
@@ -248,6 +275,7 @@ class ProjectController extends Controller
         // Save Project
         $project = Project::find($data['id']);
         $project->name = $data['name'];
+        $project->job_name = $data['job_name'];
         $project->serverenv = $data['serverenv'];
         $project->save();
 

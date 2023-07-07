@@ -17,6 +17,10 @@
                     {!! Form::text('name', null, ['placeholder' => 'Project Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
                 </div>
                 <div class="form-group">
+                    <strong>Job Name :</strong>
+                    {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
+                </div>
+                <div class="form-group">
                     <strong>Store Website:</strong>
                     <select name="store_website_id[]" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
                         @forelse($store_websites as $website_id => $website_name)

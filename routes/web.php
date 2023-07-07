@@ -586,7 +586,7 @@ Route::middleware('auth')->group(function () {
     Route::post('project',[ProjectController::class, 'store'])->name('project.store');
     Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
     Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
-    Route::post('project/buildProcessLogs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
+    Route::get('project/build-process-logs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
     Route::get('project/{id}',[ProjectController::class, 'edit'])->name('project.edit');
     Route::post('project/{id}',[ProjectController::class, 'update'])->name('project.update');
     Route::delete('project/{id}/destroy',[ProjectController::class, 'destroy'])->name('project.destroy');
