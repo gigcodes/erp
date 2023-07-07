@@ -182,10 +182,14 @@
     });
 
     $(document).on("keydown", "#search_url", function() {
-		var query = $(this).val().toLowerCase();
-			$("#magentosetting_log tr").filter(function() {
-			$(this).toggle($(this).text().toLowerCase().indexOf(query) > -1)
-		});
+        var query = $(this).val().toLowerCase();
+        $("#magentosetting_log tr").filter(function() {
+            var fifthTdText = $(this).find("td:eq(4)").text().toLowerCase();
+            var sixthTdText = $(this).find("td:eq(5)").text().toLowerCase();
+            var matchFifth = fifthTdText.indexOf(query) > -1;
+            var matchSixth = sixthTdText.indexOf(query) > -1;
+            $(this).toggle(matchFifth || matchSixth);
+        });
 	});
 
 </script>
