@@ -76,10 +76,10 @@
                             <tr data-id="{{ $responseLog->id }}">
                                 <td>{{ $responseLog->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $responseLog->organization->name }}
+                                    {{ $responseLog->organization?->name }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $responseLog->repository->name }}
+                                    {{ $responseLog->repository?->name }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->github_branch_state_name }}
