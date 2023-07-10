@@ -356,242 +356,245 @@ class MagentoSettingsController extends Controller
 
         $entity = MagentoSetting::find($entity_id);
 
-        // #DEVTASK-23677-api implement for admin settings
-        \Log::info("Setting Scope : ".$scope);
-        // Scope Default
-        if ($scope === 'default') {
-            $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->get();
-            foreach ($storeWebsites as $storeWebsite) {
-                $store_website_id=$storeWebsite->id;
-                \Log::info("Start Setting Pushed to : ".$store_website_id);
-                $api_token=$storeWebsite->api_token;
-                $magento_url=$storeWebsite->magento_url;
+        // // #DEVTASK-23677-api implement for admin settings
+        // \Log::info("Setting Scope : ".$scope);
+        // // Scope Default
+        // if ($scope === 'default') {
+        //     $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->get();
+        //     foreach ($storeWebsites as $storeWebsite) {
+        //         $store_website_id=$storeWebsite->id;
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         $api_token=$storeWebsite->api_token;
+        //         $magento_url=$storeWebsite->magento_url;
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $store_website_id)->where('path', $path)->first();
-                if (! $m_setting) {
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $store_website_id,
-                        'name' => $name,
-                        'path' => $path,
-                        'value' => $value,
-                        'data_type' => $datatype,
-                    ]);
-                } else {
-                    $m_setting->name = $name;
-                    $m_setting->path = $path;
-                    $m_setting->value = $value;
-                    $m_setting->data_type = $datatype;
-                    $m_setting->save();
-                }
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $store_website_id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $store_website_id,
+        //                 'name' => $name,
+        //                 'path' => $path,
+        //                 'value' => $value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
 
-                $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
-                $data=[];
-                $data['scopeId']=0;
-                $data['scopeType']="default";
-                $data['configs'][]=['path'=>$path,'value'=>$value];
+        //         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //         $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //         $data=[];
+        //         $data['scopeId']=0;
+        //         $data['scopeType']="default";
+        //         $data['configs'][]=['path'=>$path,'value'=>$value];
                 
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                $result = curl_exec($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                \Log::info(print_r([json_encode($data), $url, $result], true));
+        //         $ch = curl_init($url);
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //         $result = curl_exec($ch);
+        //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //         \Log::info(print_r([json_encode($data), $url, $result], true));
                 
-                LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+        //         LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
-                if (curl_errno($ch)) {
-                    \Log::info("API Error: ".curl_error($ch));
-                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => son_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
-                }
+        //         if (curl_errno($ch)) {
+        //             \Log::info("API Error: ".curl_error($ch));
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => son_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //         }
 
-                $response = json_decode($result);
-                curl_close($ch);
-                if($httpcode=='200'){
-                    $m_setting->status ='Success';
-                    $m_setting->value_on_magento =$value;
-                    $m_setting->save();
-                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url,'job_id'=>$httpcode ]);
+        //         $response = json_decode($result);
+        //         curl_close($ch);
+        //         if($httpcode=='200'){
+        //             $m_setting->status ='Success';
+        //             $m_setting->value_on_magento =$value;
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url,'job_id'=>$httpcode ]);
                     
-                }else{
-                    $m_setting->status ='Error';
-                    $m_setting->save();
-                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
-                }
-                \Log::info("End Setting Pushed to : ".$store_website_id);
-            }
-            return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
-        }
-        // Scope Default
-        if ($scope === 'websites') {
-            $store = $request->store;
-            $website = $request->website;
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // Scope Default
+        // if ($scope === 'websites') {
+        //     $store = $request->store;
+        //     $website = $request->website;
             
-            $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
-                $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
-            })->orWhere('id', $entity->scope_id)->get();
+        //     $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
+        //         $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
+        //     })->orWhere('id', $entity->scope_id)->get();
 
-            foreach ($websiteStores as $websiteStore) {
-                $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
+        //     foreach ($websiteStores as $websiteStore) {
+        //         $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
 
-                \Log::info("Start Setting Pushed to : ".$store_website_id);
-                \Log::info("Website Store : ".$websiteStore->id);
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         \Log::info("Website Store : ".$websiteStore->id);
 
-                $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
-                $api_token = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
+        //         $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
+        //         $api_token = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
-                if (! $m_setting) {
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $websiteStore->id,
-                        'name' => $request->name,
-                        'path' => $request->path,
-                        'value' => $request->value,
-                        'data_type' => $datatype,
-                    ]);
-                } else {
-                    $m_setting->name = $name;
-                    $m_setting->path = $path;
-                    $m_setting->value = $value;
-                    $m_setting->data_type = $datatype;
-                    $m_setting->save();
-                }
-                $scopeID = $websiteStore->platform_id;
-                if (! empty($magento_url) && !empty($api_token)) {
-                    $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                    $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
-                    $data=[];
-                    $data['scopeId']=$scopeID;
-                    $data['scopeType']="websites";
-                    $data['configs'][]=['path'=>$path,'value'=>$value];
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $websiteStore->id,
+        //                 'name' => $request->name,
+        //                 'path' => $request->path,
+        //                 'value' => $request->value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
+        //         $scopeID = $websiteStore->platform_id;
+        //         if (! empty($magento_url) && !empty($api_token)) {
+        //             $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //             $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //             $data=[];
+        //             $data['scopeId']=$scopeID;
+        //             $data['scopeType']="websites";
+        //             $data['configs'][]=['path'=>$path,'value'=>$value];
 
-                    $ch = curl_init($url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                    $result = curl_exec($ch);
-                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    \Log::info(print_r([json_encode($data), $url, $result], true));
+        //             $ch = curl_init($url);
+        //             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //             $result = curl_exec($ch);
+        //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //             \Log::info(print_r([json_encode($data), $url, $result], true));
                     
-                    LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+        //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
-                    if (curl_errno($ch)) {
-                        \Log::info("API Error: ".curl_error($ch));
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
-                    }
+        //             if (curl_errno($ch)) {
+        //                 \Log::info("API Error: ".curl_error($ch));
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             }
 
-                    $response = json_decode($result);
-                    curl_close($ch);
-                    if($httpcode=='200'){
-                        $m_setting->status ='Success';
-                        $m_setting->value_on_magento =$value;
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             $response = json_decode($result);
+        //             curl_close($ch);
+        //             if($httpcode=='200'){
+        //                 $m_setting->status ='Success';
+        //                 $m_setting->value_on_magento =$value;
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
                         
-                    }else{
-                        $m_setting->status ='Error';
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
-                    }
+        //             }else{
+        //                 $m_setting->status ='Error';
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //             }
 
-                }else{
-                    $m_setting->status ='Error';
-                    $m_setting->save();
-                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
-                }
-                \Log::info("End Setting Pushed to : ".$store_website_id);
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
 
-            }
-            return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
-        }
-        // Scope Default
-        if ($scope === 'stores') {
-            $store = $request->store;
-            $store_view = $request->store_view;
-            $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
-                $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
-            })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // Scope Default
+        // if ($scope === 'stores') {
+        //     $store = $request->store;
+        //     $store_view = $request->store_view;
+        //     $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
+        //         $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
+        //     })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
-            foreach ($websiteStoresViews as $websiteStoresView) {
-                $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
+        //     foreach ($websiteStoresViews as $websiteStoresView) {
+        //         $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
 
-                \Log::info("Start Setting Pushed to : ".$store_website_id);
-                \Log::info("Website Store View : ".$websiteStoresView->id);
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         \Log::info("Website Store View : ".$websiteStoresView->id);
 
-                $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
-                $api_token = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
+        //         $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
+        //         $api_token = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
-                if (! $m_setting) {
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $websiteStoresView->id,
-                        'name' => $request->name,
-                        'path' => $request->path,
-                        'value' => $request->value,
-                        'data_type' => $datatype,
-                    ]);
-                } else {
-                    $m_setting->name = $name;
-                    $m_setting->path = $path;
-                    $m_setting->value = $value;
-                    $m_setting->data_type = $datatype;
-                    $m_setting->save();
-                }
-                $scopeID = $websiteStoresView->platform_id;
-                if (! empty($magento_url) && !empty($api_token)) {
-                    $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                    $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
-                    $data=[];
-                    $data['scopeId']=$scopeID;
-                    $data['scopeType']="stores";
-                    $data['configs'][]=['path'=>$path,'value'=>$value];
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $websiteStoresView->id,
+        //                 'name' => $request->name,
+        //                 'path' => $request->path,
+        //                 'value' => $request->value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
+        //         $scopeID = $websiteStoresView->platform_id;
+        //         if (! empty($magento_url) && !empty($api_token)) {
+        //             $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //             $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //             $data=[];
+        //             $data['scopeId']=$scopeID;
+        //             $data['scopeType']="stores";
+        //             $data['configs'][]=['path'=>$path,'value'=>$value];
 
-                    $ch = curl_init($url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                    $result = curl_exec($ch);
-                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    \Log::info(print_r([json_encode($data), $url, $result], true));
+        //             $ch = curl_init($url);
+        //             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //             $result = curl_exec($ch);
+        //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //             \Log::info(print_r([json_encode($data), $url, $result], true));
                     
-                    LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+        //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
-                    if (curl_errno($ch)) {
-                        \Log::info("API Error: ".curl_error($ch));
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
-                    }
+        //             if (curl_errno($ch)) {
+        //                 \Log::info("API Error: ".curl_error($ch));
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //             }
 
-                    $response = json_decode($result);
-                    curl_close($ch);
-                    if($httpcode=='200'){
-                        $m_setting->status ='Success';
-                        $m_setting->value_on_magento =$value;
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             $response = json_decode($result);
+        //             curl_close($ch);
+        //             if($httpcode=='200'){
+        //                 $m_setting->status ='Success';
+        //                 $m_setting->value_on_magento =$value;
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
                         
-                    }else{
-                        $m_setting->status ='Error';
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
-                    }
+        //             }else{
+        //                 $m_setting->status ='Error';
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             }
 
-                }else{
-                    $m_setting->status ='Error';
-                    $m_setting->save();
-                    MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
-                }
-                \Log::info("End Setting Pushed to : ".$store_website_id);
-            }
-            return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
-        }
-        // #DEVTASK-23677-api implement for admin settings
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // #DEVTASK-23677-api implement for admin settings
+
+        // #DEVTASK-23690-Magento Admin Settings - The above logic was not need, So I hide that. 
+        return response()->json(['code' => 200, 'message' => 'Updated successfully !']);
     }
 
     public function pushMagentoSettings(Request $request)
@@ -675,5 +678,42 @@ class MagentoSettingsController extends Controller
         $storeWebsites = StoreWebsite::where('parent_id', '=', $id)->get();
 
         return response()->json($storeWebsites);
+    }
+
+    public function getMagentoSetting($id)
+    {
+        $magentoSetting = MagentoSetting::where('id', $id)->first();
+        $taggedStoreWebsites = '';
+
+        if ($magentoSetting) {
+            $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
+            if ($storeWebsite->parent_id) {
+                $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->get();
+                return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+            } else {
+                $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->get();
+                return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+            }
+
+            return response()->json(['code' => 500, 'error' => 'No data found']);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
+    }
+
+    public function pushRowMagentoSettings(Request $request)
+    {
+        if($request->has('tagged_websites')){
+            foreach ($request->tagged_websites as $tagged_websites) {
+                $magentoSettings = MagentoSetting::where('store_website_id', $tagged_websites)->get();
+                
+                foreach ($magentoSettings as $magentoSetting) {
+                    \App\Jobs\PushMagentoSettings::dispatch($magentoSetting)->onQueue('pushMagentoSettings');
+                }
+            }
+
+            return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
+        }
+        return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
     }
 }
