@@ -926,13 +926,17 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             type: "GET",
             url: url,
         }).done(function(response) {
-            $(".push-setting-form #row_id").val(row_id);
-            var taggedWebsites = [];
-            $(response.taggedWebsites).each(function(index, store_websites) {
-                taggedWebsites.push(store_websites.id);
-            });
-            $(".push-setting-form #apply_tagged_websites").val(taggedWebsites).trigger('change');
-            $("#push-setting-popup").modal("show");
+            if(response.code == '500') {
+                toastr['error'](response.error);
+            } else {
+                $(".push-setting-form #row_id").val(row_id);
+                var taggedWebsites = [];
+                $(response.taggedWebsites).each(function(index, store_websites) {
+                    taggedWebsites.push(store_websites.id);
+                });
+                $(".push-setting-form #apply_tagged_websites").val(taggedWebsites).trigger('change');
+                $("#push-setting-popup").modal("show");
+            }
         }).fail(function(response) {});
     });
 

@@ -686,13 +686,15 @@ class MagentoSettingsController extends Controller
         $taggedStoreWebsites = '';
 
         if ($magentoSetting) {
-            $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
-            if ($storeWebsite->parent_id) {
-                $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->get();
-                return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
-            } else {
-                $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->get();
-                return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+            if ($magentoSetting->store_website_id) {
+                $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
+                if ($storeWebsite->parent_id) {
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->get();
+                    return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+                } else {
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->get();
+                    return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+                }
             }
 
             return response()->json(['code' => 500, 'error' => 'No data found']);
