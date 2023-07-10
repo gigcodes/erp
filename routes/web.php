@@ -4128,6 +4128,7 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-show', [UicheckController::class, 'bulkShow'])->name('uicheck.bulk-show');
         Route::post('bulk-hide', [UicheckController::class, 'bulkHide'])->name('uicheck.bulk-hide');
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
+        Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
 
 

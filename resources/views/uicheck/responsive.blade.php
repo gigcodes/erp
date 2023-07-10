@@ -746,11 +746,13 @@
 							<button type="submit" class="btn btn-secondary btn-google-doc-search-menu"><i class="fa fa-search"></i></button>
 						</div>
 					</form>
+					<button class="btn btn-secondary my-3" onclick="bulkUserAccessDelete()"> Bulk Delete </button>&nbsp;
 				</div>
 			</div>
           <table class="table">
             <thead class="thead-light">
               <tr>
+				<th></th>
                 <th>S.No</th>
                 <th>User Name</th>
                 <th>Website</th>
@@ -897,6 +899,54 @@
 			toastr['error'](response.message);
 		});
 	});	
+
+	function bulkUserAccessDelete()
+    {
+        event.preventDefault();
+        var userAccessDetails = [];
+
+		$(".bulk_user_access").each(function () {
+			if ($(this).prop("checked") == true) {
+				userAccessDetail = {
+					"user_id": $(this).attr("data-user_id"),
+					"uicheck_type": $(this).attr("data-uicheck_type"),
+					"uicheck_website": $(this).attr("data-uicheck_website")
+				};
+				userAccessDetails.push(userAccessDetail);
+			}
+		});
+
+		if (userAccessDetails.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(userAccessDetails);
+			return false;
+		}
+
+		$.ajax({
+			url:'{{route("uicheck.bulk-delete-user-wise-multiple")}}',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			dataType:"json",
+			data: {data: JSON.stringify(userAccessDetails)},
+			beforeSend: function() {
+				$("#loading-image").show();
+			}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]("Records deleted successfully");
+			window.location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
+    }
 
 	function bulkDelete()
     {
@@ -1081,12 +1131,13 @@
 			$.each(response.data.data, function (index, userAccess) {
 			var sNo = startIndex + index + 1; 
 			html += "<tr>";
+			html += '<td><input type="checkbox" name="bulk_user_access_ids[]" class="d-inline bulk_user_access" value='+userAccess.user_id+'  data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'></td>';
 			html += "<td>" + sNo + "</td>";
 			html += "<td>" + userAccess.username + "</td>";
 			html += "<td>" + userAccess.website + "</td>";
 			html += "<td>" + userAccess.type + "</td>";
 			html += "<td>" + userAccess.total + "</td>";
-			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+' style="cursor: pointer;"><i class="fa fa-trash" aria-hidden="true"></i></a> <a style="padding-left: 10px;cursor: pointer;"class="user-access-reassign" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'><i class="fa fa-refresh" aria-hidden="true"></i></a></td>';
+			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+' style="cursor: pointer;"><i class="fa fa-trash" aria-hidden="true"></i></a> <a style="padding-left: 10px;cursor: pointer;"class="user-access-reassign" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'><i class="fa fa-refresh" aria-hidden="true"></i></a></td>';
 			html += "</tr>";
 			});
 			$(".user-access-list").html(html);
@@ -1130,6 +1181,8 @@
 	$(document).on("click",".user-access-delete",function(e) {
 		e.preventDefault();
 		var userId = $(this).data("user_id");
+		var uicheckType = $(this).data("uicheck_type");
+		var uicheckWebsite = $(this).data("uicheck_website");
 		var $this = $(this);
 		if(confirm("Are you sure you want to delete records ?")) {
 			$.ajax({
@@ -1139,7 +1192,7 @@
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				dataType:"json",
-				data: { userId : userId},
+				data: { userId : userId, uicheckType: uicheckType, uicheckWebsite: uicheckWebsite},
 				beforeSend: function() {
 					$("#loading-image").show();
 				}
