@@ -121,7 +121,6 @@
 
 
 		</table>
-		{!! $codeshortcut->appends(Request::except('page'))->links() !!}
 	</div>
 </div>
 

@@ -45,21 +45,14 @@ class CodeShortcutController extends Controller
                 $query = $query->whereIn('website', $request->websites);
             }
     
-            if ($request->createdAt) {
-                if ($request->createdAt === "asc") {
-                    $query = $query->orderBy('created_at', 'asc');
-                    $codeShortcut = $query->paginate(Setting::get('pagination'));
-                }
-                if ($request->createdAt === "desc") {
-                    $query = $query->orderBy('created_at', 'desc');
-                }
-    
-                $codeShortcut = $query->paginate(Setting::get('pagination'));
-            } else {
-                $codeShortcut = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+            if($request->createdAt === "asc"){
+                $query = $query->orderBy('created_at', 'asc');
             }
-    
-            $data['codeshortcut'] = $codeShortcut;
+            if($request->createdAt === "desc"){
+                $query = $query->orderBy('created_at', 'desc');
+            }
+
+            $data['codeshortcut'] = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
     
             return response()->json([
                 'tbody' => view('code-shortcut.partials.list-code', $data)->render(),
