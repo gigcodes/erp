@@ -26,7 +26,7 @@
         .chatbot-form-1{
             justify-content: space-between;
         }
-        table th, table td{
+        table th:not(.modal-dialog table th), table td:not(.modal-dialog table td){
             white-space: nowrap;
         }
         .message-input-box{
