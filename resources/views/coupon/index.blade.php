@@ -188,8 +188,34 @@
                 <div class="form-group cls_filter_inputbox p-0 mr-2">
                     <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code">
                 </div>
+                <div class="form-group cls_filter_inputbox p-0 mr-2">
+                    <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status">
+                </div>
+                <div class="form-group cls_filter_inputbox p-0 mr-2">
+                    <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules">
+                </div>
+                <br>
+                {{-- <div class="col-md-3 pd-sm">
+                    <h5>Search websites</h5>
+                    {{ Form::select("website_ids[]", \App\StoreWebsite::pluck('title','title')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                </div> --}}
+                <div class="col-md-3 pd-sm">
+                    <h5>Search Users</h5>
+                    {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(),request('usernames'),["class" => "form-control-sm form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                </div>
+                <div class="form-group cls_filter_inputbox p-0 mr-2">
+                    <h5>Start Date</h5>
+                    <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date">
+                </div>
+                <div class="form-group cls_filter_inputbox p-0 mr-2">
+                    <h5>End Date</h5>
+                    <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date">
+                </div>
                 <div class="form-group p-0 mr-2">
+                    <br>
+                    <br>
                     <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                    <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                 </div>
             </form>
         </div>
@@ -684,6 +710,9 @@
                 </thead>
                 <tbody>
                     @foreach($rule_lists as $rule_list)
+                    {{-- @dd($rule_list); --}}
+
+                    {{-- @dd($rule_list->website_ids); --}}
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $rule_list->name }}</td>
