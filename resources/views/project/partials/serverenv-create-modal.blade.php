@@ -1,43 +1,19 @@
-<div id="project-create" class="modal fade" role="dialog">
+<div id="serverenv-create" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
             
-            <form id="project-create-form" class="form mb-15" >
+            <form id="serverenv-create-form" class="form mb-15" >
             @csrf
             <div class="modal-header">
-                <h4 class="modal-title">Create Project</h4>
+                <h4 class="modal-title">Create Serverenv</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             
             <div class="modal-body">
                 <div class="form-group">
-                    <strong>Project Name :</strong>
-                    {!! Form::text('name', null, ['placeholder' => 'Project Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
-                </div>
-                <div class="form-group">
-                    <strong>Job Name :</strong>
-                    {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
-                </div>
-                <div class="form-group">
-                    <strong>Store Website:</strong>
-                    <select name="store_website_id[]" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
-                        <option value="" selected disabled>-- Select a Website --</option>
-                        @forelse($store_websites as $website_id => $website_name)
-                            <option value="{{ $website_id }}">{{ $website_name }}</option>
-                        @empty
-                        @endforelse
-                    </select>
-                </div>
-                <div class="form-group">
-                    <strong>Serverenv:</strong>
-                    <select name="serverenv" class="form-control select2" style="width: 100%!important">
-                        <option value="" selected disabled>-- Select a Serverenv --</option>
-                        @forelse($serverenvs as $id => $serverenvs)
-                            <option value="{{ $serverenvs }}">{{ $serverenvs }}</option>
-                        @empty
-                        @endforelse
-                    </select>
+                    <strong>Serverenv Name :</strong>
+                    {!! Form::text('name', null, ['placeholder' => 'Serverenv Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
                 </div>
             </div>
             
@@ -52,13 +28,13 @@
 @push('scripts')
     <script>
 
-    $(document).on('submit', '#project-create-form', function(e){
+    $(document).on('submit', '#serverenv-create-form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("project-create-form"));
+        let formData = new FormData(document.getElementById("serverenv-create-form"));
         var button = $(this).find('[type="submit"]');
         $.ajax({
-            url: '{{ route("project.store") }}',
+            url: '{{ route("project.serverenvStore") }}',
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',

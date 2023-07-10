@@ -584,11 +584,16 @@ Route::middleware('auth')->group(function () {
     
     Route::get('project',[ProjectController::class, 'index'])->name('project.index');
     Route::post('project',[ProjectController::class, 'store'])->name('project.store');
+    Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
+    Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
+    Route::get('project/build-process-logs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
+    Route::get('project/{id}',[ProjectController::class, 'edit'])->name('project.edit');
+    Route::post('project/{id}',[ProjectController::class, 'update'])->name('project.update');
     Route::delete('project/{id}/destroy',[ProjectController::class, 'destroy'])->name('project.destroy');
     
+    Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
-    Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
-    Route::post('project/buildProcessLogs/{id}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
+    
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -622,8 +627,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/update', [MagentoSettingsController::class, 'update'])->name('magento.setting.update');
 
     Route::post('magento-admin-settings/push-settings', [MagentoSettingsController::class, 'pushMagentoSettings'])->name('magento.setting.pushMagentoSettings');
-    Route::post('magento-admin-settings/update-via-file', [MagentoSettingsController::class, 'updateViaFile'])->name('magento.setting.updateViaFile');
-
+    
     Route::post('magento-admin-settings/website/stores', [MagentoSettingsController::class, 'websiteStores'])->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', [MagentoSettingsController::class, 'deleteSetting'])->name('delete.setting');
@@ -4121,7 +4125,10 @@ Route::middleware('auth')->group(function () {
         Route::post('device-history/time-approve', [UicheckController::class, 'deviceHistoryIstimeApprove'])->name('uicheck.device-history.time-approve');
         Route::post('set/device-log', [UicheckController::class, 'setDeviceLog'])->name('uicheck.set.device-log');
         Route::post('bulk-delete', [UicheckController::class, 'bulkDelete'])->name('uicheck.bulk-delete');
+        Route::post('bulk-show', [UicheckController::class, 'bulkShow'])->name('uicheck.bulk-show');
+        Route::post('bulk-hide', [UicheckController::class, 'bulkHide'])->name('uicheck.bulk-hide');
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
+        Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
 
 

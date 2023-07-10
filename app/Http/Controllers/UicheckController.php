@@ -850,6 +850,38 @@ class UicheckController extends Controller
         }
     }
 
+    public function bulkShow()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 0);
+            }
+
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function bulkHide()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 1);
+            }
+            
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
     public function updateLock()
     {
         try {
@@ -1256,8 +1288,10 @@ class UicheckController extends Controller
             if (!empty($request->categories) && $request->categories[0] != null) {
                 $uiDevDatas = $uiDevDatas->whereIn('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');
             }
-            if (!empty($request->store_webs) && $request->store_webs[0] != null) {
-                $uiDevDatas = $uiDevDatas->whereIn('uic.website_id', $request->store_webs)->where('ui_devices.device_no', '1');
+
+            $search_website = isset($request->store_webs) ? $request->store_webs : ['1', '3', '5', '9', '17'];
+            if ($search_website) {
+                $uiDevDatas = $uiDevDatas->whereIn('uic.website_id', $search_website)->where('ui_devices.device_no', '1');
             }
             if ($request->id != '') {
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);
@@ -1301,7 +1335,7 @@ class UicheckController extends Controller
             $store_websites = StoreWebsite::get()->pluck('website', 'id');
             $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
 
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes','show_inactive'));
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes','show_inactive', 'search_website'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -2112,15 +2146,40 @@ class UicheckController extends Controller
 
     public function bulkDeleteUserWise(Request $request)
     {
-        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)->pluck('uicheck_id')->toArray();
+        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)
+            ->join('uichecks as uic', 'uic.id', 'uicheck_user_accesses.uicheck_id')
+            ->where('uic.website_id', $request->uicheckWebsite)
+            ->where('uic.uicheck_type_id', $request->uicheckType)
+            ->pluck('uicheck_id')
+            ->toArray();
+
         Uicheck::whereIn('id', $uicheckIds)->delete();
         return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
+    }
+
+    public function bulkDeleteUserWiseMultiple(Request $request)
+    {
+        if ($request->data) {
+            $datas = json_decode(stripslashes($request->data), true);
+            foreach($datas as $data) {
+                $uicheckIds = UicheckUserAccess::where('user_id', $data['user_id'])
+                    ->join('uichecks as uic', 'uic.id', 'uicheck_user_accesses.uicheck_id')
+                    ->where('uic.website_id', $data['uicheck_website'])
+                    ->where('uic.uicheck_type_id', $data['uicheck_type'])
+                    ->pluck('uicheck_id')
+                    ->toArray();
+
+                Uicheck::whereIn('id', $uicheckIds)->delete();
+            }
+        }
+        
+        return response()->json(['status' => true, 'message' => 'Records deleted successfully']);
     }
 
     public function userAccessList(Request $request)
     {
         try {
-            $perPage = 10;
+            $perPage = 20;
             $uicheckUserAccess = new UicheckUserAccess();
             
             $uicheckUserAccess = $uicheckUserAccess->with('user')
@@ -2132,8 +2191,19 @@ class UicheckController extends Controller
                 ->whereNotNull('uicheck_user_accesses.user_id')
                 ->whereNotNull('uicheck_user_accesses.uicheck_id')
                 ->select('uicheck_user_accesses.*','uichecks.uicheck_type_id','uichecks.website_id','users.name as username','store_websites.title as website','uicheck_types.name as type', DB::raw('count(*) as total'))  
-                ->groupBy('uicheck_user_accesses.user_id','uichecks.website_id','uichecks.uicheck_type_id')
-                ->paginate($perPage);
+                ->groupBy('uicheck_user_accesses.user_id','uichecks.website_id','uichecks.uicheck_type_id');
+
+            $keyword = $request->get('keyword');
+            if ($keyword != '') {
+                $uicheckUserAccess = $uicheckUserAccess->where(function ($q) use ($keyword) {
+                    $q->orWhere('store_websites.title', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('uicheck_types.name', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('users.name', 'LIKE', '%' . $keyword . '%');
+                });
+            }
+                
+
+            $uicheckUserAccess = $uicheckUserAccess->paginate($perPage);
            
             return response()->json(['code' => 200, 'data' => $uicheckUserAccess, 'count'=> count($uicheckUserAccess), 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {

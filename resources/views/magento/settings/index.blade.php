@@ -12,6 +12,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 .checkbox input {
     height: unset;
 }
+.multiselect-native-select .multiselect {
+    width: 200px;
+}
 </style>
         <h2 class="page-heading">Magento Settings ({{$counter}})</h2>
     </div>
@@ -30,111 +33,101 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
           <div class="alert alert-danger">{{session('error')}}</div>
         </div>
     @endif
-     <div class="row m-0">
-         <div class="col-lg-12 margin-tb pl-3">
-             <?php $base_url = URL::to('/');?> 
-             <div class="pull-left cls_filter_box">
-                 <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET" style="width: 100%;"> 
-                    <div class="form-group cls_filter_inputbox" >
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
-                    </div>  
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control select2" name="scope" data-placeholder="scope">
-                           <option value="">All</option> 
-                           <option value="default"  {{ request('scope') && request('scope') == 'default' ? 'selected' : '' }} >default</option> 
-                           <option value="websites"  {{ request('scope') && request('scope') == 'websites' ? 'selected' : '' }} >websites</option> 
-                           <option value="stores"  {{ request('scope') && request('scope') == 'stores' ? 'selected' : '' }} >stores</option> 
-                       </select>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <?php $webArr = request('website') ? request('website') : [];?>
-                       <select class="form-control multiselect" multiple name="website[]"  style="width: 100px !important;">
-                           @foreach($storeWebsites as $w)
-                                <?php $selected = '';?>
-                                @if(in_array($w->id, $webArr))
-                                    <?php $selected = 'selected';?>
-                                @endif
-                               <option value="{{ $w->id }}" {{ $selected }}>{{ $w->website }}</option>
-                           @endforeach
-                       </select>
-                    </div>  
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       {{-- <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;"> --}}
-                       <?php
-                        $chkName = [];
-                        $chkPath = [];
-                       ?>
-                       @foreach ($magentoSettings as $magentoSetting) 
-                            <?php array_push($chkName, $magentoSetting->name); ?>    
-                            <?php array_push($chkPath, $magentoSetting->path); ?>    
-                       @endforeach
-                       <?php $chkName = array_unique($chkName); ?>
-                       <?php $chkPath = array_unique($chkPath); ?>
-                       
-                        <select name="name" class="form-control select2"  style="width: 162px!important;" data-placeholder="name">
-                            <option value="">Name</option>
-                            @foreach ($chkName as $name) 
-                                <?php $selected = '';?>
-                                @if(in_array($w->id, $webArr))
-                                    <?php $selected = 'selected';?>
-                                @endif
-                                <option value="{{$name}}" {{$selected}}>{{$name}}</option>
-                            @endforeach
-                        </select>  
-                    </div>  
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       {{-- <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;"> --}}
-                       <select name="path" class="form-control select2"  style="width: 162px!important;" data-placeholder="Path">
-                        <option value="">Path</option>
-                        @foreach ($chkPath as $path) 
+   
+    <div class="col-lg-12 margin-tb pl-3">
+        <?php $base_url = URL::to('/');?> 
+        <div class="pull-left cls_filter_box">
+                <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET" style="width: 100%;"> 
+                <div class="form-group cls_filter_inputbox" >
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
+                    <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-secondary" id=""  target="_blank">Sync Logs</a>
+                </div>  
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <select class="form-control select2" name="scope" data-placeholder="scope" style="width: 200px !important;">
+                        <option value="">All</option> 
+                        <option value="default"  {{ request('scope') && request('scope') == 'default' ? 'selected' : '' }} >default</option> 
+                        <option value="websites"  {{ request('scope') && request('scope') == 'websites' ? 'selected' : '' }} >websites</option> 
+                        <option value="stores"  {{ request('scope') && request('scope') == 'stores' ? 'selected' : '' }} >stores</option> 
+                    </select>
+                </div> 
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <?php $webArr = request('website') ? request('website') : [];?>
+                    <select class="form-control multiselect" multiple name="website[]"  style="width: 200px !important;">
+                        @foreach($storeWebsites as $w)
                             <?php $selected = '';?>
                             @if(in_array($w->id, $webArr))
                                 <?php $selected = 'selected';?>
                             @endif
-                            <option value="{{$path}}" {{$selected}}>{{$path}}</option>
+                            <option value="{{ $w->id }}" {{ $selected }}>{{ $w->title }}</option>
+                        @endforeach
+                    </select>
+                </div>  
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    {{-- <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;"> --}}
+                    <?php
+                    $chkName = [];
+                    $chkPath = [];
+                    ?>
+                    @foreach ($magentoSettings as $magentoSetting) 
+                        <?php array_push($chkName, $magentoSetting->name); ?>    
+                        <?php array_push($chkPath, $magentoSetting->path); ?>    
+                    @endforeach
+                    <?php $chkName = array_unique($chkName); ?>
+                    <?php $chkPath = array_unique($chkPath); ?>
+                    
+                    <select name="name" class="form-control select2"  style="width: 162px!important;" data-placeholder="name">
+                        <option value="">Name</option>
+                        @foreach ($chkName as $name) 
+                            <?php $selected = '';?>
+                            @if(in_array($w->id, $webArr))
+                                <?php $selected = 'selected';?>
+                            @endif
+                            <option value="{{$name}}" {{$selected}}>{{$name}}</option>
                         @endforeach
                     </select>  
+                </div>  
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    {{-- <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;"> --}}
+                    <select name="path" class="form-control select2"  style="width: 162px!important;" data-placeholder="Path">
+                    <option value="">Path</option>
+                    @foreach ($chkPath as $path) 
+                        <?php $selected = '';?>
+                        @if(in_array($w->id, $webArr))
+                            <?php $selected = 'selected';?>
+                        @endif
+                        <option value="{{$path}}" {{$selected}}>{{$path}}</option>
+                    @endforeach
+                </select>  
+                </div> 
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
-                     </div> 
-                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                        <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
-                     </div> 
-                 </form>
-				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
-					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-						<select class="form-control websites select2" name="store_website_id" data-placeholder="website" style="width:100px !important;">
-                           <option value=""></option>
-                           @foreach($storeWebsites as $w)
-                               <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
-                           @endforeach
-                        </select>
-					</div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                    
                     </div> 
-					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
-                        <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-image" id=""  target="_blank"><button type="button" class="btn btn-default">Sync Logs</button></a>
-                    </div>
-                </form>
-                <div class="pull-left cls_filter_box">
-                {{Form::open(array('url'=>route('magento.setting.updateViaFile'), 'class'=>'form-inline','files' => true))}}
-                    <div class="form-group ml-3 mt-2 cls_filter_inputbox" style="margin-left: 10px;">
-                        <?php echo Form::file('file'); ?>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
-                        <button type="submit" onclick="confirm('Are you sure you want to update setting ?')" class="btn btn-default">Start sync</button>
-                    </div>
-                </form>
-             </div>
-         </div> 
-
-        
-             </div>
-         </div> 
-     </div>
+            {{ Form::close() }}
+        </div> 
+        <div class="pull-right cls_filter_box">
+            {{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <select class="form-control websites select2" name="store_website_id" data-placeholder="Please select website" style="width:200px !important;">
+                        <option value=""></option>
+                        @foreach($storeWebsites as $w)
+                            <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->title }}</option>
+                        @endforeach
+                    </select>
+                </div> 
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <button title="Update Magento Settings" type="submit" style="" class="btn btn-default"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                </div> 
+                
+            {{ Form::close() }}    
+        </div>
+    </div>
+    
+     
 
     <div class="col-12 mb-3 mt-3 p-0">
 
@@ -168,14 +161,14 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website ?? $magentoSetting->fromStoreId->website; ?>')" >{{  substr($magentoSetting->website->website ?? $magentoSetting->fromStoreId->website, 0,10)  }} @if(strlen($magentoSetting->website->website ?? $magentoSetting->fromStoreId->website) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->title ?? $magentoSetting->fromStoreId->title; ?>')" >{{  substr($magentoSetting->website->title ?? $magentoSetting->fromStoreId->title, 0,10)  }} @if(strlen($magentoSetting->website->title ?? $magentoSetting->fromStoreId->title) > 10) ... @endif</td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
                                         
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : $magentoSetting->fromStoreId->website ; ?>')" >
-                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : $magentoSetting->fromStoreId->website }} ...
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->title : $magentoSetting->fromStoreId->title ; ?>')" >
+                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->title : $magentoSetting->fromStoreId->title }} ...
                                         </td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->title; ?>')" >{{ substr($magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->title, 0,10) }} @if(strlen($magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->website) > 10) ... @endif</td>
                                         <td>-</td>
@@ -258,7 +251,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <select class="form-control website store-website-select" name="single_website" data-placeholder="Select setting website" style="width: 100%">
                             <option value="">Select Website</option>
                             @foreach($storeWebsites as $w)
-                                <option value="{{ $w->id }}">{{ $w->website }}</option>
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
                             @endforeach
                         </select>
                         <input type="hidden" id="single_website" name="website[]" value="" />
@@ -297,7 +290,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <select class="form-control website select2" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
                             @foreach($storeWebsites as $w)
-                                <option value="{{ $w->id }}">{{ $w->website }}</option>
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
                             @endforeach
                         </select>
                     </div> 
@@ -366,10 +359,10 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                    
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
-                        <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
+                        <select id="apply_websites"class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
                             @foreach($storeWebsites as $w)
-                                <option value="{{ $w->id }}">{{ $w->website }}</option>
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
                             @endforeach
                         </select>
                     </div> 
@@ -492,12 +485,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					<thead>
 					  <tr>
 						<th width="10%">Date</th>
-						<th width="20%">Command</th>
-						<th width="10%">Command Server</th>
+						<th width="30%">URL</th>
+                        <th width="30%">Request Data</th>
+						<th width="10%">Response</th>
+                        <th width="10%">Status Code</th>
                         <th width="10%">Status</th>
-                        <th width="10%">Job Id</th>
-						<th width="40%">Command Output</th>
-					  </tr>
+                      </tr>
 					</thead>
 					<tbody id="settingsPushLogs">
 
