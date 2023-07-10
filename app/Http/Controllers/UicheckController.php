@@ -850,6 +850,38 @@ class UicheckController extends Controller
         }
     }
 
+    public function bulkShow()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 0);
+            }
+
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function bulkHide()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 1);
+            }
+            
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
     public function updateLock()
     {
         try {
@@ -2114,9 +2146,34 @@ class UicheckController extends Controller
 
     public function bulkDeleteUserWise(Request $request)
     {
-        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)->pluck('uicheck_id')->toArray();
+        $uicheckIds = UicheckUserAccess::where('user_id', $request->userId)
+            ->join('uichecks as uic', 'uic.id', 'uicheck_user_accesses.uicheck_id')
+            ->where('uic.website_id', $request->uicheckWebsite)
+            ->where('uic.uicheck_type_id', $request->uicheckType)
+            ->pluck('uicheck_id')
+            ->toArray();
+
         Uicheck::whereIn('id', $uicheckIds)->delete();
         return response()->json(['status' => true, 'message' => 'Ui checks deleted successfully']);
+    }
+
+    public function bulkDeleteUserWiseMultiple(Request $request)
+    {
+        if ($request->data) {
+            $datas = json_decode(stripslashes($request->data), true);
+            foreach($datas as $data) {
+                $uicheckIds = UicheckUserAccess::where('user_id', $data['user_id'])
+                    ->join('uichecks as uic', 'uic.id', 'uicheck_user_accesses.uicheck_id')
+                    ->where('uic.website_id', $data['uicheck_website'])
+                    ->where('uic.uicheck_type_id', $data['uicheck_type'])
+                    ->pluck('uicheck_id')
+                    ->toArray();
+
+                Uicheck::whereIn('id', $uicheckIds)->delete();
+            }
+        }
+        
+        return response()->json(['status' => true, 'message' => 'Records deleted successfully']);
     }
 
     public function userAccessList(Request $request)
