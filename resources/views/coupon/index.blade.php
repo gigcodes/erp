@@ -96,6 +96,12 @@
         background-color: #fff;
         animation: loader-inner 2s infinite ease-in;
     }
+    .select-width .select2.select2-container.select2-container--default{
+        width: 150px !important;
+    }
+    .select-width{
+        margin-right: 5px;
+    }
 
     @keyframes loader {
         0% {
@@ -183,50 +189,46 @@
 <div id="response-alert-container"></div>
 <div class="row">
     <div class="col-md-12 pl-5 pr-5">
-        <div class="cls_filter_box col-md-6">
-            <form class="form-inline" action="{{ route('coupons.index')}}" method="GET">
-                <div class="form-group cls_filter_inputbox p-0 mr-2">
-                    <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code">
-                </div>
-                <div class="form-group cls_filter_inputbox p-0 mr-2">
-                    <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status">
-                </div>
-                <div class="form-group cls_filter_inputbox p-0 mr-2">
-                    <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules">
-                </div>
-                <br>
-                {{-- <div class="col-md-3 pd-sm">
-                    <h5>Search websites</h5>
-                    {{ Form::select("website_ids[]", \App\StoreWebsite::pluck('title','title')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
-                </div> --}}
-                <div class="col-md-3 pd-sm">
-                    <h5>Search Users</h5>
-                    {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(),request('usernames'),["class" => "form-control-sm form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
-                </div>
-                <div class="form-group cls_filter_inputbox p-0 mr-2">
-                    <h5>Start Date</h5>
-                    <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date">
-                </div>
-                <div class="form-group cls_filter_inputbox p-0 mr-2">
-                    <h5>End Date</h5>
-                    <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date">
-                </div>
-                <div class="form-group p-0 mr-2">
-                    <br>
-                    <br>
-                    <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
-                    <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6" style="text-align: right; margin-bottom: 10px;">
-            <button type="button" class="btn custom-button" onclick="showOverallReport()">
-                Overall Report
-            </button>
-            <span>&nbsp;</span>
-            <button type="button" class="btn custom-button" onclick="createCoupon()">
-                New Coupon
-            </button>
+        <div class="row">
+            <div class="cls_filter_box col-md-10">
+                <form class="form-inline" action="{{ route('coupons.index')}}" method="GET">
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code">
+                    </div>
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status">
+                    </div>
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules">
+                    </div>
+                    {{-- <br> --}}
+                    <div class="pd-sm select-width">
+                        {{ Form::select("website_ids[]", \App\StoreWebsite::pluck('title','title')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                    </div>
+                    <div class="pd-sm select-width">
+                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(),request('usernames'),["class" => "form-control-sm form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                    </div>
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date">
+                    </div>
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date">
+                    </div>
+                    <div class="form-group p-0 mr-2">
+                        <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                        <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-2" style="text-align: right; margin-bottom: 10px;">
+                <button type="button" class="btn custom-button" onclick="showOverallReport()">
+                    Overall Report
+                </button>
+                <span>&nbsp;</span>
+                <button type="button" class="btn custom-button" onclick="createCoupon()">
+                    New Coupon
+                </button>
+            </div>
         </div>
     </div>
 </div>
