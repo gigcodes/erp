@@ -153,7 +153,7 @@
 					<div class="col-md-3">
 						<div class="form-group">
 							<?php 
-								if(request('store_webs')){   $store_websArr = request('store_webs'); }
+								if($search_website){   $store_websArr = $search_website; }
 								else{ $store_websArr = []; }
 							  ?>
 							<select data-placeholder="Select a website" name="store_webs[]" id="store_webiste" multiple class="form-control select2">
@@ -736,6 +736,16 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
+			<div class="row">
+				<div class="col-md-12">
+					<form action="" method="GET" id="user-access-search-form" style="margin-left:auto">
+						<div class="col-12 pb-3">
+							<input type="text" name="keyword" class="user-access-search-input" placeholder="Keyword">
+							<button type="submit" class="btn btn-secondary btn-google-doc-search-menu"><i class="fa fa-search"></i></button>
+						</div>
+					</form>
+				</div>
+			</div>
           <table class="table">
             <thead class="thead-light">
               <tr>
@@ -959,7 +969,13 @@
 		});
 	}
 
-	function listUserAccess(pageNumber = 1) {
+	$(document).on('submit', '#user-access-search-form', function(event) {
+		event.preventDefault();
+		var keyword = $('.user-access-search-input').val();
+		listUserAccess(1, keyword);
+	});
+
+	function listUserAccess(pageNumber = 1, keyword = null) {
 		$.ajax({
 			url: '{{route("uicheck.user-access-list")}}',
 			type: 'GET',
@@ -967,7 +983,8 @@
 			'X-CSRF-TOKEN': "{{ csrf_token() }}"
 			},
 			data: {
-			page: pageNumber
+			page: pageNumber,
+			keyword: keyword
 			},
 			dataType: "json",
 			beforeSend: function () {
@@ -1024,7 +1041,8 @@
 	}
 
 	function changePageForUserAccess(pageNumber) {
-		listUserAccess(pageNumber);
+		var keyword = $('.user-access-search-input').val();
+		listUserAccess(pageNumber, keyword);
 	}
 
 	$(document).on("click",".user-access-delete",function(e) {
