@@ -13,6 +13,7 @@ class Project extends Model
     public $fillable = [
         'name',
         'serverenv',
+        'job_name'
     ];
 
     public function getStoreWebsiteNamesAttribute()
