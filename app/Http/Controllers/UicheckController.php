@@ -850,6 +850,38 @@ class UicheckController extends Controller
         }
     }
 
+    public function bulkShow()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 0);
+            }
+
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function bulkHide()
+    {
+        try {
+            $uiCheckIds = request('uiCheckIds');
+            
+            $uiChecks = Uicheck::find($uiCheckIds);
+            foreach($uiChecks as $uiCheck) {
+                $uiCheck->updateElement('lock_developer', 1);
+            }
+            
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
     public function updateLock()
     {
         try {

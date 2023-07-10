@@ -235,6 +235,8 @@
 						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
 					}
 				@endphp
+				<button class="btn btn-secondary my-3" onclick="bulkShow()"> Bulk Show </button>&nbsp;
+				<button class="btn btn-secondary my-3" onclick="bulkHide()"> Bulk Hide </button>&nbsp;
 				<button class="btn btn-secondary my-3" onclick="bulkDelete()"> Bulk Delete </button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
@@ -930,6 +932,86 @@
             }
         }).done(function(data) {
             toastr["success"]("Deleted successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"](error.responseJSON.message);
+        });
+    }
+
+	function bulkShow()
+    {
+        event.preventDefault();
+        var uiCheckIds = [];
+
+		$(".bulk_delete").each(function () {
+			if ($(this).prop("checked") == true) {
+				uiCheckIds.push($(this).val());
+			}
+		});
+
+		if (uiCheckIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(uiCheckIds);
+			return false;
+		}
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('uicheck.bulk-show') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                uiCheckIds: uiCheckIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"]("Bulk show completed successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"](error.responseJSON.message);
+        });
+    }
+
+	function bulkHide()
+    {
+        event.preventDefault();
+        var uiCheckIds = [];
+
+		$(".bulk_delete").each(function () {
+			if ($(this).prop("checked") == true) {
+				uiCheckIds.push($(this).val());
+			}
+		});
+
+		if (uiCheckIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(uiCheckIds);
+			return false;
+		}
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('uicheck.bulk-hide') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                uiCheckIds: uiCheckIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"]("Bulk hide completed successfully!", "Message")
             window.location.reload();
         }).fail(function(response) {
             toastr["error"](error.responseJSON.message);
