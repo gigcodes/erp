@@ -2,6 +2,7 @@
 	<tr>
 		<td>{{$code->id}}</td>
 		<td>{{$code->code_shortcuts_platform_id == null ?'':$code->platform->name}}</td>
+		<td>{{$code->website}}</td>
 		<td>{{$code->title}}</td>
 		<td>{{$code->code}}</td>
 		<td>{{$code->description}}</td>

@@ -24,7 +24,7 @@
 </div>
 <div class="row" id="product-template-page">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Code Shortcut (<span id="user_count">{{ count($codeshortcut) }}</span>)</h2>
+		<h2 class="page-heading">Code Shortcut (<span id="user_count">{{ $codeshortcut->total() }}</span>)</h2>
 		<div class="pull-left">
 			<div class="form-group">
 				<div class="row">
@@ -50,8 +50,8 @@
 							<option value="desc">Desc</option>
 						</select>
 					</div>
-					<h5>Search Platform	</h5>		
 					<div class="col-md-3">	
+						<h5>Search Platform	</h5>	
 					<select class="form-control globalSelect2" multiple="true" id="platform-select" name="platforms" place-holder="Select Platform">
 						<option value="">Select Platform</option>
 						@foreach($platforms as $platform)
@@ -59,10 +59,19 @@
 						@endforeach
 					</select>
 					</div>
+					
+					<div class="col-md-3">
+						<h5>Search Websites	</h5>		
+						{{ Form::select("websitenames[]", \App\CodeShortcut::pluck('website','website')->toArray(),request('websitenames'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website","id" => "website_select"]) }}
+					</div>
 					<div class="col-md-2">
+						<br>
+						<br>
 						<button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
 					</div>
 					<div class="col-md-2">
+						<br>
+						<br>
 						<button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
 					</div>
 				</div>
@@ -94,6 +103,7 @@
 				<tr>
 					<th>ID</th>
 					<th>Platform name</th>
+					<th>Website</th>
 					<th>Title</th>
 					<th>Code</th>
 					<th>Description</th>
@@ -111,6 +121,7 @@
 
 
 		</table>
+		{!! $codeshortcut->appends(Request::except('page'))->links() !!}
 	</div>
 </div>
 
@@ -204,6 +215,7 @@
 		term = $('#term').val()
 		id = $('#supplier-select').val()
 		var platformIds = $('#platform-select').val();
+		var websites = $('#website_select').val();
 		createdAt = $('#createdAt-select').val()
 	
 		codeTitle = $('#code_title').val()
@@ -215,7 +227,8 @@
 				id: id,
 				platformIds: platformIds,
 				codeTitle:codeTitle,
-				createdAt:createdAt
+				createdAt:createdAt,
+				websites:websites
 
 			},
 			beforeSend: function() {
