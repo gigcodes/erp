@@ -705,13 +705,13 @@ class MagentoSettingsController extends Controller
 
     public function pushRowMagentoSettings(Request $request)
     {
-        if($request->has('tagged_websites')){
-            foreach ($request->tagged_websites as $tagged_websites) {
-                $magentoSettings = MagentoSetting::where('store_website_id', $tagged_websites)->get();
-                
-                foreach ($magentoSettings as $magentoSetting) {
-                    \App\Jobs\PushMagentoSettings::dispatch($magentoSetting)->onQueue('pushMagentoSettings');
-                }
+        if($request->has('tagged_websites') && $request->has('row_id')){
+            // Find individual setting 
+            $individualSetting = MagentoSetting::find($request->has('row_id'));
+
+            // Push individual setting to selected websites
+            foreach ($request->tagged_websites as $tagged_website) {
+                \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $tagged_website)->onQueue('pushMagentoSettings');
             }
 
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');

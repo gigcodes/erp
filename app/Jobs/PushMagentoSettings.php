@@ -23,6 +23,8 @@ class PushMagentoSettings implements ShouldQueue
 
     protected $magentoSetting;
 
+    protected $selectedWebsite;
+
     public $tries = 5;
 
     public $backoff = 5;
@@ -32,10 +34,11 @@ class PushMagentoSettings implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($magentoSetting)
+    public function __construct($magentoSetting, $selectedWebsite = '')
     {
         // Set product and website
         $this->magentoSetting = $magentoSetting;
+        $this->selectedWebsite = $selectedWebsite;
     }
 
     /**
@@ -59,7 +62,11 @@ class PushMagentoSettings implements ShouldQueue
             $value = $entity->value;
             $datatype = $entity->datatype;
             
-            $website_ids[] = $entity->store_website_id;
+            if($this->selectedWebsite) {
+                $website_ids[] = $this->selectedWebsite;
+            } else {
+                $website_ids[] = $entity->store_website_id;
+            }
             
             
             // #DEVTASK-23677-api implement for admin settings
