@@ -52,17 +52,18 @@
 					</div>
 					<div class="col-md-3">	
 						<h5>Search Platform	</h5>	
-					<select class="form-control globalSelect2" multiple="true" id="platform-select" name="platforms" place-holder="Select Platform">
-						<option value="">Select Platform</option>
-						@foreach($platforms as $platform)
-						<option value="{{ $platform->id }}">{{ $platform->name }}</option>
-						@endforeach
-					</select>
+						<select class="form-control globalSelect2" multiple="true" id="platform-select" name="platforms" placeholder="Select Platform">
+							<option value="">Select Platform</option>
+							@foreach($platforms as $platform)
+							<option value="{{ $platform->id }}">{{ $platform->name }}</option>
+							@endforeach
+						</select>
+						
 					</div>
 					
 					<div class="col-md-3">
-						<h5>Search Websites	</h5>		
-						{{ Form::select("websitenames[]", \App\CodeShortcut::pluck('website','website')->toArray(),request('websitenames'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website","id" => "website_select"]) }}
+						<h5>Search Websites	</h5>	
+						{{ Form::select("websitenames[]", \App\CodeShortcut::pluck('website','website')->toArray(),request('websitenames'),["class" => "form-control globalSelect2", "multiple", "placeholder" => "Select Website","id" => "website_select"]) }}
 					</div>
 					<div class="col-md-2">
 						<br>
@@ -93,35 +94,38 @@
 </div>
 
 <div class="row">
-	<div class="col-md-12">
-		<div class="pull-right pr-4">
-			<input type="text" id="search_input" placeholder="Search By Type.....">
-		</div>
-		<br><br>
-		<table class="table table-striped table-bordered" id="code_table">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Platform name</th>
-					<th>Website</th>
-					<th>Title</th>
-					<th>Code</th>
-					<th>Description</th>
-					<th>Solution</th>
-					<th>User Name</th>
-					<th>Supplier Name</th>
-					<th>Created At</th>
-					<th>Image</th>
-					<th>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				@include('code-shortcut.partials.list-code')
-			</tbody>
-
-
-		</table>
-	</div>
+    <div class="col-md-12">
+        <div class="pull-right pr-4">
+            <input type="text" id="search_input" placeholder="Search By Type.....">
+        </div>
+        <br><br>
+        <table class="table table-striped table-bordered" id="code_table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Platform name</th>
+                    <th>Website</th>
+                    <th>Title</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Solution</th>
+                    <th>User Name</th>
+                    <th>Supplier Name</th>
+                    <th>Created At</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @include('code-shortcut.partials.list-code')
+            </tbody>
+        </table>
+        
+        <!-- Add pagination links -->
+        <div class="text-center">
+            {!! $codeshortcut->appends(Request::except('page'))->links() !!}
+        </div>
+    </div>
 </div>
 
 <!-- Modal -->

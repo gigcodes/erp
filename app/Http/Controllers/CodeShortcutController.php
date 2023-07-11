@@ -69,6 +69,7 @@ class CodeShortcutController extends Controller
         if($monitorJenkinsBuilds !== null){
             $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
             $platformId = $platform->id;
+            $shortcutCountCheck = CodeShortcut::Where('code_shortcuts_platform_id', $platformId )->get();
         
             foreach ($monitorJenkinsBuilds as $monitorJenkinsBuild)
             {
@@ -79,7 +80,7 @@ class CodeShortcutController extends Controller
                             ->where('user_id', auth()->user()->id)
                             ->first();
 
-                if ($codeShortcut === null) {
+                if ($codeShortcut === null && count($shortcutCountCheck) === count($monitorJenkinsBuilds)) {
                     $codeShortcut =  new CodeShortcut();
                     $codeShortcut->code_shortcuts_platform_id = $platformId;
                     $codeShortcut->description = $monitorJenkinsBuild->full_log;
