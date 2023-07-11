@@ -186,10 +186,15 @@
                 url: url,
                 data: {
                     build_organization: jQuery('#build_organization').val(),
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
                 }
+                
             }).done(function(response) {
                 jQuery('#build_repository').html(response.data);
                 jQuery('#build_branch_name').html("");
+                $("#loading-image-preview").hide();
             }).fail(function(response) {});
         });
 
@@ -203,9 +208,13 @@
                 url: url,
                 data: {
                     build_repository: jQuery('#build_repository').val(),
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
                 }
             }).done(function(response) {
                 jQuery('#build_branch_name').html(response.data);
+                $("#loading-image-preview").hide();
             }).fail(function(response) {});
         
         });

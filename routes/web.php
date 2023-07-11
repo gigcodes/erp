@@ -625,8 +625,10 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/pushLogs/{settingId}', [MagentoSettingsController::class, 'magentoPushLogs'])->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', [MagentoSettingsController::class, 'create'])->name('magento.setting.create');
     Route::post('magento-admin-settings/update', [MagentoSettingsController::class, 'update'])->name('magento.setting.update');
+    Route::get('magento-admin-settings/get-magento-setting/{id}', [MagentoSettingsController::class, 'getMagentoSetting'])->name('magento.setting.get-magento-setting');
 
     Route::post('magento-admin-settings/push-settings', [MagentoSettingsController::class, 'pushMagentoSettings'])->name('magento.setting.pushMagentoSettings');
+    Route::post('magento-admin-settings/push-row-magento-settings', [MagentoSettingsController::class, 'pushRowMagentoSettings'])->name('magento.setting.push-row-magento-settings');
     
     Route::post('magento-admin-settings/website/stores', [MagentoSettingsController::class, 'websiteStores'])->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');

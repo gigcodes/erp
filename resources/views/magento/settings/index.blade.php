@@ -150,7 +150,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Date</th>
                             <th>Status</th>
                             <th>Created By</th>
-							<th>Data Type</th>
+							{{-- <th>Data Type</th> --}}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -193,11 +193,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
-								<td>{{ $magentoSetting->data_type }}</td>
+								{{-- <td>{{ $magentoSetting->data_type }}</td> --}}
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -294,13 +295,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             @endforeach
                         </select>
                     </div> 
-					<div class="form-group">
+					{{-- <div class="form-group">
 						<label for="">Data Type</label><br>
                         <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
                         <label for="sensitive">sensitive</label><br>
                         <input type="radio" name="datatype" id="shared" value="shared">
                         <label for="shared">Shared</label><br>
-                    </div>
+                    </div> --}}
                         
                 </div>
                 <div class="modal-footer">
@@ -357,7 +358,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
                    
-                    <div class="form-group">
+                    {{-- #DEVTASK-23690-Magento Admin Settings - The below logic was not need, So I hide that.  --}}
+                    {{-- <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select id="apply_websites"class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
@@ -380,11 +382,42 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <label for="sensitive">Sensitive</label><br>
                         <input type="radio" name="datatype" id="shared" value="shared">
                         <label for="shared">Shared</label><br>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="push-setting-popup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="push-setting-form" class="push-setting-form" method="post" action="{{ route('magento.setting.push-row-magento-settings') }}">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Push Magento Setting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">Websites</label><br>
+                        {!! Form::hidden('row_id', null, ['id' => 'row_id', 'class' => 'form-control']) !!}
+                        <select id="apply_tagged_websites"class="form-control website select2 websites" name="tagged_websites[]" multiple style="width: 100%">
+                            @foreach($storeWebsites as $w)
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary form-save-btn">Update Magento Settings</button>
                 </div>
             </form>
         </div>
@@ -880,6 +913,31 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         }).fail(function () {
             console.log("error");
         });
+    });
+
+    $(".push-setting").on('click', function(e) {
+        var row_id = $(this).data("id");
+
+        var url = "{{ route('magento.setting.get-magento-setting', '') }}/" + row_id;
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "GET",
+            url: url,
+        }).done(function(response) {
+            if(response.code == '500') {
+                toastr['error'](response.error);
+            } else {
+                $(".push-setting-form #row_id").val(row_id);
+                var taggedWebsites = [];
+                $(response.taggedWebsites).each(function(index, store_websites) {
+                    taggedWebsites.push(store_websites.id);
+                });
+                $(".push-setting-form #apply_tagged_websites").val(taggedWebsites).trigger('change');
+                $("#push-setting-popup").modal("show");
+            }
+        }).fail(function(response) {});
     });
 
 
