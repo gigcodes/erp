@@ -785,4 +785,52 @@ class RepositoryController extends Controller
         // Return the total comment count
         return $pullRequest['review_comments'];
     }
+
+    public function getPullRequestActivities($repo, $pullNumber)
+    {
+        $repository = GithubRepository::where('id',  $repo)->first();
+        $organization = $repository->organization;
+        
+        // Set the username and token
+        $userName = $organization->username; 
+        $token = $organization->token;
+
+        // Set the repository owner and name
+        $owner = $organization->username;
+        $repo = $repository->name;
+
+        // Set the number of activities per page
+        $perPage = 10;
+
+        // Set the current page number
+        $currentPage = request()->query('page', 1);
+
+        // Set the API endpoint for the specific page
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullNumber}/timeline?per_page={$perPage}&page={$currentPage}";
+
+        try{
+            // Send a GET request to the GitHub API
+            $githubClient = $this->connectGithubClient($userName, $token);
+            $response = $githubClient->get($url);
+            $activities = json_decode($response->getBody()->getContents(), true);
+            $totalCount = 10; // Need to change dynamically
+
+            // Paginate the activities
+            $activitiesPaginated = new LengthAwarePaginator(
+                $activities,
+                $totalCount,
+                $perPage,
+                $currentPage,
+                ['path' => request()->url()]
+            );
+        }
+        catch (Exception $e) {
+        }
+
+        // Return the activities to the view
+        return View::make('github.pull-request-activities', [
+            'activities' => $activitiesPaginated,
+            'totalCount' => $totalCount
+        ]);
+    }
 }
