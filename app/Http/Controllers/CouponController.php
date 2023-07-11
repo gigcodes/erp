@@ -59,7 +59,10 @@ class CouponController extends Controller
         if ($srch = request('usernames')) {
             $q->where('created_by', $srch);
         }
- 
+        if ($srch = request('website_ids')) {
+            $q->whereIn('website_ids', $srch);
+        }
+        
         if ($startDate = request('flt_start_date')) {
             $q->whereDate('from_date', '>=', $startDate);
         }

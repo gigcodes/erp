@@ -201,12 +201,11 @@
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
                         <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules">
                     </div>
-                    {{-- <br> --}}
                     <div class="pd-sm select-width">
-                        {{ Form::select("website_ids[]", \App\StoreWebsite::pluck('title','title')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                        {{ Form::select("website_ids[]", \App\CouponCodeRules::pluck('website_ids','website_ids')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple", "placeholder" => "Select Website"]) }}
                     </div>
                     <div class="pd-sm select-width">
-                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(),request('usernames'),["class" => "form-control-sm form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(), request('usernames'), ["class" => "form-control-sm form-control globalSelect2", "multiple", "placeholder" => "Select User"]) }}
                     </div>
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
                         <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date">
