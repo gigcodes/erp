@@ -23,7 +23,7 @@ class PushMagentoSettings implements ShouldQueue
 
     protected $magentoSetting;
 
-    protected $selectedWebsite;
+    protected $website_ids;
 
     public $tries = 5;
 
@@ -34,11 +34,11 @@ class PushMagentoSettings implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($magentoSetting, $selectedWebsite = '')
+    public function __construct($magentoSetting, $website_ids)
     {
         // Set product and website
         $this->magentoSetting = $magentoSetting;
-        $this->selectedWebsite = $selectedWebsite;
+        $this->website_ids = $website_ids;
     }
 
     /**
@@ -62,13 +62,9 @@ class PushMagentoSettings implements ShouldQueue
             $value = $entity->value;
             $datatype = $entity->datatype;
             
-            if($this->selectedWebsite) {
-                $website_ids[] = $this->selectedWebsite;
-            } else {
-                $website_ids[] = $entity->store_website_id;
-            }
+            $website_ids = $this->website_ids;
             
-            
+            \Log::info("website_ids : ".print_r($website_ids,true));
             // #DEVTASK-23677-api implement for admin settings
             \Log::info("Setting Scope : ".$scope);
             // Scope Default
@@ -140,15 +136,19 @@ class PushMagentoSettings implements ShouldQueue
             }
             // Scope Default
             if ($scope === 'websites') {
-                $store = $entity->website_store_id;
+                $store = isset($entity->store->website->name) ? $entity->store->website->name : '' ;
+                \Log::info("Setting Pushed to store : ".$store);
                 
-                $websiteStores = WebsiteStore::with('website.storeWebsite')->where('id', $entity->scope_id)->get();
-
+                //$websiteStores = WebsiteStore::with('website.storeWebsite')->where('id', $entity->scope_id)->get();
+                $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
+                    $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
+                })->orWhere('id', $entity->scope_id)->get();
+                
                 foreach ($websiteStores as $websiteStore) {
                     $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
 
-                    \Log::info("Start Setting Pushed to : ".$store_website_id);
-                    \Log::info("Website Store : ".$websiteStore->id);
+                    \Log::info("Start Setting Pushed to Website Store : ".$websiteStore->id);
+                    \Log::info("store_website_id : ".$store_website_id);
 
                     $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
                     $api_token = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
@@ -214,19 +214,27 @@ class PushMagentoSettings implements ShouldQueue
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
                     }
-                    \Log::info("End Setting Pushed to : ".$store_website_id);
-
+                    \Log::info("End Setting Pushed to Website Store : ".$websiteStore->id);
                 }
             }
             // Scope Default
             if ($scope === 'stores') {
-                $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->with('websiteStore.website')->where('id', $entity->scope_id)->get();
+                
+                $store = isset($entity->storeview->websiteStore->website->name) ? $entity->storeview->websiteStore->website->name : '' ;
+                $store_view = isset($entity->storeview->code) ? $entity->storeview->code : '';
+                \Log::info("Setting Pushed to store : ".$store);
+                \Log::info("Setting Pushed to  store_view: ".$store_view);
+
+                //$websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->with('websiteStore.website')->where('id', $entity->scope_id)->get();
+                $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
+                    $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
+                })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
                 foreach ($websiteStoresViews as $websiteStoresView) {
                     $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
 
-                    \Log::info("Start Setting Pushed to : ".$store_website_id);
-                    \Log::info("Website Store View : ".$websiteStoresView->id);
+                    \Log::info("Start Setting Pushed to Website Store View: ".$websiteStoresView->id);
+                    \Log::info("store_website_id : ".$store_website_id);
 
                     $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                     $api_token = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
@@ -292,7 +300,7 @@ class PushMagentoSettings implements ShouldQueue
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
                     }
-                    \Log::info("End Setting Pushed to : ".$store_website_id);
+                    \Log::info("End Setting Pushed to Website Store View: ".$websiteStoresView->id);
                 }
             }
             // #DEVTASK-23677-api implement for admin settings

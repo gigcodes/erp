@@ -603,9 +603,9 @@ class MagentoSettingsController extends Controller
 
             $store_website_id = $request->store_website_id;
             $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
-            
+            $website_ids[]=$store_website_id;
             foreach ($magentoSettings as $magentoSetting) {
-                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting)->onQueue('pushMagentoSettings');
+                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting,$website_ids)->onQueue('pushMagentoSettings');
             }
 
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
@@ -706,14 +706,17 @@ class MagentoSettingsController extends Controller
     public function pushRowMagentoSettings(Request $request)
     {
         if($request->has('tagged_websites') && $request->has('row_id')){
+            
             // Find individual setting 
-            $individualSetting = MagentoSetting::find($request->has('row_id'));
-
+            $individualSetting = MagentoSetting::with(
+                'storeview.websiteStore.website.storeWebsite',
+                'store.website.storeWebsite',
+                'website',
+                'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
+            
             // Push individual setting to selected websites
-            foreach ($request->tagged_websites as $tagged_website) {
-                \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $tagged_website)->onQueue('pushMagentoSettings');
-            }
-
+            \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushMagentoSettings');
+           
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
         return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
