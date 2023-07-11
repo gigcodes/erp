@@ -150,7 +150,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Date</th>
                             <th>Status</th>
                             <th>Created By</th>
-							<th>Data Type</th>
+							{{-- <th>Data Type</th> --}}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -193,7 +193,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
-								<td>{{ $magentoSetting->data_type }}</td>
+								{{-- <td>{{ $magentoSetting->data_type }}</td> --}}
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
@@ -295,13 +295,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             @endforeach
                         </select>
                     </div> 
-					<div class="form-group">
+					{{-- <div class="form-group">
 						<label for="">Data Type</label><br>
                         <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
                         <label for="sensitive">sensitive</label><br>
                         <input type="radio" name="datatype" id="shared" value="shared">
                         <label for="shared">Shared</label><br>
-                    </div>
+                    </div> --}}
                         
                 </div>
                 <div class="modal-footer">

@@ -689,10 +689,10 @@ class MagentoSettingsController extends Controller
             if ($magentoSetting->store_website_id) {
                 $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
                 if ($storeWebsite->parent_id) {
-                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->get();
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
                     return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
                 } else {
-                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->get();
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
                     return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
                 }
             }
