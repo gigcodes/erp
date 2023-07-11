@@ -477,6 +477,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
+
+    .highlight {
+        background-color: yellow;
+    }
+
     </style>
     @stack("styles")
 </head>
@@ -848,7 +853,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $dbBackupList = \App\Models\DatabaseBackupMonitoring::where('is_resolved', 0)->count();
                                     @endphp
-                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring"><span>
+                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring" class="quick-icon" style="padding: 0px 1px;"><span>
                                         <i class="fa fa-home fa-2x" aria-hidden="true"></i>
                                         @if ($dbBackupList)
                                         <span class="database-alert-badge"></span>
@@ -923,7 +928,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 <li>
                                     <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
-                                        class="system-request" data-toggle="modal"
+                                        class="system-request quick-icon" data-toggle="modal"
                                         style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
                                         data-target="#system-request" title="System Request" />
                                 </li>
@@ -1006,7 +1011,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
-                            </ul>
+                                <li>
+                                    <input type="text" id="searchField" placeholder="Search">
+                                </li>
+                            </ul>                         
                         </nav>
                         <div id="permission-request-model" class="modal fade" role="dialog">
                             <div class="modal-dialog modal-lg">
@@ -5665,6 +5673,31 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             }
         });
     });
+
+        $(document).ready(function() {
+            $('#searchField').on('keyup', function() {
+                var searchText = $(this).val().toLowerCase().replace(/\s/g, ''); // Convert to lowercase and remove spaces
+
+                if (searchText) {
+                    $('.quick-icon').each(function() {
+                        var title = $(this).attr('title').toLowerCase().replace(/\s/g, ''); // Convert to lowercase and remove spaces
+                        var className = $(this).attr('class').toLowerCase().replace(/\s/g, ''); // Convert to lowercase and remove spaces
+
+                        if (title.indexOf(searchText) !== -1 || className.indexOf(searchText) !== -1) {
+                            $(this).closest('li').addClass('highlight'); // Add highlight class to the parent li element
+                            $(this).addClass('highlight');
+                            // $(this).closest('li').addClass('highlight'); // Add highlight class to the parent li element
+                        } else {
+                            $(this).removeClass('highlight');
+                            $(this).closest('li').removeClass('highlight'); // Remove highlight class from the parent li element
+                        }
+                    });
+                } else {
+                    $('.quick-icon').removeClass('highlight');
+                    $('.quick-icon').closest('li').removeClass('highlight'); // Remove highlight class from all parent li elements when searchText is empty
+                }
+            });
+         });
 
     $(document).on('click', '.send-message-open-menu', function (event) {
         var thiss = $(this);
