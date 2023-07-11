@@ -16,7 +16,7 @@ All needed files are included within this file, so nothing could break if you ex
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Env Manager</h2>
-                      <input id="search-input" type="text" placeholder="Search..">
+                      <input id="env-search-input" type="text" placeholder="Search..">
                   <div style="display: flex; font-weight: 500;"><div>Total:-</div><div id="total">@{{ entries.length > 0 ? entries.length : '' }}</div></div>
                   @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
                     <button type="button" id="add-new" class="btn btn-primary float-right">
@@ -657,7 +657,7 @@ All needed files are included within this file, so nothing could break if you ex
   })
   
 
-  $("#search-input").on("keyup", function() {
+  $("#env-search-input").on("keyup", function() {
     var value = $(this).val().toLowerCase();
     $("#env-table tr").filter(function() {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
