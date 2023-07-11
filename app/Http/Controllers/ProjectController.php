@@ -6,9 +6,12 @@ use App\Models\Project;
 use App\Models\ProjectServerenv;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\Helpers\GithubTrait;
 
 class ProjectController extends Controller
 {
+    use GithubTrait;
+    
     public function __construct()
     {
     }
@@ -64,17 +67,73 @@ class ProjectController extends Controller
     public function getGithubBranches()
     {
         if ($build_repository = request('build_repository')) {
-           
-            $branches = \App\Github\GithubBranchState::where('repository_id', $build_repository)->orderBy('created_at', 'desc')->get()->pluck('branch_name', 'branch_name')->toArray();  
-            if ($branches) {
-               
-                $options = ['<option value="" >--  Select a Branch --</option>'];
-                foreach ($branches as $key => $value) {
-                    $options[] = '<option value="' . $key . '" ' . ($key == request('selected') ? 'selected' : '') . ' >' . $value . '</option>';
+            \Log::info("Project getGithubBranches");
+            $allBranchNames = [];
+            try {
+                $repository = \App\Github\GithubRepository::find($build_repository);
+                $organization = $repository->organization;
+
+                $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+                
+                $url = 'https://api.github.com/repositories/'.$build_repository.'/branches';
+                $headResponse = $githubClient->head($url);
+                $linkHeader = $headResponse->getHeader('Link');
+                
+                $totalPages = 1;
+                if (count($linkHeader) > 0) {
+                    $lastLink = null;
+                    $links = explode(',', $linkHeader[0]);
+                    foreach ($links as $link) {
+                        if (strpos($link, 'rel="last"') !== false) {
+                            $lastLink = $link;
+                            break;
+                        }
+                    }
+                    $linkWithAngularBrackets = explode(';', $lastLink)[0];
+                    $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
+                    $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
+                    $pageNumberString = explode('?', $linkWithPageNumber)[1];
+                    $totalPages = explode('=', $pageNumberString)[1];
+                    $totalPages = intval($totalPages);
                 }
-            } else {
-                $options = ['<option value="" >No records found.</option>'];
+                \Log::info("totalPages : ".$totalPages);
+                $page = 1;
+                while ($page <= $totalPages) {
+                    $response = $githubClient->get($url.'?page='.$page);
+        
+                    $branches = json_decode($response->getBody()->getContents());
+
+                    $branchNames = array_map(
+                        function ($branch) {
+                            return $branch->name;
+                        },
+                        $branches
+                    );
+
+                    $allBranchNames = array_merge(
+                        $allBranchNames,
+                        array_filter($branchNames, function ($name) {
+                            return $name != 'master';
+                        })
+                    );
+
+                    $page++;
+                }
+                if (!empty($allBranchNames)) {
+               
+                    $options = ['<option value="" >--  Select a Branch --</option>'];
+                    foreach ($allBranchNames as $key => $value) {
+                        $options[] = '<option value="' . $value . '>' . $value . '</option>';
+                    }
+                } else {
+                    $options = ['<option value="" >No records found.</option>'];
+                }
             }
+            catch(\Exception $e) {
+                \Log::info("Error : ".$e->getMessage());
+                $options = ['<option value="" >Please Select a Repository</option>'];
+            }
+           
         } else {
             $options = ['<option value="" >Please Select a Repository</option>'];
         }
