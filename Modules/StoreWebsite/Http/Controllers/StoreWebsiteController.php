@@ -1851,4 +1851,24 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 200, 'message' => 'Run Successfully']);
 
     }
+
+    public function clearCloudflareCaches(Request $request, $id)
+    {
+        $storeWebsite = StoreWebsite::where('id', $id)->first();
+        if(!$storeWebsite){
+            return response()->json(['code' => 500, 'message' => 'Store Website is not found!']);
+        }
+        $magento_url=$storeWebsite->magento_url;
+        $domain_name=parse_url($magento_url, PHP_URL_HOST);
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'cloudflare_cache_clear.sh -d=' . $domain_name .' 2>&1';
+        \Log::info("Start run Clear Cloudflare Caches");
+        $result = exec($cmd, $output, $return_var);
+        \Log::info("command:".$cmd);
+        \Log::info("output:".print_r($output,true));
+        \Log::info("return_var:".$return_var);
+        \Log::info("End run Clear Cloudflare Caches");
+
+        return response()->json(['code' => 200, 'message' => 'Clear Cloudflare Caches Successfully']);
+
+    }
 }

@@ -79,6 +79,7 @@ Route::group([
     ], function () {
         Route::post('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
         Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
+        Route::post('/clear-cloudflare-caches', [StoreWebsiteController::class, 'clearCloudflareCaches']);
         Route::post('/magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
 
         Route::post('/magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
