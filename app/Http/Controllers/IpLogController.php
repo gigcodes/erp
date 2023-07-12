@@ -33,4 +33,37 @@ class IpLogController extends Controller
         return view('IpLogs.ip-log-list', compact('logs'));
        
     }
+
+    public function whitelistIP(Request $request)
+    {
+        $validatedData = $request->validate([
+            'server_name' => 'required',
+            'ip_address' => 'required|ip',
+            'comment' => 'required',
+        ]);
+
+        $serverName = $validatedData['server_name'];
+        $ipAddress = $validatedData['ip_address'];
+        $comment = $validatedData['comment'];
+
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'webaccess-firewall.sh' .  '-f ' .$serverName . '-i' . $ipAddress . '-c ' .$comment;
+
+        $allOutput = [];
+        $allOutput[] = $command;
+        $result = exec($command, $allOutput);
+
+        if ($result == '') {
+            $result = 'Not any response';
+        } elseif ($result == 0) {
+            $result = 'Command run success Response ' . $result;
+        } elseif ($result == 1) {
+            $result = 'Command run Fail Response ' . $result;
+        } else {
+            $result = is_array($result) ? json_encode($result, true) : $result;
+        }
+
+        \Log::info(print_r($result, true));
+        
+        return response()->json(['message' => $result, 'code' => 200]);
+    }
 }
