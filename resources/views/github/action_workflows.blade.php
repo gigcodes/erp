@@ -25,6 +25,7 @@
             html += "<td>" + value.run_attempt +"</td>";
             html += "<td>" + value.run_started_at +"</td>";
             html += "<td>" + value.status +"</td>";
+            html += "<td>" + value.job_status + "</td>";
             html += "<td>" + value.conclusion + "</td>";
             html += "<td>" + value.failure_reason + "</td>";
             html += "</tr>";
@@ -252,6 +253,7 @@
                 <th style="width:10% !important;">Run Attempt</th>
                 <th style="width:10% !important;">Run Started At</th>
                 <th style="width:10% !important;">Status</th>
+                <th style="width:10% !important;">Job Status</th>
                 <th style="width:10% !important;">Conclusion</th>
                 <th style="width:10% !important;">Failure Reason</th>
             </tr>
@@ -269,6 +271,7 @@
                 <td class="Website-task">{{$runs->run_attempt}}</td>
                 <td class="Website-task">{{$runs->run_started_at}}</td>
                 <td class="Website-task">{{$runs->status}}</td>
+                <td class="Website-task">{{$runs->job_status}}</td>
                 <td class="Website-task">{{$runs->conclusion}}</td>
                 <td class="Website-task">{{$runs->failure_reason}}</td>
             </tr>
