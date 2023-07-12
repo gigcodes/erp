@@ -16,4 +16,9 @@ class TechnicalRemark extends Model
         'remark',
         'updated_by',
     ];
+
+    public function users()
+    {
+        return $this->hasOne(\App\User::class, 'id', 'updated_by');
+    }
 }

@@ -77,7 +77,6 @@ class TechnicalDebtController extends Controller
 
     public function technicalDebtGetRemark(Request $request)
     {
-        // dd($request);
         try {
             $msg = '';
             if ($request->remark != '') {
@@ -90,29 +89,26 @@ class TechnicalDebtController extends Controller
                 );
                 $msg = ' Created and ';
             }
-// 
-            // $technicalRemarkData = TechnicalRemark::where(['technical_debt_id', '=', $request->technical_id])->get();
 
-            // $html = '';
-            // foreach ($technicalRemarkData as $taskRemark) {
-            //     $html .= '<tr>';
-            //     $html .= '<td>' . $taskRemark->id . '</td>';
-            //     $html .= '<td>' . $taskRemark->users->name . '</td>';
-            //     $html .= '<td>' . $taskRemark->remark . '</td>';
-            //     $html .= '<td>' . $taskRemark->created_at . '</td>';
-            //     $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remark . "'></i></td>";
-            // }
+            $technicalRemarkDatas = TechnicalRemark::where('technical_debt_id', $request->technical_id)->get();
 
-            // $input_html = '';
-            // $i = 1;
-            // foreach ($taskRemarkData as $taskRemark) {
-            //     $input_html .= '<span class="td-password-remark" style="margin:0px;"> ' . $i . '.' . $taskRemark->remark . '</span>';
-            //     $i++;
-            // }
+            $html = '';
+            foreach ($technicalRemarkDatas as $technicalRemarkData) {
+                $html .= '<tr>';
+                $html .= '<td>' . $technicalRemarkData->id . '</td>';
+                $html .= '<td>' . $technicalRemarkData->users->name . '</td>';
+                $html .= '<td>' . $technicalRemarkData->remark . '</td>';
+                $html .= '<td>' . $technicalRemarkData->created_at . '</td>';
+                $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $technicalRemarkData->remark . "'></i></td>";
+            }
 
-            return response()->json(['code' => 200,  'message' => 'Remark ' . $msg . ' listed Successfully']);
-
-            // return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark ' . $msg . ' listed Successfully']);
+            $input_html = '';
+            $i = 1;
+            foreach ($technicalRemarkDatas as $technicalRemarkData) {
+                $input_html .= '<span class="td-password-remark" style="margin:0px;"> ' . $i . '.' . $technicalRemarkData->remark . '</span>';
+                $i++;
+            }
+            return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark ' . $msg . ' listed Successfully']);
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => '', 'remark_data' => '', 'message' => $e->getMessage()]);
         }

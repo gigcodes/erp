@@ -14,16 +14,18 @@
                                     placeholder="Search problem" id="search_problem">
                             </div>
                             <div class="col-md-3">
-                                <input name="description" type="text" class="form-control" value="{{ request('description') }}"
-                                    placeholder="search description" id="search_description">
+                                <input name="description" type="text" class="form-control"
+                                    value="{{ request('description') }}" placeholder="search description"
+                                    id="search_description">
                             </div>
                             <div class="col-md-3">
                                 <input name="estimate" type="text" class="form-control" value="{{ request('estimate') }}"
                                     placeholder="search Estimate Investigation" id="search_estimate">
                             </div>
                             <div class="col-md-3">
-                                <input name="approximate" type="text" class="form-control" value="{{ request('approximate') }}"
-                                    placeholder="search Approximate Estimate" id="search_approximate">
+                                <input name="approximate" type="text" class="form-control"
+                                    value="{{ request('approximate') }}" placeholder="search Approximate Estimate"
+                                    id="search_approximate">
                             </div>
                             <div class="col-md-3">
                                 <br>
@@ -38,9 +40,9 @@
                                         <option value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 </select>
-                                
+
                             </div>
-                            
+
                             <div class="col-md-3">
                                 <h5>Search FrameWork :</h5>
                                 {{ Form::select('frameworks_ids[]', \App\Models\TechnicalFrameWork::pluck('name', 'id')->toArray(), request('frameworks_ids'), ['class' => 'form-control globalSelect2', 'multiple', 'data-placeholder' => 'Select frameworks_ids']) }}
@@ -133,31 +135,21 @@
                                     {{ $technicaldebt->approximate_estimate }}
                                 </span>
                             </td>
-                            <td><div style="width: 100%;">
-                                <div class="d-flex">
-                                  <input type="text" name="remark_pop" class="form-control remark_pop{{$technicaldebt->id}}" placeholder="Please enter remarks" style="margin-bottom:5px;width:100%;display:inline;">
-                                  <button type="button" class="btn btn-sm btn-image add_message pointer" title="Send message" data-technicaldebt="{{$technicaldebt->id}}">
-                                      <img src="{{asset('images/filled-sent.png')}}">
-                                  </button>
-                                <button data-technicaldebt="{{ $technicaldebt->id }}"  class="btn btn-xs btn-image show-technical-debt-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                                </div>
-                                {{-- @if (isset($password_remark))
-                                    <div style="width: 100%;">
-                                        <div class="expand-row-msg" data-id="{{$password->id}}">
-                                            <div class="d-flex justify-content-between expand-row-msg" data-id="{{$password->id}}">
-                                                  <span class="td-password-remark{{$password->id}}" style="margin:0px;">
-                                                      @php($i = 1)
-                                                      @foreach($password_remark as $pwd_remark)
-                                                          @if($pwd_remark->password_id === $password->id)
-                                                          {{$i}}.{{$pwd_remark->remark}}
-                                                          @endif
-                                                          @php($i++)
-                                                      @endforeach
-                                                  </span>
-                                            </div>
-                                        </div>
+                            <td>
+                                <div style="width: 100%;">
+                                    <div class="d-flex">
+                                        <input type="text" name="remark_pop"
+                                            class="form-control remark_pop{{ $technicaldebt->id }}"
+                                            placeholder="Please enter remarks"
+                                            style="margin-bottom:5px;width:100%;display:inline;">
+                                        <button type="button" class="btn btn-sm btn-image add_message pointer"
+                                            title="Send message" data-technicaldebt="{{ $technicaldebt->id }}">
+                                            <img src="{{ asset('images/filled-sent.png') }}">
+                                        </button>
+                                        <button data-technicaldebt="{{ $technicaldebt->id }}"
+                                            class="btn btn-xs btn-image show-technical-debt-remark" title="Remark"><img
+                                                src="{{ asset('images/chat.png') }}" alt=""></button>
                                     </div>
-                                @endif --}}
                                 </div>
                             </td>
                             <td>{{ $technicaldebt->status }}</td>
@@ -217,7 +209,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>FrameWork</label>
-                                <select class="form-control select-multiple" id="frameWork-select" name="framework_id">
+                                <select class="form-control select-multiple" id="frameWork-select" name="framework_id" required>
                                     <option value="">Select FrameWork</option>
                                     @foreach ($frameworks as $framework)
                                         <option value="{{ $framework->id }}">{{ $framework->name }}</option>
@@ -234,7 +226,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Priority</label>
-                                <select class="form-control select-multiple" id="priority" name="priority">
+                                <select class="form-control select-multiple" id="priority" name="priority" required>
                                     <option value="">Select Priority</option>
                                     @for ($i = 1; $i <= 10; $i++)
                                         <option value="{{ $i }}">{{ $i }}</option>
@@ -251,7 +243,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Estimate Investigation</label>
-                                <?php echo Form::text('ee$technicaldebt->estimate_investigation  ', null, ['class' => 'form-control ee$technicaldebt->estimate_investigation  ']); ?>
+                                <?php echo Form::text('estimate_investigation  ', null, ['class' => 'form-control estimate_investigation']); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
@@ -287,13 +279,13 @@
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
-                            <tr>
-                                <th style="width:1%;">ID</th>
-                                <th style=" width: 12%">Update By</th>
-                                <th style="word-break: break-all; width:12%">Remark</th>
-                                <th style="width: 11%">Created at</th>
-                                <th style="width: 11%">Action</th>
-                            </tr>
+                                <tr>
+                                    <th style="width:1%;">ID</th>
+                                    <th style=" width: 12%">Update By</th>
+                                    <th style="word-break: break-all; width:12%">Remark</th>
+                                    <th style="width: 11%">Created at</th>
+                                    <th style="width: 11%">Action</th>
+                                </tr>
                             </thead>
                             <tbody class="technical-remark-get-list-view">
                             </tbody>
@@ -316,95 +308,61 @@
             }
         });
 
-        $(document).on("click",".add_message",function(e) {
+        $(document).on("click", ".add_message", function(e) {
             e.preventDefault();
-            var thiss = $(this);
             var technical_id = $(this).data('technicaldebt');
-            var remark = $(`.remark_pop`+technical_id).val();
+            var remark = $(`.remark_pop` + technical_id).val();
 
+            technicalDeptRemark(technical_id, remark);
+        });
+
+        $(document).on("click", ".show-technical-debt-remark", function(e) {
+            e.preventDefault();
+            var technical_id = $(this).data('technicaldebt');
+            var remark = $(`.remark_pop` + technical_id).val();
+
+            technicalDeptRemark(technical_id, remark);
+        });
+
+
+        function technicalDeptRemark(technical_id, remark) {
             $.ajax({
                 type: "GET",
-                url: '{{route("technical-debt-remark")}}',
+                url: '{{ route('technical-debt-remark') }}',
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
                 data: {
-                    technical_id : technical_id,
-                    remark : remark,
+                    technical_id: technical_id,
+                    remark: remark,
                 },
-                beforeSend: function () {
+                beforeSend: function() {
                     $("#loading-image").show();
                 }
-            }).done(function (response) {
-                if(response.code == 200) {
+            }).done(function(response) {
+                if (response.code == 200) {
                     $("#loading-image").hide();
-                    if (remark == ''){
-            //             $("#preview-task-create-get-modal").modal("show");
+                    if (remark == '') {
+                        $("#preview-technical-debt-get-modal").modal("show");
                     }
-            //         $(".task-create-get-list-view").html(response.data);
-            //         $(`.td-password-remark`+password_id).html(response.remark_data);
-            //         $(`.remark_pop`+password_id).val("");
+                    $(".technical-remark-get-list-view").html(response.data);
+                    $(`.remark_pop` + technical_id).val("");
                     toastr['success'](response.message);
-                }else{
-            //         $("#loading-image").hide();
-            //         if (remark == '') {
-            //             $("#preview-task-create-get-modal").modal("show");
-            //         }
-            //         $(".task-create-get-list-view").html("");
-            //         toastr['error'](response.message);
+                } else {
+                    $("#loading-image").hide();
+                    if (remark == '') {
+                        $("#preview-technical-debt-get-modal").modal("show");
+                    }
+                    $(".technical-remark-get-list-view").html("");
+                    toastr['error'](response.message);
                 }
 
-            }).fail(function (response) {
-            //     $("#loading-image").hide();
-            //     $("#preview-task-create-get-modal").modal("show");
-            //     $(".task-create-get-list-view").html("");
-            //     toastr['error'](response.message);
-            });
-        });
-
-
-    $(document).on("click",".show-technical-debt-remark",function(e) {
-        e.preventDefault();
-        var technicaldebt_id = $(this).data('technicaldebt');
-        var remark = $(`.remark_pop`+technicaldebt_id).val();
-        $.ajax({
-            type: "GET",
-                url: '{{route("technical-debt-remark")}}',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    technical_id : technicaldebt_id,
-                    remark : remark,
-                },
-            beforeSend: function () {
-                $("#loading-image").show();
-            }
-        }).done(function (response) {
-            if(response.code == 200) {
+            }).fail(function(response) {
                 $("#loading-image").hide();
-                if (remark == ''){
-                    $("#preview-technical-debt-get-modal").modal("show");
-                }
-                $(".technical-remark-get-list-view").html(response.data);
-                // $(`.td-password-remark`+password_id).html(response.remark_data);
-                $(`.remark_pop`+technicaldebt_id).val("");
-                toastr['success'](response.message);
-            }else{
-                $("#loading-image").hide();
-                if (remark == '') {
-                    $("#preview-technical-debt-get-modal").modal("show");
-                }
+                $("#preview-technical-debt-get-modal").modal("show");
                 $(".technical-remark-get-list-view").html("");
                 toastr['error'](response.message);
-            }
-
-        }).fail(function (response) {
-            $("#loading-image").hide();
-            $("#preview-technical-debt-get-modal").modal("show");
-            $(".technical-remark-get-list-view").html("");
-            toastr['error'](response.message);
-        });
-    });
+            });
+        }
     </script>
 @endsection
