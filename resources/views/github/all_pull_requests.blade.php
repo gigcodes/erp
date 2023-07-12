@@ -186,18 +186,24 @@
     $('#repoId').change(function (){
         getPullRequests();
     });
-
+    var xhr = null;
     function getPullRequests(){
         var repoId = $('#repoId').val();
 
         $('.loader-section').removeClass('d-n');
-
-        $.ajax({
+        
+        xhr = $.ajax({
             type: "GET",
             url: "",
             async:true,
             data: {
                 repoId: repoId,
+            },
+            beforeSend: function () {
+                console.log("xhr-"+xhr);
+                if (xhr != undefined && xhr !== null) {
+                    xhr.abort();
+                }
             },
             dataType: "json",
             success: function (result) {
