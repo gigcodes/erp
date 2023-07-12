@@ -20,6 +20,7 @@ use App\Github\GithubOrganization;
 use App\Github\GithubBranchState;
 use App\Http\Controllers\Controller;
 use App\DeveoperTaskPullRequestMerge;
+use App\Github\GithubPrErrorLog;
 use App\Http\Requests\DeleteBranchRequest;
 use App\Jobs\DeleteBranches;
 use App\Models\DeletedGithubBranchLog;
@@ -774,6 +775,15 @@ class RepositoryController extends Controller
                 $errorArr = $errorArr;
             }
 
+            // Save Error Log in DB
+            $githubPrErrorLog = new GithubPrErrorLog();
+            $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_REVIEW_COMMENTS;
+            $githubPrErrorLog->log = $errorArr;
+            $githubPrErrorLog->github_organization_id = $organization->id;
+            $githubPrErrorLog->github_repository_id = $repository->id;
+            $githubPrErrorLog->pull_number = $pullNumber;
+            $githubPrErrorLog->save();
+
             return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
         }
 
@@ -852,6 +862,15 @@ class RepositoryController extends Controller
                 $errorArr = $errorArr;
             }
 
+            // Save Error Log in DB
+            $githubPrErrorLog = new GithubPrErrorLog();
+            $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_ACTIVITY_TIMELINE;
+            $githubPrErrorLog->log = $errorArr;
+            $githubPrErrorLog->github_organization_id = $organization->id;
+            $githubPrErrorLog->github_repository_id = $repository->id;
+            $githubPrErrorLog->pull_number = $pullNumber;
+            $githubPrErrorLog->save();
+
             return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
         }
 
@@ -875,5 +894,27 @@ class RepositoryController extends Controller
         $pullRequest = json_decode($response->getBody(), true);
         // Return the total comment count
         return count($pullRequest);
+    }
+
+    public function getPrErrorLogs($repoId, $pullNumber)
+    {
+        $repository = GithubRepository::where('id',  $repoId)->first();
+        $organization = $repository->organization;
+        
+        // Set the number of activities per page
+        $perPage = 10;
+
+        $githubPrErrorLogs = GithubPrErrorLog::latest();
+        $githubPrErrorLogs = $githubPrErrorLogs
+            ->where('github_organization_id', $organization->id)
+            ->where('github_repository_id', $repoId)
+            ->where('pull_number', $pullNumber);
+
+        $githubPrErrorLogs = $githubPrErrorLogs->paginate($perPage);
+
+        // Return the activities to the view
+        return View::make('github.pr-error-logs', [
+            'githubPrErrorLogs' => $githubPrErrorLogs,
+        ]);
     }
 }

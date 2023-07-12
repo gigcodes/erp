@@ -111,6 +111,14 @@
         </div>
     </div>
 </div>
+<!-- Modal markup -->
+<div class="modal" id="pr-error-logs-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="pr-error-logs-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
@@ -216,6 +224,7 @@
     $(document).ready(function() {
         var currentPage = 1;
         var currentPageActivity = 1;
+        var currentPageErrorLogs = 1;
 
         $(document).on('click', '.show-pr-review-comments', function(e) {
             e.preventDefault();
@@ -311,6 +320,63 @@
             loadActivities(currentPage, repo, pullNumber);
         });
         
+        // 
+        $(document).on('click', '.show-pr-error-logs', function(e) {
+            e.preventDefault();
+            var repo_id = $(this).attr('data-repo');
+            var pull_number = $(this).attr('data-pull-number');
+
+            // Make the AJAX request
+            loadErrorLogs(currentPageErrorLogs, repo_id, pull_number);
+        });
+
+        // Load activities for the given page number
+        function loadErrorLogs(page, repo, pullNumber) {
+            $('.loader-section').removeClass('d-n');
+            $.ajax({
+                url: "{{ url('/github/pr-error-logs') }}/" + repo + "/" + pullNumber + "?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $('.loader-section').addClass('d-n');
+                    // Update the modal content with the retrieved comments
+                    $('#pr-error-logs-modal-content').html(response);
+                    $('#pr-error-logs-modal #repo').val(repo);
+                    $('#pr-error-logs-modal #pullNumber').val(pullNumber);
+
+                    // Show the modal
+                    $('#pr-error-logs-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $('.loader-section').addClass('d-n');
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#pr-error-logs-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            var repo = $("#pr-error-logs-modal #repo").val();
+            var pullNumber = $("#pr-error-logs-modal #pullNumber").val();
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadErrorLogs(currentPage, repo, pullNumber);
+        });
+
+        $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
     });
+
+    
 </script>
 @endsection
