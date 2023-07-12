@@ -839,6 +839,18 @@ class RepositoryController extends Controller
             );
         }
         catch (Exception $e) {
+            \Log::error($e);
+            $errorArr = [];
+            $errorArr = $e->getMessage();
+            if (! is_array($errorArr)) {
+                $arrErr[] = $errorArr;
+                $errorArr = implode(' ', $arrErr);
+            } else {
+                $arrErr = $errorArr;
+                $errorArr = $errorArr;
+            }
+
+            return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
         }
 
         // Return the activities to the view
