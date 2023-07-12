@@ -97,6 +97,7 @@ class ProjectController extends Controller
                     $totalPages = intval($totalPages);
                 }
                 \Log::info("totalPages : ".$totalPages);
+
                 $page = 1;
                 while ($page <= $totalPages) {
                     $response = $githubClient->get($url.'?page='.$page);
@@ -123,7 +124,7 @@ class ProjectController extends Controller
                
                     $options = ['<option value="" >--  Select a Branch --</option>'];
                     foreach ($allBranchNames as $key => $value) {
-                        $options[] = '<option value="' . $value . '>' . $value . '</option>';
+                        $options[] = '<option value="' . $value . '">' . $value . '</option>';
                     }
                 } else {
                     $options = ['<option value="" >No records found.</option>'];
