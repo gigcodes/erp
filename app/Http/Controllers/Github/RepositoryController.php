@@ -586,12 +586,25 @@ class RepositoryController extends Controller
         if($request->status) {
             $status = $request->status;
         }
+
+        if($request->repoId) {
+            $selectedRepositoryId = $request->repoId;
+        } else {
+            $selectedRepositoryId = $repositoryId;
+        }
         
-        $githubActionRuns = $this->githubActionResult($repositoryId, $request->page, $date, $status);
+        $selectedRepository = GithubRepository::where('id',  $selectedRepositoryId)->first();
+        $selectedOrganizationID = $selectedRepository->organization->id;
+        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status);
+        
+        $githubOrganizations = GithubOrganization::with('repos')->get();
 
         return view('github.action_workflows', [
             'githubActionRuns' => $githubActionRuns,
             'repositoryId' => $repositoryId,
+            'selectedRepositoryId' => $selectedRepositoryId,
+            'githubOrganizations' => $githubOrganizations,
+            'selectedOrganizationID' => $selectedOrganizationID
         ]);
     }
 

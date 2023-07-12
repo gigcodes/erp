@@ -15,6 +15,8 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
+            html += "<td>" + value.repository.name + "</td>";
+            html += "<td>" + value.head_branch + "</td>";
             html += "<td>" + value.name + "</td>";
             html += "<td>" + value.actor.login + "</td>";
             html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
@@ -89,6 +91,26 @@
             "searching": true
         });
         $(document).find('#action-workflows .loader-section').hide();
+
+        $('#organizationId').change(function (){
+            getRepositories();
+        });
+        getRepositories();
+        function getRepositories(){
+            var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
+
+            $('#repoId').empty();
+
+            if(repos.length > 0){
+                $.each(repos, function (k, v){
+                    if(v.id == {!! $selectedRepositoryId !!})
+                        $('#repoId').append('<option value="'+v.id+'" selected>'+v.name+'</option>');
+                    else 
+                        $('#repoId').append('<option value="'+v.id+'">'+v.name+'</option>');
+                });
+            }else{
+            }
+        }
     });
 
     $(window).on('scroll', function() {
@@ -137,11 +159,28 @@
                 <div class="col-8">
                     <form action="{{ url('/github/repos/'.$repositoryId.'/actions') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-4 pd-sm">
+                            <div class="col-md-3">
+                                <label for="" class="form-label">Organization</label>
+                                <select name="organizationId" id="organizationId" class="form-control">
+                                    <option value="">-- Select organisation --</option>
+                                    @foreach ($githubOrganizations as $githubOrganization)
+                                        <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' @if($githubOrganization->id == $selectedOrganizationID) selected @endif>{{  $githubOrganization->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                    
+                            <div class="col-md-3">
+                                <label for="" class="form-label">Repository</label>
+                                <select name="repoId" id="repoId" class="form-control">
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm">
                                 <?php 
                                     if(request('status')){   $status = request('status'); }
                                     else{ $status = ''; }
                                 ?>
+                                <label for="" class="form-label">Status</label>
                                 <select name="status" id="status" class="form-control select2">
                                     <option value="" @if($status=='') selected @endif>-- Select a status --</option>
                                     <option value="completed" @if($status=="completed") selected @endif>completed</option>
@@ -160,7 +199,7 @@
                                     <option value="pending" @if($status=="pending") selected @endif>pending</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
+                            <div class="col-md-3 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
@@ -203,6 +242,8 @@
     <table id="action-workflow-table" class="table table-bordered action-table" style="table-layout: fixed;">
         <thead>
             <tr>
+                <th style="width:10% !important;">Repo</th>
+                <th style="width:10% !important;">Branch</th>
                 <th style="width:10% !important;">Name</th>
                 <th style="width:10% !important;">Actor</th>
                 <th style="width:10% !important;">Executed On</th>
@@ -218,6 +259,8 @@
         <tbody>
             @foreach($githubActionRuns->workflow_runs as $runs)
             <tr>
+                <td class="Website-task">{{$runs->repository->name}}</td>
+                <td class="Website-task">{{$runs->head_branch}}</td>
                 <td class="Website-task">{{$runs->name}}</td>
                 <td class="Website-task">{{$runs->actor->login}}</td>
                 <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
