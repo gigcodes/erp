@@ -744,6 +744,7 @@ class RepositoryController extends Controller
         // Set the API endpoint for the specific page
         $url = "https://api.github.com/repos/{$owner}/{$repo}/pulls/{$pullNumber}/comments?per_page={$perPage}&page={$currentPage}";
 
+        $totalCount = $commentsPaginated = '';
         try{
             // Send a GET request to the GitHub API
             $githubClient = $this->connectGithubClient($userName, $token);
@@ -808,6 +809,7 @@ class RepositoryController extends Controller
         // Set the API endpoint for the specific page
         $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullNumber}/timeline?per_page={$perPage}&page={$currentPage}";
 
+        $totalCount = $activitiesPaginated = '';
         try{
             // Send a GET request to the GitHub API
             $githubClient = $this->connectGithubClient($userName, $token);
