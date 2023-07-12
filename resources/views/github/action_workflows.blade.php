@@ -18,11 +18,11 @@
             html += "<td>" + value.name + "</td>";
             html += "<td>" + value.actor.login + "</td>";
             html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
-            html += "<td>" + value.event "</td>";
-            html += "<td>" + value.run_number "</td>";
-            html += "<td>" + value.run_attempt "</td>";
-            html += "<td>" + value.run_started_at "</td>";
-            html += "<td>" + value.status "</td>";
+            html += "<td>" + value.event +"</td>";
+            html += "<td>" + value.run_number +"</td>";
+            html += "<td>" + value.run_attempt +"</td>";
+            html += "<td>" + value.run_started_at +"</td>";
+            html += "<td>" + value.status +"</td>";
             html += "<td>" + value.conclusion + "</td>";
             html += "<td>" + value.failure_reason + "</td>";
             html += "</tr>";
