@@ -20,7 +20,14 @@
                 <tr>
                     <td>{{$githubPrErrorLog['id']}}</td>
                     <td>{{$githubPrErrorLog['type']}}</td>
-                    <td>{{$githubPrErrorLog['short_log']}}</td>
+                    <td class="expand-row" style="word-break: break-all">
+                        <span class="td-mini-container">
+                            {{$githubPrErrorLog['short_log']}}
+                        </span>
+                        <span class="td-full-container hidden">
+                            {{$githubPrErrorLog['log']}}
+                        </span>
+                    </td>
                     <td>{{$githubPrErrorLog['created_at']}}</td>
                 </tr>
             @endforeach
