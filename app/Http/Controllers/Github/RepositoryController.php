@@ -581,7 +581,12 @@ class RepositoryController extends Controller
 
     public function actionWorkflows(Request $request, $repositoryId)
     {
-        $githubActionRuns = $this->githubActionResult($repositoryId, $request->page);
+        $status = $date = null;
+        if($request->status) {
+            $status = $request->status;
+        }
+        
+        $githubActionRuns = $this->githubActionResult($repositoryId, $request->page, $date, $status);
 
         return view('github.action_workflows', [
             'githubActionRuns' => $githubActionRuns,
@@ -594,10 +599,10 @@ class RepositoryController extends Controller
         return $this->githubActionResult($repositoryId, $request->page);
     }
 
-    public function githubActionResult($repositoryId, $page, $date = null){
+    public function githubActionResult($repositoryId, $page, $date = null, $status = null){
         ini_set('max_execution_time', -1);
 
-        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status);
         foreach ($githubActionRuns->workflow_runs as $key => $runs) {
             $githubActionRuns->workflow_runs[$key]->failure_reason = '';
             if ($runs->conclusion == 'failure') {
