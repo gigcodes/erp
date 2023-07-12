@@ -663,7 +663,8 @@ class MagentoCommandController extends Controller
     public function getMulitipleCommands() 
     {
         $mulitipleCommands = MagentoMulitipleCommand::with(['website' ,'user','command'])->paginate(25);
+        $magentoCommands = MagentoCommand::get();
 
-        return view('magento-command.multiple-command-list', compact('mulitipleCommands'));
+        return view('magento-command.multiple-command-list', compact('mulitipleCommands','magentoCommands'));
     }
 }
