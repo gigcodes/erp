@@ -29,6 +29,7 @@ class MagentoModuleHistory extends Model
         'developer_name',
         'is_customized',
         'user_id',
+        'used_at',
     ];
 
     public function magento_module()

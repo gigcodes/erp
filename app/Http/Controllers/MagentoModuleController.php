@@ -813,6 +813,29 @@ class MagentoModuleController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+    
+    public function descriptionHistory(Request $request)
+    {
+        $histories = MagentoModuleHistory::with(['user'])->where('magento_module_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history',
+            'status_name' => 'success',
+        ], 200);
+    }
+    public function usedAtHistory(Request $request)
+    {
+        $histories = MagentoModuleHistory::with(['user'])->whereNotNull('used_at')->where('magento_module_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history',
+            'status_name' => 'success',
+        ], 200);
+    }
 
     protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)
     {

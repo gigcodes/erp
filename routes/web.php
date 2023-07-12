@@ -533,6 +533,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_modules', MagentoModuleController::class);
 
     Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
+    Route::get('/description', [MagentoModuleController::class, 'descriptionHistory'])->name('magento_module.description.history');
+    Route::get('/used_at', [MagentoModuleController::class, 'usedAtHistory'])->name('magento_module.usedat.history');
     Route::resource('magento_module_locations', MagentoLocationController::class);
     
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');

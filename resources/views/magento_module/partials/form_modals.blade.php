@@ -121,6 +121,7 @@
           $('#magento_module_edit_form #site_impact').val(magento_module.site_impact);
           $('#magento_module_edit_form #composer').val(magento_module.composer);
           $('#magento_module_edit_form #dependency').val(magento_module.dependency);
+          $('#magento_module_edit_form #used_at').val(magento_module.used_at);
           $('#moduleEditModal').modal('show');
     });
 
