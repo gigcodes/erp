@@ -732,7 +732,7 @@ class RepositoryController extends Controller
         $token = $organization->token;
 
         // Set the repository owner and name
-        $owner = $organization->username;
+        $owner = $organization->name;
         $repo = $repository->name;
 
         // Set the number of comments per page
@@ -750,6 +750,7 @@ class RepositoryController extends Controller
             $githubClient = $this->connectGithubClient($userName, $token);
             $response = $githubClient->get($url);
             $comments = json_decode($response->getBody()->getContents(), true);
+            \Log::info(print_r($comments,true));
             $totalCount = $this->getPullRequestReviewTotalCommentsCount($userName, $token, $owner, $repo, $pullNumber);
 
             // Paginate the comments
@@ -809,7 +810,7 @@ class RepositoryController extends Controller
         $token = $organization->token;
 
         // Set the repository owner and name
-        $owner = $organization->username;
+        $owner = $organization->name;
         $repo = $repository->name;
 
         // Set the number of activities per page
@@ -827,6 +828,7 @@ class RepositoryController extends Controller
             $githubClient = $this->connectGithubClient($userName, $token);
             $response = $githubClient->get($url);
             $activities = json_decode($response->getBody()->getContents(), true);
+            \Log::info(print_r($activities,true));
             $totalCount = $this->getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullNumber);
 
             // Paginate the activities
