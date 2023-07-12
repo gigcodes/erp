@@ -32,6 +32,9 @@
             <button type="button" title="Activities" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}" class="btn btn-xs show-pr-activities">
                 <i class="fa fa-eye"></i>
             </button>
+            <button type="button" class="btn btn-xs show-pr-error-logs" title="Error Log" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}">
+                <i class="fa fa-info-circle" style="color: #808080;"></i>
+            </button>
         </div>
     </td>
 </tr>
