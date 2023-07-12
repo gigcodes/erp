@@ -82,6 +82,7 @@
             "info": false,
             "searching": false
         });
+        $(document).find('#action-workflows .loader-section').hide();
     });
 
     $(window).on('scroll', function() {

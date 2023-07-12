@@ -26,7 +26,12 @@
             <button data-toggle="tooltip" data-placement="top" title="Close" class="closepr" style="margin-top: 5px;" onclick="confirmClosePR({!! $pullRequest['repository']['id'] !!}, {!! $pullRequest['id'] !!})">
                 <img src="/Svglogo/close.svg" alt="Close">
             </button>
-           
+            <button type="button" title="Review Comments" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}" class="btn btn-xs show-pr-review-comments">
+                <i class="fa fa-pencil"></i>
+            </button>
+            <button type="button" title="Activities" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}" class="btn btn-xs show-pr-activities">
+                <i class="fa fa-eye"></i>
+            </button>
         </div>
     </td>
 </tr>

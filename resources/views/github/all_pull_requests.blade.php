@@ -95,6 +95,22 @@
         <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
     </div>
 </div>
+<!-- Modal markup -->
+<div class="modal" id="pr-review-comments-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="pr-review-comments-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
+<!-- Modal markup -->
+<div class="modal" id="pr-activities-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="pr-activities-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
@@ -195,6 +211,106 @@
 
     $(document).ready(function() {
         getRepositories();
+    });
+
+    $(document).ready(function() {
+        var currentPage = 1;
+        var currentPageActivity = 1;
+
+        $(document).on('click', '.show-pr-review-comments', function(e) {
+            e.preventDefault();
+            var repo = $(this).data("repo");
+            var pullNumber = $(this).data("pull-number");
+
+            // Make the AJAX request
+            loadComments(currentPage, repo, pullNumber);
+        });
+
+        // Load comments for the given page number
+        function loadComments(page, repo, pullNumber) {
+            $('.loader-section').removeClass('d-n');
+            $.ajax({
+                url: "{{ url('/github/pull-request-review-comments') }}/" + repo + "/" + pullNumber + "?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $('.loader-section').addClass('d-n');
+                    // Update the modal content with the retrieved comments
+                    $('#pr-review-comments-modal-content').html(response);
+                    $('#repo').val(repo);
+                    $('#pullNumber').val(pullNumber);
+
+                    // Show the modal
+                    $('#pr-review-comments-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $('.loader-section').addClass('d-n');
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#pr-review-comments-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            var repo = $("#pr-review-comments-modal #repo").val();
+            var pullNumber = $("#pr-review-comments-modal #pullNumber").val();
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadComments(currentPage, repo, pullNumber);
+        });
+
+        $(document).on('click', '.show-pr-activities', function(e) {
+            e.preventDefault();
+            var repo = $(this).data("repo");
+            var pullNumber = $(this).data("pull-number");
+
+            // Make the AJAX request
+            loadActivities(currentPageActivity, repo, pullNumber);
+        });
+
+        // Load activities for the given page number
+        function loadActivities(page, repo, pullNumber) {
+            $('.loader-section').removeClass('d-n');
+            $.ajax({
+                url: "{{ url('/github/pull-request-activities') }}/" + repo + "/" + pullNumber + "?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $('.loader-section').addClass('d-n');
+                    // Update the modal content with the retrieved comments
+                    $('#pr-activities-modal-content').html(response);
+                    $('#pr-activities-modal #repo').val(repo);
+                    $('#pr-activities-modal #pullNumber').val(pullNumber);
+
+                    // Show the modal
+                    $('#pr-activities-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $('.loader-section').addClass('d-n');
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#pr-activities-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            var repo = $("#pr-activities-modal #repo").val();
+            var pullNumber = $("#pr-activities-modal #pullNumber").val();
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadActivities(currentPage, repo, pullNumber);
+        });
+        
     });
 </script>
 @endsection

@@ -4234,6 +4234,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
+        Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
+        Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
