@@ -191,27 +191,37 @@
     <div class="col-md-12 pl-5 pr-5">
         <div class="row">
             <div class="cls_filter_box col-md-10">
-                <form class="form-inline" action="{{ route('coupons.index')}}" method="GET">
+                <form class="form-inline" action="{{ route('coupons.index')}}" method="GET" id="coupon_code">
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code">
+                        <br>
+                        <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code" value="{{ request('flt_coupon') }}">
                     </div>
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status">
+                        <br>
+                        <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status" value="{{ request('flt_status') }}">
                     </div>
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules">
+                        <br>
+                        <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules" value="{{ request('flt_rule') }}">
                     </div>
                     <div class="pd-sm select-width">
-                        {{ Form::select("website_ids[]", \App\CouponCodeRules::pluck('website_ids','website_ids')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple", "placeholder" => "Select Website"]) }}
+                        select websites : 
+                        <br>
+                        {{ Form::select("website_ids[]", \App\CouponCodeRules::pluck('website_ids','website_ids')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select Website"]) }}
                     </div>
                     <div class="pd-sm select-width">
-                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(), request('usernames'), ["class" => "form-control-sm form-control globalSelect2", "multiple", "placeholder" => "Select User"]) }}
+                        select users:
+                        <br>
+                     
+                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(), request('usernames'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select User"]) }}
+                   </div>
+                    <div class="form-group cls_filter_inputbox p-0 mr-2">
+                        <br>
+                        <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date" value="{{ request('flt_start_date') }}">
                     </div>
                     <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date">
-                    </div>
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date">
+                        <br>
+                        <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date" value="{{ request('flt_end_date') }}">
                     </div>
                     <div class="form-group p-0 mr-2">
                         <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>

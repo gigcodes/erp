@@ -89,7 +89,7 @@ class CouponController extends Controller
                 if ($websiteIds = $rules->website_ids ? explode(',', $rules->website_ids) : []) {
                     foreach ($websiteIds as $websiteId) {
                         if (isset($websites[$rules->store_website_id][$websiteId])) {
-                            $websiteNames = array_merge_recursive($websiteNames, $websiteIds);
+                            $websiteNames = array_merge_recursive($websiteNames, $websites[$rules->store_website_id][$websiteId]);
                         }
                     }
                 }
@@ -250,7 +250,6 @@ class CouponController extends Controller
      */
     public function store(CreateCouponRequest $request)
     {
-        // dd($request);
         $httpClient = new Client;
 
         //name=my3+second+rule&description=my+first+rule&code=abc-xyz-123&start=2020-02-17&expiration=2020-02-17&fixed_discount=&percentage_discount=10&minimum_order=23&maximum_usage=10
@@ -267,7 +266,6 @@ class CouponController extends Controller
             'maximum_usage' => $request->get('maximum_usage'),
 
         ];
-        // dd($data);
         $queryString = http_build_query($data);
 
         try {
@@ -275,7 +273,6 @@ class CouponController extends Controller
             $response = $httpClient->get($url);
 
             Coupon::create($request->all());
-            dd( Coupon::create($request->all()));
 
             return response(
                 json_encode([
