@@ -39,7 +39,7 @@
         if(isApiCall) {
             workingOn = $.ajax({
                 type: "GET", 
-                url: '/github/repos/{!! $repositoryId !!}/github-actions', 
+                url: '/github/repos/{!! $selectedRepositoryId !!}/github-actions', 
                 data: {
                     'page': pageNum + 1
                 }, 
