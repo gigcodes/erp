@@ -827,7 +827,7 @@ class RepositoryController extends Controller
             $githubClient = $this->connectGithubClient($userName, $token);
             $response = $githubClient->get($url);
             $activities = json_decode($response->getBody()->getContents(), true);
-            $totalCount = 10; // Need to change dynamically
+            $totalCount = $this->getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullNumber);
 
             // Paginate the activities
             $activitiesPaginated = new LengthAwarePaginator(
@@ -858,5 +858,20 @@ class RepositoryController extends Controller
             'activities' => $activitiesPaginated,
             'totalCount' => $totalCount
         ]);
+    }
+
+    private function getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullRequestNumber)
+    {
+        // Set the API endpoint
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullRequestNumber}/timeline";
+
+        // Send a GET request to the GitHub API
+        $githubClient = $this->connectGithubClient($userName, $token);
+        $response = $githubClient->get($url);
+
+        // Get the response body
+        $pullRequest = json_decode($response->getBody(), true);
+        // Return the total comment count
+        return count($pullRequest);
     }
 }
