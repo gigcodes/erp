@@ -255,6 +255,7 @@
                         <th> Description </th>
                         <th> Name </th>
                         <th> Location </th>
+                        <th> Used At </th>
                         <th> API </th>
                         <th> Cron </th>
                         <th> Version </th>
@@ -327,6 +328,10 @@
     @include('magneto_module_location.partials.form_modal')
     {{-- moduleLocationnListodal --}} 
     @include('magento_module.location-listing')
+    {{-- Description History --}} 
+    @include('magento_module.description-history-listing')
+    {{-- Used At History --}} 
+    @include('magento_module.used-at-history-listing')
 
 
 
@@ -505,7 +510,7 @@
                         name: 'magento_modules.module_description',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="flex items-center gap-5"><div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div><button type="button" class="btn btn-xs show-description-modal" title="Show Description History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button></div>`;
                             return data;
                         }
                     },
@@ -548,6 +553,15 @@
                             
                         }
                         
+                    },
+                    {
+                        data: 'used_at',
+                        name: 'magento_modules.used_at',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            data=(data == null) ? '' : `<div class="flex items-center gap-5"><div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div><button type="button" class="btn btn-xs show-usedat-modal" title="Show Used At History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button></div>`;
+                            return data;
+                        }
                     },
                     {
                         data: 'api',
@@ -1397,6 +1411,63 @@
                         });
                         $("#location-listing").find(".location-listing-view").html(html);
                         $("#location-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.show-description-modal', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.description.history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.id} </td>
+                                        <td> <div class="expand-row module-text" style="width: 100%;"><div class="flex  items-center justify-left td-mini-container" title="${v.module_description}">${setStringLength(v.module_description, 50)}</div><div class="flex items-center justify-left td-full-container hidden" title="${v.module_description}">${v.module_description}</div></div> </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#description-history-listing").find(".description-history-listing-view").html(html);
+                        $("#description-history-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+        $(document).on('click', '.show-usedat-modal', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.usedat.history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.id} </td>
+                                        <td> <div class="expand-row module-text" style="width: 100%;"><div class="flex  items-center justify-left td-mini-container" title="${v.used_at}">${setStringLength(v.used_at, 50)}</div><div class="flex items-center justify-left td-full-container hidden" title="${v.used_at}">${v.used_at}</div></div> </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#description-history-listing").find(".description-history-listing-view").html(html);
+                        $("#description-history-listing").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

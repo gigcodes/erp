@@ -40,7 +40,7 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Current Version:</strong>
-            {!! Form::text('current_version', null, ['id'=>'current_version', 'placeholder' => 'Current Version', 'class' => 'form-control', 'required' => 'required']) !!}
+            {!! Form::text('current_version', null, ['id'=>'current_version', 'placeholder' => 'Current Version', 'class' => 'form-control']) !!}
             @if ($errors->has('current_version'))
                 <span style="color:red">{{ $errors->first('current_version') }}</span>
             @endif
@@ -177,6 +177,15 @@
             {!! Form::select('module_review_standard', ['No','Yes'], 'No', [ 'class' => 'form-control']) !!}
             @if ($errors->has('module_review_standard'))
                 <span style="color:red">{{ $errors->first('module_review_standard') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Used At:</strong>
+            {!! Form::text('used_at', null, ['id'=>'used_at', 'placeholder' => 'Used At', 'class' => 'form-control']) !!}
+            @if ($errors->has('used_at'))
+                <span style="color:red">{{ $errors->first('used_at') }}</span>
             @endif
         </div>
     </div>
