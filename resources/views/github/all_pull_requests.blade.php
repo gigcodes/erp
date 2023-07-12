@@ -354,6 +354,19 @@
                 }
             });
         }
+
+        // Pagination click event
+        $(document).on('click', '#pr-error-logs-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            var repo = $("#pr-error-logs-modal #repo").val();
+            var pullNumber = $("#pr-error-logs-modal #pullNumber").val();
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadErrorLogs(currentPage, repo, pullNumber);
+        });
     });
 
     
