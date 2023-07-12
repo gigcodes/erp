@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\IpLog;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class IpLogController extends Controller
@@ -52,17 +52,23 @@ class IpLogController extends Controller
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
 
+         Log::info('Command result: ' . $result);
+
         if ($result == '') {
-            $result = 'Not any response';
+            $errorMessage = 'No response';
+             Log::error($errorMessage);
+            $result = $errorMessage . 'Command run Fail Response' ;
         } elseif ($result == 0) {
             $result = 'Command run success Response ' . $result;
         } elseif ($result == 1) {
-            $result = 'Command run Fail Response ' . $result;
+            $errorMessage = 'Command run Fail Response ' . $result;
+            Log::error($errorMessage);
+            $result = $errorMessage;
         } else {
             $result = is_array($result) ? json_encode($result, true) : $result;
         }
 
-        \Log::info(print_r($result, true));
+        Log::info(print_r($result, true));
         
         return response()->json(['message' => $result, 'code' => 200]);
     }

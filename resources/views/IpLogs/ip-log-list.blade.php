@@ -103,16 +103,31 @@
                 beforeSend: function() {
                     $('#loading-image').show();
                 },
-            }).done(function(response) {
-                if (response.code == 200) {
-                    toastr['success'](response.message, 'Success');
-                } else {
-                    toastr['error'](response.message, 'Error');
+                success: function(response) {
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'Success');
+                    } else {
+                        toastr['error'](response.message, 'Error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = xhr.responseJSON.errors;
+
+                        if (errors.server_name) {
+                            toastr['error'](errors.server_name[0], 'Error');
+                        }
+
+                        if (errors.ip_address) {
+                            toastr['error'](errors.ip_address[0], 'Error');
+                        }
+                    } else {
+                        toastr['error']('An error occurred', 'Error');
+                    }
+                },
+                complete: function() {
+                    $('#loading-image').hide();
                 }
-                $('#loading-image').hide();
-            }).fail(function() {
-                $('#loading-image').hide();
-                toastr['error']('An error occurred', 'Error');
             });
         });
     </script>
