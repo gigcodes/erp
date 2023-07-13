@@ -373,6 +373,7 @@ use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
+use App\Http\Controllers\TechnicalDebtController;
 
 Auth::routes();
 
@@ -2751,6 +2752,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     });
 
+
+
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
         Route::post('/store', [ErpEventController::class, 'store'])->name('erp-events.store');
@@ -4250,6 +4253,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
+        Route::get('/repo/status', [Github\RepositoryController::class, 'repoStatusCheck'])->name('github.repoStatusCheck');
+        Route::get('/repo/pr-request', [Github\RepositoryController::class, 'getLatestPullRequests'])->name('github.pr.request');
     });
 });
 
@@ -5389,3 +5394,9 @@ Route::middleware('auth')->group(function () {
     Route::get('monitor-server/get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
     Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 });
+
+
+Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('technical-debt-lists');
+Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
+Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
+Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');

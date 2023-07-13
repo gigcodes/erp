@@ -18,6 +18,8 @@
     }
 </style>
 
+@include('github.repo_details')
+
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
         <h2 class="page-heading">Pull Requests (<span id="pull_request_html_id"></span>)</h2>
@@ -68,6 +70,7 @@
 
         <div class="col-md-6">
             <div class="text-right pl-5">
+                <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
                 <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy ERP Master</a>
                 <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&composer=true&pull_only=1">Deploy ERP Master + Composer</a>
             </div>
@@ -383,6 +386,41 @@
         });
     });
 
+    $(document).on('click', '#repo_select', function(event) {
+       $('#create-repo-modal').modal('show');
+
+    });
     
+    $(document).ready(function() {
+        $('.repostatus').on('change', function() {
+            $('.repostatus').not(this).prop('checked', false);
+
+            var selectedRepos = [];
+            $('input[name="repostatus"]:checked').each(function() {
+                selectedRepos.push($(this).val());
+            });
+            var repoId = $(this).data('repo_id');
+            $.ajax({
+                type: "GET",
+                url: "{{route('github.repoStatusCheck')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    repoId: repoId
+                },
+                success: function(response) {
+                    $('.ajax-loader').hide();
+                    if (response.message) {
+                        toastr['success'](response.message, 'Success');
+                    } else {
+                        toastr['error'](response.message, 'Error');
+                    }
+                },
+                error: function(response) {
+                    $('.ajax-loader').hide();
+                    console.log(response);
+                }
+            });
+        });
+    });
 </script>
 @endsection

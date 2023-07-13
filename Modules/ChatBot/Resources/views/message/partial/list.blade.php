@@ -55,6 +55,47 @@ padding: 3px 2px;
         line-height: unset;
         margin-top: unset;
     }
+
+     /* / Responsive styles / */
+    /* / // X-Small devices (portrait phones, less than 576px) / */
+    @media (max-width: 575.98px) { 
+    }
+
+    /* / // Small devices (landscape phones, 576px and up) / */
+    @media (min-width: 576px) and (max-width: 767.98px) { 
+        .d-inline.form-inline .select2-container{
+        /* max-width: 100% !important; */
+        width: 260px !important;
+    }   
+    }
+
+    /* / // Medium devices (tablets, 768px and up) / */
+    @media (min-width: 768px) and (max-width: 991.98px) { 
+        
+    }
+
+    /* / // Large devices (desktops, 992px and up) / */
+    @media (min-width: 992px) and (max-width: 1199.98px) { 
+    
+    }
+
+    /* / // Extra large devices (large desktops, 1200px and up) / */
+    @media (min-width: 1200px) and (max-width: 1400.98px) {
+
+    }
+
+    /* / // For 2k Monitors, (more than 1401 px) / */
+    @media(max-width: 1599.98px) {
+    
+    }
+
+    @media (min-width: 1600px) and (max-width: 2559.98px) {
+
+    }
+
+    @media (min-width: 2560px) {
+
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
@@ -257,13 +298,13 @@ padding: 3px 2px;
                     @endif
 
 
-        <td class="message-input p-0 py-2 pl-3">
+        <td class="message-input py-2 pl-3">
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
-                    <div class="w-75 message-input-box">
+                    <div class="message-input-box">
                         <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
                     </div>
-                    <div class="w-25 pl-2 my-auto message-input-box-icons" role="group" aria-label="First group">
+                    <div class="pl-2 my-auto message-input-box-icons" role="group" aria-label="First group">
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1">
                             <input name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
                         </button>

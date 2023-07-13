@@ -59,6 +59,10 @@
 						</div>
 					</div>
 				</form>
+
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#environmentHistoryStatusCreate"> Create Status </button>
+                </div>
 			</div>
         </div>
         <div class="row">
@@ -100,11 +104,11 @@
                                     </span>
                                 </td>
                                 @foreach($env_store_websites as $id => $title)
-                                    <td class="expand-row">
-                                        <?php 
-                                            $key = array_search($paths, array_column($environments[$id], 'path'));
-                                        ?>
-                                        @if($key !== false)
+                                    <?php 
+                                        $key = array_search($paths, array_column($environments[$id], 'path'));
+                                    ?>
+                                    @if($key !== false)
+                                    <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
                                             <span class="td-mini-container">
                                                 {{ strlen($environments[$id][$key]['value']) > 15 ? substr($environments[$id][$key]['value'], 0, 15).'...' :  $environments[$id][$key]['value'] }}
                                             </span>
@@ -122,9 +126,11 @@
                                             <button type="button" title="History" data-id="{{$environments[$id][$key]['id']}}" class="btn btn-history" style="padding: 0px 5px !important;">
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                             </button>
-                                        @endif
                                     
                                     </td>
+                                    @else
+                                    <td></td>
+                                    @endif
                                 @endforeach
                                 
                             </tr>
@@ -180,6 +186,38 @@
     </div>
 </div>
 
+<div id="environmentHistoryStatusCreate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form id="environment_history_status_create_form" class="form mb-15" >
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Status Name :</strong>
+                        {!! Form::text('name', null, ['placeholder' => 'Status Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Status Color :</strong>
+                        <input type="color" name="color" class="form-control"  id="color" value="" style="height:30px;padding:0px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @include("storewebsite::environment.templates.list-template")
 @include("storewebsite::environment.templates.create-website-template")
 @include("storewebsite::environment.templates.change-value-template")
@@ -204,6 +242,50 @@
             $(this).find('.td-mini-container').toggleClass('hidden');
             $(this).find('.td-full-container').toggleClass('hidden');
         }
+    });
+
+    $(document).on('submit', '#environment_history_status_create_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("environment_history_status_create_form"));
+        var button = $(this).find('[type="submit"]');
+        $.ajax({
+            url: '{{ route("store-website.environment.storeEnvironmentHistoryStatus") }}',
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Add');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#environmentHistoryStatusCreate #environment_history_status_create_form').trigger('reset');
+                $('#environmentHistoryStatusCreate #environment_history_status_create_form').find('.error-help-block').remove();
+                $('#environmentHistoryStatusCreate #environment_history_status_create_form').find('.invalid-feedback').remove();
+                $('#environmentHistoryStatusCreate #environment_history_status_create_form').find('.alert').remove();
+                toastr["success"](response.message);
+                location.reload();
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
     });
 </script>
 @endsection 
