@@ -178,11 +178,12 @@
         });
     });
 
-    $(window).on('scroll', function() {
-        if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
-            getMoreActions(currentChatParams);
-        }
-    })
+    // Laravel pagination is using, So below code not need
+    // $(window).on('scroll', function() {
+    //     if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
+    //         getMoreActions(currentChatParams);
+    //     }
+    // })
 
     // $(window).scroll(function() {
     //     console.log(getMoreActions(currentChatParams));
@@ -218,7 +219,7 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h2 class="page-heading">Github Actions ({{ $githubActionRuns->total_count }})</h2>
+        <h2 class="page-heading">Github Actions ({{ $githubActionRuns['total_count'] }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-12">
@@ -304,53 +305,61 @@
 </div>
 @endif
 
-<div class="container" style="max-width: 100%;width: 100%;" id="action-workflows">
-    <table id="action-workflow-table" class="table table-bordered action-table" style="table-layout: fixed;">
-        <thead>
-            <tr>
-                <th style="width:10% !important;">Repo</th>
-                <th style="width:10% !important;">Branch</th>
-                <th style="width:10% !important;">Name</th>
-                <th style="width:10% !important;">Actor</th>
-                <th style="width:10% !important;">Executed On</th>
-                <th style="width:10% !important;">Event</th>
-                <th style="width:10% !important;">Run Number</th>
-                <th style="width:10% !important;">Run Attempt</th>
-                <th style="width:10% !important;">Run Started At</th>
-                <th style="width:10% !important;">Status</th>
-                <th style="width:10% !important;">Job Status</th>
-                <th style="width:10% !important;">Conclusion</th>
-                <th style="width:10% !important;">Failure Reason</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($githubActionRuns->workflow_runs as $runs)
-            <tr>
-                <td class="Website-task">{{$runs->repository->name}}</td>
-                <td class="Website-task">{{$runs->head_branch}}</td>
-                <td class="Website-task">{{$runs->name}}</td>
-                <td class="Website-task">{{$runs->actor->login}}</td>
-                <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
-                <td class="Website-task">{{$runs->event}}</td>
-                <td class="Website-task">{{$runs->run_number}}</td>
-                <td class="Website-task">{{$runs->run_attempt}}</td>
-                <td class="Website-task">{{$runs->run_started_at}}</td>
-                <td class="Website-task">{{$runs->status}}</td>
-                <td class="Website-task">
-                    @if(!empty($runs->job_status))
-                        @foreach ($runs->job_status as $key=>$job )
-                            <strong>{{"Job: "}}</strong>{{ $job['name']."(".$job['status'].") "}}
+<div class="row" id="action-workflows"  style="margin:10px;">
+    <div class="col-12">
+        <div class="table-responsive" style="overflow-x: auto!important">
+            <table id="action-workflow-table" class="table table-bordered action-table" style="width: 135%;max-width:unset">
+                <thead>
+                    <tr>
+                        <th style="width: auto">Repo</th>
+                        <th style="width: auto">Branch</th>
+                        <th style="width: auto">Name</th>
+                        <th style="width: auto">Actor</th>
+                        <th style="width: auto">Executed On</th>
+                        <th style="width: auto">Event</th>
+                        <th style="width: auto">Run Number</th>
+                        <th style="width: auto">Run Attempt</th>
+                        <th style="width: auto">Run Started At</th>
+                        <th style="width: auto">Status</th>
+                        <th style="width: auto">Conclusion</th>
+                        <th style="width: auto">Failure Reason</th>
+                        @if(!empty($githubRepositoryJobs))
+                        @foreach ($githubRepositoryJobs as $githubRepositoryJob)
+                        <th style="width: auto">{{$githubRepositoryJob}}</th>
                         @endforeach
-                    @endif
-                </td>
-                <td class="Website-task">{{$runs->conclusion}}</td>
-                <td class="Website-task">{{$runs->failure_reason}}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="loader-section">
-        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($githubActionRuns['workflow_runs'] as $runs)
+                    <tr>
+                        <td class="Website-task">{{$runs->repository->name}}</td>
+                        <td class="Website-task">{{$runs->head_branch}}</td>
+                        <td class="Website-task">{{$runs->name}}</td>
+                        <td class="Website-task">{{$runs->actor->login}}</td>
+                        <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
+                        <td class="Website-task">{{$runs->event}}</td>
+                        <td class="Website-task">{{$runs->run_number}}</td>
+                        <td class="Website-task">{{$runs->run_attempt}}</td>
+                        <td class="Website-task">{{$runs->run_started_at}}</td>
+                        <td class="Website-task">{{$runs->status}}</td>
+                        <td class="Website-task">{{$runs->conclusion}}</td>
+                        <td class="Website-task">{{$runs->failure_reason}}</td>
+                        @if(!empty($githubRepositoryJobs))
+                        @foreach ($githubRepositoryJobs as $githubRepositoryJob)
+                        <td class="Website-task">{{isset($runs->job_status[$githubRepositoryJob]) ? $runs->job_status[$githubRepositoryJob] : '-'}}</td>
+                        @endforeach
+                        @endif
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+             <!-- Display pagination links -->
+            {{ $githubActionRuns->links() }}
+        </div>
+        <div class="loader-section">
+            <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+        </div>
     </div>
 </div>
 
