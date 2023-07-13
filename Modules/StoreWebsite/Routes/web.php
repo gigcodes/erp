@@ -331,6 +331,7 @@ Route::group([
         Route::post('save', [StoreWebsiteEnvironmentController::class, 'store'])->name('store-website.environment.save');
 
         Route::post('updateValue', [StoreWebsiteEnvironmentController::class, 'updateValue'])->name('store-website.environment.updateValue');
+        Route::post('store-environment-history-status', [StoreWebsiteEnvironmentController::class, 'storeEnvironmentHistoryStatus'])->name('store-website.environment.storeEnvironmentHistoryStatus');
         
         Route::get('/{id}/edit', [StoreWebsiteEnvironmentController::class, 'edit'])->name('store-website.environment.edit');
 
