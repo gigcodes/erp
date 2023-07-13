@@ -15,19 +15,25 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
-            html += "<td>" + value.repository.name + "</td>";
-            html += "<td>" + value.head_branch + "</td>";
-            html += "<td>" + value.name + "</td>";
-            html += "<td>" + value.actor.login + "</td>";
-            html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
-            html += "<td>" + value.event +"</td>";
-            html += "<td>" + value.run_number +"</td>";
-            html += "<td>" + value.run_attempt +"</td>";
-            html += "<td>" + value.run_started_at +"</td>";
-            html += "<td>" + value.status +"</td>";
-            html += "<td>" + value.job_status + "</td>";
-            html += "<td>" + value.conclusion + "</td>";
-            html += "<td>" + value.failure_reason + "</td>";
+            html += "<td class='Website-task'>" + value.repository.name + "</td>";
+            html += "<td class='Website-task'>" + value.head_branch + "</td>";
+            html += "<td class='Website-task'>" + value.name + "</td>";
+            html += "<td class='Website-task'>" + value.actor.login + "</td>";
+            html += "<td class='Website-task'>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
+            html += "<td class='Website-task'>" + value.event +"</td>";
+            html += "<td class='Website-task'>" + value.run_number +"</td>";
+            html += "<td class='Website-task'>" + value.run_attempt +"</td>";
+            html += "<td class='Website-task'>" + value.run_started_at +"</td>";
+            html += "<td class='Website-task'>" + value.status +"</td>";
+            html += "<td class='Website-task'>";
+                if(value.job_status){
+                    jQuery.each(value.job_status, function(index, item) {
+                        html += "<strong>Job:</strong>"+item['name']+"( "+item['status']+") ";
+                    });
+                }
+            html + "</td>";
+            html += "<td class='Website-task'>" + value.conclusion + "</td>";
+            html += "<td class='Website-task'>" + value.failure_reason + "</td>";
             html += "</tr>";
         });
         return html;
@@ -271,7 +277,13 @@
                 <td class="Website-task">{{$runs->run_attempt}}</td>
                 <td class="Website-task">{{$runs->run_started_at}}</td>
                 <td class="Website-task">{{$runs->status}}</td>
-                <td class="Website-task">{{$runs->job_status}}</td>
+                <td class="Website-task">
+                    @if(!empty($runs->job_status))
+                        @foreach ($runs->job_status as $key=>$job )
+                            <strong>{{"Job: "}}</strong>{{ $job['name']."(".$job['status'].") "}}
+                        @endforeach
+                    @endif
+                </td>
                 <td class="Website-task">{{$runs->conclusion}}</td>
                 <td class="Website-task">{{$runs->failure_reason}}</td>
             </tr>

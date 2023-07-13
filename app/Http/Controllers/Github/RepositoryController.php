@@ -637,7 +637,7 @@ class RepositoryController extends Controller
                     'status' => $job->status
                 ];
             }
-            $githubActionRuns->workflow_runs[$key]->job_status = json_encode($githubActionRuns->workflow_runs[$key]->job_status);
+            $githubActionRuns->workflow_runs[$key]->job_status = $githubActionRuns->workflow_runs[$key]->job_status;
         }
 
         return $githubActionRuns;
