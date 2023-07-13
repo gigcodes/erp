@@ -21,6 +21,7 @@ use App\Github\GithubBranchState;
 use App\Http\Controllers\Controller;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrErrorLog;
+use App\Github\GithubRepositoryJob;
 use App\Http\Requests\DeleteBranchRequest;
 use App\Jobs\DeleteBranches;
 use App\Message;
@@ -995,5 +996,34 @@ class RepositoryController extends Controller
             ]);
         }
        
+    }
+
+    public function jobNameStore(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'job_name' => 'required',
+                'organization' => 'required',
+                'repository' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Store job name
+        $githubRepositoryJob = new GithubRepositoryJob();
+        $githubRepositoryJob->github_organization_id = $data['organization'];
+        $githubRepositoryJob->github_repository_id = $data['repository'];
+        $githubRepositoryJob->job_name = $data['job_name'];
+        $githubRepositoryJob->save();
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Job name created successfully!',
+            ]
+        );
     }
 }
