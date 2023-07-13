@@ -53,6 +53,7 @@ use App\StoreWebsiteProductScreenshot;
 use App\MagentoSettingUpdateResponseLog;
 use App\StoreWebsiteEnvironment;
 use App\StoreWebsiteEnvironmentHistory;
+use App\StoreWebsiteEnvironmentHistoryStatus;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Illuminate\Support\Facades\Http;
@@ -102,11 +103,17 @@ class StoreWebsiteEnvironmentController extends Controller
         $env_paths=$env_paths->pluck('path', 'id');
         $env_store_websites=$env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
         
-        $environments = StoreWebsiteEnvironment::select('id', 'store_website_id','path','value')->get()->toArray();
-        
-       
+        $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id','path','value')->get()->toArray();
+
         $result = [];
         array_walk($environments, function ($value, $key) use (&$result) {
+            $value['status_color'] = "";
+            if(isset($value['latest_store_website_environment_history']) && isset($value['latest_store_website_environment_history']['status'])) {
+                $historyStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', $value['latest_store_website_environment_history']['status'])->select('color')->first();
+                if ($historyStatus)
+                    $value['status_color'] = $historyStatus->color;
+            }
+            
             $result[$value['store_website_id']][] = $value;
         });
 
@@ -399,6 +406,32 @@ class StoreWebsiteEnvironmentController extends Controller
             }  
         }
         return response()->json(['code' => 200, 'data' => $histories]);
+    }
+
+    public function storeEnvironmentHistoryStatus(Request $request)
+    {
+        $input = $request->except(['_token']);
+
+        $data = StoreWebsiteEnvironmentHistoryStatus::updateOrCreate([
+            'name' => $input['name'],
+        ], [
+            'color' => $input['color'],
+        ]);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
     }
    
 }
