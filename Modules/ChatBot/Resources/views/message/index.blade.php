@@ -26,23 +26,78 @@
         .chatbot-form-1{
             justify-content: space-between;
         }
-        table th, table td{
+        table th:not(.modal-dialog table th), table td:not(.modal-dialog table td){
             white-space: nowrap;
+        }
+        .message-input-box{
+            width: 70%;
+        }
+        .message-input-box-icons{
+            width: 30%;
+        }
+        .chatboat-message-status {
+            width: 130px;
+        }
+        .chatboat-message-type{
+            width: 200px;
         }
         /* / Responsive styles / */
         /* / // X-Small devices (portrait phones, less than 576px) / */
         @media (max-width: 575.98px) { 
+            form.chatbot {
+                padding: 0 12px;
+                margin: 0 !important;
+            }
+            .chatboat-message-type {
+                width: 100% !important;
+            }
+            form.chatbot .chatbot-form-1 .col{
+                flex-grow: 1 !important;
+                padding: 0;
+            }
+            .chatbot-form-1 > div{
+                width: 100%;
+            }
+            .chatboat-message-status {
+                width: 100%;
+            }
+            .chatboat-message-type{
+                width: 100%;
+            }
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
+                width: 100% !important;
+            }
+            .chatbot-form-1 button[type=submit]{
+                padding: 0;
+            }
+            .chatbot-send-field{
+                width: 100%;
+            }
+            .chatbot-send-field .select2.select2-container.select2-container--default{
+                width: 100% !important;
 
+            }
         }
 
         /* / // Small devices (landscape phones, 576px and up) / */
         @media (min-width: 576px) and (max-width: 767.98px) { 
-
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
+                width: 100% !important;
+            }
         }
 
         /* / // Medium devices (tablets, 768px and up) / */
-        @media (min-width: 768px) and (max-width: 991.98px) { 
-            .message-input-box, .message-input-box-icons{
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
                 width: 100% !important;
             }
         }
@@ -90,10 +145,8 @@
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-
-
                             <div class="">
-                                <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
+                                <select name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
                                         Approved
@@ -104,7 +157,7 @@
                                 </select>
                             </div>
                             <div class="">
-                                <select style="width: 200px !important" name="message_type" class="chatboat-message-type form-control">
+                                <select name="message_type" class="chatboat-message-type form-control">
                                     <option value="">Select Message Type</option>
                                     <option value="email" {{request()->get('message_type') == 'email' ? 'selected' : ''}}>Email</option>
                                     <option value="task" {{request()->get('message_type') == 'task' ? 'selected' : ''}}>Task</option>
@@ -114,7 +167,7 @@
                             </div>
 
                             <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
-                            <div style="display: flex;align-items: center">
+                            <div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
 
                                     @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
                                         @php $check_status = 'checked'; @endphp
@@ -124,7 +177,7 @@
 
                                 <input class="mt-0 mr-2" type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
                             </div>
-                            <div style="margin-left: 20px;display: flex;align-items: center">
+                            <div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                     @if(request("unread_message") == "true")
                                         @php $check_status = 'checked'; @endphp
                                     @else
@@ -134,19 +187,19 @@
                                 <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="customer" @if(request()->get('search_type') != null and in_array('customer', request()->get('search_type'))) checked @endif > Customer
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="vendor" @if(request()->get('search_type') != null and in_array('vendor', request()->get('search_type'))) checked @endif> Vendor
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="supplier" @if(request()->get('search_type') != null and in_array('supplier', request()->get('search_type'))) checked @endif> Supplier
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="task" @if(request()->get('search_type') != null and in_array('task', request()->get('search_type'))) checked @endif> Task
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="dev_task" @if(request()->get('search_type') != null and in_array('dev_task', request()->get('search_type'))) checked @endif> Dev Task
                             </div>
 
@@ -157,7 +210,7 @@
                     </form>
 
 
-                    <form method="post" class="pt-3 d-flex align-items-center">
+                    <form method="post" class="pt-3 d-flex align-items-center chatbot-send-field">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:300px;"]); ?>
                         <button type="submit" style="display: inline-block;width: 10%"
