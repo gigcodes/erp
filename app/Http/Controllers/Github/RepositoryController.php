@@ -21,11 +21,13 @@ use App\Github\GithubBranchState;
 use App\Http\Controllers\Controller;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrErrorLog;
+use App\Github\GithubRepositoryJob;
 use App\Http\Requests\DeleteBranchRequest;
 use App\Jobs\DeleteBranches;
 use App\Message;
 use App\Models\DeletedGithubBranchLog;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 
 class RepositoryController extends Controller
@@ -599,13 +601,33 @@ class RepositoryController extends Controller
         $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status);
         
         $githubOrganizations = GithubOrganization::with('repos')->get();
+        // Get Repo Jobs from DB & Prepare the status. 
+        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $selectedRepositoryId)->pluck('job_name')->toArray();
+
+        // Paginate
+        // Set the current page number
+        $currentPage = request()->query('page', 1);
+        $githubActionRunsPaginated = new LengthAwarePaginator(
+            $githubActionRuns,
+            $githubActionRuns->total_count,
+            30, // Default count API
+            $currentPage,
+            ['path' => request()->url()]
+        );
+
+        // Preserve existing query parameters
+        $githubActionRunsPaginated->appends($request->query());
+
+        // Customize the pagination output (optional)
+        $githubActionRunsPaginated->withPath(Paginator::resolveCurrentPath());
 
         return view('github.action_workflows', [
-            'githubActionRuns' => $githubActionRuns,
+            'githubActionRuns' => $githubActionRunsPaginated,
             'repositoryId' => $repositoryId,
             'selectedRepositoryId' => $selectedRepositoryId,
             'githubOrganizations' => $githubOrganizations,
-            'selectedOrganizationID' => $selectedOrganizationID
+            'selectedOrganizationID' => $selectedOrganizationID,
+            'githubRepositoryJobs' => $githubRepositoryJobs
         ]);
     }
 
@@ -618,6 +640,9 @@ class RepositoryController extends Controller
         ini_set('max_execution_time', -1);
 
         $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status);
+        // Get Repo Jobs from DB & Prepare the status. 
+        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $repositoryId)->pluck('job_name')->toArray();
+
         foreach ($githubActionRuns->workflow_runs as $key => $runs) {
             $githubActionRuns->workflow_runs[$key]->failure_reason = '';
             $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $runs->id);
@@ -633,12 +658,10 @@ class RepositoryController extends Controller
             // Prepareing job status for every actions
             $githubActionRuns->workflow_runs[$key]->job_status = [];
             foreach ($githubActionRunJobs->jobs as $job) {
-                $githubActionRuns->workflow_runs[$key]->job_status[] = [
-                    'name' => $job->name,
-                    'status' => $job->status
-                ];
+                if(in_array($job->name, $githubRepositoryJobs)) {
+                    $githubActionRuns->workflow_runs[$key]->job_status[$job->name] = $job->status;
+                }
             }
-            $githubActionRuns->workflow_runs[$key]->job_status = $githubActionRuns->workflow_runs[$key]->job_status;
         }
 
         return $githubActionRuns;
@@ -995,5 +1018,34 @@ class RepositoryController extends Controller
             ]);
         }
        
+    }
+
+    public function jobNameStore(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'job_name' => 'required',
+                'organization' => 'required',
+                'repository' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Store job name
+        $githubRepositoryJob = new GithubRepositoryJob();
+        $githubRepositoryJob->github_organization_id = $data['organization'];
+        $githubRepositoryJob->github_repository_id = $data['repository'];
+        $githubRepositoryJob->job_name = $data['job_name'];
+        $githubRepositoryJob->save();
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Job name created successfully!',
+            ]
+        );
     }
 }

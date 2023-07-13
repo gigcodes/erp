@@ -118,13 +118,72 @@
             }else{
             }
         }
+
+        $('.select2').select2();
+        $("#job-name-create-organization").on('change', function(e) {
+            var url = "{{ route('project.getGithubRepo') }}";
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_organization: jQuery('#job-name-create-organization').val(),
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                jQuery('#job-name-create-repository').html(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        });
+
+        $(document).on('submit', 'form#job-name-create-form', function(e){
+            e.preventDefault();
+            var self = $(this);
+            let formData = new FormData(document.getElementById("job-name-create-form"));
+            var button = $(this).find('[type="submit"]');
+            $.ajax({
+                url: '{{ route("github.job-name.store") }}',
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                complete: function() {
+                    $("#loading-image-preview").hide();
+                },
+                success: function(response) {
+                    if(response.code=='200'){
+                        toastr["success"](response.message);
+                        $('#job-name-create-modal').modal('hide');
+                        // reload page
+                        location.reload();
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                    $("#loading-image-preview").hide();
+                },
+                error: function(xhr, status, error) { // if error occured
+                    $("#loading-image-preview").hide();
+                },
+            });
+        });
     });
 
-    $(window).on('scroll', function() {
-        if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
-            getMoreActions(currentChatParams);
-        }
-    })
+    // Laravel pagination is using, So below code not need
+    // $(window).on('scroll', function() {
+    //     if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
+    //         getMoreActions(currentChatParams);
+    //     }
+    // })
 
     // $(window).scroll(function() {
     //     console.log(getMoreActions(currentChatParams));
@@ -160,15 +219,15 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h2 class="page-heading">Github Actions ({{ $githubActionRuns->total_count }})</h2>
+        <h2 class="page-heading">Github Actions ({{ $githubActionRuns['total_count'] }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-12">
                     <form action="{{ url('/github/repos/'.$repositoryId.'/actions') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="" class="form-label">Organization</label>
-                                <select name="organizationId" id="organizationId" class="form-control">
+                                <select name="organizationId" id="organizationId" class="form-control select2">
                                     <option value="">-- Select organisation --</option>
                                     @foreach ($githubOrganizations as $githubOrganization)
                                         <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' @if($githubOrganization->id == $selectedOrganizationID) selected @endif>{{  $githubOrganization->name }}</option>
@@ -178,11 +237,11 @@
                     
                             <div class="col-md-3">
                                 <label for="" class="form-label">Repository</label>
-                                <select name="repoId" id="repoId" class="form-control">
+                                <select name="repoId" id="repoId" class="form-control select2">
                                     
                                 </select>
                             </div>
-                            <div class="col-md-3 pd-sm">
+                            <div class="col-md-3">
                                 <?php 
                                     if(request('status')){   $status = request('status'); }
                                     else{ $status = ''; }
@@ -211,6 +270,7 @@
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
                                 <a href="{{ url('/github/repos/'.$repositoryId.'/actions') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#job-name-create-modal"> Create Job Name </button>
                             </div>
                         </div>
                     </form>
@@ -245,53 +305,113 @@
 </div>
 @endif
 
-<div class="container" style="max-width: 100%;width: 100%;" id="action-workflows">
-    <table id="action-workflow-table" class="table table-bordered action-table" style="table-layout: fixed;">
-        <thead>
-            <tr>
-                <th style="width:10% !important;">Repo</th>
-                <th style="width:10% !important;">Branch</th>
-                <th style="width:10% !important;">Name</th>
-                <th style="width:10% !important;">Actor</th>
-                <th style="width:10% !important;">Executed On</th>
-                <th style="width:10% !important;">Event</th>
-                <th style="width:10% !important;">Run Number</th>
-                <th style="width:10% !important;">Run Attempt</th>
-                <th style="width:10% !important;">Run Started At</th>
-                <th style="width:10% !important;">Status</th>
-                <th style="width:10% !important;">Job Status</th>
-                <th style="width:10% !important;">Conclusion</th>
-                <th style="width:10% !important;">Failure Reason</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($githubActionRuns->workflow_runs as $runs)
-            <tr>
-                <td class="Website-task">{{$runs->repository->name}}</td>
-                <td class="Website-task">{{$runs->head_branch}}</td>
-                <td class="Website-task">{{$runs->name}}</td>
-                <td class="Website-task">{{$runs->actor->login}}</td>
-                <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
-                <td class="Website-task">{{$runs->event}}</td>
-                <td class="Website-task">{{$runs->run_number}}</td>
-                <td class="Website-task">{{$runs->run_attempt}}</td>
-                <td class="Website-task">{{$runs->run_started_at}}</td>
-                <td class="Website-task">{{$runs->status}}</td>
-                <td class="Website-task">
-                    @if(!empty($runs->job_status))
-                        @foreach ($runs->job_status as $key=>$job )
-                            <strong>{{"Job: "}}</strong>{{ $job['name']."(".$job['status'].") "}}
+<div class="row" id="action-workflows"  style="margin:10px;">
+    <div class="col-12">
+        <div class="table-responsive" style="overflow-x: auto!important">
+            <table id="action-workflow-table" class="table table-bordered action-table" style="width: 135%;max-width:unset">
+                <thead>
+                    <tr>
+                        <th style="width: auto">Repo</th>
+                        <th style="width: auto">Branch</th>
+                        <th style="width: auto">Name</th>
+                        <th style="width: auto">Actor</th>
+                        <th style="width: auto">Executed On</th>
+                        <th style="width: auto">Event</th>
+                        <th style="width: auto">Run Number</th>
+                        <th style="width: auto">Run Attempt</th>
+                        <th style="width: auto">Run Started At</th>
+                        <th style="width: auto">Status</th>
+                        <th style="width: auto">Conclusion</th>
+                        <th style="width: auto">Failure Reason</th>
+                        @if(!empty($githubRepositoryJobs))
+                        @foreach ($githubRepositoryJobs as $githubRepositoryJob)
+                        <th style="width: auto">{{$githubRepositoryJob}}</th>
                         @endforeach
-                    @endif
-                </td>
-                <td class="Website-task">{{$runs->conclusion}}</td>
-                <td class="Website-task">{{$runs->failure_reason}}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="loader-section">
-        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($githubActionRuns['workflow_runs'] as $runs)
+                    <tr>
+                        <td class="Website-task">{{$runs->repository->name}}</td>
+                        <td class="Website-task">{{$runs->head_branch}}</td>
+                        <td class="Website-task">{{$runs->name}}</td>
+                        <td class="Website-task">{{$runs->actor->login}}</td>
+                        <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
+                        <td class="Website-task">{{$runs->event}}</td>
+                        <td class="Website-task">{{$runs->run_number}}</td>
+                        <td class="Website-task">{{$runs->run_attempt}}</td>
+                        <td class="Website-task">{{$runs->run_started_at}}</td>
+                        <td class="Website-task">{{$runs->status}}</td>
+                        <td class="Website-task">{{$runs->conclusion}}</td>
+                        <td class="Website-task">{{$runs->failure_reason}}</td>
+                        @if(!empty($githubRepositoryJobs))
+                        @foreach ($githubRepositoryJobs as $githubRepositoryJob)
+                        <td class="Website-task">{{isset($runs->job_status[$githubRepositoryJob]) ? $runs->job_status[$githubRepositoryJob] : '-'}}</td>
+                        @endforeach
+                        @endif
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+             <!-- Display pagination links -->
+            {{ $githubActionRuns->links() }}
+        </div>
+        <div class="loader-section">
+            <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="job-name-create-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Job Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="job-name-create-form">
+                            <?php echo csrf_field(); ?>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <strong>Organizations:</strong>
+                                        <select name="organization" id="job-name-create-organization" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Organizations --</option>
+                                            @forelse($githubOrganizations as $organization)
+                                                <option value="{{ $organization->id }}">{{ $organization->name }}</option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <strong>Repository:</strong>
+                                        <select name="repository" id="job-name-create-repository" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Repository --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <strong>Job Name :</strong>
+                                        {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
+                                    </div>
+                                </div>                            
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button data-id=""class="btn btn-secondary create-job-name">Create</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
