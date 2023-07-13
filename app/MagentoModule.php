@@ -42,7 +42,8 @@ class MagentoModule extends Model
         'dependency',
         'composer',
         'module_review_standard',
-        'magneto_location_id'
+        'magneto_location_id',
+        'used_at',
     ];
 
     public function module_category()

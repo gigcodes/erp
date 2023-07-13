@@ -372,6 +372,7 @@ use App\Http\Controllers\IpLogController;
 use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
+use App\Http\Controllers\TechnicalDebtController;
 
 Auth::routes();
 
@@ -533,6 +534,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_modules', MagentoModuleController::class);
 
     Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
+    Route::get('/description', [MagentoModuleController::class, 'descriptionHistory'])->name('magento_module.description.history');
+    Route::get('/used_at', [MagentoModuleController::class, 'usedAtHistory'])->name('magento_module.usedat.history');
     Route::resource('magento_module_locations', MagentoLocationController::class);
     
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
@@ -2741,6 +2744,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     });
 
+
+
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
         Route::post('/store', [ErpEventController::class, 'store'])->name('erp-events.store');
@@ -4234,9 +4239,14 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
+        Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
+        Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
+        Route::get('/pr-error-logs/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPrErrorLogs']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
+        Route::get('/repo/status', [Github\RepositoryController::class, 'repoStatusCheck'])->name('github.repoStatusCheck');
+        Route::get('/repo/pr-request', [Github\RepositoryController::class, 'getLatestPullRequests'])->name('github.pr.request');
     });
 });
 
@@ -5352,6 +5362,7 @@ Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, '
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
 Route::get('ip/logs', [IpLogController::class, 'getIPLogs'])->name('get.ip.logs');
+Route::post('/whitelist-ip', [IpLogController::class, 'whitelistIP'])->name('whitelist-ip');
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
 Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');;
@@ -5375,3 +5386,9 @@ Route::middleware('auth')->group(function () {
     Route::get('monitor-server/get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
     Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 });
+
+
+Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('technical-debt-lists');
+Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
+Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
+Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');

@@ -15,10 +15,25 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
-            html += "<td>" + value.name + "</td>";
-            html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
-            html += "<td>" + value.conclusion + "</td>";
-            html += "<td>" + value.failure_reason + "</td>";
+            html += "<td class='Website-task'>" + value.repository.name + "</td>";
+            html += "<td class='Website-task'>" + value.head_branch + "</td>";
+            html += "<td class='Website-task'>" + value.name + "</td>";
+            html += "<td class='Website-task'>" + value.actor.login + "</td>";
+            html += "<td class='Website-task'>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
+            html += "<td class='Website-task'>" + value.event +"</td>";
+            html += "<td class='Website-task'>" + value.run_number +"</td>";
+            html += "<td class='Website-task'>" + value.run_attempt +"</td>";
+            html += "<td class='Website-task'>" + value.run_started_at +"</td>";
+            html += "<td class='Website-task'>" + value.status +"</td>";
+            html += "<td class='Website-task'>";
+                if(value.job_status){
+                    jQuery.each(value.job_status, function(index, item) {
+                        html += "<strong>Job:</strong>"+item['name']+"( "+item['status']+") ";
+                    });
+                }
+            html + "</td>";
+            html += "<td class='Website-task'>" + value.conclusion + "</td>";
+            html += "<td class='Website-task'>" + value.failure_reason + "</td>";
             html += "</tr>";
         });
         return html;
@@ -31,7 +46,7 @@
         if(isApiCall) {
             workingOn = $.ajax({
                 type: "GET", 
-                url: '/github/repos/{!! $repositoryId !!}/github-actions', 
+                url: '/github/repos/{!! $selectedRepositoryId !!}/github-actions', 
                 data: {
                     'page': pageNum + 1
                 }, 
@@ -80,8 +95,29 @@
             "paging": false, 
             "ordering": true, 
             "info": false,
-            "searching": false
+            "searching": true
         });
+        $(document).find('#action-workflows .loader-section').hide();
+
+        $('#organizationId').change(function (){
+            getRepositories();
+        });
+        getRepositories();
+        function getRepositories(){
+            var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
+
+            $('#repoId').empty();
+
+            if(repos.length > 0){
+                $.each(repos, function (k, v){
+                    if(v.id == {!! $selectedRepositoryId !!})
+                        $('#repoId').append('<option value="'+v.id+'" selected>'+v.name+'</option>');
+                    else 
+                        $('#repoId').append('<option value="'+v.id+'">'+v.name+'</option>');
+                });
+            }else{
+            }
+        }
     });
 
     $(window).on('scroll', function() {
@@ -123,13 +159,70 @@
 </style>
 
 <div class="row">
-    <div class="col-lg-12 margin-tb page-heading">
-        <h2 class="page-heading">Actions ({{ $githubActionRuns->total_count }})</h2>
+    <div class="col-lg-12">
+        <h2 class="page-heading">Github Actions ({{ $githubActionRuns->total_count }})</h2>
+        <div class="pull">
+            <div class="row" style="margin:10px;">
+                <div class="col-8">
+                    <form action="{{ url('/github/repos/'.$repositoryId.'/actions') }}" method="get" class="search">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="" class="form-label">Organization</label>
+                                <select name="organizationId" id="organizationId" class="form-control">
+                                    <option value="">-- Select organisation --</option>
+                                    @foreach ($githubOrganizations as $githubOrganization)
+                                        <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' @if($githubOrganization->id == $selectedOrganizationID) selected @endif>{{  $githubOrganization->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                    
+                            <div class="col-md-3">
+                                <label for="" class="form-label">Repository</label>
+                                <select name="repoId" id="repoId" class="form-control">
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('status')){   $status = request('status'); }
+                                    else{ $status = ''; }
+                                ?>
+                                <label for="" class="form-label">Status</label>
+                                <select name="status" id="status" class="form-control select2">
+                                    <option value="" @if($status=='') selected @endif>-- Select a status --</option>
+                                    <option value="completed" @if($status=="completed") selected @endif>completed</option>
+                                    <option value="action_required" @if($status=="action_required") selected @endif>action_required</option>
+                                    <option value="cancelled" @if($status=="cancelled") selected @endif>cancelled</option>
+                                    <option value="failure" @if($status=="failure") selected @endif>failure</option>
+                                    <option value="neutral" @if($status=="neutral") selected @endif>neutral</option>
+                                    <option value="skipped" @if($status=="skipped") selected @endif>skipped</option>
+                                    <option value="stale" @if($status=="stale") selected @endif>stale</option>
+                                    <option value="success" @if($status=="success") selected @endif>success</option>
+                                    <option value="timed_out" @if($status=="timed_out") selected @endif>timed_out</option>
+                                    <option value="in_progress" @if($status=="in_progress") selected @endif>in_progress</option>
+                                    <option value="queued" @if($status=="queued") selected @endif>queued</option>
+                                    <option value="requested" @if($status=="requested") selected @endif>requested</option>
+                                    <option value="waiting" @if($status=="waiting") selected @endif>waiting</option>
+                                    <option value="pending" @if($status=="pending") selected @endif>pending</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm pl-0 mt-2">
+                                 <button type="submit" class="btn btn-image search">
+                                    <img src="{{ asset('images/search.png') }}" alt="Search">
+                                </button>
+                                <a href="{{ url('/github/repos/'.$repositoryId.'/actions') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@if(session()->has('message'))
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
-        @if(session()->has('message'))
         @php $type = Session::get('alert-type', 'info'); @endphp
         @if($type == "info")
         <div class="alert alert-secondary">
@@ -148,26 +241,49 @@
             {{ session()->get('message') }}
         </div>
         @endif
-        @endif
-        <h3 class="text-center">Github Actions</h3>
     </div>
 </div>
+@endif
 
 <div class="container" style="max-width: 100%;width: 100%;" id="action-workflows">
     <table id="action-workflow-table" class="table table-bordered action-table" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:7% !important;">Name</th>
+                <th style="width:10% !important;">Repo</th>
+                <th style="width:10% !important;">Branch</th>
+                <th style="width:10% !important;">Name</th>
+                <th style="width:10% !important;">Actor</th>
                 <th style="width:10% !important;">Executed On</th>
-                <th style="width:13% !important;">Status</th>
+                <th style="width:10% !important;">Event</th>
+                <th style="width:10% !important;">Run Number</th>
+                <th style="width:10% !important;">Run Attempt</th>
+                <th style="width:10% !important;">Run Started At</th>
+                <th style="width:10% !important;">Status</th>
+                <th style="width:10% !important;">Job Status</th>
+                <th style="width:10% !important;">Conclusion</th>
                 <th style="width:10% !important;">Failure Reason</th>
             </tr>
         </thead>
         <tbody>
             @foreach($githubActionRuns->workflow_runs as $runs)
             <tr>
+                <td class="Website-task">{{$runs->repository->name}}</td>
+                <td class="Website-task">{{$runs->head_branch}}</td>
                 <td class="Website-task">{{$runs->name}}</td>
+                <td class="Website-task">{{$runs->actor->login}}</td>
                 <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($runs->created_at))}}</td>
+                <td class="Website-task">{{$runs->event}}</td>
+                <td class="Website-task">{{$runs->run_number}}</td>
+                <td class="Website-task">{{$runs->run_attempt}}</td>
+                <td class="Website-task">{{$runs->run_started_at}}</td>
+                <td class="Website-task">{{$runs->status}}</td>
+                <td class="Website-task">
+                    @if(!empty($runs->job_status))
+                        @foreach ($runs->job_status as $key=>$job )
+                            <strong>{{"Job: "}}</strong>{{ $job['name']."(".$job['status'].") "}}
+                        @endforeach
+                    @endif
+                </td>
                 <td class="Website-task">{{$runs->conclusion}}</td>
                 <td class="Website-task">{{$runs->failure_reason}}</td>
             </tr>

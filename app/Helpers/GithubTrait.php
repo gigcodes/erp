@@ -210,7 +210,7 @@ trait GithubTrait
         return $data;
     }
 
-    private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null)
+    private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null, $status = null)
     {
         $repository = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
@@ -220,6 +220,9 @@ trait GithubTrait
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
         if(!empty($date)) {
             $url .= "&created={$date}";
+        }
+        if(!empty($status)) {
+            $url .= "&status={$status}";
         }
 
         try {

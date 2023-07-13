@@ -124,7 +124,10 @@
                             {{/if}}
 							<button title="Run File Permissions" data-id="{{>prop.id}}" type="button"  class="btn run_file_permissions" style="padding:1px 0px;">
                                     <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-file"></i></a>
-                                </button>
+							</button>
+							<button title="Clear Cloudflare Caches" data-id="{{>prop.id}}" type="button"  class="btn btn-xs btn-image mt-1 clear_cloudflare_caches" style="padding:1px 0px;">
+								<img src="/images/clear_caches.png" style="color:gray;width: 20px !important;">
+							</button>
 			        </td>
 			        </tr>
 			    {{/props}}  

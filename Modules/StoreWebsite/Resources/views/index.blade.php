@@ -846,7 +846,35 @@
 			toastr['error']("Sorry, something went wrong", 'error');
 		});
 	
-});
+	});
+
+	$(document).on("click", ".clear_cloudflare_caches", function(href) {
+		
+		$.ajax({
+			type: 'POST',
+			url: '/store-website/'+ $(this).data('id') +'/clear-cloudflare-caches',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				toastr['success'](response.message, 'success');
+			}else{
+				toastr['error'](response.message, 'error');
+			}
+			
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			toastr['error']("Sorry, something went wrong", 'error');
+		});
+	
+	});
 	
 	$(document).on("click", ".execute-bash-command-select-folder", function(href) {
 		var folder_name = $(this).data('folder_name');

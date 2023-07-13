@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\IpLog;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class IpLogController extends Controller
@@ -32,5 +32,44 @@ class IpLogController extends Controller
       
         return view('IpLogs.ip-log-list', compact('logs'));
        
+    }
+
+    public function whitelistIP(Request $request)
+    {
+        $validatedData = $request->validate([
+            'server_name' => 'required',
+            'ip_address' => 'required|ip',
+            'comment' => 'required',
+        ]);
+
+        $serverName = $validatedData['server_name'];
+        $ipAddress = $validatedData['ip_address'];
+        $comment = $validatedData['comment'];
+
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'webaccess-firewall.sh' .  '-f ' .$serverName . '-i' . $ipAddress . '-c ' .$comment;
+
+        $allOutput = [];
+        $allOutput[] = $command;
+        $result = exec($command, $allOutput);
+
+         Log::info('Command result: ' . $result);
+
+        if ($result == '') {
+            $errorMessage = 'No response';
+             Log::error($errorMessage);
+            $result = $errorMessage . 'Command run Fail Response' ;
+        } elseif ($result == 0) {
+            $result = 'Command run success Response ' . $result;
+        } elseif ($result == 1) {
+            $errorMessage = 'Command run Fail Response ' . $result;
+            Log::error($errorMessage);
+            $result = $errorMessage;
+        } else {
+            $result = is_array($result) ? json_encode($result, true) : $result;
+        }
+
+        Log::info(print_r($result, true));
+        
+        return response()->json(['message' => $result, 'code' => 200]);
     }
 }

@@ -114,6 +114,7 @@
         e.preventDefault();
         var password_id = $(this).data('password_id');
         var remark = $(`.remark_pop`+password_id).val();
+        // alert(remark );
         $.ajax({
             type: "POST",
             url: passGetRemark,
