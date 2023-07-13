@@ -341,6 +341,8 @@ class StoreWebsiteEnvironmentController extends Controller
         $cmd = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\"";
         $output = [];
         exec($cmd, $output, $statusCode);
+        \Log::info("Command Status".$statusCode);
+        \Log::info("Command OutPut".print_r($output,true));
         
         if ($statusCode == 0) {
             // Assuming the output is stored in $output variable as an array
