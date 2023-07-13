@@ -23,6 +23,7 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrErrorLog;
 use App\Http\Requests\DeleteBranchRequest;
 use App\Jobs\DeleteBranches;
+use App\Message;
 use App\Models\DeletedGithubBranchLog;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\View;
@@ -943,5 +944,56 @@ class RepositoryController extends Controller
         return View::make('github.pr-error-logs', [
             'githubPrErrorLogs' => $githubPrErrorLogs,
         ]);
+    }
+
+    public function repoStatusCheck(Request $request)
+    {
+        $gitRepo = GithubRepository::find($request->get('repoId'));
+        $gitRepo->repo_status = 1;
+        $gitRepo->save();
+
+        GithubRepository::whereNotIn('id', [$request->get('repoId')])->update(['repo_status' => 0]);
+
+        $message = "Repository Status updated successfully.";
+
+        return response()->json([
+            'message' => $message
+        ]);
+    }
+
+    public function getLatestPullRequests(Request $request)
+    {
+        $repo= \App\Github\GithubRepository::where('repo_status', '=', 1)->first();
+        
+        if($repo){
+            $repobranches= \App\Github\GithubBranchState::where('repository_id', '=', $repo->id)->take(5)->get();
+
+            $organization = $repo->organization;
+    
+            $pullRequests = $this->getPullRequests($organization->username, $organization->token, $repo->id);
+    
+            $branchNames = array_map(
+                function ($pullRequest) {
+                    return $pullRequest['source'];
+                },
+                $pullRequests
+            );
+    
+            $branchStates = GithubBranchState::whereIn('branch_name', $branchNames)->get();
+    
+            foreach ($pullRequests as $pullRequest) {
+                $pullRequest['branchState'] = $branchStates->first(
+                    function ($value, $key) use ($pullRequest) {
+                        return $value->branch_name == $pullRequest['source'];
+                    }
+                );
+            }
+    
+            return response()->json([
+                'tbody' => view('partials.modals.pull-request-alerts-modal-html', compact('pullRequests','repo'))->render(),
+                'count' => count($repobranches),
+            ]);
+        }
+       
     }
 }

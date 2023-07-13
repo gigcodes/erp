@@ -889,6 +889,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
 
+                                <li>
+                                    <a title="Pr lists" type="button" id="repo_status_list" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-star fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+
                                 @php
                                     $route = request()->route()->getName();
                                 @endphp
@@ -4702,7 +4707,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('databse-Backup.db-errors-list')
         @include('partials.modals.short-cut-notes-alerts-modal')
         @include('code-shortcut.partials.short-cut-notes-create');
-
+        @include('partials.modals.pull-request-alerts-modal')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7513,6 +7518,38 @@ if (!\Auth::guest()) {
             $("#loading-image").hide();
         });
     });
+
+    $(document).on('click','#repo_status_list',function(e){
+        e.preventDefault();
+        getPullRequestsForShortcut(true)
+    });
+
+    function getPullRequestsForShortcut(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('github.pr.request')}}",
+            dataType:"json",
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#pull-request-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#pull-request-alerts-modal').modal('show');
+            }
+            if(response.count > 0) {
+                $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function confirmMergeToMaster(branchName, url) {
+        let result = confirm("Are you sure you want to merge " + branchName + " to master?");
+        if (result) {
+            window.location.href = url;
+        }
+    }
 
     $(document).on('click','#website_Off_status',function(e){
         e.preventDefault();
