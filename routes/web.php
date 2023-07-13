@@ -372,6 +372,7 @@ use App\Http\Controllers\IpLogController;
 use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
+use App\Http\Controllers\MagentoFrontendDocumentationController;
 
 Auth::routes();
 
@@ -595,6 +596,13 @@ Route::middleware('auth')->group(function () {
     
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
+
+    /** Magento Frontend Page */
+    Route::get('magento_frontend/documentation', [MagentoFrontendDocumentationController::class, 'magentofrontenDocs'])->name('magento_frontend_listing');
+    Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
+    Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
+    Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+
     
 });
 /** redis Job Module */
