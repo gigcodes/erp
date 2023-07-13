@@ -620,8 +620,8 @@ class RepositoryController extends Controller
         $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status);
         foreach ($githubActionRuns->workflow_runs as $key => $runs) {
             $githubActionRuns->workflow_runs[$key]->failure_reason = '';
+            $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $runs->id);
             if ($runs->conclusion == 'failure') {
-                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $runs->id);
                 foreach ($githubActionRunJobs->jobs as $job) {
                     foreach ($job->steps as $step) {
                         if ($step->conclusion == 'failure') {
@@ -630,6 +630,15 @@ class RepositoryController extends Controller
                     }
                 }
             }
+            // Prepareing job status for every actions
+            $githubActionRuns->workflow_runs[$key]->job_status = [];
+            foreach ($githubActionRunJobs->jobs as $job) {
+                $githubActionRuns->workflow_runs[$key]->job_status[] = [
+                    'name' => $job->name,
+                    'status' => $job->status
+                ];
+            }
+            $githubActionRuns->workflow_runs[$key]->job_status = $githubActionRuns->workflow_runs[$key]->job_status;
         }
 
         return $githubActionRuns;

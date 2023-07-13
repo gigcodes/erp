@@ -26,4 +26,8 @@ class StoreWebsiteEnvironment extends Model
     {
         return $this->belongsTo(StoreWebsite::class);
     }
+
+    public function latestStoreWebsiteEnvironmentHistory() {
+        return $this->hasOne(StoreWebsiteEnvironmentHistory::class, "environment_id")->latest();
+    }
 }

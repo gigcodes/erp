@@ -56,7 +56,7 @@
                     
                 </div>
             </div>
-            <div class="form-row">
+            <!-- <div class="form-row">
                 <div class="form-group col-md-12">
                     
                     <div class="d-flex justify-content-between">
@@ -68,7 +68,7 @@
                     </div>
                     
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
