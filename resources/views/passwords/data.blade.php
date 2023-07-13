@@ -20,11 +20,10 @@
             <i class="fa fa-clone" aria-hidden="true" ></i>
         </button>
       </td>
-      <td>
-        {{-- <span class="user-password">{{ Crypt::decrypt($password->password) }}</span>
+      <td><span class="user-password">{{ Crypt::decrypt($password->password) }}</span>
         <button type="button" data-id="" class="btn btn-copy-password btn-sm"  data-value="{{ Crypt::decrypt($password->password) }}">
           <i class="fa fa-clone" aria-hidden="true"></i>
-        </button> --}}
+        </button>
       </td>
       <td>{{ $password->registered_with }}</td>
       <td>
