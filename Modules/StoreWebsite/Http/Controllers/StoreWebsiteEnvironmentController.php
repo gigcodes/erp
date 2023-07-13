@@ -338,7 +338,7 @@ class StoreWebsiteEnvironmentController extends Controller
         $serverIP = $storeWebsite->server_ip;
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
         
-        $cmd = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\"";
+        $cmd = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\" 2>&1";
         $output = [];
         exec($cmd, $output, $statusCode);
         \Log::info("Command Status".$statusCode);
