@@ -602,7 +602,7 @@ class RepositoryController extends Controller
         
         $githubOrganizations = GithubOrganization::with('repos')->get();
         // Get Repo Jobs from DB & Prepare the status. 
-        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $repositoryId)->pluck('job_name')->toArray();
+        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $selectedRepositoryId)->pluck('job_name')->toArray();
 
         // Paginate
         // Set the current page number
