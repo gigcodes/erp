@@ -71,6 +71,7 @@
                             <th width="10%">Text</th>
                             <th width="5%">Status</th>
                             <th width="5%">Date</th>
+                            <th width="5%">Job Status</th>
                         </tr>
                         @foreach ($responseLogs as $key => $responseLog)
                             <tr data-id="{{ $responseLog->id }}">
@@ -112,11 +113,18 @@
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->created_at }}
                                 </td>
+                                <td>
+                                    @if(count($responseLog->job_status) > 0)
+                                        @foreach ($responseLog->job_status as $key=>$value )
+                                            <strong>{{"Job: "}}</strong>{{ $key."(".$value.") "}}
+                                        @endforeach
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </table>
                 </div>
-                {{-- {!! $projects->appends(request()->except('page'))->links() !!} --}}
+                {!! $responseLogs->appends(request()->except('page'))->links() !!}
             </div>
         </div>
     </div>

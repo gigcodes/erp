@@ -210,7 +210,7 @@ trait GithubTrait
         return $data;
     }
 
-    private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null, $status = null)
+    private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null, $status = null, $branch = null)
     {
         $repository = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
@@ -223,6 +223,9 @@ trait GithubTrait
         }
         if(!empty($status)) {
             $url .= "&status={$status}";
+        }
+        if(!empty($branch)) {
+            $url .= "&branch={$branch}";
         }
 
         try {

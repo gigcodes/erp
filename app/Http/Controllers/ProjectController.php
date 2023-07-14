@@ -221,7 +221,7 @@ class ProjectController extends Controller
             ->where('store_website_id', '=', $id)
             ->select('build_process_histories.*','u.name as usersname')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('project.build-process-logs', compact('responseLogs'));
     }
