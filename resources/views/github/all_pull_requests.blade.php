@@ -70,6 +70,7 @@
 
         <div class="col-md-6">
             <div class="text-right pl-5">
+                <button class="btn btn-sm btn-secondary" onclick="updateLabelActivities()"> Update Label Activities </button>
                 <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
                 <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy ERP Master</a>
                 <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&composer=true&pull_only=1">Deploy ERP Master + Composer</a>
@@ -80,14 +81,16 @@
     <table id="pull-request-table" class="table table-bordered" style="table-layout: fixed;">
         <thead>
             <tr>
+                <th style="width:3% !important;"></th>
                 <th style="width:7% !important;">Repository</th>
-                <th style="width:10% !important;">Number</th>
+                <th style="width:7% !important;">Number</th>
                 <th style="width:13% !important;">Title</th>
                 <th style="width:10% !important;">Branch</th>
                 <th style="width:10% !important;">User</th>
                 <th style="width:10% !important;">Updated At</th>
-                <th style="width:13% !important;">Deploy</th>
-                <th style="width:9% !important;">Actions</th>
+                <th style="width:13% !important;">Latest Activity</th>
+                <th style="width:10% !important;">Deploy</th>
+                <th style="width:10% !important;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -422,5 +425,51 @@
             });
         });
     });
+
+    function updateLabelActivities()
+    {
+        event.preventDefault();
+        var selected_rows = [];
+        var selected_repo_id = "";
+
+        $(".bulk_select_pull_request").each(function () {
+            if ($(this).prop("checked") == true) {
+                selected_rows.push($(this).val());
+                selected_repo_id = $(this).data("repo");
+            }
+        });
+
+        if (selected_rows.length == 0) {
+            alert('Please select any row');
+            return false;
+        }
+
+        if(confirm('Are you sure you want to perform this action?')==false)
+        {
+            console.log(selected_rows, selected_repo_id);
+            return false;
+        }
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('github.pull-request-activities.update') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                prIds: selected_rows,
+                repoId: selected_repo_id
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+                $('.loader-section').removeClass('d-n');
+            }
+        }).done(function(data) {
+            $('.loader-section').addClass('d-n');
+            toastr["success"]("Updated successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            $('.loader-section').addClass('d-n');
+            toastr["error"](error.responseJSON.message);
+        });
+    }
 </script>
 @endsection

@@ -1,6 +1,6 @@
 
 <div class="modal-header">
-    <h5 class="modal-title">Pull Request Activities (<span>{{ $totalCount }}</span>)</h5>
+    <h5 class="modal-title">Pull Request Activities</h5>
     <button type="button" class="close" data-dismiss="modal">&times;</button>
 </div>
 <div class="modal-body" >
@@ -16,13 +16,11 @@
         </thead>
         <tbody>
             @foreach($activities as $activity)
-                @if (isset($activity['id']))
                 <tr>
-                    <td>{{$activity['id']}}</td>
-                    <td>{{$activity['user']['login']}}</td>
+                    <td>{{$activity['activity_id']}}</td>
+                    <td>{{$activity['user']}}</td>
                     <td>{{$activity['event']}}</td>
                 </tr>
-                @endif
             @endforeach
         </tbody>
     </table>

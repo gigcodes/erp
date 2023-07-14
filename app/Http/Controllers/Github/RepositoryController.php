@@ -20,6 +20,7 @@ use App\Github\GithubOrganization;
 use App\Github\GithubBranchState;
 use App\Http\Controllers\Controller;
 use App\DeveoperTaskPullRequestMerge;
+use App\Github\GithubPrActivity;
 use App\Github\GithubPrErrorLog;
 use App\Github\GithubRepositoryJob;
 use App\Http\Requests\DeleteBranchRequest;
@@ -684,6 +685,20 @@ class RepositoryController extends Controller
                     $pr = $this->getPullRequestDetail($organization->username, $organization->token, $repository->id, $pullRequest['id']);
                     $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
                     $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
+                    // Get Latest Activity for this PR
+                    $pullRequests[$key]['latest_activity'] = [];
+                    $latestGithubPrActivity = GithubPrActivity::latest()
+                        ->where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('pull_number', $pullRequest['id'])
+                        ->first();
+                    if($latestGithubPrActivity) {
+                        $pullRequests[$key]['latest_activity'] = [
+                            'activity_id' => $latestGithubPrActivity->activity_id,
+                            'user' => $latestGithubPrActivity->user,
+                            'event' => $latestGithubPrActivity->event,
+                        ];
+                    }
                 }
                 $pullRequests = array_map(
                     function ($pullRequest) use ($repository) {
@@ -866,86 +881,38 @@ class RepositoryController extends Controller
         $repository = GithubRepository::where('id',  $repo)->first();
         $organization = $repository->organization;
         
-        // Set the username and token
-        $userName = $organization->username; 
-        $token = $organization->token;
-
-        // Set the repository owner and name
-        $owner = $organization->name;
-        $repo = $repository->name;
-
         // Set the number of activities per page
         $perPage = 10;
 
-        // Set the current page number
-        $currentPage = request()->query('page', 1);
+        $githubPrActivities = GithubPrActivity::latest();
+        $githubPrActivities = $githubPrActivities
+            ->where('github_organization_id', $organization->id)
+            ->where('github_repository_id', $repo)
+            ->where('pull_number', $pullNumber);
 
-        // Set the API endpoint for the specific page
-        $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullNumber}/timeline?per_page={$perPage}&page={$currentPage}";
-
-        $totalCount = $activitiesPaginated = '';
-        try{
-            // Send a GET request to the GitHub API
-            $githubClient = $this->connectGithubClient($userName, $token);
-            $response = $githubClient->get($url);
-            $activities = json_decode($response->getBody()->getContents(), true);
-            \Log::info(print_r($activities,true));
-            $totalCount = $this->getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullNumber);
-
-            // Paginate the activities
-            $activitiesPaginated = new LengthAwarePaginator(
-                $activities,
-                $totalCount,
-                $perPage,
-                $currentPage,
-                ['path' => request()->url()]
-            );
-        }
-        catch (Exception $e) {
-            \Log::error($e);
-            $errorArr = [];
-            $errorArr = $e->getMessage();
-            if (! is_array($errorArr)) {
-                $arrErr[] = $errorArr;
-                $errorArr = implode(' ', $arrErr);
-            } else {
-                $arrErr = $errorArr;
-                $errorArr = $errorArr;
-            }
-
-            // Save Error Log in DB
-            $githubPrErrorLog = new GithubPrErrorLog();
-            $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_ACTIVITY_TIMELINE;
-            $githubPrErrorLog->log = $errorArr;
-            $githubPrErrorLog->github_organization_id = $organization->id;
-            $githubPrErrorLog->github_repository_id = $repository->id;
-            $githubPrErrorLog->pull_number = $pullNumber;
-            $githubPrErrorLog->save();
-
-            return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
-        }
+        $githubPrActivities = $githubPrActivities->paginate($perPage);
 
         // Return the activities to the view
         return View::make('github.pull-request-activities', [
-            'activities' => $activitiesPaginated,
-            'totalCount' => $totalCount
+            'activities' => $githubPrActivities,
         ]);
     }
 
-    private function getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullRequestNumber)
-    {
-        // Set the API endpoint
-        $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullRequestNumber}/timeline";
+    // This is not need now. 
+    // private function getPullRequestActivitiesTotalCount($userName, $token, $owner, $repo, $pullRequestNumber)
+    // {
+    //     // Set the API endpoint
+    //     $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullRequestNumber}/timeline";
 
-        // Send a GET request to the GitHub API
-        $githubClient = $this->connectGithubClient($userName, $token);
-        $response = $githubClient->get($url);
+    //     // Send a GET request to the GitHub API
+    //     $githubClient = $this->connectGithubClient($userName, $token);
+    //     $response = $githubClient->get($url);
 
-        // Get the response body
-        $pullRequest = json_decode($response->getBody(), true);
-        // Return the total comment count
-        return count($pullRequest);
-    }
+    //     // Get the response body
+    //     $pullRequest = json_decode($response->getBody(), true);
+    //     // Return the total comment count
+    //     return count($pullRequest);
+    // }
 
     public function getPrErrorLogs($repoId, $pullNumber)
     {
@@ -1045,6 +1012,88 @@ class RepositoryController extends Controller
                 'code' => 200,
                 'data' => [],
                 'message' => 'Job name created successfully!',
+            ]
+        );
+    }
+
+    public function pullRequestActivitiesUpdate(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'prIds' => 'required',
+                'repoId' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $repository = GithubRepository::where('id',  $data['repoId'])->first();
+        $organization = $repository->organization;
+        
+        // Set the username and token
+        $userName = $organization->username; 
+        $token = $organization->token;
+
+        // Set the repository owner and name
+        $owner = $organization->name;
+        $repo = $repository->name;
+
+        foreach($data['prIds'] as $pullNumber) {
+            try {
+                // Set the API endpoint for the specific page
+                $url = "https://api.github.com/repos/{$owner}/{$repo}/issues/{$pullNumber}/timeline";
+
+                // Send a GET request to the GitHub API
+                $githubClient = $this->connectGithubClient($userName, $token);
+                $response = $githubClient->get($url);
+                $activities = json_decode($response->getBody()->getContents(), true);
+                \Log::info(print_r($activities,true));
+                if($activities) {
+                    foreach($activities as $activity) {
+                        if (isset($activity['id']) && isset($activity['user']) && $activity['event']) {
+                            GithubPrActivity::updateOrCreate([
+                                'github_organization_id' => $organization->id,
+                                'github_repository_id' => $repository->id,
+                                'pull_number' => $pullNumber,
+                                'activity_id' => $activity['id'],
+                            ], [
+                                'user' => $activity['user']['login'],
+                                'event' => $activity['event'],
+                            ]);
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                \Log::error($e);
+                $errorArr = [];
+                $errorArr = $e->getMessage();
+                if (! is_array($errorArr)) {
+                    $arrErr[] = $errorArr;
+                    $errorArr = implode(' ', $arrErr);
+                } else {
+                    $arrErr = $errorArr;
+                    $errorArr = $errorArr;
+                }
+
+                // Save Error Log in DB
+                $githubPrErrorLog = new GithubPrErrorLog();
+                $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_ACTIVITY_TIMELINE;
+                $githubPrErrorLog->log = $errorArr;
+                $githubPrErrorLog->github_organization_id = $organization->id;
+                $githubPrErrorLog->github_repository_id = $repository->id;
+                $githubPrErrorLog->pull_number = $pullNumber;
+                $githubPrErrorLog->save();
+
+                return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
+            }
+        }
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Activities update successfully!',
             ]
         );
     }
