@@ -1051,7 +1051,7 @@ class RepositoryController extends Controller
                 \Log::info(print_r($activities,true));
                 if($activities) {
                     foreach($activities as $activity) {
-                        if (isset($activity['id'])) {
+                        if (isset($activity['id']) && isset($activity['user']) && $activity['event']) {
                             GithubPrActivity::updateOrCreate([
                                 'github_organization_id' => $organization->id,
                                 'github_repository_id' => $repository->id,
