@@ -48,7 +48,8 @@ class PushMagentoSettings implements ShouldQueue
      */
     public function handle()
     {
-        try {
+        \Log::info("PushMagentoSettings Queue");
+        /*try {
             // Set time limit
             set_time_limit(0);
 
@@ -307,11 +308,11 @@ class PushMagentoSettings implements ShouldQueue
             
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }
+        }*/
     }
 
     public function tags()
     {
-        return ['PushMagentoSettings', $this->magentoSetting->id];
+        return ['pushMagentoSettings', $this->magentoSetting->id];
     }
 }
