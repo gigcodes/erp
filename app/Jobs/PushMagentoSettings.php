@@ -123,7 +123,7 @@ class PushMagentoSettings implements ShouldQueue
                     curl_close($ch);
                     if($httpcode=='200'){
                         $m_setting->status ='Success';
-                        $m_setting->value_on_magento =$value;
+                        //$m_setting->value_on_magento =$value;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url,'job_id'=>$httpcode ]);
                         
@@ -200,7 +200,7 @@ class PushMagentoSettings implements ShouldQueue
                         curl_close($ch);
                         if($httpcode=='200'){
                             $m_setting->status ='Success';
-                            $m_setting->value_on_magento =$value;
+                            //$m_setting->value_on_magento =$value;
                             $m_setting->save();
                             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
                             
@@ -286,7 +286,7 @@ class PushMagentoSettings implements ShouldQueue
                         curl_close($ch);
                         if($httpcode=='200'){
                             $m_setting->status ='Success';
-                            $m_setting->value_on_magento =$value;
+                            //$m_setting->value_on_magento =$value;
                             $m_setting->save();
                             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
                             
