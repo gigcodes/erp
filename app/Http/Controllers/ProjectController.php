@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\ProjectServerenv;
 use App\StoreWebsite;
+use App\BuildProcessStatusHistories;
 use Illuminate\Http\Request;
 use App\Helpers\GithubTrait;
 
@@ -190,6 +191,7 @@ class ProjectController extends Controller
                             'text' => $buildDetail, 
                             'build_name' => $jobName, 
                             'build_number' => $builds[0]->getNumber(), 
+                            'status' => $builds[0]->getResult(), 
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository,
                             'github_branch_state_name' => $branch_name
@@ -213,16 +215,68 @@ class ProjectController extends Controller
         return response()->json(['code' => 500, 'message' => 'Project Data is not available.']);
         
     }
+    public function buildProcessStatusLogs(Request $request)
+    {
+        $histories = \App\BuildProcessStatusHistories::where('build_process_history_id', $request->id)->orderBy('id','desc')->get();
 
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history',
+            'status_name' => 'success',
+        ], 200);
+    }
     // New concept in page
     public function buildProcessLogs(Request $request, $id)
     {
-        $responseLogs = \App\BuildProcessHistory::leftJoin('users as u','u.id','=','build_process_histories.created_by')
+        $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')
             ->where('store_website_id', '=', $id)
             ->select('build_process_histories.*','u.name as usersname')
             ->latest()
             ->paginate(10);
+        foreach($responseLogs as $responseLog){
+            
+            $github_organization_id=$responseLog->github_organization_id;
+            $job_name=$responseLog->build_name;
+            $build_number=$responseLog->build_number;
+            $project_id=$responseLog->store_website_id;
+            if($responseLog->status!='SUCCESS'){
+                try{
+                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                    $job = $jenkins->getJob($job_name);
+                    if($job){
+                        $build=$job->getJenkinsBuild($build_number);
+                        if($build){
+                            $build_status=$build->getResult();
+                            
+                            if($responseLog->status!=$build_status){
+                            
+                                $record = [
+                                    'project_id' => $project_id, 
+                                    'build_process_history_id' => $responseLog->id, 
+                                    'build_number' => $build_number, 
+                                    'old_status' => $responseLog->status,
+                                    'status' => $build_status
+                                ];
+        
+                                \App\BuildProcessStatusHistories::create($record);
+                            
+                                $responseLog->status=$build_status;
+                                $responseLog->save();
+                            }
+                            
+                        }
+                    }
+                    
+                }catch (\Exception $e){
+                    
+                }
+                catch (\RuntimeException $e){
+                    
+                }
+            }
 
+        }
         return view('project.build-process-logs', compact('responseLogs'));
     }
 

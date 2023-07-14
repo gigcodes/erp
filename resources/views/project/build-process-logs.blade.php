@@ -109,6 +109,7 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->status }}
+                                    <button type="button" class="btn btn-xs show-status-modal" title="Show Status History" data-id="{{$responseLog->id}}"><i class="fa fa-info-circle"></i></button>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->created_at }}
@@ -129,4 +130,71 @@
         </div>
     </div>
 </div>
+<div id="status-history-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status History</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="30%">Old Status</th>
+                                <th width="30%">New Status</th>
+                                <th width="20%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="status-history-listing-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+@section('scripts')
+<script>
+$( document ).ready(function() {
+    $(document).on('click', '.show-status-modal', function() {
+            var id = $(this).attr('data-id');
+            $("#loading-image-preview").show();
+            $.ajax({
+                method: "GET",
+                url: "{{ route('project.buildProcessStatusLogs')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.id} </td>
+                                        <td> <div class="expand-row module-text" style="width: 100%;"><div class="flex  items-center justify-left td-mini-container" title="${v.old_status}">${setStringLength(v.old_status, 50)}</div><div class="flex items-center justify-left td-full-container hidden" title="${v.old_status}">${v.old_status}</div></div> </td>
+                                        <td> <div class="expand-row module-text" style="width: 100%;"><div class="flex  items-center justify-left td-mini-container" title="${v.status}">${setStringLength(v.status, 50)}</div><div class="flex items-center justify-left td-full-container hidden" title="${v.status}">${v.status}</div></div> </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#status-history-listing").find(".status-history-listing-view").html(html);
+                        $("#status-history-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image-preview").hide();
+                }
+            });
+        });
+});
+</script>
 @endsection
