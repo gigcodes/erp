@@ -311,26 +311,37 @@ class MagentoModuleController extends Controller
 
         $magento_module_remark = MagentoModuleRemark::create($input);
 
+        $message = "Remark";
         if ($magento_module_remark) {
             if($input['type'] == 'general') {
                 $update = MagentoModule::where('id', $request->magento_module_id)->update(['last_message' => $request->remark]);
             }
             if($input['type'] == 'dev') {
+                $message = "Developer Remark";
                 $update = MagentoModule::where('id', $request->magento_module_id)->update(['dev_last_remark' => $request->remark]);
             }
             if($input['type'] == 'lead') {
+                $message = "Lead Remark";
                 $update = MagentoModule::where('id', $request->magento_module_id)->update(['lead_last_remark' => $request->remark]);
+            }
+            if($input['type'] == 'return_type_error') {
+                $message = "Return Type Error";
+                $update = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error' => $request->remark]);
+            }
+            if($input['type'] == 'return_type_error_status') {
+                $message = "Return Type Error Status";
+                $update = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error_status' => $request->remark]);
             }
             // dd($update, $request->magento_module_id, $request->remark);
             return response()->json([
                 'status' => true,
-                'message' => 'Remark added successfully',
+                'message' => "{$message} added successfully",
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Remark added unsuccessfully',
+                'message' => "{$message} added unsuccessfully",
                 'status_name' => 'error',
             ], 500);
         }
@@ -835,6 +846,17 @@ class MagentoModuleController extends Controller
             'message' => 'Successfully get history',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function moduleEdit($id)
+    {
+        $magento_module = MagentoModule::find($id);
+
+        if ($magento_module) {
+            return response()->json(['code' => 200, 'data' => $magento_module]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)

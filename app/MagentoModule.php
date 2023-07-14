@@ -44,6 +44,8 @@ class MagentoModule extends Model
         'module_review_standard',
         'magneto_location_id',
         'used_at',
+        'return_type_error',
+        'return_type_error_status',
     ];
 
     public function module_category()

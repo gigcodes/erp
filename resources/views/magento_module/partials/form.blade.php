@@ -20,9 +20,9 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Website :</strong>
-            {!! Form::select('store_website_id', $store_websites, null, ['id'=>'module_category_id', 'placeholder' => 'Select Module Category', 'class' => 'form-control', 'required' => 'required']) !!}
-            @if ($errors->has('module_category_id'))
-                <span style="color:red">{{ $errors->first('module_category_id') }}</span>
+            {!! Form::select('store_website_id', $store_websites, null, ['id'=>'store_website_id', 'placeholder' => 'Select Module Category', 'class' => 'form-control', 'required' => 'required']) !!}
+            @if ($errors->has('store_website_id'))
+                <span style="color:red">{{ $errors->first('store_website_id') }}</span>
             @endif
         </div>
     </div>
@@ -174,7 +174,7 @@
     <div class="col-xs-3 col-sm-3">
         <div class="form-group">
             <strong>Review Standard :</strong>
-            {!! Form::select('module_review_standard', ['No','Yes'], 'No', [ 'class' => 'form-control']) !!}
+            {!! Form::select('module_review_standard', ['No','Yes'], 'No', [ 'id'=>'module_review_standard' ,'class' => 'form-control']) !!}
             @if ($errors->has('module_review_standard'))
                 <span style="color:red">{{ $errors->first('module_review_standard') }}</span>
             @endif

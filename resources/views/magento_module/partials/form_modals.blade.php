@@ -97,32 +97,46 @@
         });
     });
 
+    //edit module
     $(document).on('click', '.edit-magento-module', function() {
-          var magento_module = $(this).data('row');
-          console.log((magento_module));
-          $('#magento_module_edit_form #id').val(magento_module.id);
-          $('#magento_module_edit_form #module_category_id').val(magento_module.module_category_id);
-          $('#magento_module_edit_form #module').val(magento_module.module);
-          $('#magento_module_edit_form #current_version').val(magento_module.current_version);
-          $('#magento_module_edit_form #module_type').val(magento_module.module_type);
-          $('#magento_module_edit_form #payment_status').val(magento_module.payment_status);
-          $('#magento_module_edit_form #status').val(magento_module.status);
-          $('#magento_module_edit_form #task_status').val(magento_module.task_status);
-        //   $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
-          $('#magento_module_edit_form #is_js_css').val(magento_module.is_js_css);
-          $('#magento_module_edit_form #is_third_party_js').val(magento_module.is_third_party_js);
-          $('#magento_module_edit_form #is_sql').val(magento_module.is_sql);
-          $('#magento_module_edit_form #is_third_party_plugin').val(magento_module.is_third_party_plugin);
-          $('#magento_module_edit_form #developer_name').val( parseInt(magento_module.developer_id) );
-          $('#magento_module_edit_form #is_customized').val(magento_module.is_customized);
-          $('#magento_module_edit_form #module_description').val(magento_module.module_description);
-          $('#magento_module_edit_form #api').val(magento_module.api);
-          $('#magento_module_edit_form #cron_job').val(magento_module.cron_job);
-          $('#magento_module_edit_form #site_impact').val(magento_module.site_impact);
-          $('#magento_module_edit_form #composer').val(magento_module.composer);
-          $('#magento_module_edit_form #dependency').val(magento_module.dependency);
-          $('#magento_module_edit_form #used_at').val(magento_module.used_at);
-          $('#moduleEditModal').modal('show');
+        var moduleId = $(this).data("row");
+        var url = "{{ route('magento_module.module-edit', ['id' => ':id']) }}";
+        url = url.replace(':id', moduleId);          
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "GET",
+            url: url,
+        }).done(function(response) {
+            $("#magento_module_edit_form #id").val(response.data.id);
+            $("#magento_module_edit_form #module").val(response.data.module);
+            $("#magento_module_edit_form #module_category_id").val(response.data.module_category_id);
+            $("#magento_module_edit_form #magneto_location_id").val(response.data.magneto_location_id);
+            $("#magento_module_edit_form #store_website_id").val(response.data.store_website_id);
+            $("#magento_module_edit_form #current_version").val(response.data.current_version);
+            $("#magento_module_edit_form #module_type").val(response.data.module_type);
+            $("#magento_module_edit_form #payment_status").val(response.data.payment_status);
+            $("#magento_module_edit_form #status").val(response.data.status);
+            $("#magento_module_edit_form #api").val(response.data.api);
+            $("#magento_module_edit_form #cron_job").val(response.data.cron_job);
+            $("#magento_module_edit_form #is_js_css").val(response.data.is_js_css);
+            $("#magento_module_edit_form #is_third_party_js").val(response.data.is_third_party_js);
+            $("#magento_module_edit_form #is_sql").val(response.data.is_sql);
+            $("#magento_module_edit_form #is_third_party_plugin").val(response.data.is_third_party_plugin);
+            $("#magento_module_edit_form #developer_name").val(response.data.developer_name);
+            $("#magento_module_edit_form #is_customized").val(response.data.is_customized);
+            $("#magento_module_edit_form #module_review_standard").val(response.data.module_review_standard);
+            $("#magento_module_edit_form #used_at").val(response.data.used_at);
+            $("#magento_module_edit_form #module_description").val(response.data.module_description);
+            $("#magento_module_edit_form #dependency").val(response.data.dependency);
+            $("#magento_module_edit_form #composer").val(response.data.composer);
+            $("#magento_module_edit_form #site_impact").val(response.data.site_impact);
+            $("#moduleEditModal").modal("show");
+        }).fail(function (response) {
+            $("#loading-image-preview").hide();
+            console.log("Sorry, something went wrong");
+        });
     });
 
     $(document).on('submit', '#magento_module_edit_form', function(e){
