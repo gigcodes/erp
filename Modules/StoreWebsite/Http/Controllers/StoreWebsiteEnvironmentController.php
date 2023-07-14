@@ -447,58 +447,6 @@ class StoreWebsiteEnvironmentController extends Controller
     public function history(Request $request, $id)
     {
         $histories = \App\StoreWebsiteEnvironmentHistory::select('store_website_environment_histories.*', 'u.name AS userName')->leftJoin('users AS u', 'u.id', 'store_website_environment_histories.updated_by')->where('environment_id', $id)->latest()->get();
-
-        foreach($histories as $logs){
-            if($logs->store_website_id !='' && $logs->job_id!=''){
-                
-                $storeWebsite=StoreWebsite::where('id', $logs->store_website_id)->first();
-                $assetsmanager = new AssetsManager;
-                if($storeWebsite){
-                    $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-                }
-                
-                if($assetsmanager && $assetsmanager->client_id!=''){
-                    $client_id=$assetsmanager->client_id;
-                        $job_id=$logs->job_id;
-                        $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands/".$job_id;
-                        $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
-                        
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL,$url);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch, CURLOPT_POST, 0);
-                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-                        
-                        $headers = [];
-                        $headers[] = 'Authorization: Basic '.$key;
-                        //$headers[] = 'Content-Type: application/json';
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-                        $result = curl_exec($ch);
-                        $response = json_decode($result);
-                        \Log::info("API Response: ".$result);
-                        if(isset($response->data) && isset($response->data->result) ){
-                            $logs->status=$response->data->status;
-                            $result=$response->data->result;
-                            $message='';
-                            if(isset($result->stdout) && $result->stdout!=''){
-                                $message.='Output: '.$result->stdout;
-                            }
-                            if(isset($result->stderr) && $result->stderr!=''){
-                                $message.='Error: '.$result->stderr;
-                            }
-                            if(isset($result->summary) && $result->summary!=''){
-                                $message.='summary: '.$result->summary;
-                            }
-                            if($message!=''){
-                                $logs->response=$message;
-                            }
-                        }
-
-                        curl_close($ch);
-                }
-            }  
-        }
         return response()->json(['code' => 200, 'data' => $histories]);
     }
 
