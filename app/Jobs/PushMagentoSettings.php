@@ -49,7 +49,7 @@ class PushMagentoSettings implements ShouldQueue
     public function handle()
     {
         \Log::info("PushMagentoSettings Queue");
-        /*try {
+        try {
             // Set time limit
             set_time_limit(0);
 
@@ -307,8 +307,10 @@ class PushMagentoSettings implements ShouldQueue
             // #DEVTASK-23677-api implement for admin settings
             
         } catch (\Exception $e) {
+            \Log::info($e->getMessage());
             throw new \Exception($e->getMessage());
-        }*/
+            
+        }
     }
 
     public function tags()

@@ -605,7 +605,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
             $website_ids[]=$store_website_id;
             foreach ($magentoSettings as $magentoSetting) {
-                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting,$website_ids)->onQueue('pushMagentoSettings');
+                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting,$website_ids)->onQueue('pushmagentosettings');
             }
 
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
@@ -715,7 +715,7 @@ class MagentoSettingsController extends Controller
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
             
             // Push individual setting to selected websites
-            \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushMagentoSettings');
+            \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushmagentosettings');
            
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
