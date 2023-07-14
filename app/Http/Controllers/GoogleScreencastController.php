@@ -127,7 +127,8 @@ class GoogleScreencastController extends Controller
                 }
 
                 $googleScreencast->save();
-                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                // dd($googleScreencast, $file);
+                // UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
         }
 
@@ -198,6 +199,7 @@ class GoogleScreencastController extends Controller
 
     public function driveFilePermissionUpdate(Request $request)
     {
+        dd($request);
         $fileId = request('file_id');
         $fileData = GoogleScreencast::find(request('id'));
         $readData = request('read');

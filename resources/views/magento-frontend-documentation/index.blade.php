@@ -223,11 +223,13 @@
                 <thead>
                     <tr>
                         <th> Id </th>
-                        <th> category </th>
+                        <th> Category </th>
                         <th> Remark </th>
                         <th> Location </th>
                         <th> Admin Configuration </th>
-                        <th> Frontend configuration </th>               
+                        <th> Frontend configuration </th>    
+                        <th> File Name </th>   
+                        <th> Action </th>                
                     </tr>
                 </thead>
                 <tbody>
@@ -237,9 +239,59 @@
 
     </div>
 
+    <div id="updateGoogleFilePermissionModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Update Google File Permission</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+    
+                <form action="{{ route('magento-frontend-permission.update') }}" method="POST">
+                    @csrf
+    
+                    <div class="modal-body">
+                        <input type="hidden" name="file_id" id = "file_id">
+                        <input type="hidden" name="id" id = "id">
+                        @php       
+                        $users =  \App\User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+                        @endphp
+                        <div class="form-group custom-select2">
+                            <label>Read Permission for Users
+                            </label>
+                            <select class="w-100 js-example-basic-multiple js-states"
+                                    id="id_label_file_permission_read" multiple="multiple" name="read[]">
+                                    @foreach($users as $val)
+                                    <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+                                    @endforeach
+                                </select>
+                        </div>
+                        <div class="form-group custom-select2">
+                            <label>Write Permission for Users
+                            </label>
+                            <select class="w-100 js-example-basic-multiple js-states"
+                                    id="id_label_file_permission_write" multiple="multiple" name="write[]">
+                                    @foreach($users as $val)
+                                    <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+                                    @endforeach
+                                </select>
+                        </div>
+                    </div>
+    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Update</button>
+                    </div>
+                </form>
+            </div>
+    
+        </div>
+    </div>
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
-    
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -248,6 +300,9 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="{{ env('APP_URL') }}/js/bootstrap-multiselect.min.js"></script>
     <script>
+
+        $("#id_label_file_permission_read").select2();
+        $("#id_label_file_permission_write").select2();
         // START Print Table Using datatable
         var magentofrontendTable;
         $(document).ready(function() {
@@ -369,6 +424,23 @@
                             return data;
                         }
                     },
+                    {
+                        data: 'file_name',
+                        name: 'magento_frontend_docs.file_name',
+                        render: function(data, type, row, meta) {
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
+                        }
+                    },
+                    {
+                        render: function(data, type, row, meta) {
+                            return `<td><button style="padding:3px;" type="button" class="btn btn-image filepermissionupdate d-inline border-0" data-toggle="modal" data-readpermission="${row.read}" data-writepermission="${row.write}" data-fileid="${row.google_drive_file_id}" data-target="#updateGoogleFilePermissionModal" data-id="${row.id}" title="Update permission"><img width="2px;" src="/images/edit.png"/></button></td>
+                            <button style="padding:3px;font-size: 20px;line-height: 20px;color:black" type="button" class="btn btn-image filedetailupdate d-inline border-0" data-toggle="modal"  data-file_name="${htmlEntities(row.file_name)}" data-readpermission="${row.read}" data-writepermission="${row.write}" data-fileid="${row.google_drive_file_id}" data-target="#updateUploadedFileDetailModal" data-id="${row.id}" title="Update detail">
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+        </button>`;
+                        }
+                    }
+
 
                 ],
                 drawCallback: function(settings) {
@@ -472,6 +544,42 @@
                 }
             });
         });
+
+        $(document).on('click', '.filepermissionupdate', function (e) {
+            e.preventDefault();
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
+                $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
+                
+                let data_read = $(this).data('readpermission');
+                let data_write = $(this).data('writepermission');
+                var file_id = $(this).data('fileid');
+                var id = $(this).data('id');
+
+                var permission_read = data_read.split(',');
+                var permission_write = data_write.split(',');
+                if(permission_read)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
+                }
+                if(permission_write)
+                {
+                    $("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
+                }
+                
+                $('#file_id').val(file_id);
+                $('#id').val(id);
+        
+        });
+
+        function htmlEntities(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
     </script>
 
 @endsection
