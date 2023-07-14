@@ -112,13 +112,6 @@
             padding: 5px;
         }
 
-        /* .table input.form-control {
-            width: 90px !important;
-        } */
-
-        /* .general-remarks input.remark-input {
-            width: 130px !important;
-        } */
     </style>
 @endsection
 
@@ -131,7 +124,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                magento documenetation()
+                magento documenetation (<span id="total-count"></span>)
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -195,7 +188,7 @@
                         </div>
                     </div>
 
-                    <div class="action_button form-group pull-right ml-3 mt-3">
+                    <div class="pull-right pr-5">
                         <button type="button" class="btn btn-secondary" data-toggle="modal"
                             data-target="#create-magento-frontend-docs"> Magento Module Create </button>
                     </div>
@@ -244,8 +237,8 @@
 
     </div>
 
-    @include('magento-frontend-documentation.partials.magento-fronent-create');
-    @include('magento-frontend-documentation.remark_list');
+    @include('magento-frontend-documentation.partials.magento-fronent-create')
+    @include('magento-frontend-documentation.remark_list')
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
@@ -285,7 +278,6 @@
                 ajax: {
                     "url": "{{ route('magento_frontend_listing') }}",
                     data: function(d) {
-                        // alert(d);
                         d.categoryname = $('.category_name').val();
                         d.frontend_configuration = $('.search_frontend_config').val();
                         d.admin_configuration = $('.search_admin_config').val();
@@ -309,8 +301,8 @@
                     },
 
                     {
-                        data: 'store_website_category.category_name',
-                        name: 'store_website_category.category_name',
+                        data: 'store_website_categories.category_name',
+                        name: 'store_website_categories.category_name',
                         render: function(data, type, row, meta) {
                             var categories = JSON.parse(row['categories']);
                             if (!categories || categories.length === 0) {
@@ -334,10 +326,7 @@
                         }
                     },
 
-
                     {
-                        data: 'last_message',
-                        name: 'magento_frontend_docs.last_message',
                         render: function(data, type, row, meta) {
 
                             let message =

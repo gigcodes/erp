@@ -93,8 +93,4 @@ class StoreWebsiteCategory extends Model
         }
     }
     
-    public function magentoFrontendDocumentations()
-    {
-        return $this->hasMany(MagentoFrontendDocumentation::class, 'store_website_category_id');
-    }
 }

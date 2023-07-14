@@ -15,16 +15,13 @@ class MagentoFrontendDocumentationController extends Controller
 
         if ($request->ajax()) {
             $items = MagentoFrontendDocumentation::with('storeWebsiteCategory')
-                ->select(
-                    'magento_frontend_docs.*',
-                    'magento_frontend_docs.location',
-                    'magento_frontend_docs.admin_configuration',
-                    'magento_frontend_docs.frontend_configuration',
-                    'magento_frontend_docs.store_website_category_id'
-                )
-                ->join('store_website_categories', 'store_website_categories.id', '=', 'magento_frontend_docs.store_website_category_id')
-                ->select('magento_frontend_docs.*', 'store_website_categories.category_name');
-
+            ->select(
+                'magento_frontend_docs.*',
+                'magento_frontend_docs.location',
+                'magento_frontend_docs.admin_configuration',
+                'magento_frontend_docs.frontend_configuration',
+            )
+            ->join('store_website_categories', 'store_website_categories.id', '=', 'magento_frontend_docs.store_website_category_id');
 
                 if (isset($request->frontend_configuration)) {
                     $items->where('magento_frontend_docs.frontend_configuration','LIKE', '%' . $request->frontend_configuration . '%');
@@ -43,10 +40,10 @@ class MagentoFrontendDocumentationController extends Controller
         } else {
 
 
-            return view('magento-frontend-documentation/.index',$storecategories);
+            return view('magento-frontend-documentation.index',$storecategories);
         }
 
-        return view('magento-frontend-documentation/.index',$storecategories);
+        return view('magento-frontend-documentation.index',$storecategories);
     }
 
     public function magentofrontendStore(Request $request)
