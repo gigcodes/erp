@@ -310,6 +310,7 @@
 				formData.append('magento_module_id', magento_module_id);
 				formData.append('status', status);
 
+				var_return=true;
 				$.ajax({
 					url:"{{route('magentoModuleUpdateStatus')}}",
 					method: 'post',
@@ -326,11 +327,9 @@
 					
 					if (response.code == 200) {
 						toastr['success'](response.message);
-						location.reload();
+						// location.reload();
 					} else {
 						toastr['error'](response.message);
-						
-						
 					}
 					
 				}).fail(function () {
