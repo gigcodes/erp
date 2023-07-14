@@ -92,4 +92,5 @@ class StoreWebsiteCategory extends Model
             return false;
         }
     }
+    
 }
