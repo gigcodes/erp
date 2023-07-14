@@ -73,7 +73,7 @@ class PushMagentoSettings implements ShouldQueue
                 $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->get();
                 foreach ($storeWebsites as $storeWebsite) {
                     $store_website_id=$storeWebsite->id;
-                    
+                    $storeWebsiteCode = $storeWebsite->storeCode;
                     \Log::info("Start Setting Pushed to : ".$store_website_id);
                     $api_token=$storeWebsite->api_token;
                     $magento_url=$storeWebsite->magento_url;
@@ -97,7 +97,12 @@ class PushMagentoSettings implements ShouldQueue
                     }
 
                     $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                    $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                    if(isset($storeWebsiteCode->code)){
+                        $url=rtrim($magento_url, '/') ."/".$storeWebsiteCode->code."/rest/all/V1/store-info/configuration";
+                    }else{
+                        $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                    }
+                    
                     $data=[];
                     $data['scopeId']=0;
                     $data['scopeType']="default";
@@ -147,7 +152,9 @@ class PushMagentoSettings implements ShouldQueue
                 
                 foreach ($websiteStores as $websiteStore) {
                     $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
-
+                    
+                    $storeWebsiteCode = isset($websiteStore->website->storeWebsite->storeCode) ? $websiteStore->website->storeWebsite->storeCode : 0;
+                    
                     \Log::info("Start Setting Pushed to Website Store : ".$websiteStore->id);
                     \Log::info("store_website_id : ".$store_website_id);
 
@@ -174,7 +181,13 @@ class PushMagentoSettings implements ShouldQueue
                     $scopeID = $websiteStore->platform_id;
                     if (! empty($magento_url) && !empty($api_token)) {
                         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                        $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                        
+                        if(isset($storeWebsiteCode->code)){
+                            $url=rtrim($magento_url, '/') ."/".$storeWebsiteCode->code."/rest/all/V1/store-info/configuration";
+                        }else{
+                            $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                        }
+
                         $data=[];
                         $data['scopeId']=$scopeID;
                         $data['scopeType']="websites";
@@ -233,6 +246,8 @@ class PushMagentoSettings implements ShouldQueue
 
                 foreach ($websiteStoresViews as $websiteStoresView) {
                     $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
+                    
+                    $storeWebsiteCode = isset($websiteStoresView->websiteStore->website->storeWebsite->storeCode) ? $websiteStoresView->websiteStore->website->storeWebsite->storeCode : 0;
 
                     \Log::info("Start Setting Pushed to Website Store View: ".$websiteStoresView->id);
                     \Log::info("store_website_id : ".$store_website_id);
@@ -260,7 +275,13 @@ class PushMagentoSettings implements ShouldQueue
                     $scopeID = $websiteStoresView->platform_id;
                     if (! empty($magento_url) && !empty($api_token)) {
                         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
-                        $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                        
+                        if(isset($storeWebsiteCode->code)){
+                            $url=rtrim($magento_url, '/') ."/".$storeWebsiteCode->code."/rest/all/V1/store-info/configuration";
+                        }else{
+                            $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+                        }
+
                         $data=[];
                         $data['scopeId']=$scopeID;
                         $data['scopeType']="stores";
