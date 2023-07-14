@@ -848,6 +848,17 @@ class MagentoModuleController extends Controller
         ], 200);
     }
 
+    public function moduleEdit($id)
+    {
+        $magento_module = MagentoModule::find($id);
+
+        if ($magento_module) {
+            return response()->json(['code' => 200, 'data' => $magento_module]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
+    }
+
     protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)
     {
         $history = new MagnetoLocationHistory();

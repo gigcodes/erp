@@ -530,6 +530,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
     Route::get('/reviewstandard', [MagentoModuleController::class, 'reviewStandardHistories'])->name('magento_module.review.standard.histories');
 
+    Route::get('/magento_modules/module-edit/{id}', [MagentoModuleController::class, 'moduleEdit'])->name('magento_module.module-edit');
 
     Route::resource('magento_modules', MagentoModuleController::class);
 

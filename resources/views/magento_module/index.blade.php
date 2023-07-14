@@ -530,7 +530,6 @@
                         name: 'magento_module_locations.magento_module_locations',
                         render: function(data, type, row, meta) {
                             var m_types = row['locations'];
-                            console.log( m_types);
                             var m_types =  m_types.replace(/&quot;/g, '"');
                             if(m_types && m_types != "" ){
                                 var m_types = JSON.parse(m_types);
@@ -956,7 +955,7 @@
                             var list_data = actionShowButtonWithTitle(listing_route, "Listing page");
 
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
-                            var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
+                            var edit_data = actionEditButtonWithClass('edit-magento-module', row['id']);
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             var del_data = "";
                             <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
@@ -1444,7 +1443,6 @@
                     type:type,
                 },
                 success: function(response) {
-                    console.log(response)
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
