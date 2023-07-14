@@ -274,6 +274,8 @@
                         <th> 3rd Party plugin </th>
                         <th> Site Impact </th>
                         <th> Review Standard </th>
+                        <th> Return Type Error </th>
+                        <th> Return Type Error Status </th>
                         <th> Action </th>
     
                     </tr>
@@ -905,6 +907,42 @@
                         }
                     },
                     {
+                        data: 'return_type_error',
+                        name: 'magento_modules.return_type_error',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="return_type_error_${row['id']}" name="return_type_error" class="form-control return_type_error_input" placeholder="Return Type Error" />`;
+
+                            let return_type_error_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="return_type_error" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let return_type_error_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'return_type_error', 'return_type_error')"><img src="/images/filled-sent.png"></button>`;
+                                // data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                                data = (data == null) ? '' : '';
+                            let retun_data = `${data} <div class="general-remarks"> ${message} ${return_type_error_send_button} ${return_type_error_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
+                        data: 'return_type_error_status',
+                        name: 'magento_modules.return_type_error_status',
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="text" id="return_type_error_status_${row['id']}" name="return_type_error_status" class="form-control return_type_error_status_input" placeholder="Return Type Error Status" />`;
+
+                            let return_type_error_status_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="return_type_error_status" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let return_type_error_status_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'return_type_error_status', 'return_type_error_status')"><img src="/images/filled-sent.png"></button>`;
+                                // data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                                data = (data == null) ? '' : '';
+                            let retun_data = `${data} <div class="general-remarks"> ${message} ${return_type_error_status_send_button} ${return_type_error_status_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
                         data: 'id',
                         name: 'magento_modules.id',
                         // visible:false,
@@ -1157,6 +1195,7 @@
                                     </tr>`;
                         });
                         $("#remark-area-list").find(".remark-action-list-view").html(html);
+                        $("#remark-area-list").find(".modal-type").html(prepareTitle(type));
                         // $("#blank-modal").find(".modal-title").html(response.title);
                         // $("#blank-modal").find(".modal-body").html(response.data);
                         $("#remark-area-list").modal("show");
@@ -1167,6 +1206,14 @@
                 }
             });
         });
+
+        function prepareTitle(str) {
+            let frags = str.split('_');
+            for (let i = 0; i < frags.length; i++) {
+                frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+            }
+            return frags.join(' ');
+        }
 
         // Load status history
         $(document).on('click', '.load-status-history', function() {
