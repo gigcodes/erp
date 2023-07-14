@@ -486,6 +486,14 @@
             });
         });
 
+                       
+        $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     </script>
 
