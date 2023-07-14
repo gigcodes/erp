@@ -109,7 +109,6 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentofrontendgetRemarks(Request $request)
     {
-        // dd($request->all());
         $remarks = MagentoFrontendRemark::with(['user'])->where('magento_frontend_docs_id', $request->id)->latest()->get();
 
         return response()->json([
@@ -118,73 +117,6 @@ class MagentoFrontendDocumentationController extends Controller
             'message' => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
-    }
-
-    public function magentoDriveFilePermissionUpdate(Request $request)
-    {
-
-        dd($request);
-        $fileId = request('file_id');
-        $fileData = MagentoFrontendDocumentation::find(request('id'));
-        $readData = request('read');
-        $writeData = request('write');
-        $permissionEmails = [];
-        $client = new Client();
-        $client->useApplicationDefaultCredentials();
-        $client->addScope(Drive::DRIVE);
-        $driveService = new Drive($client);
-        // Build a parameters array
-        $parameters = [];
-        // Specify what fields you want
-        $parameters['fields'] = 'permissions(*)';
-        // Call the endpoint to fetch the permissions of the file
-        $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
-
-        foreach ($permissions->getPermissions() as $permission) {
-            $permissionEmails[] = $permission['emailAddress'];
-            //Remove Permission
-            if ($permission['role'] != 'owner' && $permission['emailAddress'] != (env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
-                $driveService->permissions->delete($fileId, $permission['id']);
-            }
-        }
-        //assign permission based on requested data
-        $index = 1;
-        $driveService->getClient()->setUseBatch(true);
-        if (! empty($readData)) {
-            $batch = $driveService->createBatch();
-            foreach ($readData as $email) {
-                $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'reader',
-                    'emailAddress' => $email,
-                ]);
-
-                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user' . $index);
-                $index++;
-            }
-            $results = $batch->execute();
-        }
-        if (! empty($writeData)) {
-            $batch = $driveService->createBatch();
-            foreach ($writeData as $email) {
-                $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'writer',
-                    'emailAddress' => $email,
-                ]);
-
-                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
-                $batch->add($request, 'user' . $index);
-                $index++;
-            }
-            $results = $batch->execute();
-        }
-        $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
-        $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
-        $fileData->save();
-
-        return back()->with('success', 'Permission successfully updated.');
     }
 
 }
