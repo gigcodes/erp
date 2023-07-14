@@ -465,7 +465,7 @@
         }).done(function(data) {
             $('.loader-section').addClass('d-n');
             toastr["success"]("Updated successfully!", "Message")
-            // window.location.reload();
+            window.location.reload();
         }).fail(function(response) {
             $('.loader-section').addClass('d-n');
             toastr["error"](error.responseJSON.message);
