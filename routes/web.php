@@ -4217,6 +4217,7 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
+        Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
         Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
