@@ -8,7 +8,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <form method="post" id="magento-frontend-create" action="">
+        <form method="post" id="magento-frontend-create" action="" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <div class="col-sm-12">
@@ -45,7 +45,42 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                         {!! Form::text('frontend_configuration', null, ['id'=>'frontend_configuration', 'placeholder' => 'Magento Frontend configuration', 'class' => 'form-control frontend_configuration']) !!}                 
                     </div>
                 </div>
-            </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Upload File</label>
+                        <input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+                    </div>
+                </div>
+
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    @php       
+                    $users =  \App\User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+                    @endphp
+                    <div class="col-sm-12">
+                    <div class="form-group custom-select2">
+                        <label>Read Permission for Users
+                        </label>
+                        <select class="w-100 js-example-basic-multiple js-states"
+                                id="id_label_permission_read" multiple="multiple" name="read[]" required>
+                                @foreach($users as $val)
+                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+                                @endforeach
+                            </select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group custom-select2">
+                        <label>Write Permission for Users
+                        </label>
+                        <select class="w-100 js-example-basic-multiple js-states"
+                                id="id_label_permission_write" multiple="multiple" name="write[]" required>
+                                @foreach($users as $val)
+                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+                                @endforeach
+                            </select>
+                    </div>
+                </div>
+                @endif
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary">Save changes</button>
@@ -57,6 +92,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
 
 
     <script>
+        $("#id_label_permission_read").select2();
+        $("#id_label_permission_write").select2();
 
     $(document).on('submit', '#magento-frontend-create', function(e){
         e.preventDefault();

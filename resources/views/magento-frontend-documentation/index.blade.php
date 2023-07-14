@@ -223,11 +223,12 @@
                 <thead>
                     <tr>
                         <th> Id </th>
-                        <th> category </th>
+                        <th> Category </th>
                         <th> Remark </th>
                         <th> Location </th>
                         <th> Admin Configuration </th>
-                        <th> Frontend configuration </th>               
+                        <th> Frontend configuration </th>    
+                        <th> File Name </th>                 
                     </tr>
                 </thead>
                 <tbody>
@@ -239,7 +240,7 @@
 
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
-    
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -248,6 +249,9 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="{{ env('APP_URL') }}/js/bootstrap-multiselect.min.js"></script>
     <script>
+
+        $("#id_label_file_permission_read").select2();
+        $("#id_label_file_permission_write").select2();
         // START Print Table Using datatable
         var magentofrontendTable;
         $(document).ready(function() {
@@ -369,6 +373,15 @@
                             return data;
                         }
                     },
+                    {
+                        data: 'file_name',
+                        name: 'magento_frontend_docs.file_name',
+                        render: function(data, type, row, meta) {
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
+                        }
+                    },
+
 
                 ],
                 drawCallback: function(settings) {
@@ -472,6 +485,16 @@
                 }
             });
         });
+
+                       
+        $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
     </script>
 
 @endsection

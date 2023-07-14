@@ -26,7 +26,7 @@ class AddServeNameToIpLogsTable extends Migration
     public function down()
     {
         Schema::table('ip_logs', function (Blueprint $table) {
-            $table->string('server_name')->nullable();
+            $table->dropColumn('server_name');
         });
     }
 }
