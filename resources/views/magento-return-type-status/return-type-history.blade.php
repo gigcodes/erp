@@ -8,8 +8,8 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Old Location</th>
-                                <th width="30%">New Location</th>
+                                <th width="30%">Old Status</th>
+                                <th width="30%">New Status</th>
                                 <th width="30%">Updated by</th>
                                 <th width="20%">Created Date</th>
                             </tr>

@@ -14,12 +14,12 @@ class MagentoModuleReturnTypeErrorHistoryStatus extends Model
 
     public function newLocation()
     {
-        return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'old_location_id');
+        return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'new_location_id');
     }
 
     public function oldLocation()
     {
-        return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'new_location_id');
+        return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'old_location_id');
     }
     public function user()
     {

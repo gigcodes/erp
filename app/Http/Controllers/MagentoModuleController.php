@@ -137,6 +137,9 @@ class MagentoModuleController extends Controller
             if (isset($request->lead_verified_status_id)) {
                 $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
             }
+            if (isset($request->return_type_error_status)) {
+                $items->where('magento_modules.return_type_error_status', $request->return_type_error_status);
+            }
             $items->groupBy('magento_modules.module');
             return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
         } else {

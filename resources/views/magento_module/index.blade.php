@@ -341,6 +341,7 @@
     {{-- Used At History --}} 
     @include('magento_module.used-at-history-listing')
     {{-- moduleReturnTypeCreateModal --}}
+    @include('magento-return-type-status.form_modal')
     @include('magento-return-type-status.return-type-history')
    {{-- moduleReturnTypeHistoryModal --}}
 
@@ -454,7 +455,7 @@
                         d.dev_verified_status_id = $('.multiselect-dev-status').val();
                         d.lead_verified_by = $('.multiselect-lead').val();
                         d.lead_verified_status_id = $('.multiselect-lead-status').val();
-                        d.return_type_error_status = $('.return_type_name').val();
+                        d.return_type_error_status = $('.filter-return_type_name').val();
                         
                         
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
@@ -947,7 +948,7 @@
                                 var m_types = JSON.parse(m_types);
                                 var m_types_html = '<select id="return_type_error_status" class="form-control edit_mm" required="required" name="return_type_error_status"><option selected="selected" value="">Select Return type Error Status</option>';
                                 m_types.forEach(function(m_type){
-                                    if(m_type.return_type_error == data){
+                                    if(m_type.return_type_name == data){
                                         m_types_html += `<option value="${m_type.id}" selected>${m_type.return_type_name}</option>`;
                                     }else{
                                         m_types_html += `<option value="${m_type.id}" >${m_type.return_type_name}</option>`;
