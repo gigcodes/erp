@@ -374,6 +374,7 @@ use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\TechnicalDebtController;
+use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 
 Auth::routes();
 
@@ -539,6 +540,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/description', [MagentoModuleController::class, 'descriptionHistory'])->name('magento_module.description.history');
     Route::get('/used_at', [MagentoModuleController::class, 'usedAtHistory'])->name('magento_module.usedat.history');
     Route::resource('magento_module_locations', MagentoLocationController::class);
+
+    Route::get('/return_type_error/status', [MagentoModuleReturnTypeErrorStatusController::class, 'returnTypeHistory'])->name('magento_module.return_type.history');
+    Route::resource('magento_module_return_types', MagentoModuleReturnTypeErrorStatusController::class);
     
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
 

@@ -22,6 +22,8 @@ use App\MagentoModuleVerifiedBy;
 use App\MagnetoReviewStandardHistory;
 use App\MagentoModuleLocation;
 use App\MagnetoLocationHistory;
+use App\Models\MagentoModuleReturnTypeErrorStatus;
+use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
 
 class MagentoModuleController extends Controller
 {
@@ -48,6 +50,7 @@ class MagentoModuleController extends Controller
         }
         $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
         $module_locations = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
+        $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::select('return_type_name', 'id')->get();
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $task_statuses = TaskStatus::select('name', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
@@ -56,6 +59,7 @@ class MagentoModuleController extends Controller
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
             ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+            ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
             ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
             ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
             ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
@@ -68,6 +72,7 @@ class MagentoModuleController extends Controller
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+                ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
                 ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
@@ -76,7 +81,7 @@ class MagentoModuleController extends Controller
                     'magento_modules.*',
                     'magento_module_categories.category_name',
                     'magento_module_locations.magento_module_locations',
-                    'magento_module_types.magento_module_type',
+                    'magento_module_return_type_error_status.return_type_name',
                     'task_statuses.name as task_name',
                     'store_websites.website',
                     'store_websites.title',
@@ -132,8 +137,11 @@ class MagentoModuleController extends Controller
             if (isset($request->lead_verified_status_id)) {
                 $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
             }
+            if (isset($request->return_type_error_status)) {
+                $items->where('magento_modules.return_type_error_status', $request->return_type_error_status);
+            }
             $items->groupBy('magento_modules.module');
-            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->toJson();
+            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
         } else {
             $title = 'Magento Module';
             $users = $users->pluck('name', 'id');
@@ -142,8 +150,10 @@ class MagentoModuleController extends Controller
             $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
             $task_statuses = $task_statuses->pluck('name', 'id');
             $store_websites = $store_websites->pluck('website', 'id');
+            $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames', 'module_locations'));
+
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames', 'module_locations','module_return_type_statuserrors'));
         }
     }
 
@@ -237,8 +247,9 @@ class MagentoModuleController extends Controller
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $module_locations = MagentoModuleLocation::pluck('module_locations', 'id');
         $task_statuses = TaskStatus::pluck('name', 'id');
+        $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::pluck('return_type_name', 'id')->get();
 
-        return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses','module_locations'));
+        return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses','module_locations','module_return_type_statuserrors'));
     }
 
     /**
@@ -379,7 +390,6 @@ class MagentoModuleController extends Controller
 
     public function updateMagentoModuleOptions(Request $request)
     {
-        // dd($request);
         $oldData = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
         $newData = MagentoModule::where('id', (int) $request->id)->first();
@@ -420,12 +430,16 @@ class MagentoModuleController extends Controller
                 $oldStatusId = $oldData->magneto_location_id;
 
             $this->saveLocationHistory($oldData, $oldStatusId , $request->data);
-
         }
 
         if ($request->columnName == 'module_review_standard') {
 
             $this->savereviewStandard($oldData, $request->data);
+        }
+
+        if ($request->columnName == 'return_type_error_status') {
+            $oldStatusId = $oldData->return_type_error_status;
+            $this->saveReturnTypeHistory($oldData, $oldStatusId , $request->data);
         }
 
 
@@ -450,6 +464,18 @@ class MagentoModuleController extends Controller
         $history = new MagnetoReviewStandardHistory();
         $history->magento_module_id = $magentoModule->id;
         $history->review_standard = $reviewValue;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
+    protected function saveReturnTypeHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleReturnTypeErrorHistoryStatus();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_location_id = $oldStatusId;
+        $history->new_location_id = $newStatusId;
         $history->user_id = Auth::user()->id;
         $history->save();
 

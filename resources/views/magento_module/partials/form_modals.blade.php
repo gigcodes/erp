@@ -113,6 +113,7 @@
             $("#magento_module_edit_form #module").val(response.data.module);
             $("#magento_module_edit_form #module_category_id").val(response.data.module_category_id);
             $("#magento_module_edit_form #magneto_location_id").val(response.data.magneto_location_id);
+            $("#magento_module_edit_form #return_type_error_status").val(response.data.return_type_error_status);
             $("#magento_module_edit_form #store_website_id").val(response.data.store_website_id);
             $("#magento_module_edit_form #current_version").val(response.data.current_version);
             $("#magento_module_edit_form #module_type").val(response.data.module_type);
