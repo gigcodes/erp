@@ -146,10 +146,11 @@ class ProjectController extends Controller
     public function buildProcess(Request $request)
     {
         $post = $request->all();
-        $repository = $request->repository;
+        $repository_id = $repository = $request->repository;
         $branch_name = $request->branch_name;
         $job_name = $request->job_name;
         $organization = $request->organization;
+        
         if($repository==''){
             return response()->json(['code' => 500, 'message' => 'Please select repository']);
         }
@@ -193,7 +194,7 @@ class ProjectController extends Controller
                             'build_number' => $builds[0]->getNumber(), 
                             'status' => $builds[0]->getResult(), 
                             'github_organization_id' => $organization,
-                            'github_repository_id' => $repository,
+                            'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name
                         ];
 
