@@ -6,7 +6,7 @@
         <h2 class="page-heading">Magento CSS Variables ({{ $magentoCssVariables->total() }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-12">
                     <form action="{{ route('magento-css-variable.index') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-3 pd-sm">
@@ -23,9 +23,35 @@
                                 </select>
                             </div>
                             <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('search_file_path')){   $search_file_path = request('search_file_path'); }
+                                    else{ $search_file_path = ''; }
+                                ?>
+                                <select name="search_file_path" id="search_file_path" class="form-control select2">
+                                    <option value="" @if($search_file_path=='') selected @endif>-- Select a file path --</option>
+                                    @forelse($file_paths as $file_path)
+                                    <option value="{{ $file_path }}" @if($search_file_path==$file_path) selected @endif>{!! $file_path !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('search_variable')){   $search_variable = request('search_variable'); }
+                                    else{ $search_variable = ''; }
+                                ?>
+                                <select name="search_variable" id="search_variable" class="form-control select2">
+                                    <option value="" @if($search_variable=='') selected @endif>-- Select a variable --</option>
+                                    @forelse($variables as $variable)
+                                    <option value="{{ $variable }}" @if($search_variable==$variable) selected @endif>{!! $variable !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
+                            <div class="col-md-1 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
@@ -36,7 +62,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
+                <div class="col-12" style="margin-top: 10px;">
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
                     </div>
@@ -73,10 +99,10 @@
                                 <td>{{ $magentoCssVariable->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($magentoCssVariable->project->name) > 30 ? substr($magentoCssVariable->project->name, 0, 30).'...' :  $magentoCssVariable->project->name }}
+                                       {{ strlen($magentoCssVariable->project?->name) > 30 ? substr($magentoCssVariable->project?->name, 0, 30).'...' :  $magentoCssVariable->project?->name }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $magentoCssVariable->project->name }}
+                                        {{ $magentoCssVariable->project?->name }}
                                     </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
@@ -100,9 +126,12 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $magentoCssVariable->value }}
+                                    <button type="button" class="btn btn-xs btn-image load-value-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load value histories"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $magentoCssVariable->user->name }}
+                                    {{ $magentoCssVariable->user?->name }}
                                 </td>
                                 <td>
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
@@ -113,7 +142,7 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
-                                    <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-value" style="padding: 0px 5px !important;">
+                                    <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-magento-css-value" style="padding: 0px 5px !important;">
                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                     </button>
                                 </td>
@@ -131,6 +160,10 @@
 @include('magento-css-variable.partials.create-modal')
 {{-- magento-css-variable-edit --}}
 @include('magento-css-variable.partials.edit-modal')
+{{-- magento-css-value-edit --}}
+@include('magento-css-variable.partials.value-edit-modal')
+{{-- #value-histories-modal --}}
+@include('magento-css-variable.partials.value-histories-modal')
 
 <script type="text/javascript">
     $('.select2').select2();
@@ -164,6 +197,54 @@
                 $("#magento-css-variable-edit-form #value").val(response.data.value);
                 $("#magento-css-variable-edit").modal("show");
             }).fail(function(response) {});
+        });
+
+        $(".btn-update-magento-css-value").on('click', function(e) {
+            var ajaxUrl = "{{ route('magento-css-variable.edit', ['magento_css_variable' => ':id']) }}";
+            ajaxUrl = ajaxUrl.replace(':id', $(this).data("id"));
+
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: ajaxUrl,
+            }).done(function(response) {
+                $("#magento-css-value-edit-form #id").val(response.data.id);
+                $("#magento-css-value-edit-form #file_path").val(response.data.file_path);
+                $("#magento-css-value-edit-form #variable").val(response.data.variable);
+                $("#magento-css-value-edit-form #value").val(response.data.value);
+                $("#magento-css-value-edit").modal("show");
+            }).fail(function(response) {});
+        });
+
+        // Load value Histories
+        $(document).on('click', '.load-value-histories', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.value-histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.old_value != null) ? v.old_value : ' - ' } </td>
+                                        <td> ${(v.new_value != null) ? v.new_value : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#value-histories-list").find(".value-histories-list-view").html(html);
+                        $("#value-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
         });
     });
 

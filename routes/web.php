@@ -611,8 +611,9 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
 
-    Route::resource('magento-css-variable', MagentoCssVariableController::class);
+    Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
+    Route::resource('magento-css-variable', MagentoCssVariableController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
