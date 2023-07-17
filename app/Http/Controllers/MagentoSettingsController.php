@@ -768,10 +768,10 @@ class MagentoSettingsController extends Controller
 
         $allInstancesIds = $allInstances->pluck("id");
         // Find all the Magento settings for these instances & assing it to the selected user
-        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get();
+        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get()->pluck("id")->toArray();
         if($allMagentoSettings) {
             $user = User::find($request->assign_user);
-            $user->magentoSettings()->sync($allMagentoSettings);
+            $user->magentoSettings()->attach($allMagentoSettings);
         }
 
         return redirect()->back()->with('success', 'Assigned successfully.');
@@ -780,9 +780,9 @@ class MagentoSettingsController extends Controller
     public function assignIndividualSetting(Request $request)
     {
         $magentoSetting = MagentoSetting::where('id', $request->row_id)->first();
-        $allInstances = '';
-
+        
         if ($magentoSetting) {
+            $assign_settings[]=$magentoSetting->id;
             if ($magentoSetting->store_website_id) {
                 $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
                 if ($storeWebsite->parent_id) {
@@ -790,20 +790,13 @@ class MagentoSettingsController extends Controller
                 } else {
                     $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
                 }
-
                 $allInstancesIds = $allInstances->pluck("id");
-                // Find all the Magento settings for these instances & assing it to the selected user
-                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get();
-                if($allMagentoSettings) {
-                    $user = User::find($request->assign_user);
-                    $user->magentoSettings()->sync($allMagentoSettings);
-                }
-
-                return redirect()->back()->with('success', 'Assigned successfully.');
+                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path',$magentoSetting->path)->where('scope',$magentoSetting->scope)->get()->pluck("id")->toArray();
+                $assign_settings=array_merge($assign_settings,$allMagentoSettings);
             }
-
-            return redirect()->back()->with('error', 'Not Assigned, No store website found for this selected row');
-
+            $user = User::find($request->assign_user);
+            $user->magentoSettings()->attach($assign_settings);    
+            return redirect()->back()->with('success', 'Assigned successfully.');
         }
 
         return redirect()->back()->with('error', 'Not Assigned, MagentoSetting not found');
