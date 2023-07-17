@@ -407,6 +407,7 @@ use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoCssVariableController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
@@ -609,7 +610,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
-    
+
+    Route::resource('magento-css-variable', MagentoCssVariableController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
