@@ -642,4 +642,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(CodeShortcut::class);
     }
+
+    public function magentoSettings()
+    {
+        return $this->belongsToMany(MagentoSetting::class, 'magento_setting_user');
+    }
 }

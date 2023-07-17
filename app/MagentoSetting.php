@@ -47,6 +47,11 @@ class MagentoSetting extends Model
         //return $this->hasOne(StoreWebsname:class, 'id', 'website_store_id');
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'magento_setting_user');
+    }
+
     /**
      * Model accrssor and mutator
      */

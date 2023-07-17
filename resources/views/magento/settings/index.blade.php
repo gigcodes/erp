@@ -126,6 +126,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         <div class="pull-left cls_filter_box">
             <div class="form-group cls_filter_inputbox" style="margin-top: 15px;">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusColor">Status Color</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#assign-setting-popup">Assign Setting</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
                 <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-secondary" id=""  target="_blank">Sync Logs</a>
             </div>
@@ -219,6 +220,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" data-value="{{ $magentoSetting->value }}"class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image assign-individual-setting p-0" title="Assign Magento Settings" ><i class="fa fa-users"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -478,6 +480,75 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary form-save-btn">Update Magento Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="assign-setting-popup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="assign-setting-form" class="assign-setting-form" method="post" action="{{ route('magento.setting.assign-setting') }}">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Magento Setting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">Store Website</label><br>
+                        <select id="store_website_id" class="form-control store_website_id select2" name="store_website_id" style="width: 100%">
+                            @forelse($storeWebsites as $uId => $w)
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                    <div class="form-group">
+                        <label for="">User</label><br>
+                        <select id="assign_user" class="form-control assign_user select2 assign_users" name="assign_user" style="width: 100%">
+                            @forelse($allUsers as $uId => $uName)
+                                <option value="{{ $uName->id }}">{{ $uName->name }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary form-save-btn">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="assign-individual-setting-popup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="assign-individual-setting-form" class="assign-individual-setting-form" method="post" action="{{ route('magento.setting.assign-individual-setting') }}">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Magento Setting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">User</label><br>
+                        {!! Form::hidden('row_id', null, ['id' => 'row_id', 'class' => 'form-control']) !!}
+                        <select id="assign_user" class="form-control assign_user select2 assign_users" name="assign_user" style="width: 100%">
+                            @forelse($allUsers as $uId => $uName)
+                                <option value="{{ $uName->id }}">{{ $uName->name }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary form-save-btn">Assign</button>
                 </div>
             </form>
         </div>
@@ -1000,6 +1071,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 $("#push-setting-popup").modal("show");
             }
         }).fail(function(response) {});
+    });
+
+    $(".assign-individual-setting").on('click', function(e) {
+        var row_id = $(this).data("id");
+        $(".assign-individual-setting-form #row_id").val(row_id);
+        $("#assign-individual-setting-popup").modal("show");
     });
 
 
