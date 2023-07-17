@@ -113,6 +113,9 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
+                                    <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-value" style="padding: 0px 5px !important;">
+                                        <i class="fa fa-upload" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -171,5 +174,34 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
+    $(document).on("click", ".btn-update-value", function(e) {
+        e.preventDefault();
+        if (confirm('Are sure you want to update value?')) {
+            $.ajax({
+                type: 'POST',
+                url: '/magento-css-variable/update-value',
+                beforeSend: function () {
+                    $("#loading-image-preview").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: $(this).data('id'),
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-preview").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }else{
+                    toastr['error'](response.message, 'error');
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image-preview").hide();
+                toastr['error']("Sorry, something went wrong", 'error');
+            });
+        }
+	
+	});
 </script>
 @endsection
