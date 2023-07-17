@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreWebsiteCategory;
+use App\SiteDevelopmentCategory;
 use Illuminate\Http\Request;
 use App\Models\MagentoFrontendDocumentation;
 use App\Models\MagentoFrontendRemark;
@@ -15,7 +15,7 @@ class MagentoFrontendDocumentationController extends Controller
 {
     public function magentofrontenDocs(Request $request)
     {
-        $storecategories = StoreWebsiteCategory::select('category_name', 'id')->wherenotNull('category_name')->take(5)->get();
+        $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
 
         if ($request->ajax()) {
             $items = MagentoFrontendDocumentation::with('storeWebsiteCategory')

@@ -16,12 +16,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                         <label>category</label>
                         <select class="form-control select-multiple" id="category-select" name="magento_docs_category_id" required>
                            @php
-                            $storecategories = \App\StoreWebsiteCategory::select('category_name', 'id')->wherenotNull('category_name')->get();
+                            $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
                             @endphp
 
                             <option value="">Select Category</option>
                             @foreach ($storecategories as $storecategory)
-                                <option value="{{ $storecategory->id }}">{{ $storecategory->category_name }}</option>
+                                <option value="{{ $storecategory->id }}">{{ $storecategory->title }}</option>
                             @endforeach
                         </select>
                     </div>
