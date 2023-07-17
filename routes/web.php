@@ -612,6 +612,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
+    Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
