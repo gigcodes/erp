@@ -133,12 +133,12 @@
                         <div class="form-group">
                             <select class="form-control select-multiple category_name" id="category-select" name="magento_docs_category_id">
                                 @php
-                                 $storecategories = \App\StoreWebsiteCategory::select('category_name', 'id')->wherenotNull('category_name')->get();
+                                 $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
                                  @endphp
      
                                  <option value="">Select Category</option>
                                  @foreach ($storecategories as $storecategory)
-                                     <option value="{{ $storecategory->id }}">{{ $storecategory->category_name }}</option>
+                                     <option value="{{ $storecategory->id }}">{{ $storecategory->title }}</option>
                                  @endforeach
                              </select>
                         </div>
@@ -319,9 +319,9 @@
 
                             categories.forEach(function(category) {
                                 if (category.id === selectedCategoryId) {
-                                    categoriesHtml += '<option value="' + category.id + '" selected>' + category.category_name + '</option>';
+                                    categoriesHtml += '<option value="' + category.id + '" selected>' + category.title + '</option>';
                                 } else {
-                                    categoriesHtml += '<option value="' + category.id + '">' + category.category_name + '</option>';
+                                    categoriesHtml += '<option value="' + category.id + '">' + category.title + '</option>';
                                 }
                             });
 
