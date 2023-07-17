@@ -23,7 +23,8 @@ class MagentoSettingsController extends Controller
     public function index(Request $request)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-
+        $all_paths = MagentoSetting::groupBy('path')->get()->pluck('path','path')->toArray();
+        $all_names = MagentoSetting::groupBy('name')->get()->pluck('name','name')->toArray();
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
@@ -67,11 +68,11 @@ class MagentoSettingsController extends Controller
             }
         }
 
-        if ($request->name != '') {
-            $magentoSettings->where('magento_settings.name', 'LIKE', '%' . $request->name . '%');
+        if (isset($request->name) && !empty($request->name)) {
+            $magentoSettings->whereIn('magento_settings.name', $request->name);
         }
-        if ($request->path != '') {
-            $magentoSettings->where('magento_settings.path', 'LIKE', '%' . $request->path . '%');
+        if (isset($request->path) && !empty($request->path)) {
+            $magentoSettings->whereIn('magento_settings.path', $request->path);
         }
         if ($request->status != '') {
             $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
@@ -108,6 +109,8 @@ class MagentoSettingsController extends Controller
                 'counter' => $counter,
                 'allUsers' => $allUsers,
                 'magentoSettingStatuses' => $magentoSettingStatuses,
+                'all_paths' => $all_paths,
+                'all_names' => $all_names,
             ]);
         } else {
             return view('magento.settings.index', [
@@ -120,6 +123,8 @@ class MagentoSettingsController extends Controller
                 'counter' => $counter,
                 'allUsers' => $allUsers,
                 'magentoSettingStatuses' => $magentoSettingStatuses,
+                'all_paths' => $all_paths,
+                'all_names' => $all_names,
             ]);
         }
     }

@@ -58,6 +58,11 @@ class MagentoModule extends Model
         return $this->belongsTo(MagentoModulLocation::class, 'magneto_location_id');
     }
 
+    public function module_error_status_types()
+    {
+        return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'return_type_error_status');
+    }
+
     public function store_website()
     {
         return $this->belongsTo(StoreWebsite::class, 'store_website_id');

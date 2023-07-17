@@ -151,6 +151,11 @@
                     </div>
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
+                            {!! Form::select('return_type_name', $module_return_type_statuserrors, null, ['placeholder' => 'Select Module Return type Error', 'class' => 'form-control filter-return_type_name']) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control filter-is_customized']) !!}
                         </div>
                     </div>
@@ -217,6 +222,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatus"> Add Verified Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatusList"> List Verified Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleLocationCreateModal"> Module Location Create  </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleReturnTypeCreateModal"> Module Return Type Error Create  </button>
 
                     </div>
                 </div>
@@ -334,6 +340,12 @@
     @include('magento_module.description-history-listing')
     {{-- Used At History --}} 
     @include('magento_module.used-at-history-listing')
+    {{-- moduleReturnTypeCreateModal --}}
+    @include('magento-return-type-status.form_modal')
+    @include('magento-return-type-status.return-type-history')
+   {{-- moduleReturnTypeHistoryModal --}}
+
+
 
 
 
@@ -443,6 +455,7 @@
                         d.dev_verified_status_id = $('.multiselect-dev-status').val();
                         d.lead_verified_by = $('.multiselect-lead').val();
                         d.lead_verified_status_id = $('.multiselect-lead-status').val();
+                        d.return_type_error_status = $('.filter-return_type_name').val();
                         
                         
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
@@ -923,22 +936,35 @@
                             return retun_data;
                         }
                     },
+
                     {
-                        data: 'return_type_error_status',
-                        name: 'magento_modules.return_type_error_status',
+                        data: 'return_type_name',
+                        name: 'magento_modules.return_type_name',
                         render: function(data, type, row, meta) {
-                            let message = `<input type="text" id="return_type_error_status_${row['id']}" name="return_type_error_status" class="form-control return_type_error_status_input" placeholder="Return Type Error Status" />`;
+                            console.log(data);
+                            var m_types = row['module_return_type_statuserrors'];
+                            var m_types =  m_types.replace(/&quot;/g, '"');
+                            if(m_types && m_types != "" ){
+                                var m_types = JSON.parse(m_types);
+                                var m_types_html = '<select id="return_type_error_status" class="form-control edit_mm" required="required" name="return_type_error_status"><option selected="selected" value="">Select Return type Error Status</option>';
+                                m_types.forEach(function(m_type){
+                                    if(m_type.return_type_name == data){
+                                        m_types_html += `<option value="${m_type.id}" selected>${m_type.return_type_name}</option>`;
+                                    }else{
+                                        m_types_html += `<option value="${m_type.id}" >${m_type.return_type_name}</option>`;
+                                    }
+                                    
+                                });
+                                m_types_html += '</select>';
+                                let remark_history_button =
+                                `  <button type="button" class="btn btn-xs btn-image load-error-type-history ml-2" data-type="dev" data-id="${row['id']}" title="Dev User Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
-                            let return_type_error_status_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="return_type_error_status" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
-
-                            let return_type_error_status_send_button =
-                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']}, 'return_type_error_status', 'return_type_error_status')"><img src="/images/filled-sent.png"></button>`;
-                                // data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
-                                data = (data == null) ? '' : '';
-                            let retun_data = `${data} <div class="general-remarks"> ${message} ${return_type_error_status_send_button} ${return_type_error_status_history_button} </div>`;
+                                return `<div class="flex items-center gap-5">${m_types_html} ${remark_history_button}</div>`;
                             
-                            return retun_data;
+                            }else{
+                                return `<div class="flex items-center justify-left">${data}</div>`;
+                            }
+                            
                         }
                     },
                     {
@@ -1456,6 +1482,37 @@
                         });
                         $("#location-listing").find(".location-listing-view").html(html);
                         $("#location-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-error-type-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.return_type.history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_location ? v.old_location.return_type_name : ''} </td>
+                                        <td> ${v.new_location ? v.new_location.return_type_name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#return-type-listing").find(".return-type-listing-view").html(html);
+                        $("#return-type-listing").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

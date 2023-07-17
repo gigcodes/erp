@@ -374,6 +374,7 @@ use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\TechnicalDebtController;
+use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 
 Auth::routes();
 
@@ -406,6 +407,7 @@ use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\MagentoCssVariableController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
@@ -539,6 +541,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/description', [MagentoModuleController::class, 'descriptionHistory'])->name('magento_module.description.history');
     Route::get('/used_at', [MagentoModuleController::class, 'usedAtHistory'])->name('magento_module.usedat.history');
     Route::resource('magento_module_locations', MagentoLocationController::class);
+
+    Route::get('/return_type_error/status', [MagentoModuleReturnTypeErrorStatusController::class, 'returnTypeHistory'])->name('magento_module.return_type.history');
+    Route::resource('magento_module_return_types', MagentoModuleReturnTypeErrorStatusController::class);
     
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
 
@@ -605,7 +610,9 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
-    
+
+    Route::resource('magento-css-variable', MagentoCssVariableController::class);
+    Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {

@@ -36,7 +36,9 @@ class BuildProcessHistory extends Model
         $githubBranchStateName = $this->github_branch_state_name;
         // $githubRepositoryId = 231925646;
         // $githubBranchStateName = "master";
-
+        if(empty($githubRepositoryId) || $githubBranchStateName==''){
+            return [];
+        }
         $githubActionRuns = $this->getGithubActionRuns($githubRepositoryId, 1, null, null, $githubBranchStateName);
         
         // Get Repo Jobs from DB & Prepare the status. 
