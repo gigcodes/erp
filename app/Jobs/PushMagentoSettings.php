@@ -25,6 +25,8 @@ class PushMagentoSettings implements ShouldQueue
 
     protected $website_ids;
 
+    protected $newValue;
+
     public $tries = 5;
 
     public $backoff = 5;
@@ -39,6 +41,10 @@ class PushMagentoSettings implements ShouldQueue
         // Set product and website
         $this->magentoSetting = $magentoSetting;
         $this->website_ids = $website_ids;
+
+        if(isset($this->magentoSetting->new_value) && $this->magentoSetting->new_value != "") {
+            $this->newValue = $this->magentoSetting->new_value;
+        }
     }
 
     /**
@@ -60,7 +66,7 @@ class PushMagentoSettings implements ShouldQueue
             $scope = $entity->scope;
             $name = $entity->name;
             $path = $entity->path;
-            $value = $entity->value;
+            $value = $this->newValue ?: $entity->value;
             $datatype = $entity->datatype;
             
             $website_ids = $this->website_ids;

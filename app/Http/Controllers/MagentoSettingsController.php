@@ -720,6 +720,11 @@ class MagentoSettingsController extends Controller
                 'store.website.storeWebsite',
                 'website',
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
+
+            // Assign new value when push
+            if ($request->has('new_value')) {
+                $individualSetting->new_value = $request->new_value;
+            }
             
             // Push individual setting to selected websites
             \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushmagentosettings');

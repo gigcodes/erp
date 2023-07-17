@@ -217,7 +217,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
-                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" data-value="{{ $magentoSetting->value }}"class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -424,6 +424,10 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </button>
                 </div>
                 <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">Value</label><br>
+                        {!! Form::text('new_value', null, ['id' => 'new_value', 'class' => 'form-control']) !!}
+                    </div>
                     <div class="form-group">
                         <label for="">Websites</label><br>
                         {!! Form::hidden('row_id', null, ['id' => 'row_id', 'class' => 'form-control']) !!}
@@ -936,6 +940,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
     $(".push-setting").on('click', function(e) {
         var row_id = $(this).data("id");
+        var row_value = $(this).data("value");
 
         var url = "{{ route('magento.setting.get-magento-setting', '') }}/" + row_id;
         jQuery.ajax({
@@ -949,6 +954,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 toastr['error'](response.error);
             } else {
                 $(".push-setting-form #row_id").val(row_id);
+                $(".push-setting-form #new_value").val(row_value);
                 var taggedWebsites = [];
                 $(response.taggedWebsites).each(function(index, store_websites) {
                     taggedWebsites.push(store_websites.id);
