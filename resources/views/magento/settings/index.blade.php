@@ -45,11 +45,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         <?php $base_url = URL::to('/');?> 
         <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET" style="width: 100%;"> 
-                <div class="form-group cls_filter_inputbox" >
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
-                    <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-secondary" id=""  target="_blank">Sync Logs</a>
-                </div>  
-                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                  
+                <div class="form-group cls_filter_inputbox">
                     <select class="form-control select2" name="scope" data-placeholder="scope" style="width: 200px !important;">
                         <option value="">All</option> 
                         <option value="default"  {{ request('scope') && request('scope') == 'default' ? 'selected' : '' }} >default</option> 
@@ -94,18 +91,42 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <option value="{{$path}}" {{$selected}}>{{$path}}</option>
                     @endforeach
                 </select>  
+                </div>
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <select class="form-control select2" name="status" data-placeholder="status" style="width: 200px !important;">
+                        <option value="">All</option> 
+                        <option value="Success"  {{ request('status') && request('status') == 'Success' ? 'selected' : '' }} >Success</option> 
+                        <option value="Error"  {{ request('status') && request('status') == 'Error' ? 'selected' : '' }} >Error</option> 
+                    </select>
                 </div> 
                 <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <?php 
+                        if(request('user_name')){   $userNameArr = request('user_name'); }
+                        else{ $userNameArr = []; }
+                    ?>
+                    <select name="user_name[]" id="user_name" class="form-control select2" multiple>
+                        <option value="" @if($userNameArr=='') selected @endif>-- Select a User --</option>
+                        @forelse($allUsers as $uId => $uName)
+                        <option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </div> 
+                
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                     <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                    
-                    </div> 
+                </div> 
             {{ Form::close() }}
         </div> 
-        <div class="pull-right cls_filter_box">
+        <div class="pull-left cls_filter_box">
+            <div class="form-group cls_filter_inputbox" style="margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusColor">Status Color</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#assign-setting-popup">Assign Setting</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
+                <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-secondary" id=""  target="_blank">Sync Logs</a>
+            </div>
+
             {{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
                 <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <select class="form-control websites select2" name="store_website_id" data-placeholder="Please select website" style="width:200px !important;">
@@ -153,7 +174,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting) 
-                            <tr>
+                            <tr style="background-color: {{$magentoSetting->statusColor}}!important;">
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
@@ -194,7 +215,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
-                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" data-value="{{ $magentoSetting->value }}"class="btn btn-image push-setting p-0" title="Update Magento Settings" ><i class="fa fa-upload"></i></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image assign-individual-setting p-0" title="Assign Magento Settings" ><i class="fa fa-users"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -207,6 +229,42 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
 </div>
 <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+<div id="statusColor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status Color</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('magento.setting.statuscolor') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($magentoSettingStatuses as $magentoSettingStatus) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $magentoSettingStatus->name; ?></td>
+                            <td class="text-center"><?php echo $magentoSettingStatus->color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $magentoSettingStatus->id; ?>]" class="form-control" data-id="<?php echo $magentoSettingStatus->id; ?>" id="color_name_<?php echo $magentoSettingStatus->id; ?>" value="<?php echo $magentoSettingStatus->color; ?>" style="height:30px;padding:0px;"></td>
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 
 <div id="add-setting-popup" class="modal fade" role="dialog">
@@ -402,6 +460,10 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="">Value</label><br>
+                        {!! Form::text('new_value', null, ['id' => 'new_value', 'class' => 'form-control']) !!}
+                    </div>
+                    <div class="form-group">
                         <label for="">Websites</label><br>
                         {!! Form::hidden('row_id', null, ['id' => 'row_id', 'class' => 'form-control']) !!}
                         <select id="apply_tagged_websites"class="form-control website select2 websites" name="tagged_websites[]" multiple style="width: 100%">
@@ -414,6 +476,75 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary form-save-btn">Update Magento Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="assign-setting-popup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="assign-setting-form" class="assign-setting-form" method="post" action="{{ route('magento.setting.assign-setting') }}">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Magento Setting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">Store Website</label><br>
+                        <select id="store_website_id" class="form-control store_website_id select2" name="store_website_id" style="width: 100%">
+                            @forelse($storeWebsites as $uId => $w)
+                                <option value="{{ $w->id }}">{{ $w->title }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                    <div class="form-group">
+                        <label for="">User</label><br>
+                        <select id="assign_user" class="form-control assign_user select2 assign_users" name="assign_user" style="width: 100%">
+                            @forelse($allUsers as $uId => $uName)
+                                <option value="{{ $uName->id }}">{{ $uName->name }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary form-save-btn">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="assign-individual-setting-popup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="assign-individual-setting-form" class="assign-individual-setting-form" method="post" action="{{ route('magento.setting.assign-individual-setting') }}">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Magento Setting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">User</label><br>
+                        {!! Form::hidden('row_id', null, ['id' => 'row_id', 'class' => 'form-control']) !!}
+                        <select id="assign_user" class="form-control assign_user select2 assign_users" name="assign_user" style="width: 100%">
+                            @forelse($allUsers as $uId => $uName)
+                                <option value="{{ $uName->id }}">{{ $uName->name }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary form-save-btn">Assign</button>
                 </div>
             </form>
         </div>
@@ -913,6 +1044,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
     $(".push-setting").on('click', function(e) {
         var row_id = $(this).data("id");
+        var row_value = $(this).data("value");
 
         var url = "{{ route('magento.setting.get-magento-setting', '') }}/" + row_id;
         jQuery.ajax({
@@ -926,6 +1058,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 toastr['error'](response.error);
             } else {
                 $(".push-setting-form #row_id").val(row_id);
+                $(".push-setting-form #new_value").val(row_value);
                 var taggedWebsites = [];
                 $(response.taggedWebsites).each(function(index, store_websites) {
                     taggedWebsites.push(store_websites.id);
@@ -934,6 +1067,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 $("#push-setting-popup").modal("show");
             }
         }).fail(function(response) {});
+    });
+
+    $(".assign-individual-setting").on('click', function(e) {
+        var row_id = $(this).data("id");
+        $(".assign-individual-setting-form #row_id").val(row_id);
+        $("#assign-individual-setting-popup").modal("show");
     });
 
 

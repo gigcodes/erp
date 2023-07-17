@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use App\AssetsManager;
 use App\LogRequest;
 use App\Jobs\PushMagentoSettings;
+use App\MagentoSettingStatus;
+use App\User;
 
 class MagentoSettingsController extends Controller
 {
@@ -75,11 +77,16 @@ class MagentoSettingsController extends Controller
         if ($request->status != '') {
             $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
         }
+        if ($request->user_name != null and $request->user_name != 'undefined') {
+            $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
+        }
 
         $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
+        $allUsers = User::where('is_active', '1')->get();
+        $magentoSettingStatuses = MagentoSettingStatus::all();
         $data = $magentoSettings;
         $data = $data->groupBy('store_website_id')->toArray();
         $newValues = [];
@@ -100,6 +107,8 @@ class MagentoSettingsController extends Controller
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
+                'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
                 'all_paths' => $all_paths,
                 'all_names' => $all_names,
             ]);
@@ -112,6 +121,8 @@ class MagentoSettingsController extends Controller
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
+                'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
                 'all_paths' => $all_paths,
                 'all_names' => $all_names,
             ]);
@@ -718,6 +729,12 @@ class MagentoSettingsController extends Controller
                 'store.website.storeWebsite',
                 'website',
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
+
+            // Assign new value when push
+            if ($request->has('new_value')) {
+                $individualSetting->value = $request->new_value;
+                $individualSetting->save();
+            }
             
             // Push individual setting to selected websites
             \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushmagentosettings');
@@ -725,5 +742,63 @@ class MagentoSettingsController extends Controller
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
         return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
+    }
+
+    public function statusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoSettingStatus = MagentoSettingStatus::find($key);
+            $magentoSettingStatus->color = $value;
+            $magentoSettingStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function assignSetting(Request $request)
+    {
+        $storeWebsite = StoreWebsite::find($request->store_website_id);
+        if ($storeWebsite->parent_id) {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+        } else {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+        }
+
+        $allInstancesIds = $allInstances->pluck("id");
+        // Find all the Magento settings for these instances & assing it to the selected user
+        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get()->pluck("id")->toArray();
+        if($allMagentoSettings) {
+            $user = User::find($request->assign_user);
+            $user->magentoSettings()->attach($allMagentoSettings);
+        }
+
+        return redirect()->back()->with('success', 'Assigned successfully.');
+    }
+
+    public function assignIndividualSetting(Request $request)
+    {
+        $magentoSetting = MagentoSetting::where('id', $request->row_id)->first();
+        
+        if ($magentoSetting) {
+            $assign_settings[]=$magentoSetting->id;
+            if ($magentoSetting->store_website_id) {
+                $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
+                if ($storeWebsite->parent_id) {
+                    $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+                } else {
+                    $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+                }
+                $allInstancesIds = $allInstances->pluck("id");
+                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path',$magentoSetting->path)->where('scope',$magentoSetting->scope)->get()->pluck("id")->toArray();
+                $assign_settings=array_merge($assign_settings,$allMagentoSettings);
+            }
+            $user = User::find($request->assign_user);
+            $user->magentoSettings()->attach($assign_settings);    
+            return redirect()->back()->with('success', 'Assigned successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Not Assigned, MagentoSetting not found');
     }
 }

@@ -46,4 +46,24 @@ class MagentoSetting extends Model
         return $this->hasOne(WebsiteStore::class, 'id', 'website_store_id');
         //return $this->hasOne(StoreWebsname:class, 'id', 'website_store_id');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'magento_setting_user');
+    }
+
+    /**
+     * Model accrssor and mutator
+     */
+    public function getStatusColorAttribute()
+    {
+        if ($this->status) {
+            $status = MagentoSettingStatus::where('name', $this->status)->first();
+            if ($status) {
+                return $status->color;
+            }
+        }
+
+        return "";
+    }
 }
