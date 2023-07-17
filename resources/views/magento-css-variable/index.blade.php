@@ -3,12 +3,25 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Magento Css Variables ({{ $magentoCssVariables->total() }})</h2>
+        <h2 class="page-heading">Magento CSS Variables ({{ $magentoCssVariables->total() }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-8">
                     <form action="{{ route('magento-css-variable.index') }}" method="get" class="search">
                         <div class="row">
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('search_project_id')){   $search_project_id = request('search_project_id'); }
+                                    else{ $search_project_id = ''; }
+                                ?>
+                                <select name="search_project_id" id="search_project_id" class="form-control select2">
+                                    <option value="" @if($search_project_id=='') selected @endif>-- Select a project --</option>
+                                    @forelse($projects as $id => $name)
+                                    <option value="{{ $id }}" @if($search_project_id==$id) selected @endif>{!! $name !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
                             <div class="col-md-3 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
@@ -95,6 +108,11 @@
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
                                         <i class="fa fa-pencil"></i>
                                     </button>
+                                    {!! Form::open(['method' => 'DELETE', 'class' => 'delete-form', 'route' => ['magento-css-variable.destroy', $magentoCssVariable->id], 'style'=>'display:inline']) !!}
+                                    <button type="submit" class="btn btn-xs delete-button" onclick="return confirmDelete(event)">
+                                        <i class="fa fa-trash" style="color: #808080;"></i>
+                                    </button>
+                                    {!! Form::close() !!}
                                     <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-value" style="padding: 0px 5px !important;">
                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                     </button>
@@ -111,10 +129,43 @@
 
 {{-- magento-css-variable-create --}}
 @include('magento-css-variable.partials.create-modal')
-{{-- @include('magento-css-variable.partials.edit-modal') --}}
+{{-- magento-css-variable-edit --}}
+@include('magento-css-variable.partials.edit-modal')
 
 <script type="text/javascript">
     $('.select2').select2();
+
+    function confirmDelete(event) {
+        event.preventDefault();
+        var confirmDelete = confirm("Are you sure you want to delete this item?");
+        if (confirmDelete) {
+            event.target.closest('.delete-form').submit();
+        }
+        return false;
+    }
+
+    $(document).ready(function(){
+        $(".btn-edit-magento-css-variable").on('click', function(e) {
+            var ajaxUrl = "{{ route('magento-css-variable.edit', ['magento_css_variable' => ':id']) }}";
+            ajaxUrl = ajaxUrl.replace(':id', $(this).data("id"));
+
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: ajaxUrl,
+            }).done(function(response) {
+                $("#magento-css-variable-edit-form #id").val(response.data.id);
+                $("#magento-css-variable-edit-form #project_id").val(response.data.project_id).trigger('change');
+                $("#magento-css-variable-edit-form #filename").val(response.data.filename);
+                $("#magento-css-variable-edit-form #file_path").val(response.data.file_path);
+                $("#magento-css-variable-edit-form #variable").val(response.data.variable);
+                $("#magento-css-variable-edit-form #value").val(response.data.value);
+                $("#magento-css-variable-edit").modal("show");
+            }).fail(function(response) {});
+        });
+    });
 
     $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();
