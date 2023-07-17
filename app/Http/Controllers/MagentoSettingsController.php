@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\AssetsManager;
 use App\LogRequest;
 use App\Jobs\PushMagentoSettings;
+use App\User;
 
 class MagentoSettingsController extends Controller
 {
@@ -74,11 +75,15 @@ class MagentoSettingsController extends Controller
         if ($request->status != '') {
             $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
         }
+        if ($request->user_name != null and $request->user_name != 'undefined') {
+            $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
+        }
 
         $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
+        $allUsers = User::where('is_active', '1')->get();
         $data = $magentoSettings;
         $data = $data->groupBy('store_website_id')->toArray();
         $newValues = [];
@@ -99,6 +104,7 @@ class MagentoSettingsController extends Controller
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
+                'allUsers' => $allUsers,
             ]);
         } else {
             return view('magento.settings.index', [
@@ -109,6 +115,7 @@ class MagentoSettingsController extends Controller
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
+                'allUsers' => $allUsers,
             ]);
         }
     }
