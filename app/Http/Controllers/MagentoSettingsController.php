@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\AssetsManager;
 use App\LogRequest;
 use App\Jobs\PushMagentoSettings;
+use App\MagentoSettingStatus;
 use App\User;
 
 class MagentoSettingsController extends Controller
@@ -84,6 +85,7 @@ class MagentoSettingsController extends Controller
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
         $allUsers = User::where('is_active', '1')->get();
+        $magentoSettingStatuses = MagentoSettingStatus::all();
         $data = $magentoSettings;
         $data = $data->groupBy('store_website_id')->toArray();
         $newValues = [];
@@ -105,6 +107,7 @@ class MagentoSettingsController extends Controller
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
                 'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
             ]);
         } else {
             return view('magento.settings.index', [
@@ -116,6 +119,7 @@ class MagentoSettingsController extends Controller
                 'pushLogs' => $pushLogs,
                 'counter' => $counter,
                 'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
             ]);
         }
     }
@@ -723,7 +727,8 @@ class MagentoSettingsController extends Controller
 
             // Assign new value when push
             if ($request->has('new_value')) {
-                $individualSetting->new_value = $request->new_value;
+                $individualSetting->value = $request->new_value;
+                $individualSetting->save();
             }
             
             // Push individual setting to selected websites
@@ -732,5 +737,18 @@ class MagentoSettingsController extends Controller
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
         return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
+    }
+
+    public function statusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoSettingStatus = MagentoSettingStatus::find($key);
+            $magentoSettingStatus->color = $value;
+            $magentoSettingStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

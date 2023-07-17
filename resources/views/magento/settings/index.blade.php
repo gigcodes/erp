@@ -125,6 +125,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         </div> 
         <div class="pull-left cls_filter_box">
             <div class="form-group cls_filter_inputbox" style="margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusColor">Status Color</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
                 <a href="{{ route('magento.setting.sync-logs') }}" class="btn btn-secondary" id=""  target="_blank">Sync Logs</a>
             </div>
@@ -176,7 +177,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting) 
-                            <tr>
+                            <tr style="background-color: {{$magentoSetting->statusColor}}!important;">
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
@@ -230,6 +231,42 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
 </div>
 <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+<div id="statusColor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status Color</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('magento.setting.statuscolor') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($magentoSettingStatuses as $magentoSettingStatus) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $magentoSettingStatus->name; ?></td>
+                            <td class="text-center"><?php echo $magentoSettingStatus->color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $magentoSettingStatus->id; ?>]" class="form-control" data-id="<?php echo $magentoSettingStatus->id; ?>" id="color_name_<?php echo $magentoSettingStatus->id; ?>" value="<?php echo $magentoSettingStatus->color; ?>" style="height:30px;padding:0px;"></td>
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 
 <div id="add-setting-popup" class="modal fade" role="dialog">

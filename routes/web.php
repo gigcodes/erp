@@ -641,7 +641,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('magento-admin-settings/push-settings', [MagentoSettingsController::class, 'pushMagentoSettings'])->name('magento.setting.pushMagentoSettings');
     Route::post('magento-admin-settings/push-row-magento-settings', [MagentoSettingsController::class, 'pushRowMagentoSettings'])->name('magento.setting.push-row-magento-settings');
-    
+    Route::post('magento-admin-settings/statuscolor', [MagentoSettingsController::class, 'statusColor'])->name('magento.setting.statuscolor');
+
     Route::post('magento-admin-settings/website/stores', [MagentoSettingsController::class, 'websiteStores'])->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', [MagentoSettingsController::class, 'deleteSetting'])->name('delete.setting');
