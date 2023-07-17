@@ -15,6 +15,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 .multiselect-native-select .multiselect {
     width: 200px;
 }
+.select2-search--inline {
+    display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
+
+.select2-search__field:placeholder-shown {
+    width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
 </style>
         <h2 class="page-heading">Magento Settings ({{$counter}})</h2>
     </div>
@@ -63,23 +70,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </select>
                 </div>  
                 <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    {{-- <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;"> --}}
-                    <?php
-                    $chkName = [];
-                    $chkPath = [];
-                    ?>
-                    @foreach ($magentoSettings as $magentoSetting) 
-                        <?php array_push($chkName, $magentoSetting->name); ?>    
-                        <?php array_push($chkPath, $magentoSetting->path); ?>    
-                    @endforeach
-                    <?php $chkName = array_unique($chkName); ?>
-                    <?php $chkPath = array_unique($chkPath); ?>
-                    
-                    <select name="name" class="form-control select2"  style="width: 162px!important;" data-placeholder="name">
+                    <?php $nameArr = request('name') ? request('name') : [];?>
+                    <select name="name[]" multiple class="form-control select2"  style="width: 162px!important;" data-placeholder="name">
                         <option value="">Name</option>
-                        @foreach ($chkName as $name) 
+                        @foreach ($all_names as $name) 
                             <?php $selected = '';?>
-                            @if(in_array($w->id, $webArr))
+                            @if(in_array($name, $nameArr))
                                 <?php $selected = 'selected';?>
                             @endif
                             <option value="{{$name}}" {{$selected}}>{{$name}}</option>
@@ -87,12 +83,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </select>  
                 </div>  
                 <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    {{-- <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;"> --}}
-                    <select name="path" class="form-control select2"  style="width: 162px!important;" data-placeholder="Path">
+                    <?php $pathArr = request('path') ? request('path') : [];?>
+                    <select name="path[]" multiple class="form-control select2"  style="width: 162px!important;" data-placeholder="Path">
                     <option value="">Path</option>
-                    @foreach ($chkPath as $path) 
+                    @foreach ($all_paths as $path) 
                         <?php $selected = '';?>
-                        @if(in_array($w->id, $webArr))
+                        @if(in_array($path, $pathArr))
                             <?php $selected = 'selected';?>
                         @endif
                         <option value="{{$path}}" {{$selected}}>{{$path}}</option>
