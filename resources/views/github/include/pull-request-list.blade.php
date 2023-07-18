@@ -46,7 +46,15 @@
             <button title="Build Process"  data-id="{{$pullRequest['repository']['id']}}" data-branch="{{$pullRequest['source']}}" type="button" class="btn open-build-process-template" style="padding:1px 0px;">
                 <a href="javascript:void(0);" style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
             </button>
-            <a title="Build Process Logs" target="_blank"  href="{{ route("project.buildProcessLogs") }}" style="color:gray;"><i class="fa fa-info-circle"></i></a>
+            <a title="Build Process Logs" target="_blank"  href="{{ route("project.buildProcessLogs") }}" style="color:gray;">
+                @if ($pullRequest['build_process_history_status'] == 'Success')
+                    <i class="fa fa-info-circle text-success"></i>
+                @elseif ($pullRequest['build_process_history_status'] == 'Danger')
+                    <i class="fa fa-info-circle text-danger"></i>
+                @else
+                    <i class="fa fa-info-circle"></i>
+                @endif
+            </a>
         </div>
     </td>
 </tr>
