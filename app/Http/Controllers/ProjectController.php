@@ -297,8 +297,8 @@ class ProjectController extends Controller
                 //$branch_name="stage";$repository="brands-labels";
                 try{
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                    $job =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
-                    if ($jenkins->getJob($jobName)) {
+                    $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
+                    if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
                         $builds = $job->getBuilds();
                         
@@ -349,18 +349,21 @@ class ProjectController extends Controller
     // New concept in page
     public function buildProcessLogs(Request $request, $id= null)
     {
+        $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')->select('build_process_histories.*','u.name as usersname');
+
         if($id){
-            $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')
-            ->where('store_website_id', '=', $id)
-            ->select('build_process_histories.*','u.name as usersname')
-            ->orderBy('id','desc')
-            ->paginate(10);
-        }else{
-            $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')
-            ->select('build_process_histories.*','u.name as usersname')
-            ->orderBy('id','desc')
-            ->paginate(10);
+            $responseLogs->where('store_website_id', $id);
         }
+        
+        if($request->has('branch') && $request->branch!=''){
+            $responseLogs->where('github_branch_state_name', $request->branch);
+        }
+        
+        if($request->has('buildby') && $request->buildby!=''){
+            $responseLogs->where('created_by', $request->buildby);
+        }
+
+        $responseLogs=$responseLogs->orderBy('id','desc')->paginate(10);
        
         foreach($responseLogs as $responseLog){
             
