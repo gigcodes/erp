@@ -18,7 +18,7 @@ class CreateMagentoCssVariableJobLogsTable extends Migration
             $table->timestamps();
             $table->integer('magento_css_variable_id');
             $table->text('command');
-            $table->string('message');
+            $table->text('message');
             $table->string('status');
         });
     }

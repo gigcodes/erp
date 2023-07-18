@@ -62,7 +62,7 @@ class PushMagentoCssVariables implements ShouldQueue
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' => 'The response is not found!', 
+                    'message' => json_encode($output), 
                     'status' => 'Error', 
                 ]);
             }
@@ -77,7 +77,7 @@ class PushMagentoCssVariables implements ShouldQueue
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' => $message, 
+                    'message' => json_encode($output), 
                     'status' => 'Success', 
                 ]);
                 // return response()->json(['code' => 200, 'message' => $message]);
@@ -90,7 +90,7 @@ class PushMagentoCssVariables implements ShouldQueue
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' => $message, 
+                    'message' =>  json_encode($output), 
                     'status' => 'Error', 
                 ]);
                 // return response()->json(['code' => 500, 'message' => $message]);

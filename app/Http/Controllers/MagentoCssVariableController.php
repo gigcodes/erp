@@ -277,7 +277,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
                 'command' => $cmd,
-                'message' => 'The response is not found!', 
+                'message' => json_encode($output), 
                 'status' => 'Error', 
             ]);
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
@@ -292,7 +292,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
                 'command' => $cmd,
-                'message' => $message, 
+                'message' => json_encode($output), 
                 'status' => 'Success', 
             ]);
             return response()->json(['code' => 200, 'message' => $message]);
@@ -305,7 +305,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
                 'command' => $cmd,
-                'message' => $message, 
+                'message' => json_encode($output), 
                 'status' => 'Error', 
             ]);
             return response()->json(['code' => 500, 'message' => $message]);
@@ -318,7 +318,7 @@ class MagentoCssVariableController extends Controller
             $projectId = $request->project_id;
             $magentoCssVariables = MagentoCssVariable::where('project_id', $projectId)->get();
             foreach($magentoCssVariables as $magentoCssVariable) {
-                \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentosettings');
+                \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentocssvariables');
             }
 
             return redirect(route('magento-css-variable.index'))->with('success', 'Successfully pushed variables into Queue');
