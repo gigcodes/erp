@@ -125,6 +125,52 @@
         </div>
     </div>
 </div>
+<div id="build-process-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Build Process</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="build-process">
+                            <?php echo csrf_field(); ?>
+                            
+                            <div class="row">
+                                
+                                <div class="col-md-12">
+                                    
+                                    <div class="form-group">
+                                        <strong>Please Select Projects:</strong>
+                                        <select name="projects[]" id="build_projects" class="form-control" style="width: 100%!important" multiple>
+                                            @forelse($projects as $project)
+                                                <option value="{{ $project->id }}" selected>{{ $project->name }}</option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                    
+                                </div>                            
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input type="hidden" class="build_process_repository" name="build_process_repository" value="">
+                                        <input type="hidden" class="build_process_branch" name="build_process_branch" value="">
+                                        <button data-id=""class="btn btn-secondary update-build-process">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
@@ -422,6 +468,49 @@
                     $('.ajax-loader').hide();
                     console.log(response);
                 }
+            });
+        });
+        $("#build_projects").select2({});
+        $(document).on("click",".open-build-process-template",function(e) {
+            e.preventDefault();
+            var repository=$(this).attr("data-id");
+            var branch=$(this).attr("data-branch");
+            $(".build_process_repository").val(repository);
+            $(".build_process_branch").val(branch);
+            $('#build-process-modal').modal('show'); 
+        });
+        $(document).on('submit', 'form#build-process', function(e){
+            e.preventDefault();
+            var self = $(this);
+            let formData = new FormData(document.getElementById("build-process"));
+            var button = $(this).find('[type="submit"]');
+            $.ajax({
+                url: '{{ route("project.pullRequests.buildProcess") }}',
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                complete: function() {
+                    $("#loading-image-preview").hide();
+                },
+                success: function(response) {
+                    if(response.code=='200'){
+                        toastr["success"](response.message);
+                        $('#build-process-modal').modal('hide');
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                    $("#loading-image-preview").hide();
+                },
+                error: function(xhr, status, error) { // if error occured
+                    $("#loading-image-preview").hide();
+                },
             });
         });
     });

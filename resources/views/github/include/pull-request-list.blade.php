@@ -43,6 +43,10 @@
             <button type="button" class="btn btn-xs show-pr-error-logs" title="Error Log" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}">
                 <i class="fa fa-info-circle" style="color: #808080;"></i>
             </button>
+            <button title="Build Process"  data-id="{{$pullRequest['repository']['id']}}" data-branch="{{$pullRequest['source']}}" type="button" class="btn open-build-process-template" style="padding:1px 0px;">
+                <a href="javascript:void(0);" style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
+            </button>
+            <a title="Build Process Logs" target="_blank"  href="{{ route("project.buildProcessLogs") }}" style="color:gray;"><i class="fa fa-info-circle"></i></a>
         </div>
     </td>
 </tr>

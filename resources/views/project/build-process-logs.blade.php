@@ -62,6 +62,7 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="build-process-logs-list">
                         <tr>
                             <th width="2%">ID</th>
+                            <th width="10%">Project</th>
                             <th width="10%">Organization</th>
                             <th width="10%">Repo</th>
                             <th width="10%">Branch</th>
@@ -77,10 +78,13 @@
                             <tr data-id="{{ $responseLog->id }}">
                                 <td>{{ $responseLog->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $responseLog->organization?->name }}
+                                    {{ $responseLog->project->name ?? '' }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $responseLog->repository?->name }}
+                                    {{ $responseLog->organization->name ?? '' }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $responseLog->repository->name ?? '' }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->github_branch_state_name }}

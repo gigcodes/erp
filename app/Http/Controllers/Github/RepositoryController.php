@@ -30,6 +30,7 @@ use App\Models\DeletedGithubBranchLog;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
+use App\Models\Project;
 
 class RepositoryController extends Controller
 {
@@ -670,6 +671,7 @@ class RepositoryController extends Controller
 
     public function listAllPullRequests(Request $request)
     {
+        $projects = Project::get();
         if($request->ajax()) {
             ini_set('max_execution_time', -1);
 
@@ -713,14 +715,14 @@ class RepositoryController extends Controller
             }
 
             return response()->json([
-                'tbody' => view('github.include.pull-request-list', compact('pullRequests'))->render(),
+                'tbody' => view('github.include.pull-request-list', compact(['pullRequests','projects']))->render(),
                 'count' => count($pullRequests)
             ], 200);
         }
 
         $githubOrganizations = GithubOrganization::with('repos')->get();
 
-        return view('github.all_pull_requests', compact('githubOrganizations'));
+        return view('github.all_pull_requests', compact(['githubOrganizations','projects']));
     }
 
     public function deployNodeScrapers()
