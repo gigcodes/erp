@@ -1,12 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $magentoCssVariableModel = new App\Models\MagentoCssVariable();
+@endphp
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Magento CSS Variables ({{ $magentoCssVariables->total() }})</h2>
+        @if($errors->any())
+        <div class="row m-2">
+        {!! implode('', $errors->all('<div class="alert alert-danger">:message</div>')) !!}
+        </div>
+        @endif
+        @if (session('success'))
+        <div class="col-12">
+        <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+        @endif
+        @if (session('error'))
+        <div class="col-12">
+        <div class="alert alert-danger">{{session('error')}}</div>
+        </div>
+        @endif
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-12">
                     <form action="{{ route('magento-css-variable.index') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-3 pd-sm">
@@ -23,9 +41,35 @@
                                 </select>
                             </div>
                             <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('search_file_path')){   $search_file_path = request('search_file_path'); }
+                                    else{ $search_file_path = ''; }
+                                ?>
+                                <select name="search_file_path" id="search_file_path" class="form-control select2">
+                                    <option value="" @if($search_file_path=='') selected @endif>-- Select a file path --</option>
+                                    @forelse($file_paths as $file_path)
+                                    <option value="{{ $file_path }}" @if($search_file_path==$file_path) selected @endif>{!! $file_path !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm">
+                                <?php 
+                                    if(request('search_variable')){   $search_variable = request('search_variable'); }
+                                    else{ $search_variable = ''; }
+                                ?>
+                                <select name="search_variable" id="search_variable" class="form-control select2">
+                                    <option value="" @if($search_variable=='') selected @endif>-- Select a variable --</option>
+                                    @forelse($variables as $variable)
+                                    <option value="{{ $variable }}" @if($search_variable==$variable) selected @endif>{!! $variable !!}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
+                            <div class="col-md-1 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
@@ -36,21 +80,30 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
-                    <div class="pull-right">
+                <div class="col-12" style="margin-top: 10px;">
+                    <div class="pull-right" style="display: flex">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
+                        @if (auth()->user()->isAdmin())
+                        {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
+                            <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                                <select class="form-control projects select2" name="project_id" data-placeholder="Please select project" style="width:200px !important;">
+                                    <option value=""></option>
+                                    @foreach($projects as $projectId => $projectName)
+                                        <option value="{{ $projectId }}">{{ $projectName }}</option>
+                                    @endforeach
+                                </select>
+                            </div> 
+                            <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                                <button title="Update Values" type="submit" style="" class="btn btn-default"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                            </div> 
+                        {{ Form::close() }}
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@if ($message = Session::get('success'))
-    <div class="alert alert-success">
-        <p>{{ $message }}</p>
-    </div>
-@endif
 
 <div class="tab-content">
     <div class="tab-pane active" id="1">
@@ -66,17 +119,18 @@
                             <th width="10%">Variable</th>
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
-                            <th width="5%">Action</th>
+                            <th width="7%">Is Verified</th>
+                            <th width="6%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
                             <tr data-id="{{ $magentoCssVariable->id }}">
                                 <td>{{ $magentoCssVariable->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($magentoCssVariable->project->name) > 30 ? substr($magentoCssVariable->project->name, 0, 30).'...' :  $magentoCssVariable->project->name }}
+                                       {{ strlen($magentoCssVariable->project?->name) > 30 ? substr($magentoCssVariable->project?->name, 0, 30).'...' :  $magentoCssVariable->project?->name }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $magentoCssVariable->project->name }}
+                                        {{ $magentoCssVariable->project?->name }}
                                     </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
@@ -100,9 +154,18 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $magentoCssVariable->value }}
+                                    <button type="button" class="btn btn-xs btn-image load-value-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load value histories"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
-                                    {{ $magentoCssVariable->user->name }}
+                                    {{ $magentoCssVariable->user?->name }}
+                                </td>
+                                <td>
+                                    <span class="badge {{ $magentoCssVariable->is_verified == $magentoCssVariableModel::VERIFIED ? "badge-success" : "badge-danger"}}">{{ $magentoCssVariableModel::$verifiedOptions[$magentoCssVariable->is_verified] }}</span>
+                                    <button type="button" class="btn btn-xs btn-image load-verify-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load verify histories"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
                                 </td>
                                 <td>
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
@@ -113,9 +176,19 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
-                                    <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-value" style="padding: 0px 5px !important;">
+                                    @if (auth()->user()->isAdmin())
+                                    <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-magento-css-value" style="padding: 0px 5px !important;">
                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                     </button>
+                                    @endif
+                                    <button type="button" class="btn btn-xs btn-image load-job-logs" data-id="{{$magentoCssVariable->id}}" title="Job Logs"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
+                                    {!! Form::open(['method' => 'POST', 'class' => 'verify-form', 'route' => ['magento-css-variable.verify', $magentoCssVariable->id], 'style'=>'display:inline']) !!}
+                                    <button type="submit" title="Verify value" class="btn btn-xs delete-button" onclick="return confirmVerify(event)">
+                                        <i class="fa fa-check" style="color: #808080;"></i>
+                                    </button>
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach
@@ -131,6 +204,14 @@
 @include('magento-css-variable.partials.create-modal')
 {{-- magento-css-variable-edit --}}
 @include('magento-css-variable.partials.edit-modal')
+{{-- magento-css-value-edit --}}
+@include('magento-css-variable.partials.value-edit-modal')
+{{-- #value-histories-modal --}}
+@include('magento-css-variable.partials.value-histories-modal')
+{{-- #verify-histories-modal --}}
+@include('magento-css-variable.partials.verify-histories-modal')
+{{-- #job-logs-modal --}}
+@include('magento-css-variable.partials.job-logs-modal')
 
 <script type="text/javascript">
     $('.select2').select2();
@@ -140,6 +221,15 @@
         var confirmDelete = confirm("Are you sure you want to delete this item?");
         if (confirmDelete) {
             event.target.closest('.delete-form').submit();
+        }
+        return false;
+    }
+
+    function confirmVerify(event) {
+        event.preventDefault();
+        var confirmVerify = confirm("Are you sure you want to verify this item?");
+        if (confirmVerify) {
+            event.target.closest('.verify-form').submit();
         }
         return false;
     }
@@ -164,6 +254,111 @@
                 $("#magento-css-variable-edit-form #value").val(response.data.value);
                 $("#magento-css-variable-edit").modal("show");
             }).fail(function(response) {});
+        });
+
+        $(".btn-update-magento-css-value").on('click', function(e) {
+            var ajaxUrl = "{{ route('magento-css-variable.edit', ['magento_css_variable' => ':id']) }}";
+            ajaxUrl = ajaxUrl.replace(':id', $(this).data("id"));
+
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: ajaxUrl,
+            }).done(function(response) {
+                $("#magento-css-value-edit-form #id").val(response.data.id);
+                $("#magento-css-value-edit-form #file_path").val(response.data.file_path);
+                $("#magento-css-value-edit-form #variable").val(response.data.variable);
+                $("#magento-css-value-edit-form #value").val(response.data.value);
+                $("#magento-css-value-edit").modal("show");
+            }).fail(function(response) {});
+        });
+
+        // Load value Histories
+        $(document).on('click', '.load-value-histories', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.value-histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.old_value != null) ? v.old_value : ' - ' } </td>
+                                        <td> ${(v.new_value != null) ? v.new_value : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#value-histories-list").find(".value-histories-list-view").html(html);
+                        $("#value-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load verify Histories
+        $(document).on('click', '.load-verify-histories', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.verify-histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.value != null) ? v.value : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verify-histories-list").find(".verify-histories-list-view").html(html);
+                        $("#verify-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load job logs
+        $(document).on('click', '.load-job-logs', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.job-logs', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.command != null) ? v.command : ' - ' } </td>
+                                        <td> ${(v.message != null) ? v.message : ' - ' } </td>
+                                        <td> ${(v.status != null) ? v.status : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#job-logs-list").find(".job-logs-list-view").html(html);
+                        $("#job-logs-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
         });
     });
 

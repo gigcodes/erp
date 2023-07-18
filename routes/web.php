@@ -612,8 +612,13 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
 
-    Route::resource('magento-css-variable', MagentoCssVariableController::class);
+    Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
+    Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
+    Route::get('/magento-css-variable/job-logs/{id}', [MagentoCssVariableController::class, 'jobLogs'])->name("magento-css-variable.job-logs");
     Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
+    Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
+    Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
+    Route::resource('magento-css-variable', MagentoCssVariableController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
