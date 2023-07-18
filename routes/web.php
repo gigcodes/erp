@@ -613,6 +613,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
+    Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 });
 /** redis Job Module */

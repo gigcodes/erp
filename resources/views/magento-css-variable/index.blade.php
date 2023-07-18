@@ -4,6 +4,21 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Magento CSS Variables ({{ $magentoCssVariables->total() }})</h2>
+        @if($errors->any())
+        <div class="row m-2">
+        {!! implode('', $errors->all('<div class="alert alert-danger">:message</div>')) !!}
+        </div>
+        @endif
+        @if (session('success'))
+        <div class="col-12">
+        <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+        @endif
+        @if (session('error'))
+        <div class="col-12">
+        <div class="alert alert-danger">{{session('error')}}</div>
+        </div>
+        @endif
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-12">
@@ -63,8 +78,23 @@
                     </form>
                 </div>
                 <div class="col-12" style="margin-top: 10px;">
-                    <div class="pull-right">
+                    <div class="pull-right" style="display: flex">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
+                        @if (auth()->user()->isAdmin())
+                        {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
+                            <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                                <select class="form-control projects select2" name="project_id" data-placeholder="Please select project" style="width:200px !important;">
+                                    <option value=""></option>
+                                    @foreach($projects as $projectId => $projectName)
+                                        <option value="{{ $projectId }}">{{ $projectName }}</option>
+                                    @endforeach
+                                </select>
+                            </div> 
+                            <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                                <button title="Update Values" type="submit" style="" class="btn btn-default"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                            </div> 
+                        {{ Form::close() }}
+                        @endif
                     </div>
                 </div>
             </div>
@@ -142,9 +172,11 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
+                                    @if (auth()->user()->isAdmin())
                                     <button type="button" title="Update Value" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-update-magento-css-value" style="padding: 0px 5px !important;">
                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                     </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

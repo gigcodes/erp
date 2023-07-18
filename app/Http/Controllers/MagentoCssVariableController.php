@@ -223,4 +223,19 @@ class MagentoCssVariableController extends Controller
         }
     }
 
+    public function updateValuesForProject(Request $request)
+    {
+        if($request->has('project_id') && $request->project_id != ''){
+            $projectId = $request->project_id;
+            $magentoCssVariables = MagentoCssVariable::where('project_id', $projectId)->get();
+            foreach($magentoCssVariables as $magentoCssVariable) {
+                \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentosettings');
+            }
+
+            return redirect(route('magento-css-variable.index'))->with('success', 'Successfully pushed variables into Queue');
+        }
+        
+        return redirect(route('magento-css-variable.index'))->with('error', 'Please select the project!');
+    }
+
 }
