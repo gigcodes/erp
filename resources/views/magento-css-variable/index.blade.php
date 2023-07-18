@@ -122,7 +122,7 @@
                             <th width="10%">Variable</th>
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
-                            <th width="5%">Action</th>
+                            <th width="6%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
                             <tr data-id="{{ $magentoCssVariable->id }}">
@@ -177,6 +177,9 @@
                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                     </button>
                                     @endif
+                                    <button type="button" class="btn btn-xs btn-image load-job-logs" data-id="{{$magentoCssVariable->id}}" title="Job Logs"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -196,6 +199,8 @@
 @include('magento-css-variable.partials.value-edit-modal')
 {{-- #value-histories-modal --}}
 @include('magento-css-variable.partials.value-histories-modal')
+{{-- #job-logs-modal --}}
+@include('magento-css-variable.partials.job-logs-modal')
 
 <script type="text/javascript">
     $('.select2').select2();
@@ -272,6 +277,35 @@
                         });
                         $("#value-histories-list").find(".value-histories-list-view").html(html);
                         $("#value-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load job logs
+        $(document).on('click', '.load-job-logs', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.job-logs', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.command != null) ? v.command : ' - ' } </td>
+                                        <td> ${(v.message != null) ? v.message : ' - ' } </td>
+                                        <td> ${(v.status != null) ? v.status : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#job-logs-list").find(".job-logs-list-view").html(html);
+                        $("#job-logs-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

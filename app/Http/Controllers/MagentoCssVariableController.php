@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\MagentoCssVariableJobLog;
 use App\MagentoCssVariableValueHistory;
 use App\Models\MagentoCssVariable;
 use App\Models\Project;
@@ -126,6 +127,8 @@ class MagentoCssVariableController extends Controller
 
         $magentoCssVariable = MagentoCssVariable::where('id', $id)->firstOrFail();
 
+        $oldValue = $magentoCssVariable->value;
+
         // Save
         $magentoCssVariable->project_id = $data['project_id'];
         $magentoCssVariable->filename = $data['filename'];
@@ -135,6 +138,16 @@ class MagentoCssVariableController extends Controller
         // $magentoCssVariable->create_by = Auth::user()->id;
         $magentoCssVariable->save();
 
+        // Maintain history here
+        if ($oldValue != $magentoCssVariable->value) {
+            $history = new MagentoCssVariableValueHistory();
+            $history->magento_css_variable_id = $magentoCssVariable->id;
+            $history->old_value = $oldValue;
+            $history->new_value = $magentoCssVariable->value;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+        }
+        
         return response()->json(
             [
                 'code' => 200,
@@ -157,6 +170,20 @@ class MagentoCssVariableController extends Controller
     {
         $datas = MagentoCssVariableValueHistory::with(['user'])
             ->where('magento_css_variable_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function jobLogs($id)
+    {
+        $datas = MagentoCssVariableJobLog::where('magento_css_variable_id', $id)
             ->latest()
             ->get();
 
@@ -204,7 +231,13 @@ class MagentoCssVariableController extends Controller
 
         \Log::info("End Magento Css Variable Update Vaule");
         if(!isset($output[0])){
-           
+           // Maintain Error Log here in new table. 
+            MagentoCssVariableJobLog::create([
+                'magento_css_variable_id' => $magentoCssVariable->id,
+                'command' => $cmd,
+                'message' => 'The response is not found!', 
+                'status' => 'Error', 
+            ]);
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
         }
         $response=json_decode($output[0]);
@@ -213,12 +246,26 @@ class MagentoCssVariableController extends Controller
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
+            // Maintain Success Log here in new table. 
+            MagentoCssVariableJobLog::create([
+                'magento_css_variable_id' => $magentoCssVariable->id,
+                'command' => $cmd,
+                'message' => $message, 
+                'status' => 'Success', 
+            ]);
             return response()->json(['code' => 200, 'message' => $message]);
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
+            // Maintain Error Log here in new table. 
+            MagentoCssVariableJobLog::create([
+                'magento_css_variable_id' => $magentoCssVariable->id,
+                'command' => $cmd,
+                'message' => $message, 
+                'status' => 'Error', 
+            ]);
             return response()->json(['code' => 500, 'message' => $message]);
         }
     }
@@ -234,7 +281,7 @@ class MagentoCssVariableController extends Controller
 
             return redirect(route('magento-css-variable.index'))->with('success', 'Successfully pushed variables into Queue');
         }
-        
+
         return redirect(route('magento-css-variable.index'))->with('error', 'Please select the project!');
     }
 
