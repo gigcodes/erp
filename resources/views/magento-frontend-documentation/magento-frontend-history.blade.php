@@ -12,6 +12,7 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
+                                <th width="50%">Location</th>
                                 <th width="50%">Admin Configuration</th>
                                 <th width="20%">Frontend Configuration</th>
                                 <th width="20%">Updated By</th>                            </tr>
