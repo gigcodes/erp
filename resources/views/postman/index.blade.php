@@ -200,6 +200,11 @@
             <th style="width: 5%;overflow-wrap: anywhere;">Request type</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Request Response</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Response Code</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Grumphp Errors</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Magento API Standards</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Swagger DocBlock</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Used for</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Used in</th>
             <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
           </tr>
         </thead>
@@ -257,6 +262,26 @@
             <td class="expand-row-msg" data-name="response_code" data-id="{{$postman->id}}">
               <span class="show-short-response_code-{{$postman->id}}">{{ Str::limit($postman->response_code  , 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
+            </td>
+            <td class="expand-row-msg" data-name="grumphp_errors" data-id="{{$postman->id}}">
+              <span class="show-short-grumphp_errors-{{$postman->id}}">{{ Str::limit($postman->grumphp_errors  , 8, '..')}}</span>
+              <span style="word-break:break-all;" class="show-full-grumphp_errors-{{$postman->id}} hidden">{{$postman->grumphp_errors}}</span>
+            </td>
+            <td class="expand-row-msg" data-name="magento_api_standards" data-id="{{$postman->id}}">
+              <span class="show-short-magento_api_standards-{{$postman->id}}">{{ Str::limit($postman->magento_api_standards  , 15, '..')}}</span>
+              <span style="word-break:break-all;" class="show-full-magento_api_standards-{{$postman->id}} hidden">{{$postman->magento_api_standards}}</span>
+            </td>
+            <td class="expand-row-msg" data-name="swagger_doc_block" data-id="{{$postman->id}}">
+              <span class="show-short-swagger_doc_block-{{$postman->id}}">{{ Str::limit($postman->swagger_doc_block  , 15, '..')}}</span>
+              <span style="word-break:break-all;" class="show-full-swagger_doc_block-{{$postman->id}} hidden">{{$postman->swagger_doc_block}}</span>
+            </td>
+            <td class="expand-row-msg" data-name="used_for" data-id="{{$postman->id}}">
+              <span class="show-short-used_for-{{$postman->id}}">{{ Str::limit($postman->used_for  , 5, '..')}}</span>
+              <span style="word-break:break-all;" class="show-full-used_for-{{$postman->id}} hidden">{{$postman->used_for}}</span>
+            </td>
+            <td class="expand-row-msg" data-name="user_in" data-id="{{$postman->id}}">
+              <span class="show-short-user_in-{{$postman->id}}">{{ Str::limit($postman->user_in  , 5, '..')}}</span>
+              <span style="word-break:break-all;" class="show-full-user_in-{{$postman->id}} hidden">{{$postman->user_in}}</span>
             </td>
             <td>
               <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$postman->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -691,6 +716,39 @@
                     <input type="text" name="end_point" value="" class="form-control" id="end_point" placeholder="Enter end point">
                   </div>
                 </div>
+
+                <div class="form-group col-md-12">
+                  <div class="form-group col-md-6">
+                    <label for="grumphp_errors">Grumphp Errors</label>
+                    <input type="text" name="grumphp_errors" value="" class="form-control" id="grumphp_errors" placeholder="Enter Grumphp Errors">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="magento_api_standards">Magento API Standards</label>
+                    <input type="text" name="magento_api_standards" value="" class="form-control" id="magento_api_standards" placeholder="Enter Magento API Standards">
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <div class="form-group col-md-6">
+                    <label for="swagger_doc_block">Swagger DocBlock</label>
+                    <input type="text" name="swagger_doc_block" value="" class="form-control" id="swagger_doc_block" placeholder="Enter Swagger DocBlock">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="used_for">Used for</label>
+                    <input type="text" name="used_for" value="" class="form-control" id="used_for" placeholder="Enter Used for">
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <div class="form-group col-md-6">
+                    <label for="user_in">Used in</label>
+                    <select name="user_in" value="" class="form-control" id="user_in">
+                      <option value="ERP">ERP</option>
+                      <option value="Mobile">Mobile</option>
+                      <option value="Both">Both</option>
+                      <option value="Unknown">Unknown</option>
+                    </select>
+                  </div>
+                </div>
+
               </div>
             </form>
           </div>
