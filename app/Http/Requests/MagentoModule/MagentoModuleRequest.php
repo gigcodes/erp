@@ -41,7 +41,6 @@ class MagentoModuleRequest extends FormRequest
             'is_third_party_js' => 'required',
             'is_js_css' => 'required',
             'magneto_location_id'=> 'required',
-            'return_type_error_status'=> 'required',
         ];
     }
 
@@ -50,7 +49,6 @@ class MagentoModuleRequest extends FormRequest
         return [
             'module_category_id.required' => __('validation.required', ['attribute' => 'Module Category']),
             'magneto_location_id.required' => __('validation.required'),
-            'return_type_error_status.required' => __('validation.required'),
             'module.required' => __('validation.required', ['attribute' => 'module']),
             'module.max' => __('validation.max', ['max' => 150, 'attribute' => 'Module']),
             'module_description.required' => __('validation.required', ['attribute' => 'Module Description']),

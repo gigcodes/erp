@@ -198,26 +198,7 @@
     </div>
 
     <div class="table-responsive mt-3 pr-2 pl-2">
-        @if ($message = Session::get('success'))
-            <div class="col-lg-12">
-                <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                </div>
-            </div>
-        @endif
 
-        @if ($errors->any())
-            <div class="col-lg-12">
-                <div class="alert alert-danger">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
         <div class="erp_table_data">
             <table class="table table-bordered" id="magento_frontend_docs_table">
                 <thead>
@@ -228,7 +209,8 @@
                         <th> Location </th>
                         <th> Admin Configuration </th>
                         <th> Frontend configuration </th>    
-                        <th> File Name </th>                 
+                        <th> File Name </th>     
+                        <th> Action </th>              
                     </tr>
                 </thead>
                 <tbody>
@@ -238,8 +220,34 @@
 
     </div>
 
+
+    <div id="moduleEditModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form id="magento_module_edit_form" method="POST">
+                    @csrf
+                    {!! Form::hidden('id', null, ['id'=>'id']) !!}
+                    <div class="modal-header">
+                        <h4 class="modal-title">Update Store Color</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        @include('magento-frontend-documentation.partials.edit-form')
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
+    @include('magento-frontend-documentation.magento-frontend-history')
+
  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
@@ -314,7 +322,7 @@
                             }
 
                             var selectedCategoryId = row['store_website_category_id'];
-                            var categoriesHtml = '<select id="module_category_id" class="form-control edit_mm" required="required" name="module_category_id">';
+                            var categoriesHtml = '<select id="store_website_category_id" class="form-control edit_mm" required="required" name="store_website_category_id">';
                             categoriesHtml += '<option value="" selected>Select Module Category</option>'; // Add default option
 
                             categories.forEach(function(category) {
@@ -379,6 +387,18 @@
                         render: function(data, type, row, meta) {
                             data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
+                        }
+                    },
+                    {
+                        render: function(data, type, row, meta) {
+
+                            let edit_button =
+                                `<button type="button" class="btn btn-xs btn-image edit-module ml-2" data-type="general" data-id="${row['id']}" title="Edit messages"> <img src="/images/edit.png" alt="" style="cursor: default;"> </button>`;
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                               
+                            return `<div class="flex justify-left items-center">${edit_button} ${remark_history_button} </div>`;
+        
                         }
                     },
 
@@ -485,8 +505,7 @@
                 }
             });
         });
-
-                       
+                
         $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
@@ -494,6 +513,152 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
+
+     //edit module
+     $(document).on('click', '.edit-module', function() {
+        var moduleId = $(this).data("id");
+        var url = "{{ route('magento_frontend_edit', ['id' => ':id']) }}";
+        url = url.replace(':id', moduleId);    
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "GET",
+            url: url,
+        }).done(function(response) {
+            console.log(response);
+            $("#magento_module_edit_form #id").val(response.data.id);
+            $("#magento_module_edit_form #location").val(response.data.location);
+            $("#magento_module_edit_form #admin_configuration").val(response.data.admin_configuration);
+            $("#magento_module_edit_form #frontend_configuration").val(response.data.frontend_configuration);
+            $("#moduleEditModal").modal("show");
+        }).fail(function (response) {
+            $("#loading-image-preview").hide();
+            console.log("Sorry, something went wrong");
+        });
+    });
+
+
+    $(document).on('change', '.edit_mm', function() {
+            var  column = $(this).attr('name');
+            var value = $(this).val();
+            var data_id = $(this).parents('tr').find('.data_id').val();
+            
+            $.ajax({
+                type: "POST",
+                url: "{{route('magento_frontend.update.option')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    columnName : column,
+                    data : value,
+                    id : data_id
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    toastr['success'](response.message);
+                }else{
+                    $("#loading-image").hide();
+                    toastr['error'](response.message);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                console.log("failed");
+                toastr['error'](response.message);
+            });
+        });
+
+
+        $(document).on('submit', '#magento_module_edit_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("magento_module_edit_form"));
+        var magento_module_id = $('#magento_module_edit_form #id').val();
+        console.log(formData, magento_module_id);
+        var button = $(this).find('[type="submit"]');
+        console.log("#magento_module_edit_form submit");
+        $.ajax({
+            url: '{{ route("magento_frontend.update", '') }}/' + magento_module_id,
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Update');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#moduleCreateModal #magento_module_edit_form').find('.error-help-block').remove();
+                $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
+                $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
+                toastr["success"](response.message);
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
+
+
+
+    $(document).on('click', '.load-frontend-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: '{{ route("magentofrontend_histories.show", '') }}/' + id,
+
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#magneto-frontend-historylist").modal("show");
+
+                    if (response) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.location} </td>
+                                        <td> ${v.admin_configuration} </td>
+                                        <td> ${v.frontend_configuration} </td>
+                                        <td> ${v.user.name} </td>
+                                    </tr>`;
+                        });
+                        $("#magneto-frontend-historylist").find(".magneto-historylist-view").html(html);
+                        $("#magneto-frontend-historylist").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
 
     </script>
 
