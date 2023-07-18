@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $magentoCssVariableModel = new App\Models\MagentoCssVariable();
+@endphp
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Magento CSS Variables ({{ $magentoCssVariables->total() }})</h2>
@@ -102,12 +105,6 @@
     </div>
 </div>
 
-@if ($message = Session::get('success'))
-    <div class="alert alert-success">
-        <p>{{ $message }}</p>
-    </div>
-@endif
-
 <div class="tab-content">
     <div class="tab-pane active" id="1">
         <div class="row" style="margin:10px;">
@@ -122,6 +119,7 @@
                             <th width="10%">Variable</th>
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
+                            <th width="7%">Is Verified</th>
                             <th width="6%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
@@ -164,6 +162,12 @@
                                     {{ $magentoCssVariable->user?->name }}
                                 </td>
                                 <td>
+                                    <span class="badge {{ $magentoCssVariable->is_verified == $magentoCssVariableModel::VERIFIED ? "badge-success" : "badge-danger"}}">{{ $magentoCssVariableModel::$verifiedOptions[$magentoCssVariable->is_verified] }}</span>
+                                    <button type="button" class="btn btn-xs btn-image load-verify-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load verify histories"> 
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
+                                </td>
+                                <td>
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
                                         <i class="fa fa-pencil"></i>
                                     </button>
@@ -180,6 +184,11 @@
                                     <button type="button" class="btn btn-xs btn-image load-job-logs" data-id="{{$magentoCssVariable->id}}" title="Job Logs"> 
                                         <i class="fa fa-info-circle"></i>
                                     </button>
+                                    {!! Form::open(['method' => 'POST', 'class' => 'verify-form', 'route' => ['magento-css-variable.verify', $magentoCssVariable->id], 'style'=>'display:inline']) !!}
+                                    <button type="submit" title="Verify value" class="btn btn-xs delete-button" onclick="return confirmVerify(event)">
+                                        <i class="fa fa-check" style="color: #808080;"></i>
+                                    </button>
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach
@@ -199,6 +208,8 @@
 @include('magento-css-variable.partials.value-edit-modal')
 {{-- #value-histories-modal --}}
 @include('magento-css-variable.partials.value-histories-modal')
+{{-- #verify-histories-modal --}}
+@include('magento-css-variable.partials.verify-histories-modal')
 {{-- #job-logs-modal --}}
 @include('magento-css-variable.partials.job-logs-modal')
 
@@ -210,6 +221,15 @@
         var confirmDelete = confirm("Are you sure you want to delete this item?");
         if (confirmDelete) {
             event.target.closest('.delete-form').submit();
+        }
+        return false;
+    }
+
+    function confirmVerify(event) {
+        event.preventDefault();
+        var confirmVerify = confirm("Are you sure you want to verify this item?");
+        if (confirmVerify) {
+            event.target.closest('.verify-form').submit();
         }
         return false;
     }
@@ -277,6 +297,34 @@
                         });
                         $("#value-histories-list").find(".value-histories-list-view").html(html);
                         $("#value-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load verify Histories
+        $(document).on('click', '.load-verify-histories', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-css-variable.verify-histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.value != null) ? v.value : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#verify-histories-list").find(".verify-histories-list-view").html(html);
+                        $("#verify-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\MagentoCssVariableJobLog;
 use App\MagentoCssVariableValueHistory;
+use App\MagentoCssVariableVerifyHistory;
 use App\Models\MagentoCssVariable;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -140,6 +141,10 @@ class MagentoCssVariableController extends Controller
 
         // Maintain history here
         if ($oldValue != $magentoCssVariable->value) {
+            // If value change then is_verified shoule be 0
+            $magentoCssVariable->is_verified = 0;
+            $magentoCssVariable->save();
+
             $history = new MagentoCssVariableValueHistory();
             $history->magento_css_variable_id = $magentoCssVariable->id;
             $history->old_value = $oldValue;
@@ -164,6 +169,39 @@ class MagentoCssVariableController extends Controller
 
         return redirect()->route('magento-css-variable.index')
             ->with('success', 'Magento CSS variable deleted successfully');
+    }
+
+    public function verify($id)
+    {
+        $magentoCssVariable = MagentoCssVariable::findOrFail($id);
+        $magentoCssVariable->is_verified = 1;
+        $magentoCssVariable->save();
+
+        // Maintain history here
+        $history = new MagentoCssVariableVerifyHistory();
+        $history->magento_css_variable_id = $magentoCssVariable->id;
+        $history->value = $magentoCssVariable->value;
+        $history->is_verified = 1;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return redirect()->route('magento-css-variable.index')
+            ->with('success', 'Magento CSS variable verified successfully');
+    }
+
+    public function verifyHistories($id)
+    {
+        $datas = MagentoCssVariableVerifyHistory::with(['user'])
+            ->where('magento_css_variable_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function valueHistories($id)
@@ -209,6 +247,10 @@ class MagentoCssVariableController extends Controller
         $value=$request->value;
         // Update new value in DB
         $magentoCssVariable->value = $value;
+        if($oldValue != $value) {
+            // If value change then is_verified shoule be 0
+            $magentoCssVariable->is_verified = 0;
+        }
         $magentoCssVariable->save();
         
         // Maintain history here

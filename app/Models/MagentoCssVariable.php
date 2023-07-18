@@ -17,6 +17,15 @@ class MagentoCssVariable extends Model
         'variable',
         'value',
         'create_by',
+        'is_verified'
+    ];
+
+    const VERIFIED = 1;
+    const NOTVERIFIED = 0;
+
+    public static $verifiedOptions = [
+        self::VERIFIED => 'Yes',
+        self::NOTVERIFIED  => 'No',
     ];
 
     public function project()
