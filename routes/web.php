@@ -412,6 +412,7 @@ use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectThemeController;
 use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 
@@ -623,6 +624,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
+
+    Route::resource('project-theme', ProjectThemeController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {

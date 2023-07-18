@@ -262,7 +262,7 @@ class PostmanRequestCreateController extends Controller
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
             $postman->request_type = $request->request_types;
-            $postman->request_url = $request->request_url[0];
+            $postman->request_url = ! empty($request->request_url) ? $request->request_url[0] : "";
             $postman->params = $request->params;
             $postman->authorization_type = $request->authorization_type;
             $postman->authorization_token = $request->authorization_token;
