@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\StoreWebsiteCategory;
+use App\SiteDevelopmentCategory;
+
 
 class MagentoFrontendDocumentation extends Model
 {
@@ -15,6 +16,6 @@ class MagentoFrontendDocumentation extends Model
 
     public function storeWebsiteCategory()
     {
-        return $this->belongsTo(StoreWebsiteCategory::class, 'store_website_category_id', 'id');
+        return $this->belongsTo(SiteDevelopmentCategory::class, 'store_website_category_id', 'id');
     }
 }

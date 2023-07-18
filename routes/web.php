@@ -611,6 +611,10 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+    Route::get('/magento_frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
+    Route::post('/magento_frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
+    Route::post('/magento_frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
+    Route::get('magento_frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
