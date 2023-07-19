@@ -34,13 +34,14 @@ class ThemeStructureController extends Controller
     private function buildTree($parentID = null)
     {
         $tree = [];
-        $items = ThemeStructure::where('parent_id', $parentID)->orderBy('position')->get(['id', 'name', 'is_file']);
+        $items = ThemeStructure::where('parent_id', $parentID)->orderBy('position')->get(['id', 'name', 'is_file', 'is_root']);
 
         foreach ($items as $item) {
             $node = [
                 'id' => $item->id,
                 'parent_id' => $parentID ?: '#',
                 'text' => $item->name,
+                'is_root' => $item->is_root
             ];
 
             if ($item->is_file) {
@@ -80,6 +81,23 @@ class ThemeStructureController extends Controller
         $file = ThemeFile::create($validatedData);
 
         return response()->json($file);
+    }
+
+    public function deleteItem(Request $request)
+    {
+        $itemId = $request->input('id');
+        $item = ThemeStructure::find($itemId);
+
+        if ($item) {
+            if ($item->is_root) {
+                return response()->json(['message' => 'Root folder cannot be deleted'], 403);
+            }
+
+            $item->delete();
+            return response()->json(['message' => 'Item deleted successfully']);
+        }
+
+        return response()->json(['message' => 'Item not found'], 404);
     }
 
     public function destroy($id)

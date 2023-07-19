@@ -43,6 +43,16 @@
                                 'action': function () {
                                     createFile(node);
                                 }
+                            },
+                            'delete': {
+                                'label': 'Delete',
+                                'action': function () {
+                                    if (node.original.is_root) {
+                                        alert('Root folder cannot be deleted.');
+                                    } else if (confirm('Are you sure you want to delete this item?')) {
+                                        deleteItem(node.id);
+                                    }
+                                }
                             }
                         };
 
@@ -55,6 +65,24 @@
                 }
             });
         });
+
+        function deleteItem(itemId) {
+            $.ajax({
+                url: '/theme-structure/delete-item',
+                type: 'POST',
+                data: { id: itemId }, // Pass the item ID to delete
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('Item deleted successfully:', response);
+                    reloadTree(); // Reload the JSTree after deleting the item
+                },
+                error: function(error) {
+                    console.log('Error deleting item:', error);
+                }
+            });
+        }
 
         function reloadTree() {
             $.ajax({
