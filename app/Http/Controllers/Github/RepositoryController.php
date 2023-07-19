@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use App\BuildProcessHistory;
 use Artisan;
 use DateTime;
 use Exception;
@@ -700,6 +701,27 @@ class RepositoryController extends Controller
                             'user' => $latestGithubPrActivity->user,
                             'event' => $latestGithubPrActivity->event,
                         ];
+                    }
+
+                    // check build process logs
+                    $totalBuildProcessHistoryCount = BuildProcessHistory::where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('github_branch_state_name', $pullRequest['source'])
+                        ->count();
+
+                    $totalBuildProcessSuccessHistoryCount = BuildProcessHistory::where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('github_branch_state_name', $pullRequest['source'])
+                        ->where('status', 'SUCCESS')
+                        ->count();
+
+                    $pullRequests[$key]['build_process_history_status'] = "";
+                    if ($totalBuildProcessHistoryCount > 0) {
+                        if ($totalBuildProcessHistoryCount == $totalBuildProcessSuccessHistoryCount) {
+                            $pullRequests[$key]['build_process_history_status'] = "Success";
+                        } else {
+                            $pullRequests[$key]['build_process_history_status'] = "Danger";
+                        }
                     }
                 }
                 $pullRequests = array_map(
