@@ -1871,4 +1871,10 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 200, 'message' => 'Clear Cloudflare Caches Successfully']);
 
     }
+
+    public function versionNumbers()
+    {
+        $storeWebsites = StoreWebsite::all();
+        return view('storewebsite::version-number', compact('storeWebsites'));
+    }
 }
