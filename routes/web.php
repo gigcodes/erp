@@ -375,6 +375,7 @@ use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
+use App\Http\Controllers\ThemeStructureController;
 
 Auth::routes();
 
@@ -594,6 +595,11 @@ Route::middleware('auth')->group(function () {
     // Projects
    // Route::resource('project', ProjectController::class);
     
+    Route::get('theme-structure',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
+    Route::get('/theme-structure/reload-tree', [ThemeStructureController::class, 'reloadTree']);
+    Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
+    Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
+
     Route::get('project',[ProjectController::class, 'index'])->name('project.index');
     Route::post('project',[ProjectController::class, 'store'])->name('project.store');
     Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
