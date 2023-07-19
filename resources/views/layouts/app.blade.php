@@ -4190,6 +4190,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{ route('project.index') }}">Projects</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project-theme.index') }}">Project Themes</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('magento-css-variable.index') }}">Magento CSS Variables</a>
                                             </li>
                                         </ul>

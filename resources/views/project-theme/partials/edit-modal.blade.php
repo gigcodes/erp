@@ -1,12 +1,12 @@
-<div id="project-edit" class="modal fade" role="dialog">
+<div id="project-theme-edit" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
             
-            <form id="project-edit-form" class="form mb-15" >
+            <form id="project-theme-edit-form" class="form mb-15" >
             @csrf
             <div class="modal-header">
-                <h4 class="modal-title">Edit Project</h4>
+                <h4 class="modal-title">Edit Project Theme</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             
@@ -14,39 +14,16 @@
                 <div class="form-group">
                     <strong>Project Name :</strong>
                     {!! Form::hidden('id', null, ['id' => 'id', 'class' => 'form-control']) !!}
-                    {!! Form::text('name', null, ['placeholder' => 'Project Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
-                </div>
-                <div class="form-group">
-                    <strong>Project Type:</strong>
-                    <select name="project_type" id="project_type" class="form-control select2" style="width: 100%!important">
-                        <option value="" selected disabled>-- Select a project type --</option>
-                        @forelse($projecttype as $id => $type)
-                            <option value="{{ $type }}">{{ $type }}</option>
+                    <select name="project_id" id="project_id" class="form-control select2" style="width: 100%!important">
+                        @forelse($projects as $id => $project)
+                            <option value="{{ $id }}">{{ $project }}</option>
                         @empty
                         @endforelse
                     </select>
                 </div>
                 <div class="form-group">
-                    <strong>Job Name :</strong>
-                    {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
-                </div>
-                <div class="form-group">
-                    <strong>Store Website:</strong>
-                    <select name="store_website_id[]" id="assign-new-website" class="form-control select2" style="width: 100%!important" multiple>
-                        @forelse($store_websites as $website_id => $website_name)
-                            <option value="{{ $website_id }}">{{ $website_name }}</option>
-                        @empty
-                        @endforelse
-                    </select>
-                </div>
-                <div class="form-group">
-                    <strong>Serverenv:</strong>
-                    <select name="serverenv" id="serverenv" class="form-control select2" style="width: 100%!important">
-                        @forelse($serverenvs as $id => $serverenvs)
-                            <option value="{{ $serverenvs }}">{{ $serverenvs }}</option>
-                        @empty
-                        @endforelse
-                    </select>
+                    <strong>Theme Name :</strong>
+                    {!! Form::text('name', null, ['placeholder' => 'Theme Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
                 </div>
             </div>
             
@@ -61,14 +38,17 @@
 @push('scripts')
     <script>
 
-    $(document).on('submit', '#project-edit-form', function(e){
+    $(document).on('submit', '#project-theme-edit-form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("project-edit-form"));
+        let formData = new FormData(document.getElementById("project-theme-edit-form"));
+        formData.append('_method', 'PUT');
         var button = $(this).find('[type="submit"]');
-        var id = $("#project-edit-form #id").val();
+        var ajaxUrl = "{{ route('project-theme.update', ['project_theme' => ':id']) }}";
+        ajaxUrl = ajaxUrl.replace(':id', $("#project-theme-edit-form #id").val());
+
         $.ajax({
-            url: '{{ route("project.update", "") }}/' + id,
+            url: ajaxUrl,
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',

@@ -262,7 +262,7 @@ class PostmanRequestCreateController extends Controller
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
             $postman->request_type = $request->request_types;
-            $postman->request_url = $request->request_url[0];
+            $postman->request_url = ! empty($request->request_url) ? $request->request_url[0] : "";
             $postman->params = $request->params;
             $postman->authorization_type = $request->authorization_type;
             $postman->authorization_token = $request->authorization_token;
@@ -276,6 +276,12 @@ class PostmanRequestCreateController extends Controller
             $postman->method_name = $request->method_name;
             $postman->remark = $request->remark;
             $postman->end_point = $request->end_point;
+
+            $postman->grumphp_errors = $request->grumphp_errors;
+            $postman->magento_api_standards = $request->magento_api_standards;
+            $postman->swagger_doc_block = $request->swagger_doc_block;
+            $postman->used_for = $request->used_for;
+            $postman->user_in = $request->user_in;
             $postman->save();
 
             //History store
@@ -299,6 +305,13 @@ class PostmanRequestCreateController extends Controller
             $postmanH->user_permission = ! empty($request->user_permission) ? implode(',', $request->user_permission) . $created_user_permission : $created_user_permission;
             $postmanH->remark = $request->remark;
             $postmanH->end_point = $request->end_point;
+
+            $postmanH->grumphp_errors = $request->grumphp_errors;
+            $postmanH->magento_api_standards = $request->magento_api_standards;
+            $postmanH->swagger_doc_block = $request->swagger_doc_block;
+            $postmanH->used_for = $request->used_for;
+            $postmanH->user_in = $request->user_in;
+
             $postmanH->save();
 
             if (is_array($request->request_url)) {

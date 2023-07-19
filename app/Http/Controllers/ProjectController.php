@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectServerenv;
+use App\Models\ProjectType;
 use App\StoreWebsite;
 use App\BuildProcessStatusHistories;
 use Illuminate\Http\Request;
@@ -40,10 +41,11 @@ class ProjectController extends Controller
 
         $store_websites = StoreWebsite::get()->pluck('title', 'id');
         $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
+        $projecttype = ProjectType::get()->pluck('name', 'id');
         $repositories = \App\Github\GithubRepository::All();
         $organizations = \App\Github\GithubOrganization::All();
         
-        return view('project.index', compact('projects', 'store_websites','repositories', 'organizations', 'serverenvs'));
+        return view('project.index', compact('projects', 'store_websites','repositories', 'organizations', 'serverenvs','projecttype'));
     }
 
     public function getGithubRepos()
@@ -148,6 +150,11 @@ class ProjectController extends Controller
         $repository_id =$request->build_process_repository;
         $branch_name = $request->build_process_branch;
         $projects=$request->projects;
+        if(auth()->user()){
+            $user_id=auth()->user()->id;
+        }else{
+            $user_id=6;
+        }
         if($repository_id==''){
             return response()->json(['code' => 500, 'message' => 'Repository data can not be empty!']);
         }
@@ -157,6 +164,10 @@ class ProjectController extends Controller
         }
         if($branch_name==''){
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
+        }
+        if($request->has("project_type") && $request->project_type!=''){
+            $project_type=$request->project_type;
+            $projects=Project::where('project_type',$project_type)->get()->pluck('id')->toArray();
         }
         if(empty($projects)){
             return response()->json(['code' => 500, 'message' => 'Please select projects for build process!']);
@@ -172,7 +183,7 @@ class ProjectController extends Controller
                 if($job_name=='' || $serverenv==''){
                     $record = [
                         'store_website_id' => $proj, 
-                        'created_by' =>auth()->user()->id, 
+                        'created_by' =>$user_id, 
                         'text' => 'Job name and serverenv can not be empty!', 
                         'build_name' => '', 
                         'build_number' => '', 
@@ -201,7 +212,7 @@ class ProjectController extends Controller
                         
                         $record = [
                             'store_website_id' => $proj, 
-                            'created_by' =>auth()->user()->id, 
+                            'created_by' =>$user_id, 
                             'text' => $buildDetail, 
                             'build_name' => $jobName, 
                             'build_number' => $builds[0]->getNumber(), 
@@ -216,7 +227,7 @@ class ProjectController extends Controller
                     } else {
                         $record = [
                             'store_website_id' => $proj, 
-                            'created_by' =>auth()->user()->id, 
+                            'created_by' =>$user_id, 
                             'text' => 'Please try again, Jenkins job not created', 
                             'build_name' => '', 
                             'build_number' => '', 
@@ -230,7 +241,7 @@ class ProjectController extends Controller
                 }catch (\Exception $e){
                     $record = [
                         'store_website_id' => $proj, 
-                        'created_by' =>auth()->user()->id, 
+                        'created_by' =>$user_id, 
                         'text' => $e->getMessage(), 
                         'build_name' => '', 
                         'build_number' => '', 
@@ -244,7 +255,7 @@ class ProjectController extends Controller
             }else{
                 $record = [
                     'store_website_id' => $proj, 
-                    'created_by' =>auth()->user()->id, 
+                    'created_by' =>$user_id, 
                     'text' => 'Project Data not found', 
                     'build_name' => '', 
                     'build_number' => '', 
@@ -297,8 +308,8 @@ class ProjectController extends Controller
                 //$branch_name="stage";$repository="brands-labels";
                 try{
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                    $job =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
-                    if ($jenkins->getJob($jobName)) {
+                    $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
+                    if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
                         $builds = $job->getBuilds();
                         
@@ -349,18 +360,21 @@ class ProjectController extends Controller
     // New concept in page
     public function buildProcessLogs(Request $request, $id= null)
     {
+        $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')->select('build_process_histories.*','u.name as usersname');
+
         if($id){
-            $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')
-            ->where('store_website_id', '=', $id)
-            ->select('build_process_histories.*','u.name as usersname')
-            ->orderBy('id','desc')
-            ->paginate(10);
-        }else{
-            $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')
-            ->select('build_process_histories.*','u.name as usersname')
-            ->orderBy('id','desc')
-            ->paginate(10);
+            $responseLogs->where('store_website_id', $id);
         }
+        
+        if($request->has('branch') && $request->branch!=''){
+            $responseLogs->where('github_branch_state_name', $request->branch);
+        }
+        
+        if($request->has('buildby') && $request->buildby!=''){
+            $responseLogs->where('created_by', $request->buildby);
+        }
+
+        $responseLogs=$responseLogs->orderBy('id','desc')->paginate(10);
        
         foreach($responseLogs as $responseLog){
             
@@ -453,6 +467,7 @@ class ProjectController extends Controller
         $this->validate(
             $request, [
                 'name' => 'required',
+                'project_type' => 'required',
                 'job_name' => 'required',
                 'store_website_id' => 'required',
                 'serverenv' => 'required'
@@ -465,6 +480,7 @@ class ProjectController extends Controller
         $project = new Project();
         $project->name = $data['name'];
         $project->job_name = $data['job_name'];
+        $project->project_type = $data['project_type'];
         $project->serverenv = $data['serverenv'];
         $project->save();
 
@@ -507,6 +523,7 @@ class ProjectController extends Controller
             $request, [
                 'name' => 'required',
                 'job_name' => 'required',
+                'project_type' => 'required',
                 'store_website_id' => 'required',
                 'serverenv' => 'required'
             ]
@@ -518,6 +535,7 @@ class ProjectController extends Controller
         $project = Project::find($data['id']);
         $project->name = $data['name'];
         $project->job_name = $data['job_name'];
+        $project->project_type = $data['project_type'];
         $project->serverenv = $data['serverenv'];
         $project->save();
 
@@ -554,6 +572,30 @@ class ProjectController extends Controller
                 'code' => 200,
                 'data' => [],
                 'message' => 'Project server env created successfully!',
+            ]
+        );
+    }
+    public function projectTypeStore(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'name' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        // Save Project server env
+        $ProjectType = new ProjectType();
+        $ProjectType->name = $data['name'];
+        $ProjectType->save();
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Project type created successfully!',
             ]
         );
     }

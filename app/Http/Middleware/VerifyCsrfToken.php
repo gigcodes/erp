@@ -25,5 +25,6 @@ class VerifyCsrfToken extends Middleware
         'calendar/*',
         'api/wetransfer-file-store',
         'cold-leads-broadcasts',
+        'auto-build-process',
     ];
 }

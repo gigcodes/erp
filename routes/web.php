@@ -375,6 +375,7 @@ use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
+use App\Http\Controllers\ThemeStructureController;
 
 Auth::routes();
 
@@ -412,6 +413,7 @@ use App\Http\Controllers\MagentoSettingRevisionHistoryController;
 use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\MonitorServerController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectThemeController;
 use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 
@@ -520,6 +522,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
+Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
 
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
@@ -592,9 +595,15 @@ Route::middleware('auth')->group(function () {
     // Projects
    // Route::resource('project', ProjectController::class);
     
+    Route::get('theme-structure',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
+    Route::get('/theme-structure/reload-tree', [ThemeStructureController::class, 'reloadTree']);
+    Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
+    Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
+
     Route::get('project',[ProjectController::class, 'index'])->name('project.index');
     Route::post('project',[ProjectController::class, 'store'])->name('project.store');
     Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
+    Route::post('project/project-type-store',[ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
     Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
     Route::post('project/pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
     Route::get('project/build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
@@ -611,9 +620,20 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
     Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+    Route::get('/magento_frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
+    Route::post('/magento_frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
+    Route::post('/magento_frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
+    Route::get('magento_frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
 
-    Route::resource('magento-css-variable', MagentoCssVariableController::class);
+    Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
+    Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
+    Route::get('/magento-css-variable/job-logs/{id}', [MagentoCssVariableController::class, 'jobLogs'])->name("magento-css-variable.job-logs");
     Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
+    Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
+    Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
+    Route::resource('magento-css-variable', MagentoCssVariableController::class);
+
+    Route::resource('project-theme', ProjectThemeController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {

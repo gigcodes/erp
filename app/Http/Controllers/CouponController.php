@@ -50,6 +50,46 @@ class CouponController extends Controller
         if ($srch = request('flt_coupon')) {
             $q->where('coupon_code', $srch);
         }
+        if ($srch = request('flt_status')) {
+            if($srch === "Active"){
+                $q->where('is_active', 1);
+            }
+            if($srch === "InActive"){
+                $q->where('is_active', 0);
+            }
+            
+        }
+        if ($srch = request('flt_rule')) {
+            $q->where('name', 'like', '%' . $srch . '%');
+        }        
+        if ($srch = request('usernames')) {
+            $q->where('created_by', $srch);
+        }
+        if ($srch = request('website_ids')) {
+            $q->whereIn('website_ids', $srch);
+        }
+        
+        if(request('flt_start_date') && request('flt_end_date')) {
+            $startDate = request('flt_start_date');
+            $endDate =  request('flt_end_date');
+
+            $q->where(function ($query) use ($startDate, $endDate) {
+                if ($startDate) {
+                    $query->whereDate('from_date', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->whereDate('to_date', '<=', $endDate);
+                }
+            });
+        }   
+
+        if(request('flt_start_date') && request('flt_end_date') === null) {
+            $q->whereDate('from_date', '>=', request('flt_start_date'));
+        }
+
+        if(request('flt_end_date') && request('flt_start_date') === null) {
+            $q->whereDate('to_date', '<=', request('flt_end_date'));
+        }
         $rule_lists = $q->orderBy('id', 'desc')->get();
         if ($rule_lists->count()) {
             $customers = Customer::where('email', '!=', '')->get();
