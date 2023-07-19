@@ -521,6 +521,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 });
 /** Magento Module */
+Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
 
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
@@ -596,6 +597,7 @@ Route::middleware('auth')->group(function () {
     Route::get('project',[ProjectController::class, 'index'])->name('project.index');
     Route::post('project',[ProjectController::class, 'store'])->name('project.store');
     Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
+    Route::post('project/project-type-store',[ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
     Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
     Route::post('project/pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
     Route::get('project/build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');

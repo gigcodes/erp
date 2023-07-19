@@ -17,6 +17,16 @@
                     {!! Form::text('name', null, ['placeholder' => 'Project Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
                 </div>
                 <div class="form-group">
+                    <strong>Project Type:</strong>
+                    <select name="project_type" id="project_type" class="form-control select2" style="width: 100%!important">
+                        <option value="" selected disabled>-- Select a project type --</option>
+                        @forelse($projecttype as $id => $type)
+                            <option value="{{ $type }}">{{ $type }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </div>
+                <div class="form-group">
                     <strong>Job Name :</strong>
                     {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
                 </div>

@@ -40,6 +40,7 @@
                 <div class="col-4">
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#projecttype-create"> Create Project Type </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
                     </div>
                 </div>
@@ -63,6 +64,7 @@
                         <tr>
                             <th width="2%">ID</th>
                             <th width="10%">Project Name</th>
+                            <th width="10%">Project Type</th>
                             <th width="10%">Job Name</th>
                             <th width="10%">Serverenv</th>
                             <th width="10%">Store Website Names</th>
@@ -78,6 +80,9 @@
                                     <span class="td-full-container hidden">
                                         {{ $project->name }}
                                     </span>
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $project->project_type }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -162,6 +167,7 @@
 @include('project.partials.project-create-modal')
 @include('project.partials.project-edit-modal')
 @include('project.partials.serverenv-create-modal')
+@include('project.partials.projecttype-create-modal')
 @include('project.partials.build-process-modal')
 
 <script type="text/javascript">
@@ -257,6 +263,7 @@
                 $("#project-edit-form #name").val(response.data.name);
                 $("#project-edit-form #job_name").val(response.data.job_name);
                 $("#project-edit-form #serverenv").val(response.data.serverenv).trigger('change');
+                $("#project-edit-form #project_type").val(response.data.project_type).trigger('change');
                 var selectedWebsites = [];
                 $(response.data.store_websites).each(function(index, store_websites) {
                     selectedWebsites.push(store_websites.id);
