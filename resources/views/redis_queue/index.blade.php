@@ -228,7 +228,7 @@
     </div>
 
     <div id="commandLogsModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
 
             <!-- Modal content-->
             <div class="modal-content">
