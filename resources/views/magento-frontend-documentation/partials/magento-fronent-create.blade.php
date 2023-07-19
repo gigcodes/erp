@@ -81,7 +81,7 @@
                                 <label>Read Permission for Users
                                 </label>
                                 <select class="w-100 js-example-basic-multiple js-states" id="id_label_permission_read"
-                                    multiple="multiple" name="read[]" required>
+                                    multiple="multiple" name="read[]">
                                     @foreach ($users as $val)
                                         <option value="{{ $val->gmail }}" class="form-control">{{ $val->name }}
                                         </option>
@@ -94,7 +94,7 @@
                                 <label>Write Permission for Users
                                 </label>
                                 <select class="w-100 js-example-basic-multiple js-states" id="id_label_permission_write"
-                                    multiple="multiple" name="write[]" required>
+                                    multiple="multiple" name="write[]">
                                     @foreach ($users as $val)
                                         <option value="{{ $val->gmail }}" class="form-control">{{ $val->name }}
                                         </option>
