@@ -20,6 +20,9 @@ use App\PostmanRequestHistory;
 use App\PostmanRequestJsonHistory;
 use Illuminate\Support\Facades\Http;
 use App\LogRequest;
+use App\Models\PostmanStatus;
+use App\Models\PostmanStatusHistory;
+use Auth;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -130,6 +133,7 @@ class PostmanRequestCreateController extends Controller
             $postmans = $q->paginate(Setting::get('pagination'));
 
             $folders = PostmanFolder::all();
+            $status = PostmanStatus::all();
             $users = User::all();
             $userID = loginId();
             $addAdimnAccessID = isAdmin() ? loginId() : '';
@@ -142,7 +146,8 @@ class PostmanRequestCreateController extends Controller
                 'userID',
                 'addAdimnAccessID',
                 'listRequestNames',
-                'counter'
+                'counter',
+                'status',
             ));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -1269,5 +1274,57 @@ class PostmanRequestCreateController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function postmanStatusCreate(Request $request)
+    {
+        try {
+           $status =  new PostmanStatus();
+           $status->status_name = $request->status_name;
+           $status->save();
+
+          
+
+           return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+
+        }catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $postId = $request->input('postId');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $postman = PostmanRequestCreate::find($postId);
+        $postman->status_id = $selectedStatus;
+        $postman->save();
+
+        $history = new PostmanStatusHistory();
+        $history->postman_create_id = $postId;
+        $history->old_value = $postman->status_id;
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function postmanStatusHistories($id)
+    {
+        $datas = PostmanStatusHistory::with(['user','newValue','oldValue'])
+                ->where('postman_create_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

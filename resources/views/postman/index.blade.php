@@ -139,6 +139,8 @@
   <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
+  <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
+
 
   <div class="col-12">
     <h3>Assign Permission to User</h3>
@@ -189,6 +191,7 @@
           <tr>
             <th style="width: 3%;">ID</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
+            <th style="width: 22%;overflow-wrap: anywhere;">PostMan Status</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
@@ -222,6 +225,15 @@
               <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
             </td>
+            <td style="width: 22%;">
+              <select name="status" class="status-dropdown" data-id="{{$postman->id}}">
+                <option value="">Select Status</option>
+                @foreach ($status as $stat)
+                  <option value="{{$stat->id}}" {{$postman->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
+                @endforeach
+              </select>
+            </td>
+            
             <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
               <span class="show-short-controller_name-{{$postman->id}}">{{ Str::limit($postman->controller_name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-controller_name-{{$postman->id}} hidden">{{$postman->controller_name}}</span>
@@ -305,6 +317,7 @@
                       <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+                      <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0"  title="Value Histories" ><i class="fa fa-info-circle"></i></button>
                     </div>
                 </div>
             </td>
@@ -323,6 +336,34 @@
   </div>
 </div>
 @endsection
+ <!-- Stuatus Create  Modal content-->
+ <div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <div id="postmanHistory" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
@@ -980,6 +1021,8 @@
     </div>
   </div>
 </div>
+{{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
+@include('postman.postman-status-history')
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1604,5 +1647,89 @@
     $('#per_user_name').select2();
     $('#per_folder_name ').select2();
   });
+
+  $(document).on("click", ".status-save-btn", function(e) {
+    alert('click');
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+      url: "{{route('postman.status.create')}}",
+      type: "post",
+      data: $('#status-create-form').serialize()
+    }).done(function(response) {
+      if (response.code = '200') {
+        $('#loading-image').hide();
+        $('#addPostman').modal('hide');
+        toastr['success']('Status  Created successfully!!!', 'success');
+        location.reload();
+      } else {
+        toastr['error'](response.message, 'error');
+      }
+    }).fail(function(errObj) {
+      $('#loading-image').hide();
+      toastr['error'](errObj.message, 'error');
+    });
+  });
+
+
+  $(document).ready(function() {
+    $('.status-dropdown').change(function(e) {
+      e.preventDefault();
+      var postId = $(this).data('id');
+      var selectedStatus = $(this).val();
+      console.log("Dropdown data-id:", postId);
+      console.log("Selected status:", selectedStatus);
+
+
+      // Make an AJAX request to update the status
+      $.ajax({
+        url: '/postman/update-status',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          postId: postId,
+          selectedStatus: selectedStatus
+        },
+        success: function(response) {
+          toastr['success']('Status  Created successfully!!!', 'success');
+          console.log(response);
+        },
+        error: function(xhr, status, error) {
+          // Handle the error here
+          console.error(error);
+        }
+      });
+    });
+  });
+
+    // Load settings value Histories
+    $(document).on('click', '.status-history-show', function() {
+            var id = $(this).attr('data-id');
+                $.ajax({
+                    method: "GET",
+                    url: `{{ route('postman.status.histories', [""]) }}/` + id,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+                            var html = "";
+                            $.each(response.data, function(k, v) {
+                                html += `<tr>
+                                            <td> ${k + 1} </td>
+                                            <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                            <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                            <td> ${v.created_at} </td>
+                                        </tr>`;
+                            });
+                            $("#postman-status-histories-list").find(".postman-status-histories-list-view").html(html);
+                            $("#postman-status-histories-list").modal("show");
+                        } else {
+                            toastr["error"](response.error, "Message");
+                        }
+                    }
+                });
+      });
 </script>
 @endsection
