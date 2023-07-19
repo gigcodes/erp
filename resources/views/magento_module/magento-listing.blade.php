@@ -290,9 +290,10 @@
 			}
 		});
 		$(document).on("click",".magento_module_toggle_switch",function(event){
-			//event.preventDefault();
+			event.preventDefault();
 			var var_return=false;
 			var ele=$(this);
+			console.log(ele.attr('class'))
 			var status=0;
 			var temp_m="Are you sure you want to disable the Magento Module?"
 			if ($(this).is(':checked')) {
@@ -310,7 +311,7 @@
 				formData.append('magento_module_id', magento_module_id);
 				formData.append('status', status);
 
-				var_return=true;
+				//var_return=true;
 				$.ajax({
 					url:"{{route('magentoModuleUpdateStatus')}}",
 					method: 'post',
@@ -326,21 +327,43 @@
 					$("#loading-image").hide();
 					
 					if (response.code == 200) {
-						toastr['success'](response.message);
-						// location.reload();
+						if(response.data){
+							$.each( response.data, function( key, value ) {
+								if (value.code == 200) {
+									toastr['success'](value.message);
+									var checkele=$("#mm_status_"+value.store_website_id+"_"+value.magento_module_id);
+									if(checkele.length){
+										if (checkele.is(':checked')) {
+											checkele.prop('checked', false);
+										}else{
+											checkele.prop('checked', true);
+										}
+									}
+								}else{
+									toastr['error'](value.message);
+								}
+							})
+						}else{
+							if (response.code == 200) {
+								toastr['success'](response.message);
+								if (ele.is(':checked')) {
+									ele.prop('checked', false);
+								}else{
+									ele.prop('checked', true);
+								}
+							}else{
+								toastr['error'](response.message);
+							}
+						}
+						
 					} else {
 						toastr['error'](response.message);
 					}
-					
 				}).fail(function () {
 					console.log("error");
 					$("#loading-image").hide();
-					//event.preventDefault();
-					
 				});
 			}
-			return var_return;
-			
 		});
 		$(document).on("click", ".btn-history", function (e) {
 			e.preventDefault();
