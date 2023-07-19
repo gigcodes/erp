@@ -27,6 +27,8 @@ class ZabbixTaskController extends Controller
 
         $data = $request->except('_token');
 
+        // old 
+        $zabbixTaskOld = ZabbixTask::where('task_name', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
         // Save Zabbix Task
         $zabbixTask = ZabbixTask::updateOrCreate([
             'task_name' => $data['task_name'],
@@ -38,11 +40,14 @@ class ZabbixTaskController extends Controller
         $zabbixWebhookDatas->update(['zabbix_task_id'=>$zabbixTask->id]);
 
         // Save assignee history
-        $zabbixTaskAssigneeHistory = new ZabbixTaskAssigneeHistory();
-        $zabbixTaskAssigneeHistory->zabbix_task_id = $zabbixTask->id;
-        $zabbixTaskAssigneeHistory->new_assignee = $data['assign_to'];
-        $zabbixTaskAssigneeHistory->user_id = Auth::user()->id;
-        $zabbixTaskAssigneeHistory->save();
+        if($zabbixTaskOld == "" || $data['assign_to'] != $zabbixTaskOld->assign_to) {
+            $zabbixTaskAssigneeHistory = new ZabbixTaskAssigneeHistory();
+            $zabbixTaskAssigneeHistory->zabbix_task_id = $zabbixTask->id;
+            $zabbixTaskAssigneeHistory->new_assignee = $data['assign_to'];
+            $zabbixTaskAssigneeHistory->user_id = Auth::user()->id;
+            $zabbixTaskAssigneeHistory->save();
+        }
+        
 
         return response()->json(
             [
