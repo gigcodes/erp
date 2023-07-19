@@ -351,7 +351,7 @@
                       <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
-                      <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0"  title="Value Histories" ><i class="fa fa-info-circle"></i></button>
+                      <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
                     </div>
                 </div>
             </td>
@@ -1685,7 +1685,6 @@
   });
 
   $(document).on("click", ".status-save-btn", function(e) {
-    alert('click');
     e.preventDefault();
     var $this = $(this);
     $.ajax({
