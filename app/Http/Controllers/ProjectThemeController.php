@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ProjectTheme;
+use App\Models\ThemeStructure;
 
 class ProjectThemeController extends Controller
 {
@@ -54,6 +55,13 @@ class ProjectThemeController extends Controller
         $projectTheme->project_id = $data['project_id'];
         $projectTheme->name = $data['name'];
         $projectTheme->save();
+        
+        $themeStructure = new ThemeStructure(); 
+        $themeStructure->theme_id=$projectTheme->id; 
+        $themeStructure->name=$projectTheme->name; 
+        $themeStructure->is_file=0; 
+        $themeStructure->is_root=1; 
+        $themeStructure->save();
 
         return response()->json(
             [
@@ -93,6 +101,13 @@ class ProjectThemeController extends Controller
         $projectTheme->project_id = $data['project_id'];
         $projectTheme->name = $data['name'];
         $projectTheme->save();
+
+        $themeStructure = ThemeStructure::where('theme_id', $id)->where('is_root',1)->first();
+
+        if($themeStructure &&  $themeStructure->name!=$projectTheme->name){
+            $themeStructure->name=$projectTheme->name;
+            $themeStructure->save();
+        }
 
         return response()->json(
             [

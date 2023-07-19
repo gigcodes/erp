@@ -594,9 +594,10 @@ Route::middleware('auth')->group(function () {
 
     // Projects
    // Route::resource('project', ProjectController::class);
-    
-    Route::get('theme-structure',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
-    Route::get('/theme-structure/reload-tree', [ThemeStructureController::class, 'reloadTree']);
+   Route::resource('project-theme', ProjectThemeController::class);
+
+    Route::get('theme-structure/{id?}',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
+    Route::get('/theme-structure/reload-tree/{id}', [ThemeStructureController::class, 'reloadTree']);
     Route::post('/theme-structure/delete-item', [ThemeStructureController::class, 'deleteItem'])->name('theme-structure.delete-item');
     Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
     Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
@@ -634,7 +635,6 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
-    Route::resource('project-theme', ProjectThemeController::class);
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
