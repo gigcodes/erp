@@ -17,6 +17,7 @@ use App\LogRequest;
 use App\Jobs\PushMagentoSettings;
 use App\MagentoSettingStatus;
 use App\User;
+use App\Models\MagentoSettingValueHistory;
 
 class MagentoSettingsController extends Controller
 {
@@ -369,6 +370,17 @@ class MagentoSettingsController extends Controller
             'path' => $path,
             'value' => $value,
         ]);
+
+
+        if($value !== $m->value){
+            $history = new MagentoSettingValueHistory();
+            $history->magento_setting_id = $m->id;
+            $history->old_value = $m->value;
+            $history->new_value = $value;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+        }
+       
 
         $entity = MagentoSetting::find($entity_id);
 
@@ -730,7 +742,15 @@ class MagentoSettingsController extends Controller
                 'website',
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
 
-            // Assign new value when push
+            if($request->has('new_value') &&  $individualSetting->value !== $request->new_value )  {
+                $history = new MagentoSettingValueHistory();
+                $history->magento_setting_id = $individualSetting->id;
+                $history->old_value = $individualSetting->value;
+                $history->new_value = $request->new_value;
+                $history->user_id = Auth::user()->id;
+                $history->save();
+            }
+              // Assign new value when push
             if ($request->has('new_value')) {
                 $individualSetting->value = $request->new_value;
                 $individualSetting->save();
@@ -800,5 +820,21 @@ class MagentoSettingsController extends Controller
         }
 
         return redirect()->back()->with('error', 'Not Assigned, MagentoSetting not found');
+    }
+
+    public function magentoSettingvalueHistories($id)
+    {
+        $datas = MagentoSettingValueHistory::with(['user'])
+            ->where('magento_setting_id', $id)
+            ->latest()
+            ->get();
+
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

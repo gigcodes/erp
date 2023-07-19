@@ -212,6 +212,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->uname }}</td>
 								{{-- <td>{{ $magentoSetting->data_type }}</td> --}}
                                 <td>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image value-settings-show p-0"  title="Value Histories" ><i class="fa fa-info-circle"></i></button>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
@@ -661,6 +662,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 		</div>
 	</div>
 </div>
+
+@include('magneto-settings-values.magento-settings-value-history')
+
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
 50% 50% no-repeat;display:none;"></div>
 @endsection
@@ -1152,5 +1156,34 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
 
     }
+
+     // Load settings value Histories
+     $(document).on('click', '.value-settings-show', function() {
+        var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento.setting.value.histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.old_value != null) ? v.old_value : ' - ' } </td>
+                                        <td> ${(v.new_value != null) ? v.new_value : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-settings-value-histories-list").find(".magento-settings-value-histories-list-view").html(html);
+                        $("#magento-settings-value-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+    });
+
 </script>
 @endsection

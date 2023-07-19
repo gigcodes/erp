@@ -677,6 +677,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', [MagentoSettingsController::class, 'deleteSetting'])->name('delete.setting');
     Route::get('get-all/store-websites/{id}', [MagentoSettingsController::class, 'getAllStoreWebsites'])->name('get.all.store.websites');
+    Route::get('magento-admin-settings/value-histories/{id}', [MagentoSettingsController::class, 'magentoSettingvalueHistories'])->name('magento.setting.value.histories');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
