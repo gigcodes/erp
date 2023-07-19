@@ -484,27 +484,33 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList(Request $request)
     {
-        $storeWebsites = StoreWebsite::pluck('title', 'id')->toArray();
-        $all_store_websites = StoreWebsite::pluck('title', 'id')->toArray();
+        $all_store_websites = StoreWebsite::where('website_source','magento')->pluck('title', 'id')->toArray();
+        $storeWebsites = StoreWebsite::where('website_source','magento')->pluck('title', 'id')->toArray();
         $selecteStoreWebsites = $request->store_webs;
 
         if (isset($request->store_webs) && $request->store_webs) {
-            $storeWebsites = StoreWebsite::whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+            $storeWebsites = StoreWebsite::where('website_source','magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
         }
-
-        $magento_modules = MagentoModule::groupBy('module')->orderBy('module', 'asc')->get();
-        $magento_modules_array = MagentoModule::orderBy('module', 'asc')->get()->toArray();
-        $magento_modules_count = MagentoModule::count();
-
         // For Filter
-        $allMagentoModules = $magento_modules->pluck('module', 'module')->toArray();
+        $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
+
+        $magento_modules = MagentoModule::orderBy('module', 'asc');
+        
+
+        if (isset($request->store_webs) && $request->store_webs) {
+            $magento_modules =  $magento_modules->whereIn('store_website_id', $request->store_webs);
+        }
 
         if(isset($request->module_name) && $request->module_name != "") {
-            $magento_modules = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->groupBy('module')->orderBy('module', 'asc')->get();
-            $magento_modules_array = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->orderBy('module', 'asc')->get()->toArray();
-            $magento_modules_count = MagentoModule::where('module', 'Like', '%' . $request->module_name . '%')->count();
+            $magento_modules =$magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
         }
         
+        
+        $magento_modules_array = $magento_modules->get()->toArray();
+        $magento_modules = $magento_modules->groupBy('module')->get();
+        $magento_modules_count = $magento_modules->count();
+        
+
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
@@ -642,115 +648,136 @@ class MagentoModuleController extends Controller
         $status=$request->status;
         $magento_modules = MagentoModule::where('id',$magento_module_id)->where('store_website_id',$store_website_id)->first();
         if(!$magento_modules){
-            return response()->json(['status' => 500,  'message' => 'The Magento module is not found on the store website!']);
+            return response()->json(['code' => 500,  'message' => 'The Magento module is not found on the store website!']);
         }
-
+        $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
+        if ($storeWebsite->parent_id) {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+        } else {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+        }
         $updated_by=auth()->user()->id;
         $cmd="bin/magento module:disable ". $magento_modules->module;
 
         if($status){
             $cmd="bin/magento module:enable ". $magento_modules->module;
         }
+        $search_module=$magento_modules->module;
         $cmd.=" && bin/magento setup:upgrade && bin/magento setup:di:compile && bin/magento cache:flush";
-        \Log::info("Start Magento module change status");
-        $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
-        $cwd='';
-        $assetsmanager = new AssetsManager;
-        if($storeWebsite){
-            $cwd=$storeWebsite->working_directory;
-            $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-        }
-
-        if($assetsmanager && $assetsmanager->client_id!='')
-        {
-            
-            
-            $client_id=$assetsmanager->client_id;
-            //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
-            $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
-            $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
-            
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL,$url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            $parameters = [
-                //'command' => $cmd,
-                'script' => base64_encode($cmd), 
-                'cwd' => $cwd,
-                'is_sudo' => true, 
-                'timeout_sec' => 900, 
-            ];
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
-
-            $headers = [];
-            $headers[] = 'Authorization: Basic '.$key;
-            $headers[] = 'Content-Type: application/json';
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            $result = curl_exec($ch);
-            
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            
-            \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), 
-            $httpcode,App\Http\Controllers\MagentoModuleController::class, 'update');
-            
-            \Log::info("API result: ".$result);
-            \Log::info("API Error Number: ".curl_errno($ch));
-            if (curl_errno($ch)) {
-                \Log::info("API Error: ".curl_error($ch));
-                
-                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => curl_error($ch)]);
-                
-                return response()->json(['code' => 500, 'message' =>curl_error($ch)]);
+        $return_data=[];
+        foreach($allInstances as $storeWebsite){
+            \Log::info("Start Magento module change status");
+            \Log::info("Store Website:".$storeWebsite->id);
+            $store_website_id=$storeWebsite->id;
+            $magento_modules = MagentoModule::where('module',$search_module)->where('store_website_id',$store_website_id)->first();
+            if(!$magento_modules){
+                Log::info($search_module." is not found in store website");
+                continue;
             }
-            
-            $response = json_decode($result);
+            $magento_module_id=$magento_modules->id;
 
-            curl_close($ch);
+            $cwd='';
+            $assetsmanager = new AssetsManager;
+            if($storeWebsite){
+                $cwd=$storeWebsite->working_directory;
+                $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+            }
+
+            if($assetsmanager && $assetsmanager->client_id!='')
+            {
+                $client_id=$assetsmanager->client_id;
+                //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+                $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/scripts";
+                $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
                 
-            if(isset($response->errors)){ 
-                $message='';
-                foreach($response->errors as $error){
-                    $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL,$url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                $parameters = [
+                    //'command' => $cmd,
+                    'script' => base64_encode($cmd), 
+                    'cwd' => $cwd,
+                    'is_sudo' => true, 
+                    'timeout_sec' => 900, 
+                ];
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+
+                $headers = [];
+                $headers[] = 'Authorization: Basic '.$key;
+                $headers[] = 'Content-Type: application/json';
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                $result = curl_exec($ch);
+                
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                
+                \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), 
+                $httpcode,App\Http\Controllers\MagentoModuleController::class, 'update');
+                
+                \Log::info("API result: ".$result);
+                \Log::info("API Error Number: ".curl_errno($ch));
+                if (curl_errno($ch)) {
+                    \Log::info("API Error: ".curl_error($ch));
+                    
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => curl_error($ch)]);
+                    
+                    $return_data[]=['code' => 500, 'message' =>curl_error($ch),'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                    continue;
                 }
                 
-                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
-                \Log::info($message);
-                return response()->json(['code' => 500, 'message' => $message]);
+                $response = json_decode($result);
 
-            }else{
-                if(isset($response->data) && isset($response->data->jid) ){
-                    $job_id=$response->data->jid;
-                    $status="Success";
+                curl_close($ch);
                     
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' => 'Success', 'job_id' => $job_id]);
-                    $magento_modules->status=$status;
-                    $magento_modules->save();
-                    \Log::info("Job Id:".$job_id);
-                    //$this->runMagentoCacheFlushCommand($magento_module_id,$store_website_id,$client_id,$cwd);
-                    return response()->json(['code' => 200, 'data' => $magento_modules,'message'=>'Magento module status change successfully']);
+                if(isset($response->errors)){ 
+                    $message='';
+                    foreach($response->errors as $error){
+                        $message.=" ".$error->code.":".$error->title.":".$error->detail;
+                    }
+                    
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
+                    \Log::info($message);
+                    
+                    $return_data[]=['code' => 500, 'message' =>$message,'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                    continue;
+
                 }else{
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
-                    
-                    \Log::info("Job Id not found in response!");
-                    return response()->json(['code' => 500, 'message' => 'Job Id not found in response!']);
+                    if(isset($response->data) && isset($response->data->jid) ){
+                        $job_id=$response->data->jid;
+                        $status="Success";
+                        
+                        MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' => 'Success', 'job_id' => $job_id]);
+                        $magento_modules->status=$status;
+                        $magento_modules->save();
+                        \Log::info("Job Id:".$job_id);
+                        
+                        $return_data[]=['code' => 200, 'message' =>"Magento module status change successfully",'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                        continue;
+                    }else{
+                        MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
+                        
+                        \Log::info("Job Id not found in response!");
+                        //return response()->json(['code' => 500, 'message' => 'Job Id not found in response!']);
+                        $return_data[]=['code' => 500, 'message' =>"Job Id not found in response!",'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                        continue;
+                    }
                 }
+            }else{
+                
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => "Assets Manager & Client id not found the Store Website!"]);
+                
+                \Log::info("Assets Manager & Client id not found the Store Website!");
+                
+                $return_data[]=['code' => 500, 'message' =>"Assets Manager & Client id not found the Store Website!",'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                continue;
             }
-        }else{
-            
-            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => "Assets Manager & Client id not found the Store Website!"]);
-            
-            \Log::info("Assets Manager & Client id not found the Store Website!");
-            
-            return response()->json(['code' => 500, 'message' => 'Assets Manager & Client id not found the Store Website!']);
+
+            \Log::info("End Magento module change status");
         }
-
-        \Log::info("End Magento module change status");
-
-        return response()->json(['status' => 500,  'message' => 'error!']);
+        return response()->json(['code' => 200,  'message' => '', 'data'=>$return_data]);
     }
     
     public function storeVerifiedStatus(Request $request)
