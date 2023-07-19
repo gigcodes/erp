@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ThemeFile;
 use App\Models\ThemeStructure;
 use Illuminate\Http\Request;
 
@@ -18,11 +19,67 @@ class ThemeStructureController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $themeStructures = ThemeStructure::latest();
+        $tree = json_encode($this->buildTree());
+        return view('theme-structure.index', compact('tree'));
+    }
 
-        return view('theme-structure.index', compact('themeStructures'));
+    public function reloadTree()
+    {
+        $tree = $this->buildTree();
+        return response()->json($tree);
+    }
+
+    private function buildTree($parentID = null)
+    {
+        $tree = [];
+        $items = ThemeStructure::where('parent_id', $parentID)->orderBy('position')->get(['id', 'name', 'is_file']);
+
+        foreach ($items as $item) {
+            $node = [
+                'id' => $item->id,
+                'parent_id' => $parentID ?: '#',
+                'text' => $item->name,
+            ];
+
+            if ($item->is_file) {
+                $node['icon'] = 'jstree-file';
+            } else {
+                $node['icon'] = 'jstree-folder';
+                $node['children'] = $this->buildTree($item->id);
+            }
+
+            $tree[] = $node;
+        }
+
+        return $tree;
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'is_file' => 'required|boolean',
+            'parent_id' => 'nullable|exists:theme_structure,id'
+        ]);
+
+        $folder = ThemeStructure::create($validatedData);
+
+        return response()->json($folder);
+    }
+
+    public function themeFileStore(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'is_file' => 'required|boolean',
+            'parent_id' => 'required|exists:theme_structure,id'
+        ]);
+
+        $file = ThemeFile::create($validatedData);
+
+        return response()->json($file);
     }
 
     public function destroy($id)

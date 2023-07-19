@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ThemeStructure extends Model
 {
+    protected $table = 'theme_structure';
+
     use HasFactory;
 
     public $fillable = [
@@ -37,5 +39,20 @@ class ThemeStructure extends Model
                 ->setIndent('¦–– ')
                 ->listsFlattened('name');
         
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(ThemeStructure::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(ThemeStructure::class, 'parent_id')->with('children')->orderBy('position');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(ThemeFile::class);
     }
 }
