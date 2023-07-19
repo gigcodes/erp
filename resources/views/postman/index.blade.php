@@ -18,6 +18,40 @@
   .select2{
     width:200px !important;
   }
+  #postmanform label{
+    text-transform: capitalize;
+    line-height: 31px;
+  }
+  .label-btn{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .label-btn .btn{
+    height: 30px !important;
+    line-height: 17px;
+    margin: 0 !important;
+  }
+
+  .modal-header .close {
+    font-size: 23px;
+    color: #000;
+    opacity: 1;
+    margin: 0rem 0rem 0rem auto;
+  }
+  .modal-content .modal-header .close{
+    margin-top: -15px !important;
+
+  }
+
+  .modal-header .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .custom-select + .select2.select2-container.select2-container--default{
+    height: 32px;
+  }
 </style>
 
 @endsection
@@ -71,7 +105,7 @@
             if(request('request_name')){   $request_nameArr = request('request_name'); }
             else{ $request_nameArr = []; }
           ?>
-          <select name="request_name[]" class="form-control select2" multiple id="request_name">
+          <select name="request_name[]" class="form-control select2 custom-select" multiple id="request_name">
             <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
             @foreach ($listRequestNames as $key => $reqName)
             <?php
@@ -621,11 +655,11 @@
             </button>
           </div>
           <div class="modal-body">
-            <form id="postmanform" method="post">
+            <form id="postmanform" method="post" class="mb-0">
               @csrf
               <div class="form-row">
                 <input type="hidden" id="post_id" name="id" value="" />
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="title">User Name</label>
                     <div class="dropdown-sin-1 postman-dropdown-display">
@@ -655,7 +689,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="request_name">Request Name</label>
                     <input type="text" name="request_name" value="" class="form-control" id="request_name" placeholder="Enter request name">
@@ -671,15 +705,17 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
-                  <label for="request_url">Request Url</label>
-                  <div class="form-group add_more_urls_div">
-                    <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                <div class="form-group col-md-12 mb-0">
+                  <div class="form-group col-md-12">
+                    <label for="request_url">Request Url</label>
+                    <div class="form-group add_more_urls_div">
+                      <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                    </div>
+                    <br>
+                    <a style="cursor: pointer;" class="add_more_urls"><i class="fa fa-plus"> Add more</i></a>
                   </div>
-                  <br>
-                  <a style="cursor: pointer;" class="add_more_urls"><i class="fa fa-plus"> Add more</i></a>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="controller_name">Controller Name</label>
                     <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
@@ -689,7 +725,7 @@
                     <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="remark">Remark</label>
                     <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
@@ -697,10 +733,10 @@
 
                   <div class="form-group col-md-6">
                     <label for="params">Params</label>
-                    <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
+                    <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2" style="height: 34px;"></textarea>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="authorization_type">Authorization type</label>
                     <select name="authorization_type" value="" class="form-control" id="authorization_type">
@@ -713,10 +749,10 @@
                     <input type="text" name="authorization_token" value="" class="form-control" id="authorization_token" placeholder="Enter authorization token">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="request_headers">headers</label>
-                    <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2"></textarea>
+                    <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2" style="height: 34px;"></textarea>
                   </div>
                   <div class="form-group col-md-6">
                     <label for="body_type">Body type</label>
@@ -725,9 +761,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
-                    <label for="body_json">Body Json
+                    <label for="body_json" class="label-btn">Body Json
                       <button type="button" class="btn custom-button float-right mr-3 add-json" data-toggle="modal" data-target="#addPostmanJsonModel">Add Json</button>
                     </label>
                     <?php
@@ -744,10 +780,10 @@
                   </div>
                   <div class="form-group col-md-6">
                     <label for="pre_request_script">Pre request script</label>
-                    <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script"></textarea>
+                    <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script" style="height: 34px;"></textarea>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="tests">Tests</label>
                     <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
@@ -758,7 +794,7 @@
                   </div>
                 </div>
 
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="grumphp_errors">Grumphp Errors</label>
                     <input type="text" name="grumphp_errors" value="" class="form-control" id="grumphp_errors" placeholder="Enter Grumphp Errors">
@@ -768,7 +804,7 @@
                     <input type="text" name="magento_api_standards" value="" class="form-control" id="magento_api_standards" placeholder="Enter Magento API Standards">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="swagger_doc_block">Swagger DocBlock</label>
                     <input type="text" name="swagger_doc_block" value="" class="form-control" id="swagger_doc_block" placeholder="Enter Swagger DocBlock">
@@ -778,7 +814,7 @@
                     <input type="text" name="used_for" value="" class="form-control" id="used_for" placeholder="Enter Used for">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="user_in">Used in</label>
                     <select name="user_in" value="" class="form-control" id="user_in">
@@ -1089,11 +1125,11 @@
   $(document).on("click", ".openmodeladdpostman", function(e) {
     $('#titleUpdate').html("Add");
     $('.add_more_urls_div').html('');
-    $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
+    $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
     $('#postmanform').find("input[type=text], textarea").val("");
   });
   $(document).on("click", ".add_more_urls", function(e) {
-    $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
+    $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
   });
 
   $(document).on("click", "#see_users", function(e) {

@@ -1300,15 +1300,15 @@ class PostmanRequestCreateController extends Controller
         $selectedStatus = $request->input('selectedStatus');
 
         $postman = PostmanRequestCreate::find($postId);
-        $postman->status_id = $selectedStatus;
-        $postman->save();
-
         $history = new PostmanStatusHistory();
         $history->postman_create_id = $postId;
         $history->old_value = $postman->status_id;
         $history->new_value = $selectedStatus;
         $history->user_id = Auth::user()->id;
         $history->save();
+
+        $postman->status_id = $selectedStatus;
+        $postman->save();
 
         return response()->json(['message' => 'Status updated successfully']);
     }

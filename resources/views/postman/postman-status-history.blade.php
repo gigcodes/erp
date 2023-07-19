@@ -12,8 +12,8 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Old Value</th>
-                                <th width="30%">New Value</th>
+                                <th width="30%">Old Status</th>
+                                <th width="30%">New Status</th>
                                 <th width="20%">Updated BY</th>
                                 <th width="30%">Created Date</th>
                             </tr>
