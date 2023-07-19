@@ -597,6 +597,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('theme-structure',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
     Route::get('/theme-structure/reload-tree', [ThemeStructureController::class, 'reloadTree']);
+    Route::post('/theme-structure/delete-item', [ThemeStructureController::class, 'deleteItem'])->name('theme-structure.delete-item');
     Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
     Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
 
