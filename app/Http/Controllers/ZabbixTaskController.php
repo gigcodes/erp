@@ -28,10 +28,10 @@ class ZabbixTaskController extends Controller
         $data = $request->except('_token');
 
         // Save Zabbix Task
-        $zabbixTask = new ZabbixTask();
-        $zabbixTask->task_name = $data['task_name'];
-        $zabbixTask->assign_to = $data['assign_to'];
-        $zabbixTask->save();
+        $zabbixTask = ZabbixTask::updateOrCreate([
+            'task_name' => $data['task_name'],
+            'assign_to' => $data['assign_to']
+        ]);
 
         // Assign Zabbix Task Id to selected zabbix webhook datas
         $zabbixWebhookDatas = ZabbixWebhookData::whereIn('id', $data['zabbix_webhook_data_ids']);

@@ -11,15 +11,15 @@
                         <?php echo csrf_field(); ?>
                         <div class="form-group normal-subject">
                             <label for="task_name">Task Name<span class="text-danger">*</span></label>
-                            <input type="text" name="task_name" id="task_name" class="form-control"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="zabbix_webhook_data_ids">Assign Zabbix Subjects<span class="text-danger">*</span></label>
-                            <select name="zabbix_webhook_data_ids[]" class="globalSelect2 form-control" data-ajax="{{route('select2.zabbix-webhook-data')}}" data-minimuminputlength="2" multiple></select>
+                            <input type="text" name="task_name" id="task_name" class="form-control" value="Zabbix Problem" readonly/>
                         </div>
                         <div class="form-group">
                             <label for="assign_to">Assigned to<span class="text-danger">*</span></label>
                             <?php echo Form::select("assign_to",['' => ''],null,["class" => "form-control assign_to globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder' => 'Assign to']); ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="zabbix_webhook_data_ids">Assign Zabbix Subjects<span class="text-danger">*</span></label>
+                            <select name="zabbix_webhook_data_ids[]" class="globalSelect2 form-control" data-ajax="{{route('select2.zabbix-webhook-data')}}" data-minimuminputlength="2" multiple></select>
                         </div>
                 </div>
                 <div class="modal-footer">

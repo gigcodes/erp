@@ -538,6 +538,7 @@ class Select2Controller extends Controller
             ];
         }
 
+        return response()->json($result);
     }
 
     public function sopCategories(Request $request)
