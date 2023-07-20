@@ -131,8 +131,8 @@
                                     {!! Form::hidden('organization', 2, ['class' => 'form-control']) !!}
                                     {!! Form::hidden('repository', 353671452, ['class' => 'form-control']) !!}
                                     {!! Form::hidden('branch_name', 'stage', ['class' => 'form-control']) !!}
-                                    <button title="Initiate Build Directly" type="submit" class="btn btn-xs">
-                                        <i class="fa fa-simplybuilt" style="color: #808080;"></i>
+                                    <button title="Please initiate stage branch build" type="submit" class="btn btn-xs">
+                                        <i class="fa fa-gear" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
                                 </td>

@@ -206,7 +206,13 @@ class ProjectController extends Controller
                     $job =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($jenkins->getJob($jobName)) {
                         $job = $jenkins->getJob($jobName);
-                        $builds = $job->getBuilds();
+                        // $builds = $job->getBuilds();
+                        $lastBuild = $job->getLastBuild();
+                        $latestBuildNumber = $latestBuildResult = "";
+                        if ($lastBuild) {
+                            $latestBuildNumber = $lastBuild->getNumber();
+                            $latestBuildResult = $lastBuild->getResult();
+                        }
                         
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
                         
@@ -215,8 +221,8 @@ class ProjectController extends Controller
                             'created_by' =>$user_id, 
                             'text' => $buildDetail, 
                             'build_name' => $jobName, 
-                            'build_number' => $builds[0]->getNumber(), 
-                            'status' => $builds[0]->getResult(), 
+                            'build_number' => $latestBuildNumber, 
+                            'status' => $latestBuildResult, 
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name
@@ -311,17 +317,24 @@ class ProjectController extends Controller
                     $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
-                        $builds = $job->getBuilds();
+                        // $builds = $job->getBuilds();
                         
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
                         
+                        $lastBuild = $job->getLastBuild();
+                        $latestBuildNumber = $latestBuildResult = "";
+                        if ($lastBuild) {
+                            $latestBuildNumber = $lastBuild->getNumber();
+                            $latestBuildResult = $lastBuild->getResult();
+                        }
+
                         $record = [
                             'store_website_id' => $request->project_id, 
                             'created_by' =>auth()->user()->id, 
                             'text' => $buildDetail, 
                             'build_name' => $jobName, 
-                            'build_number' => $builds[0]->getNumber(), 
-                            'status' => $builds[0]->getResult(), 
+                            'build_number' => $latestBuildNumber, 
+                            'status' => $latestBuildResult, 
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name
