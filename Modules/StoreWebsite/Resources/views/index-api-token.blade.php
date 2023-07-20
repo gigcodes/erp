@@ -458,13 +458,22 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            html += `<tr>
-                                        <td> ${k + 1} </td>
-                                        <td> ${(v.old_api_token != null) ? v.old_api_token : ' - ' } </td>
-                                        <td> ${(v.new_api_token != null) ? v.new_api_token : ' - ' } </td>
-                                        <td> ${(v.user !== undefined) ? v.user.name: ' - ' } </td>
-                                        <td> ${v.created_at} </td>
-                                    </tr>`;
+							html += "<tr>";
+							html += "<td>" + (k + 1) + "</td>";
+							html += "<td class='expand-row' style='word-break: break-all'>";
+							html += "<span class='td-mini-container'>" + (v.old_api_token != null ? (v.old_api_token.length > 15 ? v.old_api_token.substr(0, 15) + '...' : v.old_api_token) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.old_api_token != null ? v.old_api_token : ' - ' ) + "</span>";
+							html += "</td>";
+							html += "<td class='expand-row' style='word-break: break-all'>";
+							html += "<span class='td-mini-container'>" + (v.new_api_token != null ? (v.new_api_token.length > 15 ? v.new_api_token.substr(0, 15) + '...' : v.new_api_token) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.new_api_token != null ? v.new_api_token : ' - ' ) + "</span>";
+							html += "</td>";
+							html += "<td class='expand-row' style='word-break: break-all'>";
+							html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 15 ? v.user.name.substr(0, 15) + '...' : v.user.name) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
+							html += "</td>";
+							html += "<td>" + v.created_at + "</td>";
+							html += "</tr>";
                         });
                         $("#api-token-histories-list").find(".api-token-list-view").html(html);
                         $("#api-token-histories-list").modal("show");
@@ -474,6 +483,12 @@
                 }
             });
 	});
+
+		$(document).on('click', '.expand-row', function() {
+			$(this).find('.td-mini-container').toggleClass('hidden');
+			$(this).find('.td-full-container').toggleClass('hidden');
+		});
+
 </script>
 
 @endsection
