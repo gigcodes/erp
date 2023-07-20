@@ -406,11 +406,15 @@
 		});
 	});
 
+	var storwebsitevalue; // Declare the variable outside the event functions
+
+	$(document).on('click', '.user-api-token', function() {
+		storwebsitevalue = $(this).data('id');
+	});
+
 	$(document).on('click','.btn-generate-user-permission',function(){
 		var selectedUsers = $('#permission_user').val();
-        var selectedOption = $('#permission_user option:selected');
-        var store_website_id = selectedOption.data('id');
-
+		var store_website_id = storwebsitevalue; // Use storwebsitevalue directly
         if(selectedUsers==''){
 			toastr['error']('Select User!', 'error');
 			return;
