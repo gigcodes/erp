@@ -125,7 +125,7 @@
                                     </button>
 
                                     {{-- Directly initiate the build for (org: LUDXB & Repository:brands-labels & Branch: stage ) --}}
-                                    {!! Form::open(['method' => 'POST','route' => ['project.buildProcess'],'style'=>'display:inline']) !!}
+                                    {!! Form::open(['method' => 'POST','route' => ['project.buildProcess'],'style'=>'display:inline', 'id' => "initiate-build-directly"]) !!}
                                     {!! Form::hidden('project_id', $project->id, ['class' => 'form-control']) !!}
                                     {!! Form::hidden('job_name', $project->job_name, ['class' => 'form-control']) !!}
                                     {!! Form::hidden('organization', 2, ['class' => 'form-control']) !!}
@@ -283,6 +283,41 @@
                 $("#project-edit-form #assign-new-website").val(selectedWebsites).trigger('change');
                 $("#project-edit").modal("show");
             }).fail(function(response) {});
+        });
+
+        $(document).on('submit', 'form#initiate-build-directly', function(e){
+            e.preventDefault();
+            var self = $(this);
+            let formData = new FormData(document.getElementById("initiate-build-directly"));
+            var button = $(this).find('[type="submit"]');
+            $.ajax({
+                url: '{{ route("project.buildProcess") }}',
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                complete: function() {
+                    $("#loading-image-preview").hide();
+                },
+                success: function(response) {
+                    if(response.code=='200'){
+                        toastr["success"](response.message);
+                        // $('#build-process-modal').modal('hide');
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                    $("#loading-image-preview").hide();
+                },
+                error: function(xhr, status, error) { // if error occured
+                    $("#loading-image-preview").hide();
+                },
+            });
         });
     })
 
