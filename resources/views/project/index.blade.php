@@ -6,13 +6,13 @@
         <h2 class="page-heading">Projects ({{ $projects->total() }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-6">
                     <form action="{{ route('project.index') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-3 pd-sm">
+                            <div class="col-md-4 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <?php 
 									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
 									else{ $store_websites_search = []; }
@@ -37,8 +37,9 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <div class="pull-right">
+                        <a href="{{ route('project.buildProcessErrorLogs') }}" class="btn btn-secondary"> Build Process Error Logs </a>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#projecttype-create"> Create Project Type </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
