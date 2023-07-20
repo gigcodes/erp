@@ -84,7 +84,7 @@ class ThemeStructureController extends Controller
         $project=$folder->theme->project->name;
         //dd([$action,$path,$directory,$theme,$project]);
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . ' theme_structure.sh -a "' . $action . '" -p "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
         
         \Log::info("Start Magento theme folder create");
         
@@ -135,7 +135,7 @@ class ThemeStructureController extends Controller
         $project=$file->theme->project->name;
         //dd([$action,$path,$directory,$theme,$project]);
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . ' theme_structure.sh -a "' . $action . '" -p "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
         
         \Log::info("Start Magento theme file create");
         
@@ -187,7 +187,7 @@ class ThemeStructureController extends Controller
             $theme=$item->theme->name;
             $project=$item->theme->project->name;
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . ' theme_structure.sh -a "' . $action . '" -p "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "'.$directory. '" -t "'.$theme.'" -p "'.$project. '" 2>&1';
         
             \Log::info("Start Magento theme folder/file delete");
             
