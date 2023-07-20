@@ -108,6 +108,39 @@
 		</div>
 	</div>
 </div>
+<!-- User Permission content-->
+<div class="modal fade" id="generate-user-permission-token-modal" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>User permission</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">	
+					@php
+   					 $users =  \App\User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+					@endphp
+
+				<div class="form-group custom-select2">
+					<label> Select users </label>
+				<label> Select users for </label>
+				<select class="w-100 js-example-basic-multiple js-states" multiple="multiple" name="user_permission[]" id="permission_user">
+					@foreach($users as $val)
+						<option data-id="{{ $user->store_website_id }}" value="{{ $val->id }}" class="form-control">{{ $val->name }}</option>
+					@endforeach
+				</select>
+	       	</div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-secondary btn-generate-user-permission submit float-right float-lg-right">Generate Permission</button>
+                </div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="store_websites_api_token_logs" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<!-- Modal content-->
@@ -140,14 +173,27 @@
 		</div>
 	</div>
 </div>
+@include('api-token-history')
 
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/store-website.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
+</script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
+</script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="{{ env('APP_URL') }}/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+    $(document).ready(function() {
+        $("#permission_user").select2();
+    });
+
 	$(document).on("click",".btn-copy-api-token",function() {
 		var apiToken = $(this).data('value');
 		var $temp = $("<input>");
@@ -358,6 +404,71 @@
 			window.location.reload();
 		}).fail(function(errObj) {
 		});
+	});
+
+	$(document).on('click','.btn-generate-user-permission',function(){
+		var selectedUsers = $('#permission_user').val();
+        var selectedOption = $('#permission_user option:selected');
+        var store_website_id = selectedOption.data('id');
+
+        if(selectedUsers==''){
+			toastr['error']('Select User!', 'error');
+			return;
+		}
+		
+		$.ajax({
+			url: 'user-permission/update',
+			dataType: "json",
+			type: "POST",
+			data: {
+				"store_website_id": store_website_id,
+				"users_id": selectedUsers,
+				"_token": "{{ csrf_token() }}",
+				
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+		}).done(function (response) {
+
+			$("#loading-image").hide();
+			if(response){
+				toastr['success'](response.message, 'success');
+			}else{
+				toastr['error'](response.message, 'error');
+			}
+			$('#generate-user-permission-token-modal').modal('hide');
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr['error']('No response from server', 'error');
+			$('#generate-user-permission-token-modal').modal('hide');
+		});
+	})
+	
+	$(document).on('click','.api-token-history',function(){
+        store_website_id = $(this).data('id');
+		$.ajax({
+                method: "GET",
+                url: `{{ route('store-website.token.histories', [""]) }}/` + store_website_id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.old_api_token != null) ? v.old_api_token : ' - ' } </td>
+                                        <td> ${(v.new_api_token != null) ? v.new_api_token : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name: ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#api-token-histories-list").find(".api-token-list-view").html(html);
+                        $("#api-token-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
 	});
 </script>
 
