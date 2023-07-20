@@ -17,6 +17,7 @@ use App\MagentoModuleCategory;
 use App\MagentoModuleVerifiedStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
+use App\MagentoModuleApiValueHistory;
 use App\MagentoModuleVerifiedStatusHistory;
 use App\MagentoModuleVerifiedBy;
 use App\MagnetoReviewStandardHistory;
@@ -376,6 +377,17 @@ class MagentoModuleController extends Controller
         ], 200);
     }
 
+    public function getApiValueHistories($magento_module)
+    {
+        $histories = MagentoModuleApiValueHistory::with(['user'])->where('magento_module_id', $magento_module)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
+    }
     public function getVerifiedStatusHistories($magento_module, $type)
     {
         $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus','oldStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
@@ -440,6 +452,15 @@ class MagentoModuleController extends Controller
         if ($request->columnName == 'return_type_error_status') {
             $oldStatusId = $oldData->return_type_error_status;
             $this->saveReturnTypeHistory($oldData, $oldStatusId , $request->data);
+        }
+        if ($request->columnName == 'api') {
+            
+            $history = new MagentoModuleApiValueHistory();
+            $history->magento_module_id = $request->id;
+            $history->old_value = $oldData->api;
+            $history->new_value = $request->data;
+            $history->user_id = Auth::user()->id;
+            $history->save();
         }
 
 
