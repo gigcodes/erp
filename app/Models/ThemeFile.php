@@ -20,6 +20,11 @@ class ThemeFile extends Model
         'position',
     ];
 
+    public function theme()
+    {
+        return $this->belongsTo(ProjectTheme::class, 'theme_id', 'id');
+    }
+    
     public function folder()
     {
        return $this->belongsTo(ThemeStructure::class, 'parent_id');

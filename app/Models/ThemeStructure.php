@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-#use App\Models\Theme;
+use App\Models\ProjectTheme;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,7 +22,7 @@ class ThemeStructure extends Model
 
     public function theme()
     {
-        return $this->belongsTo(Theme::class, 'theme_id', 'id');
+        return $this->belongsTo(ProjectTheme::class, 'theme_id', 'id');
     }
     
     public static function tree()
