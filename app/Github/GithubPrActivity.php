@@ -14,6 +14,8 @@ class GithubPrActivity extends Model
         'activity_id',
         'user',
         'event',
+        'label_name',
+        'label_color',
         'created_at',
         'updated_at',
     ];
