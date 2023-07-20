@@ -690,7 +690,7 @@ class RepositoryController extends Controller
                     $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
                     // Get Latest Activity for this PR
                     $pullRequests[$key]['latest_activity'] = [];
-                    $latestGithubPrActivity = GithubPrActivity::latest()
+                    $latestGithubPrActivity = GithubPrActivity::latest("activity_id")
                         ->where('github_organization_id', $organization->id)
                         ->where('github_repository_id', $repository->id)
                         ->where('pull_number', $pullRequest['id'])
@@ -700,6 +700,8 @@ class RepositoryController extends Controller
                             'activity_id' => $latestGithubPrActivity->activity_id,
                             'user' => $latestGithubPrActivity->user,
                             'event' => $latestGithubPrActivity->event,
+                            'label_name' => $latestGithubPrActivity->label_name,
+                            'label_color' => $latestGithubPrActivity->label_color,
                         ];
                     }
 
@@ -1075,15 +1077,32 @@ class RepositoryController extends Controller
                 \Log::info(print_r($activities,true));
                 if($activities) {
                     foreach($activities as $activity) {
-                        if (isset($activity['id']) && isset($activity['user']) && $activity['event']) {
+                        if (isset($activity['id']) && $activity['event']) {
+                            // Check if the event is a "labeled" event and contains label information
+                            $labelName = $labelColor = "";
+                            if ($activity['event'] === 'labeled' && isset($activity['label'])) {
+                                // Add the label name to the array
+                                $labelName = $activity['label']['name'];
+                                $labelColor = "#".$activity['label']['color'];
+                            }
+
+                            $user = "";
+                            if (isset($activity['user'])) {
+                                $user = $activity['user']['login'];
+                            } elseif(isset($activity['actor'])) {
+                                $user = $activity['actor']['login'];
+                            }
+
                             GithubPrActivity::updateOrCreate([
                                 'github_organization_id' => $organization->id,
                                 'github_repository_id' => $repository->id,
                                 'pull_number' => $pullNumber,
                                 'activity_id' => $activity['id'],
                             ], [
-                                'user' => $activity['user']['login'],
+                                'user' => $user,
                                 'event' => $activity['event'],
+                                'label_name' => $labelName,
+                                'label_color' => $labelColor
                             ]);
                         }
                     }

@@ -13,6 +13,10 @@
             <strong>Activity ID: </strong>{{$pullRequest['latest_activity']['activity_id']}}</br>
             <strong>User: </strong>{{$pullRequest['latest_activity']['user']}}</br>
             <strong>Event: </strong>{{$pullRequest['latest_activity']['event']}}
+            @if ($pullRequest['latest_activity']['event'] == "labeled")
+            </br>
+            <span class="badge" style="background-color: {{$pullRequest['latest_activity']['label_color']}}">{{$pullRequest['latest_activity']['label_name']}}</span>
+            @endif
             <button type="button" title="Activities" data-repo="{{$pullRequest['repository']['id']}}" data-pull-number="{{$pullRequest['id']}}" class="btn btn-xs show-pr-activities">
                 <i class="fa fa-eye"></i>
             </button>
