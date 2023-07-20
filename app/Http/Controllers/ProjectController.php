@@ -157,13 +157,40 @@ class ProjectController extends Controller
             $user_id=6;
         }
         if($repository_id==''){
+            BuildProcessErrorLog::log([
+                'project_id' => "",
+                'error_message' => 'Repository data can not be empty!',
+                'error_code' => "500",
+                'github_organization_id' => "",
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => ""
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Repository data can not be empty!']);
         }
         $repositoryData = \App\Github\GithubRepository::find($repository_id);
         if(!$repositoryData){
+            BuildProcessErrorLog::log([
+                'project_id' => "",
+                'error_message' => 'Repository data not found!',
+                'error_code' => "500",
+                'github_organization_id' => "",
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => ""
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Repository data not found!']);
         }
         if($branch_name==''){
+            BuildProcessErrorLog::log([
+                'project_id' => "",
+                'error_message' => 'Branch data can not be empty!',
+                'error_code' => "500",
+                'github_organization_id' => "",
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => $branch_name
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
         }
         if($request->has("project_type") && $request->project_type!=''){
@@ -171,6 +198,15 @@ class ProjectController extends Controller
             $projects=Project::where('project_type',$project_type)->get()->pluck('id')->toArray();
         }
         if(empty($projects)){
+            BuildProcessErrorLog::log([
+                'project_id' => "",
+                'error_message' => 'Please select projects for build process!',
+                'error_code' => "500",
+                'github_organization_id' => "",
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => $branch_name
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Please select projects for build process!']);
         }
         
@@ -321,14 +357,41 @@ class ProjectController extends Controller
         $branch_name = $request->branch_name;
         $job_name = $request->job_name;
         $organization = $request->organization;
+        $projectId = $request->project_id;
         
         if($repository==''){
+            BuildProcessErrorLog::log([
+                'project_id' => $projectId,
+                'error_message' => 'Please select repository',
+                'error_code' => "500",
+                'github_organization_id' => "",
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => ""
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Please select repository']);
         }
         if($branch_name==''){
+            BuildProcessErrorLog::log([
+                'project_id' => $projectId,
+                'error_message' => 'Please select Branch',
+                'error_code' => "500",
+                'github_organization_id' => $organization,
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => $branch_name
+            ]);
             return response()->json(['code' => 500, 'message' => 'Please select Branch']);
         }
         if($job_name==''){
+            BuildProcessErrorLog::log([
+                'project_id' => "",
+                'error_message' => 'Please Enter Job Name',
+                'error_code' => "500",
+                'github_organization_id' => $organization,
+                'github_repository_id' => $repository_id,
+                'github_branch_state_name' => $branch_name
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'Please Enter Job Name']);
         }
 
