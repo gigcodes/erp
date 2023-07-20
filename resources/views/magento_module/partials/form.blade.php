@@ -88,7 +88,7 @@
     <div class="col-xs-4 col-sm-4">
         <div class="form-group">
             <strong>API:</strong>
-            {!! Form::select('api', ['0' => 'No', '1' => 'Yes'], null, ['id'=>'api', 'placeholder' => 'Select API', 'class' => 'form-control', 'required' => 'required']) !!}
+            {!! Form::select('api', ['0' => 'No', '1' => 'Yes','2' => 'API Error', '3' => 'API Error Resolve'], null, ['id'=>'api', 'placeholder' => 'Select API', 'class' => 'form-control', 'required' => 'required']) !!}
             @if ($errors->has('api'))
                 <span style="color:red">{{ $errors->first('api') }}</span>
             @endif

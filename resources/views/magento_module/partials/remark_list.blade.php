@@ -65,6 +65,12 @@
                 </div>             
                 <div class="col-xs-12 col-sm-6">
                     <div class="form-group">
+                        <strong>API Issues:</strong>
+                        {!! Form::textarea('mmanr-api_issues', null, ['id'=>'mmanr-api_issues','placeholder' => 'API Issues', 'class' => 'form-control', 'rows' => 4, 'cols' => 40]) !!}
+                    </div>
+                </div>             
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
                         <strong>Performance Issues:</strong>
                         {!! Form::textarea('mmanr-performance_issues', null, ['id'=>'mmanr-performance_issues','placeholder' => 'Performance Issues', 'class' => 'form-control', 'rows' => 4, 'cols' => 40]) !!}
                     </div>
