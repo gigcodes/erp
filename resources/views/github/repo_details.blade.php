@@ -24,7 +24,11 @@
                             <td>{{$key+1}}</td>
                             <td>{{$repo->name}}</td>
                             <td>
-                                <input type="checkbox" name="repostatus[]" value="{{$repo->id}}" data-repo_id="{{$repo->id}}" class="repostatus">
+                                <input type="checkbox" name="repostatus[]" value="{{ $repo->id }}" data-repo_id="{{ $repo->id }}" class="repostatus" 
+                                    @if ($repo->repo_status == 1)
+                                        checked="checked"
+                                    @endif
+                                >
                             </td>
                         </tr>
                         @endforeach 
