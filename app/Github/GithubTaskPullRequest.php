@@ -11,7 +11,7 @@ class GithubTaskPullRequest extends Model
 
     protected $fillable = [
         'id',
-        'github_task_id',
+        'task_id',
         'github_organization_id',
         'github_repository_id',
         'pull_number',
@@ -19,8 +19,8 @@ class GithubTaskPullRequest extends Model
         'updated_at',
     ];
 
-    public function githubTask()
+    public function task()
     {
-        return $this->belongsTo(GithubTask::class);
+        return $this->belongsTo(Task::class);
     }
 }

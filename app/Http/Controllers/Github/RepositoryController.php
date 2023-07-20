@@ -34,6 +34,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\Models\Project;
+use App\Task;
+use App\User;
+use Auth;
 
 class RepositoryController extends Controller
 {
@@ -1163,10 +1166,24 @@ class RepositoryController extends Controller
         $organization = $repository->organization;
 
         // Save Task
-        $githubTask = GithubTask::updateOrCreate([
-            'task_name' => $data['task_name'],
-            'assign_to' => $data['assign_to']
-        ]);
+        // $githubTask = GithubTask::updateOrCreate([
+        //     'task_name' => $data['task_name'],
+        //     'assign_to' => $data['assign_to']
+        // ]);
+        $task = Task::where("task_subject", $data['task_name'])->where('assign_to', $data['assign_to'])->first();
+        if (!$task) {
+            $data['assign_from'] = Auth::id();
+            $data['is_statutory'] = 0;
+            $data['task_details'] = $data['task_name'];
+            $data['task_subject'] = $data['task_name'];
+            $data['assign_to'] = $data['assign_to'];
+
+            $task = Task::create($data);
+
+            if ($data['assign_to']) {
+                $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+            }
+        }
 
         // Save task PR's 
         foreach($selectedPRs as $selectedPR) {
@@ -1174,7 +1191,7 @@ class RepositoryController extends Controller
                 "github_organization_id" => $organization->id,
                 "github_repository_id" => $repository->id,
                 "pull_number" => $selectedPR,
-                "github_task_id" => $githubTask->id,
+                "task_id" => $task->id,
             ]);
         }
 
