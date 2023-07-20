@@ -692,7 +692,9 @@ class MagentoModuleController extends Controller
                 \Log::info("return_var:".$return_var);
 
                 if(!isset($output[0])){
-                    $return_data[] = response()->json(['code' => 500, 'message' => 'The response is not found!' ,'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id]);
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => "The response is not found!"]);
+
+                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!' ,'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
                     continue;
                 }
 
@@ -702,15 +704,18 @@ class MagentoModuleController extends Controller
                     if(isset($response->message) && $response->message!=''){
                         $message=$response->message;
                     }
-                    $return_data[] = response()->json(['code' => 200, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id]);
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' => $message]);
+
+                    $return_data[] = ['code' => 200, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
                     continue;
                 }else{
                     $message = "Something Went Wrong! Please check Logs for more details";
                     if(isset($response->message) && $response->message!=''){
                         $message=$response->message;
                     }
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
 
-                    $return_data[] = response()->json(['code' => 500, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id]);
+                    $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
                     continue;
                 }
             } else {
