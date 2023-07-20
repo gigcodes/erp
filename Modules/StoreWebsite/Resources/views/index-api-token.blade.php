@@ -410,6 +410,17 @@
 
 	$(document).on('click', '.user-api-token', function() {
 		storwebsitevalue = $(this).data('id');
+		var selectedUsers = $(this).data('seletedusers');
+		var userCount = selectedUsers.length;
+		
+		$("#generate-user-permission-token-modal #permission_user").val("").trigger('change');
+		
+		if (userCount >= 2) {
+			var permission_users = selectedUsers.split(',');
+			$("#generate-user-permission-token-modal #permission_user").val(permission_users).trigger('change');
+		} else {
+			$("#generate-user-permission-token-modal #permission_user").val(selectedUsers).trigger('change');
+		}             
 	});
 
 	$(document).on('click','.btn-generate-user-permission',function(){

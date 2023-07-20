@@ -1494,12 +1494,23 @@ class StoreWebsiteController extends Controller
 
     public function generateApiToken(Request $request)
     {
+        $storeId = current(array_filter($request->update_website_api_id));
+        $oldStoreWebsite =  StoreWebsite::find($storeId);
+        $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+        $storeWebsiteHistory->store_websites_id = $oldStoreWebsite->id;
+        $storeWebsiteHistory->old_api_token = $oldStoreWebsite->api_token;
+        $storeWebsiteHistory->updatedBy = Auth::id();
+
         $apiTokens = $request->api_token;
 
         if ($request->api_token) {
             foreach ($apiTokens as $key => $apiToken) {
                 StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
             }
+            $newStoreWebsite =  StoreWebsite::find($storeId);
+            $storeWebsiteHistory->new_api_token = $newStoreWebsite->api_token;
+            $storeWebsiteHistory->save();
+
             session()->flash('msg', 'Api Token Updated Successfully.');
 
             return redirect()->back();
