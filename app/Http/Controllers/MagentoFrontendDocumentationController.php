@@ -54,11 +54,6 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentofrontendStore(Request $request)
     {
-        $data = $this->validate($request, [
-            'read' => ['sometimes'],
-            'write' => ['sometimes'],
-        ]);
-
         $magentofrontenddocs = [];
 
         $magentofrontenddoc = new MagentoFrontendDocumentation();
@@ -67,8 +62,8 @@ class MagentoFrontendDocumentationController extends Controller
         $magentofrontenddoc->location = $request->location;
         $magentofrontenddoc->admin_configuration = $request->admin_configuration;
         $magentofrontenddoc->frontend_configuration = $request->frontend_configuration;
-        $magentofrontenddoc->read = isset($data['read']) ? implode(',', $data['read']) : null;
-        $magentofrontenddoc->write = isset($data['write']) ? implode(',', $data['write']) : null;
+        $magentofrontenddoc->read = $request->read ? implode(',',  $request->read) : null;
+        $magentofrontenddoc->write =$request->write ? implode(',', $request->write) : null;
         $magentofrontenddoc->save();
 
 
