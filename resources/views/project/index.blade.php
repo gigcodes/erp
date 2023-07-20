@@ -123,6 +123,18 @@
                                     <button title="Build Process History" data-id="{{ $project->id }}" type="button" class="btn" style="padding:1px 0px;">
                                         <a href="{{route("project.buildProcessLogs", $project->id)}}" style="color:gray;"><i class="fa fa-info-circle"></i></a>
                                     </button>
+
+                                    {{-- Directly initiate the build for (org: LUDXB & Repository:brands-labels & Branch: stage ) --}}
+                                    {!! Form::open(['method' => 'POST','route' => ['project.buildProcess'],'style'=>'display:inline']) !!}
+                                    {!! Form::hidden('project_id', $project->id, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('job_name', $project->job_name, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('organization', 2, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('repository', 353671452, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('branch_name', 'stage', ['class' => 'form-control']) !!}
+                                    <button title="Initiate Build Directly" type="submit" class="btn btn-xs">
+                                        <i class="fa fa-simplybuilt" style="color: #808080;"></i>
+                                    </button>
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach
