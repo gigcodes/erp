@@ -679,7 +679,7 @@ class MagentoModuleController extends Controller
             // 3 = meta-package
             if($magento_modules->magneto_location_id == '3') {
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-                $project = "Testing";
+                $project = $storeWebsite->title;
                 $moduleName = $magento_modules->module;
                 $moduleStatus = "disable";
                 if($status){
