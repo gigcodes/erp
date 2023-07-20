@@ -6,13 +6,13 @@
         <h2 class="page-heading">Projects ({{ $projects->total() }})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-6">
                     <form action="{{ route('project.index') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-3 pd-sm">
+                            <div class="col-md-4 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <?php 
 									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
 									else{ $store_websites_search = []; }
@@ -37,8 +37,9 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <div class="pull-right">
+                        <a href="{{ route('project.buildProcessErrorLogs') }}" class="btn btn-secondary"> Build Process Error Logs </a>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#projecttype-create"> Create Project Type </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
@@ -123,6 +124,18 @@
                                     <button title="Build Process History" data-id="{{ $project->id }}" type="button" class="btn" style="padding:1px 0px;">
                                         <a href="{{route("project.buildProcessLogs", $project->id)}}" style="color:gray;"><i class="fa fa-info-circle"></i></a>
                                     </button>
+
+                                    {{-- Directly initiate the build for (org: LUDXB & Repository:brands-labels & Branch: stage ) --}}
+                                    {!! Form::open(['method' => 'POST','route' => ['project.buildProcess'],'style'=>'display:inline', 'id' => "initiate-build-directly"]) !!}
+                                    {!! Form::hidden('project_id', $project->id, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('job_name', $project->job_name, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('organization', 2, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('repository', 353671452, ['class' => 'form-control']) !!}
+                                    {!! Form::hidden('branch_name', 'stage', ['class' => 'form-control']) !!}
+                                    <button title="Please initiate stage branch build" type="submit" class="btn btn-xs">
+                                        <i class="fa fa-gear" style="color: #808080;"></i>
+                                    </button>
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach
@@ -271,6 +284,41 @@
                 $("#project-edit-form #assign-new-website").val(selectedWebsites).trigger('change');
                 $("#project-edit").modal("show");
             }).fail(function(response) {});
+        });
+
+        $(document).on('submit', 'form#initiate-build-directly', function(e){
+            e.preventDefault();
+            var self = $(this);
+            let formData = new FormData(document.getElementById("initiate-build-directly"));
+            var button = $(this).find('[type="submit"]');
+            $.ajax({
+                url: '{{ route("project.buildProcess") }}',
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                complete: function() {
+                    $("#loading-image-preview").hide();
+                },
+                success: function(response) {
+                    if(response.code=='200'){
+                        toastr["success"](response.message);
+                        // $('#build-process-modal').modal('hide');
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                    $("#loading-image-preview").hide();
+                },
+                error: function(xhr, status, error) { // if error occured
+                    $("#loading-image-preview").hide();
+                },
+            });
         });
     })
 
