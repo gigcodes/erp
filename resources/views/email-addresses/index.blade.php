@@ -365,6 +365,24 @@
           </div>
           <div class="row">
             <div class="form-group col-md-4">
+              <strong>Incoming Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="incoming_driver" class="form-control" value="{{ old('incoming_driver', $defaultDriver) }}" required>
+
+              @if ($errors->has('incoming_driver'))
+                <div class="alert alert-danger">{{$errors->first('incoming_driver')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Outgoing Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="driver" class="form-control" value="{{ old('driver', $defaultDriver) }}" required>
+
+              @if ($errors->has('driver'))
+                <div class="alert alert-danger">{{$errors->first('driver')}}</div>
+              @endif
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-4">
               <strong>Host<span class="text-danger">*</span>:</strong>
               <input type="text" name="host" class="form-control" value="{{ old('host', $defaultHost) }}" required>
 
@@ -643,8 +661,23 @@
                   <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
               @endif
             </div>
+            
+          </div>
+          <div class="row">
             <div class="form-group col-md-4">
-              <strong>Driver<span class="text-danger">*</span>:</strong>
+              <strong>Incoming Driver<span class="text-danger">*</span>:</strong>
+              <Select name="incoming_driver" id="edit_incoming_driver" class="form-control required">
+                <option value = ''>Select Driver</option>
+                @foreach ($allIncomingDriver as $driver)
+                  <option value="{{ $driver }}">{{ $driver }}</option>
+                @endforeach
+              </Select>
+              @if ($errors->has('incoming_driver'))
+                <div class="alert alert-danger">{{$errors->first('incoming_driver')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Outgoing Driver<span class="text-danger">*</span>:</strong>
               <Select name="driver" id="edit_driver" class="form-control required">
                 <option value = ''>Select Driver</option>
                 @foreach ($allDriver as $driver)
@@ -657,6 +690,7 @@
             </div>
           </div>
           <div class="row">
+            
             <div class="form-group col-md-4">
               <strong>Host<span class="text-danger">*</span>:</strong>
               <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
@@ -1015,6 +1049,7 @@
 
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 
+    $('#edit_incoming_driver').val(emailAddress.incoming_driver).trigger('change');
     $('#edit_driver').val(emailAddress.driver).trigger('change');
     $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_port').val(emailAddress.port).trigger('change');

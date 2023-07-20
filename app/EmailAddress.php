@@ -28,6 +28,7 @@ class EmailAddress extends Model
     protected $fillable = [
         'from_name',
         'from_address',
+        'incoming_driver',
         'driver',
         'host',
         'port',

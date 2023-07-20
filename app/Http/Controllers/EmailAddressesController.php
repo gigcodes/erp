@@ -62,6 +62,8 @@ class EmailAddressesController extends Controller
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         $allDriver = EmailAddress::pluck('driver')->unique();
+        $allIncomingDriver = EmailAddress::pluck('incoming_driver')->unique();
+        
         $allPort = EmailAddress::pluck('port')->unique();
         $allEncryption = EmailAddress::pluck('encryption')->unique();
 
@@ -86,6 +88,7 @@ class EmailAddressesController extends Controller
                 'emailAddress' => $emailAddress,
                 'allStores' => $allStores,
                 'allDriver' => $allDriver,
+                'allIncomingDriver' => $allIncomingDriver,
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
@@ -102,6 +105,7 @@ class EmailAddressesController extends Controller
                 'emailAddress' => $emailAddress,
                 'allStores' => $allStores,
                 'allDriver' => $allDriver,
+                'allIncomingDriver' => $allIncomingDriver,
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
@@ -136,6 +140,7 @@ class EmailAddressesController extends Controller
         $this->validate($request, [
             'from_name' => 'required|string|max:255',
             'from_address' => 'required|string|max:255',
+            'incoming_driver' => 'required|string|max:255',
             'driver' => 'required|string|max:255',
             'host' => 'required|string|max:255',
             //'send_grid_token' => 'required|string',
@@ -192,6 +197,7 @@ class EmailAddressesController extends Controller
         $this->validate($request, [
             'from_name' => 'required|string|max:255',
             'from_address' => 'required|string|max:255',
+            'incoming_driver' => 'required|string|max:255',
             'driver' => 'required|string|max:255',
             'host' => 'required|string|max:255',
             'port' => 'required|string|max:255',
@@ -513,7 +519,7 @@ class EmailAddressesController extends Controller
     {
         $mailHelper = new VirtualminHelper();
         $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
-        $vmHost = $result['host'] ? $result['host'] : '';
+        $vmHost = isset($result['host']) ? $result['host'] : '';
         $status = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->changeMailPassword($smtpHost, $user, $password);
