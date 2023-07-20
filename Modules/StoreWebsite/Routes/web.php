@@ -51,6 +51,7 @@ Route::group([
     Route::get('get-admin-password', [StoreWebsiteController::class, 'getAdminPassword']);
     Route::post('user-permission/update', [StoreWebsiteController::class, 'userPermission'])->name('store-website.user.permission');
     Route::get('api-token-histories/{id}', [StoreWebsiteController::class, 'apiTokenHistory'])->name('store-website.token.histories');
+    Route::get('version-numbers', [StoreWebsiteController::class, 'versionNumbers'])->name('store-website.version-numbers');
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 

@@ -18,6 +18,40 @@
   .select2{
     width:200px !important;
   }
+  #postmanform label{
+    text-transform: capitalize;
+    line-height: 31px;
+  }
+  .label-btn{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .label-btn .btn{
+    height: 30px !important;
+    line-height: 17px;
+    margin: 0 !important;
+  }
+
+  .modal-header .close {
+    font-size: 23px;
+    color: #000;
+    opacity: 1;
+    margin: 0rem 0rem 0rem auto;
+  }
+  .modal-content .modal-header .close{
+    margin-top: -15px !important;
+
+  }
+
+  .modal-header .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .custom-select + .select2.select2-container.select2-container--default{
+    height: 32px;
+  }
 </style>
 
 @endsection
@@ -71,7 +105,7 @@
             if(request('request_name')){   $request_nameArr = request('request_name'); }
             else{ $request_nameArr = []; }
           ?>
-          <select name="request_name[]" class="form-control select2" multiple id="request_name">
+          <select name="request_name[]" class="form-control select2 custom-select" multiple id="request_name">
             <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
             @foreach ($listRequestNames as $key => $reqName)
             <?php
@@ -139,6 +173,8 @@
   <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
+  <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
+
 
   <div class="col-12">
     <h3>Assign Permission to User</h3>
@@ -189,6 +225,7 @@
           <tr>
             <th style="width: 3%;">ID</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
+            <th style="width: 22%;overflow-wrap: anywhere;">PostMan Status</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
@@ -222,6 +259,15 @@
               <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
             </td>
+            <td style="width: 22%;">
+              <select name="status" class="status-dropdown" data-id="{{$postman->id}}">
+                <option value="">Select Status</option>
+                @foreach ($status as $stat)
+                  <option value="{{$stat->id}}" {{$postman->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
+                @endforeach
+              </select>
+            </td>
+            
             <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
               <span class="show-short-controller_name-{{$postman->id}}">{{ Str::limit($postman->controller_name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-controller_name-{{$postman->id}} hidden">{{$postman->controller_name}}</span>
@@ -305,6 +351,7 @@
                       <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+                      <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
                     </div>
                 </div>
             </td>
@@ -323,6 +370,34 @@
   </div>
 </div>
 @endsection
+ <!-- Stuatus Create  Modal content-->
+ <div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <div id="postmanHistory" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
@@ -580,11 +655,11 @@
             </button>
           </div>
           <div class="modal-body">
-            <form id="postmanform" method="post">
+            <form id="postmanform" method="post" class="mb-0">
               @csrf
               <div class="form-row">
                 <input type="hidden" id="post_id" name="id" value="" />
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="title">User Name</label>
                     <div class="dropdown-sin-1 postman-dropdown-display">
@@ -614,7 +689,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="request_name">Request Name</label>
                     <input type="text" name="request_name" value="" class="form-control" id="request_name" placeholder="Enter request name">
@@ -630,15 +705,17 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
-                  <label for="request_url">Request Url</label>
-                  <div class="form-group add_more_urls_div">
-                    <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                <div class="form-group col-md-12 mb-0">
+                  <div class="form-group col-md-12">
+                    <label for="request_url">Request Url</label>
+                    <div class="form-group add_more_urls_div">
+                      <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                    </div>
+                    <br>
+                    <a style="cursor: pointer;" class="add_more_urls"><i class="fa fa-plus"> Add more</i></a>
                   </div>
-                  <br>
-                  <a style="cursor: pointer;" class="add_more_urls"><i class="fa fa-plus"> Add more</i></a>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="controller_name">Controller Name</label>
                     <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
@@ -648,7 +725,7 @@
                     <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="remark">Remark</label>
                     <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
@@ -656,10 +733,10 @@
 
                   <div class="form-group col-md-6">
                     <label for="params">Params</label>
-                    <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
+                    <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2" style="height: 34px;"></textarea>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="authorization_type">Authorization type</label>
                     <select name="authorization_type" value="" class="form-control" id="authorization_type">
@@ -672,10 +749,10 @@
                     <input type="text" name="authorization_token" value="" class="form-control" id="authorization_token" placeholder="Enter authorization token">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="request_headers">headers</label>
-                    <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2"></textarea>
+                    <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2" style="height: 34px;"></textarea>
                   </div>
                   <div class="form-group col-md-6">
                     <label for="body_type">Body type</label>
@@ -684,9 +761,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
-                    <label for="body_json">Body Json
+                    <label for="body_json" class="label-btn">Body Json
                       <button type="button" class="btn custom-button float-right mr-3 add-json" data-toggle="modal" data-target="#addPostmanJsonModel">Add Json</button>
                     </label>
                     <?php
@@ -703,10 +780,10 @@
                   </div>
                   <div class="form-group col-md-6">
                     <label for="pre_request_script">Pre request script</label>
-                    <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script"></textarea>
+                    <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script" style="height: 34px;"></textarea>
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="tests">Tests</label>
                     <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
@@ -717,7 +794,7 @@
                   </div>
                 </div>
 
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="grumphp_errors">Grumphp Errors</label>
                     <input type="text" name="grumphp_errors" value="" class="form-control" id="grumphp_errors" placeholder="Enter Grumphp Errors">
@@ -727,7 +804,7 @@
                     <input type="text" name="magento_api_standards" value="" class="form-control" id="magento_api_standards" placeholder="Enter Magento API Standards">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="swagger_doc_block">Swagger DocBlock</label>
                     <input type="text" name="swagger_doc_block" value="" class="form-control" id="swagger_doc_block" placeholder="Enter Swagger DocBlock">
@@ -737,7 +814,7 @@
                     <input type="text" name="used_for" value="" class="form-control" id="used_for" placeholder="Enter Used for">
                   </div>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-6">
                     <label for="user_in">Used in</label>
                     <select name="user_in" value="" class="form-control" id="user_in">
@@ -980,6 +1057,8 @@
     </div>
   </div>
 </div>
+{{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
+@include('postman.postman-status-history')
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1046,11 +1125,11 @@
   $(document).on("click", ".openmodeladdpostman", function(e) {
     $('#titleUpdate').html("Add");
     $('.add_more_urls_div').html('');
-    $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
+    $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
     $('#postmanform').find("input[type=text], textarea").val("");
   });
   $(document).on("click", ".add_more_urls", function(e) {
-    $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
+    $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
   });
 
   $(document).on("click", "#see_users", function(e) {
@@ -1604,5 +1683,88 @@
     $('#per_user_name').select2();
     $('#per_folder_name ').select2();
   });
+
+  $(document).on("click", ".status-save-btn", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+      url: "{{route('postman.status.create')}}",
+      type: "post",
+      data: $('#status-create-form').serialize()
+    }).done(function(response) {
+      if (response.code = '200') {
+        $('#loading-image').hide();
+        $('#addPostman').modal('hide');
+        toastr['success']('Status  Created successfully!!!', 'success');
+        location.reload();
+      } else {
+        toastr['error'](response.message, 'error');
+      }
+    }).fail(function(errObj) {
+      $('#loading-image').hide();
+      toastr['error'](errObj.message, 'error');
+    });
+  });
+
+
+  $(document).ready(function() {
+    $('.status-dropdown').change(function(e) {
+      e.preventDefault();
+      var postId = $(this).data('id');
+      var selectedStatus = $(this).val();
+      console.log("Dropdown data-id:", postId);
+      console.log("Selected status:", selectedStatus);
+
+
+      // Make an AJAX request to update the status
+      $.ajax({
+        url: '/postman/update-status',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          postId: postId,
+          selectedStatus: selectedStatus
+        },
+        success: function(response) {
+          toastr['success']('Status  Created successfully!!!', 'success');
+          console.log(response);
+        },
+        error: function(xhr, status, error) {
+          // Handle the error here
+          console.error(error);
+        }
+      });
+    });
+  });
+
+    // Load settings value Histories
+    $(document).on('click', '.status-history-show', function() {
+            var id = $(this).attr('data-id');
+                $.ajax({
+                    method: "GET",
+                    url: `{{ route('postman.status.histories', [""]) }}/` + id,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+                            var html = "";
+                            $.each(response.data, function(k, v) {
+                                html += `<tr>
+                                            <td> ${k + 1} </td>
+                                            <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                            <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                            <td> ${v.created_at} </td>
+                                        </tr>`;
+                            });
+                            $("#postman-status-histories-list").find(".postman-status-histories-list-view").html(html);
+                            $("#postman-status-histories-list").modal("show");
+                        } else {
+                            toastr["error"](response.error, "Message");
+                        }
+                    }
+                });
+      });
 </script>
 @endsection

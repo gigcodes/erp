@@ -1914,4 +1914,10 @@ class StoreWebsiteController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function versionNumbers()
+    {
+        $storeWebsites = StoreWebsite::all();
+        return view('storewebsite::version-number', compact('storeWebsites'));
+    }
 }

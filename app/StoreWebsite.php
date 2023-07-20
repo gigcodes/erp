@@ -238,4 +238,15 @@ class StoreWebsite extends Model
     {
         return self::where(['tag_id' => $tag_id])->select('tag_id', 'id')->whereNotNull('tag_id')->get();
     }
+
+    // Custom accessor to get the latest 10 versions
+    public function getLatestTenVersionsAttribute()
+    {
+        return $this->versions()->take(10)->get();
+    }
+
+    public function versions()
+    {
+        return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest("id");
+    }
 }
