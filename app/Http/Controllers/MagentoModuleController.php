@@ -697,6 +697,49 @@ class MagentoModuleController extends Controller
             }
             $magento_module_id=$magento_modules->id;
 
+            // 3 = meta-package
+            if($magento_modules->magneto_location_id == '3') {
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+                $project = $storeWebsite->title;
+                $moduleName = $magento_modules->module;
+                $moduleStatus = "disable";
+                if($status){
+                    $moduleStatus = "enable";
+                }
+                $cmd = "bash $scriptsPath" . "meta-package-update.sh -p \"$project\" -m \"$moduleName\" -a \"$moduleStatus\" 2>&1";
+                $result = exec($cmd, $output, $return_var);
+                \Log::info("command:".$cmd);
+                \Log::info("output:".print_r($output,true));
+                \Log::info("return_var:".$return_var);
+
+                if(!isset($output[0])){
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => json_encode($output)]);
+
+                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!' ,'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                    continue;
+                }
+
+                $response = json_decode($output[0]);
+                if(isset($response->status)  && ($response->status=='true' || $response->status)){
+                    $message = "Magento module status change successfully";
+                    if(isset($response->message) && $response->message!=''){
+                        $message=$response->message;
+                    }
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Success", 'response' =>json_encode($output)]);
+
+                    $return_data[] = ['code' => 200, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                    continue;
+                }else{
+                    $message = "Something Went Wrong! Please check Logs for more details";
+                    if(isset($response->message) && $response->message!=''){
+                        $message=$response->message;
+                    }
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => "Error", 'response' => json_encode($output)]);
+
+                    $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
+                    continue;
+                }
+            } else {
             $cwd='';
             $assetsmanager = new AssetsManager;
             if($storeWebsite){
@@ -794,6 +837,7 @@ class MagentoModuleController extends Controller
                 
                 $return_data[]=['code' => 500, 'message' =>"Assets Manager & Client id not found the Store Website!",'store_website_id'=>$store_website_id,'magento_module_id'=>$magento_module_id];
                 continue;
+            }
             }
 
             \Log::info("End Magento module change status");
