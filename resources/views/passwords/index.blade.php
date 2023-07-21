@@ -149,6 +149,83 @@
         var passGetRemark = "{{route('password.create.get.remark')}}";
         var passwordIndex = "{{ route('password.index') }}";
         var showPasswordEdit = "{{ route('password.show.edit-data') }}";
+
+        $(document).ready(function () {
+            src = passwordIndex;
+            $(".global").autocomplete({
+                source: function (request, response) {
+                term = $("#term").val();
+                date = $("#date").val();
+
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                    term: term,
+                    date: date,
+                    },
+                    beforeSend: function () {
+                    $("#loading-image").show();
+                    },
+                })
+                    .done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#passwords-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $("ul.pagination").replaceWith(data.links);
+                    } else {
+                        $("ul.pagination").replaceWith('<ul class="pagination"></ul>');
+                    }
+                    })
+                    .fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert("No response from server");
+                    });
+                },
+                minLength: 1,
+            });
+        });
+
+        $(document).ready(function () {
+            src = passwordIndex;
+            $(".search").autocomplete({
+                source: function (request, response) {
+                website = $("#website").val();
+                username = $("#username").val();
+                password = $("#password").val();
+                registered_with = $("#registered_with").val();
+
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                    website: website,
+                    username: username,
+                    password: password,
+                    registered_with: registered_with,
+                    },
+                    beforeSend: function () {
+                    $("#loading-image").show();
+                    },
+                })
+                .done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#passwords-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $("ul.pagination").replaceWith(data.links);
+                    } else {
+                        $("ul.pagination").replaceWith('<ul class="pagination"></ul>');
+                    }
+                    })
+                    .fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert("No response from server");
+                    });
+                 },
+                minLength: 1,
+            });
+        });
+   
     </script>
     <script type="text/javascript" src="{{asset('js/custom-passwords.js')}}"></script>
 @endsection

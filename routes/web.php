@@ -527,6 +527,7 @@ Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildP
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
@@ -611,6 +612,7 @@ Route::middleware('auth')->group(function () {
     Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
     Route::post('project/pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
     Route::get('project/build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
+    Route::get('project/build-process-error-logs', [ProjectController::class, 'buildProcessErrorLogs'])->name('project.buildProcessErrorLogs');
     Route::get('project/build-process-status-logs', [ProjectController::class, 'buildProcessStatusLogs'])->name('project.buildProcessStatusLogs');
     Route::get('project/{id}',[ProjectController::class, 'edit'])->name('project.edit');
     Route::post('project/{id}',[ProjectController::class, 'update'])->name('project.update');
@@ -4257,6 +4259,7 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
+        Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);

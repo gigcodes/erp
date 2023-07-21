@@ -46,16 +46,26 @@ class FetchEmail implements ShouldQueue
         //
         $emailAddress = $this->emailAddress;
         try {
-            $cm = new ClientManager();
+           $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => $emailAddress->host,
                 'port' => $emailAddress->port,
-                'encryption' => 'ssl',
+                'encryption' => $emailAddress->encryption,
                 'validate_cert' => false,
                 'username' => $emailAddress->username,
                 'password' => $emailAddress->password,
                 'protocol' => 'imap',
             ]);
+            /*$cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => $emailAddress->host,
+                'port' => 993,
+                'encryption' => 'ssl',
+                'validate_cert' => false,
+                'username' => $emailAddress->username,
+                'password' => $emailAddress->password,
+                'protocol' => 'imap',
+            ]);*/
 
             $imap->connect();
 
@@ -351,7 +361,7 @@ class FetchEmail implements ShouldQueue
             ];
             EmailRunHistories::create($historyParam);
             \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
-            throw new \Exception($e->getMessage());
+            //throw new \Exception($e->getMessage());
         }
     }
 

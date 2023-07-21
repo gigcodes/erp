@@ -19,6 +19,7 @@
 </style>
 
 @include('github.repo_details')
+@include('github.include.github-task-create')
 
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
@@ -61,15 +62,16 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="" class="form-label">Repository</label>
             <select name="repoId" id="repoId" class="form-control">
                 
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-7">
             <div class="text-right pl-5">
+                <button class="btn btn-sm btn-secondary" onclick="createPRTask()"> Create PR Task </button>
                 <button class="btn btn-sm btn-secondary" onclick="updateLabelActivities()"> Update Label Activities </button>
                 <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
                 <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy ERP Master</a>
@@ -560,5 +562,52 @@
             toastr["error"](error.responseJSON.message);
         });
     }
+
+    var selected_rows_for_pr_task = [];
+    var selected_repo_id_for_pr_task_ = "";
+
+    function createPRTask()
+    {
+        event.preventDefault();
+
+        selected_rows_for_pr_task = [];
+        selected_repo_id_for_pr_task_ = "";
+        $(".bulk_select_pull_request").each(function () {
+            if ($(this).prop("checked") == true) {
+                selected_rows_for_pr_task.push($(this).val());
+                selected_repo_id_for_pr_task_ = $(this).data("repo");
+            }
+        });
+
+        if (selected_rows_for_pr_task.length == 0) {
+            alert('Please select any row');
+            return false;
+        }
+
+        $('#github-task-create').modal('show');
+    }
+
+    $(document).on('submit', '#github-task-create-form', function (e) {
+        e.preventDefault();
+        var data = $(this).serializeArray();
+        data.push({name: 'selected_rows', value: selected_rows_for_pr_task});
+        data.push({name: 'selected_repo_id', value: selected_repo_id_for_pr_task_});
+        $.ajax({
+            url: "{{route('github.github-task.store')}}",
+            type: 'POST',
+            data: data,
+            success: function (response) {
+                if (response.code == 200) {
+                    toastr['success'](response.message);
+                    location.reload();
+                } else {
+                    toastr['error'](response.message);
+                }
+            },
+            error: function () {
+                alert('There was error loading priority task list data');
+            }
+        });
+    });
 </script>
 @endsection

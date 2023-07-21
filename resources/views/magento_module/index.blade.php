@@ -298,6 +298,8 @@
     @include('partials.plain-modal')
     {{-- #remark-area-list --}}
     @include('magento_module.partials.remark_list')
+    {{-- #api-value-histories-list --}}
+    @include('magento_module.partials.api_value_histories_list')
     {{-- #verified-status-histories-list --}}
     @include('magento_module.partials.verified_status_histories_list')
     {{-- moduleTypeCreateModal --}} {{-- moduleTypeEditModal --}}
@@ -586,16 +588,17 @@
                         name: 'magento_modules.api',
                         render: function(data, type, row, meta) {
                             var html = '<select id="api" class="form-control edit_mm" name="api"><option selected="selected" value="">Select API</option>';
-                                html += '<option value="1" '+(data == '1' ? 'selected' : '')+'>Yes</option><option value="0" '+(data == '0' ? 'selected' : '')+'>No</option>';
+                                html += '<option value="0" '+(data == '0' ? 'selected' : '')+'>No</option><option value="1" '+(data == '1' ? 'selected' : '')+'>Yes</option><option value="2" '+(data == '2' ? 'selected' : '')+'>API Error</option><option value="3" '+(data == '3' ? 'selected' : '')+'>API Error Resolve</option>';
                             html +='</select>';
                             let add_button = `<button type="button" class="btn btn-xs add-api-data-modal" title="Add Api Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
-                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show Api History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show Api Detail History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let value_history_button = `<button type="button" class="btn btn-xs load-api-value-history" title="Show Api value History" data-id="${row['id']}"><i class="fa fa-history"></i></button>`;
                             let html_data = ``;
                             
                             if(data == 1){
-                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button}  ${value_history_button}</div>`;
                             }else{
-                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button}  ${value_history_button}</div>`;
                             }
                             return html_data;
                         }
@@ -1136,6 +1139,7 @@
             var frontend_issues=$("#mmanr-frontend_issues").val();
             var backend_issues=$("#mmanr-backend_issues").val();
             var security_issues=$("#mmanr-security_issues").val();
+            var api_issues=$("#mmanr-api_issues").val();
             var performance_issues=$("#mmanr-performance_issues").val();
             var best_practices=$("#mmanr-best_practices").val();
             var conclusion=$("#mmanr-conclusion").val();
@@ -1154,6 +1158,7 @@
                     frontend_issues: frontend_issues,
                     backend_issues: backend_issues,
                     security_issues: security_issues,
+                    api_issues: api_issues,
                     performance_issues: performance_issues,
                     best_practices: best_practices,
                     conclusion: conclusion,
@@ -1306,6 +1311,9 @@
                             if(v.security_issues!='' && v.security_issues!=null){
                                 remarkText+="<br><br><b>Security Issues:</b><br>"+v.security_issues;
                             }
+                            if(v.api_issues!='' && v.api_issues!=null){
+                                remarkText+="<br><br><b>API Issues:</b><br>"+v.api_issues;
+                            }
                             if(v.performance_issues!='' && v.performance_issues!=null){
                                 remarkText+="<br><br><b>Performance Issues:</b><br>"+v.performance_issues;
                             }
@@ -1372,6 +1380,43 @@
                         });
                         $("#verified-status-histories-list").find(".verified-status-histories-list-view").html(html);
                         $("#verified-status-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+        $(document).on('click', '.load-api-value-history', function() {
+            var id = $(this).attr('data-id');
+            
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module.get-api-value-histories', ['']) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            var oldValue="";
+                            if(v.old_value==0){oldValue="NO";}
+                            if(v.old_value==1){oldValue="YES";}
+                            if(v.old_value==2){oldValue="API Error";}
+                            if(v.old_value==3){oldValue="API Error Resolve";}
+                            var newValue="";
+                            if(v.new_value==0){newValue="NO";}
+                            if(v.new_value==1){newValue="YES";}
+                            if(v.new_value==2){newValue="API Error";}
+                            if(v.new_value==3){newValue="API Error Resolve";}
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${oldValue} </td>
+                                        <td> ${newValue} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#api-value-histories-list").find(".api-value-histories-list-view").html(html);
+                        $("#api-value-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

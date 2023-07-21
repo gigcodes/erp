@@ -7544,8 +7544,11 @@ if (!\Auth::guest()) {
             type: "GET",
             url: "{{route('github.pr.request')}}",
             dataType:"json",
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
         }).done(function (response) {
-            $('.ajax-loader').hide();
+            $("#loading-image-preview").hide();
             $('#pull-request-alerts-modal-html').empty().html(response.tbody);
             if (showModal) {
                 $('#pull-request-alerts-modal').modal('show');
@@ -7554,7 +7557,7 @@ if (!\Auth::guest()) {
                 $('.event-alert-badge').removeClass("hide");
             }
         }).fail(function (response) {
-            $('.ajax-loader').hide();
+            $("#loading-image-preview").hide();
             console.log(response);
         });
     }
