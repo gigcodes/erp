@@ -25,6 +25,7 @@ use App\MagentoModuleLocation;
 use App\MagnetoLocationHistory;
 use App\Models\MagentoModuleReturnTypeErrorStatus;
 use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
+use App\Models\MagentoModuleDependency;
 
 class MagentoModuleController extends Controller
 {
@@ -976,6 +977,50 @@ class MagentoModuleController extends Controller
 
         return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
+
+    public function storedependency(Request $request)
+    {
+       $remark = $request->remark;
+       $moduleDependency = new  MagentoModuleDependency();
+       $moduleDependency->magento_module_id = $request->magento_module_id;
+       $moduleDependency->depency_remark = $remark;
+       $moduleDependency->depency_module_issues = $request->module_issues;
+       $moduleDependency->depency_api_issues = $request->api_issues;
+       $moduleDependency->depency_theme_issues = $request->theme_issues;
+       $moduleDependency->user_id = Auth::user()->id;
+       $moduleDependency->save();
+
+
+        if ($remark) {
+                $message = "depencey";
+               MagentoModule::where('id', $request->magento_module_id)->update(['magento_dependency' => $remark]);
+            return response()->json([
+                'status' => true,
+                'message' => "{$message} added successfully",
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => "Remark filed is Required",
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+    public function getDependencyRemarks($id)
+    {
+        $dependencyRemarks = MagentoModuleDependency::with(['user'])->where('magento_module_id', $id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $dependencyRemarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
 
     protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)
     {
