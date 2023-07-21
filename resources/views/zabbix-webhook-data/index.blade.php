@@ -145,7 +145,7 @@
                             <tr class="action-btn-tr-{{$zabbixWebhookData->id}} d-none">
                                 <td>Action</td>
                                 <td id="zabbix_webhook_data_action"  colspan="9" >
-                                    <button type="button" class="btn btn-xs show-task-assignee-history" title="Task assignee history" data-zabbix_task_id="{{$zabbixWebhookData->zabbix_task_id}}" data-type="developer">
+                                    <button type="button" class="btn btn-xs" title="Task assignee history" data-zabbix_task_id="{{$zabbixWebhookData->zabbix_task_id}}" data-type="developer">
                                         <i class="fa fa-info-circle" style="color: #808080;"></i>
                                     </button>
                                 </td>
