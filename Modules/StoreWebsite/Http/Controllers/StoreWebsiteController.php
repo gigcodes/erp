@@ -1768,16 +1768,16 @@ class StoreWebsiteController extends Controller
 
         $storeWebsite=StoreWebsite::where('id', $id)->first();
         if(!$storeWebsite){
-            return redirect()->back()->withErrors('Store Website data is not found!'); 
+            return response()->json(['status' => 'error', 'message' => 'Store Website data is not found!']);
         }
         if($type!='db' && $type!='env'){
-            return redirect()->back()->withErrors('You can only download database or env data');
+            return response()->json(['status' => 'error', 'message' => 'You can only download database or env data']);
         }
         if($type=='db' && $storeWebsite->database_name==''){
-            return redirect()->back()->withErrors('Store Website database name is not found!');
+            return response()->json(['status' => 'error', 'message' => 'Store Website database name is not found!']);
         }
-        if($storeWebsite->instance_number==''){
-            return redirect()->back()->withErrors('Store Website instance number is not found!');
+        if($storeWebsite->instance_number=='') {
+            return response()->json(['status' => 'error', 'message' => 'Store Website instance number is not found!']);
         }
         
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' 2>&1';
@@ -1798,13 +1798,12 @@ class StoreWebsiteController extends Controller
 
         \Log::info("End Download DB/ENV");
         if(!isset($output[0])){
-            return redirect()->back()->withErrors("The response is not found!");
+            return response()->json(['status' => 'error', 'message' => 'The response is not found!']);
         }
         $response=json_decode($output[0]);
         if(isset($response->status)  && ($response->status=='true' || $response->status)){
             if(isset($response->url) && $response->url!=''){
                 $path=$response->url;
-
             }else{
                 $path=Storage::path('download_db');
                 $path.="/".$filename;
@@ -1812,17 +1811,16 @@ class StoreWebsiteController extends Controller
             if(file_exists($path)){
                 return response()->download($path)->deleteFileAfterSend(true);
             }else{
-                return redirect()->back()->withErrors("File Not found on server!");
+                return response()->json(['status' => 'error', 'message' => 'File Not found on server!']);
             }
-            
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
-            return redirect()->back()->withErrors($message);
+            return response()->json(['status' => 'error', 'message' => $message]);
         }
-        return redirect()->back()->withSuccess('Download successfully!');
+        return response()->json(['status' => 'error', 'message' =>'Download successfully!']);
     }
   
     public function runFilePermissions(Request $request, $id)
