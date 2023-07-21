@@ -282,6 +282,7 @@
                         <th> Review Standard </th>
                         <th> Return Type Error </th>
                         <th> Return Type Error Status </th>
+                        <th> Dependancies </th>
                         <th> Action </th>
     
                     </tr>
@@ -342,8 +343,11 @@
     @include('magento_module.used-at-history-listing')
     {{-- moduleReturnTypeCreateModal --}}
     @include('magento-return-type-status.form_modal')
+     {{-- moduleReturnTypeHistoryModal --}}
     @include('magento-return-type-status.return-type-history')
-   {{-- moduleReturnTypeHistoryModal --}}
+     {{-- moduleDependcyModal --}}
+     @include('magento_module.partials.dependency_list')
+
 
 
 
@@ -967,6 +971,17 @@
                             
                         }
                     },
+                     {
+                        data: 'dependency',
+                        name: 'magento_modules.dependency',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            data=(data == null) ? '' : `<div class="flex items-center gap-5"><div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div><button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-dependancies-module-open"  data-id="${row['id']}" title="Add New Dependancies Remarks " ><img src="/images/add.png"></button>
+                                <button type="button" class="btn btn-xs btn-image load-dependancies-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;">  </button></div>`;
+                            return data;
+                        }
+                        
+                    },
                     {
                         data: 'id',
                         name: 'magento_modules.id',
@@ -1173,6 +1188,100 @@
             $("#modal-add-new-remark #mmanr-type").val(type);
             $("#modal-add-new-remark").modal("show");
         });
+
+         $(document).on('click', '#add-dependancies-module-open', function() {
+            var id = $(this).attr('data-id');
+            $("#modal-add-new-dependency #mmdepency_magento_module_id").val(id);
+            $("#modal-add-new-dependency").modal("show");
+        });
+
+        $(document).on('click', '.btn-depency-save', function() {
+            var magento_module_id=$("#mmdepency_magento_module_id").val();
+
+            var remark=$("#depency_remark").val();
+            var module_issues=$("#depency_module_issues").val();
+            var api_issues=$("#depency_api_issues").val();
+            var theme_issues=$("#depency_theme_issues").val();
+
+            $.ajax({
+                url: `{{ route('magento_module_dependency.store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remark: remark,
+                    magento_module_id: magento_module_id,
+                    module_issues: module_issues,
+                    api_issues: api_issues,
+                    theme_issues: theme_issues,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    toastr["success"](response.message);
+                    $("#modal-add-new-dependency").modal("hide");
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        });
+
+        $(document).on('click', '.load-dependancies-remark ', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_dependency.remarks', ['', '']) }}/` + id,
+                dataType: "json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.depency_remark;
+                            if(v.depency_module_issues!='' && v.depency_module_issues!=null){
+                                remarkText+="<br><br><b>Module Issues:</b><br>"+v.depency_module_issues;
+                            }
+                            if(v.depency_theme_issues!='' && v.depency_theme_issues!=null){
+                                remarkText+="<br><br><b>ThemeIssues:</b><br>"+v.depency_theme_issues;
+                            }
+                            if(v.depency_api_issues!='' && v.depency_api_issues!=null){
+                                remarkText+="<br><br><b>Api Issues:</b><br>"+v.depency_api_issues;
+                            }
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${remarkText}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#dependency-area-list").find(".dependency-action-list-view").html(html);
+                        $("#dependency-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
             var type = $(this).attr('data-type');
