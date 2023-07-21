@@ -943,7 +943,7 @@
 
                     {
                         data: 'return_type_name',
-                        name: 'magento_modules.return_type_name',
+                        name: 'magento_modules.return_type_error_status',
                         render: function(data, type, row, meta) {
                             console.log(data);
                             var m_types = row['module_return_type_statuserrors'];
