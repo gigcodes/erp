@@ -1582,35 +1582,10 @@ $(document).on("click", ".forward-btn", function () {
 
 $(document).on("keyup", ".search_chat_pop", function () {
   var value = $(this).val().toLowerCase();
+  exampleFunction(); 
   // $(".speech-wrapper .bubble").filter(function() {
   //     $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
-  // });
-  var value = $(this).val().toLowerCase().replace(/\s/g, ''); // Convert to lowercase and remove spaces
-  if (value) {
-    $('.bubble').each(function() {
-      var messageId = $(this).attr('id'); // Get the id attribute of the message element
-      var messageText = $(this).find('.copy_message' + messageId).data('message').toLowerCase(); // Get the message text and convert to lowercase
-      var words = messageText.split(' '); // Split the message text into individual words
-  
-      var highlightedWords = words.map(function(word) {
-        if (word.indexOf(value) !== -1) {
-          $('#total-count').text(word.length);
-          return '<span class="highlight">' + word + '</span>'; // Wrap matching words in a span with highlight class
-        } else {
-          return word;
-        }
-      });
-    $(this).find('.copy_message' + messageId).html(highlightedWords.join(' ')); // Update the message content with highlighted words
-    });
-  } else {
-    // Reset all messages to original content when searchText is empty
-    $('.bubble').each(function() {
-      var messageId = $(this).attr('id');
-      var messageText = $(this).find('.copy_message' + messageId).data('message');
-      $(this).find('.copy_message' + messageId).html(messageText);
-    });
-  }
-  exampleFunction(); 
+  // }); 
 });
 
 $(".search_chat_pop_time")
@@ -1679,6 +1654,44 @@ function exampleFunction() {
           .val(currentChatParams.object_val);
         $("#chat-history").html(li);
       }
+      var totalCount = 0; 
+
+      if (keyword) {
+        $('.bubble').each(function() {
+          var messageId = $(this).attr('id'); // Get the id attribute of the message element
+          var messageText = $(this).find('.copy_message' + messageId).data('message').toLowerCase(); // Get the message text and convert to lowercase
+          var words = messageText.split(' '); // Split the message text into individual words
+      
+          var highlightedWords = words.map(function(word) {
+            if (word.indexOf(keyword) !== -1) {
+              totalCount++; 
+              // $('#total-count').text(word.length);
+
+              return '<span class="highlight">' + word + '</span>'; // Wrap matching words in a span with highlight class
+            } else {
+              return word;
+            }
+          });
+        $(this).find('.copy_message' + messageId).html(highlightedWords.join(' ')); // Update the message content with highlighted words
+        });
+      } else {
+        // Reset all messages to original content when searchText is empty
+        $('.bubble').each(function() {
+          var messageId = $(this).attr('id');
+          var messageText = $(this).find('.copy_message' + messageId).data('message');
+          $(this).find('.copy_message' + messageId).html(messageText);
+        });
+
+      }
+      $('#total-count').text(totalCount);
+
+    // Hide the total-count element if the totalCount is zero
+    if (totalCount === 0) {
+      $('#total-count').hide();
+    } else {
+      $('#total-count').show();
+    }
+
     })
     .fail(function (response) {
       alert("Could not load messages");
