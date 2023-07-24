@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\MagentoCssVariableJobLog;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,13 @@ class MagentoCssVariable extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'create_by');
+    }
+
+    public function lastLog()
+    {
+        return $this->hasOne(MagentoCssVariableJobLog::class)
+            ->orderByDesc('created_at')
+            ->latest();
     }
 
 }

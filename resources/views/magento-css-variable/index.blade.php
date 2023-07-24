@@ -122,7 +122,8 @@
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
                             <th width="7%">Is Verified</th>
-                            <th width="8%">Action</th>
+                            <th width="7%">Log Status</th>
+                            <th width="9%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
                             <tr data-id="{{ $magentoCssVariable->id }}">
@@ -169,6 +170,9 @@
                                     <button type="button" class="btn btn-xs btn-image load-verify-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load verify histories"> 
                                         <i class="fa fa-info-circle"></i>
                                     </button>
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ optional($magentoCssVariable->lastLog)->status }}
                                 </td>
                                 <td>
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
