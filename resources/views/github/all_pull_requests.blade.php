@@ -70,7 +70,8 @@
         </div>
 
         <div class="col-md-7">
-            <div class="text-right pl-5">
+            <div class="text-right">
+                <button type="button" class="btn btn-sm btn-secondary list-created-tasks" title="List Task">List Task</button>
                 <button class="btn btn-sm btn-secondary" onclick="createPRTask()"> Create PR Task </button>
                 <button class="btn btn-sm btn-secondary" onclick="updateLabelActivities()"> Update Label Activities </button>
                 <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
@@ -123,6 +124,14 @@
 <div class="modal" id="pr-error-logs-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" id="pr-error-logs-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
+<!-- Modal markup -->
+<div class="modal" id="list-created-tasks-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="list-created-tasks-modal-content">
             <!-- AJAX content will be loaded here -->
         </div>
     </div>
@@ -285,6 +294,7 @@
         var currentPage = 1;
         var currentPageActivity = 1;
         var currentPageErrorLogs = 1;
+        var currentPageForListTasks = 1;
 
         $(document).on('click', '.show-pr-review-comments', function(e) {
             e.preventDefault();
@@ -435,6 +445,47 @@
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
+
+        // List created tasks
+        $(document).on('click', '.list-created-tasks', function(e) {
+            e.preventDefault();
+
+            // Make the AJAX request
+            loadCreatedTasks(currentPageForListTasks);
+        });
+
+        // Load activities for the given page number
+        function loadCreatedTasks(page) {
+            $('.loader-section').removeClass('d-n');
+            $.ajax({
+                url: "{{ url('/github/list-created-tasks') }}?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $('.loader-section').addClass('d-n');
+                    // Update the modal content with the retrieved comments
+                    $('#list-created-tasks-modal-content').html(response);
+                    // Show the modal
+                    $('#list-created-tasks-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $('.loader-section').addClass('d-n');
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#list-created-tasks-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadCreatedTasks(currentPage);
+        });
     });
 
     $(document).on('click', '#repo_select', function(event) {
@@ -583,7 +634,7 @@
             alert('Please select any row');
             return false;
         }
-
+        $('#github-task-create #task_details').val("Please check PR numbers " + selected_rows_for_pr_task);
         $('#github-task-create').modal('show');
     }
 
