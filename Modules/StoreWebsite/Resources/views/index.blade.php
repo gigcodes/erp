@@ -173,6 +173,7 @@
 								<th>Command</th>
 								<th>Output</th>
 								<th>Date</th>
+								<th>Download</th>
 							</tr>
 						</thead>
 						<tbody id="download_db_env_logs_tbody">
@@ -1048,8 +1049,34 @@
 			toastr["error"]("Something Went Wrong, Please Try Again Later!");
 			return false;
 		}
-		window.location.href = "{{url('/')}}/store-website/"+id+"/download/"+type;
+
+		var url = "{{url('/')}}/store-website/" + id + "/download/" + type;
+
+		$.ajax({
+		url: url,
+		type: "GET",
+		dataType: "json", // Change this based on your server response
+		success: function(response) {
+			if (response.status === 'success') {
+				toastr.success(response.message, 'Success');
+				console.log(response);
+				if (response.download_url) {
+					var link = document.createElement('a');
+					link.href = response.download_url;
+					link.download = 'filename'; 
+					link.click(); 
+					URL.revokeObjectURL(link.href);
+				}
+			} else {
+				toastr.error(response.message, 'Error');
+			}
+		},
+		error: function(xhr, status, error) {
+		toastr.error("Something Went Wrong, Please Try Again Later!", 'Error');
+		console.error(error);
+		}
 	});
+});
 
 	$(document).on("click", ".btn-download-db-env-logs", function(href) {
 		$.ajax({

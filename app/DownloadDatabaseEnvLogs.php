@@ -35,6 +35,8 @@ class DownloadDatabaseEnvLogs extends Model
         $this->output = $output;
         $this->return_var = $return_var;
         $this->save();
+
+        return $this; // Return the saved model instance
     }
 
     public function storeWebsite()
