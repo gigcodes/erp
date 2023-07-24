@@ -173,6 +173,7 @@
 								<th>Command</th>
 								<th>Output</th>
 								<th>Date</th>
+								<th>Download</th>
 							</tr>
 						</thead>
 						<tbody id="download_db_env_logs_tbody">
@@ -1056,12 +1057,19 @@
 		type: "GET",
 		dataType: "json", // Change this based on your server response
 		success: function(response) {
-		if (response.status === 'success') {
-			toastr.success(response.message, 'Success');
-			console.log(response);
-		} else {
-			toastr.error(response.message, 'Error');
-		}
+			if (response.status === 'success') {
+				toastr.success(response.message, 'Success');
+				console.log(response);
+				if (response.download_url) {
+					var link = document.createElement('a');
+					link.href = response.download_url;
+					link.download = 'filename'; 
+					link.click(); 
+					URL.revokeObjectURL(link.href);
+				}
+			} else {
+				toastr.error(response.message, 'Error');
+			}
 		},
 		error: function(xhr, status, error) {
 		toastr.error("Something Went Wrong, Please Try Again Later!", 'Error');

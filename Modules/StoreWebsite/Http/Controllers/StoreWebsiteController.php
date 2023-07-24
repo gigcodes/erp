@@ -1295,6 +1295,7 @@ class StoreWebsiteController extends Controller
                     <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . json_encode($res->output) . '</span>
                     </td>';
                     $html .= '<td>' . $res->created_at . '</td>';
+                    $html .= '<td><a href="' . $res->download_url . '" class="btn btn-primary" download>Download</a></td>';
                     $html .= '</tr>';
                 }
 
@@ -1791,7 +1792,7 @@ class StoreWebsiteController extends Controller
         
         $result = exec($cmd, $output, $return_var);
 
-        (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
+        $downloadDatabaseEnvLogsenvLog =  (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
         \Log::info("command:".$cmd);
         \Log::info("output:".print_r($output,true));
         \Log::info("return_var:".$return_var);
@@ -1810,9 +1811,19 @@ class StoreWebsiteController extends Controller
             }
             if(file_exists($path)){
                 return response()->download($path)->deleteFileAfterSend(true);
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Download successfully!',
+                    'download_url' => $path, // Add the download URL to the response
+                ];
+                
+                // Update the log entry with the download_url
+                \App\DownloadDatabaseEnvLogs::where('id', $downloadDatabaseEnvLogsenvLog->id)->update(['download_url' => $path]);
+                return response()->json($response);
             }else{
                 return response()->json(['status' => 'error', 'message' => 'File Not found on server!']);
             }
+            \App\DownloadDatabaseEnvLogs::where('id', $downloadDatabaseEnvLogsenvLog->id)->update(['download_url' => $path]);
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
             if(isset($response->message) && $response->message!=''){
