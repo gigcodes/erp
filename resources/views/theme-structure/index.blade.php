@@ -54,19 +54,27 @@
                             'create_folder': {
                                 'label': 'Create Folder',
                                 'action': function (data) {
-                                    var inst = $.jstree.reference(data.reference),
-							        obj = inst.get_node(data.reference);
-                                    var fullpath = inst.get_path(inst.get_selected(),'/');
-							        createFolder(node,fullpath);
+                                    if (node.original.type == 'file') {
+                                        toastr['error']('Cannot create a folder or file inside a file.', 'error');
+                                    } else {
+                                        var inst = $.jstree.reference(data.reference),
+                                        obj = inst.get_node(data.reference);
+                                        var fullpath = inst.get_path(inst.get_selected(),'/');
+                                        createFolder(node,fullpath);
+                                    }
                                 }
                             },
                             'create_file': {
                                 'label': 'Create File',
                                 'action': function (data) {
-                                    var inst = $.jstree.reference(data.reference),
-							        obj = inst.get_node(data.reference);
-                                    var fullpath = inst.get_path(inst.get_selected(),'/');
-							        createFile(node,fullpath);
+                                    if (node.original.type == 'file') {
+                                        toastr['error']('Cannot create a folder or file inside a file.', 'error');
+                                    } else {
+                                        var inst = $.jstree.reference(data.reference),
+                                        obj = inst.get_node(data.reference);
+                                        var fullpath = inst.get_path(inst.get_selected(),'/');
+                                        createFile(node,fullpath);
+                                    }
                                 }
                             },
                             'delete': {

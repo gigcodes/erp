@@ -55,8 +55,10 @@ class ThemeStructureController extends Controller
 
             if ($item->is_file) {
                 $node['icon'] = 'jstree-file';
+                $node['type'] = 'file';
             } else {
                 $node['icon'] = 'jstree-folder';
+                $node['type'] = 'folder';
                 $node['children'] = $this->buildTree($theme,$item->id);
             }
 
