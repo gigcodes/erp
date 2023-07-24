@@ -91,14 +91,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button type="button" data-id="{{ $projectTheme->id }}" class="btn btn-xs btn-edit-project-theme">
+                                    <button type="button" title="Edit Theme" data-id="{{ $projectTheme->id }}" class="btn btn-xs btn-edit-project-theme">
                                         <i class="fa fa-pencil"></i>
                                     </button>
                                     {!! Form::open(['method' => 'DELETE', 'class' => 'delete-form', 'route' => ['project-theme.destroy', $projectTheme->id], 'style'=>'display:inline']) !!}
-                                    <button type="submit" class="btn btn-xs delete-button" onclick="return confirmDelete(event)">
+                                    <button type="submit" title="Delete Theme" class="btn btn-xs delete-button" onclick="return confirmDelete(event)">
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </button>
                                     {!! Form::close() !!}
+                                    <a title="View Folder Structure" class="btn btn-xs btn-view-theme-structure" href="{{ route('theme-structure.index', $projectTheme->id) }}">
+                                        <i class="fa fa-folder"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach

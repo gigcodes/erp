@@ -24,6 +24,8 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrActivity;
 use App\Github\GithubPrErrorLog;
 use App\Github\GithubRepositoryJob;
+use App\Github\GithubTask;
+use App\Github\GithubTaskPullRequest;
 use App\Http\Requests\DeleteBranchRequest;
 use App\Jobs\DeleteBranches;
 use App\Message;
@@ -32,6 +34,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\Models\Project;
+use App\Task;
+use App\User;
+use Auth;
 
 class RepositoryController extends Controller
 {
@@ -690,7 +695,7 @@ class RepositoryController extends Controller
                     $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
                     // Get Latest Activity for this PR
                     $pullRequests[$key]['latest_activity'] = [];
-                    $latestGithubPrActivity = GithubPrActivity::latest()
+                    $latestGithubPrActivity = GithubPrActivity::latest("activity_id")
                         ->where('github_organization_id', $organization->id)
                         ->where('github_repository_id', $repository->id)
                         ->where('pull_number', $pullRequest['id'])
@@ -700,6 +705,8 @@ class RepositoryController extends Controller
                             'activity_id' => $latestGithubPrActivity->activity_id,
                             'user' => $latestGithubPrActivity->user,
                             'event' => $latestGithubPrActivity->event,
+                            'label_name' => $latestGithubPrActivity->label_name,
+                            'label_color' => $latestGithubPrActivity->label_color,
                         ];
                     }
 
@@ -1075,15 +1082,32 @@ class RepositoryController extends Controller
                 \Log::info(print_r($activities,true));
                 if($activities) {
                     foreach($activities as $activity) {
-                        if (isset($activity['id']) && isset($activity['user']) && $activity['event']) {
+                        if (isset($activity['id']) && $activity['event']) {
+                            // Check if the event is a "labeled" event and contains label information
+                            $labelName = $labelColor = "";
+                            if ($activity['event'] === 'labeled' && isset($activity['label'])) {
+                                // Add the label name to the array
+                                $labelName = $activity['label']['name'];
+                                $labelColor = "#".$activity['label']['color'];
+                            }
+
+                            $user = "";
+                            if (isset($activity['user'])) {
+                                $user = $activity['user']['login'];
+                            } elseif(isset($activity['actor'])) {
+                                $user = $activity['actor']['login'];
+                            }
+
                             GithubPrActivity::updateOrCreate([
                                 'github_organization_id' => $organization->id,
                                 'github_repository_id' => $repository->id,
                                 'pull_number' => $pullNumber,
                                 'activity_id' => $activity['id'],
                             ], [
-                                'user' => $activity['user']['login'],
+                                'user' => $user,
                                 'event' => $activity['event'],
+                                'label_name' => $labelName,
+                                'label_color' => $labelColor
                             ]);
                         }
                     }
@@ -1118,6 +1142,83 @@ class RepositoryController extends Controller
                 'code' => 200,
                 'data' => [],
                 'message' => 'Activities update successfully!',
+            ]
+        );
+    }
+
+    public function githubTaskStore(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'task_name' => 'required',
+                'selected_rows' => 'required',
+                'selected_repo_id' => 'required',
+                'assign_to' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $repository = GithubRepository::where('id',  $data['selected_repo_id'])->first();
+        if(!$repository) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Repository not found',
+                ]
+            );
+        }
+
+        $selectedPRs = explode(",", $data['selected_rows']);
+        if(!$selectedPRs) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Rows not selected',
+                ]
+            );
+        }
+
+        $organization = $repository->organization;
+
+        // Save Task
+        // $githubTask = GithubTask::updateOrCreate([
+        //     'task_name' => $data['task_name'],
+        //     'assign_to' => $data['assign_to']
+        // ]);
+        $task = Task::where("task_subject", $data['task_name'])->where('assign_to', $data['assign_to'])->first();
+        if (!$task) {
+            $data['assign_from'] = Auth::id();
+            $data['is_statutory'] = 0;
+            $data['task_details'] = $data['task_name'];
+            $data['task_subject'] = $data['task_name'];
+            $data['assign_to'] = $data['assign_to'];
+
+            $task = Task::create($data);
+
+            if ($data['assign_to']) {
+                $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+            }
+        }
+
+        // Save task PR's 
+        foreach($selectedPRs as $selectedPR) {
+            GithubTaskPullRequest::UpdateOrCreate([
+                "github_organization_id" => $organization->id,
+                "github_repository_id" => $repository->id,
+                "pull_number" => $selectedPR,
+                "task_id" => $task->id,
+            ]);
+        }
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Task created successfully!',
             ]
         );
     }

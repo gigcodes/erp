@@ -58,6 +58,7 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Support\Facades\Storage;
+use App\Models\StoreWebsiteApiTokenHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -200,6 +201,7 @@ class StoreWebsiteController extends Controller
             return response()->json(['success' => false, 'message' => 'The request parameter store_website_users_id is missing']);
         }
         $storeWebsite=StoreWebsite::where('id', $request->store_website_id)->first();
+        $oldWebsiteApi=$storeWebsite->api_token;
         $StoreWebsiteUser=StoreWebsiteUsers::where('id', $request->store_website_users_id)->first();
         if($storeWebsite && $StoreWebsiteUser){
             $storeWebsiteCode = $storeWebsite->storeCode;
@@ -218,6 +220,14 @@ class StoreWebsiteController extends Controller
                     $generated_token = trim($token_response->body(),'"');
                     $storeWebsite->api_token = $generated_token;
                     $storeWebsite->save();
+
+                    $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+                    $storeWebsiteHistory->store_websites_id = $storeWebsite->id;
+                    $storeWebsiteHistory->old_api_token = $oldWebsiteApi;
+                    $storeWebsiteHistory->new_api_token = $generated_token;
+                    $storeWebsiteHistory->updatedBy = Auth::id();
+                    $storeWebsiteHistory->save();
+
                     StoreWebsitesApiTokenLog::create([
                         'user_id' => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
@@ -260,6 +270,7 @@ class StoreWebsiteController extends Controller
         
         foreach($request->ids as $storeWebsiteId) {
             $storeWebsite=StoreWebsite::where('id', $storeWebsiteId)->first();
+            $oldWebsiteApi = $storeWebsite->api_token;
             $StoreWebsiteUser=StoreWebsiteUsers::where('store_website_id', $storeWebsiteId)->where('email', "apiuser@theluxuryunlimited.com")->first();
 
             if($storeWebsite && $StoreWebsiteUser){
@@ -276,6 +287,13 @@ class StoreWebsiteController extends Controller
                         $generated_token = trim($token_response->body(),'"');
                         $storeWebsite->api_token = $generated_token;
                         $storeWebsite->save();
+                        $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+                        $storeWebsiteHistory->store_websites_id = $storeWebsite->id;
+                        $storeWebsiteHistory->old_api_token = $oldWebsiteApi;
+                        $storeWebsiteHistory->new_api_token = $generated_token;
+                        $storeWebsiteHistory->updatedBy = Auth::id();
+                        $storeWebsiteHistory->save();
+
                         StoreWebsitesApiTokenLog::create([
                             'user_id' => Auth::id(),
                             'store_website_id' => $storeWebsite->id,
@@ -1476,12 +1494,23 @@ class StoreWebsiteController extends Controller
 
     public function generateApiToken(Request $request)
     {
+        $storeId = current(array_filter($request->update_website_api_id));
+        $oldStoreWebsite =  StoreWebsite::find($storeId);
+        $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+        $storeWebsiteHistory->store_websites_id = $oldStoreWebsite->id;
+        $storeWebsiteHistory->old_api_token = $oldStoreWebsite->api_token;
+        $storeWebsiteHistory->updatedBy = Auth::id();
+
         $apiTokens = $request->api_token;
 
         if ($request->api_token) {
             foreach ($apiTokens as $key => $apiToken) {
                 StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
             }
+            $newStoreWebsite =  StoreWebsite::find($storeId);
+            $storeWebsiteHistory->new_api_token = $newStoreWebsite->api_token;
+            $storeWebsiteHistory->save();
+
             session()->flash('msg', 'Api Token Updated Successfully.');
 
             return redirect()->back();
@@ -1870,5 +1899,36 @@ class StoreWebsiteController extends Controller
 
         return response()->json(['code' => 200, 'message' => 'Clear Cloudflare Caches Successfully']);
 
+    }
+    
+    public function userPermission(Request $request)
+    {
+        $storeWebsite = StoreWebsite::find($request->store_website_id);
+        $storeWebsite->users_id = $request->users_id;
+        $storeWebsite->save();
+        
+        return response()->json(['code' => 200, 'message' => 'User permission updated successfully']);
+
+    }
+
+    public function apiTokenHistory($id)
+    {
+        $datas = StoreWebsiteApiTokenHistory::with(['user'])
+            ->where('store_websites_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function versionNumbers()
+    {
+        $storeWebsites = StoreWebsite::all();
+        return view('storewebsite::version-number', compact('storeWebsites'));
     }
 }

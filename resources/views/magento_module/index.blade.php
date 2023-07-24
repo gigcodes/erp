@@ -282,6 +282,7 @@
                         <th> Review Standard </th>
                         <th> Return Type Error </th>
                         <th> Return Type Error Status </th>
+                        <th> Dependancies </th>
                         <th> Action </th>
     
                     </tr>
@@ -297,6 +298,8 @@
     @include('partials.plain-modal')
     {{-- #remark-area-list --}}
     @include('magento_module.partials.remark_list')
+    {{-- #api-value-histories-list --}}
+    @include('magento_module.partials.api_value_histories_list')
     {{-- #verified-status-histories-list --}}
     @include('magento_module.partials.verified_status_histories_list')
     {{-- moduleTypeCreateModal --}} {{-- moduleTypeEditModal --}}
@@ -342,8 +345,11 @@
     @include('magento_module.used-at-history-listing')
     {{-- moduleReturnTypeCreateModal --}}
     @include('magento-return-type-status.form_modal')
+     {{-- moduleReturnTypeHistoryModal --}}
     @include('magento-return-type-status.return-type-history')
-   {{-- moduleReturnTypeHistoryModal --}}
+     {{-- moduleDependcyModal --}}
+     @include('magento_module.partials.dependency_list')
+
 
 
 
@@ -582,16 +588,17 @@
                         name: 'magento_modules.api',
                         render: function(data, type, row, meta) {
                             var html = '<select id="api" class="form-control edit_mm" name="api"><option selected="selected" value="">Select API</option>';
-                                html += '<option value="1" '+(data == '1' ? 'selected' : '')+'>Yes</option><option value="0" '+(data == '0' ? 'selected' : '')+'>No</option>';
+                                html += '<option value="0" '+(data == '0' ? 'selected' : '')+'>No</option><option value="1" '+(data == '1' ? 'selected' : '')+'>Yes</option><option value="2" '+(data == '2' ? 'selected' : '')+'>API Error</option><option value="3" '+(data == '3' ? 'selected' : '')+'>API Error Resolve</option>';
                             html +='</select>';
                             let add_button = `<button type="button" class="btn btn-xs add-api-data-modal" title="Add Api Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
-                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show Api History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show Api Detail History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let value_history_button = `<button type="button" class="btn btn-xs load-api-value-history" title="Show Api value History" data-id="${row['id']}"><i class="fa fa-history"></i></button>`;
                             let html_data = ``;
                             
                             if(data == 1){
-                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${add_button} ${show_button}  ${value_history_button}</div>`;
                             }else{
-                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button} </div>`;
+                                html_data = `<div class="flex items-center gap-5"> ${html}  ${show_button}  ${value_history_button}</div>`;
                             }
                             return html_data;
                         }
@@ -939,7 +946,7 @@
 
                     {
                         data: 'return_type_name',
-                        name: 'magento_modules.return_type_name',
+                        name: 'magento_modules.return_type_error_status',
                         render: function(data, type, row, meta) {
                             console.log(data);
                             var m_types = row['module_return_type_statuserrors'];
@@ -966,6 +973,17 @@
                             }
                             
                         }
+                    },
+                     {
+                        data: 'dependency',
+                        name: 'magento_modules.dependency',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            data=(data == null) ? '' : `<div class="flex items-center gap-5"><div class="expand-row module-text"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div><button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="add-dependancies-module-open"  data-id="${row['id']}" title="Add New Dependancies Remarks " ><img src="/images/add.png"></button>
+                                <button type="button" class="btn btn-xs btn-image load-dependancies-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;">  </button></div>`;
+                            return data;
+                        }
+                        
                     },
                     {
                         data: 'id',
@@ -1121,6 +1139,7 @@
             var frontend_issues=$("#mmanr-frontend_issues").val();
             var backend_issues=$("#mmanr-backend_issues").val();
             var security_issues=$("#mmanr-security_issues").val();
+            var api_issues=$("#mmanr-api_issues").val();
             var performance_issues=$("#mmanr-performance_issues").val();
             var best_practices=$("#mmanr-best_practices").val();
             var conclusion=$("#mmanr-conclusion").val();
@@ -1139,6 +1158,7 @@
                     frontend_issues: frontend_issues,
                     backend_issues: backend_issues,
                     security_issues: security_issues,
+                    api_issues: api_issues,
                     performance_issues: performance_issues,
                     best_practices: best_practices,
                     conclusion: conclusion,
@@ -1173,6 +1193,100 @@
             $("#modal-add-new-remark #mmanr-type").val(type);
             $("#modal-add-new-remark").modal("show");
         });
+
+         $(document).on('click', '#add-dependancies-module-open', function() {
+            var id = $(this).attr('data-id');
+            $("#modal-add-new-dependency #mmdepency_magento_module_id").val(id);
+            $("#modal-add-new-dependency").modal("show");
+        });
+
+        $(document).on('click', '.btn-depency-save', function() {
+            var magento_module_id=$("#mmdepency_magento_module_id").val();
+
+            var remark=$("#depency_remark").val();
+            var module_issues=$("#depency_module_issues").val();
+            var api_issues=$("#depency_api_issues").val();
+            var theme_issues=$("#depency_theme_issues").val();
+
+            $.ajax({
+                url: `{{ route('magento_module_dependency.store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remark: remark,
+                    magento_module_id: magento_module_id,
+                    module_issues: module_issues,
+                    api_issues: api_issues,
+                    theme_issues: theme_issues,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    toastr["success"](response.message);
+                    $("#modal-add-new-dependency").modal("hide");
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        });
+
+        $(document).on('click', '.load-dependancies-remark ', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_dependency.remarks', ['', '']) }}/` + id,
+                dataType: "json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.depency_remark;
+                            if(v.depency_module_issues!='' && v.depency_module_issues!=null){
+                                remarkText+="<br><br><b>Module Issues:</b><br>"+v.depency_module_issues;
+                            }
+                            if(v.depency_theme_issues!='' && v.depency_theme_issues!=null){
+                                remarkText+="<br><br><b>ThemeIssues:</b><br>"+v.depency_theme_issues;
+                            }
+                            if(v.depency_api_issues!='' && v.depency_api_issues!=null){
+                                remarkText+="<br><br><b>Api Issues:</b><br>"+v.depency_api_issues;
+                            }
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${remarkText}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#dependency-area-list").find(".dependency-action-list-view").html(html);
+                        $("#dependency-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
             var type = $(this).attr('data-type');
@@ -1196,6 +1310,9 @@
                             }
                             if(v.security_issues!='' && v.security_issues!=null){
                                 remarkText+="<br><br><b>Security Issues:</b><br>"+v.security_issues;
+                            }
+                            if(v.api_issues!='' && v.api_issues!=null){
+                                remarkText+="<br><br><b>API Issues:</b><br>"+v.api_issues;
                             }
                             if(v.performance_issues!='' && v.performance_issues!=null){
                                 remarkText+="<br><br><b>Performance Issues:</b><br>"+v.performance_issues;
@@ -1263,6 +1380,43 @@
                         });
                         $("#verified-status-histories-list").find(".verified-status-histories-list-view").html(html);
                         $("#verified-status-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+        $(document).on('click', '.load-api-value-history', function() {
+            var id = $(this).attr('data-id');
+            
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module.get-api-value-histories', ['']) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            var oldValue="";
+                            if(v.old_value==0){oldValue="NO";}
+                            if(v.old_value==1){oldValue="YES";}
+                            if(v.old_value==2){oldValue="API Error";}
+                            if(v.old_value==3){oldValue="API Error Resolve";}
+                            var newValue="";
+                            if(v.new_value==0){newValue="NO";}
+                            if(v.new_value==1){newValue="YES";}
+                            if(v.new_value==2){newValue="API Error";}
+                            if(v.new_value==3){newValue="API Error Resolve";}
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${oldValue} </td>
+                                        <td> ${newValue} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#api-value-histories-list").find(".api-value-histories-list-view").html(html);
+                        $("#api-value-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }

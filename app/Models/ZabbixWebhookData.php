@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,8 +38,9 @@ class ZabbixWebhookData extends Model
         return strlen($this->operational_data) > 15 ? substr($this->operational_data, 0, 15).'...' :  $this->operational_data;
     }
 
+    // This is belongsTo tasks table not a zabbix_tasks table
     public function zabbixTask()
     {
-        return $this->belongsTo(ZabbixTask::class);
+        return $this->belongsTo(Task::class, 'zabbix_task_id');
     }
 }

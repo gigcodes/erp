@@ -12,6 +12,8 @@
                 <th>Activity ID</th>
                 <th>User</th>
                 <th>Event</th>
+                <th>Label Name</th>
+                <th>Label Color</th>
             </tr>
         </thead>
         <tbody>
@@ -20,6 +22,8 @@
                     <td>{{$activity['activity_id']}}</td>
                     <td>{{$activity['user']}}</td>
                     <td>{{$activity['event']}}</td>
+                    <td>{{$activity['label_name']}}</td>
+                    <td>{{$activity['label_color']}}</td>
                 </tr>
             @endforeach
         </tbody>

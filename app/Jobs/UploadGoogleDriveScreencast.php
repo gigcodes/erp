@@ -8,6 +8,8 @@ use App\GoogleScreencast;
 use Google\Service\Drive;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\MagentoFrontendDocumentation;
+
 
 class UploadGoogleDriveScreencast
 {
@@ -26,7 +28,7 @@ class UploadGoogleDriveScreencast
      *
      * @return void
      */
-    public function __construct(GoogleScreencast $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
+    public function __construct(GoogleScreencast|MagentoFrontendDocumentation $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
     {
         $this->googleScreencast = $googleScreencast;
         $this->uploadedFile = $uploadedFile;
