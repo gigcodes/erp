@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DeploymentVersion;
+use App\Models\DeploymentVersionLog;
 
 class DeploymentVersionController extends Controller
 {
@@ -35,5 +36,33 @@ class DeploymentVersionController extends Controller
         $pr_date = $request->pr_date;
 
         return view('deployment-versions.deployment-version-listing', compact('deploymentVersions', 'search_versionNumber', 'search_jobName', 'search_branchName','deployment_date', 'pr_date'));
+    }
+
+    public function deployVersion(Request $request)
+    {
+       $deploymentVersion =  DeploymentVersion::find($request->deployVerId);
+       $jobName =  $deploymentVersion->job_name;
+       $branch_name = $deploymentVersion->branch_name;
+       $pullNo = $deploymentVersion->pull_no;
+       $serverenv = $request->selectedValue;
+       $user_id =   $user_id=auth()->user()->id;
+       $revision = $deploymentVersion->revision;
+
+       try {
+        $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
+        $jenkins->launchJob($jobName, ['branch_name' => $branch_name,'serverenv' => $serverenv, 'revision' => $revision, 'pull_no' => $pullNo]);
+            $job = $jenkins->getJob($jobName);
+            $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
+            $record = ['deployement_version_id' => $request->deployVerId, 'created_by' => $user_id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number];
+            DeploymentVersionLog::create($record);
+ 
+            return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
+       } catch (\Exception $e) {
+        $record = ['deployement_version_id' => $request->deployVerId, 'created_by' => $user_id, 'error_message' => $e->getMessage(), 'build_number' => $deploymentVersion->build_number];
+            DeploymentVersionLog::create($record);
+
+            return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
+       }
+       
     }
 }

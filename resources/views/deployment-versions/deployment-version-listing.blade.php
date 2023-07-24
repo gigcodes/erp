@@ -116,7 +116,7 @@
 							</td>
                             <td>{{$deploymentVersion->deployment_date}}</td>
                             <td>{{$deploymentVersion->pr_date}}</td>
-							<td><button type="button" title="Deploy" data-id="2896" class="btn btn-xs btn-deploy-verison" style="padding: 0px 5px !important;">
+							<td><button type="button" title="Deploy" data-id="{{$deploymentVersion->id}}" class="btn btn-xs btn-deploy-verison" data-toggle="modal" data-target="#create-server-modal" style="padding: 0px 5px !important";>
 								<i class="fa fa-upload" aria-hidden="true"></i>
 							</button></td>
 						</tr>                        
@@ -130,9 +130,36 @@
     50% 50% no-repeat;display:none;">
 </div>
 
+<div id="create-server-modal" class="modal fade in" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <form action="">
+                @csrf
+                @method('POST')
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Servers:</label><br>
+                        <input type="radio" name="options" value="qa">Qa<br>
+                        <input type="radio" name="options" value="production"> Production<br>
+                        <input type="radio" name="options" value="live"> Live<br>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 
     $(document).on('click', '.expand-row', function () {
@@ -142,5 +169,36 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
+
+	$(document).ready(function () {
+		$(document).on('click', '.btn-deploy-verison', function () {
+			var deployVerId = $(this).data('id');
+			$('input[type="radio"][name="options"]').on('click', function() {
+				var selectedValue = $(this).val();
+				$.ajax({
+					url: "{{ route('deployement-version-jenkis') }}",
+					type: 'GET',
+					headers: {
+						'X-CSRF-TOKEN': "{{ csrf_token() }}"
+					},
+					data: {
+						deployVerId: deployVerId,
+						selectedValue : selectedValue,
+					},
+					dataType: "json",
+					beforeSend: function () {
+						$("#loading-image").show();
+					}
+					}).done(function (response) {
+						toastr['success'](response.message, 'success');
+					$("#loading-image").hide();
+					}).fail(function (response, ajaxOptions, thrownError) {
+					toastr["error"](response.message);
+					$("#loading-image").hide();
+				});
+			});
+		});
+});
+
 
 </script>
