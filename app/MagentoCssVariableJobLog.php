@@ -12,6 +12,7 @@ class MagentoCssVariableJobLog extends Model
         'command',
         'message',
         'status',
+        'csv_file_path',
     ];
 
     public function magentoCssVariable()

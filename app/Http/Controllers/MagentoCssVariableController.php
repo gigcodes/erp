@@ -10,6 +10,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MagentoCssVariableController extends Controller
 {
@@ -312,16 +313,177 @@ class MagentoCssVariableController extends Controller
         }
     }
 
+    // Function to format a value for CSV, adding quotes if necessary
+    public function formatForCSV($value) {
+        // If the value contains a comma or a double quote, enclose it in double quotes and escape existing double quotes.
+        if (strpos($value, ',') !== false || strpos($value, '"') !== false) {
+            return '"' . str_replace('"', '""', $value) . '"';
+        }
+        return $value;
+    }
+
+    public function updateSelectedValues(Request $request)
+    {
+        if($request->has('selectedIds') && $request->selectedIds != ''){
+            $selectedIds = $request->selectedIds;
+            $magentoCssVariables = MagentoCssVariable::whereIn('id', $selectedIds)->get();
+            // Create a new CSV file content
+            $csvContent = '"Project","variable","value","filepath"' . "\n";
+            foreach ($magentoCssVariables as $row) {
+                // Adjust this according to your data structure
+                $csvContent .= $this->formatForCSV($row->project->name) . ','
+                . $this->formatForCSV($row->variable) . ','
+                . $this->formatForCSV($row->value) . ','
+                . $this->formatForCSV($row->file_path) . "\n";
+            }
+
+            // Set the file path where the CSV will be stored
+            $filePath = 'magento-css-variable-csv/file_' . time() . '.csv';
+            
+            Storage::disk('public')->put($filePath, $csvContent);
+
+            // Get the path to the stored CSV file
+            $fullFilePath = Storage::disk('public')->path($filePath);
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+        
+            \Log::info("Start Magento Css Variable Update Vaule");
+            
+            $result = exec($cmd, $output, $return_var);
+
+            \Log::info("command:".$cmd);
+            \Log::info("output:".print_r($output,true));
+            \Log::info("return_var:".$return_var);
+
+            \Log::info("End Magento Css Variable Update Vaule");
+            if(!isset($output[0])){
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return response()->json(['code' => 500, 'message' => 'The response is not found!']);
+            }
+            $response=json_decode($output[0]);
+            if(isset($response->status)  && ($response->status=='true' || $response->status)){
+                $message="Variable updated";
+                if(isset($response->message) && $response->message!=''){
+                    $message=$response->message;
+                }
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Success', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return response()->json(['code' => 200, 'message' => $message]);
+            }else{
+                $message="Something Went Wrong! Please check Logs for more details";
+                if(isset($response->message) && $response->message!=''){
+                    $message=$response->message;
+                }
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return response()->json(['code' => 500, 'message' => $message]);
+            }
+        }
+
+        return response()->json(['code' => 500, 'message' => "Please select the row"]);
+    }
+
     public function updateValuesForProject(Request $request)
     {
         if($request->has('project_id') && $request->project_id != ''){
             $projectId = $request->project_id;
             $magentoCssVariables = MagentoCssVariable::where('project_id', $projectId)->get();
-            foreach($magentoCssVariables as $magentoCssVariable) {
-                \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentocssvariables');
+
+            // JOB concept not need. (OLD)
+            // foreach($magentoCssVariables as $magentoCssVariable) {
+            //     \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentocssvariables');
+            // }
+
+            // CSV concept (NEW)
+            // Create a new CSV file content
+            $csvContent = '"Project","variable","value","filepath"' . "\n";
+            foreach ($magentoCssVariables as $row) {
+                // Adjust this according to your data structure
+                $csvContent .= $this->formatForCSV($row->project->name) . ','
+                . $this->formatForCSV($row->variable) . ','
+                . $this->formatForCSV($row->value) . ','
+                . $this->formatForCSV($row->file_path) . "\n";
             }
 
-            return redirect(route('magento-css-variable.index'))->with('success', 'Successfully pushed variables into Queue');
+            // Set the file path where the CSV will be stored
+            $filePath = 'magento-css-variable-csv/file_' . time() . '.csv';
+            
+            Storage::disk('public')->put($filePath, $csvContent);
+
+            // Get the path to the stored CSV file
+            $fullFilePath = Storage::disk('public')->path($filePath);
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+        
+            \Log::info("Start Magento Css Variable Update Vaule");
+            
+            $result = exec($cmd, $output, $return_var);
+
+            \Log::info("command:".$cmd);
+            \Log::info("output:".print_r($output,true));
+            \Log::info("return_var:".$return_var);
+
+            \Log::info("End Magento Css Variable Update Vaule");
+            if(!isset($output[0])){
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return redirect(route('magento-css-variable.index'))->with('error', 'The response is not found!');
+            }
+            $response=json_decode($output[0]);
+            if(isset($response->status)  && ($response->status=='true' || $response->status)){
+                $message="Variable updated";
+                if(isset($response->message) && $response->message!=''){
+                    $message=$response->message;
+                }
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Success', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return redirect(route('magento-css-variable.index'))->with('success', $message);
+            }else{
+                $message="Something Went Wrong! Please check Logs for more details";
+                if(isset($response->message) && $response->message!=''){
+                    $message=$response->message;
+                }
+                // Maintain Error Log here in new table. 
+                // ToDo: How to maintain log here ?
+                MagentoCssVariableJobLog::create([
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                    'csv_file_path' => $fullFilePath
+                ]);
+                return redirect(route('magento-css-variable.index'))->with('error', $message);
+            }
         }
 
         return redirect(route('magento-css-variable.index'))->with('error', 'Please select the project!');

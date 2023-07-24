@@ -84,6 +84,7 @@
                     <div class="pull-right" style="display: flex">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
                         @if (auth()->user()->isAdmin())
+                        <button class="btn btn-secondary ml-3" onclick="bulkUpdateValues()"> Bulk Update Values </button>&nbsp;
                         {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
                             <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                                 <select class="form-control projects select2" name="project_id" data-placeholder="Please select project" style="width:200px !important;">
@@ -112,7 +113,8 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="magento-css-variable-list">
                         <tr>
-                            <th width="2%">ID</th>
+                            <th width="2%"></th>
+                            <th width="3%">ID</th>
                             <th width="10%">Project Name</th>
                             <th width="10%">File name</th>
                             <th width="10%">File Path</th>
@@ -120,10 +122,11 @@
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
                             <th width="7%">Is Verified</th>
-                            <th width="6%">Action</th>
+                            <th width="8%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
                             <tr data-id="{{ $magentoCssVariable->id }}">
+								<td><input type="checkbox" name="bulk_select[]" class="d-inline bulk_select" value="{{$magentoCssVariable->id}}"></td>
                                 <td>{{ $magentoCssVariable->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -232,6 +235,46 @@
             event.target.closest('.verify-form').submit();
         }
         return false;
+    }
+
+    function bulkUpdateValues()
+    {
+        event.preventDefault();
+        var selectedIds = [];
+
+		$(".bulk_select").each(function () {
+			if ($(this).prop("checked") == true) {
+				selectedIds.push($(this).val());
+			}
+		});
+
+		if (selectedIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(selectedIds);
+			return false;
+		}
+
+        $.ajax({
+            type: "post",
+            url: "{{ route('magento-css-variable.update-selected-values') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                selectedIds: selectedIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"]("Bulk update values completed successfully!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"](error.responseJSON.message);
+        });
     }
 
     $(document).ready(function(){
