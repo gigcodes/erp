@@ -376,6 +376,7 @@ use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 use App\Http\Controllers\ThemeStructureController;
+use App\Http\Controllers\DeploymentVersionController;
 
 Auth::routes();
 
@@ -5445,3 +5446,7 @@ Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('
 Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
 Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
 Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');
+
+Route::middleware('auth')->group(function () {
+    Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
+});
