@@ -76,6 +76,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <script>
     $(document).ready(function () {
+            $(document).on('click', '.expand-row', function () {
+                var selection = window.getSelection();
+                if (selection.toString().length === 0) {
+                    $(this).find('.td-mini-container').toggleClass('hidden');
+                    $(this).find('.td-full-container').toggleClass('hidden');
+                }
+            });
+            
             $(document).on('change', '.select-theme', function () {
                     var lan=$(this).val()
                     window.location.href = '<?php echo url("/"); ?>'+"/theme-structure/"+lan;
