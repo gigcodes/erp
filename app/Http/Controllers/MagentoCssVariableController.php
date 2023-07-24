@@ -233,6 +233,15 @@ class MagentoCssVariableController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function logs(Request $request)
+    {
+        $magentoCssVariableJobLogs = MagentoCssVariableJobLog::latest("id");
+
+        $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->paginate(50);
+
+        return view('magento-css-variable.logs', compact('magentoCssVariableJobLogs'));
+    }
     
     public function updateValue(Request $request){
 

@@ -84,6 +84,7 @@
                     <div class="pull-right" style="display: flex">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
                         @if (auth()->user()->isAdmin())
+                        <a class="btn btn-secondary ml-3" href="{{ route('magento-css-variable.logs') }}">Logs</a>
                         <button class="btn btn-secondary ml-3" onclick="bulkUpdateValues()"> Bulk Update Values </button>&nbsp;
                         {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
                             <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
