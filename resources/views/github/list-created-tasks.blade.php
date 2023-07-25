@@ -16,6 +16,7 @@
             </tr>
         </thead>
         <tbody>
+            @if ($githubTaskPullRequests->count() > 0)
             @foreach($githubTaskPullRequests as $githubTaskPullRequest)
                 <tr>
                     <td>{{$githubTaskPullRequest['task']['id']}}</td>
@@ -40,6 +41,9 @@
                     <td>{{$githubTaskPullRequest['pull_number_concatenated']}}</td>
                 </tr>
             @endforeach
+            @else
+            <tr><td colspan="6"> No data found </td></tr>
+            @endif
         </tbody>
     </table>
     <!-- Display pagination links -->
