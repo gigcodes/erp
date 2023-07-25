@@ -45,7 +45,7 @@ class DeploymentVersionController extends Controller
        $branch_name = $deploymentVersion->branch_name;
        $pullNo = $deploymentVersion->pull_no;
        $serverenv = $request->selectedValue;
-       $user_id =   $user_id=auth()->user()->id;
+       $user_id = auth()->user()->id;
        $revision = $deploymentVersion->revision;
 
        try {
@@ -53,16 +53,28 @@ class DeploymentVersionController extends Controller
         $jenkins->launchJob($jobName, ['branch_name' => $branch_name,'serverenv' => $serverenv, 'revision' => $revision, 'pull_no' => $pullNo]);
             $job = $jenkins->getJob($jobName);
             $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
-            $record = ['deployement_version_id' => $request->deployVerId, 'created_by' => $user_id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number];
+            $record = ['deployement_version_id' => $deploymentVersion->id,  'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number,'user_id' => $user_id];
             DeploymentVersionLog::create($record);
  
             return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
        } catch (\Exception $e) {
-        $record = ['deployement_version_id' => $request->deployVerId, 'created_by' => $user_id, 'error_message' => $e->getMessage(), 'build_number' => $deploymentVersion->build_number];
+        $record = ['deployement_version_id' => $deploymentVersion->id, 'user_id' => $user_id, 'error_message' => $e->getMessage(), 'build_number' => $deploymentVersion->build_number];
             DeploymentVersionLog::create($record);
 
             return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
        }
        
+    }
+
+    public function deployVersionHistory($id)
+    {
+        $deployementVersionLogs = DeploymentVersionLog::with(['user','deployversion'])->where('deployement_version_id', $id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $deployementVersionLogs,
+            'message' => 'Logs show successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

@@ -5450,4 +5450,5 @@ Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technical
 Route::middleware('auth')->group(function () {
     Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
     Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
+    Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
 });

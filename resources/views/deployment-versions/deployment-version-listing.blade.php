@@ -59,7 +59,7 @@
                     <th width="10%">Pull No</th>
                     <th width="10%">Deployment Date</th>
                     <th width="10%">PR Date</th>
-					<th width="10%">Deploy</th>
+					<th width="10%">Action</th>
 
                 </tr>
 		    	<tbody>
@@ -118,7 +118,10 @@
                             <td>{{$deploymentVersion->pr_date}}</td>
 							<td><button type="button" title="Deploy" data-id="{{$deploymentVersion->id}}" class="btn btn-xs btn-deploy-verison" data-toggle="modal" data-target="#create-server-modal" style="padding: 0px 5px !important";>
 								<i class="fa fa-upload" aria-hidden="true"></i>
-							</button></td>
+							</button>
+							<button type="button" class="btn btn-xs show-developing-log_history-modal" title="Show deploying History" data-id="{{$deploymentVersion->id}}" data-toggle="modal" data-target="#deployemnt-show-history" style="padding: 0px 5px !important";><i class="fa fa-info-circle"></i></button>
+						</td>
+
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -142,16 +145,51 @@
                 @method('POST')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Servers:</label><br>
-                        <input type="radio" name="options" value="qa">Qa<br>
-                        <input type="radio" name="options" value="production"> Production<br>
-                        <input type="radio" name="options" value="live"> Live<br>
+                        <label for="server">Servers:</label><br>
+                        <select name="server" id="server" class="form-control">
+                            <option value="qa">Qa</option>
+                            <option value="production">Production</option>
+                            <option value="live">Live</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary save-server-btn">Save </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="deployemnt-show-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><span class="modal-type">Dependency</span> History</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="50%"><span class="modal-type">Remark</span></th>
+                                <th width="20%">Updated BY</th>
+                                <th width="20%">Created Date</th>
+                                <th width="20%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="deployemnt-show-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -173,7 +211,9 @@
 	$(document).ready(function () {
 		$(document).on('click', '.btn-deploy-verison', function () {
 			var deployVerId = $(this).data('id');
-			$('input[type="radio"][name="options"]').on('click', function() {
+
+			$(document).on('click', '.save-server-btn', function () {
+				var  selectedServerValue = $("#server").val();
 				var selectedValue = $(this).val();
 				$.ajax({
 					url: "{{ route('deployement-version-jenkis') }}",
@@ -196,9 +236,53 @@
 					toastr["error"](response.message);
 					$("#loading-image").hide();
 				});
-			});
 		});
+	});
 });
+
+	$(document).on('click', '.show-developing-log_history-modal ', function() {
+
+		var id = $(this).attr('data-id');
+		$.ajax({
+			url: "/deploye-version/history/" + id,
+			method: "GET",
+			dataType: "json",
+			beforeSend: function() {
+				$("#loading-image").show();
+			},
+			success: function(response) {
+				if (response.status) {
+					$("#loading-image").hide();
+					var html = "";
+					$.each(response.data, function(k, v) {
+						remarkText = v.deployversion !== null ? v.deployversion.version_number : 'Version not available';
+						if(v.build_number!='' && v.build_number!=null){
+							remarkText+="<br><br><b>Build Number</b><br>"+v.build_number;
+						}
+						if(v.error_message!='' && v.error_message!=null){
+							remarkText+="<br><br><b>Error Message:</b><br>"+v.error_message;
+						}
+						if(v.error_code!='' && v.error_code!=null){
+							remarkText+="<br><br><b>Error Code:</b><br>"+v.error_code;
+						}
+						html += `<tr>
+									<td> ${k + 1} </td>
+									<td> 
+										${remarkText}
+									</td>
+									<td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+									<td> ${v.created_at} </td>
+									<td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+								</tr>`;
+					});
+					$("#deployemnt-show-history").find(".deployemnt-show-list-view").html(html);
+				} else {
+					toastr["error"](response.error, "Message");
+				}
+				$("#loading-image").hide();
+			}
+		});
+	});
 
 
 </script>
