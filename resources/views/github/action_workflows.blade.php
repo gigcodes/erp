@@ -273,7 +273,7 @@
     }
 
     .scrollable-steps {
-        height: 50px; /* Adjust the height as per your preference */
+        height: 75px; /* Adjust the height as per your preference */
         overflow-y: auto;
     }
 

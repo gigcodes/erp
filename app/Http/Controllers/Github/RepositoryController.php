@@ -692,6 +692,60 @@ class RepositoryController extends Controller
         return view('github.jobs', ['githubActionRunJobs' => $githubActionRunJobs]);
     }
 
+    public function getGithubActionsAndJobs(Request $request)
+    {
+        // Get the action ID from the query parameter
+        $repositoryId = $request->query('selectedRepositoryId');
+        $branchName = $request->query('selectedBranchName');
+
+        // Prepare the actions & jobs 
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, 1, null, null, $branchName);
+        $actions = [];
+        if($githubActionRuns) {
+            foreach ($githubActionRuns->workflow_runs as $action) {
+                $actionName = $action->name;
+                $jobs = [];
+
+                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $action->id);
+                if($githubActionRunJobs) {
+                    foreach ($githubActionRunJobs->jobs as $job) {
+                        if ($job->run_id === $action->id) {
+                            $jobSteps = [];
+                
+                            // Assuming you have the steps data available, either from the $githubActionRunJobs or another source
+                            // Replace 'steps' with the actual key containing steps data
+                            foreach ($job->steps as $step) {
+                                if ($step->conclusion != "success") {
+                                    $jobSteps[] = [
+                                        'name' => $step->name,
+                                        'conclusion' => $step->conclusion,
+                                    ];
+                                }
+                            }
+                
+                            // Add the job to the jobs array
+                            $jobs[] = [
+                                'id' => $job->id,
+                                'name' => $job->name,
+                                'status' => $job->status,
+                                'conclusion' => $job->conclusion,
+                                'steps' => $jobSteps,
+                            ];
+                        }
+                    }
+                }
+
+                // Add the action with its jobs to the actions array
+                $actions[] = [
+                    'name' => $actionName,
+                    'jobs' => $jobs,
+                ];
+            }
+        }
+
+        return view('github.actions-jobs', ['actions' => $actions]);
+    }
+
     public function listAllPullRequests(Request $request)
     {
         $projects = Project::get();

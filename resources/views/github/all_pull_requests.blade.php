@@ -16,6 +16,11 @@
     .d-n{
         display: none;
     }
+
+    .scrollable-steps {
+        height: 75px; /* Adjust the height as per your preference */
+        overflow-y: auto;
+    }
 </style>
 
 @include('github.repo_details')
@@ -124,6 +129,20 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content" id="pr-error-logs-modal-content">
             <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
+<!-- Modal markup -->
+<div class="modal" id="actionsJobsModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Jobs for Action</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="actionsJobsModalContent">
+                <!-- AJAX content will be loaded here -->
+            </div>
         </div>
     </div>
 </div>
@@ -513,6 +532,39 @@
                 error: function(xhr, status, error) { // if error occured
                     $("#loading-image-preview").hide();
                 },
+            });
+        });
+
+        // Click event for the "view-actions-jobs" icon
+        $(document).on('click', '.view-actions-jobs', function(e) {
+            e.preventDefault();
+
+            // Get the action ID from the data attribute
+            var branch = $(this).data('branch');
+            var repo = $(this).data('repo');
+
+            // Make the AJAX request to fetch the jobs for the selected action
+            $.ajax({
+                url: "{{ route('github.get-actions-jobs') }}",
+                type: 'GET',
+                dataType: 'html',
+                data: { selectedBranchName: branch, selectedRepositoryId: repo }, // Send the action ID as a query parameter
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    // Update the modal content with the retrieved jobs
+                    $('#actionsJobsModalContent').html(response);
+
+                    // Show the modal
+                    $('#actionsJobsModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $("#loading-image-preview").hide();
+                    // Handle the error, if any
+                    console.error(error);
+                }
             });
         });
     });
