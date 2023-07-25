@@ -160,6 +160,7 @@
                                 </div>                            
                                 <div class="col-md-12">
                                     <div class="form-group">
+                                        <input type="hidden" class="build_pr" name="build_pr" value="">
                                         <input type="hidden" class="build_process_repository" name="build_process_repository" value="">
                                         <input type="hidden" class="build_process_branch" name="build_process_branch" value="">
                                         <button data-id=""class="btn btn-secondary update-build-process">Update</button>
@@ -477,8 +478,10 @@
             e.preventDefault();
             var repository=$(this).attr("data-id");
             var branch=$(this).attr("data-branch");
+            var build_pr=$(this).attr("data-build_pr");
             $(".build_process_repository").val(repository);
             $(".build_process_branch").val(branch);
+            $(".build_pr").val(build_pr);
             $('#build-process-modal').modal('show'); 
         });
         $(document).on('submit', 'form#build-process', function(e){
