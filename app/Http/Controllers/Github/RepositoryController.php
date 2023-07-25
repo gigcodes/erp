@@ -593,7 +593,7 @@ class RepositoryController extends Controller
 
     public function actionWorkflows(Request $request, $repositoryId)
     {
-        $status = $date = null;
+        $status = $date = $branchName = null;
         if($request->status) {
             $status = $request->status;
         }
@@ -603,10 +603,14 @@ class RepositoryController extends Controller
         } else {
             $selectedRepositoryId = $repositoryId;
         }
+
+        if($request->branchName) {
+            $branchName = $request->branchName;
+        }
         
         $selectedRepository = GithubRepository::where('id',  $selectedRepositoryId)->first();
         $selectedOrganizationID = $selectedRepository->organization->id;
-        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status);
+        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status, $branchName);
         
         $githubOrganizations = GithubOrganization::with('repos')->get();
         // Get Repo Jobs from DB & Prepare the status. 
@@ -635,6 +639,8 @@ class RepositoryController extends Controller
             'selectedRepositoryId' => $selectedRepositoryId,
             'githubOrganizations' => $githubOrganizations,
             'selectedOrganizationID' => $selectedOrganizationID,
+            'selectedRepoBranches' => $selectedRepository->branches,
+            'branchName' => $branchName,
             'githubRepositoryJobs' => $githubRepositoryJobs
         ]);
     }
@@ -644,10 +650,10 @@ class RepositoryController extends Controller
         return $this->githubActionResult($repositoryId, $request->page);
     }
 
-    public function githubActionResult($repositoryId, $page, $date = null, $status = null){
+    public function githubActionResult($repositoryId, $page, $date = null, $status = null, $branchName = null){
         ini_set('max_execution_time', -1);
 
-        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status);
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status, $branchName);
         // Get Repo Jobs from DB & Prepare the status. 
         $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $repositoryId)->pluck('job_name')->toArray();
 
