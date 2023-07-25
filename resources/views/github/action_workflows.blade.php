@@ -418,8 +418,8 @@
                         <td class="Website-task">{{$runs->conclusion}}</td>
                         <td class="Website-task">{{$runs->failure_reason}}</td>
                         <td class="Website-task">
-                            <a href="#" class="view-jobs" data-action-id="{{ $runs->id }}">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            <a href="#" class="view-jobs" data-action-id="{{ $runs->id }}" title="View Jobs">
+                                <i class="fa fa-eye" aria-hidden="true" style="color:grey;"></i>
                             </a>
                         </td>
                         {{-- @if(!empty($githubRepositoryJobs))
