@@ -740,6 +740,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('list-magento/send-live-product-check', [Logging\LogListMagentoController::class, 'sendLiveProductCheck'])->name('list.magento.send-live-product-check');
     Route::get('list-magento/get-live-product-screenshot', [Logging\LogListMagentoController::class, 'getLiveScreenshot'])->name('list.magento.get-live-screenshot');
 
+    Route::post('list-magento/sync-status-color', [Logging\LogListMagentoController::class, 'syncStatusColor'])->name('list.magento.sync-status-color');
     Route::post('list-magento/{id}', [Logging\LogListMagentoController::class, 'updateMagentoStatus']);
     Route::get('show-error-logs/{product_id}/{website_id?}', [Logging\LogListMagentoController::class, 'showErrorLogs'])->name('list.magento.show-error-logs');
     Route::get('call-journey-by-id/{id}', [Logging\LogListMagentoController::class, 'showJourneyById'])->name('list.magento.show-journey-by-id');
