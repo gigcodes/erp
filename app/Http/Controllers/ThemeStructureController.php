@@ -7,6 +7,7 @@ use App\Models\ThemeFile;
 use App\Models\ThemeStructure;
 use Illuminate\Http\Request;
 use App\Models\ProjectTheme;
+use App\Models\ThemeStructureLog;
 
 class ThemeStructureController extends Controller
 {
@@ -30,7 +31,13 @@ class ThemeStructureController extends Controller
         
         $tree = json_encode($this->buildTree($id));
         $theme_id=$id;
-        return view('theme-structure.index', compact('tree','themes','theme_id'));
+
+        // Logs
+        $themeStructureLogs = ThemeStructureLog::where("theme_id", $theme_id)->latest("id");
+
+        $themeStructureLogs = $themeStructureLogs->paginate(50);
+
+        return view('theme-structure.index', compact('tree','themes','theme_id', 'themeStructureLogs'));
     }
 
     public function reloadTree($theme)
@@ -55,8 +62,10 @@ class ThemeStructureController extends Controller
 
             if ($item->is_file) {
                 $node['icon'] = 'jstree-file';
+                $node['type'] = 'file';
             } else {
                 $node['icon'] = 'jstree-folder';
+                $node['type'] = 'folder';
                 $node['children'] = $this->buildTree($theme,$item->id);
             }
 
@@ -94,6 +103,14 @@ class ThemeStructureController extends Controller
         \Log::info("output:".print_r($output,true));
         \Log::info("return_var:".$return_var);
         if(!isset($output[0])){
+            // Maintain Error Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $folder->theme->id,
+                'command' => $cmd,
+                'message' => json_encode($output), 
+                'status' => 'Error', 
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
         }
         $response=json_decode($output[0]);
@@ -102,6 +119,13 @@ class ThemeStructureController extends Controller
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
+            // Maintain Success Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $folder->theme->id,
+                'command' => $cmd,
+                'message' => $message, 
+                'status' => 'Success', 
+            ]);
             return response()->json(['code' => 200, 'message' => $message]);
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
@@ -109,6 +133,13 @@ class ThemeStructureController extends Controller
                 $message=$response->message;
             }
             
+            // Maintain Error Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $folder->theme->id,
+                'command' => $cmd,
+                'message' => json_encode($output),
+                'status' => 'Error', 
+            ]);
             return response()->json(['code' => 500, 'message' => $message]);
         }
 
@@ -145,6 +176,14 @@ class ThemeStructureController extends Controller
         \Log::info("output:".print_r($output,true));
         \Log::info("return_var:".$return_var);
         if(!isset($output[0])){
+            // Maintain Error Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $file->theme->id,
+                'command' => $cmd,
+                'message' => json_encode($output), 
+                'status' => 'Error', 
+            ]);
+
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
         }
         $response=json_decode($output[0]);
@@ -153,13 +192,27 @@ class ThemeStructureController extends Controller
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
+            // Maintain Success Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $file->theme->id,
+                'command' => $cmd,
+                'message' => $message, 
+                'status' => 'Success', 
+            ]);
             return response()->json(['code' => 200, 'message' => $message]);
         }else{
             $message="Something Went Wrong! Please check Logs for more details";
             if(isset($response->message) && $response->message!=''){
                 $message=$response->message;
             }
-            
+
+            // Maintain Error Log here in new table. 
+            ThemeStructureLog::create([
+                'theme_id' => $file->theme->id,
+                'command' => $cmd,
+                'message' => json_encode($output),
+                'status' => 'Error', 
+            ]);
             return response()->json(['code' => 500, 'message' => $message]);
         }
 
@@ -197,6 +250,14 @@ class ThemeStructureController extends Controller
             \Log::info("output:".print_r($output,true));
             \Log::info("return_var:".$return_var);
             if(!isset($output[0])){
+                // Maintain Error Log here in new table. 
+                ThemeStructureLog::create([
+                    'theme_id' => $item->theme->id,
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                ]);
+
                 return response()->json(['code' => 500, 'message' => 'The response is not found!']);
             }
             $response=json_decode($output[0]);
@@ -205,13 +266,28 @@ class ThemeStructureController extends Controller
                 if(isset($response->message) && $response->message!=''){
                     $message=$response->message;
                 }
+                // Maintain Success Log here in new table. 
+                ThemeStructureLog::create([
+                    'theme_id' => $item->theme->id,
+                    'command' => $cmd,
+                    'message' => $message, 
+                    'status' => 'Success', 
+                ]);
+
                 return response()->json(['code' => 200, 'message' => $message]);
             }else{
                 $message="Something Went Wrong! Please check Logs for more details";
                 if(isset($response->message) && $response->message!=''){
                     $message=$response->message;
                 }
-                
+
+                // Maintain Error Log here in new table. 
+                ThemeStructureLog::create([
+                    'theme_id' => $item->theme->id,
+                    'command' => $cmd,
+                    'message' => json_encode($output), 
+                    'status' => 'Error', 
+                ]);
                 return response()->json(['code' => 500, 'message' => $message]);
             }
 
