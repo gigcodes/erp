@@ -18,7 +18,9 @@
         <tbody>
             @if ($githubTaskPullRequests->count() > 0)
             @foreach($githubTaskPullRequests as $githubTaskPullRequest)
+                @if(isset($githubTaskPullRequest['task']) && !@empty($githubTaskPullRequest['task']))
                 <tr>
+                    
                     <td>{{$githubTaskPullRequest['task']['id']}}</td>
                     <td>{{ Carbon\Carbon::parse($githubTaskPullRequest['task']['created_at'])->format('d-m-y H:i') }}</td>
                     <td class="expand-row" style="word-break: break-all">
@@ -39,7 +41,9 @@
                     </td>
                     <td>{{$githubTaskPullRequest['task']['assignedTo']['name']}}</td>
                     <td>{{$githubTaskPullRequest['pull_number_concatenated']}}</td>
+                   
                 </tr>
+                @endif
             @endforeach
             @else
             <tr><td colspan="6"> No data found </td></tr>
