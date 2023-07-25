@@ -37,6 +37,7 @@ use App\Models\Project;
 use App\Task;
 use App\User;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
 class RepositoryController extends Controller
 {
@@ -967,6 +968,23 @@ class RepositoryController extends Controller
         ]);
     }
 
+    public function listCreatedTasks()
+    {
+        // Set the number of activities per page
+        $perPage = 10;
+        $page = request('page', 1);
+
+        $githubTaskPullRequests = GithubTaskPullRequest::with('task')
+            ->select("*", DB::raw('GROUP_CONCAT(pull_number SEPARATOR ",") as pull_number_concatenated'))
+            ->groupBy('task_id')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // Return the activities to the view
+        return View::make('github.list-created-tasks', [
+            'githubTaskPullRequests' => $githubTaskPullRequests,
+        ]);
+    }
+
     public function repoStatusCheck(Request $request)
     {
         $gitRepo = GithubRepository::find($request->get('repoId'));
@@ -1152,6 +1170,7 @@ class RepositoryController extends Controller
         $this->validate(
             $request, [
                 'task_name' => 'required',
+                'task_details' => 'required',
                 'selected_rows' => 'required',
                 'selected_repo_id' => 'required',
                 'assign_to' => 'required',
@@ -1189,36 +1208,40 @@ class RepositoryController extends Controller
         //     'task_name' => $data['task_name'],
         //     'assign_to' => $data['assign_to']
         // ]);
-        $task = Task::where("task_subject", $data['task_name'])->where('assign_to', $data['assign_to'])->first();
-        if (!$task) {
-            $data['assign_from'] = Auth::id();
-            $data['is_statutory'] = 0;
-            $data['task_details'] = $data['task_name'];
-            $data['task_subject'] = $data['task_name'];
-            $data['assign_to'] = $data['assign_to'];
+        $task = Task::updateOrCreate(
+            ['task_subject' => $data['task_name'], 'assign_to' => $data['assign_to']],
+            ['assign_from' => Auth::id(), 'is_statutory' => 0, 'task_details' => $data['task_details']]
+        );
 
-            $task = Task::create($data);
-
+        if ($task) {
             if ($data['assign_to']) {
                 $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
             }
-        }
 
-        // Save task PR's 
-        foreach($selectedPRs as $selectedPR) {
-            GithubTaskPullRequest::UpdateOrCreate([
-                "github_organization_id" => $organization->id,
-                "github_repository_id" => $repository->id,
-                "pull_number" => $selectedPR,
-                "task_id" => $task->id,
-            ]);
+            // Save task PR's 
+            foreach($selectedPRs as $selectedPR) {
+                GithubTaskPullRequest::UpdateOrCreate([
+                    "github_organization_id" => $organization->id,
+                    "github_repository_id" => $repository->id,
+                    "pull_number" => $selectedPR,
+                    "task_id" => $task->id,
+                ]);
+            }
+
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Task created successfully!',
+                ]
+            );
         }
 
         return response()->json(
             [
-                'code' => 200,
+                'code' => 500,
                 'data' => [],
-                'message' => 'Task created successfully!',
+                'message' => 'Error when creating a task',
             ]
         );
     }
