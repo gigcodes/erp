@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class MagentoCssVariableController extends Controller
 {
@@ -236,11 +237,23 @@ class MagentoCssVariableController extends Controller
 
     public function logs(Request $request)
     {
-        $magentoCssVariableJobLogs = MagentoCssVariableJobLog::latest("id");
+        $magentoCssVariableJobLogs = new MagentoCssVariableJobLog();
 
-        $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->paginate(50);
+        $project = $request->search_project;
+        $error = $request->search_error;
 
-        return view('magento-css-variable.logs', compact('magentoCssVariableJobLogs'));
+        if ($project) {
+            $magentoCssVariableJobLogs = MagentoCssVariableJobLog::whereHas('magentoCssVariable.project', function ($query) use ($project) {
+                $query->where('name', 'LIKE', '%' . $project . '%');
+            });
+        }
+        if ($error) {
+            $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->where('status', 'LIKE', '%' . $error . '%');
+        }  
+
+        $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->latest("id")->paginate(50);
+
+        return view('magento-css-variable.logs', compact('magentoCssVariableJobLogs','project','error'));
     }
     
     public function updateValue(Request $request){
@@ -498,4 +511,19 @@ class MagentoCssVariableController extends Controller
         return redirect(route('magento-css-variable.index'))->with('error', 'Please select the project!');
     }
 
+
+    public function download($id)
+    {
+        $fileName = MagentoCssVariableJobLog::find($id);
+
+        $file_name = basename($fileName->csv_file_path);
+
+        $filePath =   storage_path('app/public/magento-css-variable-csv/' . $file_name);
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        } else {
+            abort(404, 'The file you are trying to download does not exist.');
+        }
+    }
 }
