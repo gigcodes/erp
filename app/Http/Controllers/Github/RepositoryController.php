@@ -681,6 +681,17 @@ class RepositoryController extends Controller
         return $githubActionRuns;
     }
 
+    public function getGithubJobs(Request $request) 
+    {
+        // Get the action ID from the query parameter
+        $actionId = $request->query('action_id');
+        $repositoryId = $request->query('selectedRepositoryId');
+
+        $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $actionId);
+
+        return view('github.jobs', ['githubActionRunJobs' => $githubActionRunJobs]);
+    }
+
     public function listAllPullRequests(Request $request)
     {
         $projects = Project::get();

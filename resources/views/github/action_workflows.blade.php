@@ -200,6 +200,39 @@
                 },
             });
         });
+
+        // Click event for the "view-jobs" icon
+        $(document).on('click', '.view-jobs', function(e) {
+            e.preventDefault();
+
+            // Get the action ID from the data attribute
+            var actionId = $(this).data('action-id');
+            var selectedRepositoryId = {!! $selectedRepositoryId !!};
+
+            // Make the AJAX request to fetch the jobs for the selected action
+            $.ajax({
+                url: "{{ route('github.get-jobs') }}",
+                type: 'GET',
+                dataType: 'html',
+                data: { action_id: actionId, selectedRepositoryId: selectedRepositoryId }, // Send the action ID as a query parameter
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    // Update the modal content with the retrieved jobs
+                    $('#jobsModalContent').html(response);
+
+                    // Show the modal
+                    $('#jobsModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $("#loading-image-preview").hide();
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        });
     });
 
     // Laravel pagination is using, So below code not need
@@ -237,6 +270,11 @@
         border-collapse: collapse;
         table-layout: fixed; // ***********add this
         word-wrap: break-word; // ***********and this
+    }
+
+    .scrollable-steps {
+        height: 50px; /* Adjust the height as per your preference */
+        overflow-y: auto;
     }
 
 </style>
@@ -379,7 +417,11 @@
                         <td class="Website-task">{{$runs->status}}</td>
                         <td class="Website-task">{{$runs->conclusion}}</td>
                         <td class="Website-task">{{$runs->failure_reason}}</td>
-                        <td class="Website-task"></td>
+                        <td class="Website-task">
+                            <a href="#" class="view-jobs" data-action-id="{{ $runs->id }}">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </a>
+                        </td>
                         {{-- @if(!empty($githubRepositoryJobs))
                         @foreach ($githubRepositoryJobs as $githubRepositoryJob)
                         <td class="Website-task">{{isset($runs->job_status[$githubRepositoryJob]) ? $runs->job_status[$githubRepositoryJob] : '-'}}</td>
@@ -445,6 +487,21 @@
                         </form>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal markup -->
+<div class="modal" id="jobsModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Jobs for Action</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="jobsModalContent">
+                <!-- AJAX content will be loaded here -->
             </div>
         </div>
     </div>

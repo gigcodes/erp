@@ -4264,6 +4264,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
+        Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
         Route::get('/repos/{id}/users', [Github\UserController::class, 'listUsersOfRepository']);
         Route::get('/repos/{id}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
