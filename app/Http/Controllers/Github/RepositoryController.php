@@ -594,7 +594,7 @@ class RepositoryController extends Controller
 
     public function actionWorkflows(Request $request, $repositoryId)
     {
-        $status = $date = null;
+        $status = $date = $branchName = null;
         if($request->status) {
             $status = $request->status;
         }
@@ -604,10 +604,14 @@ class RepositoryController extends Controller
         } else {
             $selectedRepositoryId = $repositoryId;
         }
+
+        if($request->branchName) {
+            $branchName = $request->branchName;
+        }
         
         $selectedRepository = GithubRepository::where('id',  $selectedRepositoryId)->first();
         $selectedOrganizationID = $selectedRepository->organization->id;
-        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status);
+        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status, $branchName);
         
         $githubOrganizations = GithubOrganization::with('repos')->get();
         // Get Repo Jobs from DB & Prepare the status. 
@@ -636,6 +640,8 @@ class RepositoryController extends Controller
             'selectedRepositoryId' => $selectedRepositoryId,
             'githubOrganizations' => $githubOrganizations,
             'selectedOrganizationID' => $selectedOrganizationID,
+            'selectedRepoBranches' => $selectedRepository->branches,
+            'branchName' => $branchName,
             'githubRepositoryJobs' => $githubRepositoryJobs
         ]);
     }
@@ -645,10 +651,10 @@ class RepositoryController extends Controller
         return $this->githubActionResult($repositoryId, $request->page);
     }
 
-    public function githubActionResult($repositoryId, $page, $date = null, $status = null){
+    public function githubActionResult($repositoryId, $page, $date = null, $status = null, $branchName = null){
         ini_set('max_execution_time', -1);
 
-        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status);
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date, $status, $branchName);
         // Get Repo Jobs from DB & Prepare the status. 
         $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $repositoryId)->pluck('job_name')->toArray();
 
@@ -674,6 +680,71 @@ class RepositoryController extends Controller
         }
 
         return $githubActionRuns;
+    }
+
+    public function getGithubJobs(Request $request) 
+    {
+        // Get the action ID from the query parameter
+        $actionId = $request->query('action_id');
+        $repositoryId = $request->query('selectedRepositoryId');
+
+        $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $actionId);
+
+        return view('github.jobs', ['githubActionRunJobs' => $githubActionRunJobs]);
+    }
+
+    public function getGithubActionsAndJobs(Request $request)
+    {
+        // Get the action ID from the query parameter
+        $repositoryId = $request->query('selectedRepositoryId');
+        $branchName = $request->query('selectedBranchName');
+
+        // Prepare the actions & jobs 
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, 1, null, null, $branchName);
+        $actions = [];
+        if($githubActionRuns) {
+            foreach ($githubActionRuns->workflow_runs as $action) {
+                $actionName = $action->name;
+                $jobs = [];
+
+                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $action->id);
+                if($githubActionRunJobs) {
+                    foreach ($githubActionRunJobs->jobs as $job) {
+                        if ($job->run_id === $action->id) {
+                            $jobSteps = [];
+                
+                            // Assuming you have the steps data available, either from the $githubActionRunJobs or another source
+                            // Replace 'steps' with the actual key containing steps data
+                            foreach ($job->steps as $step) {
+                                if ($step->conclusion != "success") {
+                                    $jobSteps[] = [
+                                        'name' => $step->name,
+                                        'conclusion' => $step->conclusion,
+                                    ];
+                                }
+                            }
+                
+                            // Add the job to the jobs array
+                            $jobs[] = [
+                                'id' => $job->id,
+                                'name' => $job->name,
+                                'status' => $job->status,
+                                'conclusion' => $job->conclusion,
+                                'steps' => $jobSteps,
+                            ];
+                        }
+                    }
+                }
+
+                // Add the action with its jobs to the actions array
+                $actions[] = [
+                    'name' => $actionName,
+                    'jobs' => $jobs,
+                ];
+            }
+        }
+
+        return view('github.actions-jobs', ['actions' => $actions]);
     }
 
     public function listAllPullRequests(Request $request)

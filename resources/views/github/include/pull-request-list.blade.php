@@ -61,6 +61,10 @@
                 @endif
             </a>
 
+            <a href="#" class="view-actions-jobs" data-branch="{{ $pullRequest['source'] }}" data-repo="{{ $pullRequest['repository']['id'] }}" title="View Actions Jobs">
+                <i class="fa fa-eye" aria-hidden="true" style="color:grey;"></i>
+            </a>
+
         </div>
     </td>
 </tr>
