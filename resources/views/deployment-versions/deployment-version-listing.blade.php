@@ -166,7 +166,7 @@
     <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><span class="modal-type">Dependency</span> History</h4>
+                <h4 class="modal-title"><span class="modal-type">DeploymentVersion</span> History</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
