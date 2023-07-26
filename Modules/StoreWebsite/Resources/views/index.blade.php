@@ -1053,18 +1053,19 @@
 			toastr["error"]("Something Went Wrong, Please Try Again Later!");
 			return false;
 		}
+		$(this).find('img').hide();
+		$(this).find('.loader').show();
 
 		var url = "{{url('/')}}/store-website/" + id + "/download/" + type;
 
 		$.ajax({
 		url: url,
 		type: "GET",
-		beforeSend: function () {
-			$("#loading-image").show();
-		},
 		dataType: "json", // Change this based on your server response
 		success: function(response) {
 			if (response.status === 'success') {
+				$('.btn-download-db-env').find('img').show();
+				$('.btn-download-db-env').find('.loader').hide();
 				toastr.success(response.message, 'Success');
 				console.log(response);
 				if (response.download_url) {
@@ -1074,12 +1075,14 @@
 					link.click(); 
 					URL.revokeObjectURL(link.href);
 				}
-				$("#loading-image").hide();
 			} else {
+				$('.btn-download-db-env').find('img').show();
+				$('.btn-download-db-env').find('.loader').hide();
 				toastr.error(response.message, 'Error');
 			}
 		},
 		error: function(xhr, status, error) {
+			$('.btn-download-db-env').find('.loader').hide();
 		toastr.error("Something Went Wrong, Please Try Again Later!", 'Error');
 		console.error(error);
 		}
@@ -1087,11 +1090,11 @@
 });
 
 	$(document).on("click", ".btn-download-db-env-logs", function(href) {	
-		getdbErrorLogs(1);
+		var dataId =  $(this).data('id');
+		getdbErrorLogs(1,dataId);
 	});
-		function getdbErrorLogs(page){
 
-			var dataId = $(".btn-download-db-env-logs").attr('data-id');
+	function getdbErrorLogs(page,dataId){
 			$.ajax({
 				type: 'GET',
 				url: '/store-website/'+ dataId +'/download-db-env-logs?page=' + page,
@@ -1135,7 +1138,7 @@
 				paginationLinks.find('a').on('click', function(event) {
 					event.preventDefault();
 					var page = $(this).data('page');
-					getdbErrorLogs(page);
+					getdbErrorLogs(page ,dataId);
 				});
 			}).fail(function (response) {
 				$("#loading-image").hide();
