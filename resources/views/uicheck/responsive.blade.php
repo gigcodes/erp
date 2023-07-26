@@ -263,6 +263,7 @@
 							<th style="width: auto">User Name</th>
 						@endif
 						<th style="width: 7%">Type</th>
+						<th style="width: 150px">Status</th>
 						<th style="width: auto">Device1 (1024px)</th>
 						<th style="width: auto">Device2 (767px)</th>
 						<th style="width: auto">Device3 (1920px)</th>
@@ -273,7 +274,6 @@
 						{{-- <th style="width: auto">Device8</th>
 						<th style="width: auto">Device9</th>
 						<th style="width: auto">Device10</th> --}}
-						<th style="width: 150px">Status</th>
 						
 					</tr>
 				</thead>
@@ -324,6 +324,21 @@
 								@endif
 
 								<td class="uicheck-username">{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
+								
+								<?php 
+									$devid = '';
+									$status = '';
+									$uiDev = App\UiDevice::where('device_no', 1)
+										->where('uicheck_id', $uiDevData->uicheck_id)
+										->first();
+									$device_no = $uiDev->device_no  ?? '';
+									$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
+									$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
+								?>
+								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
+									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
+									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button>
+								</td>
 							
 								<td>
 									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
@@ -427,21 +442,6 @@
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="10" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 								</td> --}}
-								
-								<?php 
-										$devid = '';
-										$status = '';
-										$uiDev = App\UiDevice::where('device_no', 1)
-											->where('uicheck_id', $uiDevData->uicheck_id)
-											->first();
-											$device_no = $uiDev->device_no  ?? '';
-											$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
-											$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
-											?>
-								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
-									
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
-									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
 							</tr>
 						
 					@endforeach
