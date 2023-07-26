@@ -22,6 +22,7 @@ use App\PushToMagentoCondition;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LogListMagentoExport;
+use App\Loggers\LogListMagentoSyncStatus;
 use App\StoreMagentoApiSearchProduct;
 use App\ProductPushInformationHistory;
 use App\ProductPushInformationSummery;
@@ -226,6 +227,7 @@ class LogListMagentoController extends Controller
             }
         }
         $users = \App\User::all();
+        $syncStatuses = LogListMagentoSyncStatus::all();
         // dd($logListMagentos);
         // For ajax
         if ($request->ajax() and $request->type == 'product_log_list') {
@@ -242,7 +244,7 @@ class LogListMagentoController extends Controller
         $filters = $request->all();
         // Show results
 
-        return view('logging.listmagento', compact('logListMagentos', 'filters', 'users', 'total_count'))
+        return view('logging.listmagento', compact('logListMagentos', 'filters', 'users', 'total_count', 'syncStatuses'))
             ->with('success', \Request::Session()->get('success'))
             ->with('brands', $this->get_brands())
             ->with('categories', $this->get_categories());
@@ -1219,5 +1221,18 @@ class LogListMagentoController extends Controller
                 'data' => [],
             ], 200);
         }
+    }
+
+    public function syncStatusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $cronStatus = LogListMagentoSyncStatus::find($key);
+            $cronStatus->color = $value;
+            $cronStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

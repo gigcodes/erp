@@ -639,6 +639,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/update-selected-values', [MagentoCssVariableController::class, 'updateSelectedValues'])->name('magento-css-variable.update-selected-values');
     Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
+    Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])-> name('admin.download.file');
+   
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
 });
@@ -742,6 +744,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('list-magento/send-live-product-check', [Logging\LogListMagentoController::class, 'sendLiveProductCheck'])->name('list.magento.send-live-product-check');
     Route::get('list-magento/get-live-product-screenshot', [Logging\LogListMagentoController::class, 'getLiveScreenshot'])->name('list.magento.get-live-screenshot');
 
+    Route::post('list-magento/sync-status-color', [Logging\LogListMagentoController::class, 'syncStatusColor'])->name('list.magento.sync-status-color');
     Route::post('list-magento/{id}', [Logging\LogListMagentoController::class, 'updateMagentoStatus']);
     Route::get('show-error-logs/{product_id}/{website_id?}', [Logging\LogListMagentoController::class, 'showErrorLogs'])->name('list.magento.show-error-logs');
     Route::get('call-journey-by-id/{id}', [Logging\LogListMagentoController::class, 'showJourneyById'])->name('list.magento.show-journey-by-id');
@@ -4298,6 +4301,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
+        Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
         Route::get('/pr-error-logs/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPrErrorLogs']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');

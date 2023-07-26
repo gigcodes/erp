@@ -17,6 +17,10 @@
                             <label for="assign_to">Assigned to<span class="text-danger">*</span></label>
                             <?php echo Form::select("assign_to",['' => ''],null,["class" => "form-control assign_to globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder' => 'Assign to']); ?>
                         </div>
+                        <div class="form-group normal-subject">
+                            <label for="task_details">Task Details<span class="text-danger">*</span></label>
+                            <textarea name="task_details" id="task_details" class="form-control"></textarea>
+                        </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary save-github-task-window">Save</butto>

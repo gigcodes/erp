@@ -75,7 +75,8 @@
         </div>
 
         <div class="col-md-7">
-            <div class="text-right pl-5">
+            <div class="text-right">
+                <button type="button" class="btn btn-sm btn-secondary list-created-tasks" title="List Task">List Task</button>
                 <button class="btn btn-sm btn-secondary" onclick="createPRTask()"> Create PR Task </button>
                 <button class="btn btn-sm btn-secondary" onclick="updateLabelActivities()"> Update Label Activities </button>
                 <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
@@ -133,6 +134,13 @@
     </div>
 </div>
 <!-- Modal markup -->
+<div class="modal" id="list-created-tasks-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="list-created-tasks-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
 <div class="modal" id="actionsJobsModal">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -179,6 +187,7 @@
                                 </div>                            
                                 <div class="col-md-12">
                                     <div class="form-group">
+                                        <input type="hidden" class="build_pr" name="build_pr" value="">
                                         <input type="hidden" class="build_process_repository" name="build_process_repository" value="">
                                         <input type="hidden" class="build_process_branch" name="build_process_branch" value="">
                                         <button data-id=""class="btn btn-secondary update-build-process">Update</button>
@@ -304,6 +313,7 @@
         var currentPage = 1;
         var currentPageActivity = 1;
         var currentPageErrorLogs = 1;
+        var currentPageForListTasks = 1;
 
         $(document).on('click', '.show-pr-review-comments', function(e) {
             e.preventDefault();
@@ -454,6 +464,47 @@
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
+
+        // List created tasks
+        $(document).on('click', '.list-created-tasks', function(e) {
+            e.preventDefault();
+
+            // Make the AJAX request
+            loadCreatedTasks(currentPageForListTasks);
+        });
+
+        // Load activities for the given page number
+        function loadCreatedTasks(page) {
+            $('.loader-section').removeClass('d-n');
+            $.ajax({
+                url: "{{ url('/github/list-created-tasks') }}?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $('.loader-section').addClass('d-n');
+                    // Update the modal content with the retrieved comments
+                    $('#list-created-tasks-modal-content').html(response);
+                    // Show the modal
+                    $('#list-created-tasks-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $('.loader-section').addClass('d-n');
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#list-created-tasks-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadCreatedTasks(currentPage);
+        });
     });
 
     $(document).on('click', '#repo_select', function(event) {
@@ -496,8 +547,10 @@
             e.preventDefault();
             var repository=$(this).attr("data-id");
             var branch=$(this).attr("data-branch");
+            var build_pr=$(this).attr("data-build_pr");
             $(".build_process_repository").val(repository);
             $(".build_process_branch").val(branch);
+            $(".build_pr").val(build_pr);
             $('#build-process-modal').modal('show'); 
         });
         $(document).on('submit', 'form#build-process', function(e){
@@ -635,7 +688,7 @@
             alert('Please select any row');
             return false;
         }
-
+        $('#github-task-create #task_details').val("Please check PR numbers " + selected_rows_for_pr_task);
         $('#github-task-create').modal('show');
     }
 

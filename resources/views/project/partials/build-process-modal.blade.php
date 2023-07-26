@@ -48,6 +48,7 @@
                                 </div>                        
                                 <div class="col-md-12">
                                     <div class="form-group">
+                                        <input type="hidden" name="initiate_from" value="Project Page - Build Process">
                                         <button data-id=""class="btn btn-secondary update-build-process">Update</button>
                                     </div>
                                 </div>

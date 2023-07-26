@@ -21,8 +21,21 @@
         @endif
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-12">
-                    
+                <div class="mt-3 col-md-12">
+                    <form action="{{route('magento-css-variable.logs')}}" method="get" class="search">
+                        <div class="col-lg-2">
+                            <input class="form-control" type="text" id="search_project" placeholder="Search Project" name="search_project" value="{{ $project ?? '' }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $error ?? '' }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                               <img src="{{ asset('images/search.png') }}" alt="Search">
+                           </button>
+                           <a href="{{route('magento-css-variable.logs')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                        </div>
+                    </form>
                 </div>
                 <div class="col-12" style="margin-top: 10px;">
                     <div class="pull-right" style="display: flex">
@@ -71,14 +84,12 @@
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $magentoCssVariableJobLog->status }}
                                 </td>
-                                <td class="expand-row" style="word-break: break-all">
-                                    <span class="td-mini-container">
-                                       {{ strlen($magentoCssVariableJobLog->csv_file_path) > 30 ? substr($magentoCssVariableJobLog->csv_file_path, 0, 30).'...' :  $magentoCssVariableJobLog->csv_file_path }}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                        {{ $magentoCssVariableJobLog->csv_file_path }}
-                                    </span>
-                                </td>
+
+                                <td>
+                                @if( $magentoCssVariableJobLog->csv_file_path)
+                                <a class="btn btn-info mx-3" href="{{ route('admin.download.file', ['id' =>$magentoCssVariableJobLog->id]) }}"><i class="fa fa-download"></i>Csv File</a>
+                                @endif
+                            </td>
                             </tr>
                         @endforeach
                     </table>

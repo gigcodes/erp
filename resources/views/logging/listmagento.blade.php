@@ -162,12 +162,15 @@
               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') ? request()->get('crop_start_date') .' '.request()->get('crop_end_date') : 'Crop Image Date'}}</p><i class="fa fa-caret-down pull-right"></i>
             </div>
           </div>
-          <div class="col-md-3 pl-0">
+          <div class="col-md-4 pl-0">
             <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
                 <span class="fa fa-filter"></span>&nbsp;Filter Results
               </button>
               <button class="btn btn-primary text-dark"  style="height: 34px" id="send-product-for-live-checking">
                 <span class="fa fa-send"></span>&nbsp;Send Live Product
+              </button>
+              <button class="btn btn-primary text-dark" style="height: 34px" onclick="event.preventDefault();" data-toggle="modal" data-target="#syncStatusColor"> 
+                Sync Status Color
               </button>
           </div>
         </div>
@@ -216,6 +219,8 @@
         </div>
 
      </div>
+
+@include("logging.partials.modal-sync-status-color")
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
