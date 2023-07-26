@@ -1320,8 +1320,10 @@ class UicheckController extends Controller
             }
 
             $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 'uic.lock_developer',
-                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable')
-            )->orderBy('uic.id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
+                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), 
+                'u.name AS user_accessable' // New - Separate row for every user
+                // DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable') // Old 
+            )->orderBy('uic.id', 'DESC')->groupBy(['ui_devices.uicheck_id', 'u.id'])->paginate(30);
 
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
