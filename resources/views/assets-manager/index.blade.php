@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Assets Manager List')
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
 @section('content')
 
@@ -10,30 +13,47 @@
             <div class="pull-left">
               <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <select class="form-control" name="archived">
                     <option value="">Select</option>
                     <option value="1" {{ isset($archived) && $archived == 1 ? 'selected' : '' }}>Archived</option>
                   </select>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-                <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+                <div class="form-group ml-3">
+                  Select Created Users
+                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control globalSelect2", "multiple"]) }}
+                </div>
+                <div class="form-group ml-3">
+                  Select Ips
+                  {{ Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control globalSelect2", "multiple"]) }}
+                </div>
+                <br>
+                  <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+                <a href="{{route('assets-manager.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
               </form>
             </div>
             <div class="pull-right">
+              <br>
                 <button type="button" class="btn btn-secondary btn-sm text-white mr-4 assets-create-modal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">
+              <br>
                 <button type="button" class="btn btn-xs ml-3 mr-3 mt-1" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
@@ -62,10 +82,10 @@
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
-                <th width="10%">Link</th>
-                <th width="10%">IP</th>
-
-                <th width="5%">Created By</th>
+              <th width="10%">Link</th>
+              <th width="10%">IP</th>
+              <th width="10%">IP Name</th>
+              <th width="10%">Created By</th>
               <th width="5%">Action</th>
             </tr>
           </thead>
@@ -107,8 +127,8 @@
                 </td>
                   <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
                   <td>{{ $asset->ip }}</td>
-
-                  <td>{{ $asset->created_by }}</td>
+                  <td>{{ $asset->ip_name }}</td>
+                  <td>{{ $asset->user?->name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
@@ -763,5 +783,25 @@
           });
         }
       }
+
+
+      $(document).ready(function() {
+        // Find the multi-select dropdown by its class name
+        var $multiSelect = $('.globalSelect2');
+
+        // Listen for the change event on the dropdown
+        $multiSelect.on('change', function() {
+            // Check if any option is selected
+            if ($multiSelect.val().length > 0) {
+              alert("choosed option selected");
+                // If options are selected, hide the placeholder option
+                $multiSelect.find('option[value=""]').hide();
+            } else {
+                // If no options are selected, show the placeholder option
+                $multiSelect.find('option[value=""]').show();
+            }
+        });
+    });
+
   </script>
 @endsection
