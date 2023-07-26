@@ -541,6 +541,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/magento_modules/module-edit/{id}', [MagentoModuleController::class, 'moduleEdit'])->name('magento_module.module-edit');
 
+    Route::post('magento_modules/index-post', [MagentoModuleController::class, 'indexPost'])->name('magento_module.index-post');
     Route::resource('magento_modules', MagentoModuleController::class);
 
     Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
