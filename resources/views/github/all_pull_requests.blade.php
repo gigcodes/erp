@@ -85,11 +85,14 @@
             </div>
         </div>
     </div>
+    <div class="loader-section d-n">
+        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+    </div>
 
     <table id="pull-request-table" class="table table-bordered" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:3% !important;"></th>
+                <th style="width:4% !important;"><input type="checkbox" name="select_all" class="select_all"></th>
                 <th style="width:7% !important;">Repository</th>
                 <th style="width:7% !important;">Number</th>
                 <th style="width:13% !important;">Title</th>
@@ -105,9 +108,7 @@
           
         </tbody>
     </table>
-    <div class="loader-section d-n">
-        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
-    </div>
+    
 </div>
 <!-- Modal markup -->
 <div class="modal" id="pr-review-comments-modal">
@@ -619,6 +620,11 @@
                     console.error(error);
                 }
             });
+        });
+
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.bulk_select_pull_request').prop('checked', isChecked);
         });
     });
 
