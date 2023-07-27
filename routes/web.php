@@ -4268,6 +4268,9 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
+        Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
+        Route::get('/repos/list-repo-labels', [Github\RepositoryController::class, 'listRepoLabels'])->name('github.list-repo-labels');
+        Route::post('/repos/update-repo-label-message', [Github\RepositoryController::class, 'updateRepoLabelMessage'])->name('github.update-repo-label-message');
         Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('/repos/get-github-actions-jobs', [Github\RepositoryController::class, 'getGithubActionsAndJobs'])->name('github.get-actions-jobs');
         Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);

@@ -24,6 +24,7 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrActivity;
 use App\Github\GithubPrErrorLog;
 use App\Github\GithubRepositoryJob;
+use App\Github\GithubRepositoryLabel;
 use App\Github\GithubTask;
 use App\Github\GithubTaskPullRequest;
 use App\Http\Requests\DeleteBranchRequest;
@@ -1315,5 +1316,86 @@ class RepositoryController extends Controller
                 'message' => 'Error when creating a task',
             ]
         );
+    }
+
+    public function syncRepoLabels(Request $request)
+    {
+        $repo_id = $request->input('repo_id');
+        $repository = GithubRepository::where('id',  $repo_id)->first();
+        $organization = $repository->organization;
+        
+        // Set the username and token
+        $userName = $organization->username; 
+        $token = $organization->token;
+
+        // Set the repository owner and name
+        $owner = $organization->name;
+        $repo = $repository->name;
+
+        // Fetch labels for the specific repository from the GitHub API
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/labels";
+
+        // Send a GET request to the GitHub API
+        try {
+            $githubClient = $this->connectGithubClient($userName, $token);
+            $response = $githubClient->get($url);
+            $labels = json_decode($response->getBody()->getContents(), true);
+
+            if ($labels) {
+                // Save labels in the database
+                foreach ($labels as $label) {
+                    GithubRepositoryLabel::updateOrCreate(
+                        ['label_name' => $label['name'], 'github_organization_id' => $organization->id, 'github_repository_id' => $repository->id],
+                        ['label_color' => $label['color']]
+                    );
+                }
+
+                return response()->json(
+                    [
+                        'code' => 200,
+                        'data' => [],
+                        'message' => 'Labels synced successfully!',
+                    ]
+                );
+            } else {
+                return response()->json(
+                    [
+                        'code' => 200,
+                        'data' => [],
+                        'message' => 'Labels Not Found',
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            // Handle any exceptions or errors
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => 'Labels sync failed!' . $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function listRepoLabels(Request $request)
+    {
+        $repo_id = $request->get('repo_id');
+        // Fetch the saved labels for the specific repository from the database
+        $labels = GithubRepositoryLabel::where('github_repository_id', $repo_id)->get();
+
+        return response()->json($labels);
+    }
+
+    public function updateRepoLabelMessage(Request $request)
+    {
+        $labelId = $request->input('label_id');
+        $message = $request->input('message');
+
+        $label = GithubRepositoryLabel::findOrFail($labelId);
+        $label->message = $message;
+        $label->save();
+
+        return response()->json(['message' => 'Label message updated successfully!']);
     }
 }
