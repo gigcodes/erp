@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Github;
 
 use App\BuildProcessHistory;
+use App\ChatMessage;
+use App\ChatMessagesQuickData;
 use Artisan;
 use DateTime;
 use Exception;
@@ -1201,6 +1203,64 @@ class RepositoryController extends Controller
                             ]);
                         }
                     }
+
+                    // START - If any task assigned for this PR, then send the label mapped message to that task
+                    // 1. Get all the labeled activities & mapped message. 
+                    $activitiesWithLabels = GithubPrActivity::select('github_pr_activities.*', 'github_repository_labels.message AS label_mapped_message')
+                        ->leftJoin('github_repository_labels', function ($join) {
+                            $join->on('github_pr_activities.github_organization_id', '=', 'github_repository_labels.github_organization_id')
+                                ->on('github_pr_activities.github_repository_id', '=', 'github_repository_labels.github_repository_id')
+                                ->on('github_pr_activities.label_name', '=', 'github_repository_labels.label_name');
+                        })    
+                        ->where('github_pr_activities.github_organization_id', $organization->id)
+                        ->where('github_pr_activities.github_repository_id', $repository->id)
+                        ->where('github_pr_activities.pull_number', $pullNumber)
+                        ->whereNotNull('github_pr_activities.label_name')
+                        ->where('github_pr_activities.label_name', '!=', '')
+                        ->whereNotNull('github_repository_labels.message') // Filter out rows with NULL message
+                        ->where('github_repository_labels.message', '!=', '') // Filter out rows with empty message
+                        ->get();
+
+                    // 2. Check Any task available for this PR 
+                    if($activitiesWithLabels->count() > 0) {
+                        $createdPrTasks = GithubTaskPullRequest::where('github_organization_id', $organization->id)
+                            ->where('github_repository_id', $repository->id)
+                            ->where('pull_number', $pullNumber)
+                            ->get();
+
+                        if($createdPrTasks->count() > 0) {
+                            foreach($createdPrTasks as $createdPrTask) {
+                                foreach($activitiesWithLabels as $activitiesWithLabel) {
+                                    // 3. Save the label mapped messages for that task 
+                                    // WhatsAppController private function createTask($data) Getting code from here.
+                                    $task = Task::find($createdPrTask->task_id);
+                                    $default_user_id = \App\User::USER_ADMIN_ID;
+                                    $message = "#{$task->id}. {$task->task_subject}. PR {$pullNumber}. {$activitiesWithLabel->label_mapped_message}";
+                                    $params = [
+                                        'number' => null,
+                                        'user_id' => $default_user_id,
+                                        'approved' => 1,
+                                        'status' => 1,
+                                        'task_id' => $task->id,
+                                        'message' => $message,
+                                    ];
+
+                                    $user = User::find($task->assign_to);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                                    $chat_message = ChatMessage::create($params);
+                                    ChatMessagesQuickData::updateOrCreate([
+                                        'model' => \App\Task::class,
+                                        'model_id' => $params['task_id'],
+                                    ], [
+                                        'last_communicated_message' => @$params['message'],
+                                        'last_communicated_message_at' => $chat_message->created_at,
+                                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                    // END - If any task assigned for this PR, then send the label mapped message to that task
                 }
             } catch (Exception $e) {
                 \Log::error($e);
