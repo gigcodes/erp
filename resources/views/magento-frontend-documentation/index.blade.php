@@ -205,11 +205,14 @@
                     <tr>
                         <th> Id </th>
                         <th> Category </th>
+                        <th> Parent folder </th>
+                        <th> chid folder </th>
                         <th> Remark </th>
                         <th> Location </th>
                         <th> Admin Configuration </th>
                         <th> Frontend configuration </th>    
-                        <th> File Name </th>     
+                        <th> File Name </th>   
+                        <th> URL </th>     
                         <th> Action </th>              
                     </tr>
                 </thead>
@@ -247,7 +250,8 @@
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
     @include('magento-frontend-documentation.magento-frontend-history')
-
+    @include('magento-frontend-documentation.partials.magento-frontend-category-history')
+    @include('magento-frontend-documentation.partials.magento-frontend-parent-folder-history')
  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
@@ -333,11 +337,41 @@
                                 }
                             });
 
-                            categoriesHtml += '</select>';
-                            return categoriesHtml;
+                             categoriesHtml += '</select>';
+
+                             let category_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-category-history ml-2"  data-id="${row['id']}" title="Load messages">  <i class="fa fa-info-circle"> </i> </button>`;
+
+                            return `<div class="flex justify-left items-center">${categoriesHtml} ${category_history_button} </div>`;
                         }
                     },
+                    {
+                        render: function(data, type, row, meta) {
 
+                            let message =
+                                `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="parent folder" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-parent-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveparentFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+                            data = (data == null) ? '' : '';
+                            let retun_data =
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+
+                            return retun_data;
+                        }
+                    },
+                    {
+                        render: function(data, type, row, meta) {
+                            let message = `<input type="file" id=image_${row['id']}" name="file[]" placeholder="Upload Image" />`;
+
+                            let remark_send_button = `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message" data-id="${row['id']}" onclick="saveImage(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+
+                            return `<div class="flex justify-left items-center">${message} ${remark_send_button} </div>`;
+                        }
+                    },
                     {
                         render: function(data, type, row, meta) {
 
@@ -387,6 +421,20 @@
                         render: function(data, type, row, meta) {
                             data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
+                        }
+                    },
+                    {
+                        data: 'google_drive_file_id',
+                        name: 'magento_frontend_docs.google_drive_file_id',
+                        render: function(data, type, row, meta) {
+                            if (data) {
+                                let documentUrl = `https://drive.google.com/file/d/${data}/view?usp=sharing`;
+                                let edit_button = `<a target="_blank" href="${documentUrl}">Open Document</a>
+                                    <button class="copy-button btn btn-xs text-dark" data-message="${documentUrl}" title="Copy document URL"><i class="fa fa-copy"></i></button>`;
+                                return edit_button;
+                            } else {
+                                return ''; // If data is not available, return an empty string
+                            }
                         }
                     },
                     {
@@ -659,6 +707,167 @@
             });
         });
 
+        $(document).on('click', '.load-category-history', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                url: '{{ route("magentofrontend_category.histories.show", '') }}/' + id,
+                dataType: "json",
+                data: {
+                    id:id,
+
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.new_category ? v.new_category.title : ''} </td>
+                                        <td> ${v.old_category ? v.old_category.title : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#category-listing").find(".category-listing-view").html(html);
+                        $("#category-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        //Store Parent folder
+        function saveparentFolder(row_id, selector = 'remark') {
+            var folderName = $("#"+selector+"_" + row_id).val();
+            var val = $("#"+selector+"_" + row_id).val();
+
+            alert(folderName);
+            alert(val);
+
+            $.ajax({
+                url: `{{ route('magento-frontend-parent-folder-store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    folderName: folderName,
+                    magento_front_end_id: row_id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    $("#"+selector+"_" + row_id).val('');
+                    $("#send_to_" + row_id).val('');
+                    toastr["success"](response.message);
+                    magentofrontendTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+        function saveImage(rowId) {
+            
+            let fileInput = $(`#image_${rowId}`)[0];
+
+            if (fileInput.files.length === 0) {
+                // No file selected, handle the error or show a message
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('rowId', rowId);
+
+
+            $.ajax({
+                url: `{{ route('magento-frontend-child-image-store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    folderName: formData,
+                    magento_front_end_id: rowId,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    $("#"+selector+"_" + rowId).val('');
+                    $("#send_to_" + rowId).val('');
+                    toastr["success"](response.message);
+                    magentofrontendTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+        $(document).on('click', '.load-module-parent-folder', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-frontend-get-parent-folder') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            console.log(v);
+                            folderName = v.parent_folder_name;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${folderName}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${folderName}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#magneto-frontend-parent-folder-list").find(".magneto-frontend-parent-view").html(html);
+                        $("#magneto-frontend-parent-folder-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
 
     </script>
 
