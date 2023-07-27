@@ -33,6 +33,7 @@
                       <input name="description" type="text" class="form-control" placeholder="Search" id="description-search" value="{{ @$_GET['description'] }}">
                   </div>
                   <br>
+                  &nbsp;&nbsp;&nbsp;
                   <div class="pd-2">
                     <div class="form-group">
                         <label for="with_archived">Select Status</label>
@@ -62,9 +63,8 @@
                     <th width="50%">Description</th>
                     <th width="10%">Action</th>
                 </tr>
-                @foreach($conditions as $i=>$condition)
+                @foreach($conditions as $i=>$condition)   
                     <tr data-id="{{ $condition->id }}" style="background-color: {{$condition->twilioStatusColour?->color}};">
-\
                         <td width="10%">{{ $i+1 }}</td>
                         <td width="20%">
                             {{ $condition['condition'] }}
@@ -127,8 +127,8 @@
               url: '{{ url("twilio/conditions/status/update") }}'+'?id='+id+'&status='+status,
               method: 'GET'
             }).done(function(response) {
-                $(`#twilio-condition-list tr[data-id="${id}"]`).css('background-color', response.colourCode);
-              alert('Status Updated');
+                $(`#twilio-condition-list tr[data-id="${id}"]`).css('background-color', response.color);
+                toastr["success"](response.message, "Message")
             });
         });
 

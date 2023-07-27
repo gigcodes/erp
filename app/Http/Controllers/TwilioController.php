@@ -4835,6 +4835,8 @@ class TwilioController extends FindByNumberController
             $conditions = TwilioCondition::where('description', 'LIKE', '%' . $request->description . '%')->get();
         } elseif ($request->condition && $request->condition != null) {
             $conditions = TwilioCondition::where('condition', $request->condition)->get();
+        } else if ($request->active_status != null) {
+            $conditions = TwilioCondition::where('status', $request->active_status)->get();
         } else {
             $conditions = TwilioCondition::all();
         }
@@ -4846,9 +4848,21 @@ class TwilioController extends FindByNumberController
     {
         $input = $request->input();
         $twiliConditions  = TwilioCondition::where('id', $input['id'])->update(['status' => $input['status']]);
+        $twiliConditions = TwilioCondition::find($input['id']);
 
-       $colorget =  TwilioConditionStatus::find($input['status']);
-        return 'Status Updated';
+        if($twiliConditions->status == 0){
+            $statusColor=  TwilioConditionStatus::find(2);
+        } else {
+            $statusColor=  TwilioConditionStatus::find($twiliConditions->status);
+        }
+
+        return response()->json([
+            'status' => true,
+            'color' => $statusColor->color,
+            'message' => 'Status Updated',
+            'status_name' => 'success',
+        ], 200);
+
     }
 
     public function saveMessageTone(Request $request)
