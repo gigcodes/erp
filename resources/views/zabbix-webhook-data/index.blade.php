@@ -68,7 +68,7 @@
                             @if ($zabbixWebhookData->zabbix_task_id)
                                 @php $bgColor = "#f1f1f1 !important"; @endphp
                             @endif
-                            <tr data-id="{{ $zabbixWebhookData->id }}" style="background-color: {{$bgColor}};" >
+                            <tr data-id="{{ $zabbixWebhookData->id }}" style="background-color: {{$zabbixWebhookData->zabbixStatusColour->color}};">
                                 <td>{{ $zabbixWebhookData->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -280,7 +280,6 @@
     $(document).on('change', '.change-zabbix-status', function() {
         let id = $(this).attr('data-id');
         let status = $(this).val();
-
         $.ajax({
             url: "{{route('zabbix-webhook-data.change.status')}}",
             type: "POST",
@@ -294,7 +293,8 @@
             },
             success: function(response) {
                 toastr["success"](response.message, "Message")
-            },
+                $(`#zabbix-webhook-data-list tr[data-id="${id}"]`).css('background-color', response.colourCode);
+           },
             error: function(error) {
                 toastr["error"](error.responseJSON.message, "Message")
             }

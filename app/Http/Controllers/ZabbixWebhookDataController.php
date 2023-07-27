@@ -114,6 +114,9 @@ class ZabbixWebhookDataController extends Controller
 
             $zaabbixWebhookData->save();
 
+            $statusColour =  ZabbixStatus::find($zaabbixWebhookData->zabbix_status_id);
+            $statusColour =  $statusColour->color;
+
             $history = new ZabbixWebhookDataStatusHistory();
             $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
             $history->old_status_id = $old_status;
@@ -125,6 +128,7 @@ class ZabbixWebhookDataController extends Controller
                 [
                     'status' => 'success',
                     'message' => 'Status updated successfully',
+                    'colourCode' => $statusColour,
                 ], 200
             );
         } catch(Exception $e) {
