@@ -53,6 +53,17 @@
             width: 100%;
 
         }
+        /* CSS for positioning the eye and copy icons in the corner */
+        .file-info-container {
+            position: relative;
+        }
+
+        .action-buttons-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -204,15 +215,14 @@
                 <thead>
                     <tr>
                         <th> Id </th>
-                        <th> Category </th>
+                        <th width="10%"> Category </th>
                         <th> Parent folder </th>
-                        <th> chid folder </th>
+                        <th> child folder </th>
                         <th> Remark </th>
                         <th> Location </th>
-                        <th> Admin Configuration </th>
-                        <th> Frontend configuration </th>    
-                        <th> File Name </th>   
-                        <th> URL </th>     
+                        <th width="10%"> Admin Configuration </th>
+                        <th width="10%"> Frontend configuration </th>    
+                        <th width="10%"> File Name </th>   
                         <th> Action </th>              
                     </tr>
                 </thead>
@@ -273,6 +283,7 @@
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
+                searching: false,
                 // sScrollX: true,
                 order: [
                     [0, 'desc']
@@ -337,12 +348,16 @@
                                 }
                             });
 
-                             categoriesHtml += '</select>';
+                            categoriesHtml += '</select>';
 
-                             let category_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-category-history ml-2"  data-id="${row['id']}" title="Load messages">  <i class="fa fa-info-circle"> </i> </button>`;
+                            let category_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-category-history ml-2"  data-id="${row['id']}" title="Load messages">
+                                    <i class="fa fa-info-circle" style="position: absolute; top: 5px; right: 5px;"></i>
+                                </button>`;
 
-                            return `<div class="flex justify-left items-center">${categoriesHtml} ${category_history_button} </div>`;
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                        ${categoriesHtml} ${category_history_button}
+                                    </div>`;
                         }
                     },
                     {
@@ -396,7 +411,7 @@
                         name: 'magento_frontend_docs.location',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
@@ -404,7 +419,7 @@
                         data: 'admin_configuration',
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
@@ -412,30 +427,47 @@
                         data: 'frontend_configuration',
                         name: 'magento_frontend_docs.frontend_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'file_name',
-                        name: 'magento_frontend_docs.file_name',
-                        render: function(data, type, row, meta) {
                             data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
                     {
-                        data: 'google_drive_file_id',
-                        name: 'magento_frontend_docs.google_drive_file_id',
+                        data: null,
                         render: function(data, type, row, meta) {
-                            if (data) {
-                                let documentUrl = `https://drive.google.com/file/d/${data}/view?usp=sharing`;
-                                let edit_button = `<a target="_blank" href="${documentUrl}">Open Document</a>
-                                    <button class="copy-button btn btn-xs text-dark" data-message="${documentUrl}" title="Copy document URL"><i class="fa fa-copy"></i></button>`;
-                                return edit_button;
-                            } else {
-                                return ''; // If data is not available, return an empty string
+                            // Extract file_name and google_drive_file_id from the row data
+                            let file_name = data.file_name;
+                            let google_drive_file_id = data.google_drive_file_id;
+
+                            let file_name_html = (file_name == null) ? '' : `
+                                <div class="expand-row module-text" style="word-break: break-all">
+                                    <div class="flex items-center justify-left td-mini-container" title="${file_name}">
+                                        ${setStringLength(file_name, 15)}
+                                    </div>
+                                    <div class="flex items-center justify-left td-full-container hidden" title="${file_name}">
+                                        ${file_name}
+                                    </div>
+                                </div>`;
+
+                            let action_buttons = '';
+                            if (google_drive_file_id) {
+                                let documentUrl = `https://drive.google.com/file/d/${google_drive_file_id}/view?usp=sharing`;
+                                action_buttons = `
+                                    <a target="_blank" href="${documentUrl}" class="btn btn-image padding-10-3 show-details">
+                                        <img src="/images/view.png" style="cursor: default;">
+                                    </a>
+                                    <button class="copy-button btn btn-xs text-dark" data-message="${documentUrl}" title="Copy document URL">
+                                        <i class="fa fa-copy"></i>
+                                    </button>`;
                             }
+
+                            // Combine both file_name_html and action_buttons in the same TD
+                            return `
+                                <div class="file-info-container">
+                                    ${file_name_html}
+                                    <div class="action-buttons-container">
+                                        ${action_buttons}
+                                    </div>
+                                </div>`;
                         }
                     },
                     {
@@ -444,7 +476,7 @@
                             let edit_button =
                                 `<button type="button" class="btn btn-xs btn-image edit-module ml-2" data-type="general" data-id="${row['id']}" title="Edit messages"> <img src="/images/edit.png" alt="" style="cursor: default;"> </button>`;
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="View History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                                
                             return `<div class="flex justify-left items-center">${edit_button} ${remark_history_button} </div>`;
         
@@ -746,10 +778,6 @@
         function saveparentFolder(row_id, selector = 'remark') {
             var folderName = $("#"+selector+"_" + row_id).val();
             var val = $("#"+selector+"_" + row_id).val();
-
-            alert(folderName);
-            alert(val);
-
             $.ajax({
                 url: `{{ route('magento-frontend-parent-folder-store') }}`,
                 type: 'POST',
@@ -784,8 +812,6 @@
                 $("#loading-image").hide();
             });
         }
-
-       magentofrontendTable.draw();
           
 
         $(document).on('click', '.load-module-parent-folder', function() {
