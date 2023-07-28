@@ -4604,6 +4604,7 @@ Route::middleware('auth')->group(function () {
     Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
     Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
     Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
+    Route::post('twilio/status-colour-update', [TwilioController::class, 'StatusColourUpdate'])->name('twilio-status-colour-update');
 
     /**
      * Watson account management
