@@ -47,17 +47,48 @@
     <table id="repository-table" class="table table-bordered">
         <thead>
             <tr>
-                <th>Serial Number</th>
-                <th>Name</th>
-                <th>Last Update </th>
-                <th>Actions</th>
+                <th style="width: auto">Serial Number</th>
+                <th style="width: auto">Name</th>
+                <th style="width: auto">Last Update </th>
+                <th style="width: 25%">Actions</th>
             </tr>
         </thead>
         <tbody>
             @include('github.include.repository-list')
         </tbody>
     </table>
+
+    <div class="modal fade" id="label-modal" tabindex="-1" role="dialog" aria-labelledby="label-modal-title" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="label-modal-title">Labels for Repository</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Label Name</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="label-modal-body">
+                            <!-- Labels and messages will be dynamically added here using JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
 </div>
+@endsection
+
+@push('scripts')
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
 <script>
     $("#filterRepositoryForm").submit(function(e){
@@ -81,5 +112,100 @@
             }
         });
     });
+
+    $(document).ready(function() {
+        // sync-labels-button
+        $(document).on('click', '.sync-labels-button', function () {
+            var repo_id = $(this).data('repo_id');
+            $("#loading-image-preview").show();
+
+            $.ajax({
+                url: '{{ route("github.sync-repo-labels") }}',
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: {
+                    repo_id: repo_id, // Include the repository in the data
+                },
+                success: function (data) {
+                    $("#loading-image-preview").hide();
+                    toastr['success']('Labels synced successfully!');
+                },
+                error: function (error) {
+                    $("#loading-image-preview").hide();
+                    console.error(error);
+                }
+            });
+        });
+
+        // Function to fetch labels and messages and populate the modal
+        function fetchLabelsAndMessages(repo_id) {
+            $("#loading-image-preview").show();
+            
+            $.ajax({
+                url: '{{ route("github.list-repo-labels") }}',
+                type: 'GET',
+                data: {
+                    repo_id: repo_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $("#loading-image-preview").hide();
+
+                    var modalBody = $('#label-modal-body');
+                    modalBody.empty();
+
+                    $.each(data, function (index, label) {
+                        var messageInput = '<input type="text" name="message" class="form-control message-input" data-label-id="' + label.id + '" value="' + (label.message ? label.message : '') + '">';
+                        var labelRow = '<tr>' +
+                            '<td>' + label.label_name + '</td>' +
+                            '<td>' + messageInput +
+                            '</td>' +
+                            '</tr>';
+
+                        modalBody.append(labelRow);
+                    });
+
+                    // Show the modal
+                    $('#label-modal').modal('show');
+                },
+                error: function (error) {
+                    $("#loading-image-preview").hide();
+                    console.error(error);
+                }
+            });
+        }
+
+        // AJAX request to list labels and messages in the modal
+        $(document).on('click', '.show-labels-button', function () {
+            var repo_id = $(this).data('repo_id');
+            fetchLabelsAndMessages(repo_id);
+        });
+
+        // AJAX request to update label message
+        $(document).on('change', '.message-input', function () {
+            var labelId = $(this).data('label-id');
+            var message = $(this).val();
+
+            $.ajax({
+                url: '{{ route("github.update-repo-label-message") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    label_id: labelId,
+                    message: message
+                },
+                dataType: 'json',
+                success: function (data) {
+                    // Show success message or handle the response as needed
+                    toastr['success']('Label message updated successfully!');
+                },
+                error: function (error) {
+                    console.error(error);
+                    toastr['error']('Label message update failed!');
+                }
+            });
+        });
+    });
 </script>
-@endsection
+@endpush
