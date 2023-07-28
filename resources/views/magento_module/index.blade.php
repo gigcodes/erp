@@ -121,7 +121,7 @@
         <div class="col-lg-12 ">
             <h2 class="page-heading">
                 {{ $title }}
-                (<span id="total-count"></span>)
+                (<span id="total-count-magento-modules"></span>)
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -446,7 +446,11 @@
                     }
                 },
                 ajax: {
-                    "url": "{{ route('magento_modules.index') }}",
+                    "url": "{{ route('magento_module.index-post') }}",
+                    "type": "POST", // Use POST method
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
                     data: function(d) {
                         d.module = $('.filter-module').val();
                         d.module_type = $('.filter-module_type').val();
@@ -1014,7 +1018,7 @@
                     var api = this.api();
                     var recordsTotal = api.page.info().recordsTotal;
                     var recordsFiltered = api.page.info().recordsFiltered;
-                    $('#total-count').text(recordsTotal);
+                    $('#total-count-magento-modules').text(recordsTotal);
                 },
             });
             

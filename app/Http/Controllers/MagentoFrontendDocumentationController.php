@@ -11,6 +11,8 @@ use Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
 use Google\Client;
 use Google\Service\Drive;
+use App\Models\MagentoFrontendCategoryHistory;
+use App\Models\MagentoFrontendParentFolder;
 
 class MagentoFrontendDocumentationController extends Controller
 {
@@ -66,19 +68,27 @@ class MagentoFrontendDocumentationController extends Controller
         $magentofrontenddoc->write =$request->write ? implode(',', $request->write) : null;
         $magentofrontenddoc->save();
 
+        if ($request->hasFile('child_folder_image')) {
+            $file = $request->file('child_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-child-image');
+            $file->move($destinationPath, $name); 
+            $magentofrontenddoc->child_folder_image  = $name;
+            $magentofrontenddoc->save();
+        }
 
         if ($request->hasFile('file')) {
-        foreach ($request->file as $file) {
-            $magentofrontenddoc->file_name = $file->getClientOriginalName();
-            $magentofrontenddoc->extension = $file->extension();
-           
-            $magentofrontenddoc->save();
+            foreach ($request->file as $file) {
+                $magentofrontenddoc->file_name = $file->getClientOriginalName();
+                $magentofrontenddoc->extension = $file->extension();
+            
+                $magentofrontenddoc->save();
 
-            UploadGoogleDriveScreencast::dispatchNow($magentofrontenddoc, $file);
+                UploadGoogleDriveScreencast::dispatchNow($magentofrontenddoc, $file);
 
-            $magentofrontenddocs[] = $magentofrontenddoc;
+                $magentofrontenddocs[] = $magentofrontenddoc;
+            }
         }
-    }
 
        $magnetohistory =  new MagentoFrontendHistory();
 
@@ -147,6 +157,12 @@ class MagentoFrontendDocumentationController extends Controller
         $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
         $newData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
 
+        if ($request->columnName == "store_website_category_id") {
+             $oldCategoryId = $oldData->store_website_category_id;
+
+            $this->saveCategoryHistory($oldData, $oldCategoryId , $request->data);
+        }
+
         if ($updateMagentoModule) {
             return response()->json([
                 'status' => true,
@@ -171,7 +187,20 @@ class MagentoFrontendDocumentationController extends Controller
         $oldData->frontend_configuration  = $request->frontend_configuration;
         $oldData->save();
 
-      
+        if ($request->hasFile('child_folder_image')) {
+            $file = $request->file('child_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-child-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+        
+        if (!is_null($name)) {
+            $oldData->child_folder_image = $name;
+            $oldData->save();
+        }
+        
         $magnetohistory =  new MagentoFrontendHistory();
         $magnetohistory->magento_frontend_docs_id = $oldData->id;
         $magnetohistory->store_website_category_id = $oldData->store_website_category_id;
@@ -208,4 +237,59 @@ class MagentoFrontendDocumentationController extends Controller
         ], 200);
     }
     
+    public function magentofrontendCategoryHistoryShow($id)
+    {
+        $histories = MagentoFrontendCategoryHistory::with(['newCategory','oldCategory','user'])->where('magento_frontend_docs_id', $id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
+    public function magentofrontendStoreParentFolder(Request $request)
+    {
+        $magentofrontendremark =   new MagentoFrontendParentFolder();
+        $magentofrontendremark->magento_frontend_docs_id = $request->magento_front_end_id;
+        $magentofrontendremark->parent_folder_name = $request->folderName;
+        $magentofrontendremark->user_id =  \Auth::id();
+        $magentofrontendremark->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $magentofrontendremark,
+            'message' => 'magneto frontend parent Folder Added succesfully',
+            'status_name' => 'success',
+        ], 200);
+       
+    }
+
+    public function magentofrontendgetparentFolder(Request $request)
+    {
+        $remarks = MagentoFrontendParentFolder::with(['user'])->where('magento_frontend_docs_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    protected function saveCategoryHistory($magentoFrontEnd, $oldCategoryId, $newCategoryId)
+    {
+        $history = new MagentoFrontendCategoryHistory();
+        $history->magento_frontend_docs_id = $magentoFrontEnd->id;
+        $history->old_category_id = $oldCategoryId;
+        $history->new_category_id = $newCategoryId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
+
 }

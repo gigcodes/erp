@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Github;
 
 use App\BuildProcessHistory;
+use App\ChatMessage;
+use App\ChatMessagesQuickData;
 use Artisan;
 use DateTime;
 use Exception;
@@ -24,6 +26,7 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubPrActivity;
 use App\Github\GithubPrErrorLog;
 use App\Github\GithubRepositoryJob;
+use App\Github\GithubRepositoryLabel;
 use App\Github\GithubTask;
 use App\Github\GithubTaskPullRequest;
 use App\Http\Requests\DeleteBranchRequest;
@@ -1200,6 +1203,64 @@ class RepositoryController extends Controller
                             ]);
                         }
                     }
+
+                    // START - If any task assigned for this PR, then send the label mapped message to that task
+                    // 1. Get all the labeled activities & mapped message. 
+                    $activitiesWithLabels = GithubPrActivity::select('github_pr_activities.*', 'github_repository_labels.message AS label_mapped_message')
+                        ->leftJoin('github_repository_labels', function ($join) {
+                            $join->on('github_pr_activities.github_organization_id', '=', 'github_repository_labels.github_organization_id')
+                                ->on('github_pr_activities.github_repository_id', '=', 'github_repository_labels.github_repository_id')
+                                ->on('github_pr_activities.label_name', '=', 'github_repository_labels.label_name');
+                        })    
+                        ->where('github_pr_activities.github_organization_id', $organization->id)
+                        ->where('github_pr_activities.github_repository_id', $repository->id)
+                        ->where('github_pr_activities.pull_number', $pullNumber)
+                        ->whereNotNull('github_pr_activities.label_name')
+                        ->where('github_pr_activities.label_name', '!=', '')
+                        ->whereNotNull('github_repository_labels.message') // Filter out rows with NULL message
+                        ->where('github_repository_labels.message', '!=', '') // Filter out rows with empty message
+                        ->get();
+
+                    // 2. Check Any task available for this PR 
+                    if($activitiesWithLabels->count() > 0) {
+                        $createdPrTasks = GithubTaskPullRequest::where('github_organization_id', $organization->id)
+                            ->where('github_repository_id', $repository->id)
+                            ->where('pull_number', $pullNumber)
+                            ->get();
+
+                        if($createdPrTasks->count() > 0) {
+                            foreach($createdPrTasks as $createdPrTask) {
+                                foreach($activitiesWithLabels as $activitiesWithLabel) {
+                                    // 3. Save the label mapped messages for that task 
+                                    // WhatsAppController private function createTask($data) Getting code from here.
+                                    $task = Task::find($createdPrTask->task_id);
+                                    $default_user_id = \App\User::USER_ADMIN_ID;
+                                    $message = "#{$task->id}. {$task->task_subject}. PR {$pullNumber}. {$activitiesWithLabel->label_mapped_message}";
+                                    $params = [
+                                        'number' => null,
+                                        'user_id' => $default_user_id,
+                                        'approved' => 1,
+                                        'status' => 1,
+                                        'task_id' => $task->id,
+                                        'message' => $message,
+                                    ];
+
+                                    $user = User::find($task->assign_to);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                                    $chat_message = ChatMessage::create($params);
+                                    ChatMessagesQuickData::updateOrCreate([
+                                        'model' => \App\Task::class,
+                                        'model_id' => $params['task_id'],
+                                    ], [
+                                        'last_communicated_message' => @$params['message'],
+                                        'last_communicated_message_at' => $chat_message->created_at,
+                                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                    // END - If any task assigned for this PR, then send the label mapped message to that task
                 }
             } catch (Exception $e) {
                 \Log::error($e);
@@ -1315,5 +1376,86 @@ class RepositoryController extends Controller
                 'message' => 'Error when creating a task',
             ]
         );
+    }
+
+    public function syncRepoLabels(Request $request)
+    {
+        $repo_id = $request->input('repo_id');
+        $repository = GithubRepository::where('id',  $repo_id)->first();
+        $organization = $repository->organization;
+        
+        // Set the username and token
+        $userName = $organization->username; 
+        $token = $organization->token;
+
+        // Set the repository owner and name
+        $owner = $organization->name;
+        $repo = $repository->name;
+
+        // Fetch labels for the specific repository from the GitHub API
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/labels";
+
+        // Send a GET request to the GitHub API
+        try {
+            $githubClient = $this->connectGithubClient($userName, $token);
+            $response = $githubClient->get($url);
+            $labels = json_decode($response->getBody()->getContents(), true);
+
+            if ($labels) {
+                // Save labels in the database
+                foreach ($labels as $label) {
+                    GithubRepositoryLabel::updateOrCreate(
+                        ['label_name' => $label['name'], 'github_organization_id' => $organization->id, 'github_repository_id' => $repository->id],
+                        ['label_color' => $label['color']]
+                    );
+                }
+
+                return response()->json(
+                    [
+                        'code' => 200,
+                        'data' => [],
+                        'message' => 'Labels synced successfully!',
+                    ]
+                );
+            } else {
+                return response()->json(
+                    [
+                        'code' => 200,
+                        'data' => [],
+                        'message' => 'Labels Not Found',
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            // Handle any exceptions or errors
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => 'Labels sync failed!' . $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function listRepoLabels(Request $request)
+    {
+        $repo_id = $request->get('repo_id');
+        // Fetch the saved labels for the specific repository from the database
+        $labels = GithubRepositoryLabel::where('github_repository_id', $repo_id)->get();
+
+        return response()->json($labels);
+    }
+
+    public function updateRepoLabelMessage(Request $request)
+    {
+        $labelId = $request->input('label_id');
+        $message = $request->input('message');
+
+        $label = GithubRepositoryLabel::findOrFail($labelId);
+        $label->message = $message;
+        $label->save();
+
+        return response()->json(['message' => 'Label message updated successfully!']);
     }
 }
