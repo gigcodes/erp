@@ -135,7 +135,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                magento documenetation (<span id="total-count"></span>)
+                Magento Documentation(<span id="total-count"></span>)
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -223,6 +223,8 @@
                         <th width="10%"> Admin Configuration </th>
                         <th width="10%"> Frontend configuration </th>    
                         <th width="10%"> File Name </th>   
+                        <th width="10%"> Updated by </th>   
+                        <th width="10%"> Created At </th>   
                         <th> Action </th>              
                     </tr>
                 </thead>
@@ -242,7 +244,7 @@
                     @csrf
                     {!! Form::hidden('id', null, ['id'=>'id']) !!}
                     <div class="modal-header">
-                        <h4 class="modal-title">Update Store Color</h4>
+                        <h4 class="modal-title">Update Magneto Frontend Documentation</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -257,12 +259,45 @@
         </div>
     </div>
 
+    <div id="parentImageAddModal" class="modal fade " role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form id="magento_frontend_parent_image_form" class="form mb-15" enctype="multipart/form-data">
+                @csrf
+                {!! Form::hidden('magento_frontend_id', null, ['id'=>'magento_frontend_id']) !!}
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Parent Folder Image</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row ml-2 mr-2">
+                        <div class="col-xs-6 col-sm-6">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>parent Folder Image</label>
+                                    <input type="file" name="parent_folder_image" id="parent_folder_image">
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Add</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
     @include('magento-frontend-documentation.magento-frontend-history')
     @include('magento-frontend-documentation.partials.magento-frontend-category-history')
     @include('magento-frontend-documentation.partials.magento-frontend-parent-folder-history')
- 
+    {{-- @include('magento-frontend-documentation.partials.child-folder-image') --}}
+    @include('magento-frontend-documentation.partials.parent-folder-image')
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -369,23 +404,32 @@
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-module-parent-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
+                            let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-parent-folder-modal" type="submit" id="submit_message"  data-id="${row['id']}"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
+                            
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveparentFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                            data = (data == null) ? '' : '';
+                            data = (data == null) ? '' : '';                      
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
 
                             return retun_data;
                         }
                     },
                     {
-                        data: 'child_folder_image',
                         render: function(data, type, row, meta) {
-                            if (data !== null) {
-                                 return '<img src="/magentofrontend-child-image/' + data + '" height="50" width="50">';
-                            } else {
-                              return '-';
-                             }
+
+                            let message =
+                                `<input type="text" id="child_folder" name="child_folder" class="form-control child_folder-input" placeholder="child folder" />`;
+
+                            let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-child-folder-image-modal" type="submit" id="submit_message"  data-target="#childImageAddModal" data-id="${row['id']}"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
+                            
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+                            data = (data == null) ? '' : '';
+                            let retun_data =
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} </div>`;
+
+                            return retun_data;
                         }
                     },
                     {
@@ -395,7 +439,7 @@
                                 `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="Remark" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -468,6 +512,22 @@
                                         ${action_buttons}
                                     </div>
                                 </div>`;
+                        }
+                    },
+                    {
+                        data: 'user.name',
+                        name: 'magento_frontend_docs.user_id',
+                        render: function(data, type, row, meta) {
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'magento_frontend_docs.created_at',
+                        render: function(data, type, row, meta) {
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            return data;
                         }
                     },
                     {
@@ -812,7 +872,53 @@
                 $("#loading-image").hide();
             });
         }
-          
+        
+        function saveChildFolder(row_id) {
+            alert(row_id);
+            // let inputValue = $(`#child_folder_${id}`).val();
+
+            let childFolderName = $("#child_folder").val();
+
+            $.ajax({
+                url: `{{ route('magento-frontend-child-folder-store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    folderName: childFolderName,
+                    magento_front_end_id: row_id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                console.log(response);
+                if (response.status) {
+                    
+                    toastr["success"](response.message);
+                    magentofrontendTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+        $(document).on("click", ".upload-child-folder-image-modal", function() {
+            let magento_frontend_id = $(this).data('id');
+            $("#childImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);
+            $('#childImageAddModal').modal('show');
+        });
 
         $(document).on('click', '.load-module-parent-folder', function() {
             var id = $(this).attr('data-id');
@@ -852,6 +958,97 @@
                 }
             });
         });
+
+       
+        $(document).on('click', '.upload-parent-folder-modal', function() {
+            let magento_frontend_id = $(this).data('id');
+            $("#parentImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);
+            $('#parentImageAddModal').modal('show');
+        });
+
+        $(document).on('submit', '#magento_frontend_parent_image_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("magento_frontend_parent_image_form"));
+        var button = $(this).find('[type="submit"]');
+        console.log(button);
+        $.ajax({
+            url: '{{ route("magento-frontend-parent-folder-image.store") }}',
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Add');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#apiDataAddModal #magento_frontend_parent_image_form').trigger('reset');
+                magentofrontendTable.draw();
+                toastr["success"](response.message);
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
+
+    $(document).on('submit', '#magento_frontend_child_image_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("magento_frontend_child_image_form"));
+        var button = $(this).find('[type="submit"]');
+        console.log(button);
+        $.ajax({
+            url: '{{ route("magento-frontend-child-image-store") }}',
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Add');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#apiDataAddModal #magento_frontend_child_image_form').trigger('reset');
+                magentofrontendTable.draw();
+                toastr["success"](response.message);
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
 
     </script>
 

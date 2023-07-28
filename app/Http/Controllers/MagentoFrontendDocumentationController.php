@@ -13,6 +13,7 @@ use Google\Client;
 use Google\Service\Drive;
 use App\Models\MagentoFrontendCategoryHistory;
 use App\Models\MagentoFrontendParentFolder;
+use App\Models\MagentoFrontendChildFolder;
 
 class MagentoFrontendDocumentationController extends Controller
 {
@@ -21,7 +22,7 @@ class MagentoFrontendDocumentationController extends Controller
         $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
 
         if ($request->ajax()) {
-            $items = MagentoFrontendDocumentation::with('storeWebsiteCategory')
+            $items = MagentoFrontendDocumentation::with('storeWebsiteCategory','user')
             ->select(
                 'magento_frontend_docs.*',
                 'magento_frontend_docs.location',
@@ -275,6 +276,77 @@ class MagentoFrontendDocumentationController extends Controller
             'status' => true,
             'data' => $remarks,
             'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentofrontendparentFolderImage(Request $request)
+    {
+        $parentImage =   new MagentoFrontendParentFolder();
+
+        if ($request->hasFile('parent_folder_image')) {
+            $file = $request->file('parent_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-parent-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+
+        $parentImage->parent_image =  $name;
+        $parentImage->type = 'image';
+        $parentImage->magento_frontend_docs_id =  $request->magento_frontend_id;
+        $parentImage->user_id =  \Auth::id();
+        $parentImage->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $parentImage,
+            'message' => 'magneto frontend Parent Image Added succesfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentofrontendChildImage(Request $request)
+    {
+        $childImage =   new MagentoFrontendChildFolder();
+
+        if ($request->hasFile('child_folder_image')) {
+            $file = $request->file('child_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-child-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+
+        $childImage->child_image =  $name;
+        $childImage->type = 'image';
+        $childImage->magento_frontend_docs_id =  $request->magento_frontend_id;
+        $childImage->user_id =  \Auth::id();
+        $childImage->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $childImage,
+            'message' => 'magneto frontend Child Image Added succesfully',
+            'status_name' => 'success',
+        ], 200);
+
+    }
+    
+    public function magentofrontendChildfolderstore(Request $request)
+    {     
+        $magentofrontendremark =   new MagentoFrontendChildFolder();
+        $magentofrontendremark->magento_frontend_docs_id = $request->magento_front_end_id;
+        $magentofrontendremark->child_folder_name = $request->folderName;
+        $magentofrontendremark->user_id =  \Auth::id();
+        $magentofrontendremark->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $magentofrontendremark,
+            'message' => 'magneto frontend Child Folder Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
