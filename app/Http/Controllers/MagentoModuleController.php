@@ -940,6 +940,10 @@ class MagentoModuleController extends Controller
     
     public function storeVerifiedStatus(Request $request)
     {
+        $this->validate($request, [
+            'name' => 'required|max:150|unique:magento_module_verified_status',
+        ]);
+
         $input = $request->except(['_token']);
 
         $data = MagentoModuleVerifiedStatus::create($input);

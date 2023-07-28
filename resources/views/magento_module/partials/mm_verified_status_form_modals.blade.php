@@ -65,7 +65,9 @@
                 $('#magentoModuleVerifiedStatus #module_verified_status_form').find('.invalid-feedback').remove();
                 $('#magentoModuleVerifiedStatus #module_verified_status_form').find('.alert').remove();
                 toastr["success"](response.message);
-                location.reload();
+                oTable.draw();
+                $('#magentoModuleVerifiedStatus').modal('hide');
+                // location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
