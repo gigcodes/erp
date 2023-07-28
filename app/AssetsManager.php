@@ -50,6 +50,11 @@ class AssetsManager extends Model
         return $this->morphMany(EventAlertLog::class, 'eventalertloggable');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
+
     public static function assertTypeList()
     {
         return [
