@@ -1525,9 +1525,14 @@ class StoreWebsiteController extends Controller
     public function getApiToken(Request $request)
     {
         $search = $request->search;
+        $store_ids = $request->store_ids;
+        
         $storeWebsites = StoreWebsite::whereNull('deleted_at');
         if ($search != null) {
             $storeWebsites = $storeWebsites->where('title', 'Like', '%' . $search . '%');
+        }
+        if($store_ids != null) {
+            $storeWebsites = $storeWebsites->whereIn('id', $store_ids);
         }
         $storeWebsites = $storeWebsites->get();
 
