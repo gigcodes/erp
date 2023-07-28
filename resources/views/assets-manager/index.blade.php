@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Assets Manager List')
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
 @section('content')
 
@@ -35,13 +32,23 @@
                   <br>
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
+                <div class="col-md-1">
+                  <br>
+                  <select class="form-control" id="createdAt-select">
+                    <option value="">Select SortBy CreatedAt</option>						
+                    <option value="asc">Asc</option>
+                    <option value="desc">Desc</option>
+                  </select>
+                </div>
                 <div class="form-group ml-3">
                   Select Created Users
-                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control globalSelect2", "multiple"]) }}
+                  <br>
+                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
                 </div>
                 <div class="form-group ml-3">
                   Select Ips
-                  {{ Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control globalSelect2", "multiple"]) }}
+                  <br>
+                  {{ Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control select2", "multiple"]) }}
                 </div>
                 <br>
                   <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
@@ -67,7 +74,7 @@
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
-              <th width="4%">ID</th>
+              <th width="3%">ID</th>
               <th width="6%">Name</th>
               <th width="6%">Capacity</th>
               <th width="5%">User Name</th>
@@ -77,7 +84,7 @@
               <th width="7%">Pro Name</th>
               <th width="7%">Pur Type</th>
               <th width="6%">Pymt Cycle</th>
-              <th width="8%">Due Date</th>
+              <th width="5%">Due Date</th>
               <th width="5%">Amount</th>
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
@@ -85,7 +92,7 @@
               <th width="10%">Link</th>
               <th width="10%">IP</th>
               <th width="10%">IP Name</th>
-              <th width="10%">Created By</th>
+              <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
           </thead>
@@ -127,7 +134,10 @@
                 </td>
                   <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
                   <td>{{ $asset->ip }}</td>
-                  <td>{{ $asset->ip_name }}</td>
+                  <td class="expand-row-msg" data-name="ip_name" data-id="{{$asset->id}}">
+                    <span class="show-short-ip_name-{{$asset->id}}">{{ Str::limit($asset->ip_name, 10, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-ip-name-{{$asset->id}} hidden">{{$asset->ip_name}}</span>
+                  </td>
                   <td>{{ $asset->user?->name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -143,7 +153,7 @@
                     <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
                     @if(auth()->user()->hasRole('Admin'))
                       {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-xs pull-left" title="Delete Assets"><i class="fa fa-trash"></i></button>
+                      <button type="submit" class="btn btn-xs pull-left" title="Delete Assets" onclick="return confirm('{{ __('Are you sure you want to Delete?') }}')"><i class="fa fa-trash"></i></button>
                       {!! Form::close() !!}
                     @endif
                     <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" title="Payment History" data-id="{{$asset->id}}">
@@ -352,6 +362,7 @@
       $("#asset_user_name").select2('destroy');
     }
    $('.select-multiple').select2({width: '100%'});
+   $('.select2').select2();
     // $('ul.pagination').hide();
     // $(function() {
     //   $('.infinite-scroll').jscroll({
@@ -783,25 +794,6 @@
           });
         }
       }
-
-
-      $(document).ready(function() {
-        // Find the multi-select dropdown by its class name
-        var $multiSelect = $('.globalSelect2');
-
-        // Listen for the change event on the dropdown
-        $multiSelect.on('change', function() {
-            // Check if any option is selected
-            if ($multiSelect.val().length > 0) {
-              alert("choosed option selected");
-                // If options are selected, hide the placeholder option
-                $multiSelect.find('option[value=""]').hide();
-            } else {
-                // If no options are selected, show the placeholder option
-                $multiSelect.find('option[value=""]').show();
-            }
-        });
-    });
 
   </script>
 @endsection
