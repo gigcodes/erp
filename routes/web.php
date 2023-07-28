@@ -631,6 +631,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/magento_frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
     Route::post('/magento_frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
     Route::get('magento_frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
+    Route::get('magento-frontend-categoryhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendCategoryHistoryShow'])->name('magentofrontend_category.histories.show');
+    Route::post('magento_frontend/folder-store', [MagentoFrontendDocumentationController::class, 'magentofrontendStoreParentFolder'])->name('magento-frontend-parent-folder-store');
+    Route::get('magento_frontend/parent-folder/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
+    Route::post('magento_frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
@@ -4607,6 +4611,7 @@ Route::middleware('auth')->group(function () {
     Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
     Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
     Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
+    Route::post('twilio/status-colour-update', [TwilioController::class, 'StatusColourUpdate'])->name('twilio-status-colour-update');
 
     /**
      * Watson account management
