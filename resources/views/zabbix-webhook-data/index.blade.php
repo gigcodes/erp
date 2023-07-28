@@ -26,6 +26,7 @@
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ZabbixStatusList"> List Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbixStatusCreate"> Create Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbix-task-create"> Create Task </button>
                     </div>
@@ -167,6 +168,8 @@
 @include('zabbix-webhook-data.partials.assignee-history-list')
 
 @include('partials.modals.zabbix-task-create-window')
+
+@include('zabbix-webhook-data.partials.zabbix-status-listing')
 
 <script type="text/javascript">
     $(document).ready(function(){

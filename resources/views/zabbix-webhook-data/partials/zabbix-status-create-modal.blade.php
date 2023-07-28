@@ -67,13 +67,21 @@
                 location.reload();
             },
             error: function(xhr, status, error) { // if error occured
-                if(xhr.status == 422){
-                    var errors = JSON.parse(xhr.responseText).errors;
-                    customFnErrors(self, errors);
+                if (xhr.status == 422) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.message === 'The given data was invalid.') {
+                    var errors = response.errors;
+                    if (errors && errors.name) {
+                        toastr["error"](errors.name[0]); // Display the unique validation error message for name
+                    } else {
+                        toastr["error"]("An error occurred with the form submission.");
+                    }
+                } else {
+                    toastr["error"](response.message); // Display other error messages returned by the server
                 }
-                else{
-                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
-                }
+            } else {
+                Swal.fire('Oops...', 'Something went wrong with ajax!', 'error');
+            }
             },
         });
     });

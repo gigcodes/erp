@@ -785,9 +785,6 @@
             });
         }
 
-       magentofrontendTable.draw();
-          
-
         $(document).on('click', '.load-module-parent-folder', function() {
             var id = $(this).attr('data-id');
 
