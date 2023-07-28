@@ -68,19 +68,27 @@ class MagentoFrontendDocumentationController extends Controller
         $magentofrontenddoc->write =$request->write ? implode(',', $request->write) : null;
         $magentofrontenddoc->save();
 
+        if ($request->hasFile('child_folder_image')) {
+            $file = $request->file('child_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-child-image');
+            $file->move($destinationPath, $name); 
+            $magentofrontenddoc->child_folder_image  = $name;
+            $magentofrontenddoc->save();
+        }
 
         if ($request->hasFile('file')) {
-        foreach ($request->file as $file) {
-            $magentofrontenddoc->file_name = $file->getClientOriginalName();
-            $magentofrontenddoc->extension = $file->extension();
-           
-            $magentofrontenddoc->save();
+            foreach ($request->file as $file) {
+                $magentofrontenddoc->file_name = $file->getClientOriginalName();
+                $magentofrontenddoc->extension = $file->extension();
+            
+                $magentofrontenddoc->save();
 
-            UploadGoogleDriveScreencast::dispatchNow($magentofrontenddoc, $file);
+                UploadGoogleDriveScreencast::dispatchNow($magentofrontenddoc, $file);
 
-            $magentofrontenddocs[] = $magentofrontenddoc;
+                $magentofrontenddocs[] = $magentofrontenddoc;
+            }
         }
-    }
 
        $magnetohistory =  new MagentoFrontendHistory();
 
@@ -179,7 +187,20 @@ class MagentoFrontendDocumentationController extends Controller
         $oldData->frontend_configuration  = $request->frontend_configuration;
         $oldData->save();
 
-      
+        if ($request->hasFile('child_folder_image')) {
+            $file = $request->file('child_folder_image');
+            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('/magentofrontend-child-image');
+            $file->move($destinationPath, $name); 
+        } else {
+            $name = null;
+        }
+        
+        if (!is_null($name)) {
+            $oldData->child_folder_image = $name;
+            $oldData->save();
+        }
+        
         $magnetohistory =  new MagentoFrontendHistory();
         $magnetohistory->magento_frontend_docs_id = $oldData->id;
         $magnetohistory->store_website_category_id = $oldData->store_website_category_id;

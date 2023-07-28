@@ -364,12 +364,13 @@
                         }
                     },
                     {
+                        data: 'child_folder_image',
                         render: function(data, type, row, meta) {
-                            let message = `<input type="file" id=image_${row['id']}" name="file[]" placeholder="Upload Image" />`;
-
-                            let remark_send_button = `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message" data-id="${row['id']}" onclick="saveImage(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-
-                            return `<div class="flex justify-left items-center">${message} ${remark_send_button} </div>`;
+                            if (data !== null) {
+                                 return '<img src="/magentofrontend-child-image/' + data + '" height="50" width="50">';
+                            } else {
+                              return '-';
+                             }
                         }
                     },
                     {
@@ -574,11 +575,14 @@
             type: "GET",
             url: url,
         }).done(function(response) {
-            console.log(response);
+            console.log(response.data.child_folder_image);
             $("#magento_module_edit_form #id").val(response.data.id);
             $("#magento_module_edit_form #location").val(response.data.location);
             $("#magento_module_edit_form #admin_configuration").val(response.data.admin_configuration);
             $("#magento_module_edit_form #frontend_configuration").val(response.data.frontend_configuration);
+            $("#magento_module_edit_form #filename").val(response.data.child_folder_image);
+			var image = "/magentofrontend-child-image/" + response.data.child_folder_image; 
+			$('#magento_module_edit_form #filename').attr('src', image);
             $("#moduleEditModal").modal("show");
         }).fail(function (response) {
             $("#loading-image-preview").hide();
@@ -781,54 +785,8 @@
             });
         }
 
-        function saveImage(rowId) {
-            
-            let fileInput = $(`#image_${rowId}`)[0];
-
-            if (fileInput.files.length === 0) {
-                // No file selected, handle the error or show a message
-                return;
-            }
-
-            let formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('rowId', rowId);
-
-
-            $.ajax({
-                url: `{{ route('magento-frontend-child-image-store') }}`,
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                },
-                data: {
-                    folderName: formData,
-                    magento_front_end_id: rowId,
-                },
-                beforeSend: function() {
-                    $("#loading-image").show();
-                }
-            }).done(function(response) {
-                if (response.status) {
-                    $("#"+selector+"_" + rowId).val('');
-                    $("#send_to_" + rowId).val('');
-                    toastr["success"](response.message);
-                    magentofrontendTable.draw();
-                } else {
-                    toastr["error"](response.message);
-                }
-                $("#loading-image").hide();
-            }).fail(function(jqXHR, ajaxOptions, thrownError) {
-                if (jqXHR.responseJSON.errors !== undefined) {
-                    $.each(jqXHR.responseJSON.errors, function(key, value) {
-                        toastr["warning"](value);
-                    });
-                } else {
-                    toastr["error"]("Oops,something went wrong");
-                }
-                $("#loading-image").hide();
-            });
-        }
+       magentofrontendTable.draw();
+          
 
         $(document).on('click', '.load-module-parent-folder', function() {
             var id = $(this).attr('data-id');

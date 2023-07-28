@@ -63,6 +63,12 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
+                            <label>Child Folder Image</label>
+                            <input type="file" name="child_folder_image" id="child_folder_image">
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
                             <label>Upload File</label>
                             <input type="file" name="file[]" id="fileInput" class="form-control input-sm"
                                 placeholder="Upload File">
