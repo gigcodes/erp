@@ -3158,7 +3158,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/edit/history/', [PostmanRequestCreateController::class, 'postmanEditHistoryLog']);
     Route::post('postman/status/create', [PostmanRequestCreateController::class, 'postmanStatusCreate'])->name('postman.status.create');
     Route::post('postman/update-status', [PostmanRequestCreateController::class, 'updateStatus'])->name('update-status');
+    Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
+    Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
 
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
