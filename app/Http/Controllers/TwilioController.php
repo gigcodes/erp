@@ -82,6 +82,8 @@ use Twilio\Jwt\TaskRouter\WorkerCapability;
 use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\LogRequest;
+use App\Models\TwilioConditionStatus;
+
 
 /**
  * Class TwilioController - active record
@@ -4833,6 +4835,8 @@ class TwilioController extends FindByNumberController
             $conditions = TwilioCondition::where('description', 'LIKE', '%' . $request->description . '%')->get();
         } elseif ($request->condition && $request->condition != null) {
             $conditions = TwilioCondition::where('condition', $request->condition)->get();
+        } else if ($request->active_status != null) {
+            $conditions = TwilioCondition::where('status', $request->active_status)->get();
         } else {
             $conditions = TwilioCondition::all();
         }
@@ -4843,9 +4847,22 @@ class TwilioController extends FindByNumberController
     public function updateConditionStatus(Request $request)
     {
         $input = $request->input();
-        TwilioCondition::where('id', $input['id'])->update(['status' => $input['status']]);
+        $twiliConditions  = TwilioCondition::where('id', $input['id'])->update(['status' => $input['status']]);
+        $twiliConditions = TwilioCondition::find($input['id']);
 
-        return 'Status Updated';
+        if($twiliConditions->status == 0){
+            $statusColor=  TwilioConditionStatus::find(2);
+        } else {
+            $statusColor=  TwilioConditionStatus::find($twiliConditions->status);
+        }
+
+        return response()->json([
+            'status' => true,
+            'color' => $statusColor->color,
+            'message' => 'Status Updated',
+            'status_name' => 'success',
+        ], 200);
+
     }
 
     public function saveMessageTone(Request $request)
@@ -5030,5 +5047,30 @@ class TwilioController extends FindByNumberController
         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
         return false;
+    }
+
+    public function StatusColourUpdate(request $request)
+    {
+            $formData = $request->input('formData');
+        
+            if (is_array($formData)) {
+                foreach ($formData as $data) {
+                    // Search for an existing record based on status_name
+                    $statusColor = TwilioConditionStatus::firstOrCreate([
+                        'status_name' => $data['status'],
+                    ]);
+        
+                    // Update the existing record with the new color code
+                    $statusColor->color = $data['colorCode'];
+                    $statusColor->save();
+                }
+        
+                // Return a success response if needed
+                return response()->json(['message' => 'Status colors saved successfully']);
+            }
+        
+            // Return an error response if formData is not an array
+            return response()->json(['error' => 'Invalid form data']);
+        
     }
 }
