@@ -372,31 +372,31 @@
         $(document).ready(function() {
             $(".filter-module").multiselect({
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Module',
+                nonSelectedText: 'Select Module',
             });
             $(".multiselect-dev").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Dev Verified By',
+                nonSelectedText: 'Select Dev Verified By',
             });
             $(".multiselect-lead").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Lead Verified By',
+                nonSelectedText: 'Select Lead Verified By',
             });
             $(".multiselect-dev-status").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 //enableFiltering: true,
-                nonSelectedText: 'Please Select Dev Verified Status',
+                nonSelectedText: 'Select Dev Verified Status',
             });
             $(".multiselect-lead-status").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                // enableFiltering: true,
-                nonSelectedText: 'Please Select Lead Verified Status',
+                nonSelectedText: 'Select Lead Verified Status',
             });
         });
         $(document).on('click', '#searchReset', function(e) {
