@@ -11,7 +11,7 @@
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
-		    <h2 class="page-heading">Vouchers Coupon Code {{$vouCode->total()}}</h2>
+		    <h2 class="page-heading">Vouchers Coupon Code ({{$vouCode->total()}})</h2>
 		</div>
 	</div>
 	<div class="mt-3 col-md-12">
@@ -66,8 +66,10 @@
                             <td>{{$data->user->name}}</td>
                             <td>{{$data->valid_date}}</td>
                             <td>{{$data->remark}}</td>
-                            <td><a class="code-delete" data-type="code" data-id={{$data->id}}><i class="fa fa-trash" aria-hidden="true"></i></a></td>
-						</tr>                        
+                            @if(Auth::user()->isAdmin())
+                             <td><a class="code-delete" data-type="code" data-id={{$data->id}}><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+						    @endif
+                        </tr>                        
                     @endforeach
 		    	</tbody>
 		    </thead>
