@@ -362,6 +362,20 @@ class MagentoFrontendDocumentationController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function magentofrontenddelete($id)
+    {
+        $magenotoFrontend = MagentoFrontendDocumentation::find($id);
+
+        if (!$magenotoFrontend) {
+            return response()->json(['message' => 'Magento frontend not found.'], 404);
+        }
+
+        $magenotoFrontend->delete();
+
+        return response()->json(['message' => 'Magento frontend deleted successfully.']);
+    }
+
     protected function saveCategoryHistory($magentoFrontEnd, $oldCategoryId, $newCategoryId)
     {
         $history = new MagentoFrontendCategoryHistory();
