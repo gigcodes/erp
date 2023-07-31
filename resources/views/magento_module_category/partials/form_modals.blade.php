@@ -93,7 +93,9 @@
                 $('#moduleCategoryCreateModal #module_category_form').find('.invalid-feedback').remove();
                 $('#moduleCategoryCreateModal #module_category_form').find('.alert').remove();
                 toastr["success"](response.message);
-                location.reload();
+                oTable.draw();
+                $('#moduleCategoryCreateModal').modal('hide');
+                // location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){

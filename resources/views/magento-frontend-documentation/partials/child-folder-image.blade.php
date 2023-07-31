@@ -1,47 +1,45 @@
-<div id="magentoModuleVerifiedStatus" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<div id="childImageAddModal" class="modal fade " role="dialog">
+    <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
-            
-            <form id="module_verified_status_form" class="form mb-15" >
+            <form id="magento_frontend_child_image_form" class="form mb-15" enctype="multipart/form-data">
             @csrf
+            {!! Form::hidden('magento_frontend_id', null, ['id'=>'magento_frontend_id']) !!}
             <div class="modal-header">
-                <h4 class="modal-title">Add Verified Status</h4>
+                <h4 class="modal-title">Add Child Folder Image</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            
             <div class="modal-body">
-                <div class="form-group">
-                    <strong>Status Name :</strong>
-                    {!! Form::text('name', null, ['placeholder' => 'Verified Status Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <strong>Status Color :</strong>
-                    <input type="color" name="color" class="form-control"  id="color" value="" style="height:30px;padding:0px;">
-                </div>
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Child Folder Image</label>
+                                <input type="file" name="child_folder_image" id="child_folder_image">
+                            </div>
+                        </div>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-secondary">Add</button>
             </div>
             </form>
-            {{-- {!! Form::close() !!} --}}
         </div>
     </div>
 </div>
-@push('scripts')
+
+
     <script>
 
-    $(document).on('submit', '#module_verified_status_form', function(e){
+    $(document).on('submit', '#magento_frontend_child_image_form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("module_verified_status_form"));
+        let formData = new FormData(document.getElementById("magento_frontend_child_image_form"));
         var button = $(this).find('[type="submit"]');
         console.log(button);
         $.ajax({
-            url: '{{ route("magento_modules.store-verified-status") }}',
+            url: '{{ route("magento-frontend-child-image-store") }}',
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
@@ -60,14 +58,9 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                $('#magentoModuleVerifiedStatus #module_verified_status_form').trigger('reset');
-                $('#magentoModuleVerifiedStatus #module_verified_status_form').find('.error-help-block').remove();
-                $('#magentoModuleVerifiedStatus #module_verified_status_form').find('.invalid-feedback').remove();
-                $('#magentoModuleVerifiedStatus #module_verified_status_form').find('.alert').remove();
+                $('#apiDataAddModal #magento_frontend_child_image_form').trigger('reset');
+                magentofrontendTable.draw();
                 toastr["success"](response.message);
-                oTable.draw();
-                $('#magentoModuleVerifiedStatus').modal('hide');
-                // location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
@@ -80,6 +73,6 @@
             },
         });
     });
+
     </script>
 
-@endpush

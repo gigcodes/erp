@@ -30,6 +30,7 @@ class AssetsManagerController extends Controller
      */
     public function index(Request $request)
     {
+        // dd($request);
         $archived = 0;
         if ($request->archived == 1) {
             $archived = 1;
@@ -45,6 +46,9 @@ class AssetsManagerController extends Controller
         $asset_plate_form_id = request('asset_plate_form_id');
         $email_address_id = request('email_address_id');
         $whatsapp_config_id = request('whatsapp_config_id');
+        $ip_ids = request('ip_ids');
+        $user_ids = request('user_ids');
+        $date = request('date');
 
         $assets = new AssetsManager;
         $assets = $assets->leftJoin('store_websites', 'store_websites.id', 'assets_manager.website_id')
@@ -89,6 +93,15 @@ class AssetsManagerController extends Controller
 
         if (! empty($whatsapp_config_id)) {
             $assets = $assets->where('assets_manager.purchase_type', $whatsapp_config_id);
+        }
+        if (! empty($user_ids)) {
+            $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
+        }
+        if (! empty($ip_ids)) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
+        }
+        if (! empty($ip_ids)) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
         }
         // $assets = $assets->orderBy("due_date", "ASC");
 
@@ -295,7 +308,7 @@ class AssetsManagerController extends Controller
     public function destroy($id)
     {
         $data['archived'] = 1;
-        AssetsManager::find($id)->update($data);
+        AssetsManager::destroy($id);
 
         return redirect()->route('assets-manager.index')
             ->with('success', 'Assets deleted successfully');

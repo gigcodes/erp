@@ -52,12 +52,13 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                $('#moduleLocationCreateModal #module_location_form').trigger('reset');
-                $('#moduleLocationCreateModal #module_location_form').find('.error-help-block').remove();
-                $('#moduleLocationCreateModal #module_location_form').find('.invalid-feedback').remove();
-                $('#moduleLocationCreateModal #module_location_form').find('.alert').remove();
+                $('#moduleReturnTypeCreateModal #module_return_type_error_form').trigger('reset');
+                $('#moduleReturnTypeCreateModal #module_return_type_error_form').find('.error-help-block').remove();
+                $('#moduleReturnTypeCreateModal #module_return_type_error_form').find('.invalid-feedback').remove();
+                $('#moduleReturnTypeCreateModal #module_return_type_error_form').find('.alert').remove();
                 toastr["success"](response.message);
-                location.reload();
+                oTable.draw();
+                $('#moduleReturnTypeCreateModal').modal('hide');
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){

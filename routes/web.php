@@ -623,14 +623,24 @@ Route::middleware('auth')->group(function () {
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
 
     /** Magento Frontend Page */
-    Route::get('magento_frontend/documentation', [MagentoFrontendDocumentationController::class, 'magentofrontenDocs'])->name('magento_frontend_listing');
-    Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
-    Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
-    Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
-    Route::get('/magento_frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
-    Route::post('/magento_frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
-    Route::post('/magento_frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
-    Route::get('magento_frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
+    Route::get('magento-frontend/documentation', [MagentoFrontendDocumentationController::class, 'magentofrontenDocs'])->name('magento_frontend_listing');
+    Route::post('magento-frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
+    Route::post('magento-frontend/remark/store', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
+    Route::get('magento-frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+    Route::get('/magento-frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
+    Route::post('/magento-frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
+    Route::post('/magento-frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
+    Route::get('magento-frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
+    Route::get('magento-frontend-categoryhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendCategoryHistoryShow'])->name('magentofrontend_category.histories.show');
+    Route::post('magento-frontend/folder-store', [MagentoFrontendDocumentationController::class, 'magentofrontendStoreParentFolder'])->name('magento-frontend-parent-folder-store');
+    Route::get('magento-frontend/parent-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
+    Route::post('magento-frontend/parent-folder/image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendparentFolderImage'])->name('magento-frontend-parent-folder-image.store');
+    Route::post('magento-frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
+    Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
+    Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
+    Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class,'magentofrontenddelete'])->name('magento-frontend.destroy');
+
+
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
@@ -3154,7 +3164,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/edit/history/', [PostmanRequestCreateController::class, 'postmanEditHistoryLog']);
     Route::post('postman/status/create', [PostmanRequestCreateController::class, 'postmanStatusCreate'])->name('postman.status.create');
     Route::post('postman/update-status', [PostmanRequestCreateController::class, 'updateStatus'])->name('update-status');
+    Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
+    Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
 
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
@@ -4268,6 +4280,9 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
+        Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
+        Route::get('/repos/list-repo-labels', [Github\RepositoryController::class, 'listRepoLabels'])->name('github.list-repo-labels');
+        Route::post('/repos/update-repo-label-message', [Github\RepositoryController::class, 'updateRepoLabelMessage'])->name('github.update-repo-label-message');
         Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('/repos/get-github-actions-jobs', [Github\RepositoryController::class, 'getGithubActionsAndJobs'])->name('github.get-actions-jobs');
         Route::get('repos/{organization_id?}', [Github\RepositoryController::class, 'listRepositories']);
@@ -4604,6 +4619,7 @@ Route::middleware('auth')->group(function () {
     Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
     Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
     Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
+    Route::post('twilio/status-colour-update', [TwilioController::class, 'StatusColourUpdate'])->name('twilio-status-colour-update');
 
     /**
      * Watson account management
