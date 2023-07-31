@@ -180,6 +180,10 @@
 
 						</tbody>
 					</table>
+					<!-- Pagination links -->
+					<div id="db-download-error-modal-table-paginationLinks">
+						<!-- Pagination links will be dynamically populated here -->
+					</div>
 				</div>
 			</div>
 		</div>
@@ -1049,6 +1053,8 @@
 			toastr["error"]("Something Went Wrong, Please Try Again Later!");
 			return false;
 		}
+		$(this).find('img').hide();
+		$(this).find('.loader').show();
 
 		var url = "{{url('/')}}/store-website/" + id + "/download/" + type;
 
@@ -1058,6 +1064,8 @@
 		dataType: "json", // Change this based on your server response
 		success: function(response) {
 			if (response.status === 'success') {
+				$('.btn-download-db-env').find('img').show();
+				$('.btn-download-db-env').find('.loader').hide();
 				toastr.success(response.message, 'Success');
 				console.log(response);
 				if (response.download_url) {
@@ -1068,41 +1076,76 @@
 					URL.revokeObjectURL(link.href);
 				}
 			} else {
+				$('.btn-download-db-env').find('img').show();
+				$('.btn-download-db-env').find('.loader').hide();
 				toastr.error(response.message, 'Error');
 			}
 		},
 		error: function(xhr, status, error) {
+			$('.btn-download-db-env').find('.loader').hide();
 		toastr.error("Something Went Wrong, Please Try Again Later!", 'Error');
 		console.error(error);
 		}
 	});
 });
 
-	$(document).on("click", ".btn-download-db-env-logs", function(href) {
-		$.ajax({
-			type: 'POST',
-			url: '/store-website/'+ $(this).data('id') +'/download-db-env-logs',
-			beforeSend: function () {
-				$("#loading-image").show();
-			},
-			data: {
-				_token: "{{ csrf_token() }}",
-				id: $(this).data('id'),
-			},
-			dataType: "json"
-		}).done(function (response) {
-			$("#loading-image").hide();
-			if (response.code == 200) {
-				
-				$('#download_db_env_logs_tbody').html(response.data);
-			 	$('#download_db_env_logs').modal('show');
-				toastr['success'](response.message, 'success');
-			}
-		}).fail(function (response) {
-			$("#loading-image").hide();
-			console.log("Sorry, something went wrong");
-		});
+	$(document).on("click", ".btn-download-db-env-logs", function(href) {	
+		var dataId =  $(this).data('id');
+		getdbErrorLogs(1,dataId);
 	});
+
+	function getdbErrorLogs(page,dataId){
+			$.ajax({
+				type: 'GET',
+				url: '/store-website/'+ dataId +'/download-db-env-logs?page=' + page,
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+				data: {
+					_token: "{{ csrf_token() }}",
+					id: dataId,
+				},
+				dataType: "json"
+			}).done(function (response) {
+				$("#loading-image").hide();
+				if (response.code == 200) {
+					$('#download_db_env_logs_tbody').html(response.data);
+					$('#download_db_env_logs').modal('show');
+					toastr['success'](response.message, 'success');
+				}
+				var paginationLinks = $('#db-download-error-modal-table-paginationLinks');
+				paginationLinks.empty(); // Clear the pagination links
+				// Generate the pagination links manually
+				var links = response.pagination.links;
+				var currentPage = response.pagination.current_page;
+				var lastPage =response.pagination.last_page;
+				var pagination = $('<ul class="pagination"></ul>');
+				// Previous page link
+				if (currentPage > 1) {
+					pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+				}
+				// Individual page links
+				for (var i = 1; i <= lastPage; i++) {
+					var activeClass = (i === currentPage) ? 'active' : '';
+					pagination.append('<li class="page-item ' + activeClass + '"><a href="#" class="page-link" data-page="' + i + '">' + i + '</a></li>');
+				}
+				// Next page link
+				if (currentPage < lastPage) {
+					pagination.append('<li class="page-item"><a href="#" class="page-link" data-page="' + (currentPage + 1) + '">Next</a></li>');
+				}
+				paginationLinks.append(pagination);
+				// Handle pagination link clicks
+				paginationLinks.find('a').on('click', function(event) {
+					event.preventDefault();
+					var page = $(this).data('page');
+					getdbErrorLogs(page ,dataId);
+				});
+			}).fail(function (response) {
+				$("#loading-image").hide();
+				console.log("Sorry, something went wrong");
+			});
+		}
+
 
 	$(document).on('click','.btn-refresh-admin-password',function(){
 		src = '/store-website/get-admin-password'

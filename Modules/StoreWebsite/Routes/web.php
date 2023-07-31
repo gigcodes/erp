@@ -80,7 +80,7 @@ Route::group([
     Route::group([
         'prefix' => '{id}',
     ], function () {
-        Route::post('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
+        Route::get('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
         Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
         Route::post('/clear-cloudflare-caches', [StoreWebsiteController::class, 'clearCloudflareCaches']);
         Route::post('/magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);

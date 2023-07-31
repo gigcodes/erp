@@ -1290,7 +1290,10 @@ class StoreWebsiteController extends Controller
     public function getDownloadDbEnvLogs(Request $request, $store_website_id)
     {
         try {
-            $responseLog = \App\DownloadDatabaseEnvLogs::where('store_website_id', '=', $store_website_id)->get();
+            $perPage = 25;
+            $responseLog = \App\DownloadDatabaseEnvLogs::where('store_website_id', $store_website_id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
             //dd($responseLog);
             if ($responseLog != null) {
                 $html = '';
@@ -1313,7 +1316,12 @@ class StoreWebsiteController extends Controller
                     <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . json_encode($res->output) . '</span>
                     </td>';
                     $html .= '<td>' . $res->created_at . '</td>';
-                    $html .= '<td><a href="' . $res->download_url . '" class="btn btn-primary" download>Download</a></td>';
+                    if( $res->download_url )
+                    {
+                        $html .= '<td><a href="' . $res->download_url . '" class="btn btn-primary" download>Download</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
                     $html .= '</tr>';
                 }
 
@@ -1321,6 +1329,7 @@ class StoreWebsiteController extends Controller
                     'code' => 200,
                     'data' => $html,
                     'message' => '',
+                    'pagination' => $responseLog,
                 ]);
             }
 
@@ -1945,4 +1954,19 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::all();
         return view('storewebsite::version-number', compact('storeWebsites'));
     }
+
+    // public function download($id)
+    // {
+    //     $fileName = MagentoCssVariableJobLog::find($id);
+
+    //     $file_name = basename($fileName->csv_file_path);
+
+    //     $filePath =   storage_path('app/public/magento-css-variable-csv/' . $file_name);
+
+    //     if (file_exists($filePath)) {
+    //         return Response::download($filePath);
+    //     } else {
+    //         abort(404, 'The file you are trying to download does not exist.');
+    //     }
+    // }
 }
