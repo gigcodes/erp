@@ -351,6 +351,17 @@ class MagentoFrontendDocumentationController extends Controller
         ], 200);
     }
 
+    public function magentofrontendgetChildFolder(Request $request)
+    {
+        $childFolder = MagentoFrontendChildFolder::with(['user'])->where('magento_frontend_docs_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $childFolder,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
     protected function saveCategoryHistory($magentoFrontEnd, $oldCategoryId, $newCategoryId)
     {
         $history = new MagentoFrontendCategoryHistory();

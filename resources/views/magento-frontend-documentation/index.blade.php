@@ -135,7 +135,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                Magento Documentation(<span id="total-count"></span>)
+                Magento Documentation<span id="total-count"></span>
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -297,6 +297,7 @@
     @include('magento-frontend-documentation.partials.magento-frontend-category-history')
     @include('magento-frontend-documentation.partials.magento-frontend-parent-folder-history')
     @include('magento-frontend-documentation.partials.child-folder-image')
+    @include('magento-frontend-documentation.partials.magento-frontend-child-folder-history')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
@@ -423,11 +424,14 @@
 
                             let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-child-folder-image-modal" type="submit" id="submit_message"  data-target="#childImageAddModal" data-id="${row['id']}"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
                             
+                            let remark_history_button =
+                            `<button type="button" class="btn btn-xs btn-image load-module-child-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
                             data = (data == null) ? '' : '';
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
 
                             return retun_data;
                         }
@@ -463,16 +467,33 @@
                         data: 'admin_configuration',
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
+                            if (data !== null) {
+                                admin_Config= data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                       <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${admin_Config}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                        </div>
+                                    </td>`;
                         }
                     },
                     {
                         data: 'frontend_configuration',
                         name: 'magento_frontend_docs.frontend_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
+                            var shortJobName = '';
+                            if (data !== null) {
+                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${shortJobName}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
                         }
                     },
                     {
@@ -480,16 +501,15 @@
                         render: function(data, type, row, meta) {
                             // Extract file_name and google_drive_file_id from the row data
                             let file_name = data.file_name;
+                            if (file_name !== null) {
+                                file_name = file_name.length > 20 ? file_name.substring(0, 15) + '...' : file_name;
+                            }
                             let google_drive_file_id = data.google_drive_file_id;
 
                             let file_name_html = (file_name == null) ? '' : `
-                                <div class="expand-row module-text" style="word-break: break-all">
-                                    <div class="flex items-center justify-left td-mini-container" title="${file_name}">
-                                        ${setStringLength(file_name, 15)}
-                                    </div>
-                                    <div class="flex items-center justify-left td-full-container hidden" title="${file_name}">
-                                        ${file_name}
-                                    </div>
+                            <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${file_name}</span>
+                                        <span class="td-full-container hidden">${file_name}</span>
                                 </div>`;
 
                             let action_buttons = '';
@@ -518,17 +538,35 @@
                         data: 'user.name',
                         name: 'magento_frontend_docs.user_id',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
-                        }
+                            var userName = '';
+                            if (data !== null) {
+                                userName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${userName}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
+                         }
                     },
                     {
                         data: 'created_at',
                         name: 'magento_frontend_docs.created_at',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
-                        }
+                            var date = '';
+                            if (data !== null) {
+                                date = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${date}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
+                         }
                     },
                     {
                         render: function(data, type, row, meta) {
@@ -932,12 +970,18 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            console.log(v);
                             folderName = v.parent_folder_name;
+                            var imageTag = '';
+                            if (v.parent_image && v.parent_image.trim() !== '') {
+                                imageTag = `<img src="/magentofrontend-parent-image/${v.parent_image}" alt="Image" "height="50" width="50">`;
+                            }
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
                                             ${folderName}
+                                        </td>
+                                        <td> 
+                                            ${imageTag}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
@@ -954,7 +998,51 @@
             });
         });
 
-       
+        $(document).on('click', '.load-module-child-folder', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-frontend-get-child-folder-history') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            folderName = v.child_folder_name;
+                            var imageTag = '';
+                            if (v.child_image && v.child_image.trim() !== '') {
+                                imageTag = `<img src="/magentofrontend-child-image//${v.child_image}" alt="Image" "height="50" width="50">`;
+                            }
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${folderName}
+                                        </td>
+                                        <td> 
+                                            ${imageTag}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${folderName}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#magneto-frontend-parent-folder-list").find(".magneto-frontend-parent-view").html(html);
+                        $("#magneto-frontend-parent-folder-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
         $(document).on('click', '.upload-parent-folder-modal', function() {
             let magento_frontend_id = $(this).data('id');
             $("#parentImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);

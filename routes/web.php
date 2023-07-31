@@ -633,10 +633,11 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
     Route::get('magento-frontend-categoryhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendCategoryHistoryShow'])->name('magentofrontend_category.histories.show');
     Route::post('magento-frontend/folder-store', [MagentoFrontendDocumentationController::class, 'magentofrontendStoreParentFolder'])->name('magento-frontend-parent-folder-store');
-    Route::get('magento-frontend/parent-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
+    Route::get('magento-frontend/parent-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
     Route::post('magento-frontend/parent-folder/image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendparentFolderImage'])->name('magento-frontend-parent-folder-image.store');
     Route::post('magento-frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
+    Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
 
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
