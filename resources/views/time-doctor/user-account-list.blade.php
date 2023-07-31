@@ -385,7 +385,7 @@
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> ${v.old_remark ? v.old_remark : ''} </td>
-                                        <td> ${v.old_remark ? v.new_remark : ''} </td>
+                                        <td> ${v.new_remark ? v.new_remark : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
                                     </tr>`;

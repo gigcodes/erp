@@ -609,12 +609,13 @@ class TimeDoctorController extends Controller
     {
         $timeDoctorAccounts = TimeDoctorAccount::all();
         $users = User::all('id', 'name');
-        
+
         return view('time-doctor.user-account-list', compact('timeDoctorAccounts','users'));
     }
 
     public function listRemarkStore(Request $request)
     {
+        $oldRemark = null;
         $timeDoctorAccounts = TimeDoctorAccount::find($request->member_id);
         $oldRemark =  $timeDoctorAccounts->remarks;
         $timeDoctorAccounts->remarks = $request->remark;
