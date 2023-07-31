@@ -651,7 +651,8 @@ class TaskModuleController extends Controller
         // dd($tasks_query);
         // $users = Helpers::getUserArray(User::all());
 
-        $data['users'] = User::orderBy('name')->get()->toArray();
+        $usersOrderByName = User::orderBy('name')->get();
+        $data['users'] = $usersOrderByName->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // foreach ($data['task']['pending'] as $task) {
@@ -660,8 +661,9 @@ class TaskModuleController extends Controller
         // $category = '';
 
         // Lead user process starts
-        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        // $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $isTeamLeader = head($model_team);
         $team_members_array[] = auth()->user()->id;
         $team_id_array = [];
         $team_members_array_unique_ids = '';
@@ -683,15 +685,17 @@ class TaskModuleController extends Controller
         $selected_user = $request->input('selected_user');
 
         if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->get();
+            $usrlst = $usersOrderByName;
         } elseif ($isTeamLeader) {
             $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
         } else {
-            $usrlst = User::orderby('name')->get();
+            $usrlst = $usersOrderByName;
         }
 
         $users = Helpers::getUserArray($usrlst);
-        $task_categories = TaskCategory::where('parent_id', 0)->get();
+
+        $taskCategories = TaskCategory::all();
+        $task_categories = $taskCategories->where('parent_id', 0);
         $selected_category = $request->category;
         if (Auth::user()->hasRole('Admin')) {
             if (empty($request->category)) {
@@ -705,10 +709,11 @@ class TaskModuleController extends Controller
             ]
         )->selected($selected_category)->renderAsDropdown();
 
-        $categories = [];
-        foreach (TaskCategory::all() as $category) {
-            $categories[$category->id] = $category->title;
-        }
+        // $categories = [];
+        // foreach (TaskCategory::all() as $category) {
+        //     $categories[$category->id] = $category->title;
+        // }
+        $categories = $taskCategories->pluck('title', 'id')->toArray();
 
         if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
             return response()->json(['user not allowed'], 405);
@@ -742,9 +747,11 @@ class TaskModuleController extends Controller
         if ($request->is_statutory_query == 3) {
             return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
         } else {
-            $statuseslist = TaskStatus::pluck('name', 'id')->toArray();
-            $selectStatusList = TaskStatus::pluck('id')->toArray();
-            $taskstatus = TaskStatus::get();
+            $taskStatusData = TaskStatus::get();
+
+            $statuseslist = $taskStatusData->pluck('name', 'id')->toArray();
+            $selectStatusList = $taskStatusData->pluck('id')->toArray();
+            $taskstatus = $taskStatusData;
 
             return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
         }
