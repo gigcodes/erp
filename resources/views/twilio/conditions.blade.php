@@ -94,7 +94,6 @@
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                         <tr>
                             <td class="text-center"><b>Status Name</b></td>
-                            <td class="text-center"><b>Color Code</b></td>
                             <td class="text-center"><b>Color</b></td>
                         </tr>
                         <?php
@@ -102,7 +101,6 @@
                         foreach ($verified_status as $key => $status) { ?>
                         <tr>
                             <td data-status="{{ $status }}">&nbsp;&nbsp;&nbsp;<?php echo $status ?></td>
-                            <td class="text-center"></td>
                             <td>
                                 <input type="color" name="color" class="form-control color-input" data-status="{{ $status }}" style="height:30px;padding:0px;">
                             </td>
