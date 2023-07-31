@@ -17,11 +17,3 @@
         {!! Form::text('frontend_configuration', null, ['id'=>'frontend_configuration', 'placeholder' => 'Magento Frontend configuration', 'class' => 'form-control frontend_configuration']) !!}                 
     </div>
 </div>
-<div class="col-sm-12">
-    <div class="form-group">
-        <label>Child Folder Image</label>
-        <input type="file" name="child_folder_image" id="child_folder_image">
-        <img src="" alt="Existing Image" height='50' width="50" id="filename">	
-
-    </div>
-</div>	

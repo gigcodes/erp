@@ -1,8 +1,8 @@
-<div id="magneto-frontend-parent-folder-list" class="modal fade" role="dialog">
+<div id="magneto-frontend-child-folder-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Parent Folder History</h4>
+                <h4 class="modal-title">Child Folder History</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -12,14 +12,14 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="50%">Folder Name</th>
-                                <th width="50%">Image</th>
-                                <th width="20%">Updated BY</th>
+                                <th width="20%">Folder Name</th>
+                                <th width="30%">Image</th>
+                                <th width="30%">Updated BY</th>
                                 <th width="20%">Created Date</th>
                                 <th width="20%">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="magneto-frontend-parent-view">
+                        <tbody class="magneto-frontend-child-view">
                         </tbody>
                     </table>
                 </div>

@@ -623,18 +623,22 @@ Route::middleware('auth')->group(function () {
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
 
     /** Magento Frontend Page */
-    Route::get('magento_frontend/documentation', [MagentoFrontendDocumentationController::class, 'magentofrontenDocs'])->name('magento_frontend_listing');
-    Route::post('magento_frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
-    Route::post('magento_frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
-    Route::get('magento_frontend/remark/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
-    Route::get('/magento_frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
-    Route::post('/magento_frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
-    Route::post('/magento_frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
-    Route::get('magento_frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
+    Route::get('magento-frontend/documentation', [MagentoFrontendDocumentationController::class, 'magentofrontenDocs'])->name('magento_frontend_listing');
+    Route::post('magento-frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
+    Route::post('magento-frontend/remark/store', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
+    Route::get('magento-frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+    Route::get('/magento-frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
+    Route::post('/magento-frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
+    Route::post('/magento-frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
+    Route::get('magento-frontendhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendhistoryShow'])->name('magentofrontend_histories.show');
     Route::get('magento-frontend-categoryhistories/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendCategoryHistoryShow'])->name('magentofrontend_category.histories.show');
-    Route::post('magento_frontend/folder-store', [MagentoFrontendDocumentationController::class, 'magentofrontendStoreParentFolder'])->name('magento-frontend-parent-folder-store');
-    Route::get('magento_frontend/parent-folder/', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
-    Route::post('magento_frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
+    Route::post('magento-frontend/folder-store', [MagentoFrontendDocumentationController::class, 'magentofrontendStoreParentFolder'])->name('magento-frontend-parent-folder-store');
+    Route::get('magento-frontend/parent-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetparentFolder'])->name('magento-frontend-get-parent-folder');
+    Route::post('magento-frontend/parent-folder/image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendparentFolderImage'])->name('magento-frontend-parent-folder-image.store');
+    Route::post('magento-frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
+    Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
+    Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
+
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
