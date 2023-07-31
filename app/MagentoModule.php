@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\MagentoModuleVerifiedStatus;
+use App\Models\MagentoModuleReturnTypeErrorStatus;
 use App\User;
 
 class MagentoModule extends Model
@@ -55,10 +56,10 @@ class MagentoModule extends Model
 
     public function module_location()
     {
-        return $this->belongsTo(MagentoModulLocation::class, 'magneto_location_id');
+        return $this->belongsTo(MagentoModuleLocation::class, 'magneto_location_id');
     }
 
-    public function module_error_status_types()
+    public function module_error_status_type()
     {
         return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'return_type_error_status');
     }

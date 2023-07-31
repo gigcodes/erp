@@ -61,8 +61,8 @@ class Uicheck extends Model
         return $this->hasMany(UiDevice::class, 'uicheck_id', 'id');
     }
 
-    public function uiDeviceCount()
+    public function uiDeviceCount($userId)
     {
-        return $this->hasMany(UiDevice::class, 'uicheck_id', 'id')->count();
+        return $this->hasMany(UiDevice::class, 'uicheck_id', 'id')->where('user_id', $userId)->count();
     }
 }

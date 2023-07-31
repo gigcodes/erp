@@ -61,6 +61,10 @@ class MagentoModuleReturnTypeErrorStatusController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'return_type_name' => 'required|max:150|unique:magento_module_return_type_error_status',
+        ]);
+
       $magentoerror = new  MagentoModuleReturnTypeErrorStatus();
       $magentoerror->return_type_name = $request->return_type_name;
       $magentoerror->save();

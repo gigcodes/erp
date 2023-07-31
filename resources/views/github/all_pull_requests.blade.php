@@ -14,7 +14,35 @@
         word-wrap:break-word; // ***********and this
     }
     .d-n{
-        display: none;
+        display: none !important;
+    }
+
+    .scrollable-steps {
+        height: 75px; /* Adjust the height as per your preference */
+        overflow-y: auto;
+    }
+
+    .spinner-parent-container {
+        align-items: center;
+        justify-content: left;
+        display: flex;
+    }
+
+    .spinner-border {
+        display: inline-block;
+        width: 3rem;
+        height: 3rem;
+        vertical-align: text-bottom;
+        border: 0.25em solid currentColor;
+        border-right: 0.25em solid transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+    }
+
+    @keyframes spinner-border {
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -53,7 +81,7 @@
 
 <div class="container" style="max-width: 100%;width: 100%;">
     <div class="row mb-3">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="" class="form-label">Organization</label>
             <select name="organizationId" id="organizationId" class="form-control">
                 @foreach ($githubOrganizations as $githubOrganization)
@@ -69,8 +97,15 @@
             </select>
         </div>
 
+        <div class="col-md-1 spinner-parent-container">
+            <div class="loader-section d-n spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
         <div class="col-md-7">
-            <div class="text-right pl-5">
+            <div class="text-right">
+                <button type="button" class="btn btn-sm btn-secondary list-created-tasks" title="List Task">List Task</button>
                 <button class="btn btn-sm btn-secondary" onclick="createPRTask()"> Create PR Task </button>
                 <button class="btn btn-sm btn-secondary" onclick="updateLabelActivities()"> Update Label Activities </button>
                 <a class="btn btn-sm btn-secondary" id="repo_select">Select Repository</a>
@@ -79,11 +114,12 @@
             </div>
         </div>
     </div>
+    
 
     <table id="pull-request-table" class="table table-bordered" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:3% !important;"></th>
+                <th style="width:4% !important;"><input type="checkbox" name="select_all" class="select_all"></th>
                 <th style="width:7% !important;">Repository</th>
                 <th style="width:7% !important;">Number</th>
                 <th style="width:13% !important;">Title</th>
@@ -99,9 +135,7 @@
           
         </tbody>
     </table>
-    <div class="loader-section d-n">
-        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
-    </div>
+    
 </div>
 <!-- Modal markup -->
 <div class="modal" id="pr-review-comments-modal">
@@ -124,6 +158,27 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content" id="pr-error-logs-modal-content">
             <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
+<!-- Modal markup -->
+<div class="modal" id="list-created-tasks-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="list-created-tasks-modal-content">
+            <!-- AJAX content will be loaded here -->
+        </div>
+    </div>
+</div>
+<div class="modal" id="actionsJobsModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Jobs for Action</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="actionsJobsModalContent">
+                <!-- AJAX content will be loaded here -->
+            </div>
         </div>
     </div>
 </div>
@@ -160,6 +215,7 @@
                                 </div>                            
                                 <div class="col-md-12">
                                     <div class="form-group">
+                                        <input type="hidden" class="build_pr" name="build_pr" value="">
                                         <input type="hidden" class="build_process_repository" name="build_process_repository" value="">
                                         <input type="hidden" class="build_process_branch" name="build_process_branch" value="">
                                         <button data-id=""class="btn btn-secondary update-build-process">Update</button>
@@ -285,6 +341,7 @@
         var currentPage = 1;
         var currentPageActivity = 1;
         var currentPageErrorLogs = 1;
+        var currentPageForListTasks = 1;
 
         $(document).on('click', '.show-pr-review-comments', function(e) {
             e.preventDefault();
@@ -297,13 +354,13 @@
 
         // Load comments for the given page number
         function loadComments(page, repo, pullNumber) {
-            $('.loader-section').removeClass('d-n');
+            $("#loading-image-preview").show();
             $.ajax({
                 url: "{{ url('/github/pull-request-review-comments') }}/" + repo + "/" + pullNumber + "?page=" + page,
                 type: 'GET',
                 dataType: 'html',
                 success: function(response) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Update the modal content with the retrieved comments
                     $('#pr-review-comments-modal-content').html(response);
                     $('#repo').val(repo);
@@ -313,7 +370,7 @@
                     $('#pr-review-comments-modal').modal('show');
                 },
                 error: function(xhr, status, error) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Handle the error, if any
                     console.error(error);
                 }
@@ -344,13 +401,13 @@
 
         // Load activities for the given page number
         function loadActivities(page, repo, pullNumber) {
-            $('.loader-section').removeClass('d-n');
+            $("#loading-image-preview").show();
             $.ajax({
                 url: "{{ url('/github/pull-request-activities') }}/" + repo + "/" + pullNumber + "?page=" + page,
                 type: 'GET',
                 dataType: 'html',
                 success: function(response) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Update the modal content with the retrieved comments
                     $('#pr-activities-modal-content').html(response);
                     $('#pr-activities-modal #repo').val(repo);
@@ -360,7 +417,7 @@
                     $('#pr-activities-modal').modal('show');
                 },
                 error: function(xhr, status, error) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Handle the error, if any
                     console.error(error);
                 }
@@ -392,13 +449,13 @@
 
         // Load activities for the given page number
         function loadErrorLogs(page, repo, pullNumber) {
-            $('.loader-section').removeClass('d-n');
+            $("#loading-image-preview").show();
             $.ajax({
                 url: "{{ url('/github/pr-error-logs') }}/" + repo + "/" + pullNumber + "?page=" + page,
                 type: 'GET',
                 dataType: 'html',
                 success: function(response) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Update the modal content with the retrieved comments
                     $('#pr-error-logs-modal-content').html(response);
                     $('#pr-error-logs-modal #repo').val(repo);
@@ -408,7 +465,7 @@
                     $('#pr-error-logs-modal').modal('show');
                 },
                 error: function(xhr, status, error) {
-                    $('.loader-section').addClass('d-n');
+                    $("#loading-image-preview").hide();
                     // Handle the error, if any
                     console.error(error);
                 }
@@ -434,6 +491,47 @@
                 $(this).find('.td-mini-container').toggleClass('hidden');
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
+        });
+
+        // List created tasks
+        $(document).on('click', '.list-created-tasks', function(e) {
+            e.preventDefault();
+
+            // Make the AJAX request
+            loadCreatedTasks(currentPageForListTasks);
+        });
+
+        // Load activities for the given page number
+        function loadCreatedTasks(page) {
+            $("#loading-image-preview").show();
+            $.ajax({
+                url: "{{ url('/github/list-created-tasks') }}?page=" + page,
+                type: 'GET',
+                dataType: 'html',
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    // Update the modal content with the retrieved comments
+                    $('#list-created-tasks-modal-content').html(response);
+                    // Show the modal
+                    $('#list-created-tasks-modal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $("#loading-image-preview").hide();
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        }
+
+        // Pagination click event
+        $(document).on('click', '#list-created-tasks-modal .pagination a', function(e) {
+            e.preventDefault();
+
+            // Get the page number from the clicked link
+            var page = $(this).attr('href').split('page=')[1];
+            // Update the current page and load comments for the new page
+            currentPage = page;
+            loadCreatedTasks(currentPage);
         });
     });
 
@@ -477,8 +575,10 @@
             e.preventDefault();
             var repository=$(this).attr("data-id");
             var branch=$(this).attr("data-branch");
+            var build_pr=$(this).attr("data-build_pr");
             $(".build_process_repository").val(repository);
             $(".build_process_branch").val(branch);
+            $(".build_pr").val(build_pr);
             $('#build-process-modal').modal('show'); 
         });
         $(document).on('submit', 'form#build-process', function(e){
@@ -514,6 +614,44 @@
                     $("#loading-image-preview").hide();
                 },
             });
+        });
+
+        // Click event for the "view-actions-jobs" icon
+        $(document).on('click', '.view-actions-jobs', function(e) {
+            e.preventDefault();
+
+            // Get the action ID from the data attribute
+            var branch = $(this).data('branch');
+            var repo = $(this).data('repo');
+
+            // Make the AJAX request to fetch the jobs for the selected action
+            $.ajax({
+                url: "{{ route('github.get-actions-jobs') }}",
+                type: 'GET',
+                dataType: 'html',
+                data: { selectedBranchName: branch, selectedRepositoryId: repo }, // Send the action ID as a query parameter
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    // Update the modal content with the retrieved jobs
+                    $('#actionsJobsModalContent').html(response);
+
+                    // Show the modal
+                    $('#actionsJobsModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $("#loading-image-preview").hide();
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        });
+
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.bulk_select_pull_request').prop('checked', isChecked);
         });
     });
 
@@ -551,14 +689,14 @@
             },
             beforeSend: function() {
                 $(this).attr('disabled', true);
-                $('.loader-section').removeClass('d-n');
+                $("#loading-image-preview").show();
             }
         }).done(function(data) {
-            $('.loader-section').addClass('d-n');
-            toastr["success"]("Updated successfully!", "Message")
-            window.location.reload();
+            $("#loading-image-preview").hide();
+            toastr["success"]("Updated successfully, Please wait for updating the content!", "Message");
+            getPullRequests();
         }).fail(function(response) {
-            $('.loader-section').addClass('d-n');
+            $("#loading-image-preview").hide();
             toastr["error"](error.responseJSON.message);
         });
     }
@@ -583,7 +721,7 @@
             alert('Please select any row');
             return false;
         }
-
+        $('#github-task-create #task_details').val("Please check PR numbers " + selected_rows_for_pr_task);
         $('#github-task-create').modal('show');
     }
 
@@ -599,7 +737,7 @@
             success: function (response) {
                 if (response.code == 200) {
                     toastr['success'](response.message);
-                    location.reload();
+                    $('#github-task-create').modal('hide');
                 } else {
                     toastr['error'](response.message);
                 }

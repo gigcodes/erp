@@ -69,6 +69,8 @@
                             <th width="10%">Build By</th>
                             <th width="10%">Build Number</th>
                             <th width="10%">Build Name</th>
+                            <th width="10%">PR</th>
+                            <th width="10%">Initiate From</th>
                             <th width="10%">Text</th>
                             <th width="5%">Status</th>
                             <th width="5%">Date</th>
@@ -102,6 +104,17 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->build_name }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $responseLog->build_pr }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                       {{ strlen($responseLog->initiate_from) > 30 ? substr($responseLog->initiate_from, 0, 30).'...' :  $responseLog->initiate_from }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ $responseLog->initiate_from }}
+                                    </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -169,6 +182,11 @@
 @section('scripts')
 <script>
 $( document ).ready(function() {
+    $(document).on('click', '.expand-row', function () {
+        
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    });
     $(document).on('click', '.show-status-modal', function() {
             var id = $(this).attr('data-id');
             $("#loading-image-preview").show();

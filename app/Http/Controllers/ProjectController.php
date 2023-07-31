@@ -193,9 +193,15 @@ class ProjectController extends Controller
 
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
         }
+        $initiate_from="Pull Requests Page";
         if($request->has("project_type") && $request->project_type!=''){
+            $initiate_from="Call Back URL";
             $project_type=$request->project_type;
             $projects=Project::where('project_type',$project_type)->get()->pluck('id')->toArray();
+        }
+        $build_pr='';
+        if($request->has("build_pr") && $request->build_pr!=''){
+            $build_pr=$request->build_pr;
         }
         if(empty($projects)){
             BuildProcessErrorLog::log([
@@ -227,7 +233,9 @@ class ProjectController extends Controller
                         'status' => 'ABORTED', 
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
+                        'build_pr' => $build_pr,
+                        'initiate_from' => $initiate_from
                     ];
                     \App\BuildProcessHistory::create($record);
                     
@@ -272,7 +280,9 @@ class ProjectController extends Controller
                             'status' => $latestBuildResult, 
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'build_pr' => $build_pr,
+                            'initiate_from' => $initiate_from
                         ];
 
                         \App\BuildProcessHistory::create($record);
@@ -296,7 +306,9 @@ class ProjectController extends Controller
                             'error_code' => "500",
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'build_pr' => $build_pr,
+                            'initiate_from' => $initiate_from
                         ]);
                     }
                 }catch (\Exception $e){
@@ -318,7 +330,9 @@ class ProjectController extends Controller
                         'error_code' => "500",
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
+                        'build_pr' => $build_pr,
+                        'initiate_from' => $initiate_from
                     ]);
                 }
             }else{
@@ -331,7 +345,9 @@ class ProjectController extends Controller
                     'status' => 'ABORTED', 
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
-                    'github_branch_state_name' => $branch_name
+                    'github_branch_state_name' => $branch_name,
+                    'build_pr' => $build_pr,
+                    'initiate_from' => $initiate_from
                 ];
 
                 \App\BuildProcessHistory::create($record);
@@ -358,6 +374,7 @@ class ProjectController extends Controller
         $job_name = $request->job_name;
         $organization = $request->organization;
         $projectId = $request->project_id;
+        $initiate_from = $request->initiate_from;
         
         if($repository==''){
             BuildProcessErrorLog::log([
@@ -436,7 +453,8 @@ class ProjectController extends Controller
                             'status' => $latestBuildResult, 
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'initiate_from' => $initiate_from
                         ];
 
                         \App\BuildProcessHistory::create($record);
