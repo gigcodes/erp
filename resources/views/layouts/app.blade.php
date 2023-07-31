@@ -3708,6 +3708,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <a class="dropdown-item"
                                                         href="{{ route('time-doctor.task_creation_logs') }}">Time Doctor Task Creation Logs</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.list-user') }}">Time Doctor List Account</a>
+                                                </li>
                                             </ul>
                                         </li>
 
