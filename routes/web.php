@@ -5060,6 +5060,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
+    Route::get('vocher-platforms', [Select2Controller::class, 'vochuerPlatform'])->name('select2.vochers_platforms');
+    Route::get('vocher-emails', [Select2Controller::class, 'vochuerEmail'])->name('select2.vochers_emails');
+    Route::get('vocher-whatsapp/config', [Select2Controller::class, 'vochuerWhatsappconfig'])->name('select2.vochers_whatsapp_config');
 
 
 });
@@ -5227,6 +5230,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/voucher/code/order/delete', [VoucherCouponController::class, 'couponCodeOrderDelete'])->name('voucher.code.order.delete');
     Route::post('/coupon-type/create', [VoucherCouponController::class, 'coupontypeStore'])->name('voucher.coupon.type.create');
     Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');  
+    Route::get('vouchers/coupon-code/list', [VoucherCouponController::class, 'voucherscouponCodeList'])->name('list.voucher.coupon.code');  
 });
 
 //TODOLIST::

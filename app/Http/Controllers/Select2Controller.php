@@ -19,6 +19,8 @@ use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
 use App\TaskCategory;
+use App\Platform;
+use DB;
 
 class Select2Controller extends Controller
 {
@@ -616,6 +618,93 @@ class Select2Controller extends Controller
                 $result['items'][] = [
                     'id' => $dataSupplier->id,
                     'text' => $dataSupplier->supplier,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function vochuerPlatform(Request $request)
+    {
+        $platforms = Platform::get()->pluck('name', 'id');
+
+        if (!empty($request->q)) {
+            $platforms->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+  
+        if (empty($platforms)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'platforms not available',
+            ];
+        } else {
+            foreach ($platforms as $key => $plat) {
+                $result['items'][] = [
+                    'id' => $key,
+                    'text' => $plat,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function vochuerEmail(Request $request)
+    {
+        $vocherEmails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
+
+        if (!empty($request->q)) {
+            $vocherEmails->where(function ($q) use ($request) {
+                $q->where('from_address', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+  
+        if (empty($vocherEmails)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'Emails not available',
+            ];
+        } else {
+            foreach ($vocherEmails as $key => $email) {
+                $result['items'][] = [
+                    'id' => $email,
+                    'text' => $key,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function vochuerWhatsappconfig(Request $request)
+    {
+        $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
+
+        if (!empty($request->q)) {
+            $whatsapp_configs->where(function ($q) use ($request) {
+                $q->where('number', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+  
+        if (empty($whatsapp_configs)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'Whatsapp number not available',
+            ];
+        } else {
+            foreach ($whatsapp_configs as $key => $number) {
+                $result['items'][] = [
+                    'id' => $key,
+                    'text' => $number,
                 ];
             }
         }
