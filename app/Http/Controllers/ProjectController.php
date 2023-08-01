@@ -432,6 +432,8 @@ class ProjectController extends Controller
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
+                        sleep(5);
+                        
                         $job = $jenkins->getJob($jobName);
                         // $builds = $job->getBuilds();
                         
