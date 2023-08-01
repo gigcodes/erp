@@ -1853,11 +1853,12 @@ class StoreWebsiteController extends Controller
                 $path.="/".$filename;
             }
             if(file_exists($path)){
-                return response()->download($path)->deleteFileAfterSend(true);
+                // return response()->download($path)->deleteFileAfterSend(true);
                 $response = [
                     'status' => 'success',
                     'message' => 'Download successfully!',
-                    'download_url' => $path, // Add the download URL to the response
+                    'download_url' => $path, // Add the download URL to the response,
+                    'filename' => $filename
                 ];
                 
                 // Update the log entry with the download_url

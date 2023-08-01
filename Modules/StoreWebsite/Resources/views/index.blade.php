@@ -1071,9 +1071,14 @@
 				if (response.download_url) {
 					var link = document.createElement('a');
 					link.href = response.download_url;
-					link.download = 'filename'; 
+					link.target = '_blank'; // This ensures the file will be downloaded, not opened in a new tab
+					link.download = response.filename; 
+					link.style.display = 'none';
+					// Append the link to the body
+					document.body.appendChild(link);
 					link.click(); 
-					URL.revokeObjectURL(link.href);
+					// Remove the link from the body (optional)
+					document.body.removeChild(link);
 				}
 			} else {
 				$('.btn-download-db-env').find('img').show();
