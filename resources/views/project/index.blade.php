@@ -331,5 +331,80 @@
         }
     });
    
+    $(document).ready(function () {
+        function RepositoryDropdown() {
+            var selectedOrganizationId = $('#build_organization').val();
+            if (!selectedOrganizationId) {
+                $('#build_repository').html('<option value="" selected disabled>-- Select a Repository --</option>');
+                return;
+            }
+
+            var url = "{{ route('project.getGithubRepo') }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_organization: selectedOrganizationId,
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                var dynamicOptions = response.data;
+                $('#build_repository').html(dynamicOptions);
+                var defaultRepoId = 353671452; // Replace with the default Repository ID you want to set
+                $("#build_repository").val(defaultRepoId);
+                $("#build_repository").trigger("change");
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        }
+
+        $("#build_organization").on('change', function(e) {
+            RepositoryDropdown();
+        });
+
+        RepositoryDropdown();
+    });
+
+    $(document).ready(function () {
+        function branchDropdown() {
+            var selectedReponId = 353671452;
+            if (!selectedReponId) {
+                $('#build_branch_name').html('<option value="" selected disabled>-- Select a Branches --</option>');
+                return;
+            }
+
+            var url = "{{ route('project.getGithubBranches') }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_repository: selectedReponId,
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                var dynamicOptions = response.data;
+                $('#build_branch_name').html(dynamicOptions);
+                var defaultBranchName = "stage"; // Replace with the default Branch Name you want to set
+                $("#build_branch_name").val(defaultBranchName);
+                $("#build_branch_name").trigger("change");
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        }
+
+        $("#build_repository").on('change', function(e) {
+            branchDropdown();
+        });
+
+        branchDropdown();
+    });
 </script>
 @endsection
