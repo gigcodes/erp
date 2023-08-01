@@ -1877,6 +1877,26 @@ class StoreWebsiteController extends Controller
         }
         return response()->json(['status' => 'error', 'message' =>'Download successfully!']);
     }
+
+    public function downloadFile(Request $request, $fileName) {
+        // Get the full path to the file you want to download
+        $filePath = storage_path('app/download_db/'.$fileName);
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Set the appropriate headers for the download response
+            $headers = [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            ];
+
+            // Return the download response
+            return response()->download($filePath, $fileName, $headers)->deleteFileAfterSend(true);
+        } else {
+            // If the file does not exist, return a 404 response
+            abort(404);
+        }
+    }
   
     public function runFilePermissions(Request $request, $id)
     {
