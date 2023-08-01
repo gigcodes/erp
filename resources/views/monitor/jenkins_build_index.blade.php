@@ -21,11 +21,12 @@
                                 {{ Form::select("worker_id[]", \app\Models\MonitorJenkinsBuild::pluck('worker','id')->toArray(),request('worker_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
                             </div>
                             <div class="col-md-2 pd-sm">
-                                <label> Sort By </label>
+                                <label> Sort By ID </label>
                                 <select name="id_sort_by" id="id_sort_by" class="form-control globalSelect" data-placeholder="Sort By">
-                                    <option  Value="asc">ASC</option>
-                                    <option value="desc">DSEC</option>
-                                    </select>
+                                    <option  Value="">Sort By ID</option>
+                                    <option  Value="asc" {{ (request('id_sort_by') == "asc") ? "selected" : "" }} >ASC</option>
+                                    <option value="desc" {{ (request('id_sort_by') == "desc") ? "selected" : "" }}>DSEC</option>
+                                </select>
                                 </div>       
                             <div class="col-md-2 pd-sm pl-0 mt-2">
                                 <label> </label>
@@ -82,7 +83,7 @@
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)
                             <tr class="quick-website-task-{{ $monitorJenkinsBuild->id }}" data-id="{{ $monitorJenkinsBuild->id }}">
-                                <td>{{$key+1 }}</td>
+                                <td>{{$monitorJenkinsBuild->id }}</td>
                                 <td>{{ $monitorJenkinsBuild->build_number }}</td>
                                 <td>{{ $monitorJenkinsBuild->project }}</td>
                                 <td>{{ $monitorJenkinsBuild->worker }}</td>
