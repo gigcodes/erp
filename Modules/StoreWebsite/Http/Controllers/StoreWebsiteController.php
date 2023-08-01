@@ -1318,7 +1318,10 @@ class StoreWebsiteController extends Controller
                     $html .= '<td>' . $res->created_at . '</td>';
                     if( $res->download_url )
                     {
-                        $html .= '<td><a href="' . $res->download_url . '" class="btn btn-primary" download>Download</a></td>';
+                        $filename = basename($res->download_url);
+                        $downloadRoute = route('store-website.downloadFile', $filename);
+
+                        $html .= '<td><a href="' . $downloadRoute . '" class="btn btn-primary" download>Download</a></td>';
                     } else {
                         $html .= '<td></td>';
                     }
@@ -1891,7 +1894,7 @@ class StoreWebsiteController extends Controller
             ];
 
             // Return the download response
-            return response()->download($filePath, $fileName, $headers)->deleteFileAfterSend(true);
+            return response()->download($filePath, $fileName, $headers);
         } else {
             // If the file does not exist, return a 404 response
             abort(404);
