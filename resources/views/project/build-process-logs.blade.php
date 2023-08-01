@@ -54,19 +54,19 @@
                                     </select> 
                             </div>
                             <div class="col-md-2 pd-sm">                               
-                                 <br>
+                                 <h5>Search Branch name</h5>	
                                 <input class="form-control" type="text" id="search_branch_name" placeholder="Search Branch name" name="search_branch_name" value="{{ $reqsBranchName ?? '' }}">
                             </div>
                             <div class="col-md-2 pd-sm">                              
-                                <br>
+                                <h5>Search Build Number</h5>	
                                 <input class="form-control" type="text" id="search_build_number" placeholder="Search Build Number" name="search_build_number" value="{{ $reqsBuildNumber ?? '' }}">
                             </div>
                             <div class="col-md-2 pd-sm">                             
-                                <br>
+                                <h5>Search Build Name</h5>	
                                 <input class="form-control" type="text" id="search_build_name" placeholder="Search Build Name" name="search_build_name" value="{{ $reqsBuildName ?? '' }}">
                             </div>
                             <div class="col-md-2 pd-sm">                               
-                                 <br>
+                                <h5>Search By keyword</h5>	
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
                             <div class="col-md-2 pd-sm"><br>
@@ -263,16 +263,6 @@ $( document ).ready(function() {
         });
 });
 
-    $(document).ready(function() {
-    var currentUrl = window.location.href;
-
-    // Check if the current URL contains "id"
-    if (currentUrl.includes("id")) {
-        alert("The URL contains 'id'.");
-    } else {
-        alert("The URL does not contain 'id'.");
-    }
-    });
 
 
 </script>

@@ -544,7 +544,12 @@ class ProjectController extends Controller
 
 
         if($id){
-            $responseLogs->where('store_website_id', $id);
+            $responseValue = $responseLogs->where('store_website_id', $id)->get();
+            $reqproject = $responseValue->pluck('store_website_id')->toArray();
+            $reqstatus = $responseValue->pluck('status')->toArray();
+            $requsers = $responseValue->pluck('created_by')->toArray();
+            $reqorganizations = $responseValue->pluck('github_organization_id')->toArray();
+            $reqrepoids = $responseValue->pluck('github_repository_id')->toArray();
         }
         
         if($request->has('branch') && $request->branch!=''){
@@ -587,7 +592,7 @@ class ProjectController extends Controller
         $keyword = $request->keyword;
         if (! empty($keyword)) {
             $monitorServers = $responseLogs->where(function ($q) use ($keyword) {
-                $q->orWhere('build_process_histories.build_numbe', 'LIKE', '%' . $keyword . '%')
+                $q->orWhere('build_process_histories.build_number', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('build_process_histories.build_name', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('build_process_histories.status', 'LIKE', '%' . $keyword . '%')
                     ->orWhere('build_process_histories.build_pr', 'LIKE', '%' . $keyword . '%')
