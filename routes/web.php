@@ -1202,6 +1202,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
 
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
+    Route::get('reply/log/lists', [ReplyController::class, 'replyLogList'])->name('reply.listing');
+    Route::post('reply-mulitiple/flag', [ReplyController::class, 'replyMulitiple'])->name('reply.mulitiple.flag');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -2881,6 +2883,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
     Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq/mulitiple', [FaqPushController::class, 'mulitiplepushFaq']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 

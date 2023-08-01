@@ -20,7 +20,7 @@ use function GuzzleHttp\json_encode;
 use Illuminate\Support\Facades\Auth;
 use App\Models\QuickRepliesPermissions;
 use App\Models\RepliesTranslatorHistory;
-
+use App\Models\ReplyLog;
 class ReplyController extends Controller
 {
     public function __construct()
@@ -275,6 +275,7 @@ class ReplyController extends Controller
 
     public function replyList(Request $request)
     {
+        // dd('hii');
         $storeWebsite = $request->get('store_website_id');
         $keyword = $request->get('keyword');
         $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
@@ -647,5 +648,31 @@ class ReplyController extends Controller
         $paginateHtml = $data->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+    }
+
+    public function replyLogList (Request $request)
+    {
+        $replyLogs = new  ReplyLog();
+
+        $replyLogs = $replyLogs->latest()->paginate(\App\Setting::get('pagination',25));
+        
+        return view('reply.log-reply', compact('replyLogs'));
+    }
+
+    public function replyMulitiple(Request $request)
+    {
+        $replyIds = $request->input('reply_ids');
+
+        $replyIdsArray = explode(',', $replyIds);
+
+        foreach ($replyIdsArray as $replyId) {
+            $replyLog = Reply::find($replyId);
+            if ($replyLog) {
+                $replyLog->is_flagged = 1;
+                $replyLog->save();
+            }
+         }
+
+        return response()->json(['message' => 'Flag Added successfully']);
     }
 }
