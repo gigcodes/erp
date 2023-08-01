@@ -437,14 +437,23 @@ class ProjectController extends Controller
                         // $builds = $job->getBuilds();
                         
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
-                        
-                        $lastBuild = $job->getLastBuild();
                         $latestBuildNumber = $latestBuildResult = "";
-                        if ($lastBuild) {
-                            $latestBuildNumber = $lastBuild->getNumber() + 1;
-                            $latestBuildResult = $lastBuild->getResult();
-                        }
 
+                        $job_api_url = "{$jenkins->getUrl()}/job/{$job_name}/api/json";
+                        $job_info = json_decode(file_get_contents($job_api_url), true);
+
+                        // Check if the job has any build in the queue
+                        if ($job_info && $job_info['inQueue']) {
+                            $latestBuildNumber = $job_info['nextBuildNumber'];
+                            $latestBuildResult = "WAITING";
+                        } else {
+                            $lastBuild = $job->getLastBuild();
+                            if ($lastBuild) {
+                                $latestBuildNumber = $lastBuild->getNumber();
+                                $latestBuildResult = $lastBuild->getResult();
+                            }
+                        }
+                        
                         $record = [
                             'store_website_id' => $request->project_id, 
                             'created_by' =>auth()->user()->id, 
@@ -560,6 +569,9 @@ class ProjectController extends Controller
                             $build_status=$build->getResult();
                             
                             if($responseLog->status!=$build_status){
+
+                                $console_output_url = "{$jenkins->getUrl()}/job/{$job_name}/$build_number/consoleText";
+                                $console_output = file_get_contents($console_output_url);
                             
                                 $record = [
                                     'project_id' => $project_id, 
@@ -572,6 +584,7 @@ class ProjectController extends Controller
                                 \App\BuildProcessStatusHistories::create($record);
                             
                                 $responseLog->status=$build_status;
+                                $responseLog->text=$console_output;
                                 $responseLog->save();
                             }
                             
