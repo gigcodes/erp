@@ -1069,11 +1069,21 @@
 				toastr.success(response.message, 'Success');
 				console.log(response);
 				if (response.download_url) {
-					var link = document.createElement('a');
-					link.href = response.download_url;
-					link.download = 'filename'; 
-					link.click(); 
-					URL.revokeObjectURL(link.href);
+					// The file has been generated on the server.
+					// Open the download link in a new tab.
+					var downloadUrl = "{{url('/')}}/store-website/download-file/" + encodeURIComponent(response.filename); // Replace this with the desired filename
+					window.open(downloadUrl, '_blank');
+
+					// var link = document.createElement('a');
+					// link.href = response.download_url;
+					// link.target = '_blank'; // This ensures the file will be downloaded, not opened in a new tab
+					// link.download = response.filename; 
+					// link.style.display = 'none';
+					// // Append the link to the body
+					// document.body.appendChild(link);
+					// link.click(); 
+					// // Remove the link from the body (optional)
+					// document.body.removeChild(link);
 				}
 			} else {
 				$('.btn-download-db-env').find('img').show();
