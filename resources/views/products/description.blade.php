@@ -34,7 +34,7 @@
                 <select class="form-control globalSelect2" multiple="true" id="supplier" name="supplier[]" placeholder="Select suppliers">
                     <option value="">Select Suppliers</option>
                     @foreach($supplier as $supplier)
-                    <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
+                    <option value="{{ $supplier->id }}" @if(in_array($supplier->id, $request->input('supplier', []))) selected @endif>{{ $supplier->supplier }}</option>
                     @endforeach
                 </select>
             </div>
