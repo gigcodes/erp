@@ -70,33 +70,67 @@
                                 <td>
                                     {{ $orderJourneyData->order_id }}
                                 </td>
-                                <?php $orderJourneyResult = \App\OrderEmailSendJourneyLog::where('order_id', '=', $orderJourneyData->order_id)->orderBy('id', 'ASC')->get(); 
-                                    $counter = 6;            
-                                    $i=1;
-                                    $stepsName = '';
-                                    $stepsName1 = '';
-                                    foreach ($orderJourneyResult as $key => $value) {
-                                        $orderJourneyData->from_email = $value->from_email;
-                                        $orderJourneyData->to_email = $value->to_email;
-                                        $i++;
-                                        if($value->steps == 'Magento Error' || $value->steps == 'Email type via Error'){
-                                            $stepsName = $value->error_msg;
+                                <?php 
+                                // $orderJourneyResult = \App\OrderEmailSendJourneyLog::where('order_id', '=', $orderJourneyData->order_id)->orderBy('id', 'ASC')->get(); 
+                                //     $counter = 6;            
+                                //     $i=1;
+                                //     $stepsName = '';
+                                //     $stepsName1 = '';
+                                //     foreach ($orderJourneyResult as $key => $value) {
+                                //         $orderJourneyData->from_email = $value->from_email;
+                                //         $orderJourneyData->to_email = $value->to_email;
+                                //         $i++;
+                                //         if($value->steps == 'Magento Error' || $value->steps == 'Email type via Error'){
+                                //             $stepsName = $value->error_msg;
                                             
-                                        }else {
-                                            $stepsName = $value->steps;
-                                        }
+                                //         }else {
+                                //             $stepsName = $value->steps;
+                                //         }
                                 ?>
-                                    <td>
+                                    {{-- <td>
                                         {!! $stepsName !!}
                                         
-                                    </td>
+                                    </td> --}}
                                 <?php
-                                    }
-                                    $counter = $counter - $i;
-                                    for($ic = 0; $ic<=$counter; $ic++) {
+                                    // }
+                                    // $counter = $counter - $i;
+                                    // for($ic = 0; $ic<=$counter; $ic++) {
                                 ?>
-                                    <td></td>
-                                <?php } ?>
+                                    {{-- <td></td> --}}
+                                <?php 
+                                    // } 
+
+                                ?>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Status Change'][0]['steps'] ?? "-" }}
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type via Order update status'][0]['steps'] ?? "-" }}
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['steps'] ?? "-" }}
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg']) && $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg'] != "")
+                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg'] }}"></i>
+                                    @endif
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status'][0]['steps'] ?? "-" }}
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Magento Order update status'][0]['steps'] ?? "-" }}
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    {{ $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['steps'] ?? "-" }}
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg']) && $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg'] != "")
+                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg'] }}"></i>
+                                    @endif
+                                </td>
                                 
                                 <td style="overflow-wrap: anywhere;">
                                     {{ $orderJourneyData->from_email }}
@@ -118,8 +152,39 @@
             </div>
         </div>
 
+        <div class="modal fade" id="errorModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+        
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <!-- Display the full HTML content in an iframe -->
+                        <iframe id="errorModalIframe" src="" frameborder="0" style="width: 100%; height: 400px;"></iframe>
+                    </div>
+        
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('scripts')
-    
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#errorModal').on('shown.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var fullHtml = button.data('full-html'); // Get the data-full-html value
+        var errorModalIframe = document.getElementById('errorModalIframe'); // Get the iframe element
+        errorModalIframe.srcdoc = fullHtml; // Set the srcdoc attribute with the fullHtml value
+    });
+});
+</script>
+     
 @endsection

@@ -3021,8 +3021,42 @@ class OrderController extends Controller
         try {
             $orderJourney = OrderEmailSendJourneyLog::groupBy('order_id')->get();
 
+            $logs = OrderEmailSendJourneyLog::all();
+
+            // Group the logs by order_id
+            $groupedLogs = $logs->groupBy('order_id')->map(function ($item) {
+                // Within each order_id group, further group the logs by steps starting with "<Step Names>"
+                $groupedSteps = $item->groupBy(function ($log) {
+                    if (strpos($log->steps, 'Status Change') === 0) {
+                        return 'Status Change';
+                    }
+                    if (strpos($log->steps, 'Email type via Order update status') === 0) {
+                        return 'Email type via Order update status';
+                    }
+                    if (strpos($log->steps, 'Email type via Error') === 0) {
+                        return 'Email type via Error';
+                    }
+                    if (strpos($log->steps, 'Email type IVA SMS Order update status') === 0) {
+                        return 'Email type IVA SMS Order update status';
+                    }
+                    if (strpos($log->steps, 'Magento Order update status') === 0) {
+                        return 'Magento Order update status';
+                    }
+                    if (strpos($log->steps, 'Magento Error') === 0) {
+                        return 'Magento Error';
+                    }
+                    // For items that do not start with '<Step Names>', return the original steps
+                    return $log->steps;
+                });
+
+                // Sort the logs within each steps group by 'created_at' in descending order
+                return $groupedSteps->map(function ($logs) {
+                    return $logs->sortByDesc('created_at');
+                });
+            });
+
             if (count($orderJourney) > 0) {
-                return view('orders.email_send_journey', compact('orderJourney'));
+                return view('orders.email_send_journey', compact('orderJourney', 'groupedLogs'));
             } else {
                 return redirect()->back()->with('error', 'Record not found');
             }
