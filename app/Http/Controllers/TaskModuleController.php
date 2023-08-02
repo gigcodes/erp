@@ -203,7 +203,8 @@ class TaskModuleController extends Controller
                 '
 			SELECT tasks.*, 
             assign_from_user.name AS assign_from_username, 
-            assign_to_user.name AS assign_to_username
+            assign_to_user.name AS assign_to_username,
+            customers.name AS customer_name
 			FROM (
 			  SELECT * FROM tasks
 			  LEFT JOIN (
@@ -222,6 +223,7 @@ class TaskModuleController extends Controller
 			) AS tasks
             LEFT JOIN users AS assign_from_user ON tasks.assign_from = assign_from_user.id
             LEFT JOIN users AS assign_to_user ON tasks.assign_to = assign_to_user.id
+            LEFT JOIN customers ON tasks.customer_id = customers.id
 			WHERE (tasks.deleted_at IS NULL) 
             AND (tasks.id IS NOT NULL) 
             AND is_statutory != 1 ' . $isCompleteWhereClose . $userquery . $status_filter . $flag_filter . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . '; '
@@ -275,7 +277,8 @@ class TaskModuleController extends Controller
                 message,
                 message_status,
                 message_type,
-                message_created_At as last_communicated_at
+                message_created_At as last_communicated_at,
+                customers.name AS customer_name
                 FROM (
                   SELECT * FROM tasks
                  LEFT JOIN (
@@ -294,6 +297,7 @@ class TaskModuleController extends Controller
                 ) AS tasks
                 LEFT JOIN users AS assign_from_user ON tasks.assign_from = assign_from_user.id
                 LEFT JOIN users AS assign_to_user ON tasks.assign_to = assign_to_user.id
+                LEFT JOIN customers ON tasks.customer_id = customers.id
                 WHERE (tasks.deleted_at IS NULL) AND (tasks.id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL ' . $userquery . $categoryWhereClause . $status_filter . $flag_filter . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';'
             );
 
@@ -344,8 +348,8 @@ class TaskModuleController extends Controller
 	               message,
 	               message_status,
 	               message_type,
-	               message_created_At as last_communicated_at
-
+	               message_created_At as last_communicated_at,
+                   customers.name AS customer_name
 	               FROM (
 	                 SELECT * FROM tasks
 	                 LEFT JOIN (
@@ -365,6 +369,7 @@ class TaskModuleController extends Controller
 	               ) AS tasks
                    LEFT JOIN users AS assign_from_user ON tasks.assign_from = assign_from_user.id
                    LEFT JOIN users AS assign_to_user ON tasks.assign_to = assign_to_user.id
+                   LEFT JOIN customers ON tasks.customer_id = customers.id
 				   WHERE (tasks.deleted_at IS NULL) AND (tasks.id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL ' . $userquery . $categoryWhereClause . $status_filter . $flag_filter . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';'
             );
 

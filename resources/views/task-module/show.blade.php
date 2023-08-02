@@ -720,12 +720,9 @@
                                                 Cus-{{$task->customer_id}}
                                                 <br>
                                                 @if(Auth::user()->isAdmin())
-                                                    @php
-                                                        $customer = \App\Customer::find($task->customer_id);
-                                                    @endphp
                                                     <span>
-                                        {{ isset($customer ) ? $customer->name : '' }}
-                                    </span>
+                                                        {{ isset($task->customer_name) ? $task->customer_name : '' }}
+                                                    </span>
                                                 @endif
                                             @endif
                                         </td>
