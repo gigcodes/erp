@@ -48,15 +48,27 @@ class ColorController extends Controller
         }
 
         // Check for keyword search
+        $reqsstorecolor = $request->Store_Color ?? "";
+
         if ($request->keyword != null) {
             $store_colors = $store_colors->where('erp_color', 'like', '%' . $request->keyword . '%');
         }
+        if ($request->website_ids != null) {
+            $store_colors = $store_colors->WhereIn('store_website_id', $request->website_ids);
+        }     
+        if ($request->erp_colour != null) {
+            $store_colors = $store_colors->WhereIn('erp_color', $request->erp_colour);
+        }
+        if ($request->Store_Color != null) {
+            $store_colors = $store_colors->where('store_color', 'LIKE', '%' . $request->Store_Color . '%');
+        }  
 
         return view('storewebsite::color.index', [
             'erp_colors' => (new Colors())->all(),
             'store_websites' => StoreWebsite::pluck('title', 'id')->toArray(),
             'store_colors' => $store_colors,
             'title' => $title,
+            'reqsstorecolor' => $reqsstorecolor
         ]);
     }
 

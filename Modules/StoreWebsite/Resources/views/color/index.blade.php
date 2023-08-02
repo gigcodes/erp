@@ -2,7 +2,6 @@
 @section('favicon' , 'task.png')
 
 @section('title', $title)
-
 @section('content')
 <style type="text/css">
 	.preview-category input.form-control {
@@ -22,6 +21,35 @@
 		    </div>
 		</div>    
 	@endif
+	<div class="mt-3 col-md-12">
+		<form action="{{route('store-website.color.list')}}" method="get" class="search">
+			<div class="col-md-2 pd-sm">
+				<strong>Search Websites:</strong>
+				{{ Form::select("website_ids[]", \App\StoreWebsite::pluck('title','id')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+			</div>
+			<div class="col-md-2 pd-sm">
+				<strong>Search Store Colours:</strong>
+				<select class="form-control globalSelect2" multiple="true" id="erp_colour" name="erp_colour[]" placeholder="Select Platform">
+					<option value="">Select Erp color</option>
+					@foreach($erp_colors as $erp_color)
+					<option value="{{ $erp_color }}">{{ $erp_color }}</option>
+					@endforeach
+				</select>
+			</div>
+			<div class="col-md-2 pd-sm">
+				<strong>Store Color:</strong>
+				<input class="form-control" type="text" id="Store_Color	" placeholder="Search Store Color" name="Store_Color" value="{{ $reqsstorecolor ?? '' }}">
+			</div>
+			<div class="col-md-2 pd-sm">				
+				<label for="keyword">Keyword:</label>
+				<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+			  </div>
+			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+				<br><button type="submit" style="" class="btn btn-image pl-0"><img src="/images/filter.png"></button>
+				<a href="{{route('store-website.color.list')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+			</div>
+		</form>
+	</div>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
 	    	<div class="col col-md-9">
@@ -44,26 +72,6 @@
 					  	</div>		
 			  		</form>
 				 </div>
-		    </div>
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-					<div class="row">
-		    			<form class="form-inline message-search-handler" method="get">
-					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="keyword">Keyword:</label>
-								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-							  	</div>
-							  	<div class="form-group">
-							  		<label for="button">&nbsp;</label>
-							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-							  			<img src="/images/search.png" style="cursor: default;">
-							  		</button>
-							  	</div>
-					  		</div>
-				  		</form>
-					</div>
-		    	</div>
 		    </div>
 		</div>
 		<div class="row">
