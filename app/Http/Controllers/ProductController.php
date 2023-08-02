@@ -4170,19 +4170,48 @@ class ProductController extends Controller
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
         }
-        if ($request->get('supplier') != '') {
-            $products = $query->where('supplier_id', $request->get('supplier'));
-        }
         if ($request->get('sku') != '') {
             $products = $query->whereHas('product', function ($query) use ($request) {
                 $query->where('sku', $request->get('sku'));
             });
         }
+        
+        $supplier = Supplier::select('id', 'supplier')->get();
+    
+        if ($request->supplier) {
+            $query->whereIn('product_suppliers.supplier_id', $request->supplier); // Specify the table for the column 'supplier_id'
+        }
+        if ($request->colors) {
+            $query->whereIn('product_suppliers.color', $request->colors); // Specify the table for the column 'supplier_id'
+        }
+        if ($request->product_title) {
+            $products = $query->where('title', 'LIKE', '%' . $request->product_title . '%');
+        }  
+        if ($request->product_description) {
+            $products = $query->where('description', 'LIKE', '%' . $request->product_description . '%');
+        } 
+        if ($request->product_color) {
+            $products = $query->where('color', 'LIKE', '%' . $request->product_color . '%');
+        }
+        if ($request->product_size) {
+            $products = $query->where('size', 'LIKE', '%' . $request->product_size . '%');
+        } 
+        if ($request->product_composition) {
+            $products = $query->where('composition', 'LIKE', '%' . $request->product_composition . '%');
+        } 
+        if ($request->product_size_system) {
+            $products = $query->where('size_system', 'LIKE', '%' . $request->product_size_system . '%');
+        } 
+        if ($request->product_price) {
+            $products = $query->where('price', 'LIKE', '%' . $request->product_price . '%');
+        } 
+        if ($request->product_discount) {
+            $products = $query->where('price_discounted', 'LIKE', '%' . $request->product_discount . '%');
+        } 
+
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-        //  dd($products);
 
-        $supplier = Supplier::all();
 
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);

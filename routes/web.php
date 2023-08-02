@@ -1004,7 +1004,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //ajay singh
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
-    Route::get('products/description', [ProductController::class, 'productDescription']);
+    Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
 
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
@@ -5060,6 +5060,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
+    Route::get('shortcut-product-colors', [Select2Controller::class, 'productColors'])->name('select2.productsColors');
+    Route::get('shortcut-product-sizesystem', [Select2Controller::class, 'producsizeSystem'])->name('select2.productsSizesystem');
 
 
 });
