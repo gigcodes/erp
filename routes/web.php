@@ -2440,6 +2440,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('document/gettaskremark', [DocumentController::class, 'getTaskRemark'])->name('document.gettaskremark');
     Route::post('document/uploadocument', [DocumentController::class, 'uploadDocument'])->name('document.uploadDocument');
     Route::post('document/addremark', [DocumentController::class, 'addRemark'])->name('document.addRemark');
+    Route::get('document/shortcut-list', [DocumentController::class, 'listShorcut'])->name('documentShorcut.list');
 
     //Document Cateogry
     Route::post('documentcategory/add', [DocuemntCategoryController::class, 'addCategory'])->name('documentcategory.add');
@@ -5060,6 +5061,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
+    Route::get('shortcut-documentCategory', [Select2Controller::class, 'shortcutdocumentCategory'])->name('select2.documentCategory');
 
 
 });
