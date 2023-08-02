@@ -32,7 +32,7 @@
 				<select class="form-control globalSelect2" multiple="true" id="erp_colour" name="erp_colour[]" placeholder="Select Platform">
 					<option value="">Select Erp color</option>
 					@foreach($erp_colors as $erp_color)
-					<option value="{{ $erp_color }}">{{ $erp_color }}</option>
+					<option value="{{ $erp_color }}" @if(is_array($reqStorecolour) && in_array($erp_color, $reqStorecolour)) selected @endif>{{ $erp_color }}</option>
 					@endforeach
 				</select>
 			</div>
