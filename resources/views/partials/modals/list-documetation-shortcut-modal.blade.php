@@ -6,7 +6,7 @@
                 <h5 class="modal-title">Documentation listing</h5>
                 <br>
                 <form method="get" id="screen_cast_search" style="margin-left:auto">
-                    <input id="search-input" type="text" placeholder="Search..">       
+                    <input id="search-input_documents" type="text" placeholder="Search..">       
                     <button type="button" class="btn btn-secondary" data-toggle="modal" onclick="showdocumentCreateModal()">+</button>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -29,10 +29,9 @@
 </div>
 
 <script>
-$("#search-input").on("keyup", function() {
-    alert('asgh');
+$("#search-input_documents").on("keyup", function() {
     var value = $(this).val().toLowerCase();
-    $("#document_list tr").filter(function() {
+    $("#document_list_table tr").filter(function() {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
     });
   });

@@ -6,7 +6,7 @@
     ];
 @endphp
 
-<table class="table table-sm table-bordered">
+<table class="table table-sm table-bordered" id="document_list_table">
     <thead>
         <tr>
             <th>Date</th>

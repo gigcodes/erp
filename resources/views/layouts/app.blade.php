@@ -8056,7 +8056,6 @@ if (!\Auth::guest()) {
       }
 
       $(document).on('click','#create-documents',function(e){
-        alert('happy');
         e.preventDefault();
         $('#short-cut-documentation-modal').modal('show');
         getDocumentations(true);
