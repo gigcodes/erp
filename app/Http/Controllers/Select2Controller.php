@@ -658,10 +658,10 @@ class Select2Controller extends Controller
         $uniqueSizeQuery = ProductSupplier::distinct('size_system');
 
         if (!empty($request->q)) {
-            $uniqueSizeQuery->where('color', 'LIKE', '%' . $request->q . '%');
+            $uniqueSizeQuery->where('size_system', 'LIKE', '%' . $request->q . '%');
         }
     
-        $uniqueSizeSystems = $uniqueSizeQuery->pluck('color');
+        $uniqueSizeSystems = $uniqueSizeQuery->pluck('size_system');
     
         $result = [];
     

@@ -4184,6 +4184,9 @@ class ProductController extends Controller
         if ($request->colors) {
             $query->whereIn('product_suppliers.color', $request->colors); // Specify the table for the column 'supplier_id'
         }
+        if ($request->sizeSystem) {
+            $query->whereIn('product_suppliers.size_system', $request->sizeSystem); // Specify the table for the column 'supplier_id'
+        }
         if ($request->product_title) {
             $products = $query->where('title', 'LIKE', '%' . $request->product_title . '%');
         }  
