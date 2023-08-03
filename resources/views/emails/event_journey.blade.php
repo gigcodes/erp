@@ -111,6 +111,7 @@
         <a href="{{route('email.event.journey')}}" class="btn btn-image ml-3 search-btn"><i class="fa fa-refresh" aria-hidden="true"></i></a>
         <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
+      <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#eventColor"> Event Color</button>
   </div>
 </div>
 </div>
@@ -137,7 +138,7 @@
         <tbody>
           @foreach ($events as $key => $email)
           
-            <tr>
+            <tr style="background-color: {{$email->event_color}}!important;">
               <td>{{ $email->id }}</td>
               <td>{{ $email->email }}</td>
               
@@ -207,7 +208,7 @@
         {{$events->links()}}
       </div> 
 </div>
-
+@include("emails.modal-event-color")
 @endsection
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
