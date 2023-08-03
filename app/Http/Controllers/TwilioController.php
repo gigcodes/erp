@@ -3233,9 +3233,9 @@ class TwilioController extends FindByNumberController
         return $response;
     }
 
-    public function manageTwilioAccounts()
+    public function manageTwilioAccounts(Request $request)
     {
-        $all_accounts = TwilioCredential::where(['status' => 1])->where('twiml_app_sid', '!=', null)->get();
+        $all_accounts = TwilioCredential::where(['status' => 1])->where('twiml_app_sid', '!=', null);
 
         $twilio_user_list = User::LeftJoin('twilio_agents', 'user_id', 'users.id')->select('users.*', 'twilio_agents.status')->orderBy('users.name', 'ASC')->get();
 
@@ -3247,6 +3247,25 @@ class TwilioController extends FindByNumberController
         $twilio_key_options_data = TwilioKeyOption::get();
         $twilio_key_arr = [];
 
+        $twiliconditionsemails = TwilioCredential::distinct('twilio_email')->pluck('twilio_email');
+        $twiliAccountIds = TwilioCredential::distinct('account_id')->pluck('account_id');
+        $twiliAuthTokens = TwilioCredential::distinct('auth_token')->pluck('auth_token');
+
+        if ($request->twilicondition_email !== null) {
+            $all_accounts = $all_accounts->WhereIn('twilio_email', $request->twilicondition_email);
+        }
+        if ($request->account_id !== null) {
+            $all_accounts = $all_accounts->WhereIn('account_id', $request->account_id);
+        }
+        if ($request->auth_token !== null) {
+            $all_accounts = $all_accounts->WhereIn('auth_token', $request->auth_token);
+        }
+        if ($request->recovery_code !== null) {
+            $all_accounts = $all_accounts->where('twilio_recovery_code', 'LIKE', '%' . $request->recovery_code . '%');
+        }
+
+        $all_accounts = $all_accounts->get();
+
         if ($twilio_key_options_data && in_array('twilio_key_options_data', $conditions)) {
             foreach ($twilio_key_options_data as $key => $value) {
                 $twilio_key_arr[$value->key]['option'] = $value->description;
@@ -3255,7 +3274,7 @@ class TwilioController extends FindByNumberController
             }
         }
 
-        return view('twilio.manage-accounts', compact('all_accounts', 'twilio_user_list', 'store_websites', 'twilio_key_arr'));
+        return view('twilio.manage-accounts', compact('all_accounts', 'twilio_user_list', 'store_websites', 'twilio_key_arr','twiliconditionsemails','twiliAccountIds','twiliAuthTokens'));
     }
 
     public function addAccount(Request $request)
@@ -4114,6 +4133,9 @@ class TwilioController extends FindByNumberController
 
         $twilio_key_arr = [];
         $html = '';
+        if ($request->website_ids) {
+            $store_websites = $store_websites->whereIn('store_websites.id', $request->website_ids);
+        }
         //if($keydata)
 
         //{
@@ -4690,6 +4712,9 @@ class TwilioController extends FindByNumberController
         if (isset($input['log'])) {
             $twilioLogs = $twilioLogs->where('log', 'like', '%' . $input['log'] . '%');
         }
+        if ($request->date) {
+            $dataArr = $twilioLogs->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
         $twilioLogs = $twilioLogs->paginate(20);
 
         $recordedText = 'International delivery';
@@ -4819,11 +4844,29 @@ class TwilioController extends FindByNumberController
         }
     }
 
-    public function twilioAccountLogs()
+    public function twilioAccountLogs(Request $request)
     {
-        $accountLogs = TwilioAccountLog::paginate(50);
+        $accountLogs = new TwilioAccountLog();
 
-        return view('twilio.account_logs', compact('accountLogs'));
+        if ($request->twiliAccount_email) {
+            $accountLogs = $accountLogs->WhereIn('email', $request->twiliAccount_email);
+        }
+        if ($request->sid) {
+            $accountLogs = $accountLogs->where('sid', 'LIKE', '%' . $request->sid . '%');
+        }
+        if ($request->log) {
+            $accountLogs = $accountLogs->where('log', 'LIKE', '%' . $request->log . '%');
+        }
+        if ($request->date) {
+            $accountLogs = $accountLogs->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        
+        $accountLogs = $accountLogs->latest()->paginate(\App\Setting::get('pagination',50));
+
+        $twiliAccountemails = TwilioAccountLog::distinct('email')->pluck('email');
+
+
+        return view('twilio.account_logs', compact('accountLogs','twiliAccountemails'));
     }
 
     public function getConditions(Request $request)
@@ -4893,12 +4936,22 @@ class TwilioController extends FindByNumberController
         return response()->json(['status' => 'success', 'message' => 'Message tones updated', 'statusCode' => 200]);
     }
 
-    public function viewMessageTones()
+    public function viewMessageTones(Request $request)
     {
         $twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id', 'store_websites.id')
         ->select('twilio_message_tones.*', 'store_websites.title as website', 'store_websites.id as websiteId')->get();
 
-        return view('twilio.manage-tones', compact('twilioMessageTones'));
+        $websiteIds = $request->input('website_ids', []);
+
+        if( $websiteIds)
+        {
+            $twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id', 'store_websites.id')
+            ->select('twilio_message_tones.*', 'store_websites.title as website', 'store_websites.id as websiteId')
+            ->whereIn('store_websites.id', $websiteIds)
+            ->get();
+        }
+  
+        return view('twilio.manage-tones', compact('twilioMessageTones','websiteIds'));
     }
 
     public function twilioCallJourney(Request $request)
@@ -4919,6 +4972,50 @@ class TwilioController extends FindByNumberController
             $call_Journeies = $call_Journeies->whereHas('twilio_credential', function ($query) use ($request) {
                 $query->where('id', 'like', $request->store_id);
             });
+        }
+        
+        if ($request->account_id) {
+            $call_Journeies = $call_Journeies->where('account_sid', 'like', $request->account_id . '%');
+        }
+
+        if ($request->call_id) {
+            $call_Journeies = $call_Journeies->where('call_sid', 'like', $request->call_id . '%');
+        }
+
+        if ($request->filled('call_entered') && $request->call_entered === 'yes' || $request->call_entered === 'Yes') {
+            $call_Journeies = $call_Journeies->where('call_entered', 1);
+        }else if($request->filled('call_entered') && $request->call_entered === 'No' || $request->call_entered === 'no'){
+            $call_Journeies = $call_Journeies->where('call_entered','!=', 1);
+        }
+
+        if ($request->filled('handled_by_chatbot') && $request->handled_by_chatbot === 'yes' || $request->handled_by_chatbot === 'Yes') {
+            $call_Journeies = $call_Journeies->where('handled_by_chatbot', 1);
+        }else if($request->filled('handled_by_chatbot') && $request->handled_by_chatbot === 'No' || $request->handled_by_chatbot === 'no'){
+            $call_Journeies = $call_Journeies->where('handled_by_chatbot','!=', 1);
+        }
+        
+        if ($request->filled('called_working_hours') && $request->called_working_hours === 'yes' || $request->called_working_hours === 'Yes') {
+            $call_Journeies = $call_Journeies->where('called_in_working_hours', 1);
+        }else if($request->filled('called_working_hours') && $request->called_working_hours === 'No' || $request->called_working_hours === 'no'){
+            $call_Journeies = $call_Journeies->where('called_in_working_hours','!=', 1);
+        }
+
+        if ($request->filled('avaiable_agent') && $request->avaiable_agent === 'yes' || $request->avaiable_agent === 'Yes') {
+            $call_Journeies = $call_Journeies->where('agent_available', 1);
+        }else if($request->filled('avaiable_agent') && $request->avaiable_agent === 'No' || $request->avaiable_agent === 'no'){
+            $call_Journeies = $call_Journeies->where('agent_available','!=', 1);
+        }
+
+        if ($request->filled('agent_online') && $request->agent_online === 'yes' || $request->agent_online === 'Yes') {
+            $call_Journeies = $call_Journeies->where('agent_online', 1);
+        }else if($request->filled('agent_online') && $request->agent_online === 'No' || $request->agent_online === 'no'){
+            $call_Journeies = $call_Journeies->where('agent_online','!=', 1);
+        }
+
+        if ($request->filled('call_answered') && $request->call_answered === 'yes' || $request->call_answered === 'Yes') {
+            $call_Journeies = $call_Journeies->where('call_answered', 1);
+        }else if($request->filled('call_answered') && $request->call_answered === 'No' || $request->call_answered === 'no'){
+            $call_Journeies = $call_Journeies->where('call_answered','!=', 1);
         }
 
         $call_Journeies = $call_Journeies->with(['twilio_credential:id,account_id,twilio_email'])
@@ -4945,11 +5042,35 @@ class TwilioController extends FindByNumberController
      *
      * @return view
      */
-    public function twilioDeliveryLogs()
+    public function twilioDeliveryLogs(Request $request)
     {
-        $twilioDeliveryLogs = TwilioMessageDeliveryLogs::orderBy('created_at', 'desc')->with('customers:id,name,email')->paginate(50);
 
-        return view('twilio.delivery_logs', compact('twilioDeliveryLogs'));
+        $query = TwilioMessageDeliveryLogs::orderBy('created_at', 'desc')->with('customers:id,name,email');
+
+        $twiliCoustomerEmails = Customer::select('id', 'email')->get();
+    
+        if ($request->twilicustomer_email) {
+            $query->whereIn('customer_id', $request->twilicustomer_email);
+        }
+        if ($request->message_id) {
+            $query->where('message_sid', 'LIKE', '%' . $request->message_id . '%');
+        }
+        if ($request->user_from) {
+            $query->where('from', 'LIKE', '%' . $request->user_from . '%');
+        }
+        if ($request->user_to) {
+            $query->where('to', 'LIKE', '%' . $request->user_to . '%');
+        }
+        if ($request->deliver_status) {
+            $query->where('delivery_status', 'LIKE', '%' . $request->deliver_status . '%');
+        }
+        if ($request->date) {
+            $query->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+    
+        $twilioDeliveryLogs = $query->paginate(50);
+    
+        return view('twilio.delivery_logs', compact('twilioDeliveryLogs','twiliCoustomerEmails'));
     }
 
     /**

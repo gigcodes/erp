@@ -3,6 +3,21 @@
 @section('title', 'Twilio Message Tones')
 @section('content')
 <div class=>
+    <div class="mt-3 col-md-12">
+        <form action="{{ route('twilio.get_website_wise_key_data_options') }}" method="get" class="search">
+            <div class="form-group col-md-2">
+                {{ Form::select("website_ids[]", \App\StoreWebsite::pluck('website','id')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+            </div>
+            <div class="form-group col-md-2">
+                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                    <img src="{{ asset('images/search.png') }}" alt="Search">
+                </button>
+                <a href="{{ route('twilio.get_website_wise_key_data_options') }}" class="btn btn-image" id="">
+                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
+                </a>
+            </div>
+        </form>
+    </div>
 <table class="table table-bordered table-hover" style="table-layout: fixed;">
     <tr>
         <th width="8%">Website</th>
