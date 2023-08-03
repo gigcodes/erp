@@ -3020,13 +3020,39 @@ class OrderController extends Controller
     public function getOrderEmailSendJourneyLog(Request $request)
     {
         try {
-            $orderJourney = OrderEmailSendJourneyLog::whereIn('id', function ($query) {
-                $query->select(DB::raw('MAX(id)'))
-                    ->from('order_email_send_journey_logs')
-                    ->groupBy('order_id');
-            })->get();
+            // $orderJourney = OrderEmailSendJourneyLog::whereIn('id', function ($query) {
+            //     $query->select(DB::raw('MAX(id)'))
+            //         ->from('order_email_send_journey_logs')
+            //         ->groupBy('order_id');
+            // })->get();
 
-            $logs = OrderEmailSendJourneyLog::all();
+            $logs = new OrderEmailSendJourneyLog();
+
+            $from_email = $request->get('from_email');
+            $to_email = $request->get('to_email');
+            $keyword = $request->get('keyword');
+
+            if ($from_email) {
+                $logs = $logs->where('from_email', $from_email);
+            }
+
+            if ($to_email) {
+                $logs = $logs->where('to_email', $to_email);
+            }
+
+            if (! empty($keyword)) {
+                $logs = $logs->where(function ($q) use ($keyword) {
+                    $q->orWhere('subject', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('order_id', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('steps', 'LIKE', '%' . $keyword . '%');
+                });
+            }
+
+            $logs =  $logs->get();
+            
+            $orderJourney = $logs->groupBy('order_id')->map(function ($group) {
+                return $group->last();
+            });
 
             // Group the logs by order_id
             $groupedLogs = $logs->groupBy('order_id')->map(function ($item) {
@@ -3060,8 +3086,23 @@ class OrderController extends Controller
                 });
             });
 
+            $allLogs = OrderEmailSendJourneyLog::all();
+
+            $groupByOrders = $allLogs->reject(function ($log) {
+                    return empty($log->order_id);
+                })->groupBy('order_id')->keys()->toArray();
+
+            $groupByFromEmail = $allLogs->reject(function ($log) {
+                    return empty($log->from_email);
+                })->groupBy('from_email')->keys()->toArray();
+
+            $groupByToEmail = $allLogs->reject(function ($log) {
+                    return empty($log->to_email);
+                })->groupBy('to_email')->keys()->toArray();
+
+
             if (count($orderJourney) > 0) {
-                return view('orders.email_send_journey', compact('orderJourney', 'groupedLogs'));
+                return view('orders.email_send_journey', compact('orderJourney', 'groupedLogs', 'groupByOrders', 'groupByFromEmail', 'groupByToEmail'));
             } else {
                 return redirect()->back()->with('error', 'Record not found');
             }
