@@ -3111,6 +3111,21 @@ class OrderController extends Controller
         }
     }
 
+    public function getOrderEmailSendJourneyStepLog(Request $request)
+    {
+        $stepName = $request->input('step_name');
+        $orderId = $request->input('order_id');
+
+        // Fetch the step history data from the database using the $stepName and $orderId
+        $stepHistoryData = OrderEmailSendJourneyLog::where('steps', 'LIKE', '%' . $stepName . '%')
+            ->where('order_id', $orderId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Return the step history data in a Blade view (step_history_modal_content.blade.php)
+        return view('orders.email_send_journey_step_history_modal_content', compact('stepHistoryData'));
+    }
+
     /**
      * This function is used to list the Order Status Journey
      *

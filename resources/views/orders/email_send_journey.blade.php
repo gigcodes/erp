@@ -141,6 +141,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Status Change']) && $statusChange = $groupedLogs[$orderJourneyData->order_id]['Status Change']->first())
                                     {{ $statusChange['steps']}}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Status Change" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -149,6 +150,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']) && $emailTypeViaOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']->first())
                                     {{ $emailTypeViaOrderUpdateStatus['steps']}}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -157,6 +159,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Error']) && $emailTypeViaError = $groupedLogs[$orderJourneyData->order_id]['Email type via Error']->first())
                                     {{ $emailTypeViaError['steps'] }}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                     @if (isset($emailTypeViaError['error_msg']) && $emailTypeViaError['error_msg'] != "")
                                     <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $emailTypeViaError['error_msg'] }}"></i>
                                     @endif
@@ -168,6 +171,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']) && $emailTypeViaIVASmsOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']->first())
                                     {{ $emailTypeViaIVASmsOrderUpdateStatus['steps'] }}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type IVA SMS Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -176,6 +180,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Order update status']) && $magentoOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Magento Order update status']->first())
                                     {{ $magentoOrderUpdateStatus['steps'] }}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -184,6 +189,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Error']) && $magentoError = $groupedLogs[$orderJourneyData->order_id]['Magento Error']->first())
                                     {{ $magentoError['steps'] }}
+                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                     @if (isset($magentoError['error_msg']) && $magentoError['error_msg'] != "")
                                     <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $magentoError['error_msg'] }}"></i>
                                     @endif
@@ -232,6 +238,40 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="stepHistoryModal" tabindex="-1" role="dialog" aria-labelledby="stepHistoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stepHistoryModalLabel">Step History</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Date</th>
+                                    <!-- Add other columns if needed -->
+                                </tr>
+                            </thead>
+                            <tbody id="stepHistoryModalBody">
+                                <!-- The content will be dynamically loaded here using JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+        50% 50% no-repeat;display:none;">
+        </div>
 @endsection
 
 @section('scripts')
@@ -244,6 +284,28 @@ $(document).ready(function() {
         var fullHtml = button.data('full-html'); // Get the data-full-html value
         var errorModalIframe = document.getElementById('errorModalIframe'); // Get the iframe element
         errorModalIframe.srcdoc = fullHtml; // Set the srcdoc attribute with the fullHtml value
+    });
+
+    $('.step-history-icon').on('click', function() {
+        var stepName = $(this).data('step-name');
+        var orderId = $(this).data('order-id');
+
+        // Perform an AJAX request to fetch the step history data
+        $("#loading-image").show();
+        $.ajax({
+            url: '{{route('order.get.email.send.journey.step.logs')}}',
+            type: 'GET',
+            data: {step_name: stepName, order_id: orderId},
+            success: function(response) {
+                $("#loading-image").hide();
+                // Populate the modal body with the fetched data
+                $('#stepHistoryModalBody').html(response);
+            },
+            error: function() {
+                $("#loading-image").hide();
+                // Handle errors if needed
+            }
+        });
     });
 });
 </script>
