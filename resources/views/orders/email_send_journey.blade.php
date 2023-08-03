@@ -141,7 +141,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Status Change']) && $statusChange = $groupedLogs[$orderJourneyData->order_id]['Status Change']->first())
                                     {{ $statusChange['steps']}}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Status Change" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Status Change" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -150,7 +150,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']) && $emailTypeViaOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']->first())
                                     {{ $emailTypeViaOrderUpdateStatus['steps']}}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -159,9 +159,9 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Error']) && $emailTypeViaError = $groupedLogs[$orderJourneyData->order_id]['Email type via Error']->first())
                                     {{ $emailTypeViaError['steps'] }}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type via Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                     @if (isset($emailTypeViaError['error_msg']) && $emailTypeViaError['error_msg'] != "")
-                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $emailTypeViaError['error_msg'] }}"></i>
+                                    <i class="fa fa-info-circle" style="cursor: pointer;" title="View Error Message" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $emailTypeViaError['error_msg'] }}"></i>
                                     @endif
                                 @else
                                     -
@@ -171,7 +171,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']) && $emailTypeViaIVASmsOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']->first())
                                     {{ $emailTypeViaIVASmsOrderUpdateStatus['steps'] }}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type IVA SMS Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Email type IVA SMS Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -180,7 +180,7 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Order update status']) && $magentoOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Magento Order update status']->first())
                                     {{ $magentoOrderUpdateStatus['steps'] }}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Order update status" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                 @else
                                     -
                                 @endif
@@ -189,9 +189,9 @@
                             <td style="overflow-wrap: anywhere;">
                                 @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Error']) && $magentoError = $groupedLogs[$orderJourneyData->order_id]['Magento Error']->first())
                                     {{ $magentoError['steps'] }}
-                                    <i class="fa fa-eye step-history-icon" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
+                                    <i class="fa fa-eye step-history-icon" style="cursor: pointer;" title="Step histories" data-toggle="modal" data-target="#stepHistoryModal" data-step-name="Magento Error" data-order-id="{{ $orderJourneyData->order_id }}"></i>
                                     @if (isset($magentoError['error_msg']) && $magentoError['error_msg'] != "")
-                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $magentoError['error_msg'] }}"></i>
+                                    <i class="fa fa-info-circle" style="cursor: pointer;" title="View Error Message" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $magentoError['error_msg'] }}"></i>
                                     @endif
                                 @else
                                     -
