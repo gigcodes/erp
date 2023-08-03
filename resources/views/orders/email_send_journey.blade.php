@@ -61,7 +61,6 @@
                         </tr>
                     </thead>
                     <tbody id="order-email-journey-table-body">
-                        
                         @foreach ($orderJourney as $orderJourneyData)
                             <tr>
                                 <td>
@@ -103,32 +102,56 @@
                                 ?>
 
                                 <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Status Change'][0]['steps'] ?? "-" }}
-                                </td>
-
-                                <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type via Order update status'][0]['steps'] ?? "-" }}
-                                </td>
-
-                                <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['steps'] ?? "-" }}
-                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg']) && $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg'] != "")
-                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $groupedLogs[$orderJourneyData->order_id]['Email type via Error'][0]['error_msg'] }}"></i>
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Status Change']) && $statusChange = $groupedLogs[$orderJourneyData->order_id]['Status Change']->first())
+                                        {{ $statusChange['steps']}}
+                                    @else
+                                        -
                                     @endif
                                 </td>
 
                                 <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status'][0]['steps'] ?? "-" }}
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']) && $emailTypeViaOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type via Order update status']->first())
+                                        {{ $emailTypeViaOrderUpdateStatus['steps']}}
+                                    @else
+                                        -
+                                    @endif
                                 </td>
 
                                 <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Magento Order update status'][0]['steps'] ?? "-" }}
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type via Error']) && $emailTypeViaError = $groupedLogs[$orderJourneyData->order_id]['Email type via Error']->first())
+                                        {{ $emailTypeViaError['steps'] }}
+                                        @if (isset($emailTypeViaError['error_msg']) && $emailTypeViaError['error_msg'] != "")
+                                        <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $emailTypeViaError['error_msg'] }}"></i>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
                                 </td>
 
                                 <td style="overflow-wrap: anywhere;">
-                                    {{ $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['steps'] ?? "-" }}
-                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg']) && $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg'] != "")
-                                    <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $groupedLogs[$orderJourneyData->order_id]['Magento Error'][0]['error_msg'] }}"></i>
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']) && $emailTypeViaIVASmsOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Email type IVA SMS Order update status']->first())
+                                        {{ $emailTypeViaIVASmsOrderUpdateStatus['steps'] }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Order update status']) && $magentoOrderUpdateStatus = $groupedLogs[$orderJourneyData->order_id]['Magento Order update status']->first())
+                                        {{ $magentoOrderUpdateStatus['steps'] }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+
+                                <td style="overflow-wrap: anywhere;">
+                                    @if (isset($groupedLogs[$orderJourneyData->order_id]['Magento Error']) && $magentoError = $groupedLogs[$orderJourneyData->order_id]['Magento Error']->first())
+                                        {{ $magentoError['steps'] }}
+                                        @if (isset($magentoError['error_msg']) && $magentoError['error_msg'] != "")
+                                        <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="modal" data-target="#errorModal" data-full-html="{{ $magentoError['error_msg'] }}"></i>
+                                        @endif
+                                    @else
+                                        -
                                     @endif
                                 </td>
                                 

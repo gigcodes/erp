@@ -80,6 +80,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
 use App\PurchaseProductOrder;
 use App\StatusMapping;
+use DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -3019,7 +3020,11 @@ class OrderController extends Controller
     public function getOrderEmailSendJourneyLog(Request $request)
     {
         try {
-            $orderJourney = OrderEmailSendJourneyLog::groupBy('order_id')->get();
+            $orderJourney = OrderEmailSendJourneyLog::whereIn('id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('order_email_send_journey_logs')
+                    ->groupBy('order_id');
+            })->get();
 
             $logs = OrderEmailSendJourneyLog::all();
 
