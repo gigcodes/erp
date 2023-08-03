@@ -4127,15 +4127,16 @@ class TwilioController extends FindByNumberController
         if ($request->web_site_id) {
             $store_websites = $store_websites->where('store_websites.id', $request->web_site_id);
         }
+        if ($request->website_ids) {
+            $store_websites = $store_websites->whereIn('store_websites.id', $request->website_ids);
+        }
         $store_websites = $store_websites->get();
         $web_id = $request->website_store_id;
         $web_site_id = $request->web_site_id;
 
         $twilio_key_arr = [];
         $html = '';
-        if ($request->website_ids) {
-            $store_websites = $store_websites->whereIn('store_websites.id', $request->website_ids);
-        }
+      
         //if($keydata)
 
         //{
