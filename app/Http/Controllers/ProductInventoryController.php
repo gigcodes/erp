@@ -76,6 +76,20 @@ class ProductInventoryController extends Controller
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
+    // Function to flatten the 3-level array into a 2-level array
+    public function flattenCategories($array, &$result = []) {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $result[$key] = 0;
+                // Recursive call to flatten the next level
+                $this->flattenCategories($value, $result);
+            } else {
+                // Assign the value to the flattened array
+                $result[$key] = $value;
+            }
+        }
+    }
+
     public function list(Request $request, Stage $stage)
     {
         $category_tree = [];
@@ -84,8 +98,12 @@ class ProductInventoryController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    if (isset($category_tree[$parent->parent_id][$parent->id])) {
-                        $category_tree[$parent->parent_id][$parent->id][$category->id];
+                    if (isset($category_tree[$parent->parent_id][$parent->id]) && is_array($category_tree[$parent->parent_id][$parent->id])) {
+                        // Make sure the third level exists before assignment
+                        $category_tree[$parent->parent_id][$parent->id][$category->id] = 0; // Change 0 to the desired value
+                    } else {
+                        // If the third level doesn't exist, initialize it as an empty array before assignment
+                        $category_tree[$parent->parent_id][$parent->id] = [$category->id => 0]; // Change 0 to the desired value
                     }
                 } else {
                     $category_tree[$parent->id][$category->id] = 0;
@@ -94,6 +112,17 @@ class ProductInventoryController extends Controller
         }
 
         // dd($category_tree);
+
+        // Flatten the $category_tree array into a 2-level array
+        // Loop through each category and flatten its subcategories
+        foreach ($category_tree as $category_id => $subcategories) {
+            // Create a temporary array to store the flattened subcategories
+            $flattened_subcategories = [];
+            $this->flattenCategories($subcategories, $flattened_subcategories);
+            
+            // Replace the first level keys with the flattened subcategories
+            $category_tree[$category_id] = $flattened_subcategories;
+        }
 
         $brands_array = Brand::getAll();
         $products_brands = Product::latest()
