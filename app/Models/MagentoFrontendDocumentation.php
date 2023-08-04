@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\SiteDevelopmentCategory;
 use App\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MagentoFrontendDocumentation extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     public $table = 'magento_frontend_docs';
 

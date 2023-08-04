@@ -13,14 +13,19 @@
 				{{ Form::model($input, array('method'=>'get', 'url'=>route('twilio.erp_logs'), 'class'=>'form-inline')) }}
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Caller</label>
-						{{Form::text('caller', null, array('class'=>'form-control'))}}
+						{{Form::text('caller', isset($input['caller']) ? $input['caller'] : null, array('class'=>'form-control'))}}
                     </div>
 					<div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Log</label>
 						{{Form::text('log', null, array('class'=>'form-control'))}}
                     </div>
-					<div class="form-group ml-3 cls_filter_inputbox margin-top">
+					<div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Created At</label>
+						{{Form::date('date', null, array('class'=>'form-control'))}}
+                    </div>
+					<div class="form-group ml-3 cls_filter_inputbox margin-top"><br>
 						<button type='submit' class="btn btn-default">Search</button>
+						<a href="{{route('twilio.erp_logs')}}" class="btn btn-default">Clear</a>
                     </div>
 				</form>
             </div>

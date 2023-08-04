@@ -38,6 +38,7 @@ Route::group([
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
+    Route::get('/download-file/{fileName}', [StoreWebsiteController::class, 'downloadFile'])->name('store-website.downloadFile');
     Route::get('/{id}/download/{type}/', [StoreWebsiteController::class, 'downloadDbEnv'])->name('store-website.downloadDbEnv');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
@@ -80,7 +81,7 @@ Route::group([
     Route::group([
         'prefix' => '{id}',
     ], function () {
-        Route::post('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
+        Route::get('/download-db-env-logs', [StoreWebsiteController::class, 'getDownloadDbEnvLogs']);
         Route::post('/run-file-permissions', [StoreWebsiteController::class, 'runFilePermissions']);
         Route::post('/clear-cloudflare-caches', [StoreWebsiteController::class, 'clearCloudflareCaches']);
         Route::post('/magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);

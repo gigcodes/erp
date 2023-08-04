@@ -638,6 +638,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
     Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
+    Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class,'magentofrontenddelete'])->name('magento-frontend.destroy');
+
 
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
@@ -1181,6 +1183,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/statuscolor', [ReplyController::class, 'statusColor'])->name('reply.statuscolor');
     Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
@@ -1544,6 +1547,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
@@ -1585,6 +1589,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
+    Route::post('sendgrid/email/events/color', [EmailController::class, 'eventColor'])->name('email.event.color');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
     Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
