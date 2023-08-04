@@ -83,10 +83,15 @@
 <div class="col-12 mb-3 mt-4">
   <div class="pull-left">
     <form class="form-inline" >
-        <div class="form-group ">
+      <div class="form-group ">
+        <input id="sender-email" name="sender_email" type="text" class="form-control"
+               value="<?php if(Request::get('sender_email')) echo Request::get('sender_email'); ?>"
+               placeholder="Sender Email">
+      </div>
+        <div class="form-group px-2">
           <input id="email" name="email" type="text" class="form-control"
                  value="<?php if(Request::get('email')) echo Request::get('email'); ?>"
-                 placeholder="Email">
+                 placeholder="Receiver Email">
         </div>
         
 		
@@ -120,7 +125,8 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Email</th>
+            <th>Sender</th>
+            <th>Receiver</th>
             <th>Processed</th>
             <th>Dropped</th>
             <th>Deferred</th>
@@ -140,6 +146,7 @@
           
             <tr style="background-color: {{$email->event_color}}!important;">
               <td>{{ $email->id }}</td>
+              <td>{{ $email->sender?->from }}</td>
               <td>{{ $email->email }}</td>
               
                 @if ($email->event == 'processed')

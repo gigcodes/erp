@@ -1439,6 +1439,14 @@ class EmailController extends Controller
         if (! empty($request->email)) {
             $events = $events->where('email', 'like', '%' . $request->email . '%');
         }
+        
+        if (!empty($sender_email = $request->sender_email)) {
+            $events = $events->whereHas('sender', function ($query) use($sender_email) {
+                // Define the condition for filtering the related emails
+                $query->where('from', $sender_email);
+            });
+        }
+
         if (! empty($request->event)) {
             $events = $events->where('event', 'like', '%' . $request->event . '%');
         }
