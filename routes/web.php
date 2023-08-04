@@ -3071,6 +3071,10 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
     Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
+    Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
+    Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
+    Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
