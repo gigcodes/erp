@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
 use App\TaskCategory;
 use App\ProductSupplier;
+use App\DocumentCategory;
 use App\Platform;
 use DB;
 
@@ -677,6 +678,35 @@ class Select2Controller extends Controller
                 $result['items'][] = [
                     'id' => $uniqueSizeSystem,
                     'text' => $uniqueSizeSystem,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+                    
+    public function shortcutdocumentCategory(Request $request)
+    {
+        $categories = DocumentCategory::select('id', 'name')->get();
+
+        if (!empty($request->q)) {
+            $categories->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+
+        if (empty($categories)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'category not available',
+            ];
+        } else {
+            foreach ($categories as $category) {
+                $result['items'][] = [
+                    'id' => $category->id,
+                    'text' => $category->name,
                 ];
             }
         }
