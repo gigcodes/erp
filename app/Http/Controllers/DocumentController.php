@@ -626,4 +626,14 @@ class DocumentController extends Controller
             'emailAddresses' => $emailAddresses,
         ]);
     }
+
+    public function listShorcut(Request $request)
+    {
+        $datas = Document::latest()->get();
+        
+        return response()->json([
+            'tbody' => view('partials.modals.list-documentation-shortcut-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
+    }
 }

@@ -932,6 +932,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Create Documentation" type="button" id="create-documents" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                     <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -4735,6 +4737,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.short-cut-notes-alerts-modal')
         @include('code-shortcut.partials.short-cut-notes-create')
         @include('partials.modals.pull-request-alerts-modal')
+        @include('partials.modals.list-documetation-shortcut-modal')
+        @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
@@ -8061,6 +8065,37 @@ if (!\Auth::guest()) {
       function changePageForShortCut(pageNumber) {
         getShortcutNotes(pageNumber);
       }
+
+      $(document).on('click','#create-documents',function(e){
+        e.preventDefault();
+        $('#short-cut-documentation-modal').modal('show');
+        getDocumentations(true);
+    });
+
+    function getDocumentations(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('documentShorcut.list')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#list-documentation-shortcut-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#short-cut-documentation-modal').modal('show');
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function showdocumentCreateModal() {
+      $('#short-cut-documentation-modal').modal('hide');
+      $('#documentaddModal').modal('show');
+    }
 
     $(document).on('click','#event-alerts',function(e){
         e.preventDefault();
