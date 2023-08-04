@@ -103,6 +103,10 @@
 
 						   	<button type="button" class="btn btn-xs btn-image  btn-download-db-env mt-1"   data-id="{{>prop.id}}" data-type="db" title="Download Database">
 								<img src="/images/database-download-icon.png" style="color:gray;"> 
+								<span class="loader" style="display: none;">
+									<!-- Add your loading spinner icon here -->
+									<i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+								</span>
 							</button>
 
 						   	<button type="button" class="btn btn-xs btn-image  btn-download-db-env mt-1"   data-id="{{>prop.id}}" data-type="env" title="Download Env File">
