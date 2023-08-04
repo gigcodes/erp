@@ -19,6 +19,7 @@ use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
 use App\TaskCategory;
+use App\ProductSupplier;
 use App\DocumentCategory;
 use App\Platform;
 use DB;
@@ -626,6 +627,64 @@ class Select2Controller extends Controller
         return response()->json($result);
     }
 
+    public function productColors(Request $request)
+    {
+        $uniqueColorsQuery = ProductSupplier::distinct('color');
+
+        if (!empty($request->q)) {
+            $uniqueColorsQuery->where('color', 'LIKE', '%' . $request->q . '%');
+        }
+    
+        $uniqueColors = $uniqueColorsQuery->pluck('color');
+    
+        $result = [];
+    
+        if ($uniqueColors->isEmpty()) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'Supplier not available',
+            ];
+        } else {
+            foreach ($uniqueColors as $uniqueColor) {
+                $result['items'][] = [
+                    'id' => $uniqueColor,
+                    'text' => $uniqueColor,
+                ];
+            }
+        }
+    
+        return response()->json($result);
+    }
+
+    public function producsizeSystem(Request $request)
+    {
+        $uniqueSizeQuery = ProductSupplier::distinct('size_system');
+
+        if (!empty($request->q)) {
+            $uniqueSizeQuery->where('size_system', 'LIKE', '%' . $request->q . '%');
+        }
+    
+        $uniqueSizeSystems = $uniqueSizeQuery->pluck('size_system');
+    
+        $result = [];
+    
+        if ($uniqueSizeSystems->isEmpty()) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'Supplier not available',
+            ];
+        } else {
+            foreach ($uniqueSizeSystems as $uniqueSizeSystem) {
+                $result['items'][] = [
+                    'id' => $uniqueSizeSystem,
+                    'text' => $uniqueSizeSystem,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+                    
     public function shortcutdocumentCategory(Request $request)
     {
         $categories = DocumentCategory::select('id', 'name')->get();
@@ -653,9 +712,7 @@ class Select2Controller extends Controller
         }
 
         return response()->json($result);
-
     }
-    
     public function vochuerPlatform(Request $request)
     {
         $platforms = Platform::get()->pluck('name', 'id');

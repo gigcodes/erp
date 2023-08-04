@@ -37,8 +37,8 @@
 				<button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
 				   <img src="{{ asset('images/search.png') }}" alt="Search">
 			   </button>
-				<a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-				<a href="{{route('website.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>		
+			   <a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+			   <a href="{{route('website.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>
 			</div>
 		</form>
 	</div>
