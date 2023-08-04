@@ -32,6 +32,10 @@ class PostmanApiIssueFixDoneHistory extends Model
             return "Yes";
         }
 
+        if ($this->old_value === 2) {
+            return "Lead Verified";
+        }
+
         return "-";
     }
 
@@ -44,6 +48,10 @@ class PostmanApiIssueFixDoneHistory extends Model
 
         if ($this->new_value === 1) {
             return "Yes";
+        }
+
+        if ($this->new_value === 2) {
+            return "Lead Verified";
         }
 
         return "-";

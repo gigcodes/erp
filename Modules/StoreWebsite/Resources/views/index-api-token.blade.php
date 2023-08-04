@@ -22,23 +22,31 @@
 	<br>
 	<div class="col-lg-12 margin-tb" id="page-view-result">
 		<div class="col-lg-12 pl-5 pr-5">
-			<div style="display:flex !important; float:right !important;">
-				<a href="#" class="btn btn-xs btn-secondary generate-api-tokens">Generate API Tokens</a>
-				<input type="text" class="form-control api-token-search" name="search"
-															placeholder="Search">
+			<div style="display: flex !important; float: right !important;">
+				<div style="width: 150px;"> <!-- Add a fixed width to the wrapping div -->
+					<a href="#" class="btn btn-xs btn-secondary generate-api-tokens">Generate API Tokens</a>
+				</div>
+				&nbsp;&nbsp;
+				<input type="text" class="api-token-search" name="search" placeholder="Search">
 				&nbsp;
-				<button style="display: inline-block;width: 10%"
-						class="btn btn-sm btn-image btn-secondary btn-search-api-token">
+				<select class="form-control select2" name="store_ids" id="store_ids" multiple="multiple" style="width: 200px;">
+					<option id="opdefault" value=""> Please select Websites</option>
+					@if(!empty($storeWebsites))
+						@foreach($storeWebsites as $key => $storeWebsite)
+							<option data-id="" value="{{ $storeWebsite->id}}"> {{ $storeWebsite->title }} </option>
+						@endforeach
+					@endif
+				</select>
+				<button style="display: inline-block; width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-api-token">
 					<img src="/images/search.png" style="cursor: default;">
 				</button>
 				&nbsp;
-				<button style="display: inline-block;width: 10%"
-						class="btn btn-sm btn-image btn-secondary btn-refresh-api-token">
+				<button style="display: inline-block; width: 10%" class="btn btn-sm btn-image btn-secondary btn-refresh-api-token">
 					<img src="/images/resend2.png" style="cursor: default;">
 				</button>
-				
 			</div>
 		</div>
+	</div>
 	
 		<div class="col-lg-12 pl-5 pr-5">
 			<form action="/store-website/generate-api-token" method="post">
@@ -190,6 +198,8 @@
 
 <script type="text/javascript">
 
+$('.select2').select2();
+
     $(document).ready(function() {
         $("#permission_user").select2();
     });
@@ -324,13 +334,15 @@
 
 	$(document).on('click','.btn-search-api-token',function(){
 		src = '/store-website/get-api-token'
-		search = $('.api-token-search').val()
+		search = $('.api-token-search').val();
+		store_ids = $('#store_ids').val();
 		$.ajax({
 			url: src,
 			dataType: "json",
 			type: "GET",
 			data: {
 				search : search,
+				store_ids:store_ids
 			},
 			beforeSend: function () {
 				$("#loading-image").show();
