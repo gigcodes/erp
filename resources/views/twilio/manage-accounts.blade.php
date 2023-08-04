@@ -34,6 +34,55 @@
                     </div>
             </h2>
         </div>
+        <div class="mt-3 col-md-12">
+            <form action="{{route('twilio-manage-accounts')}}" method="get" class="search">
+                <div class="col-md-2 pd-sm">
+                    <h5>Search Email ID</h5>
+                    <select class="form-control globalSelect2" multiple="true" id="twilicondition_email" name="twilicondition_email[]" placeholder="Twilio Credential">
+                        @foreach($twiliconditionsemails as $twiliconditionsemail)
+                        <option value="{{ $twiliconditionsemail}}" 
+                         @if(is_array(request('twilicondition_email')) && in_array($twiliconditionsemail, request('twilicondition_email')))
+                            selected
+                        @endif >{{ $twiliconditionsemail }}</option>
+                        @endforeach
+                      </select>
+                </div>        
+                <div class="col-lg-2">
+                    <h5>Search Account ID</h5>
+                    <select class="form-control globalSelect2" multiple="true" id="account_id" name="account_id[]" placeholder="Twilio Credential">
+                        @foreach($twiliAccountIds as $twiliAccountId)
+                            <option value="{{ $twiliAccountId }}" 
+                                @if(is_array(request('account_id')) && in_array($twiliAccountId, request('account_id')))
+                                    selected
+                                @endif
+                            >{{ $twiliAccountId }}</option>
+                        @endforeach
+                    </select>
+                    
+                 </div>
+                <div class="col-lg-2">
+                    <h5>Search Auth Token</h5>
+                    <select class="form-control globalSelect2" multiple="true" id="auth_token" name="auth_token[]" placeholder="Twilio Credential">
+                        @foreach($twiliAuthTokens as $twiliAuthToken)
+                        <option value="{{ $twiliAuthToken}}" 
+                        @if(is_array(request('auth_token')) && in_array($twiliAuthToken, request('auth_token')))
+                            selected
+                        @endif >{{ $twiliAuthToken}}</option>
+                        @endforeach
+                      </select>  
+                 </div>
+                <div class="col-lg-2">
+                    <h5>Search Recovery Code</h5>	
+                    <input class="form-control" type="text" id="recovery_code" placeholder="Search Recovery Code" name="recovery_code" value="{{ (request('recovery_code') ?? "" )}}">
+                </div>
+                <div class="col-lg-2"><br><br>
+                    <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                       <img src="{{ asset('images/search.png') }}" alt="Search">
+                   </button>
+                   <a href="{{route('twilio-manage-accounts')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                </div>
+            </form>
+        </div>
     </div>
     @include('partials.flash_messages')
     <div class="row ml-3 mr-3">
