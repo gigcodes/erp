@@ -69,16 +69,13 @@
 						<br>
 						<br>
 						<button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
-					</div>
-					<div class="col-md-2">
-						<br>
-						<br>
 						<button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
 					</div>
 				</div>
 			</div>
 		</div>
 		<div class="pull-right pr-4">
+			<a href="/code-shortcuts/folder/list" class="btn btn-secondary ">+Add Folder</a>
 			<button type="button" class="btn btn-secondary create-platform-btn" data-toggle="modal" data-target="#code-shortcut-platform">+ Add Platform</button>
 			<button type="button" class="btn btn-secondary create-product-template-btn" data-toggle="modal" data-target="#create_code_shortcut">+ Add Code</button>
 		</div>
@@ -93,6 +90,44 @@
 	</div>
 </div>
 
+<div class="col-12">
+    <h3>Assign Permission to User</h3>
+    <form class="form-inline" id="update_user_permission" action="/code-shortcuts/folder/user/permission" method="POST">
+      <div class="form-group">
+        <div class="input-group">
+          <select name="per_folder_name" class="form-control" id="per_folder_name" required>
+            <option value="">--select folder for Permission--</option>
+            <?php
+            $ops = 'id';
+            foreach ($folders as $folder) {
+              $selected  = '';
+              if ($folder->id == request('per_folder_name'))
+                $selected  = 'selected';
+              echo '<option value="' . $folder->id . '" ' . $selected . '>' . $folder->name . '</option>';
+            }
+            ?>
+          </select>
+        </div>
+      </div> &nbsp;&nbsp;&nbsp;
+      <div class="form-group">
+        <div class="input-group">
+          <select name="per_user_name" class="form-control" id="per_user_name" required>
+            <option value="">--select user for Permission--</option>
+            <?php
+            foreach ($users as $user) {
+              $selected  = '';
+              if ($user->id == request('per_user_name'))
+                $selected  = 'selected';
+              echo '<option value="' . $user->id . '" ' . $selected . '>' . $user->name . '</option>';
+            }
+            ?>
+          </select>
+        </div>
+      </div> &nbsp;&nbsp;
+      <button type="submit" class="btn custom-button update-userpermission">Update User Permission</button>
+    </form>
+  </div>
+
 <div class="row">
     <div class="col-md-12">
         <div class="pull-right pr-4">
@@ -103,6 +138,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
+					<th>Folder name</th>
                     <th>Platform name</th>
                     <th>Website</th>
                     <th>Title</th>
@@ -167,6 +203,17 @@
 								<option value="0">Selet Platform</option>
 								@foreach($platforms as $platform)
 								<option value="{{$platform->id}}">{{$platform->name}}</option>
+								@endforeach
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label>Folder Name</label>
+							<select name="folder_id" class="form-control code" id="folder_id">
+								<option value="0">Selet Platform</option>
+								@foreach($folders as $folder)
+								<option value="{{$folder->id}}">{{$folder->name}}</option>
 								@endforeach
 							</select>
 						</div>
@@ -296,12 +343,56 @@
 			$('#codetitle').val($(this).attr("data-title"));
 			$('#solution').val($(this).attr("data-solution"));
 			$('#platform_id').val($(this).attr("data-platformId"));
+			$('#folder_id').val($(this).attr("data-folderId"));
 			var imageUrl = $(this).attr("data-shortcutfilename"); 
 			var image = "./codeshortcut-image/" + imageUrl; 
 			$('#filename').attr('src', image);
 			$('#edit_code_shortcut').modal('show');
 		})
 	});
+
+	$(document).on("click", ".update-userpermission", function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		var id = $this.data('id');
+		var per_folder_name = $('#per_folder_name').val();
+		var per_user_name = $('#per_user_name').val();
+		if (per_folder_name && per_user_name) {
+		$.ajax({
+			url: "{{route('folder.permission')}}",
+			type: "post",
+			headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: {
+			per_folder_name: per_folder_name,
+			per_user_name: per_user_name
+			}
+
+		}).done(function(response) {
+			$('#loading-image').hide();
+			if (response.code = '200') {
+			toastr['success'](response.message, 'success');
+			location.reload();
+			} else {
+			toastr['error'](response.message, 'error');
+			}
+		}).fail(function(errObj) {
+			$('#loading-image').hide();
+			toastr['error'](errObj.message, 'error');
+		});
+		} else {
+		if (per_folder_name == '')
+			$('#per_folder_name').addClass("alert alert-danger");
+		if (per_user_name == '')
+			$('#select2-per_user_name-container').addClass("alert alert-danger");
+		setTimeout(function() {
+			$('#per_folder_name').removeClass("alert alert-danger");
+			$('#select2-per_user_name-container').removeClass("alert alert-danger");
+		}, 1000);
+		toastr['error']("Please Select Required fileds", 'error');
+		}
+  	});
 </script>
 
 @endsection

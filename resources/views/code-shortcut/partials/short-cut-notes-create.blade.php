@@ -58,6 +58,12 @@
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
+                                <label>Folder Name</label>
+                                <?php echo Form::select("folder_id",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.shortcutfolders'), 'data-placeholder' => 'Folders']); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
                                 <strong>Upload File</strong>
                                 <input type="file" name="notesfile" id="shortnotefileInput" >
                             </div>
@@ -84,7 +90,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Description</label>
-                                <?php echo Form::text('description', null, ['class' => 'form-control description', 'required' => 'true', 'value' => "{{old('description')}}"]); ?>
+                                <?php echo Form::text('description', null, ['class' => 'form-control description', 'value' => "{{old('description')}}"]); ?>
                             </div>
                         </div>
                     </div>

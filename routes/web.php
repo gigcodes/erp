@@ -2803,7 +2803,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
         Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
         Route::get('/shortcut/notes', [CodeShortcutController::class, 'getShortcutnotes'])->name('code.get.Shortcut.notes');
-
+        Route::get('/folder/list', [CodeShortcutController::class, 'shortcutListFolder'])->name('code.get.Shortcut.folder.list');
+        Route::Post('/folder/create', [CodeShortcutController::class, 'shortcutCreateFolder'])->name('code.get.Shortcut.folder.create');
+        Route::post('/folder/edit', [CodeShortcutController::class, 'shortcutEditFolder']);
+        Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
+        Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
     });
 
 
@@ -5060,7 +5064,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
-
+    Route::get('shortcut-folders', [Select2Controller::class, 'shortcutFolders'])->name('select2.shortcutfolders');
 
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');

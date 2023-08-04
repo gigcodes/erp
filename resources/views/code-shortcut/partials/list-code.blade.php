@@ -1,7 +1,8 @@
 	@foreach($codeshortcut as $code)
 	<tr>
 		<td>{{$code->id}}</td>
-		<td>{{$code->code_shortcuts_platform_id == null ?'':$code->platform->name}}</td>
+		<td>{{$code->folder_id == null ? '' : $code->folder->name}}</td>
+		<td>{{$code->code_shortcuts_platform_id == null ? '': $code->platform->name}}</td>
 		<td>{{$code->website}}</td>
 		<td>{{$code->title}}</td>
 		<td>{{$code->code}}</td>
@@ -16,7 +17,7 @@
 		<td>-</td>
 		@endif
 		<td>
-			<a class="btn btn-image edit_modal" data-id="{{$code->id}}" data-code="{{$code->code}}" data-des="{{$code->description}}" data-supplier="{{$code->supplier_id}}" data-title="{{$code->title}}" data-solution="{{$code->solution}}"  data-platformId="{{$code->code_shortcuts_platform_id}}" data-shortcutfilename="{{ $code->filename }}"><img src="/images/edit.png" style="cursor: default; width: 16px;"></a>
+			<a class="btn btn-image edit_modal" data-id="{{$code->id}}" data-code="{{$code->code}}" data-des="{{$code->description}}" data-supplier="{{$code->supplier_id}}" data-title="{{$code->title}}" data-solution="{{$code->solution}}"  data-platformId="{{$code->code_shortcuts_platform_id}}" data-shortcutfilename="{{ $code->filename }}" data-folderId = "{{$code->folder_id}}"><img src="/images/edit.png" style="cursor: default; width: 16px;"></a>
 			<button class="btn btn-image" onclick="confirmDelete('{{$code->code}}','{{route('code-shortcuts.destory',$code->id)}}')" ><img src="/images/delete.png" style="cursor: default; width: 16px;"></button>
 		</td>
 

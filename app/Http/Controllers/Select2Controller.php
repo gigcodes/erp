@@ -19,6 +19,7 @@ use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
 use App\TaskCategory;
+use App\Models\CodeShortcutFolder;
 
 class Select2Controller extends Controller
 {
@@ -616,6 +617,36 @@ class Select2Controller extends Controller
                 $result['items'][] = [
                     'id' => $dataSupplier->id,
                     'text' => $dataSupplier->supplier,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function shortcutFolders(Request $request)
+    {
+        $dataFolderNames = CodeShortcutFolder::select('id', 'name')->get();
+
+        if (!empty($request->q)) {
+            $dataFolderNames->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+
+        $result = [];
+
+        if (empty($dataFolderNames)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'FolderName not available',
+            ];
+        } else {
+            foreach ($dataFolderNames as $dataFolderName) {
+                $result['items'][] = [
+                    'id' => $dataFolderName->id,
+                    'text' => $dataFolderName->name,
                 ];
             }
         }
