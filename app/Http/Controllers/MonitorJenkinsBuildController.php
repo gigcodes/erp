@@ -39,12 +39,9 @@ class MonitorJenkinsBuildController extends Controller
         } 
 
         if ($request->get('id_sort_by')) {
-            if ($request->get('id_sort_by') === "desc") {
-                $monitorJenkinsBuilds = $monitorJenkinsBuilds->orderBy('id', 'desc');
-            }
-            if ($request->get('id_sort_by') === "asc") {
-                $monitorJenkinsBuilds = $monitorJenkinsBuilds->orderBy('id', 'asc');
-            }
+                $monitorJenkinsBuilds = $monitorJenkinsBuilds->orderBy('id', $request->get('id_sort_by'));
+        } else {
+            $monitorJenkinsBuilds =  $monitorJenkinsBuilds->orderBy('created_at', 'desc');
         }
 
             $monitorJenkinsBuilds = $monitorJenkinsBuilds->paginate(10);

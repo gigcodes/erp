@@ -160,12 +160,10 @@
                                         {{ $responseLog->initiate_from }}
                                     </span>
                                 </td>
-                                <td class="expand-row" style="word-break: break-all">
+                                <td style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($responseLog->text) > 30 ? substr($responseLog->text, 0, 30).'...' :  $responseLog->text }}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                        {{ $responseLog->text }}
+                                       {{ strlen($responseLog->text) > 10 ? substr($responseLog->text, 0, 10).'...' :  $responseLog->text }}
+								       <i class="fa fa-eye show_logs show-full-text" data-full-text="{{ nl2br($responseLog->text) }}" style="color: #808080;float: right;"></i>
                                     </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
@@ -222,6 +220,37 @@
     </div>
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="show_full_text_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Text</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="show_full_text_modal_content">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+@section("styles")
+<style>
+    /* CSS to make specific modal body scrollable */
+    #show_full_text_modal .modal-body {
+      max-height: 400px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+    }
+</style>
 @endsection
 @section('scripts')
 <script>
@@ -231,6 +260,13 @@ $( document ).ready(function() {
         $(this).find('.td-mini-container').toggleClass('hidden');
         $(this).find('.td-full-container').toggleClass('hidden');
     });
+
+    $(document).on('click', '.show-full-text', function() {
+        var fullText = $(this).data('full-text');
+        $('#show_full_text_modal').modal('show');
+        $('#show_full_text_modal_content').html(fullText);
+    });
+
     $(document).on('click', '.show-status-modal', function() {
             var id = $(this).attr('data-id');
             $("#loading-image-preview").show();
