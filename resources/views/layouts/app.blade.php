@@ -932,7 +932,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <a title="Vochuers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
+                                    <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
