@@ -43,13 +43,16 @@
             </div>
         </div>
         <div class="float-right my-3 pr-5">
-            @if(auth()->user()->hasRole('Lead Translator'))
-                <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a>
+            <button class="btn btn-secondary text-white my-3" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+
+            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
+                {{-- ToDo: Have to plan about this, Need to display permission history --}}
+                {{-- <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a> --}}
             @endif
-                @if(auth()->user()->hasRole('Lead Translator'))
+                @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
                 <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
             @endif
-            @if(auth()->user()->hasRole('Lead Translator'))
+            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
                 <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
             @endif
         </div>
@@ -119,6 +122,7 @@
                                         $re_lang = null;
                                         $id = null;
                                         $status = null;
+                                        $status_color = null;
 
                                         if($reply) {
                                             foreach ($reply->translate_text as $key => $translate){
@@ -127,12 +131,13 @@
                                                    $id = $reply->translate_id[$key];
                                                    $re_lang = $reply->translate_lang[$key];
                                                    $status = $reply->translate_status[$key];
+                                                   $status_color = $reply->translate_status_color[$key];
                                                }
                                             }
                                         }
                                     @endphp
                                     @if($text)
-                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$id}}" data-message="{{ $text }}">
+                                        <td style="cursor:pointer; background-color: {{$status_color}}!important;" id="reply_text_translate" data-id="{{$id}}" data-message="{{ $text }}">
                                             <div class="expand-row table-hover-cell" style="word-break: break-all;">
                                                 <div class="td-mini-container">
                                                     {!! strlen($text) > 10 ? substr($text, 0, 10).'..' : $text !!}
@@ -141,7 +146,7 @@
                                                     {{ $text }}
                                                 </div>
                                             </div>
-                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
                                                 <a href="#" class="history_model float-right" data-lang="{{$re_lang}}" data-id="{{$id}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
                                                 @if(!empty($status) && $status == "new")
                                                     <div>
@@ -456,10 +461,13 @@
                     <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Keyword</th>
-                        @foreach ($lang as $reply)
+                        {{-- <th>Keyword</th> --}}
+                        {{-- @foreach ($lang as $reply)
                         <th width="5%">{{$reply}}</th>
-                        @endforeach
+                        @endforeach --}}
+                        <th>Lang</th>
+                        <th>Text</th>
+                        <th>Status</th>
                         <th>Updator</th>
                         <th>Approver</th>
                         <th>Date</th>
@@ -499,6 +507,44 @@
         </div>
     </div>
 </div>
+
+<div id="statusColor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status Color</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('reply.statuscolor') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($replyTranslatorStatuses as $replyTranslatorStatus) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $replyTranslatorStatus->name; ?></td>
+                            <td class="text-center"><?php echo $replyTranslatorStatus->color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $replyTranslatorStatus->id; ?>]" class="form-control" data-id="<?php echo $replyTranslatorStatus->id; ?>" id="color_name_<?php echo $replyTranslatorStatus->id; ?>" value="<?php echo $replyTranslatorStatus->color; ?>" style="height:30px;padding:0px;"></td>
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
 <script type="text/javascript">
 
 $(document).on('click', '.expand-row', function() {
@@ -711,11 +757,11 @@ $(document).on("change",'input:radio[name="radio1"]',function(){
     if($(this).val() == 'checked'){
         id = $(this).data('id');
         language = $(this).data('lang');
-        status = "checked";
+        status = "approved";
     }else if($(this).val() == 'unchecked'){
         id = $(this).data('id');
         language = $(this).data('lang');
-        status = "unchecked";
+        status = "rejected";
     }
     $.ajax({
         url:'{{route('reply.approved_by_admin')}}',

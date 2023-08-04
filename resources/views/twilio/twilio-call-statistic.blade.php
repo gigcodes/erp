@@ -5,36 +5,72 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 @section('large_content')
-   <div class = "row">
-		<div class="col-lg-12 margin-tb">
-			<h2 class="page-heading">Twilio Call Statistic</h2>
-			<div class="pull-left cls_filter_box">
-				{{ Form::model($input, array('method'=>'get', 'url'=>route('twilio.call.statistic'), 'class'=>'form-inline')) }}
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="account_sid">Account sid</label>
-						{{Form::text('search_account_sid', null, array('class'=>'form-control'))}}
-                    </div>
-					<div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Twilio Number</label>
-						{{Form::text('search_twilio_number', null, array('class'=>'form-control'))}}
-                    </div>
-					<div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Customer Number</label>
-						{{Form::text('search_customer_number', null, array('class'=>'form-control'))}}
-                    </div>
-					<div class="form-group ml-3 mt-4">
-						<button type='submit' class="btn btn-default">Search</button>
-						<a href="{{route('twilio.call.statistic')}}" class="btn btn-default">Clear</a>
-                    </div>
-				</form>
-            </div>
-        </div>
-	</div>
-	<div class="row mt-3">
-		<div class="col-11 ">
-			<button type="button" class="delete-all-record btn btn-xs btn-secondary my-3 mx-4" id="select-all-product">Delete All</button>
-		</div>
-	</div>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">Twilio Call Statistic </h2>
+    </div>
+</div>
+<div class="mt-3 col-md-12">
+    {{ Form::model($input, array('method'=>'get', 'url'=>route('twilio.call.statistic'))) }}
+    @csrf
+    <div class="row">
+      <div class="col-md-2 pd-sm">
+        <h5>Account sid</h5>
+        {{Form::text('search_account_sid', null, array('class'=>'form-control'))}}
+      </div>
+      <div class="col-lg-2">
+        <h5>Twilio Number</h5>
+        {{Form::text('search_twilio_number', null, array('class'=>'form-control'))}}
+      </div>
+      <div class="col-lg-2">
+        <h5>Customer Number</h5>
+        {{Form::text('search_customer_number', null, array('class'=>'form-control'))}}
+      </div>
+      <div class="col-lg-2">
+        <h5>Select customer</h5>
+        <select class="form-control globalSelect2" multiple="true" id="customer_names" name="customer_names[]" placeholder="Select Customers">
+          <option value="">Select customer name</option>
+          @foreach($customers as $customer)
+          <option value="{{ $customer->id }}" @if(is_array($reqcustomerNames) && in_array($customer->id, $reqcustomerNames)) selected @endif >{{ $customer->name }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-lg-2">
+        <h5>Twilio Credential</h5>
+        <select class="form-control globalSelect2" multiple="true" id="twilicondition_email" name="twilicondition_email[]" placeholder="Twilio Credential">
+          <option value="">Select Twilio Credential</option>
+          @foreach($twiliconditionsemails as $twiliconditionsemail)
+          <option value="{{ $twiliconditionsemail->id }}" @if(is_array($reqtwiliconditionEmail) && in_array($twiliconditionsemail->id, $reqtwiliconditionEmail)) selected @endif>{{ $twiliconditionsemail->twilio_email }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-lg-2">
+        <h5>Customer Website</h5>
+        <select class="form-control globalSelect2" multiple="true" id="customer_websites" name="customer_websites[]" placeholder="Select Customer Website">
+          <option value="">Select customer Website</option>
+          @foreach($storeWebsites as $storeWebsite)
+          <option value="{{ $storeWebsite->id }}" @if(is_array($reqCustomerWebsites) && in_array($storeWebsite->id, $reqCustomerWebsites)) selected @endif>{{ $storeWebsite->website }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-lg-2">
+        <h5>Twilio Number Website</h5>
+        <select class="form-control globalSelect2" multiple="true" id="twilio_websites" name="twilio_websites[]" placeholder="Select Twilio Number Website">
+          <option value="">Select Twilio Number Website</option>
+          @foreach($storeWebsites as $storeWebsite)
+          <option value="{{ $storeWebsite->id }}" @if(is_array($reqTwilioWebsites) && in_array($storeWebsite->id, $reqTwilioWebsites)) selected @endif>{{ $storeWebsite->website }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-lg-2">
+        <br><br>
+        <button type='submit' class="btn btn-default">Search</button>
+        <a href="{{route('twilio.call.statistic')}}" class="btn btn-default">Clear</a>
+      </div>
+    </div>
+    {{ Form::close() }}
+  </div>
+  
     <div class="row">
         <div class="col-lg-12 margin-tb">
 			<div class="panel-group" style="margin-bottom: 5px;">
@@ -62,6 +98,7 @@
 							</thead>
 							<tbody>
 							@foreach ($twilioCallStatistic as $val )
+                            {{-- @dd($val); --}}
 								<tr id = "row_{{$val->id}}">
 									<td style="width:5%"><Input type="checkbox" id="callId[]" name="callId[]" value="{{$val->id}}"/></td>
 									<td style="width:5%">{{$val->id}}</td>

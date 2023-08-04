@@ -29,6 +29,7 @@ use App\Models\EmailStatusChangeHistory;
 use App\ReplyCategory;
 use App\Reply;
 use App\LogRequest;
+use App\SendgridEventColor;
 
 class EmailController extends Controller
 {
@@ -1438,12 +1439,22 @@ class EmailController extends Controller
         if (! empty($request->email)) {
             $events = $events->where('email', 'like', '%' . $request->email . '%');
         }
+        
+        if (!empty($sender_email = $request->sender_email)) {
+            $events = $events->whereHas('sender', function ($query) use($sender_email) {
+                // Define the condition for filtering the related emails
+                $query->where('from', $sender_email);
+            });
+        }
+
         if (! empty($request->event)) {
             $events = $events->where('event', 'like', '%' . $request->event . '%');
         }
         $events = $events->orderBy('id', 'desc')->paginate(30)->appends(request()->except(['page']));
 
-        return view('emails.event_journey', compact('events'));
+        $eventColors = SendgridEventColor::all();
+
+        return view('emails.event_journey', compact('events', 'eventColors'));
     }
 
     /**
@@ -1762,5 +1773,18 @@ class EmailController extends Controller
 
         $returnHTML = view('emails.replyList')->with('data', $replies)->render();
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
+    }
+
+    public function eventColor(Request $request)
+    {
+        $eventColors = $request->all();
+        $data = $request->except('_token');
+        foreach ($eventColors['color_name'] as $key => $value) {
+            $sendgridEventColor = SendgridEventColor::find($key);
+            $sendgridEventColor->color = $value;
+            $sendgridEventColor->save();
+        }
+
+        return redirect()->back()->with('success', 'The event color updated successfully.');
     }
 }

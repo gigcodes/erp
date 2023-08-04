@@ -934,6 +934,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Create Documentation" type="button" id="create-documents" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                    <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
+                                       <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
                                     <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
@@ -3712,6 +3714,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <a class="dropdown-item"
                                                         href="{{ route('time-doctor.task_creation_logs') }}">Time Doctor Task Creation Logs</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.list-user') }}">Time Doctor List Account</a>
+                                                </li>
                                             </ul>
                                         </li>
 
@@ -4208,6 +4214,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('list.voucher') }}">Vouchers Coupons</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('list.voucher.coupon.code') }}">Vouchers Coupon Code List</a>
                                     </li>
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('get.ip.logs') }}">Ip log</a>
@@ -4725,10 +4735,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.timer-alerts-modal')
         @include('databse-Backup.db-errors-list')
         @include('partials.modals.short-cut-notes-alerts-modal')
-        @include('code-shortcut.partials.short-cut-notes-create');
+        @include('code-shortcut.partials.short-cut-notes-create')
         @include('partials.modals.pull-request-alerts-modal')
         @include('partials.modals.list-documetation-shortcut-modal')
         @include('partials.modals.documentation-create-modal')
+        @include('partials.modals.add-vochuers-modal')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -8393,6 +8404,12 @@ if (!\Auth::guest()) {
             },
             error: function() {}
         });
+    });
+
+
+    $(document).on('click','#add-vochuer',function(e){
+        e.preventDefault();
+        $('#addvoucherModel').modal('show');
     });
 
     $(document).on("click", ".permission-grant", function(e) {
