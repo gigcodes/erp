@@ -4,47 +4,91 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Build process logs</h2>
-        {{-- <div class="pull">
+        <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
-                    <form action="{{ route('project.index') }}" method="get" class="search">
+                <div class="mt-3 col-md-12">
+                    <form action="{{ route('project.buildProcessLogs') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-3 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                            <div class="col-md-2 pd-sm">
+                                <h5>Search projects</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="project-select" name="projects[]" placeholder="Select projects">
+                                    @foreach($projects as $project)
+                                        <option value="{{ $project->id }}" @if(in_array($project->id, $reqproject)) selected @endif>{{ $project->name }}</option>
+                                    @endforeach
+                                </select> 
                             </div>
-                            <div class="col-md-3">
-                                <?php 
-									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
-									else{ $store_websites_search = []; }
-								?>
-								<select name="store_websites_search[]" id="store_websites_search" class="form-control select2" multiple>
-									<option value="" @if($store_websites_search=='') selected @endif>-- Select a Store website --</option>
-									@forelse($store_websites as $swId => $swName)
-									<option value="{{ $swId }}" @if(in_array($swId, $store_websites_search)) selected @endif>{!! $swName !!}</option>
-									@empty
-									@endforelse
-								</select>
+
+                            <div class="col-md-2 pd-sm">                                      
+                                 <h5>Search organizations</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="organizations-select" name="organizations[]" placeholder="Select organizations">
+                                    @foreach($organizations as $organization)
+                                    <option value="{{ $organization->id }}" @if(in_array($organization->id, $reqorganizations)) selected @endif>{{ $organization->name }}</option>
+                                    @endforeach
+                                </select> 
                             </div>
-                            
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
-                                 <button type="submit" class="btn btn-image search">
+                            <div class="col-md-2 pd-sm">                                
+                                <h5>Search Repository</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="repo_ids" name="repo_ids[]" placeholder="Select Repos">
+                                    @foreach($repo_names as $repo_name)
+                                    <option value="{{ $repo_name->id }}"  @if(in_array($repo_name->id, $reqrepoids)) selected @endif>{{ $repo_name->name }}</option>
+                                    @endforeach
+                                </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                                
+                                <h5>Search Build By</h5>	
+                                    <select class="form-control globalSelect2" multiple="true" id="platform-Users" name="users[]" placeholder="Select Users">
+                                        @foreach($users as $user)
+                                        <option value="{{ $user->id }}" @if(in_array($user->id, $requsers)) selected @endif>{{ $user->name }}</option>
+                                        @endforeach
+                                    </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                 <h5>Search Status</h5>	
+                                    <select class="form-control globalSelect2" multiple="true" id="status-select" name="status[]" placeholder="Select Status">
+                                        <option value="SUCCESS" @if(in_array('SUCCESS', $reqstatus)) selected @endif>success</option>
+                                        <option value="FAILURE" @if(in_array('FAILURE', $reqstatus)) selected @endif>failure</option>
+                                        <option value="RUNNING" @if(in_array('RUNNING', $reqstatus)) selected @endif>running</option>
+                                        <option value="WAITING" @if(in_array('WAITING', $reqstatus)) selected @endif>waiting</option>
+                                        <option value="UNSTABLE" @if(in_array('UNSTABLE', $reqstatus)) selected @endif>unstable</option>
+                                        <option value="ABORTED" @if(in_array('ABORTED', $reqstatus)) selected @endif>aborted</option>
+                                    </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                 <h5>Search Branch name</h5>	
+                                <input class="form-control" type="text" id="search_branch_name" placeholder="Search Branch name" name="search_branch_name" value="{{ $reqsBranchName ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                              
+                                <h5>Search Build Number</h5>	
+                                <input class="form-control" type="text" id="search_build_number" placeholder="Search Build Number" name="search_build_number" value="{{ $reqsBuildNumber ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                             
+                                <h5>Search Build Name</h5>	
+                                <input class="form-control" type="text" id="search_build_name" placeholder="Search Build Name" name="search_build_name" value="{{ $reqsBuildName ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                <h5>Search By keyword</h5>	
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                            </div>
+                            <div class="col-md-2 pd-sm"><br>
+                                <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('project.index') }}" class="btn btn-image" id="">
+                                <a href="{{ route('project.buildProcessLogs') }}" class="btn btn-image" id="">
                                     <img src="/images/resend2.png" style="cursor: nwse-resize;">
                                 </a>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
-                    <div class="pull-right">
+                <br>
+                <br>
+                <div class="">
+                    <br>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
-                    </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </div>
 </div>
 
@@ -254,5 +298,8 @@ $( document ).ready(function() {
             });
         });
 });
+
+
+
 </script>
 @endsection
