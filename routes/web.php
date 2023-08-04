@@ -1588,6 +1588,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
+    Route::post('sendgrid/email/events/color', [EmailController::class, 'eventColor'])->name('email.event.color');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
     Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
