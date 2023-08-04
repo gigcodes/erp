@@ -4781,6 +4781,14 @@ class TwilioController extends FindByNumberController
             ->leftjoin('store_websites AS swtc', 'swtc.id', 'twilio_call_statistics.twilio_number_website_id')
             ->orderBy('twilio_call_statistics.id', 'desc');
 
+            $customers = Customer::Select('id', 'name')->get();
+            $twiliconditionsemails = TwilioCredential::Select('id','twilio_email')->get();
+            $storeWebsites = StoreWebsite::Select('id','website')->get();
+            $reqcustomerNames  = $request->customer_names;
+            $reqtwiliconditionEmail  = $request->twilicondition_email;
+            $reqCustomerWebsites  = $request->customer_websites;
+            $reqTwilioWebsites  = $request->twilio_websites;
+            
             if (isset($input['search_account_sid'])) {
                 $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.account_sid', 'like', '%' . $input['search_account_sid'] . '%');
             }
@@ -4790,10 +4798,22 @@ class TwilioController extends FindByNumberController
             if (isset($input['search_customer_number'])) {
                 $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.customer_number', 'like', '%' . $input['search_customer_number'] . '%');
             }
+            if (isset($input['customer_names'])) {
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_id',  $input['customer_names']);
+            }
+            if (isset($input['twilicondition_email'])) {
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_credentials_id',  $input['twilicondition_email']);
+            }
+            if (isset($input['customer_websites'])) {
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_website_id',  $input['customer_websites']);
+            }
+            if (isset($input['twilio_websites'])) {
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_number_website_id',  $input['twilio_websites']);
+            }
             $twilioCallStatistic = $twilioCallStatistic->paginate(20);
             //$twilioCallBlocks = $twilioCallBlocks->get();
             //dd($twilioCallBlocks);
-            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic', 'input'));
+            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic', 'input','customers','storeWebsites','twiliconditionsemails','reqcustomerNames','reqtwiliconditionEmail','reqCustomerWebsites','reqTwilioWebsites'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'please try again');
         }
