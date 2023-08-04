@@ -538,9 +538,28 @@ class ProjectController extends Controller
     public function buildProcessLogs(Request $request, $id= null)
     {
         $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')->select('build_process_histories.*','u.name as usersname');
+        $repo_names = \App\Github\GithubRepository::select('name','id')->get();
+        $organizations = \App\Github\GithubOrganization::select('name','id')->get();
+        $projects = \App\Models\Project::select('name','id')->get();
+        $users = \App\User::select('name','id')->get();
+
+        $reqproject = $request->projects ?? [];
+        $reqorganizations = $request->organizations ?? [];
+        $reqrepoids = $request->repo_ids ?? [];
+        $requsers = $request->users?? [];
+        $reqstatus= $request->status?? [];
+        $reqsBuildNumber= $request->search_build_number ?? " ";
+        $reqsBuildName= $request->search_build_name ?? " ";
+        $reqsBranchName= $request->search_branch_name ?? " ";
+
 
         if($id){
-            $responseLogs->where('store_website_id', $id);
+            $responseValue = $responseLogs->where('store_website_id', $id)->get();
+            $reqproject = $responseValue->pluck('store_website_id')->toArray();
+            $reqstatus = $responseValue->pluck('status')->toArray();
+            $requsers = $responseValue->pluck('created_by')->toArray();
+            $reqorganizations = $responseValue->pluck('github_organization_id')->toArray();
+            $reqrepoids = $responseValue->pluck('github_repository_id')->toArray();
         }
         
         if($request->has('branch') && $request->branch!=''){
@@ -549,6 +568,47 @@ class ProjectController extends Controller
         
         if($request->has('buildby') && $request->buildby!=''){
             $responseLogs->where('created_by', $request->buildby);
+        }
+
+        if($request->projects && $request->projects!=''){
+           $responseLogs =  $responseLogs->WhereIn('build_process_histories.store_website_id', $request->projects);
+        }
+
+        if($request->organizations && $request->organizations!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.github_organization_id', $request->organizations);
+        }
+
+        if($request->repo_ids && $request->repo_ids!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.github_repository_id', $request->repo_ids);
+        }
+
+        if($request->users && $request->users!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.created_by', $request->users);
+        }
+
+        if($request->status && $request->status!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.status', $request->status);
+        }
+        if($request->search_build_number && $request->search_build_number!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.build_number', 'LIKE', '%' . $request->search_build_number . '%');
+        }
+        if($request->search_build_name && $request->search_build_name!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.build_name', 'LIKE', '%' . $request->search_build_name . '%');
+        }
+        if($request->search_branch_name && $request->search_branch_name!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.github_branch_state_name', 'LIKE', '%' . $request->search_branch_name . '%');
+        }
+
+        $keyword = $request->keyword;
+        if (! empty($keyword)) {
+            $monitorServers = $responseLogs->where(function ($q) use ($keyword) {
+                $q->orWhere('build_process_histories.build_number', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.status', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_pr', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.initiate_from', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.text', 'LIKE', '%' . $keyword . '%');
+            });
         }
 
         $responseLogs=$responseLogs->orderBy('id','desc')->paginate(10);
@@ -600,7 +660,8 @@ class ProjectController extends Controller
             }
 
         }
-        return view('project.build-process-logs', compact('responseLogs'));
+
+        return view('project.build-process-logs', compact('responseLogs','repo_names','organizations','projects','users','reqproject','reqorganizations','reqrepoids','requsers','reqstatus','reqsBuildNumber','reqsBuildName','reqsBranchName'));
     }
 
     // Old concept in modal popup

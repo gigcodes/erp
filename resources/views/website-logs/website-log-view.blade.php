@@ -30,7 +30,7 @@
 				<input class="form-control" type="text" id="search_type" placeholder="Search type" name="search_type" value="{{ $search_type ?? '' }}">
 			</div>
 			<div class="col-lg-2">
-				<input class="form-control" type="date" name="date">
+				<input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
 			</div>
 
 			<div class="col-lg-2">

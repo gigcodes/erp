@@ -1183,6 +1183,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/statuscolor', [ReplyController::class, 'statusColor'])->name('reply.statuscolor');
     Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
@@ -1546,6 +1547,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
@@ -1587,6 +1589,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
+    Route::post('sendgrid/email/events/color', [EmailController::class, 'eventColor'])->name('email.event.color');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
     Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
@@ -3068,6 +3071,10 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
     Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
+    Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
+    Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
+    Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -5062,6 +5069,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
     Route::get('shortcut-product-colors', [Select2Controller::class, 'productColors'])->name('select2.productsColors');
     Route::get('shortcut-product-sizesystem', [Select2Controller::class, 'producsizeSystem'])->name('select2.productsSizesystem');
+    Route::get('vocher-platforms', [Select2Controller::class, 'vochuerPlatform'])->name('select2.vochers_platforms');
+    Route::get('vocher-emails', [Select2Controller::class, 'vochuerEmail'])->name('select2.vochers_emails');
+    Route::get('vocher-whatsapp/config', [Select2Controller::class, 'vochuerWhatsappconfig'])->name('select2.vochers_whatsapp_config');
 
 
 });
@@ -5229,6 +5239,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/voucher/code/order/delete', [VoucherCouponController::class, 'couponCodeOrderDelete'])->name('voucher.code.order.delete');
     Route::post('/coupon-type/create', [VoucherCouponController::class, 'coupontypeStore'])->name('voucher.coupon.type.create');
     Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');  
+    Route::get('vouchers/coupon-code/list', [VoucherCouponController::class, 'voucherscouponCodeList'])->name('list.voucher.coupon.code');  
 });
 
 //TODOLIST::
