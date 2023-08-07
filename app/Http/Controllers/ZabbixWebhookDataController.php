@@ -9,6 +9,7 @@ use App\ZabbixWebhookDataStatusHistory;
 use Auth;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ZabbixWebhookDataController extends Controller
 {
@@ -43,12 +44,26 @@ class ZabbixWebhookDataController extends Controller
         $zabbixWebhookDatas = $zabbixWebhookDatas->paginate(10);
 
         $zabbixStatuses = ZabbixStatus::pluck("name", "id")->toArray();
+        $getZabbixStatuses = ZabbixStatus::all();
 
-        return view('zabbix-webhook-data.index', compact('zabbixWebhookDatas', 'zabbixStatuses'));
+        return view('zabbix-webhook-data.index', compact('zabbixWebhookDatas', 'zabbixStatuses','getZabbixStatuses'));
     }
 
     public function storeZabbixStatus(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:zabbix_statuses,name',
+            'color' => 'required',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'status_name' => 'error',
+            ], 422);
+        }
+
         $input = $request->except(['_token']);
 
         $data = ZabbixStatus::create($input);
@@ -114,6 +129,9 @@ class ZabbixWebhookDataController extends Controller
 
             $zaabbixWebhookData->save();
 
+            $statusColour =  ZabbixStatus::find($zaabbixWebhookData->zabbix_status_id);
+            $statusColour =  $statusColour->color;
+
             $history = new ZabbixWebhookDataStatusHistory();
             $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
             $history->old_status_id = $old_status;
@@ -125,6 +143,7 @@ class ZabbixWebhookDataController extends Controller
                 [
                     'status' => 'success',
                     'message' => 'Status updated successfully',
+                    'colourCode' => $statusColour,
                 ], 200
             );
         } catch(Exception $e) {
@@ -147,5 +166,18 @@ class ZabbixWebhookDataController extends Controller
         $zabbixWebhookDatas = $zabbixWebhookDatas->paginate($perPage);
 
         return response()->json($zabbixWebhookDatas);
+    }
+
+    public function StatusColorUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = ZabbixStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }
