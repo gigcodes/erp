@@ -70,8 +70,114 @@ class MagentoModuleController extends Controller
             ->pluck('module', 'module')
             ->toArray();
 
-        if ($request->ajax()) {
-            $items = MagentoModule::with(['lastRemark'])
+        // AJAX logic moved to indexPost function, 
+        // Because facing "414 Request-URI Too Large" error when passing all the filter values in GET method
+        // if ($request->ajax()) {
+        //     $items = MagentoModule::with(['lastRemark'])
+        //         ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+        //         ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+        //         ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
+        //         ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+        //         ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
+        //         ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
+        //         ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
+        //         ->select(
+        //             'magento_modules.*',
+        //             'magento_module_categories.category_name',
+        //             'magento_module_locations.magento_module_locations',
+        //             'magento_module_return_type_error_status.return_type_name',
+        //             'task_statuses.name as task_name',
+        //             'store_websites.website',
+        //             'store_websites.title',
+        //             'users.name as developer_name1',
+        //             'users.id as developer_id'
+        //         )
+        //         ->orderByDesc('magento_modules.module_review_standard')
+        //         ;
+
+        //     if (isset($request->module) && ! empty($request->module)) {
+        //         $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
+        //     }
+
+        //     if (isset($request->user_id) && ! empty($request->user_id)) {
+        //         $items->where('users.user_id', $request->user_id);
+        //     }
+
+        //     if (isset($request->store_website_id) && ! empty($request->store_website_id)) {
+        //         $items->where('magento_modules.store_website_id', $request->store_website_id);
+        //     }
+
+        //     if (isset($request->module_type) && ! empty($request->module_type)) {
+        //         $items->where('magento_modules.module_type', $request->module_type);
+        //     }
+
+        //     if (isset($request->task_status) && ! empty($request->task_status)) {
+        //         $items->where('magento_modules.task_status', $request->task_status);
+        //     }
+
+        //     if (isset($request->is_customized)) {
+        //         $items->where('magento_modules.is_customized', $request->is_customized);
+        //     }
+
+        //     if (isset($request->module_category_id) && ! empty($request->module_category_id)) {
+        //         $items->where('magento_modules.module_category_id', $request->module_category_id);
+        //     }
+        //     if (isset($request->site_impact)) {
+        //         $items->where('magento_modules.site_impact', $request->site_impact);
+        //     }
+
+        //     if (isset($request->modules_status)) {
+        //         $items->where('magento_modules.status', $request->modules_status);
+        //     }
+        //     if (isset($request->dev_verified_by)) {
+        //         $items->whereIn('magento_modules.dev_verified_by', $request->dev_verified_by);
+        //     }
+        //     if (isset($request->lead_verified_by)) {
+        //         $items->whereIn('magento_modules.lead_verified_by', $request->lead_verified_by);
+        //     }
+        //     if (isset($request->dev_verified_status_id)) {
+        //         $items->whereIn('magento_modules.dev_verified_status_id', $request->dev_verified_status_id);
+        //     }
+        //     if (isset($request->lead_verified_status_id)) {
+        //         $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
+        //     }
+        //     if (isset($request->return_type_error_status)) {
+        //         $items->where('magento_modules.return_type_error_status', $request->return_type_error_status);
+        //     }
+        //     $items->groupBy('magento_modules.module');
+        //     return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
+        // } else {
+
+            $title = 'Magento Module';
+            $users = $users->pluck('name', 'id');
+            $module_categories = $module_categories->pluck('category_name', 'id');
+            $module_locations = $module_locations->pluck('magento_module_locations', 'id');
+            $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
+            $task_statuses = $task_statuses->pluck('name', 'id');
+            $store_websites = $store_websites->pluck('website', 'id');
+            $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
+
+
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames', 'module_locations','module_return_type_statuserrors'));
+        // }
+    }
+
+    public function indexPost(Request $request)
+    {
+        if (env('PRODUCTION', true)) {
+            $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
+        } else {
+            $users = User::select('name', 'id')->where('is_active', 1)->orderby('name', 'asc')->get();
+        }
+
+        $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
+        $module_locations = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
+        $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::select('return_type_name', 'id')->get();
+        $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
+        $store_websites = StoreWebsite::select('website', 'id')->get();
+        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
+
+        $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
                 ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
@@ -90,8 +196,7 @@ class MagentoModuleController extends Controller
                     'users.name as developer_name1',
                     'users.id as developer_id'
                 )
-                ->orderByDesc('magento_modules.module_review_standard')
-                ;
+                ->orderByDesc('magento_modules.module_review_standard');
 
             if (isset($request->module) && ! empty($request->module)) {
                 $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
@@ -144,19 +249,6 @@ class MagentoModuleController extends Controller
             }
             $items->groupBy('magento_modules.module');
             return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
-        } else {
-            $title = 'Magento Module';
-            $users = $users->pluck('name', 'id');
-            $module_categories = $module_categories->pluck('category_name', 'id');
-            $module_locations = $module_locations->pluck('magento_module_locations', 'id');
-            $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
-            $task_statuses = $task_statuses->pluck('name', 'id');
-            $store_websites = $store_websites->pluck('website', 'id');
-            $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
-
-
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users','verified_status','verified_status_array', 'moduleNames', 'module_locations','module_return_type_statuserrors'));
-        }
     }
 
     /**
@@ -848,6 +940,10 @@ class MagentoModuleController extends Controller
     
     public function storeVerifiedStatus(Request $request)
     {
+        $this->validate($request, [
+            'name' => 'required|max:150|unique:magento_module_verified_status',
+        ]);
+
         $input = $request->except(['_token']);
 
         $data = MagentoModuleVerifiedStatus::create($input);

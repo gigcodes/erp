@@ -24,7 +24,7 @@ class MagentoModuleTypeRequest extends FormRequest
     public function rules()
     {
         return [
-            'magento_module_type' => 'required|max:150',
+            'magento_module_type' => 'required|max:150|unique:magento_module_types',
         ];
     }
 

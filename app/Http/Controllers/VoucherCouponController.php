@@ -320,4 +320,35 @@ class VoucherCouponController extends Controller
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
+
+
+    public function voucherscouponCodeList(Request $request)
+    {
+ 
+        $vouCode = new VoucherCouponCode();
+
+        if (($request->coupon_code) !== null) {
+            $vouCode =  $vouCode->where('coupon_code', 'LIKE', '%' . $request->coupon_code . '%');
+        }
+        if ($request->coupon_types_ids  !== null) {
+            $vouCode =   $vouCode->whereIn('coupon_type_id', $request->coupon_types_ids);
+        }
+        if ($request->username_ids !== null) {
+            $vouCode =  $vouCode->whereIn('user_id', $request->username_ids);
+        }
+        if ($request->date  !== null) {
+            $vouCode =  $vouCode->where('valid_date', 'LIKE', '%' . $request->date . '%');
+        }
+        if ($request->platform_ids !==null) {
+            $vouCode->whereHas('voucherCoupon.platform', function ($query) use ($request) {
+                $query->where('platform_id', $request->platform_ids);
+            });
+        }
+
+        $vouCode = $vouCode->latest()->paginate(\App\Setting::get('pagination',10));
+
+        return view('voucher-coupon.voucher-code-listing', compact('vouCode'));
+
+    }
+
 }

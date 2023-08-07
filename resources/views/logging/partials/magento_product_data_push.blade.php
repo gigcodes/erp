@@ -24,13 +24,13 @@
                   $useStatus = "upteam_status";
               }
         ?>
-        <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i> @endif</td>
+        <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i> @endif</td>
         @foreach($conditions as $condition)
             <td>
                 @if($condition->$useStatus == '1')
-                  <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i>
+                  <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i>
                 @else
-                  <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i>
+                  <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i>
                 @endif
             </td>
         @endforeach()

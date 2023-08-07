@@ -121,7 +121,7 @@
         <div class="col-lg-12 ">
             <h2 class="page-heading">
                 {{ $title }}
-                (<span id="total-count"></span>)
+                (<span id="total-count-magento-modules"></span>)
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -372,31 +372,31 @@
         $(document).ready(function() {
             $(".filter-module").multiselect({
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Module',
+                nonSelectedText: 'Select Module',
             });
             $(".multiselect-dev").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Dev Verified By',
+                nonSelectedText: 'Select Dev Verified By',
             });
             $(".multiselect-lead").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 enableFiltering: true,
-                nonSelectedText: 'Please Select Lead Verified By',
+                nonSelectedText: 'Select Lead Verified By',
             });
             $(".multiselect-dev-status").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                 //enableFiltering: true,
-                nonSelectedText: 'Please Select Dev Verified Status',
+                nonSelectedText: 'Select Dev Verified Status',
             });
             $(".multiselect-lead-status").multiselect({
                 allSelectedText: 'All',
                 includeSelectAllOption: true,
                // enableFiltering: true,
-                nonSelectedText: 'Please Select Lead Verified Status',
+                nonSelectedText: 'Select Lead Verified Status',
             });
         });
         $(document).on('click', '#searchReset', function(e) {
@@ -446,7 +446,11 @@
                     }
                 },
                 ajax: {
-                    "url": "{{ route('magento_modules.index') }}",
+                    "url": "{{ route('magento_module.index-post') }}",
+                    "type": "POST", // Use POST method
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
                     data: function(d) {
                         d.module = $('.filter-module').val();
                         d.module_type = $('.filter-module_type').val();
@@ -1014,7 +1018,7 @@
                     var api = this.api();
                     var recordsTotal = api.page.info().recordsTotal;
                     var recordsFiltered = api.page.info().recordsFiltered;
-                    $('#total-count').text(recordsTotal);
+                    $('#total-count-magento-modules').text(recordsTotal);
                 },
             });
             

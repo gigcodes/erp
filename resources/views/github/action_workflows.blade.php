@@ -119,6 +119,30 @@
             }
         }
 
+        $("#repoId").on('change', function(e) {
+            getBranches();
+        });
+
+        function getBranches() {
+            var url = "{{ route('project.getGithubBranches') }}";
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_repository: jQuery('#repoId').val(),
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                jQuery('#branchName').html(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        }
+
         $('.select2').select2();
         $("#job-name-create-organization").on('change', function(e) {
             var url = "{{ route('project.getGithubRepo') }}";
@@ -176,6 +200,39 @@
                 },
             });
         });
+
+        // Click event for the "view-jobs" icon
+        $(document).on('click', '.view-jobs', function(e) {
+            e.preventDefault();
+
+            // Get the action ID from the data attribute
+            var actionId = $(this).data('action-id');
+            var selectedRepositoryId = {!! $selectedRepositoryId !!};
+
+            // Make the AJAX request to fetch the jobs for the selected action
+            $.ajax({
+                url: "{{ route('github.get-jobs') }}",
+                type: 'GET',
+                dataType: 'html',
+                data: { action_id: actionId, selectedRepositoryId: selectedRepositoryId }, // Send the action ID as a query parameter
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                },
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    // Update the modal content with the retrieved jobs
+                    $('#jobsModalContent').html(response);
+
+                    // Show the modal
+                    $('#jobsModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    $("#loading-image-preview").hide();
+                    // Handle the error, if any
+                    console.error(error);
+                }
+            });
+        });
     });
 
     // Laravel pagination is using, So below code not need
@@ -215,6 +272,11 @@
         word-wrap: break-word; // ***********and this
     }
 
+    .scrollable-steps {
+        height: 75px; /* Adjust the height as per your preference */
+        overflow-y: auto;
+    }
+
 </style>
 
 <div class="row">
@@ -241,7 +303,16 @@
                                     
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
+                                <label for="" class="form-label">Branch Name</label>
+                                <select name="branchName" id="branchName" class="form-control select2">
+                                    <option value="">-- Select branch --</option>
+                                    @foreach ($selectedRepoBranches as $selectedRepoBranch)
+                                        <option value="{{ $selectedRepoBranch->branch_name }}" @if($selectedRepoBranch->branch_name == $branchName) selected @endif>{{  $selectedRepoBranch->branch_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <?php 
                                     if(request('status')){   $status = request('status'); }
                                     else{ $status = ''; }
@@ -265,12 +336,12 @@
                                     <option value="pending" @if($status=="pending") selected @endif>pending</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 pd-sm pl-0 mt-2">
+                            <div class="col-md-2 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
                                 <a href="{{ url('/github/repos/'.$repositoryId.'/actions') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#job-name-create-modal"> Create Job Name </button>
+                                {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#job-name-create-modal"> Create Job Name </button> --}}
                             </div>
                         </div>
                     </form>
@@ -323,11 +394,12 @@
                         <th style="width: auto">Status</th>
                         <th style="width: auto">Conclusion</th>
                         <th style="width: auto">Failure Reason</th>
-                        @if(!empty($githubRepositoryJobs))
+                        <th style="width: auto">Action</th>
+                        {{-- @if(!empty($githubRepositoryJobs))
                         @foreach ($githubRepositoryJobs as $githubRepositoryJob)
                         <th style="width: auto">{{$githubRepositoryJob}}</th>
                         @endforeach
-                        @endif
+                        @endif --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -345,11 +417,16 @@
                         <td class="Website-task">{{$runs->status}}</td>
                         <td class="Website-task">{{$runs->conclusion}}</td>
                         <td class="Website-task">{{$runs->failure_reason}}</td>
-                        @if(!empty($githubRepositoryJobs))
+                        <td class="Website-task">
+                            <a href="#" class="view-jobs" data-action-id="{{ $runs->id }}" title="View Jobs">
+                                <i class="fa fa-eye" aria-hidden="true" style="color:grey;"></i>
+                            </a>
+                        </td>
+                        {{-- @if(!empty($githubRepositoryJobs))
                         @foreach ($githubRepositoryJobs as $githubRepositoryJob)
                         <td class="Website-task">{{isset($runs->job_status[$githubRepositoryJob]) ? $runs->job_status[$githubRepositoryJob] : '-'}}</td>
                         @endforeach
-                        @endif
+                        @endif --}}
                     </tr>
                     @endforeach
                 </tbody>
@@ -410,6 +487,21 @@
                         </form>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal markup -->
+<div class="modal" id="jobsModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Jobs for Action</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="jobsModalContent">
+                <!-- AJAX content will be loaded here -->
             </div>
         </div>
     </div>

@@ -19,7 +19,7 @@
     </div>
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Module Return Typpe error :</strong>
+            <strong>Module Return Type error :</strong>
             {!! Form::select('return_type_error_status', $module_return_type_statuserrors, null, ['placeholder' => 'Select Module Return type Error', 'class' => 'form-control filter-module_return_type_status_error']) !!}
            
         </div>

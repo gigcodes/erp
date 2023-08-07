@@ -1063,9 +1063,10 @@ class UicheckController extends Controller
     public function updateDevice(Request $request)
     {
         try {
-            $uiDevData = UiDevice::where('uicheck_id', '=', $request->uicheck_id)->where('device_no', '=', $request->device_no)->first();
+            $uiDevData = UiDevice::where('uicheck_id', '=', $request->uicheck_id)->where('device_no', '=', $request->device_no)->where('user_id', '=', $request->user_access_user_id)->first();
             //dd($uiDevData);
-            $uiDev['user_id'] = \Auth::user()->id;
+            // $uiDev['user_id'] = \Auth::user()->id;
+            $uiDev['user_id'] = $request->user_access_user_id;
             $uiDev['device_no'] = $request->device_no;
             $uiDev['uicheck_id'] = $request->uicheck_id;
             $logHistory = false;
@@ -1117,10 +1118,10 @@ class UicheckController extends Controller
     public function setDeviceLog(Request $request)
     {
         try {
-            $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->first();
+            $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->where('user_id', '=', $request->user_access_user_id)->first();
             
             if ($uiDevice) {
-                $uiDeviceLog = UiDeviceLog::where("user_id", \Auth::user()->id)
+                $uiDeviceLog = UiDeviceLog::where("user_id", $request->user_access_user_id)
                         ->where("uicheck_id", $request->uicheckId)
                         ->where("ui_device_id", $uiDevice->id)
                         ->whereNotNull("start_time")
@@ -1135,7 +1136,7 @@ class UicheckController extends Controller
                         $uiDeviceLog->save();
                     } else {
                         // While toggle ON, If record not exists then create new entry. 
-                        $uiDeviceLogNew['user_id'] = \Auth::user()->id;
+                        $uiDeviceLogNew['user_id'] = $request->user_access_user_id;
                         $uiDeviceLogNew['uicheck_id'] = $request->uicheckId;
                         $uiDeviceLogNew['ui_device_id'] = $uiDevice->id;
                         $uiDeviceLogNew['start_time'] = \Carbon\Carbon::now();
@@ -1320,8 +1321,11 @@ class UicheckController extends Controller
             }
 
             $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 'uic.lock_developer',
-                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable')
-            )->orderBy('uic.id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
+                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), 
+                'u.id AS user_accessable_user_id', // New - Separate row for every user
+                'u.name AS user_accessable' // New - Separate row for every user
+                // DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable') // Old 
+            )->orderBy('uic.id', 'DESC')->groupBy(['ui_devices.uicheck_id', 'u.id'])->paginate(30);
 
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
@@ -1644,6 +1648,7 @@ class UicheckController extends Controller
             ->leftJoin('site_development_statuses AS sds', 'sds.id', 'ui_device_histories.status')
             ->select('ui_device_histories.*', 'users.name As userName', 'sds.name AS status_name')
             ->where('ui_device_histories.device_no', $request->device_no)
+            ->where('ui_device_histories.user_id', $request->user_access_user_id)
             ->where('ui_device_histories.uicheck_id', $request->uicheck_id)
             ->orderBy('id', 'desc')->get();
             //dd($getHistory);
@@ -1867,7 +1872,7 @@ class UicheckController extends Controller
                                     $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $uicheckTypeId, $userId);
                                 } else {
                                     $uicheck = $uicheck->first();
-                                    if ($uicheck->uiDeviceCount() == 0) {
+                                    if ($uicheck->uiDeviceCount($userId) == 0) {
                                         UiDevice::create([
                                             'user_id' => $userId ?? 0,
                                             'device_no' => '1',
