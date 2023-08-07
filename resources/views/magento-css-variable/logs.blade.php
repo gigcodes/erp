@@ -24,9 +24,6 @@
                 <div class="mt-3 col-md-12">
                     <form action="{{route('magento-css-variable.logs')}}" method="get" class="search">
                         <div class="col-lg-2">
-                            <input class="form-control" type="text" id="search_project" placeholder="Search Project" name="search_project" value="{{ $project ?? '' }}">
-                        </div>
-                        <div class="col-lg-2">
                             <input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $error ?? '' }}">
                         </div>
                         <div class="col-lg-2">
@@ -75,29 +72,7 @@
                             <tr data-id="{{ $magentoCssVariableJobLog->id }}">
                                 <td>{{ $magentoCssVariableJobLog->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">     
-                                    @php 
-                                    $magento_css_variable_id = $magentoCssVariableJobLog->magento_css_variable_id;
-                                
-                                    if (strpos($magento_css_variable_id, ',') !== false) {
-                                        $magentoIds = explode(',', $magento_css_variable_id);
-                                        foreach ($magentoIds as $key => $magentoId) {
-                                           $magento = \App\Models\MagentoCssVariable::find($magentoId);
-                                           if( $magento)
-                                           {
-                                              if($magento->project)
-                                              {
-                                                echo $magento->project->name;
-                                              } else {
-                                                echo " ";
-                                              }
-                                              echo ", "; 
-                                           }
-                                        }
-                                    } else {
-                                        $singleValue = $magento_css_variable_id;
-                                        echo optional($magentoCssVariableJobLog->magentoCssVariable)->project?->name;
-                                    }
-                                    @endphp
+                                    {{ $magentoCssVariableJobLog->formatted_magento_css_variable_id }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
