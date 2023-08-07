@@ -10,30 +10,57 @@
             <div class="pull-left">
               <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <select class="form-control" name="archived">
                     <option value="">Select</option>
                     <option value="1" {{ isset($archived) && $archived == 1 ? 'selected' : '' }}>Archived</option>
                   </select>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
+                  <br>
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-                <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+                <div class="col-md-1">
+                  <br>
+                  <select class="form-control" id="createdAt-select">
+                    <option value="">Select SortBy CreatedAt</option>						
+                    <option value="asc">Asc</option>
+                    <option value="desc">Desc</option>
+                  </select>
+                </div>
+                <div class="form-group ml-3">
+                  Select Created Users
+                  <br>
+                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
+                </div>
+                <div class="form-group ml-3">
+                  Select Ips
+                  <br>
+                  {{ Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control select2", "multiple"]) }}
+                </div>
+                <br>
+                  <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+                <a href="{{route('assets-manager.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
               </form>
             </div>
             <div class="pull-right">
+              <br>
                 <button type="button" class="btn btn-secondary btn-sm text-white mr-4 assets-create-modal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">
+              <br>
                 <button type="button" class="btn btn-xs ml-3 mr-3 mt-1" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
@@ -47,7 +74,7 @@
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
-              <th width="4%">ID</th>
+              <th width="3%">ID</th>
               <th width="6%">Name</th>
               <th width="6%">Capacity</th>
               <th width="5%">User Name</th>
@@ -57,15 +84,15 @@
               <th width="7%">Pro Name</th>
               <th width="7%">Pur Type</th>
               <th width="6%">Pymt Cycle</th>
-              <th width="8%">Due Date</th>
+              <th width="5%">Due Date</th>
               <th width="5%">Amount</th>
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
-                <th width="10%">Link</th>
-                <th width="10%">IP</th>
-
-                <th width="5%">Created By</th>
+              <th width="10%">Link</th>
+              <th width="10%">IP</th>
+              <th width="10%">IP Name</th>
+              <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
           </thead>
@@ -107,8 +134,11 @@
                 </td>
                   <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
                   <td>{{ $asset->ip }}</td>
-
-                  <td>{{ $asset->created_by }}</td>
+                  <td class="expand-row-msg" data-name="ip_name" data-id="{{$asset->id}}">
+                    <span class="show-short-ip_name-{{$asset->id}}">{{ Str::limit($asset->ip_name, 10, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-ip-name-{{$asset->id}} hidden">{{$asset->ip_name}}</span>
+                  </td>
+                  <td>{{ $asset->user?->name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
@@ -123,7 +153,7 @@
                     <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
                     @if(auth()->user()->hasRole('Admin'))
                       {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-xs pull-left" title="Delete Assets"><i class="fa fa-trash"></i></button>
+                      <button type="submit" class="btn btn-xs pull-left" title="Delete Assets" onclick="return confirm('{{ __('Are you sure you want to Delete?') }}')"><i class="fa fa-trash"></i></button>
                       {!! Form::close() !!}
                     @endif
                     <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" title="Payment History" data-id="{{$asset->id}}">
@@ -332,6 +362,7 @@
       $("#asset_user_name").select2('destroy');
     }
    $('.select-multiple').select2({width: '100%'});
+   $('.select2').select2();
     // $('ul.pagination').hide();
     // $(function() {
     //   $('.infinite-scroll').jscroll({
@@ -763,5 +794,6 @@
           });
         }
       }
+
   </script>
 @endsection

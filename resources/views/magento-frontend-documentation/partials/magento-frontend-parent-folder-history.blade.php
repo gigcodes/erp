@@ -12,7 +12,8 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="50%">Remark</th>
+                                <th width="50%">Folder Name</th>
+                                <th width="50%">Image</th>
                                 <th width="20%">Updated BY</th>
                                 <th width="20%">Created Date</th>
                                 <th width="20%">Action</th>

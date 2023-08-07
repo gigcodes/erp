@@ -15,6 +15,7 @@ use App\TimeDoctor\TimeDoctorProject;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use Carbon\Carbon;
 use Auth;
+use App\Models\TimeDoctorAccountRemarkHistory;
 
 class TimeDoctorController extends Controller
 {
@@ -604,4 +605,57 @@ class TimeDoctorController extends Controller
         ]);
     }
 
+    public function listUserAccountList(Request $request)
+    {
+        $timeDoctorAccounts = new TimeDoctorAccount();
+        $timeDoctorAccountsEmails = TimeDoctorAccount::distinct('time_doctor_email')->pluck('time_doctor_email');
+
+        $reqAccountsEmail = $request->time_doctor_account_id;
+
+        if ($request->time_doctor_account_id) {
+            $timeDoctorAccounts = $timeDoctorAccounts->WhereIn('time_doctor_email', $request->time_doctor_account_id);
+        }
+        if ($request->date) {
+            $timeDoctorAccounts = $timeDoctorAccounts->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }  
+        if ($request->search_password) {
+            $timeDoctorAccounts = $timeDoctorAccounts->where('time_doctor_password', 'LIKE', '%' . $request->search_password . '%');
+        }       
+        
+        $timeDoctorAccounts = $timeDoctorAccounts->latest()->paginate(\App\Setting::get('pagination',25));
+
+        return view('time-doctor.user-account-list', compact('timeDoctorAccounts','timeDoctorAccountsEmails','reqAccountsEmail'));
+    }
+
+    public function listRemarkStore(Request $request)
+    {
+        $oldRemark = null;
+        $timeDoctorAccounts = TimeDoctorAccount::find($request->member_id);
+        $oldRemark =  $timeDoctorAccounts->remarks;
+        $timeDoctorAccounts->remarks = $request->remark;
+        $timeDoctorAccounts->save();
+
+        $timeRemark = new TimeDoctorAccountRemarkHistory();
+        $timeRemark->time_doctor_account_id = $request->member_id;
+        $timeRemark->user_id =  Auth::user()->id;
+        $timeRemark->old_remark = $oldRemark;
+        $timeRemark->new_remark = $request->remark;
+        $timeRemark->save();
+
+        return response()->json(['code' => 500, 'data' => [], 'message' => 'Reamrk Added successfully']);
+
+    }
+
+    public function getRemarkStore(Request $request)
+    {
+        $remarks = TimeDoctorAccountRemarkHistory::with(['user'])->where('time_doctor_account_id', $request->member_id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+
+    }
 }

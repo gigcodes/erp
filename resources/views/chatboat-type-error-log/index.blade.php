@@ -59,13 +59,46 @@
   </div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Twillio Missing Keywrods
-      {!! Session::has('msg') ? Session::get("msg") : '' !!}
-      <div class="pull-right">
-        <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+      <h2 class="page-heading">Twillio Missing Keywords
+            {!! Session::has('msg') ? Session::get("msg") : '' !!}
+            <div class="pull-right">
+            </div>
+        </h2>
+      <div class="mt-3 col-md-12">
+          <form action="{{route('chatbot.type.error.log')}}" method="get" class="search">
+              <div class="form-group col-md-2 pd-sm">
+                  <h5>Store website</h5>
+                  <select class="form-control globalSelect2" multiple="true" id="storeweb_id" name="storeweb_id[]">
+                      @foreach($storeWebsites as $storeWebsite)
+                      <option value="{{ $storeWebsite->id}}" 
+                          @if(is_array(request('storeweb_id')) && in_array($storeWebsite->id, request('storeweb_id')))
+                          selected
+                          @endif >{{ $storeWebsite->website }}</option>
+                      @endforeach
+                  </select>
+              </div>
+              <div class="form-group col-lg-2">
+                  <h5>Missing word</h5>
+                  <input class="form-control" type="text" id="missiong_word" placeholder="Search Missing word" name="missiong_word" value="{{ (request('missiong_word') ?? "" )}}">
+              </div>
+              <div class="form-group col-lg-2">
+                  <h5>Call SID</h5>
+                  <input class="form-control" type="text" id="call_sid" placeholder="Search Call SID" name="call_sid" value="{{ (request('call_sid') ?? "" )}}">
+              </div>
+              <div class="form-group col-lg-2">
+                  <h5>Phone Number</h5>
+                  <input class="form-control" type="text" id="phone_number" placeholder="Search Phone Number" name="phone_number" value="{{ (request('phone_number') ?? "" )}}">
+              </div>
+              <div class="form-group col-lg-2"><br><br>
+                  <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                    <img src="/images/filter.png">
+                  </button>
+                  <a href="{{route('chatbot.type.error.log')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+              </div>
+          </form>
       </div>
-      </h2>
   </div>
+</div>
 
   <div class="col-lg-12 margin-tb">
     <div class="tab-content ">

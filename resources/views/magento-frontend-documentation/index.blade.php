@@ -53,6 +53,17 @@
             width: 100%;
 
         }
+        /* CSS for positioning the eye and copy icons in the corner */
+        .file-info-container {
+            position: relative;
+        }
+
+        .action-buttons-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -124,7 +135,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                magento documenetation (<span id="total-count"></span>)
+                Magento Documentation<span id="total-count"></span>
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -204,15 +215,16 @@
                 <thead>
                     <tr>
                         <th> Id </th>
-                        <th> Category </th>
+                        <th width="10%"> Category </th>
                         <th> Parent folder </th>
-                        <th> chid folder </th>
+                        <th> child folder </th>
                         <th> Remark </th>
                         <th> Location </th>
-                        <th> Admin Configuration </th>
-                        <th> Frontend configuration </th>    
-                        <th> File Name </th>   
-                        <th> URL </th>     
+                        <th width="10%"> Admin Configuration </th>
+                        <th width="10%"> Frontend configuration </th>    
+                        <th width="10%"> File Name </th>   
+                        <th width="10%"> Updated by </th>   
+                        <th width="10%"> Created At </th>   
                         <th> Action </th>              
                     </tr>
                 </thead>
@@ -232,7 +244,7 @@
                     @csrf
                     {!! Form::hidden('id', null, ['id'=>'id']) !!}
                     <div class="modal-header">
-                        <h4 class="modal-title">Update Store Color</h4>
+                        <h4 class="modal-title">Update Magneto Frontend Documentation</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -247,12 +259,46 @@
         </div>
     </div>
 
+    <div class="modal fade" id="parentImageAddModal" tabindex="-1" role="dialog" aria-labelledby="parentImageAddModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form id="magento_frontend_parent_image_form" class="form mb-15" enctype="multipart/form-data">
+            @csrf
+            {!! Form::hidden('magento_frontend_id', null, ['id'=>'magento_frontend_id']) !!}  
+            <div class="modal-header">
+              <h5 class="modal-title" id="parentImageModalLabel">Parent Image Create</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <input type="file" name="parent_folder_image" id="parent_folder_image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Add</button>
+            </div>
+        </form>
+          </div>
+        </div>
+      </div>
+
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
     @include('magento-frontend-documentation.magento-frontend-history')
     @include('magento-frontend-documentation.partials.magento-frontend-category-history')
     @include('magento-frontend-documentation.partials.magento-frontend-parent-folder-history')
- 
+    @include('magento-frontend-documentation.partials.child-folder-image')
+    @include('magento-frontend-documentation.partials.magento-frontend-child-folder-history')
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -273,6 +319,7 @@
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
+                searching: false,
                 // sScrollX: true,
                 order: [
                     [0, 'desc']
@@ -337,40 +384,56 @@
                                 }
                             });
 
-                             categoriesHtml += '</select>';
+                            categoriesHtml += '</select>';
 
-                             let category_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-category-history ml-2"  data-id="${row['id']}" title="Load messages">  <i class="fa fa-info-circle"> </i> </button>`;
+                            let category_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-category-history ml-2"  data-id="${row['id']}" title="Load messages">
+                                    <i class="fa fa-info-circle" style="position: absolute; top: 5px; right: 5px;"></i>
+                                </button>`;
 
-                            return `<div class="flex justify-left items-center">${categoriesHtml} ${category_history_button} </div>`;
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                        ${categoriesHtml} ${category_history_button}
+                                    </div>`;
                         }
                     },
                     {
                         render: function(data, type, row, meta) {
 
                             let message =
-                                `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="parent folder" />`;
+                                `<input type="text" id="parent_folder_${row['id']}" name="parent_folder" class="form-control parent_folder-input" placeholder="parent folder" />`;
 
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-module-parent-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
+                            let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-parent-folder-modal" type="submit" id="submit_message" data-id="${row['id']}" data-toggle="modal" data-target="#parentImageAddModal"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
+                            
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveparentFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                            data = (data == null) ? '' : '';
+                            data = (data == null) ? '' : '';                      
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
 
                             return retun_data;
                         }
                     },
                     {
-                        data: 'child_folder_image',
                         render: function(data, type, row, meta) {
-                            if (data !== null) {
-                                 return '<img src="/magentofrontend-child-image/' + data + '" height="50" width="50">';
-                            } else {
-                              return '-';
-                             }
+
+                            let message =
+                                `<input type="text" id="child_folder_${row['id']}" name="child_folder" class="form-control child_folder-input" placeholder="child folder" />`;
+
+                            let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-child-folder-image-modal" type="submit" id="submit_message"  data-target="#childImageAddModal" data-id="${row['id']}"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
+                            
+                            let remark_history_button =
+                            `<button type="button" class="btn btn-xs btn-image load-module-child-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+                            data = (data == null) ? '' : '';
+                            let retun_data =
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
+
+                            return retun_data;
                         }
                     },
                     {
@@ -380,7 +443,7 @@
                                 `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="Remark" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -396,7 +459,7 @@
                         name: 'magento_frontend_docs.location',
                         render: function(data, type, row, meta) {
                             var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
+                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
                             return data;
                         }
                     },
@@ -404,49 +467,123 @@
                         data: 'admin_configuration',
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
+                            if (data !== null) {
+                                admin_Config= data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                       <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${admin_Config}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                        </div>
+                                    </td>`;
                         }
                     },
                     {
                         data: 'frontend_configuration',
                         name: 'magento_frontend_docs.frontend_configuration',
                         render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 5)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'file_name',
-                        name: 'magento_frontend_docs.file_name',
-                        render: function(data, type, row, meta) {
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'google_drive_file_id',
-                        name: 'magento_frontend_docs.google_drive_file_id',
-                        render: function(data, type, row, meta) {
-                            if (data) {
-                                let documentUrl = `https://drive.google.com/file/d/${data}/view?usp=sharing`;
-                                let edit_button = `<a target="_blank" href="${documentUrl}">Open Document</a>
-                                    <button class="copy-button btn btn-xs text-dark" data-message="${documentUrl}" title="Copy document URL"><i class="fa fa-copy"></i></button>`;
-                                return edit_button;
-                            } else {
-                                return ''; // If data is not available, return an empty string
+                            var shortJobName = '';
+                            if (data !== null) {
+                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
                             }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${shortJobName}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
                         }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            // Extract file_name and google_drive_file_id from the row data
+                            let file_name = data.file_name;
+                            if (file_name !== null) {
+                                file_name = file_name.length > 20 ? file_name.substring(0, 15) + '...' : file_name;
+                            }
+                            let google_drive_file_id = data.google_drive_file_id;
+
+                            let file_name_html = (file_name == null) ? '' : `
+                            <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${file_name}</span>
+                                        <span class="td-full-container hidden">${file_name}</span>
+                                </div>`;
+
+                            let action_buttons = '';
+                            if (google_drive_file_id) {
+                                let documentUrl = `https://drive.google.com/file/d/${google_drive_file_id}/view?usp=sharing`;
+                                action_buttons = `
+                                    <a target="_blank" href="${documentUrl}" class="btn btn-image padding-10-3 show-details">
+                                        <img src="/images/view.png" style="cursor: default;">
+                                    </a>
+                                    <button class="copy-button btn btn-xs text-dark" data-message="${documentUrl}" title="Copy document URL">
+                                        <i class="fa fa-copy"></i>
+                                    </button>`;
+                            }
+
+                            // Combine both file_name_html and action_buttons in the same TD
+                            return `
+                                <div class="file-info-container">
+                                    ${file_name_html}
+                                    <div class="action-buttons-container">
+                                        ${action_buttons}
+                                    </div>
+                                </div>`;
+                        }
+                    },
+                    {
+                        data: 'user.name',
+                        name: 'magento_frontend_docs.user_id',
+                        render: function(data, type, row, meta) {
+                            var userName = '';
+                            if (data !== null) {
+                                userName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${userName}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
+                         }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'magento_frontend_docs.created_at',
+                        render: function(data, type, row, meta) {
+                            var date = '';
+                            if (data !== null) {
+                                date = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${date}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
+                         }
                     },
                     {
                         render: function(data, type, row, meta) {
 
                             let edit_button =
                                 `<button type="button" class="btn btn-xs btn-image edit-module ml-2" data-type="general" data-id="${row['id']}" title="Edit messages"> <img src="/images/edit.png" alt="" style="cursor: default;"> </button>`;
+
+                            var del_data = "";
+                            <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
+                            del_data =
+                                `<button type="button" class="btn btn-xs btn-image load-frontend-delete ml-2" data-type="general" data-id="${row['id']}" title="delete"> <img src="/images/delete.png" alt="" style="cursor: default;"> </button>`;
+                            <?php } ?>
+
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="View History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                                
-                            return `<div class="flex justify-left items-center">${edit_button} ${remark_history_button} </div>`;
+                            return `<div class="flex justify-left items-center">${edit_button} ${del_data} ${remark_history_button} </div>`;
         
                         }
                     },
@@ -575,7 +712,6 @@
             type: "GET",
             url: url,
         }).done(function(response) {
-            console.log(response.data.child_folder_image);
             $("#magento_module_edit_form #id").val(response.data.id);
             $("#magento_module_edit_form #location").val(response.data.location);
             $("#magento_module_edit_form #admin_configuration").val(response.data.admin_configuration);
@@ -743,13 +879,9 @@
         });
 
         //Store Parent folder
-        function saveparentFolder(row_id, selector = 'remark') {
+        function saveparentFolder(row_id, selector = 'parent_folder') {
             var folderName = $("#"+selector+"_" + row_id).val();
             var val = $("#"+selector+"_" + row_id).val();
-
-            alert(folderName);
-            alert(val);
-
             $.ajax({
                 url: `{{ route('magento-frontend-parent-folder-store') }}`,
                 type: 'POST',
@@ -784,6 +916,49 @@
                 $("#loading-image").hide();
             });
         }
+        
+        function saveChildFolder(row_id, selector = 'child_folder') {
+            var childFolderName = $("#"+selector+"_" + row_id).val();
+            $.ajax({
+                url: `{{ route('magento-frontend-child-folder-store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    folderName: childFolderName,
+                    magento_front_end_id: row_id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                console.log(response);
+                if (response.status) {
+                    
+                    toastr["success"](response.message);
+                    magentofrontendTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+        $(document).on("click", ".upload-child-folder-image-modal", function() {
+            let magento_frontend_id = $(this).data('id');
+            $("#childImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);
+            $('#childImageAddModal').modal('show');
+        });
 
         $(document).on('click', '.load-module-parent-folder', function() {
             var id = $(this).attr('data-id');
@@ -802,12 +977,18 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            console.log(v);
                             folderName = v.parent_folder_name;
+                            var imageTag = '';
+                            if (v.parent_image && v.parent_image.trim() !== '') {
+                                imageTag = `<img src="/magentofrontend-parent-image/${v.parent_image}" alt="Image" "height="50" width="50">`;
+                            }
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
                                             ${folderName}
+                                        </td>
+                                        <td> 
+                                            ${imageTag}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
@@ -823,6 +1004,120 @@
                 }
             });
         });
+
+        $(document).on('click', '.load-module-child-folder', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-frontend-get-child-folder-history') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            folderName = v.child_folder_name;
+                            var imageTag = '';
+                            if (v.child_image && v.child_image.trim() !== '') {
+                                imageTag = `<img src="/magentofrontend-child-image//${v.child_image}" alt="Image" "height="50" width="50">`;
+                            }
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${folderName}
+                                        </td>
+                                        <td> 
+                                            ${imageTag}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${folderName}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#magneto-frontend-parent-folder-list").find(".magneto-frontend-parent-view").html(html);
+                        $("#magneto-frontend-parent-folder-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on('click', '.upload-parent-folder-modal', function() {
+            let magento_frontend_id = $(this).data('id');
+            $("#parentImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);
+        });
+
+        $(document).on('submit', '#magento_frontend_parent_image_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("magento_frontend_parent_image_form"));
+        var button = $(this).find('[type="submit"]');
+        console.log(button);
+        $.ajax({
+            url: '{{ route("magento-frontend-parent-folder-image.store") }}',
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Add');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#apiDataAddModal #magento_frontend_parent_image_form').trigger('reset');
+                magentofrontendTable.draw();
+                toastr["success"](response.message);
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
+
+
+    $(document).on('click', '.load-frontend-delete', function () {
+        var id = $(this).attr('data-id');
+        if (confirm('Are you sure you want to delete this item?')) {
+                    $.ajax({
+                        url: '/magento-frontend/child-folder/' + id, // Add a slash before id
+                        type: 'DELETE',
+                        headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                     },
+                        dataType: 'json',
+                        success: function(response) {
+                            location.reload();
+                            toastr["success"](response.message);
+                        },
+                        error: function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        }
+                    });
+                }
+    });
 
     </script>
 

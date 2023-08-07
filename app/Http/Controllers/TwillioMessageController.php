@@ -11,6 +11,7 @@ use App\MarketingMessage;
 use Illuminate\Http\Request;
 use App\MessagingGroupCustomer;
 use App\MarketingMessageCustomer;
+use App\TwilioError;
 
 class TwillioMessageController extends Controller
 {
@@ -46,8 +47,29 @@ class TwillioMessageController extends Controller
 
     public function showErrors(Request $request)
     {
+        $data = new TwilioError();
+
+        if ($request->sid) {
+            $data = $data->where('sid', 'LIKE', '%' . $request->sid . '%');
+        }
+        if ($request->account_sid) {
+            $data = $data->where('account_sid', 'LIKE', '%' . $request->account_sid . '%');
+        } 
+        if ($request->call_sid) {
+            $data = $data->where('call_sid', 'LIKE', '%' . $request->call_sid . '%');
+        }
+        if ($request->error_code) {
+            $data = $data->where('error_code', 'LIKE', '%' . $request->error_code . '%');
+        }  
+        if ($request->message) {
+            $data = $data->where('message_text', 'LIKE', '%' . $request->message . '%');
+        } 
+        if ($request->date) {
+            $data = $data->where('message_date', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $data = $data->latest()->paginate(15);
         $inputs = $request->input();
-        $data = \App\TwilioError::latest()->paginate(15);
 
         return view('twillio_sms.errors', compact('data', 'inputs'));
     }

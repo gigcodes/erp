@@ -225,7 +225,8 @@
           <tr>
             <th style="width: 3%;">ID</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
-            <th style="width: 22%;overflow-wrap: anywhere;">PostMan Status</th>
+            <th style="width: 25%;overflow-wrap: anywhere;">PostMan Status</th>
+            <th style="width: 15%;overflow-wrap: anywhere;">API Issue Fix Done</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
@@ -259,13 +260,27 @@
               <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
             </td>
-            <td style="width: 22%;">
-              <select name="status" class="status-dropdown" data-id="{{$postman->id}}">
-                <option value="">Select Status</option>
-                @foreach ($status as $stat)
-                  <option value="{{$stat->id}}" {{$postman->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
-                @endforeach
-              </select>
+            <td style="width: 25%;">
+              <div class="d-flex align-items-center">
+                <select name="status" class="status-dropdown" data-id="{{$postman->id}}">
+                  <option value="">Select Status</option>
+                  @foreach ($status as $stat)
+                    <option value="{{$stat->id}}" {{$postman->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
+                  @endforeach
+                </select>
+                <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0 ml-2"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
+              </div>
+            </td>
+            <td style="width: 15%;">
+              <div class="d-flex align-items-center">
+                <select name="api_issue_fix_done" class="api-issue-fix-done-dropdown" data-id="{{$postman->id}}">
+                  <option value="">Select</option>
+                  <option value="0" {{$postman->api_issue_fix_done === 0 ? 'selected' : ''}}>No</option>
+                  <option value="1" {{$postman->api_issue_fix_done === 1 ? 'selected' : ''}}>Yes</option>
+                  <option value="2" {{$postman->api_issue_fix_done === 2 ? 'selected' : ''}}>Lead Verified</option>
+                </select>
+                <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image api-issue-fix-done-history-show p-0 ml-2"  title="Api Issue Fix Done Histories" ><i class="fa fa-info-circle"></i></button>
+              </div>
             </td>
             
             <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
@@ -351,7 +366,6 @@
                       <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
-                      <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
                     </div>
                 </div>
             </td>
@@ -1059,6 +1073,8 @@
 </div>
 {{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
 @include('postman.postman-status-history')
+@include('postman.postman-api-issue-fix-done-history')
+
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1737,6 +1753,32 @@
         }
       });
     });
+
+    $('.api-issue-fix-done-dropdown').change(function(e) {
+      e.preventDefault();
+      var postId = $(this).data('id');
+      var selectedValue = $(this).val();
+
+      // Make an AJAX request to update the status
+      $.ajax({
+        url: '/postman/update-api-issue-fix-done',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          postId: postId,
+          selectedValue: selectedValue
+        },
+        success: function(response) {
+          toastr['success'](response.message, 'success');
+        },
+        error: function(xhr, status, error) {
+          // Handle the error here
+          console.error(error);
+        }
+      });
+    });
   });
 
     // Load settings value Histories
@@ -1766,5 +1808,33 @@
                     }
                 });
       });
+
+      // Load settings value Histories
+    $(document).on('click', '.api-issue-fix-done-history-show', function() {
+      var id = $(this).attr('data-id');
+      $.ajax({
+          method: "GET",
+          url: `{{ route('postman.api-issue-fix-done.histories', [""]) }}/` + id,
+          dataType: "json",
+          success: function(response) {
+              if (response.status) {
+                  var html = "";
+                  $.each(response.data, function(k, v) {
+                      html += `<tr>
+                                  <td> ${k + 1} </td>
+                                  <td> ${v.old_value_text} </td>
+                                  <td> ${v.new_value_text} </td>
+                                  <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                  <td> ${v.created_at} </td>
+                              </tr>`;
+                  });
+                  $("#postman-api-issue-fix-done-histories-list").find(".postman-api-issue-fix-done-histories-list-view").html(html);
+                  $("#postman-api-issue-fix-done-histories-list").modal("show");
+              } else {
+                  toastr["error"](response.error, "Message");
+              }
+          }
+      });
+    });
 </script>
 @endsection

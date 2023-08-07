@@ -273,9 +273,11 @@
             },
             beforeSend: function() {
                 $(this).attr('disabled', true);
+                $("#loading-image-preview").show();
             }
         }).done(function(data) {
             toastr["success"]("Bulk update values completed successfully!", "Message")
+            $("#loading-image-preview").hide();
             window.location.reload();
         }).fail(function(response) {
             toastr["error"](error.responseJSON.message);

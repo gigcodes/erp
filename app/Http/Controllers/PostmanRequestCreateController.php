@@ -20,6 +20,7 @@ use App\PostmanRequestHistory;
 use App\PostmanRequestJsonHistory;
 use Illuminate\Support\Facades\Http;
 use App\LogRequest;
+use App\Models\PostmanApiIssueFixDoneHistory;
 use App\Models\PostmanStatus;
 use App\Models\PostmanStatusHistory;
 use Auth;
@@ -1311,6 +1312,41 @@ class PostmanRequestCreateController extends Controller
         $postman->save();
 
         return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function updateApiIssueFixDone(Request $request)
+    {
+        $postId = $request->input('postId');
+        $selectedValue = $request->input('selectedValue');
+
+        $postman = PostmanRequestCreate::findOrFail($postId);
+
+        $history = new PostmanApiIssueFixDoneHistory();
+        $history->postman_create_id = $postId;
+        $history->old_value = $postman->api_issue_fix_done;
+        $history->new_value = $selectedValue;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $postman->api_issue_fix_done = $selectedValue;
+        $postman->save();
+
+        return response()->json(['message' => 'Updated successfully']);
+    }
+
+    public function postmanApiIssueFixDoneHistories($id)
+    {
+        $datas = PostmanApiIssueFixDoneHistory::with(['user'])
+                ->where('postman_create_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function postmanStatusHistories($id)
