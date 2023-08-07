@@ -26,6 +26,7 @@
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ZabbixStatusList"> List Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbixStatusCreate"> Create Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#zabbix-task-create"> Create Task </button>
                     </div>
@@ -68,7 +69,7 @@
                             @if ($zabbixWebhookData->zabbix_task_id)
                                 @php $bgColor = "#f1f1f1 !important"; @endphp
                             @endif
-                            <tr data-id="{{ $zabbixWebhookData->id }}" style="background-color: {{$bgColor}};" >
+                            <tr data-id="{{ $zabbixWebhookData->id }}" style="background-color: {{$zabbixWebhookData->zabbixStatusColour->color}};">
                                 <td>{{ $zabbixWebhookData->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -167,6 +168,8 @@
 @include('zabbix-webhook-data.partials.assignee-history-list')
 
 @include('partials.modals.zabbix-task-create-window')
+
+@include('zabbix-webhook-data.partials.zabbix-status-listing')
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -280,7 +283,6 @@
     $(document).on('change', '.change-zabbix-status', function() {
         let id = $(this).attr('data-id');
         let status = $(this).val();
-
         $.ajax({
             url: "{{route('zabbix-webhook-data.change.status')}}",
             type: "POST",
@@ -294,7 +296,8 @@
             },
             success: function(response) {
                 toastr["success"](response.message, "Message")
-            },
+                $(`#zabbix-webhook-data-list tr[data-id="${id}"]`).css('background-color', response.colourCode);
+           },
             error: function(error) {
                 toastr["error"](error.responseJSON.message, "Message")
             }

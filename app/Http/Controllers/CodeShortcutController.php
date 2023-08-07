@@ -14,18 +14,17 @@ use App\User;
 use App\CodeShortCutPlatform;
 use App\Models\MonitorJenkinsBuild;
 use App\WebsiteLog;
+use App\Models\CodeShortcutFolder;
 
 class CodeShortcutController extends Controller
 {
     public function index(Request $request)
     {
-        $jenkinsLogs = $this->jenkinsLogInsert();
-        $websiteLogs = $this->websiteLogInsert();
-
         $data['codeshortcut'] = CodeShortcut::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $data['suppliers'] = Supplier::select('id', 'supplier')->get();
         $data['users'] = User::select('id', 'name')->get();
         $data['platforms'] = CodeShortCutPlatform::select('id', 'name')->get();
+        $data['folders'] = CodeShortcutFolder::select('id', 'name')->get();
 
         if ($request->ajax()) {
             $query = CodeShortcut::query();
@@ -62,70 +61,6 @@ class CodeShortcutController extends Controller
     }
 
 
-    public function jenkinsLogInsert()
-    {
-        $monitorJenkinsBuilds = MonitorJenkinsBuild::get();
-
-        if($monitorJenkinsBuilds !== null){
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
-            $platformId = $platform->id;
-            $shortcutCountCheck = CodeShortcut::Where('code_shortcuts_platform_id', $platformId )->get();
-        
-            foreach ($monitorJenkinsBuilds as $monitorJenkinsBuild)
-            {
-                $codeShortcut = CodeShortcut::where('code_shortcuts_platform_id', $platformId)
-                            ->where('description', $monitorJenkinsBuild->full_log)
-                            ->where('title', $monitorJenkinsBuild->failuare_status_list)
-                            ->where('website', $monitorJenkinsBuild->project)
-                            ->where('user_id', auth()->user()->id)
-                            ->first();
-
-                if ($codeShortcut === null && count($shortcutCountCheck) === count($monitorJenkinsBuilds)) {
-                    $codeShortcut =  new CodeShortcut();
-                    $codeShortcut->code_shortcuts_platform_id = $platformId;
-                    $codeShortcut->description = $monitorJenkinsBuild->full_log;
-                    $codeShortcut->title = $monitorJenkinsBuild->failuare_status_list;
-                    $codeShortcut->website = $monitorJenkinsBuild->project;
-                    $codeShortcut->user_id = auth()->user()->id;
-                    $codeShortcut->save();
-                }
-            }
-        }
-
-    }
-
-
-    public function websiteLogInsert()
-    {
-        $websiteLogs = WebsiteLog::get();
-        if($websiteLogs !== null){
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
-            $platformId = $platform->id;
-        
-            foreach ($websiteLogs as $websiteLog)
-            {
-                $codeShortcut = CodeShortcut::where('code_shortcuts_platform_id', $platformId)
-                ->where('description', $websiteLog->file_path)
-                ->where('title',  $websiteLog->error)
-                ->where('website', $websiteLog->website_id)
-                ->where('user_id', auth()->user()->id)
-                ->first();
-
-                if ($codeShortcut === null) {
-                    $codeShortcut =  new CodeShortcut();
-                    $codeShortcut->code_shortcuts_platform_id = $platformId;
-                    $codeShortcut->description = $websiteLog->file_path;
-                    $codeShortcut->title = $websiteLog->error;
-                    $codeShortcut->website = $websiteLog->website_id;
-                    $codeShortcut->user_id = auth()->user()->id;
-                    $codeShortcut->save();
-                }
-            }
-
-        }
-    }
-
-
     public function store(Request $request)
     {
         $validated = new CodeShortcut();
@@ -146,6 +81,7 @@ class CodeShortcutController extends Controller
         $validated->solution = $request->solution;
         $validated->title = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
+        $validated->folder_id = $request->folder_id;
         $validated->save();     
          
         return back()->with('success', 'Code Shortcuts successfully saved.');
@@ -168,7 +104,8 @@ class CodeShortcutController extends Controller
             'description' => $request->description,
             'code_shortcuts_platform_id' => $request->platform_id,
             'title' => $request->title,
-            'solution' => $request->solution
+            'solution' => $request->solution,
+            'folder_id' => $request->folder_id,
         ];
         
         if (!is_null($name)) {
@@ -201,4 +138,86 @@ class CodeShortcutController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data, 'message' => 'Listed successfully!!!']);
     }
+
+    public function shortcutListFolder()
+    {
+        try {
+            $folders = CodeShortcutFolder::paginate(15);
+            return view('code-shortcut.code-shorcut-folder-list', compact('folders'));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman controller folderIndex method error => ' . json_encode($msg));
+    
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function shortcutCreateFolder(Request $request)
+    {
+        try {
+            if (isset($request->id) && $request->id > 0) {
+                $folder = CodeShortcutFolder::find($request->id);
+            } else {
+                $folder = new CodeShortcutFolder();
+            }
+            $folder->name = $request->folder_name;
+            $folder->save();
+
+            return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function shortcutEditFolder (Request $request)
+    {
+        try {
+            $folders = CodeShortcutFolder::find($request->id);
+    
+            return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+       
+    }
+
+    public function shortcutDeleteFolder(Request $request)
+    {
+        try {
+            $folders = CodeShortcutFolder::where('id', '=', $request->id)->delete();
+
+            return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function shortcutUserPermission(Request $request)
+    {
+        try {
+            $codeShortCuts = CodeShortcut::where('folder_id', $request->per_folder_name)->get();
+
+            foreach ($codeShortCuts as $codeShortCut) {
+                $user_permission = $codeShortCut->user_permission . ',' . $request->per_user_name;
+                $user_permission = array_unique(explode(',', $user_permission));
+                $user_permission = implode(',', $user_permission);
+                $postman = CodeShortcut::where('id', '=', $codeShortCut->id)->update(
+                    [
+                        'user_permission' => $user_permission,
+                    ]
+                );
+            }
+
+            return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+   
 }

@@ -607,10 +607,24 @@ class TimeDoctorController extends Controller
 
     public function listUserAccountList(Request $request)
     {
-        $timeDoctorAccounts = TimeDoctorAccount::all();
-        $users = User::all('id', 'name');
+        $timeDoctorAccounts = new TimeDoctorAccount();
+        $timeDoctorAccountsEmails = TimeDoctorAccount::distinct('time_doctor_email')->pluck('time_doctor_email');
 
-        return view('time-doctor.user-account-list', compact('timeDoctorAccounts','users'));
+        $reqAccountsEmail = $request->time_doctor_account_id;
+
+        if ($request->time_doctor_account_id) {
+            $timeDoctorAccounts = $timeDoctorAccounts->WhereIn('time_doctor_email', $request->time_doctor_account_id);
+        }
+        if ($request->date) {
+            $timeDoctorAccounts = $timeDoctorAccounts->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }  
+        if ($request->search_password) {
+            $timeDoctorAccounts = $timeDoctorAccounts->where('time_doctor_password', 'LIKE', '%' . $request->search_password . '%');
+        }       
+        
+        $timeDoctorAccounts = $timeDoctorAccounts->latest()->paginate(\App\Setting::get('pagination',25));
+
+        return view('time-doctor.user-account-list', compact('timeDoctorAccounts','timeDoctorAccountsEmails','reqAccountsEmail'));
     }
 
     public function listRemarkStore(Request $request)

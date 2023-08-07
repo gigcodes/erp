@@ -52,6 +52,7 @@
 			        <th width="10%">Type</th>
 			        <th width="10%">File Path</th>
 			        <th width="10%">Date</th>
+					<th width="10%">Insert CodeShortcut</th>
                 </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
@@ -67,6 +68,8 @@
 							<td>{{$data->type}}</td>
 							<td>{{$data->file_path}}</td>
 							<td>{{$data->created_at}}</td>
+							<td><button class="btn btn-success insert-code-shortcut" data-id="{{ $data->id }}">Insert Code Shortcut</button>		
+							</td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -168,6 +171,23 @@
 					alert("Error occured.please try again");
 				}
 			});
+		});
+
+		$(document).on('click', '.insert-code-shortcut', function() {
+			var id = $(this).data('id');
+				$.ajax({
+					url: '{{route('website.insert.code.shortcut')}}',
+					method: 'GET',
+					data: {
+						id: id
+					},
+					success: function(response) {
+						toastr['success'](response.message);
+					},
+					error: function(xhr, status, error) {
+						toastr['error'](response.message);
+					}
+				});
 		});
 </script> 
 @endsection
