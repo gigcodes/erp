@@ -54,41 +54,39 @@
 
 
 <div class="col-lg-12 margin-tb">
-    <h2 class="page-heading">List User Accounts {{count($timeDoctorAccounts)}}</h2>
+    <h2 class="page-heading">List User Accounts ({{count($timeDoctorAccounts)}})</h2>
 </div>
 
-  @if(!empty($timeDoctorAccounts))
   <div class="row">
 
-    <div class="col-lg-8 col-12">
-      {{-- <form id="filter">
+    <div class="col-lg-8">
+      <form id="filter" action="{{route('time-doctor.list-user')}}" method="get" >
         <div class="row">
-          <div class="col-lg-4 col-md-6 col-12">
-            <input type="text" class="form-control" name="time_doctor_user_id" id="time_doctor_user_id" placeholder="Time Doctor User Id">
-          </div>
-          <div class="col-lg-4 col-md-6 col-12">
-            <input type="text" class="form-control" name="time_doctor_email" id="time_doctor_email" placeholder="Time Doctor Email">
-          </div>
-          <div class="col-lg-4 col-md-6 col-12">
-            <select class="form-control" name="time_doctor_account_id" id="time_doctor_account_id">
-              @foreach($timeDoctorAccounts as $timeDoctorAccount)
-                <option value="{{$timeDoctorAccount->id}}">{{$timeDoctorAccount->time_doctor_email}}</option>
+          <div class="col-lg-4">
+            <select class="form-control" name="time_doctor_account_id[]" id="time_doctor_account_id">
+              @foreach($timeDoctorAccountsEmails as $timeDoctorAccountsEmail)
+              <option value="{{ $timeDoctorAccountsEmail }}" 
+              @if(is_array(request('time_doctor_account_id')) && in_array($timeDoctorAccountsEmail, request('time_doctor_account_id')))
+                  selected
+              @endif>
+              {{ $timeDoctorAccountsEmail }} </option>
               @endforeach
             </select>
           </div>
-          <div class="col-lg-4 col-md-6 col-12 mt-4 mb-4">
-            <select class="form-control" name="time_doctor_user" id="time_doctor_user">
-              @foreach($users as $user)
-                <option value="{{$user->id}}" >{{$user->name}}</option>
-              @endforeach
-            </select>
+          <div class="col-lg-4">
+            <input class="form-control" type="text" id="search_password" placeholder="Search Password" name="search_password" value="{{ (request('search_password') ?? "" )}}">
           </div>
-          <div class="col-lg-4 col-12">
-              <button type="button" class="btn btn-image mt-4" onclick="submitSearch()"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
-              <button type="button" class="btn btn-image mt-4" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" style="cursor: nwse-resize;"></button>
+           <div class="col-lg-4">
+            <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+          </div>
+          <div class="col-lg-4"><br>
+            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+              <img src="{{ asset('images/search.png') }}" alt="Search">
+            </button>             
+            <a href="{{route('time-doctor.list-user')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
           </div>
         </div>
-      </form> --}}
+      </form>
     </div>
 
     <div class="col-lg-4 col-12">
@@ -99,8 +97,8 @@
       <thead>
         <tr>
           <th>No</th>
+          <th>Email</th>
           <th>Password</th>
-          <th>TimeDoctor Account</th>
           <th>Create DateTime</th>
           <th>Access Token </th>
           <th width="30%">Remark </th>
@@ -132,11 +130,13 @@
         @endforeach
       </tbody>
     </table>
+    {!! $timeDoctorAccounts->appends(Request::except('page'))->links() !!}
+
     <br>
     <hr>
   </div>
   </div>  
-  @endif
+  
 
   <div id="category-listing" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
