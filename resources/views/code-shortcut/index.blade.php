@@ -18,6 +18,11 @@
 		margin: -50px 0px 0px -50px;
 		z-index: 60;
 	}
+	/* CSS to make specific modal body scrollable */
+    #show_full_log_modal .modal-body {
+      max-height: 400px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+    }
 </style>
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
@@ -259,6 +264,7 @@
 	</div>
 </div>
 
+
 <script type="text/javascript">
 	function submitSearch() {
 		src = '{{route("code-shortcuts")}}'
@@ -327,6 +333,12 @@
 			$(this).toggle($(this).text().toLowerCase().indexOf(query) > -1)
 		});
 	});
+
+	$(document).on('click', '.show-full-log-text', function() {
+        var fullLog = $(this).data('full-log');
+        $('#show_full_log_modal').modal('show');
+        $('#show_full_log_modal_content').html(fullLog);
+    });
 
 </script>
 

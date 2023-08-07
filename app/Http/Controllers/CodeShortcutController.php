@@ -20,9 +20,6 @@ class CodeShortcutController extends Controller
 {
     public function index(Request $request)
     {
-        $jenkinsLogs = $this->jenkinsLogInsert();
-        $websiteLogs = $this->websiteLogInsert();
-
         $data['codeshortcut'] = CodeShortcut::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $data['suppliers'] = Supplier::select('id', 'supplier')->get();
         $data['users'] = User::select('id', 'name')->get();
@@ -61,70 +58,6 @@ class CodeShortcutController extends Controller
             ], 200);
         } 
         return view('code-shortcut.index', $data);
-    }
-
-
-    public function jenkinsLogInsert()
-    {
-        $monitorJenkinsBuilds = MonitorJenkinsBuild::get();
-
-        if($monitorJenkinsBuilds !== null){
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
-            $platformId = $platform->id;
-            $shortcutCountCheck = CodeShortcut::Where('code_shortcuts_platform_id', $platformId )->get();
-        
-            foreach ($monitorJenkinsBuilds as $monitorJenkinsBuild)
-            {
-                $codeShortcut = CodeShortcut::where('code_shortcuts_platform_id', $platformId)
-                            ->where('description', $monitorJenkinsBuild->full_log)
-                            ->where('title', $monitorJenkinsBuild->failuare_status_list)
-                            ->where('website', $monitorJenkinsBuild->project)
-                            ->where('user_id', auth()->user()->id)
-                            ->first();
-
-                if ($codeShortcut === null && count($shortcutCountCheck) === count($monitorJenkinsBuilds)) {
-                    $codeShortcut =  new CodeShortcut();
-                    $codeShortcut->code_shortcuts_platform_id = $platformId;
-                    $codeShortcut->description = $monitorJenkinsBuild->full_log;
-                    $codeShortcut->title = $monitorJenkinsBuild->failuare_status_list;
-                    $codeShortcut->website = $monitorJenkinsBuild->project;
-                    $codeShortcut->user_id = auth()->user()->id;
-                    $codeShortcut->save();
-                }
-            }
-        }
-
-    }
-
-
-    public function websiteLogInsert()
-    {
-        $websiteLogs = WebsiteLog::get();
-        if($websiteLogs !== null){
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
-            $platformId = $platform->id;
-        
-            foreach ($websiteLogs as $websiteLog)
-            {
-                $codeShortcut = CodeShortcut::where('code_shortcuts_platform_id', $platformId)
-                ->where('description', $websiteLog->file_path)
-                ->where('title',  $websiteLog->error)
-                ->where('website', $websiteLog->website_id)
-                ->where('user_id', auth()->user()->id)
-                ->first();
-
-                if ($codeShortcut === null) {
-                    $codeShortcut =  new CodeShortcut();
-                    $codeShortcut->code_shortcuts_platform_id = $platformId;
-                    $codeShortcut->description = $websiteLog->file_path;
-                    $codeShortcut->title = $websiteLog->error;
-                    $codeShortcut->website = $websiteLog->website_id;
-                    $codeShortcut->user_id = auth()->user()->id;
-                    $codeShortcut->save();
-                }
-            }
-
-        }
     }
 
 

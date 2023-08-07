@@ -4141,6 +4141,7 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
     Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
+    Route::get('website/search/insert/code-shortcut', [WebsiteLogController::class, 'websiteInsertCodeShortcut'])->name('website.insert.code.shortcut');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
     Route::post('uicheck/store', [UicheckController::class, 'store'])->name('uicheck.store');
@@ -5456,6 +5457,7 @@ Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
     Route::get('jenkins-build/truncate', [MonitorJenkinsBuildController::class, 'truncateJenkinsbulids'])->name('monitor-jenkins-build.truncate');
+    Route::get('jenkins-build/insert-code-shortcut', [MonitorJenkinsBuildController::class, 'insertCodeShortcut'])->name('monitor-jenkins-insert-code-shortcut');
 });
 
 /** Website Monitor */
