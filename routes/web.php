@@ -579,6 +579,7 @@ Route::middleware('auth')->group(function () {
     Route::post('zabbix-webhook-data/change-status', [ZabbixWebhookDataController::class, 'updateStatus'])->name('zabbix-webhook-data.change.status');
     Route::post('zabbix-webhook-data/store-remark', [ZabbixWebhookDataController::class, 'storeRemark'])->name('zabbix-webhook-data.store.remark');
     Route::post('zabbix-webhook-data/store-zabbix-status', [ZabbixWebhookDataController::class, 'storeZabbixStatus'])->name('zabbix-webhook-data.store-zabbix-status');
+    Route::post('zabbix-webhook-data/status-update', [ZabbixWebhookDataController::class, 'StatusColorUpdate'])->name('zabbix-webhook-data-color-update');
     Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
 
     Route::get('zabbix-task/assignee-histories/{zabbix_task}', [ZabbixTaskController::class, 'getAssigneeHistories'])->name('zabbix-task.get-assignee-histories');

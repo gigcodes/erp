@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\ZabbixStatus;
 
 class ZabbixWebhookData extends Model
 {
@@ -42,5 +43,10 @@ class ZabbixWebhookData extends Model
     public function zabbixTask()
     {
         return $this->belongsTo(Task::class, 'zabbix_task_id');
+    }
+
+    public function zabbixStatusColour()
+    {
+        return $this->belongsTo(ZabbixStatus::class, 'zabbix_status_id');
     }
 }
