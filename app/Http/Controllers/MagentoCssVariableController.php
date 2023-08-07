@@ -241,6 +241,9 @@ class MagentoCssVariableController extends Controller
 
         $project = $request->search_project;
         $error = $request->search_error;
+        $message =  $request->search_message;
+        $command = $request->search_command;
+        $date = $request->date;
 
         if ($project) {
             $magentoCssVariableJobLogs = MagentoCssVariableJobLog::whereHas('magentoCssVariable.project', function ($query) use ($project) {
@@ -249,11 +252,20 @@ class MagentoCssVariableController extends Controller
         }
         if ($error) {
             $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->where('status', 'LIKE', '%' . $error . '%');
-        }  
+        }
+        if ($message) {
+            $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->where('message', 'LIKE', '%' . $message . '%');
+        } 
+        if ($command) {
+            $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->where('command', 'LIKE', '%' . $command . '%');
+        } 
+        if ($date) {
+            $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->where('created_at', 'LIKE', '%' . $date . '%');
+        }
 
         $magentoCssVariableJobLogs = $magentoCssVariableJobLogs->latest("id")->paginate(50);
 
-        return view('magento-css-variable.logs', compact('magentoCssVariableJobLogs','project','error'));
+        return view('magento-css-variable.logs', compact('magentoCssVariableJobLogs','project','error','message','command','date'));
     }
     
     public function updateValue(Request $request){
@@ -379,13 +391,15 @@ class MagentoCssVariableController extends Controller
 
             \Log::info("End Magento Css Variable Update Vaule");
             if(!isset($output[0])){
+                $selectedIds = implode(",", $selectedIds);
                 // Maintain Error Log here in new table. 
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
                     'command' => $cmd,
                     'message' => json_encode($output), 
                     'status' => 'Error', 
-                    'csv_file_path' => $fullFilePath
+                    'csv_file_path' => $fullFilePath,
+                    'magento_css_variable_id' => $selectedIds,
                 ]);
                 return response()->json(['code' => 500, 'message' => 'The response is not found!']);
             }
@@ -395,13 +409,15 @@ class MagentoCssVariableController extends Controller
                 if(isset($response->message) && $response->message!=''){
                     $message=$response->message;
                 }
+                $selectedIds = implode(",", $selectedIds);
                 // Maintain Error Log here in new table. 
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
                     'command' => $cmd,
                     'message' => json_encode($output), 
                     'status' => 'Success', 
-                    'csv_file_path' => $fullFilePath
+                    'csv_file_path' => $fullFilePath,
+                    'magento_css_variable_id' => $selectedIds,
                 ]);
                 return response()->json(['code' => 200, 'message' => $message]);
             }else{
@@ -409,13 +425,15 @@ class MagentoCssVariableController extends Controller
                 if(isset($response->message) && $response->message!=''){
                     $message=$response->message;
                 }
+                $selectedIds = implode(",", $selectedIds);
                 // Maintain Error Log here in new table. 
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
                     'command' => $cmd,
                     'message' => json_encode($output), 
                     'status' => 'Error', 
-                    'csv_file_path' => $fullFilePath
+                    'csv_file_path' => $fullFilePath,
+                    'magento_css_variable_id' => $selectedIds,
                 ]);
                 return response()->json(['code' => 500, 'message' => $message]);
             }
