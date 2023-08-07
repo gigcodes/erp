@@ -432,18 +432,28 @@ class ProjectController extends Controller
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
+                        
                         $job = $jenkins->getJob($jobName);
                         // $builds = $job->getBuilds();
                         
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
-                        
-                        $lastBuild = $job->getLastBuild();
                         $latestBuildNumber = $latestBuildResult = "";
-                        if ($lastBuild) {
-                            $latestBuildNumber = $lastBuild->getNumber();
-                            $latestBuildResult = $lastBuild->getResult();
-                        }
 
+                        $job_api_url = "{$jenkins->getUrl()}/job/{$job_name}/api/json";
+                        $job_info = json_decode(file_get_contents($job_api_url), true);
+
+                        // Check if the job has any build in the queue
+                        if ($job_info && $job_info['inQueue']) {
+                            $latestBuildNumber = $job_info['nextBuildNumber'];
+                            $latestBuildResult = "WAITING";
+                        } else {
+                            $lastBuild = $job->getLastBuild();
+                            if ($lastBuild) {
+                                $latestBuildNumber = $lastBuild->getNumber();
+                                $latestBuildResult = $lastBuild->getResult();
+                            }
+                        }
+                        
                         $record = [
                             'store_website_id' => $request->project_id, 
                             'created_by' =>auth()->user()->id, 
@@ -528,9 +538,28 @@ class ProjectController extends Controller
     public function buildProcessLogs(Request $request, $id= null)
     {
         $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')->select('build_process_histories.*','u.name as usersname');
+        $repo_names = \App\Github\GithubRepository::select('name','id')->get();
+        $organizations = \App\Github\GithubOrganization::select('name','id')->get();
+        $projects = \App\Models\Project::select('name','id')->get();
+        $users = \App\User::select('name','id')->get();
+
+        $reqproject = $request->projects ?? [];
+        $reqorganizations = $request->organizations ?? [];
+        $reqrepoids = $request->repo_ids ?? [];
+        $requsers = $request->users?? [];
+        $reqstatus= $request->status?? [];
+        $reqsBuildNumber= $request->search_build_number ?? " ";
+        $reqsBuildName= $request->search_build_name ?? " ";
+        $reqsBranchName= $request->search_branch_name ?? " ";
+
 
         if($id){
-            $responseLogs->where('store_website_id', $id);
+            $responseValue = $responseLogs->where('store_website_id', $id)->get();
+            $reqproject = $responseValue->pluck('store_website_id')->toArray();
+            $reqstatus = $responseValue->pluck('status')->toArray();
+            $requsers = $responseValue->pluck('created_by')->toArray();
+            $reqorganizations = $responseValue->pluck('github_organization_id')->toArray();
+            $reqrepoids = $responseValue->pluck('github_repository_id')->toArray();
         }
         
         if($request->has('branch') && $request->branch!=''){
@@ -539,6 +568,47 @@ class ProjectController extends Controller
         
         if($request->has('buildby') && $request->buildby!=''){
             $responseLogs->where('created_by', $request->buildby);
+        }
+
+        if($request->projects && $request->projects!=''){
+           $responseLogs =  $responseLogs->WhereIn('build_process_histories.store_website_id', $request->projects);
+        }
+
+        if($request->organizations && $request->organizations!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.github_organization_id', $request->organizations);
+        }
+
+        if($request->repo_ids && $request->repo_ids!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.github_repository_id', $request->repo_ids);
+        }
+
+        if($request->users && $request->users!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.created_by', $request->users);
+        }
+
+        if($request->status && $request->status!=''){
+            $responseLogs =  $responseLogs->WhereIn('build_process_histories.status', $request->status);
+        }
+        if($request->search_build_number && $request->search_build_number!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.build_number', 'LIKE', '%' . $request->search_build_number . '%');
+        }
+        if($request->search_build_name && $request->search_build_name!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.build_name', 'LIKE', '%' . $request->search_build_name . '%');
+        }
+        if($request->search_branch_name && $request->search_branch_name!=''){
+            $responseLogs =  $responseLogs->where('build_process_histories.github_branch_state_name', 'LIKE', '%' . $request->search_branch_name . '%');
+        }
+
+        $keyword = $request->keyword;
+        if (! empty($keyword)) {
+            $monitorServers = $responseLogs->where(function ($q) use ($keyword) {
+                $q->orWhere('build_process_histories.build_number', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.status', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_pr', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.initiate_from', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.text', 'LIKE', '%' . $keyword . '%');
+            });
         }
 
         $responseLogs=$responseLogs->orderBy('id','desc')->paginate(10);
@@ -559,6 +629,9 @@ class ProjectController extends Controller
                             $build_status=$build->getResult();
                             
                             if($responseLog->status!=$build_status){
+
+                                $console_output_url = "{$jenkins->getUrl()}/job/{$job_name}/$build_number/consoleText";
+                                $console_output = file_get_contents($console_output_url);
                             
                                 $record = [
                                     'project_id' => $project_id, 
@@ -571,6 +644,7 @@ class ProjectController extends Controller
                                 \App\BuildProcessStatusHistories::create($record);
                             
                                 $responseLog->status=$build_status;
+                                $responseLog->text=$console_output;
                                 $responseLog->save();
                             }
                             
@@ -586,7 +660,8 @@ class ProjectController extends Controller
             }
 
         }
-        return view('project.build-process-logs', compact('responseLogs'));
+
+        return view('project.build-process-logs', compact('responseLogs','repo_names','organizations','projects','users','reqproject','reqorganizations','reqrepoids','requsers','reqstatus','reqsBuildNumber','reqsBuildName','reqsBranchName'));
     }
 
     // Old concept in modal popup

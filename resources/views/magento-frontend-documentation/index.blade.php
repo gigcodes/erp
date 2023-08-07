@@ -573,10 +573,17 @@
 
                             let edit_button =
                                 `<button type="button" class="btn btn-xs btn-image edit-module ml-2" data-type="general" data-id="${row['id']}" title="Edit messages"> <img src="/images/edit.png" alt="" style="cursor: default;"> </button>`;
+
+                            var del_data = "";
+                            <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
+                            del_data =
+                                `<button type="button" class="btn btn-xs btn-image load-frontend-delete ml-2" data-type="general" data-id="${row['id']}" title="delete"> <img src="/images/delete.png" alt="" style="cursor: default;"> </button>`;
+                            <?php } ?>
+
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-frontend-history ml-2" data-type="general" data-id="${row['id']}" title="View History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                                
-                            return `<div class="flex justify-left items-center">${edit_button} ${remark_history_button} </div>`;
+                            return `<div class="flex justify-left items-center">${edit_button} ${del_data} ${remark_history_button} </div>`;
         
                         }
                     },
@@ -1088,6 +1095,28 @@
                 }
             },
         });
+    });
+
+
+    $(document).on('click', '.load-frontend-delete', function () {
+        var id = $(this).attr('data-id');
+        if (confirm('Are you sure you want to delete this item?')) {
+                    $.ajax({
+                        url: '/magento-frontend/child-folder/' + id, // Add a slash before id
+                        type: 'DELETE',
+                        headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                     },
+                        dataType: 'json',
+                        success: function(response) {
+                            location.reload();
+                            toastr["success"](response.message);
+                        },
+                        error: function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        }
+                    });
+                }
     });
 
     </script>

@@ -12,19 +12,64 @@
       <div class="panel-body p-0">
         <form action="{{ route('logging.magento.product_push_journey') }}" method="GET" class="handle-search">
           <div class="row m-0">
-            <div class="col-md-1 pl-0">
+            <div class="col-md-2 pl-0">
               <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}" placeholder="Product ID">
             </div>
-            <div class="col-md-1 pl-0">
+            <div class="col-md-2 pl-0">
               <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}" placeholder="SKU">
             </div>
-            <div class="col-md-1 pl-0">
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}" placeholder="Brand">
+            <div class="col-md-2 pl-0">
+              <div class="form-group">
+                <?php 
+                  if(request('brand')){   $brandsArr = request('brand'); }
+                  else{ $brandsArr = ''; }
+                ?>
+                <select name="brand[]" id="brand" class="form-control select2" multiple>
+                  <option value="" @if($brandsArr=='') selected @endif>-- Select a brands --</option>
+                  @forelse($brandPlucks as $brId => $brName)
+                  <option value="{{ $brId }}" @if($brandsArr!='' && in_array($brId, $brandsArr)) selected @endif>{!! $brName !!}</option>
+                  @empty
+                  @endforelse
+                </select>
+              </div>
             </div>
-            <div class="col-md-3 pl-0">
-              <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
-                  <span class="fa fa-filter"></span>&nbsp;Filter Results
-                </button>
+            <div class="col-md-2 pl-0">
+              <div class="form-group">
+                <?php 
+                  if(request('category')){   $categoriesArr = request('category'); }
+                  else{ $categoriesArr = ''; }
+                  ?>
+                <select name="category[]" id="store-categories" class="form-control select2" multiple>
+                  <option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
+                  @forelse($categoryPlucks as $ctId => $ctName)
+                  <option value="{{ $ctId }}" @if($categoriesArr!='' && in_array($ctId,$categoriesArr)) selected @endif>{!! $ctName !!}</option>
+                  @empty
+                  @endforelse
+                </select>
+              </div>
+            </div>
+            <div class="col-md-2 pl-0">
+              <div class="form-group">
+                <?php 
+                  if(request('conditions')){   $conditionsArr = request('conditions'); }
+                  else{ $conditionsArr = ''; }
+                  ?>
+                <select name="conditions[]" id="conditions" class="form-control select2" multiple>
+                  <option value="" @if($conditionsArr=='') selected @endif>-- Select conditions --</option>
+                  @forelse($conditionPlucks as $conId => $conName)
+                  <option value="{{ $conId }}" @if($conditionsArr!='' && in_array($conId,$conditionsArr)) selected @endif>{!! $conName !!}</option>
+                  @empty
+                  @endforelse
+                </select>
+              </div>
+            </div>
+            <div class="col-md-2 pl-0">
+						  <button id="submit" class="btn btn btn-image custom-filter">
+                <img src="/images/filter.png" style="cursor: nwse-resize;">
+              </button>
+						  <a href="{{route('logging.magento.product_push_journey')}}" class="btn btn-image" id="">
+                <img src="/images/resend2.png" style="cursor: nwse-resize;">
+              </a>
             </div>
         
         </div>
@@ -79,13 +124,13 @@
                             $useStatus = "upteam_status";
                         }
                   ?>
-                  <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i> @endif</td>
+                  <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i> @endif</td>
                   @foreach($conditions as $condition)
                       <td>
                           @if($condition->$useStatus == '1')
-                              <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i>
+                              <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i>
                           @else
-                              <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i>
+                              <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i>
                           @endif
                       </td>
                   @endforeach()
@@ -118,6 +163,8 @@
 	var isLoading = false;
 	var page = 1;
 	$(document).ready(function () {
+    $('.select2').select2();
+
 		$(window).scroll(function() {
 			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
 				loadMore();

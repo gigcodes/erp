@@ -277,6 +277,7 @@
                   <option value="">Select</option>
                   <option value="0" {{$postman->api_issue_fix_done === 0 ? 'selected' : ''}}>No</option>
                   <option value="1" {{$postman->api_issue_fix_done === 1 ? 'selected' : ''}}>Yes</option>
+                  <option value="2" {{$postman->api_issue_fix_done === 2 ? 'selected' : ''}}>Lead Verified</option>
                 </select>
                 <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image api-issue-fix-done-history-show p-0 ml-2"  title="Api Issue Fix Done Histories" ><i class="fa fa-info-circle"></i></button>
               </div>

@@ -20,6 +20,8 @@ use function GuzzleHttp\json_encode;
 use Illuminate\Support\Facades\Auth;
 use App\Models\QuickRepliesPermissions;
 use App\Models\RepliesTranslatorHistory;
+use App\Models\ReplyLog;
+use App\ReplyTranslatorStatus;
 
 class ReplyController extends Controller
 {
@@ -275,6 +277,7 @@ class ReplyController extends Controller
 
     public function replyList(Request $request)
     {
+        // dd('hii');
         $storeWebsite = $request->get('store_website_id');
         $keyword = $request->get('keyword');
         $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
@@ -506,6 +509,7 @@ class ReplyController extends Controller
                     'translate_lang' => [$replie->translate_to],
                     'translate_id' => [$replie->id],
                     'translate_status' => [$replie->status],
+                    'translate_status_color' => [$replie->status_color],
                     'created_at' => $replie->created_at,
                     'updated_at' => $replie->updated_at,
                 ];
@@ -514,6 +518,7 @@ class ReplyController extends Controller
                 array_push($translate_text[$replie->replies_id]['translate_lang'], $replie->translate_to);
                 array_push($translate_text[$replie->replies_id]['translate_id'], $replie->id);
                 array_push($translate_text[$replie->replies_id]['translate_status'], $replie->status);
+                array_push($translate_text[$replie->replies_id]['translate_status_color'], $replie->status_color);
             }
 
             if (! in_array($replie->translate_to, $lang)) {
@@ -523,7 +528,9 @@ class ReplyController extends Controller
 
         $replies = json_encode($translate_text);
 
-        return view('reply.translate-list', compact('replies', 'lang'))->with('i', ($request->input('page', 1) - 1) * 5);
+        $replyTranslatorStatuses = ReplyTranslatorStatus::all();
+
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function quickRepliesPermissions(Request $request)
@@ -602,19 +609,22 @@ class ReplyController extends Controller
             $de = ($value->lang == 'de') ? $value->translate_text : '';
 
             $html .= '<tr><td>' . $value->id . '</td>';
-            $html .= '<td>scrollToSeeMoreImages</td>';
-            $html .= '<td>' . $ar . '</td>';
-            $html .= '<td>' . $en . '</td>';
-            $html .= '<td>' . $zh . '</td>';
-            $html .= '<td>' . $ja . '</td>';
-            $html .= '<td>' . $ko . '</td>';
-            $html .= '<td>' . $ur . '</td>';
-            $html .= '<td>' . $ru . '</td>';
-            $html .= '<td>' . $it . '</td>';
-            $html .= '<td>' . $fr . '</td>';
-            $html .= '<td>' . $es . '</td>';
-            $html .= '<td>' . $nl . '</td>';
-            $html .= '<td>' . $de . '</td>';
+            // $html .= '<td>scrollToSeeMoreImages</td>';
+            // $html .= '<td>' . $ar . '</td>';
+            // $html .= '<td>' . $zh . '</td>';
+            // $html .= '<td>' . $ja . '</td>';
+            // $html .= '<td>' . $ko . '</td>';
+            // $html .= '<td>' . $ur . '</td>';
+            // $html .= '<td>' . $ru . '</td>';
+            // $html .= '<td>' . $it . '</td>';
+            // $html .= '<td>' . $fr . '</td>';
+            // $html .= '<td>' . $es . '</td>';
+            // $html .= '<td>' . $de . '</td>';
+            // $html .= '<td>' . $en . '</td>';
+            // $html .= '<td>' . $nl . '</td>';
+            $html .= '<td>' . $value->lang . '</td>';
+            $html .= '<td>' . $value->translate_text . '</td>';
+            $html .= '<td>' . $value->status . '</td>';
             $html .= '<td>' . $value->updater . '</td>';
             $html .= '<td>' . $value->approver . '</td>';
             $html .= '<td>' . $value->created_at . '</td>';
@@ -647,5 +657,44 @@ class ReplyController extends Controller
         $paginateHtml = $data->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+    }
+
+    public function replyLogList (Request $request)
+    {
+        $replyLogs = new  ReplyLog();
+
+        $replyLogs = $replyLogs->latest()->paginate(\App\Setting::get('pagination',25));
+        
+        return view('reply.log-reply', compact('replyLogs'));
+    }
+
+    public function replyMulitiple(Request $request)
+    {
+        $replyIds = $request->input('reply_ids');
+
+        $replyIdsArray = explode(',', $replyIds);
+
+        foreach ($replyIdsArray as $replyId) {
+            $replyLog = Reply::find($replyId);
+            if ($replyLog) {
+                $replyLog->is_flagged = 1;
+                $replyLog->save();
+            }
+         }
+
+        return response()->json(['message' => 'Flag Added successfully']);
+    }
+    
+    public function statusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $cronStatus = ReplyTranslatorStatus::find($key);
+            $cronStatus->color = $value;
+            $cronStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

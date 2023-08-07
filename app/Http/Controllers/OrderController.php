@@ -80,6 +80,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
 use App\PurchaseProductOrder;
 use App\StatusMapping;
+use DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -3019,16 +3020,110 @@ class OrderController extends Controller
     public function getOrderEmailSendJourneyLog(Request $request)
     {
         try {
-            $orderJourney = OrderEmailSendJourneyLog::groupBy('order_id')->get();
+            // $orderJourney = OrderEmailSendJourneyLog::whereIn('id', function ($query) {
+            //     $query->select(DB::raw('MAX(id)'))
+            //         ->from('order_email_send_journey_logs')
+            //         ->groupBy('order_id');
+            // })->get();
+
+            $logs = new OrderEmailSendJourneyLog();
+
+            $from_email = $request->get('from_email');
+            $to_email = $request->get('to_email');
+            $keyword = $request->get('keyword');
+
+            if ($from_email) {
+                $logs = $logs->where('from_email', $from_email);
+            }
+
+            if ($to_email) {
+                $logs = $logs->where('to_email', $to_email);
+            }
+
+            if (! empty($keyword)) {
+                $logs = $logs->where(function ($q) use ($keyword) {
+                    $q->orWhere('subject', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('order_id', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('steps', 'LIKE', '%' . $keyword . '%');
+                });
+            }
+
+            $logs =  $logs->get();
+            
+            $orderJourney = $logs->groupBy('order_id')->map(function ($group) {
+                return $group->last();
+            });
+
+            // Group the logs by order_id
+            $groupedLogs = $logs->groupBy('order_id')->map(function ($item) {
+                // Within each order_id group, further group the logs by steps starting with "<Step Names>"
+                $groupedSteps = $item->groupBy(function ($log) {
+                    if (strpos($log->steps, 'Status Change') === 0) {
+                        return 'Status Change';
+                    }
+                    if (strpos($log->steps, 'Email type via Order update status') === 0) {
+                        return 'Email type via Order update status';
+                    }
+                    if (strpos($log->steps, 'Email type via Error') === 0) {
+                        return 'Email type via Error';
+                    }
+                    if (strpos($log->steps, 'Email type IVA SMS Order update status') === 0) {
+                        return 'Email type IVA SMS Order update status';
+                    }
+                    if (strpos($log->steps, 'Magento Order update status') === 0) {
+                        return 'Magento Order update status';
+                    }
+                    if (strpos($log->steps, 'Magento Error') === 0) {
+                        return 'Magento Error';
+                    }
+                    // For items that do not start with '<Step Names>', return the original steps
+                    return $log->steps;
+                });
+
+                // Sort the logs within each steps group by 'created_at' in descending order
+                return $groupedSteps->map(function ($logs) {
+                    return $logs->sortByDesc('created_at');
+                });
+            });
+
+            $allLogs = OrderEmailSendJourneyLog::all();
+
+            $groupByOrders = $allLogs->reject(function ($log) {
+                    return empty($log->order_id);
+                })->groupBy('order_id')->keys()->toArray();
+
+            $groupByFromEmail = $allLogs->reject(function ($log) {
+                    return empty($log->from_email);
+                })->groupBy('from_email')->keys()->toArray();
+
+            $groupByToEmail = $allLogs->reject(function ($log) {
+                    return empty($log->to_email);
+                })->groupBy('to_email')->keys()->toArray();
+
 
             if (count($orderJourney) > 0) {
-                return view('orders.email_send_journey', compact('orderJourney'));
+                return view('orders.email_send_journey', compact('orderJourney', 'groupedLogs', 'groupByOrders', 'groupByFromEmail', 'groupByToEmail'));
             } else {
                 return redirect()->back()->with('error', 'Record not found');
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function getOrderEmailSendJourneyStepLog(Request $request)
+    {
+        $stepName = $request->input('step_name');
+        $orderId = $request->input('order_id');
+
+        // Fetch the step history data from the database using the $stepName and $orderId
+        $stepHistoryData = OrderEmailSendJourneyLog::where('steps', 'LIKE', '%' . $stepName . '%')
+            ->where('order_id', $orderId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Return the step history data in a Blade view (step_history_modal_content.blade.php)
+        return view('orders.email_send_journey_step_history_modal_content', compact('stepHistoryData'));
     }
 
     /**
