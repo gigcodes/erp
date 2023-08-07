@@ -2810,7 +2810,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
         Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
         Route::get('/shortcut/notes', [CodeShortcutController::class, 'getShortcutnotes'])->name('code.get.Shortcut.notes');
-
+        Route::get('/folder/list', [CodeShortcutController::class, 'shortcutListFolder'])->name('code.get.Shortcut.folder.list');
+        Route::Post('/folder/create', [CodeShortcutController::class, 'shortcutCreateFolder'])->name('code.get.Shortcut.folder.create');
+        Route::post('/folder/edit', [CodeShortcutController::class, 'shortcutEditFolder']);
+        Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
+        Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
     });
 
 
@@ -4149,6 +4153,7 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
     Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
+    Route::get('website/search/insert/code-shortcut', [WebsiteLogController::class, 'websiteInsertCodeShortcut'])->name('website.insert.code.shortcut');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
     Route::post('uicheck/store', [UicheckController::class, 'store'])->name('uicheck.store');
@@ -5072,6 +5077,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
+    Route::get('shortcut-folders', [Select2Controller::class, 'shortcutFolders'])->name('select2.shortcutfolders');
     Route::get('shortcut-product-colors', [Select2Controller::class, 'productColors'])->name('select2.productsColors');
     Route::get('shortcut-product-sizesystem', [Select2Controller::class, 'producsizeSystem'])->name('select2.productsSizesystem');
     Route::get('shortcut-documentCategory', [Select2Controller::class, 'shortcutdocumentCategory'])->name('select2.documentCategory');
@@ -5471,6 +5477,7 @@ Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
     Route::get('jenkins-build/truncate', [MonitorJenkinsBuildController::class, 'truncateJenkinsbulids'])->name('monitor-jenkins-build.truncate');
+    Route::get('jenkins-build/insert-code-shortcut', [MonitorJenkinsBuildController::class, 'insertCodeShortcut'])->name('monitor-jenkins-insert-code-shortcut');
 });
 
 /** Website Monitor */

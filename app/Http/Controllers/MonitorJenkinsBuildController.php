@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\MonitorJenkinsBuild;
 use Illuminate\Http\Request;
+use App\CodeShortCutPlatform;
+use App\CodeShortcut;
 
 class MonitorJenkinsBuildController extends Controller
 {
@@ -80,5 +82,36 @@ class MonitorJenkinsBuildController extends Controller
 
         return redirect()->route('monitor-jenkins-build.index')->withSuccess('data Removed succesfully!');
     }
+
+    public function insertCodeShortcut(Request $request)
+    {
+        $monitorJenkinsBuild = MonitorJenkinsBuild::find($request->id);
+
+        $checkAlredyExist = CodeShortcut::where('jenkins_log_id',$request->id)->first();
+
+        if($checkAlredyExist) {
+            return response()->json(['code' => 200, 'message' => 'Alreday Insert Into CodeShortcut!!!']);
+        } else {
+            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
+            $platformId = $platform->id;
+        
+            if($monitorJenkinsBuild->error == "NA")
+            {
+                $monitorJenkinsBuild->error = null;
+            }
+            
+            $codeShortcut =  new CodeShortcut();
+            $codeShortcut->code_shortcuts_platform_id = $platformId;
+            $codeShortcut->description = $monitorJenkinsBuild->full_log;
+            $codeShortcut->title = $monitorJenkinsBuild->error;
+            $codeShortcut->website = $monitorJenkinsBuild->project;
+            $codeShortcut->user_id = auth()->user()->id;
+            $codeShortcut->jenkins_log_id = $request->id;
+            $codeShortcut->type = "monitor-jenkins-build";
+            $codeShortcut->save();
+
+            return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);
+        }
+        }
 
 }

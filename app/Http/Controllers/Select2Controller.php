@@ -19,6 +19,7 @@ use App\TimeDoctor\TimeDoctorProject;
 use Illuminate\Support\Facades\Auth;
 use App\CodeShortCutPlatform;
 use App\TaskCategory;
+use App\Models\CodeShortcutFolder;
 use App\ProductSupplier;
 use App\DocumentCategory;
 use App\Platform;
@@ -627,6 +628,35 @@ class Select2Controller extends Controller
         return response()->json($result);
     }
 
+    public function shortcutFolders(Request $request)
+    {
+        $dataFolderNames = CodeShortcutFolder::select('id', 'name')->get();
+
+        if (!empty($request->q)) {
+            $dataFolderNames->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+
+        $result = [];
+
+        if (empty($dataFolderNames)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'FolderName not available',
+            ];
+        } else {
+            foreach ($dataFolderNames as $dataFolderName) {
+                $result['items'][] = [
+                    'id' => $dataFolderName->id,
+                    'text' => $dataFolderName->name,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
     public function productColors(Request $request)
     {
         $uniqueColorsQuery = ProductSupplier::distinct('color');
@@ -724,7 +754,7 @@ class Select2Controller extends Controller
         }
 
         $result = [];
-  
+
         if (empty($platforms)) {
             $result['items'][] = [
                 'id' => '',

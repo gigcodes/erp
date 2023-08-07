@@ -7,6 +7,8 @@ use App\WebsiteLog;
 use App\StoreWebsite;
 //use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
+use App\CodeShortCutPlatform;
+use App\CodeShortcut;
 
 class WebsiteLogController extends Controller
 {
@@ -352,5 +354,32 @@ class WebsiteLogController extends Controller
         WebsiteLog::truncate();
 
         return redirect()->route('website.log.view')->withSuccess('data Removed succesfully!');
+    }
+
+    public function websiteInsertCodeShortcut(Request $request)
+    {
+        $websiteLog = WebsiteLog::find($request->id);
+
+        $checkAlredyExist = CodeShortcut::where('website_log_view_id',$request->id)->first();
+
+        if($checkAlredyExist) {
+            return response()->json(['code' => 200, 'message' => 'Alreday Insert Into CodeShortcut!!!']);
+        } else {
+            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
+            $platformId = $platform->id;
+        
+            $codeShortcut =  new CodeShortcut();
+            $codeShortcut->code_shortcuts_platform_id = $platformId;
+            $codeShortcut->description = $websiteLog->file_path;
+            $codeShortcut->title = $websiteLog->error;
+            $codeShortcut->website = $websiteLog->website_id;
+            $codeShortcut->user_id = auth()->user()->id;
+            $codeShortcut->website_log_view_id = $request->id;
+            $codeShortcut->type = "website-log-view";
+            $codeShortcut->save();
+
+            return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);
+        }
+    
     }
 }
