@@ -43,14 +43,22 @@
                                         id="phone"></th>
                                 <th width="5%"><input type="text" class="search form-control tbInput" name="store_id"
                                         id="store_id"></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
+                                <th><input type="text" class="search form-control tbInput" name="account_id"
+                                    id="account_id"></th>
+                                <th><input type="text" class="search form-control tbInput" name="call_id"
+                                    id="call_id"></th>
+                                <th><input type="text" class="search form-control tbInput" name="call_entered"
+                                    id="call_entered"></th>
+                                <th><input type="text" class="search form-control tbInput" name="handled_by_chatbot"
+                                    id="handled_by_chatbot"></th>
+                                <th><input type="text" class="search form-control tbInput" name="called_working_hours"
+                                    id="called_working_hours"></th>
+                                <th><input type="text" class="search form-control tbInput" name="avaiable_agent"
+                                    id="avaiable_agent"></th>
+                                <th><input type="text" class="search form-control tbInput" name="agent_online"
+                                    id="agent_online"></th>
+                                <th><input type="text" class="search form-control tbInput" name="call_answered"
+                                    id="call_answered"></th>
                             </tr>
 
                             <tbody id="content_data" class="tableLazy">
