@@ -282,11 +282,11 @@
 						@php
 							$deviceBgColors =  array_fill(1, 10, '#ffffff');
 
-							if (isset($uiDevData->uichecks) && isset($uiDevData->uichecks->uiDevice)) {
-								foreach ($uiDevData->uichecks->uiDevice as $device) {
+							if (isset($uiDevData->uichecks) && $uiDevData->uichecks->uiDevices($uiDevData->user_id)) {
+								foreach ($uiDevData->uichecks->uiDevices($uiDevData->user_id) as $device) {
 									$deviceNo = $device->device_no;
-									if (isset($device->lastUpdatedHistory) && $device->lastUpdatedHistory->status != ''){
-										$color = $device->lastUpdatedHistory->stausColor->color;
+									if (isset($device->stausColor) && $device->status != ''){
+										$color = $device->stausColor->color;
 										if ($color != '')
 											$deviceBgColors[$deviceNo] = $color;
 									}
@@ -599,7 +599,7 @@
 								<th width="10%" style="word-break: break-all;">Expected start time</th>
 								<th width="10%" style="word-break: break-all;">Expected completion time</th>
 								<th width="10%" style="word-break: break-all;">Estimated Time</th>
-								<th width="15%" style="word-break: break-all;">Status</th>
+								{{-- <th width="15%" style="word-break: break-all;">Status</th> --}}
 								<th width="15%">Created at</th>
 							</tr>
 						</thead>
@@ -874,6 +874,11 @@
 		var old_status = $(this).parent().data('old_status');
 		var user_access_user_id = $(this).parent().data("user_accessable_user_id");
 
+		if (!id) {
+			toastr['error']("Id not found, Some issue in this record. Status not changed");
+			return;
+		}
+
 		var status = $(this).val();
 
 		$.ajax({
@@ -885,6 +890,7 @@
 				device_no : device_no,
 				old_status : old_status,
 				status: status,
+				update_status_all_device: true,
 				"_token": "{{ csrf_token() }}",
 			},
 			beforeSend: function() {
@@ -894,6 +900,7 @@
 				if (response.code == 200) {
 					//$(".statuschanges").val("");
 					toastr['success'](response.message);
+					window.location.reload();
 					//update respective td background
 					var dynamicClass = '.uidevmessage' + device_no + uicheck_id + user_access_user_id;
 					// $(dynamicClass).parent('td').css("background-color",response.data);

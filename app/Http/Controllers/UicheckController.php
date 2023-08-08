@@ -1256,9 +1256,12 @@ class UicheckController extends Controller
         try {
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedStatusHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
                                     ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
-                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
+                                    ->leftJoin('uicheck_user_accesses as uua', function ($join) {
+                                        $join->on('ui_devices.uicheck_id', '=', 'uua.uicheck_id')
+                                             ->on('ui_devices.user_id', '=', 'uua.user_id'); // Additional condition
+                                    })
                                     ->leftJoin('users as u', 'u.id', 'uua.user_id')
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
@@ -1354,8 +1357,33 @@ class UicheckController extends Controller
                     ->where('device_no', $request->device_no)
                     ->where('uicheck_id', $request->uicheck_id)->first();
             if ($uiDevDatas) {
-                $old_status = $uiDevDatas->status;
-                $uiDevDatas->update(['status' => $request->status]);
+                if ($request->update_status_all_device == 'true') {
+                    $userAllDevices = UiDevice::where('user_id', $uiDevDatas->user_id)
+                        ->where('uicheck_id', $request->uicheck_id)->get();
+
+                    foreach ($userAllDevices as $userAllDevice) {
+                        $old_status = $userAllDevice->status;
+                        $userAllDevice->update(['status' => $request->status]);
+
+                        $dataArray = [
+                            "id" => $userAllDevice->id,
+                            "uicheck_id" => $userAllDevice->uicheck_id,
+                            "device_no" => $userAllDevice->device_no,
+                            "old_status" => $old_status,
+                            "status" => $request->status,
+                        ];
+                        
+                        $collection = collect($dataArray);
+                        // Convert the collection to an object
+                        $object = json_decode(json_encode($collection));
+
+                        $this->uicheckResponsiveUpdateHistory($object, $old_status);
+                    }
+                } else {
+                    $old_status = $uiDevDatas->status;
+                    $uiDevDatas->update(['status' => $request->status]);
+                    $this->uicheckResponsiveUpdateHistory($request, $old_status);
+                }
             } else {
                 UiDevice::create([
                     'user_id' => \Auth::user()->id,
@@ -1364,9 +1392,8 @@ class UicheckController extends Controller
                     'languages_id' => $request->language_id,
                     'status' => $request->status,
                 ]);
+                $this->uicheckResponsiveUpdateHistory($request, $old_status);
             }
-
-            $this->uicheckResponsiveUpdateHistory($request, $old_status);
 
             $status = SiteDevelopmentStatus::find($request->status);
 
@@ -1405,7 +1432,7 @@ class UicheckController extends Controller
     public function uicheckResponsiveUpdateHistory($data, $old_status = 3)
     {
         try {
-            $data['user_id'] = \Auth::user()->id ?? '';
+            // $data['user_id'] = \Auth::user()->id ?? '';
 
             $createdHistory = UiResponsivestatusHistory::create(
                 [
@@ -1678,7 +1705,7 @@ class UicheckController extends Controller
                         '<td>' . ($value->expected_start_time ?: '-') . '</td>',
                         '<td>' . ($value->expected_completion_time ?: '-') . '</td>',
                         '<td>' . ($value->estimated_time ?: '-') . '</td>',
-                        '<td>' . ($select) . '</td>',
+                        // '<td>' . ($select) . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
@@ -2115,7 +2142,7 @@ class UicheckController extends Controller
             $websiteId = $request->websiteId;
 
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedStatusHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
                                     ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
                                     ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
                                     ->leftJoin('users as u', 'u.id', 'uua.user_id')
