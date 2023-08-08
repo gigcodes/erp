@@ -11,4 +11,10 @@ class DatabaseBackupMonitoring extends Model
 
     protected $table = 'database_backup_monitoring';
 
+
+    public function dbStatusColour()
+    {
+        return $this->belongsTo(DatabaseBackupMonitoringStatus::class, 'db_status_id');
+    }
+
 }

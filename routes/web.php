@@ -5468,7 +5468,12 @@ Route::get('ip/logs', [IpLogController::class, 'getIPLogs'])->name('get.ip.logs'
 Route::post('/whitelist-ip', [IpLogController::class, 'whitelistIP'])->name('whitelist-ip');
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
-Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');;
+Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');
+Route::post('database/backup/store-status', [DatabaseBackupMonitoringController::class, 'storeDbStatus'])->name('db-store-status');
+Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
+Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
+
+
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
 
