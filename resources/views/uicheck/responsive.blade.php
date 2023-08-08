@@ -241,7 +241,7 @@
 				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
-				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
+				{{-- <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp; --}}
 				{{-- <label for="usr">Show Inactive Records:</label>
 				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}> --}}
 				@endif
@@ -336,8 +336,8 @@
 									$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
 									$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
 								?>
-								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
+								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}">
+									<?php echo Form::select("statuschanges",[ "" => "-- Select --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
 									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button>
 								</td>
 							
@@ -872,6 +872,7 @@
 		var uicheck_id = $(this).parent().data('uicheck_id');
 		var device_no = $(this).parent().data('device_no');
 		var old_status = $(this).parent().data('old_status');
+		var user_access_user_id = $(this).parent().data("user_accessable_user_id");
 
 		var status = $(this).val();
 
@@ -893,6 +894,10 @@
 				if (response.code == 200) {
 					//$(".statuschanges").val("");
 					toastr['success'](response.message);
+					//update respective td background
+					var dynamicClass = '.uidevmessage' + device_no + uicheck_id + user_access_user_id;
+					// $(dynamicClass).parent('td').css("background-color",response.data);
+					$(dynamicClass).css("background-color",response.data);
 				} else {
 					toastr['error'](response.message);
 				}
@@ -1518,6 +1523,8 @@
 		var status_id = $(this).val();
 		var deviceno = $(this).data("deviceno");
 		var uicheckid = $(this).data("uicheckid");
+		var user_access_user_id = $(this).data("user_access_user_id");
+
 		if(confirm("Are you sure you want to change status?")) {
 			$.ajax({
 			url: "{{route('uicheck.device.status')}}",
@@ -1535,7 +1542,7 @@
 			toastr["success"](response.message);
 
 			//update respective td background
-			var dynamicClass = '.uidevmessage' + deviceno + uicheckid;
+			var dynamicClass = '.uidevmessage' + deviceno + uicheckid + user_access_user_id;
 			// $(dynamicClass).parent('td').css("background-color",response.data);
 			$(dynamicClass).css("background-color",response.data);
 
