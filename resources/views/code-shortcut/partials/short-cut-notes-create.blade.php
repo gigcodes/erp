@@ -72,19 +72,19 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Code</label>
-                                <?php echo Form::text('code', null, ['class' => 'form-control code', 'required' => 'true', 'value' => "{{old('code')}}"]); ?>
+                                <?php echo Form::text('code', null, ['class' => 'form-control code', 'value' => "{{old('code')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Title</label>
-                                <?php echo Form::text('title', null, ['class' => 'form-control title', 'required' => 'true', 'value' => "{{old('title')}}"]); ?>
+                                <?php echo Form::text('title', null, ['class' => 'form-control title',  'value' => "{{old('title')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Solution</label>
-                                <?php echo Form::text('solution', null, ['class' => 'form-control solution', 'required' => 'true', 'value' => "{{old('solution')}}"]); ?>
+                                <?php echo Form::text('solution', null, ['class' => 'form-control solution', 'value' => "{{old('solution')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
