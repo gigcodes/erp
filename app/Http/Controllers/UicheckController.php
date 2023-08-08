@@ -1368,7 +1368,9 @@ class UicheckController extends Controller
 
             $this->uicheckResponsiveUpdateHistory($request, $old_status);
 
-            return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
+            $status = SiteDevelopmentStatus::find($request->status);
+
+            return response()->json(['code' => 200, 'message' => 'Status updated succesfully', 'data' => $status?->color,]);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
@@ -1660,7 +1662,7 @@ class UicheckController extends Controller
                 foreach ($getHistory as $value) {
                     $select = $value->status_name ?: '-';
                     if ($isAdmin || $value->user_id == $loggedInUserId) {
-                        $select = \Form::select('site_development_status_id', ['' => '-'] + $siteDevelopmentStatuses, $value->status ?? '-', ['class' => 'form-control historystatus', 'data-id' => $value->id, 'data-deviceno' => $request->device_no, 'data-uicheckid' => $request->uicheck_id]);
+                        $select = \Form::select('site_development_status_id', ['' => '-'] + $siteDevelopmentStatuses, $value->status ?? '-', ['class' => 'form-control historystatus', 'data-id' => $value->id, 'data-deviceno' => $request->device_no, 'data-uicheckid' => $request->uicheck_id, 'data-user_access_user_id' => $request->user_access_user_id]);
                     }
                     $html[] = implode('', [
                         '<tr>',
