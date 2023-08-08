@@ -10,6 +10,9 @@
   .form-group {
     padding: 10px;
   }
+  .highlight {
+    color: red;
+}
 </style>
 @endsection
 @section('content')
@@ -100,18 +103,42 @@
           <th>Email</th>
           <th>Password</th>
           <th>Create DateTime</th>
+          <th>Due DateTime</th>
           <th>Access Token </th>
           <th width="30%">Remark </th>
+          <th> Validate </th>
         </tr>
       </thead>
       @php  $no=1; @endphp
       <tbody>
       @foreach($timeDoctorAccounts as $key =>$member)
         <tr>
+          @php
+            $createdAt = \Carbon\Carbon::parse($member->created_at);
+            $dueDate = \Carbon\Carbon::parse($member->created_at)->addDays(15);
+            // Check if the current date is greater than or equal to the due date
+            if (\Carbon\Carbon::now() >= $dueDate) {
+                $dueDate->addDays(30); // Add an additional 30 days
+            }
+
+            $isDueToday = $dueDate->isToday();
+            $timeDifference = now()->diffInSeconds($dueDate, false);
+            // Check if the due date is in the past and less than one minute away
+            $highlight = ( $timeDifference < 60) || $isDueToday;          
+
+            @endphp
           <td style="vertical-align:middle;">{{ $key+1 }}</td>
           <td style="vertical-align:middle;">{{ ($member->time_doctor_email)!= null  ? $member->time_doctor_email : ""}}</td>
           <td style="vertical-align:middle;">{{ ($member->time_doctor_password)!= null  ? $member->time_doctor_password : ""}}</td>
           <td style="vertical-align:middle;">{{ $member->created_at }}</td>
+          <td style="vertical-align: middle;">
+            @if($highlight == true && $member->validate != 1)
+            <span class="{{ $highlight ? 'highlight' : '' }}">{{ $dueDate->toDateTimeString() }}</span>
+            @else
+            <span>{{ $dueDate->toDateTimeString() }}</span>
+             @endif
+             <button data-member_id="{{ $member->id }}"  class="btn btn-xs btn-image show-history" title="due date"><img src="{{asset('images/chat.png')}}" alt="";></button>
+          </td>
             @if ($member->auth_token === '')
             <td><button type="button" class="btn btn-secondary get_token" data-id="{{ $member->id }}">Get Token</button></td>
             @else
@@ -125,6 +152,13 @@
             </button>
           <button data-member_id="{{ $member->id }}"  class="btn btn-xs btn-image show-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
         {{-- </div> --}}
+        </td>
+        <td>
+          @if($highlight == true && $member->validate != 1)
+          <input type="checkbox" name="vaildate" id="vaildate" data-id="{{ $member->id }}"  data-dueDate="{{$dueDate->toDateTimeString()}}" class="btn btn-xs btn update-validate">              
+          @else
+            -
+          @endif
         </td>
         </tr>
         @endforeach
@@ -164,6 +198,34 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="due-date-listing" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-body">
+
+              <div class="col-md-12">
+                  <table class="table table-bordered">
+                      <thead>
+                          <tr>
+                              <th width="10%">No</th>
+                              <th width="30%">Old Date</th>
+                              <th width="30%">New Date</th>
+                              <th width="30%">Updated by</th>
+                              <th width="20%">Created Date</th>
+                          </tr>
+                      </thead>
+                      <tbody class="due-date-view">
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
 </div>
 
 @endsection
@@ -399,6 +461,59 @@
             });
         });
 
+        $(document).on('click', '.show-history', function() {
+        var member_id = $(this).data('member_id');
+            $.ajax({
+                type: "POST",
+                url: `{{ route('time-doctor.due-date-history.get') }}`,
+                headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+                data: {
+                    member_id:member_id,
+
+                },
+                success: function(response) {
+                  console.log(response);
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.after_date ? v.after_date : ''} </td>
+                                        <td> ${v.before_date ? v.before_date : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#due-date-listing").find(".due-date-view").html(html);
+                        $("#due-date-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+
+        $(document).on("click", ".update-validate", function(){
+          var getId = $(this).attr('data-id');
+          var dueDate = $(this).attr('data-dueDate');
+            $.ajax({
+                type: "post",
+                url: "{{ route('time-doctor.updateValidate') }}",
+                data: {id:getId,
+                  dueDate:dueDate},
+                success: function(response) {
+                  if(response.status == true){
+                    toastr['success'](response.message, 'success');
+                  } else {
+                    toastr['error'](response.message, 'error');
+                  }
+                  window.location.reload();
+                }
+            })
+      })
 </script>
 <style>
   .select2-search--inline {

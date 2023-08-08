@@ -16,6 +16,7 @@ use App\Library\TimeDoctor\Src\Timedoctor;
 use Carbon\Carbon;
 use Auth;
 use App\Models\TimeDoctorAccountRemarkHistory;
+use App\Models\TimeDoctorDueDateHistory;
 
 class TimeDoctorController extends Controller
 {
@@ -658,4 +659,40 @@ class TimeDoctorController extends Controller
         ], 200);
 
     }
+
+    public function updateValidate(Request $request)
+    {
+        $timeDoctorAccount = TimeDoctorAccount::find($request->id);
+        $beforeDate = $timeDoctorAccount->created_at;
+        $timeDoctorAccount->validate = 1;
+        $timeDoctorAccount->due_date = $request->dueDate;
+        $timeDoctorAccount->save();
+
+        $history = new TimeDoctorDueDateHistory();
+        $history->time_doctor_account_id = $request->id;
+        $history->before_date = $beforeDate->addDays(15); 
+        $history->after_date = $request->dueDate;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $timeDoctorAccount,
+            'message' => 'Validate Updated successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getduedateHistory(Request $request)
+    {
+        $history = TimeDoctorDueDateHistory::with(['user'])->where('time_doctor_account_id', $request->member_id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $history,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+    
 }
