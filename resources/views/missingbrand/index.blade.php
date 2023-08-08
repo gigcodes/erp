@@ -9,38 +9,53 @@
 @section('large_content')
 
     <div class="row">
-        <div class="col-lg-12 margin-tb">
+    </div>
+        <div class="mt-3 col-md-12">
             <h2 class="page-heading">{{ $title }} (<span id="total-count">{{ $missingBrands->total() }}</span>)</h2>
-            <div class="pull-left">
-                    <div class="row">
-                        <div class="col-md-5 p-0 pl-1">
+                        <div class="col-md-2 pd-sm">
+                            <label for="brand">Serach</label>
                             <div class="form-group">
                                 <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="Search" id="term">
                             </div>
                         </div>
-                        <div class="col-md-5 p-0 pl-1">
+                        <div class="col-md-2 pd-sm">
+                            <label for="brand">Suppliers</label>
                             <div class="form-group">
-                                <select class="form-control select2" id="select">
-                                    <option value="">Select Scrapper</option>
+                                <select class="form-control globalSelect2" id="select"  multiple="true" name="select[]">
                                     @foreach($scrapers as $scraper)
                                         <option value="{{ $scraper['supplier'] }}">{{ $scraper['supplier'] }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                        </div>    
+                        </div> 
+                        <div class="col-md-2 pd-sm">
+                            <label for="brand">Brands</label>
+                            <div class="form-group">
+                                <select class="form-control globalSelect2" multiple="true" id="brand" name="brand[]" placeholder="select-brands">
+                                    @foreach($brands as $brand)
+                                    <option value="{{ $brand['name']}}" 
+                                    @if(is_array(request('brand')) && in_array($brand, request('brand')))
+                                        selected
+                                    @endif >{{ $brand['name'] }}</option>
+                                    @endforeach
+                                </select> 
+                            </div>
+                        </div> 
+                        <div class="col-md-2 pd-sm">
+                            <label for="brand">createdAt</label>
+                            <input class="form-control" type="date" id="date" name="date" value="{{ (request('date') ?? "" )}}">
+                        </div>
                         <div class="col-md-2 p-0">
                             <button type="button" class="btn btn-image btn-call-data" onclick="filterResults()"><img src="{{asset('/images/filter.png')}}" style="cursor: default;"></button>
+                            <a href="{{route('missing-brands.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         </div>
-                    </div>
-            </div>
+
             <div class="pull-right">
                 <button class="btn btn-secondary" onclick="automaticMerge()">Automatic Merge</button>
                 <a href="javascript:;" class="create-multi-reference btn btn-secondary">Reference</a>
             </div>
-        </div>
-    </div>
 
     @include('partials.flash_messages')
 
@@ -177,12 +192,16 @@
     function filterResults() {
          term = $('#term').val();
          select = $('#select').val();
+        var brand = $('#brand').val();
+        var date = $('#date').val();
          $.ajax({
             type: 'GET',
             url: "/missing-brands",
             data: {
                 term : term,
                 select : select,
+                brand: brand,
+                date:date,
             },
             beforeSend: function () {
                 $("#loading-image").show();
