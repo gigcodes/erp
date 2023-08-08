@@ -47,7 +47,7 @@
                             <label for="brand">createdAt</label>
                             <input class="form-control" type="date" id="date" name="date" value="{{ (request('date') ?? "" )}}">
                         </div>
-                        <div class="col-md-2 p-0">
+                        <div class="col-md-2 p-0"><br>
                             <button type="button" class="btn btn-image btn-call-data" onclick="filterResults()"><img src="{{asset('/images/filter.png')}}" style="cursor: default;"></button>
                             <a href="{{route('missing-brands.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         </div>
