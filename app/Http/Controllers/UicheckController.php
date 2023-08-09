@@ -2310,7 +2310,7 @@ class UicheckController extends Controller
         
                     return response()->json(['message' => 'Data saved successfully']);
                 } else {
-                    return response()->json(['message' => 'Data already exists'], 400);
+                    return response()->json(['message' => 'Data fetched already up to date, No new entry.'], 400);
                 }
             } else {
                 return response()->json(['message' => 'Error fetching data from Builder.io'], 500);
