@@ -34,4 +34,9 @@ class SiteDevelopmentCategory extends Model
 
         return $development->first();
     }
+
+    public function masterCategory()
+    {
+        return $this->belongsTo(SiteDevelopmentMasterCategory::class, 'master_category_id');
+    }
 }
