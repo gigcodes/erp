@@ -594,7 +594,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <!-- email-search Modal-->
     <div id="menu-email-search-model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg"  role="document">
+        <div class="modal-dialog modal-xl"  role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Email Search</h4>
@@ -636,10 +636,38 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         @foreach ($userEmails as $key => $userEmail)
                                             <tr>
                                                 <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
-                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td class="expand-row" style="word-break: break-all">
+                                                    <span class="td-mini-container">
+                                                       {{ strlen($userEmail->from) > 30 ? substr($userEmail->from, 0, 15).'...' :  $userEmail->from }}
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        {{ $userEmail->from }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row" style="word-break: break-all">
+                                                    <span class="td-mini-container">
+                                                       {{ strlen($userEmail->to) > 30 ? substr($userEmail->to, 0,15).'...' :  $userEmail->to }}
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        {{ $userEmail->to }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row" style="word-break: break-all">
+                                                    <span class="td-mini-container">
+                                                       {{ strlen($userEmail->subject) > 30 ? substr($userEmail->subject, 0,15).'...' :  $userEmail->subject }}
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        {{ $userEmail->subject }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row" style="word-break: break-all">
+                                                    <span class="td-mini-container">
+                                                       {{ strlen($userEmail->message) > 30 ? substr($userEmail->message, 0,15).'...' :  $userEmail->message }}
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        {{ $userEmail->message }}
+                                                    </span>
+                                                </td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -5795,6 +5823,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         }
     })
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
