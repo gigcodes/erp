@@ -425,16 +425,16 @@ class DevelopmentController extends Controller
         }
 
         if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
         if ((int) $request->get('master_user_id') > 0) {
-            $issues = $issues->where('developer_tasks.master_user_id', $request->get('master_user_id'));
+            $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('master_user_id'));
         }
         if ((int) $request->get('team_lead_id') > 0) {
-            $issues = $issues->where('developer_tasks.team_lead_id', $request->get('team_lead_id'));
+            $issues = $issues->whereIn('developer_tasks.team_lead_id', $request->get('team_lead_id'));
         }
         if ((int) $request->get('tester_id') > 0) {
-            $issues = $issues->where('developer_tasks.tester_id', $request->get('tester_id'));
+            $issues = $issues->whereIn('developer_tasks.tester_id', $request->get('tester_id'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
