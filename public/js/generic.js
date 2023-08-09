@@ -61,7 +61,7 @@ var getMoreChatConvo = function (params) {
     });
 };
 
-var getHtml = function (response, listType = 'message-list') {
+var getHtml = function (response, listType = "message-list") {
   var j = 0;
 
   var classMaster =
@@ -300,106 +300,105 @@ var getHtml = function (response, listType = 'message-list') {
 
     // Set empty button var
     var button = "";
-    if (listType === 'message-list') {
-
-    if (message.error_status == 1) {
-      button +=
-        '<i title="' +
-        message.error_info +
-        '" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
-    }
+    if (listType === "message-list") {
+      if (message.error_status == 1) {
+        button +=
+          '<i title="' +
+          message.error_info +
+          '" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
+      }
       if (
-          message.type == "task" ||
-          message.type == "customer" ||
-          message.type == "vendor" ||
-          message.type == "user"
+        message.type == "task" ||
+        message.type == "customer" ||
+        message.type == "vendor" ||
+        message.type == "user"
       ) {
         if (message.status == 0 || message.status == 5 || message.status == 6) {
           if (message.status == 0) {
             button +=
-                "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
-                message.id +
-                "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+              "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
+              message.id +
+              "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
           }
 
           if (message.status == 0 || message.status == 5) {
             button +=
-                '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' +
-                message.id +
-                '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
+              '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' +
+              message.id +
+              '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
           }
           button +=
-              '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
-              message.id +
-              '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
-              message.id +
-              '" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+            '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+            message.id +
+            '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
+            message.id +
+            '" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
         } else if (message.status == 4) {
         } else {
           if (message.type == "customer") {
             if (message.error_status == 1) {
               button +=
-                  "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
-                  message.id +
-                  "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
-                  message.id +
-                  "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
+                message.id +
+                "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
+                message.id +
+                "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
             } else if (message.error_status == 2) {
               button +=
-                  "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
-                  message.id +
-                  "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
-                  message.id +
-                  "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" +
+                message.id +
+                "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" +
+                message.id +
+                "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
             }
 
             if (!message.approved) {
               if (is_admin || is_hod_crm) {
                 approveBtn =
-                    "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" +
-                    message.id +
-                    "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
+                  "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" +
+                  message.id +
+                  "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
                 button += approveBtn;
                 button +=
-                    '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' +
-                    message.id +
-                    '" style="display: none;">' +
-                    message.message +
-                    "</textarea>";
+                  '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' +
+                  message.id +
+                  '" style="display: none;">' +
+                  message.message +
+                  "</textarea>";
                 button +=
-                    ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' +
-                    message.id +
-                    '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+                  ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' +
+                  message.id +
+                  '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
               }
             }
             button +=
-                '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
-                message.id +
-                '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
-                message.id +
-                '" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+              '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+              message.id +
+              '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="' +
+              message.id +
+              '" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
           }
 
           if (message.type == "task" || message.type == "vendor") {
             button +=
-                "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-                message.id +
-                "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-                message.resent +
-                ")</a>";
+              "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+              message.id +
+              "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+              message.resent +
+              ")</a>";
             if (message.type != "vendor") {
               button +=
-                  "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" +
-                  message.id +
-                  "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" +
+                message.id +
+                "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
             }
           }
 
           if (message.type == "vendor") {
             button +=
-                '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
-                message.id +
-                '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
+              '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' +
+              message.id +
+              '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
           }
         }
       }
@@ -411,51 +410,51 @@ var getHtml = function (response, listType = 'message-list') {
         }
       }
       button +=
-          '&nbsp;<button title="Search Product Image" data-media-url="\'' +
-          image_url +
-          '\'" data-id="' +
-          message.id +
-          '" data-object_type_id="' +
-          message.object_type_id +
-          '" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+        '&nbsp;<button title="Search Product Image" data-media-url="\'' +
+        image_url +
+        '\'" data-id="' +
+        message.id +
+        '" data-object_type_id="' +
+        message.object_type_id +
+        '" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
 
       if (message.type == "developer_task") {
         if (message.status == 0) {
           button +=
-              "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
-              message.id +
-              "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+            "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" +
+            message.id +
+            "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
         }
         button +=
-            "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-            message.id +
-            "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-            message.resent +
-            ")</a>";
+          "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+          message.id +
+          "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+          message.resent +
+          ")</a>";
       }
 
       if (is_admin) {
         button +=
-            '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' +
-            message.id +
-            '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+          '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' +
+          message.id +
+          '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
       }
       //START - Purpose : Add resend button - DEVTASK-4236
       if (message.type == "supplier") {
         button +=
-            "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-            message.id +
-            "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-            message.resent +
-            ")</a>";
+          "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+          message.id +
+          "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+          message.resent +
+          ")</a>";
 
         if (message.additional_data != "" && message.additional_data != null) {
           button +=
-              "<a href='/purchase-product/download_excel_file/?filename=" +
-              message.additional_data +
-              "' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" +
-              message.id +
-              "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
+            "<a href='/purchase-product/download_excel_file/?filename=" +
+            message.additional_data +
+            "' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" +
+            message.id +
+            "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
         }
       }
       //END - DEVTASK-4236
@@ -463,63 +462,62 @@ var getHtml = function (response, listType = 'message-list') {
       //START - Purpose : Add resend button - DEVTASK-18283
       if (message.type == "order") {
         button +=
-            "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
-            message.id +
-            "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
-            message.resent +
-            ")</a>";
+          "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" +
+          message.id +
+          "'><i class='fa fa-repeat' aria-hidden='true'></i> (" +
+          message.resent +
+          ")</a>";
       }
       //END - DEVTASK-18283
 
       if (message.is_queue == 1) {
         button +=
-            '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
+          '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
       }
       if (message.is_reviewed != 1) {
         button +=
-            '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' +
-            message.id +
-            '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+          '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' +
+          message.id +
+          '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
       }
 
       if (message.inout == "out" || message.inout == "in") {
         button +=
-            '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+          '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
       }
       button +=
-          '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="' +
-          message.sop_category +
-          '" data-name="' +
-          message.sop_name +
-          '" data-message="' +
-          message.sop_content +
-          '" data-id="' +
-          message.id +
-          '" data-msg="' +
-          message.message +
-          '"><i class="fa fa-asterisk" data-message="' +
-          message.message +
-          '" aria-hidden="true"></i></a>';
+        '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="' +
+        message.sop_category +
+        '" data-name="' +
+        message.sop_name +
+        '" data-message="' +
+        message.sop_content +
+        '" data-id="' +
+        message.id +
+        '" data-msg="' +
+        message.message +
+        '"><i class="fa fa-asterisk" data-message="' +
+        message.message +
+        '" aria-hidden="true"></i></a>';
       button +=
-          '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="' +
-          message.message +
-          '" data-id="' +
-          message.id +
-          '"><i class="fa fa-server" aria-hidden="true"></i></a>';
+        '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="' +
+        message.message +
+        '" data-id="' +
+        message.id +
+        '"><i class="fa fa-server" aria-hidden="true"></i></a>';
       button +=
-          '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(' +
-          message.id +
-          ')" data-message="' +
-          message.message +
-          '" data-id="' +
-          message.id +
-          '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+        '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(' +
+        message.id +
+        ')" data-message="' +
+        message.message +
+        '" data-id="' +
+        message.id +
+        '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
     } else {
       if (message.send_by_simulator) {
-        button += 'send by simulator'
+        button += "send by simulator";
       } else {
-
-        button += 'Send by user';
+        button += "Send by user";
       }
     }
     // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
@@ -687,12 +685,12 @@ var getHtml = function (response, listType = 'message-list') {
         message.message +
         '">' +
         media;
-        if(message.is_audio){
-          li += '<audio controls="" src="'+message.message+'"></audio>';
-        }else{
-          li +=  message.message;  
-        }
-        li +=  "</p></div></div>";
+      if (message.is_audio) {
+        li += '<audio controls="" src="' + message.message + '"></audio>';
+      } else {
+        li += message.message;
+      }
+      li += "</p></div></div>";
       fromMsg =
         fromMsg +
         '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' +
@@ -729,12 +727,12 @@ var getHtml = function (response, listType = 'message-list') {
         message.message +
         '">' +
         media;
-      if(message.is_audio){
-        li += '<audio controls="" src="'+message.message+'"></audio>';
-      }else{
-        li +=  message.message;  
+      if (message.is_audio) {
+        li += '<audio controls="" src="' + message.message + '"></audio>';
+      } else {
+        li += message.message;
       }
-      li +=  "</p></div></div>";
+      li += "</p></div></div>";
       fromMsg =
         fromMsg +
         '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' +
@@ -1582,10 +1580,10 @@ $(document).on("click", ".forward-btn", function () {
 
 $(document).on("keyup", ".search_chat_pop", function () {
   var value = $(this).val().toLowerCase();
-  exampleFunction(); 
+  exampleFunction();
   // $(".speech-wrapper .bubble").filter(function() {
   //     $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
-  // }); 
+  // });
 });
 
 $(".search_chat_pop_time")
@@ -1654,44 +1652,51 @@ function exampleFunction() {
           .val(currentChatParams.object_val);
         $("#chat-history").html(li);
       }
-      var totalCount = 0; 
+      var totalCount = 0;
 
       if (keyword) {
-        $('.bubble').each(function() {
-          var messageId = $(this).attr('id'); // Get the id attribute of the message element
-          var messageText = $(this).find('.copy_message' + messageId).data('message').toLowerCase(); // Get the message text and convert to lowercase
-          var words = messageText.split(' '); // Split the message text into individual words
-      
-          var highlightedWords = words.map(function(word) {
+        $(".bubble").each(function () {
+          var messageId = $(this).attr("id"); // Get the id attribute of the message element
+          var messageText = $(this)
+            .find(".copy_message" + messageId)
+            .data("message")
+            .toLowerCase(); // Get the message text and convert to lowercase
+          var words = messageText.split(" "); // Split the message text into individual words
+
+          var highlightedWords = words.map(function (word) {
             if (word.indexOf(keyword) !== -1) {
-              totalCount++; 
+              totalCount++;
               // $('#total-count').text(word.length);
 
-              return '<span class="highlight">' + word + '</span>'; // Wrap matching words in a span with highlight class
+              return '<span class="highlight">' + word + "</span>"; // Wrap matching words in a span with highlight class
             } else {
               return word;
             }
           });
-        $(this).find('.copy_message' + messageId).html(highlightedWords.join(' ')); // Update the message content with highlighted words
+          $(this)
+            .find(".copy_message" + messageId)
+            .html(highlightedWords.join(" ")); // Update the message content with highlighted words
         });
       } else {
         // Reset all messages to original content when searchText is empty
-        $('.bubble').each(function() {
-          var messageId = $(this).attr('id');
-          var messageText = $(this).find('.copy_message' + messageId).data('message');
-          $(this).find('.copy_message' + messageId).html(messageText);
+        $(".bubble").each(function () {
+          var messageId = $(this).attr("id");
+          var messageText = $(this)
+            .find(".copy_message" + messageId)
+            .data("message");
+          $(this)
+            .find(".copy_message" + messageId)
+            .html(messageText);
         });
-
       }
-      $('#total-count').text(totalCount);
+      $("#total-count").text(totalCount);
 
-    // Hide the total-count element if the totalCount is zero
-    if (totalCount === 0) {
-      $('#total-count').hide();
-    } else {
-      $('#total-count').show();
-    }
-
+      // Hide the total-count element if the totalCount is zero
+      if (totalCount === 0) {
+        $("#total-count").hide();
+      } else {
+        $("#total-count").show();
+      }
     })
     .fail(function (response) {
       alert("Could not load messages");
