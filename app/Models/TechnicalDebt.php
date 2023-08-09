@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
-use App\Models\TechnicalFrameWork;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TechnicalDebt extends Model
 {
@@ -18,6 +17,6 @@ class TechnicalDebt extends Model
 
     public function technical_framework()
     {
-        return $this->hasOne(TechnicalFrameWork::class , 'id', 'technical_framework_id');
+        return $this->hasOne(TechnicalFrameWork::class, 'id', 'technical_framework_id');
     }
 }

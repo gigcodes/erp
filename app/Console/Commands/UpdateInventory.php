@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\Jobs\CallHelperForZeroStockQtyUpdate;
-use App\Helpers\LogHelper;
 
 class UpdateInventory extends Command
 {
@@ -40,7 +40,7 @@ class UpdateInventory extends Command
     public function handle()
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
-        
+
         \Log::info('Update Inventory');
         try {
             \Log::info('Update Inventory TRY');
@@ -140,6 +140,7 @@ class UpdateInventory extends Command
                             \Log::info('Last inventory condition is success');
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Last inventory condition is success']);
+
                             continue;
                         } else {
                             \Log::info('Last inventory condition is failed');
@@ -167,7 +168,7 @@ class UpdateInventory extends Command
                 if (! empty($statusHistory)) {
                     \App\InventoryStatusHistory::insert($statusHistory);
                     \Log::info('********InventoryStatusHistory Bulk Insert********:' . json_encode($statusHistory));
-                    
+
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved inventory status history']);
                 }
                 if (! empty($needToCheck)) {
@@ -191,7 +192,7 @@ class UpdateInventory extends Command
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
-            
+
             \Log::info('Update Inventory CATCH');
             \Log::error($e->getMessage());
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Brand;
-use App\HashTag;
 use App\Product;
 use App\Scraper;
 use App\Setting;
@@ -16,7 +15,6 @@ use App\CategorySegment;
 use App\ScrapedProducts;
 use App\StoreWebsiteBrand;
 use App\Jobs\CreateHashTags;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -223,17 +221,18 @@ class BrandController extends Controller
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
 
-    public function generateHashTagKeywords($brand_id_array) {
+    public function generateHashTagKeywords($brand_id_array)
+    {
         $category_postfix_string_list = Category::getCategoryHierarchyString(4);
         /* Initialize queue for add hashtags */
-        if(count($brand_id_array) > 0) {
+        if (count($brand_id_array) > 0) {
             $brandList = Brand::where('is_hashtag_generated', 0)->whereIn('id', $brand_id_array)->pluck('name', 'id')->chunk(1000)->toArray();
         } else {
-            $brandList = Brand::where('is_hashtag_generated', 0)->pluck('name','id')->chunk(100)->toArray();
+            $brandList = Brand::where('is_hashtag_generated', 0)->pluck('name', 'id')->chunk(100)->toArray();
         }
 
         foreach ($brandList as $chunk) {
-            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>Auth::user()->id, 'category_postfix_string_list' =>$category_postfix_string_list, 'type' => 'brand'])->onQueue('generategooglescraperkeywords');
+            CreateHashTags::dispatch(['data' => $chunk, 'user_id' => Auth::user()->id, 'category_postfix_string_list' => $category_postfix_string_list, 'type' => 'brand'])->onQueue('generategooglescraperkeywords');
         }
     }
 
@@ -296,16 +295,18 @@ class BrandController extends Controller
     */
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      * Function for fetch brand list using AJAX request
      */
-    public function show(Request $request) {
-        if($request->ajax()) {
+    public function show(Request $request)
+    {
+        if ($request->ajax()) {
             $search_key = $request->get('search', '');
-            $brand_list = Brand::where('name', 'LIKE', '%'.$search_key.'%')->take(20)->get();
-            return response()->json(['success' => true,'data'=> $brand_list]);
+            $brand_list = Brand::where('name', 'LIKE', '%' . $search_key . '%')->take(20)->get();
+
+            return response()->json(['success' => true, 'data' => $brand_list]);
         }
+
         return redirect()->route('brand.index');
     }
 
@@ -360,7 +361,7 @@ class BrandController extends Controller
         $proxy = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-        $sku = $product->sku.$product->color;
+        $sku = $product->sku . $product->color;
 //      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
@@ -669,7 +670,7 @@ class BrandController extends Controller
                     ->toDirectory('brands')
                     ->upload();
                     // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
-                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL').'/brands/'.$image_name]);
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL') . '/brands/' . $image_name]);
                 }
             }
 
@@ -690,7 +691,7 @@ class BrandController extends Controller
             ->orderBy('brands.name', 'asc');
 
             if ($request->brand_name) {
-                $search = '%'.$request->brand_name.'%';
+                $search = '%' . $request->brand_name . '%';
                 $brand_data = $brand_data->where('brands.name', 'like', $search);
             }
             $brand_data = $brand_data->paginate(Setting::get('pagination'));

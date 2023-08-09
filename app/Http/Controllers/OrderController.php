@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Auth;
 use Cache;
 use Session;
@@ -39,6 +40,7 @@ use App\CallRecording;
 use App\CreditHistory;
 use App\OrderErrorLog;
 use App\ReplyCategory;
+use App\StatusMapping;
 use App\CallBusyMessage;
 use App\DeliveryApproval;
 use App\Mail\ViewInvoice;
@@ -60,6 +62,7 @@ use App\CommunicationHistory;
 use App\Mail\OrderStatusMail;
 use App\OrderCustomerAddress;
 use App\OrderMagentoErrorLog;
+use App\PurchaseProductOrder;
 use App\CallBusyMessageStatus;
 use App\waybillTrackHistories;
 use App\EmailCommonExceptionLog;
@@ -78,9 +81,6 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
-use App\PurchaseProductOrder;
-use App\StatusMapping;
-use DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -332,7 +332,7 @@ class OrderController extends Controller
         }
 
         $orders = $orders->groupBy('orders.order_id');
-        
+
         $orders = $orders->select(['orders.*', 'cs.email as cust_email', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id']);
 
         $users = Helpers::getUserArray(User::all());
@@ -343,7 +343,7 @@ class OrderController extends Controller
         } else {
             $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
         }
-        
+
         $statusFilterList = $statusFilterList->leftJoin('order_statuses as os', 'os.id', 'orders.order_status_id')
             ->where('order_status', '!=', '')->groupBy('order_status')->select(\DB::raw('count(*) as total'), 'os.status as order_status', 'swo.website_id')->get()->toArray();
 
@@ -1627,7 +1627,7 @@ class OrderController extends Controller
         if (true) {
             // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
-                $from_email=\App\Helpers::getFromEmail($order->customer->id);
+                $from_email = \App\Helpers::getFromEmail($order->customer->id);
                 $emailClass = (new AdvanceReceipt($order))->build();
 
                 // $order->update([
@@ -2124,8 +2124,8 @@ class OrderController extends Controller
                 'type' => 'refund-initiated',
                 'method' => 'whatsapp',
             ]);
-            
-            $from_email=\App\Helpers::getFromEmail($order->customer->id);
+
+            $from_email = \App\Helpers::getFromEmail($order->customer->id);
             $emailClass = (new RefundProcessed($order->order_id, $product_names))->build();
 
             $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -3048,8 +3048,8 @@ class OrderController extends Controller
                 });
             }
 
-            $logs =  $logs->get();
-            
+            $logs = $logs->get();
+
             $orderJourney = $logs->groupBy('order_id')->map(function ($group) {
                 return $group->last();
             });
@@ -3089,17 +3089,16 @@ class OrderController extends Controller
             $allLogs = OrderEmailSendJourneyLog::all();
 
             $groupByOrders = $allLogs->reject(function ($log) {
-                    return empty($log->order_id);
-                })->groupBy('order_id')->keys()->toArray();
+                return empty($log->order_id);
+            })->groupBy('order_id')->keys()->toArray();
 
             $groupByFromEmail = $allLogs->reject(function ($log) {
-                    return empty($log->from_email);
-                })->groupBy('from_email')->keys()->toArray();
+                return empty($log->from_email);
+            })->groupBy('from_email')->keys()->toArray();
 
             $groupByToEmail = $allLogs->reject(function ($log) {
-                    return empty($log->to_email);
-                })->groupBy('to_email')->keys()->toArray();
-
+                return empty($log->to_email);
+            })->groupBy('to_email')->keys()->toArray();
 
             if (count($orderJourney) > 0) {
                 return view('orders.email_send_journey', compact('orderJourney', 'groupedLogs', 'groupByOrders', 'groupByFromEmail', 'groupByToEmail'));
@@ -3154,7 +3153,7 @@ class OrderController extends Controller
      */
     public function getOrderJourney(Request $request)
     {
-        $orders = Order::latest("id")->paginate(25);
+        $orders = Order::latest('id')->paginate(25);
         $orderStatusList = OrderStatus::pluck('status', 'id')->all();
 
         if ($request->ajax()) {
@@ -4658,7 +4657,7 @@ class OrderController extends Controller
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
         // $from = config('env.MAIL_FROM_ADDRESS');
-        $from = "";
+        $from = '';
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
@@ -4672,12 +4671,12 @@ class OrderController extends Controller
                     $from = $emailAddress->from_address;
                     $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
                 } else {
-                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $emailAddresses = \App\EmailAddress::pluck('from_address', 'id')->toArray();
                     $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
                     foreach ($emailAddresses as $emailAddress) {
-                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                        $fromTemplate .= '<option>' . $emailAddress . '</option>';
                     }
-                    $fromTemplate .= "</select>";
+                    $fromTemplate .= '</select>';
                 }
             }
             $preview = "<table>
@@ -4704,12 +4703,12 @@ class OrderController extends Controller
                     $from = $emailAddress->from_address;
                     $fromTemplate = "<input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >";
                 } else {
-                    $emailAddresses = \App\EmailAddress::pluck("from_address", "id")->toArray();
+                    $emailAddresses = \App\EmailAddress::pluck('from_address', 'id')->toArray();
                     $fromTemplate = "<select class='form-control' id='email_from_mail' name='from_mail'>";
                     foreach ($emailAddresses as $emailAddress) {
-                        $fromTemplate .= "<option>" . $emailAddress . "</option>";
+                        $fromTemplate .= '<option>' . $emailAddress . '</option>';
                     }
-                    $fromTemplate .= "</select>";
+                    $fromTemplate .= '</select>';
                 }
             }
             $preview = "<table>
@@ -4983,7 +4982,7 @@ class OrderController extends Controller
             // Get order product
             $orderProduct = OrderProduct::FindOrFail($request->orderProductId);
 
-            if($orderProduct) {
+            if ($orderProduct) {
                 // Get status from request
                 $orderProductStatusId = $request->orderProductStatusId;
 
@@ -4992,13 +4991,13 @@ class OrderController extends Controller
                 $orderProduct->save();
 
                 // Find mapped purchase status
-                $mappedStatus = StatusMapping::where("order_status_id", $orderProductStatusId)->first();
+                $mappedStatus = StatusMapping::where('order_status_id', $orderProductStatusId)->first();
                 if ($mappedStatus) {
                     $purchaseStatusId = $mappedStatus->purchase_status_id;
                     if ($purchaseStatusId) {
-                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck("id")->toArray();
+                        $purchaseProductOrders = PurchaseProductOrder::whereRaw('json_contains(order_products_order_id, \'["' . $request->orderProductId . '"]\')')->pluck('id')->toArray();
                         if ($purchaseProductOrders) {
-                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id'=>$purchaseStatusId]);
+                            PurchaseProductOrder::whereIn('id', $purchaseProductOrders)->update(['purchase_status_id' => $purchaseStatusId]);
                         }
                     }
                 }
@@ -5006,7 +5005,7 @@ class OrderController extends Controller
                 return response()->json(['messages' => 'Order Product Status Updated Successfully', 'code' => 200]);
             }
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Order product not found!'], 404);
+            return response()->json(['message' => 'Order product not found!'], 404);
         }
     }
 

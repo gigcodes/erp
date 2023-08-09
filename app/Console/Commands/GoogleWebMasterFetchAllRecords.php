@@ -5,14 +5,14 @@
 namespace App\Console\Commands;
 
 use App\Site;
+use App\LogRequest;
 use App\GoogleWebMasters;
+use App\Helpers\LogHelper;
 use App\GoogleClientAccount;
 use Illuminate\Http\Request;
 use App\GoogleSearchAnalytics;
 use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class GoogleWebMasterFetchAllRecords extends Command
 {
@@ -27,7 +27,7 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function handle()
     {
-        try{
+        try {
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron stared to run']);
 
@@ -42,7 +42,7 @@ class GoogleWebMasterFetchAllRecords extends Command
             foreach ($GoogleClientAccounts as $GoogleClientAccount) {
                 $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
                 if (isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null) {
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'found the refresh token from google account id:'.$GoogleClientAccount->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'found the refresh token from google account id:' . $GoogleClientAccount->id]);
 
                     // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
                     $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
@@ -73,10 +73,10 @@ class GoogleWebMasterFetchAllRecords extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
 
                         //echo"<pre>";print_r($token);die;
-                        $url = "https://www.googleapis.com/webmasters/v3/sites/";
+                        $url = 'https://www.googleapis.com/webmasters/v3/sites/';
                         $curl = curl_init();
                         curl_setopt_array($curl, [
-                            CURLOPT_URL =>  $url,
+                            CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
@@ -142,19 +142,18 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                                     $response1 = curl_exec($curl1);
                                     $err = curl_error($curl1);
-                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);                       
+                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);
                                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
-            
 
                                     if ($err) {
                                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Error found from the curl request']);
-                                        
+
                                         activity('v3_sites')->log($err);
                                         echo 'cURL Error #:' . $err;
                                     } else {
                                         if (isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap)) {
                                             foreach (json_decode($response1)->sitemap as $key => $sitemap) {
-                                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'updated crawls detail for site'.$site->siteUrl]);
+                                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'updated crawls detail for site' . $site->siteUrl]);
 
                                                 GoogleWebMasters::where('sites', $site->siteUrl)->update(['crawls' => $sitemap->errors]);
                                             }
@@ -166,7 +165,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                     }
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
@@ -222,7 +221,6 @@ class GoogleWebMasterFetchAllRecords extends Command
                 }
 
                 curl_close($curl);
-                
 
                 if (isset($error_msg)) {
                     $this->curl_errors_array[] = ['key' => $google_key, 'error' => $error_msg, 'type' => 'site_list'];
@@ -364,8 +362,8 @@ class GoogleWebMasterFetchAllRecords extends Command
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
         }
-        
-        curl_close($curl);  
+
+        curl_close($curl);
         if (isset($error_msg)) {
             $this->curl_errors_array[] = ['siteUrl' => $siteUrl, 'error' => $error_msg, 'type' => 'search_analytics'];
 

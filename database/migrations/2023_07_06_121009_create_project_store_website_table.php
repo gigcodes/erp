@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateProjectStoreWebsiteTable extends Migration
 {
@@ -14,8 +14,8 @@ class CreateProjectStoreWebsiteTable extends Migration
     public function up()
     {
         Schema::create('project_store_website', function (Blueprint $table) {
-            $table->integer("project_id");
-            $table->integer("store_website_id");
+            $table->integer('project_id');
+            $table->integer('store_website_id');
         });
     }
 

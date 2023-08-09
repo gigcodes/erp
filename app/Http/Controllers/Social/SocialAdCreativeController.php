@@ -6,6 +6,7 @@ use Crypt;
 use Session;
 use Response;
 use App\Setting;
+use App\LogRequest;
 use Facebook\Facebook;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
@@ -13,7 +14,6 @@ use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Social\SocialAdCreative;
 use App\Http\Controllers\Controller;
-use App\LogRequest;
 
 class SocialAdCreativeController extends Controller
 {
@@ -166,7 +166,7 @@ class SocialAdCreativeController extends Controller
                     $resp = json_decode($resp); //response deocded
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
-                 
+
                     LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
 
                     if (isset($resp->error->message)) {
@@ -212,7 +212,7 @@ class SocialAdCreativeController extends Controller
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
 
-                    LogRequest::log($startTime, $url, 'POST',json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
+                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
@@ -424,7 +424,7 @@ class SocialAdCreativeController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
         $resp = json_decode($resp, true); //response decoded
-      
+
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'getInstaID');
         if (isset($resp['instagram_business_account'])) {
             return $resp['instagram_business_account']['id'];

@@ -14,6 +14,6 @@ class GoogleDoc extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, "created_by", 'id');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 }

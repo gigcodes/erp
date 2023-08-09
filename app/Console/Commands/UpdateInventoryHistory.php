@@ -37,7 +37,7 @@ class UpdateInventoryHistory extends Command
     public function handle()
     {
         //return false;
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $date = date('Y-m-d');
             $totalProduct = \App\Supplier::join('scrapers as sc', 'sc.supplier_id', 'suppliers.id')
@@ -45,14 +45,14 @@ class UpdateInventoryHistory extends Command
                 ->join('products as p', 'p.id', 'sp.product_id')
                 ->where('suppliers.supplier_status_id', 1)
                 ->select(\DB::raw('count(distinct p.id) as total'))->first();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Supplier query finished."]);
-    
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier query finished.']);
+
             $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
             $noofProductInStock = \App\Product::where('stock', '>', 0)->count();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "product stock count query finished."]);
-    
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'product stock count query finished.']);
+
             $updated_product = \App\InventoryStatusHistory::whereDate('date', '=', $date)->select(\DB::raw('count(distinct product_id) as total'))->first();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Inventory status history query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory status history query finished.']);
 
             $data = [
                 'date' => $date,
@@ -61,14 +61,14 @@ class UpdateInventoryHistory extends Command
                 'in_stock' => $noofProductInStock,
             ];
             $history = \App\InventoryHistory::whereDate('date', '=', $date)->first();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Inventory history query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory history query finished.']);
             if ($history) {
                 \App\InventoryHistory::where('id', $history->id)->update($data);
             } else {
                 \App\InventoryHistory::insert($data);
             }
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Inventory history query finished."]);
-        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory history query finished.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

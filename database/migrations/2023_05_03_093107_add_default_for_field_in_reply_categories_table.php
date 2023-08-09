@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddDefaultForFieldInReplyCategoriesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddDefaultForFieldInReplyCategoriesTable extends Migration
     public function up()
     {
         Schema::table('reply_categories', function (Blueprint $table) {
-            $table->string("default_for")->nullable();
+            $table->string('default_for')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddDefaultForFieldInReplyCategoriesTable extends Migration
     public function down()
     {
         Schema::table('reply_categories', function (Blueprint $table) {
-            $table->dropColumn("default_for");
+            $table->dropColumn('default_for');
         });
     }
 }

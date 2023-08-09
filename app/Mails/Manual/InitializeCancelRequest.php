@@ -19,6 +19,7 @@ class InitializeCancelRequest extends Mailable
      * @return void
      */
     public $return;
+
     public $fromMailer;
 
     public function __construct(ReturnExchange $return)
@@ -39,7 +40,7 @@ class InitializeCancelRequest extends Mailable
         $customer = $return->customer;
 
         $this->subject = $subject;
-        
+
         if ($customer) {
             if ($customer->store_website_id > 0) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();

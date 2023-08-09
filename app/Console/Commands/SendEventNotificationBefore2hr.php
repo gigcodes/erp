@@ -41,17 +41,17 @@ class SendEventNotificationBefore2hr extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
 
             // get the events which has 24 hr left
             $events = UserEvent::havingRaw('TIMESTAMPDIFF(HOUR,now() , start) = 2')->get();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Event query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Event query finished.']);
 
             $userWise = [];
             $vendorParticipants = [];
@@ -74,7 +74,7 @@ class SendEventNotificationBefore2hr extends Command
                 foreach ($userWise as $id => $events) {
                     // find user into database
                     $user = \App\User::find($id);
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "user query finished."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'user query finished.']);
                     // if user exist
                     if (! empty($user)) {
                         $notification = [];
@@ -89,7 +89,7 @@ class SendEventNotificationBefore2hr extends Command
                         $params['message'] = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message created."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'chat message created.']);
                         // send
                         app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -100,7 +100,7 @@ class SendEventNotificationBefore2hr extends Command
             if (! empty($vendorParticipants)) {
                 foreach ($vendorParticipants as $id => $vendorParticipant) {
                     $vendor = \App\Vendor::find($id);
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "vendor created."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'vendor created.']);
                     if (! empty($vendor)) {
                         $notification = [];
                         $notification[] = 'Following Event Schedule on within the next 2 hours';
@@ -114,7 +114,7 @@ class SendEventNotificationBefore2hr extends Command
                         $params['message'] = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "chat message created."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'chat message created.']);
                         // send
                         app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -125,9 +125,9 @@ class SendEventNotificationBefore2hr extends Command
             //
 
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

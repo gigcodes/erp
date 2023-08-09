@@ -40,7 +40,7 @@ class MagentoModuleRequest extends FormRequest
             'is_third_party_plugin' => 'required',
             'is_third_party_js' => 'required',
             'is_js_css' => 'required',
-            'magneto_location_id'=> 'required',
+            'magneto_location_id' => 'required',
         ];
     }
 

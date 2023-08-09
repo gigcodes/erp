@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Model;
 
 class BuildProcessErrorLog extends Model
 {

@@ -24,7 +24,8 @@ class PinterestCampaigns extends Model
         'objective_type',
     ];
 
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(PinterestAdsAccounts::class, 'id', 'pinterest_ads_account_id');
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\HashTag;
-use Illuminate\Console\Command;
 use App\LogRequest;
+use Illuminate\Console\Command;
 
 class RunPriorityKeywordSearch extends Command
 {
@@ -80,6 +80,5 @@ class RunPriorityKeywordSearch extends Command
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Console\Commands\RunPriorityKeywordSearch::class, 'callCurl');
         curl_close($curl);
-        
     }
 }

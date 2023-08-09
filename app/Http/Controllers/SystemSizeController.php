@@ -264,7 +264,7 @@ class SystemSizeController extends Controller
     public function pushSystemSize(Request $request)
     {
         $data = $request->all();
-        
+
         if (empty($data['systemSizeManagerId'])) {
             return response()->json(['code' => 400, 'data' => [], 'message' => 'One of the api parameter is missing']);
         }

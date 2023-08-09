@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\GuzzleHelper;
-use App\Setting;
-use App\CodeShortcut;
-use DB;
-use File;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use App\Supplier;
 use App\User;
+use App\Setting;
+use App\Supplier;
+use App\CodeShortcut;
+use Illuminate\Http\Request;
 use App\CodeShortCutPlatform;
-use App\Models\MonitorJenkinsBuild;
-use App\WebsiteLog;
 use App\Models\CodeShortcutFolder;
 
 class CodeShortcutController extends Controller
@@ -43,36 +37,36 @@ class CodeShortcutController extends Controller
             if ($request->websites) {
                 $query = $query->whereIn('website', $request->websites);
             }
-    
-            if($request->createdAt === "asc"){
+
+            if ($request->createdAt === 'asc') {
                 $query = $query->orderBy('created_at', 'asc');
             }
-            if($request->createdAt === "desc"){
+            if ($request->createdAt === 'desc') {
                 $query = $query->orderBy('created_at', 'desc');
             }
 
             $data['codeshortcut'] = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
-    
+
             return response()->json([
                 'tbody' => view('code-shortcut.partials.list-code', $data)->render(),
             ], 200);
-        } 
+        }
+
         return view('code-shortcut.index', $data);
     }
-
 
     public function store(Request $request)
     {
         $validated = new CodeShortcut();
-        if($request->supplier) {
-            $validated->supplier_id = $request->supplier;  
+        if ($request->supplier) {
+            $validated->supplier_id = $request->supplier;
         }
         if ($request->hasFile('notesfile')) {
             $file = $request->file('notesfile');
             $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('/codeshortcut-image');
-            $file->move($destinationPath, $name); 
-            $validated->filename  = $name;   
+            $file->move($destinationPath, $name);
+            $validated->filename = $name;
         }
         $validated->user_id = auth()->user()->id;
         $validated->code = $request->code;
@@ -82,8 +76,8 @@ class CodeShortcutController extends Controller
         $validated->title = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
         $validated->folder_id = $request->folder_id;
-        $validated->save();     
-         
+        $validated->save();
+
         return back()->with('success', 'Code Shortcuts successfully saved.');
     }
 
@@ -93,11 +87,11 @@ class CodeShortcutController extends Controller
             $file = $request->file('notesfile');
             $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('/codeshortcut-image');
-            $file->move($destinationPath, $name); 
+            $file->move($destinationPath, $name);
         } else {
             $name = null;
         }
-        
+
         $updateData = [
             'supplier_id' => $request->supplier,
             'code' => $request->code,
@@ -107,19 +101,20 @@ class CodeShortcutController extends Controller
             'solution' => $request->solution,
             'folder_id' => $request->folder_id,
         ];
-        
-        if (!is_null($name)) {
+
+        if (! is_null($name)) {
             $updateData['filename'] = $name;
         }
-        
+
         CodeShortcut::where('id', $id)->update($updateData);
-        
+
         return back()->with('success', 'Code Shortcuts successfully updated.');
     }
 
     public function destory($id)
     {
         CodeShortcut::where('id', $id)->delete();
+
         return back()->with('success', 'Code Shortcuts successfully removed.');
     }
 
@@ -134,7 +129,7 @@ class CodeShortcutController extends Controller
 
     public function getShortcutnotes(Request $request)
     {
-        $data = CodeShortcut::with('platform','user_detail','supplier_detail')->orderBy('id', 'desc')->get();
+        $data = CodeShortcut::with('platform', 'user_detail', 'supplier_detail')->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $data, 'message' => 'Listed successfully!!!']);
     }
@@ -143,11 +138,12 @@ class CodeShortcutController extends Controller
     {
         try {
             $folders = CodeShortcutFolder::paginate(15);
+
             return view('code-shortcut.code-shorcut-folder-list', compact('folders'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman controller folderIndex method error => ' . json_encode($msg));
-    
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -171,17 +167,17 @@ class CodeShortcutController extends Controller
         }
     }
 
-    public function shortcutEditFolder (Request $request)
+    public function shortcutEditFolder(Request $request)
     {
         try {
             $folders = CodeShortcutFolder::find($request->id);
-    
+
             return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-       
     }
 
     public function shortcutDeleteFolder(Request $request)
@@ -192,6 +188,7 @@ class CodeShortcutController extends Controller
             return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -215,9 +212,8 @@ class CodeShortcutController extends Controller
             return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
-
-   
 }

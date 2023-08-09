@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\TwilioConditionStatus;
+use Illuminate\Database\Eloquent\Model;
 
 class TwilioCondition extends Model
 {

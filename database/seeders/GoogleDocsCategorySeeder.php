@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\GoogleDoc;
-use App\Models\GoogleDocsCategory;
 use Illuminate\Database\Seeder;
+use App\Models\GoogleDocsCategory;
 
 class GoogleDocsCategorySeeder extends Seeder
 {
@@ -16,37 +16,36 @@ class GoogleDocsCategorySeeder extends Seeder
     public function run()
     {
         try {
-            $googleDocCategory = GoogleDoc::distinct("category")->get("category")->pluck("category");
+            $googleDocCategory = GoogleDoc::distinct('category')->get('category')->pluck('category');
             // dd($googleDocCategory);
             $defaultCategory = new GoogleDocsCategory;
-            $defaultCategory->name = "default";
+            $defaultCategory->name = 'default';
             $defaultCategory->save();
-            
 
             $insertCategory = [];
 
-            if(!empty($googleDocCategory)) {
+            if (! empty($googleDocCategory)) {
                 foreach ($googleDocCategory as $key => $category) {
-                    if($category == "" || $category == null) {
-                        GoogleDoc::where("category", $category)->update([
-                            "category" => $defaultCategory->id
+                    if ($category == '' || $category == null) {
+                        GoogleDoc::where('category', $category)->update([
+                            'category' => $defaultCategory->id,
                         ]);
                     } else {
                         $docCategory = new GoogleDocsCategory;
                         $docCategory->name = $category;
                         $docCategory->save();
 
-                        GoogleDoc::where("category", $docCategory->name)->update([
-                            "category" => $docCategory->id
+                        GoogleDoc::where('category', $docCategory->name)->update([
+                            'category' => $docCategory->id,
                         ]);
                     }
                 }
-                dd("Migrated successfuly");
+                dd('Migrated successfuly');
             } else {
-                dd("Category is empty");
+                dd('Category is empty');
             }
         } catch (\Exception $e) {
-            dd("Error while seeding google category data");
+            dd('Error while seeding google category data');
         }
     }
 }

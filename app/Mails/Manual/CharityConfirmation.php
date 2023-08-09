@@ -19,6 +19,7 @@ class CharityConfirmation extends Mailable
      * @return void
      */
     public $order;
+
     public $fromMailer;
 
     public function __construct(Order $order)
@@ -40,7 +41,7 @@ class CharityConfirmation extends Mailable
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        
+
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
 
