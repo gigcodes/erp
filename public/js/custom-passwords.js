@@ -78,10 +78,6 @@ function getData(password_id) {
   });
 }
 
-
-
-
-
 $(".checkbox_ch").change(function () {
   var values = $('input[name="userIds[]"]:checked')
     .map(function () {
