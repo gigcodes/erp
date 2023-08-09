@@ -1787,4 +1787,13 @@ class EmailController extends Controller
 
         return redirect()->back()->with('success', 'The event color updated successfully.');
     }
+
+    public function updateEmailRead(Request $request) 
+    {
+        $email = Email::findOrFail($request->get('id'));
+        $email->seen = 1;
+        $email->update();
+
+        return response()->json(['code' => 200, 'data' => $email, 'message' => 'Email Update successfully!!!']);     
+    }
 }

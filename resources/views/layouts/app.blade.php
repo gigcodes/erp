@@ -622,11 +622,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <th>Subject</th>
                                         <th>Body</th>
                                         <th>Action</th>
+                                        <th>Read</th>
                                     </tr>
                                     </thead>
                                     <tbody class="email_search_result">
                                         @php
-                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                           $userEmails = \App\Email::where('seen', '0')
+                                                        ->orderBy('created_at', 'desc')
+                                                        ->latest()
+                                                        ->take(20)
+                                                        ->get();
                                         @endphp
                                         @foreach ($userEmails as $key => $userEmail)
                                             <tr>
@@ -639,6 +644,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
                                                 </a></td>
+                                                <td>
+                                                    <input type="checkbox" name="email_read" id="is_email_read" value="1" data-id="{{ $userEmail->id }}" onclick="updateReadEmail(this)">
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -7830,7 +7838,27 @@ if (!\Auth::guest()) {
 			});	
 		};
 
-		
+
+		function updateReadEmail(checkbox) {
+			var emailId = checkbox.getAttribute('data-id');
+			$.ajax({	
+                url: '{{route('website.email.update')}}',
+                type: 'GET',
+                headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+				data: {
+					id: emailId
+				},
+				success: function(response) {
+                    toastr["success"](response.message, "Message");
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});	
+	    };
+
 
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();
