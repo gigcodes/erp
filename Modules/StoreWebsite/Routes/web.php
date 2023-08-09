@@ -12,7 +12,6 @@ use Modules\StoreWebsite\Http\Controllers\SiteAssetController;
 use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
 use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
 use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
-use Modules\StoreWebsite\Http\Controllers\StoreWebsiteEnvironmentController;
 use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
 use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
 use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
@@ -20,6 +19,7 @@ use Modules\StoreWebsite\Http\Controllers\SiteAttributesControllers;
 use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentController;
 use Modules\StoreWebsite\Http\Controllers\WebsiteStoreViewController;
 use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteEnvironmentController;
 use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
 
 /*
@@ -69,7 +69,6 @@ Route::group([
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
-    
 
     // Create Tags for multiple website
     Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
@@ -324,24 +323,23 @@ Route::group([
         Route::get('/{id}/delete', [StoreWebsiteProductAttributeController::class, 'delete'])->name('store-website.product-attribute.delete');
         Route::get('/{id}/push', [StoreWebsiteProductAttributeController::class, 'push'])->name('store-website.product-attribute.push');
     });
-    
+
     Route::group(['prefix' => 'environment'], function () {
         Route::get('/table', [StoreWebsiteEnvironmentController::class, 'index'])->name('store-website.environment.index');
         Route::get('/', [StoreWebsiteEnvironmentController::class, 'matrix'])->name('store-website.environment.matrix');
         Route::post('update', [StoreWebsiteEnvironmentController::class, 'environmentUpdate'])->name('store-website.environment.update');
-        
+
         Route::get('records', [StoreWebsiteEnvironmentController::class, 'records'])->name('store-website.environment.records');
 
         Route::post('save', [StoreWebsiteEnvironmentController::class, 'store'])->name('store-website.environment.save');
 
         Route::post('updateValue', [StoreWebsiteEnvironmentController::class, 'updateValue'])->name('store-website.environment.updateValue');
         Route::post('store-environment-history-status', [StoreWebsiteEnvironmentController::class, 'storeEnvironmentHistoryStatus'])->name('store-website.environment.storeEnvironmentHistoryStatus');
-        
+
         Route::get('/{id}/edit', [StoreWebsiteEnvironmentController::class, 'edit'])->name('store-website.environment.edit');
 
         Route::get('/{id}/history', [StoreWebsiteEnvironmentController::class, 'history'])->name('store-website.environment.history');
     });
-
 });
 
 Route::middleware('auth')->group(function () {
@@ -427,5 +425,4 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PaymentResponseController::class, 'index'])->name('payment-responses.index');
         Route::get('/records', [PaymentResponseController::class, 'records'])->name('payment-responses.records');
     });
-    
 });

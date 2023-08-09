@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddExpectedCompletionTimeInUiDevicesTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddExpectedCompletionTimeInUiDevicesTable extends Migration
     public function down()
     {
         Schema::table('ui_devices', function (Blueprint $table) {
-            $table->dropColumn("expected_completion_time");
+            $table->dropColumn('expected_completion_time');
         });
     }
 }

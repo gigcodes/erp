@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CronJobReport;
 use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class GTMetrixAccount extends Command
 {
@@ -94,7 +94,7 @@ class GTMetrixAccount extends Command
                 }
             }
         }
- 
+
         \Log::info('GTMetrix :: Report cron complete ');
         $report->update(['end_time' => Carbon::now()]);
 

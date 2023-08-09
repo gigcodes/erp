@@ -2,10 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Reply;
-use App\Models\ReplyLog;
 use App\StoreWebsite;
-use App\SystemSizeManager;
 use App\SystemSizeRelation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -55,7 +52,7 @@ class ProceesPushSystemSize implements ShouldQueue
             ->leftjoin('system_size_managers', 'system_size_managers.id', 'system_size_relations.system_size_manager_id')
             ->where('system_size_manager_id', $systemSizeManagerId)
             ->get();
-                                                    
+
             if (empty($systemSizeRelations)) {
                 \Log::info('System size manager ID not found in table' . json_encode($systemSizeManagerId));
 
@@ -101,8 +98,8 @@ class ProceesPushSystemSize implements ShouldQueue
 
                         if (! empty($url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
-                                $urlSystemSizePush = $url . "/rest/V1/size/config";
-                                
+                                $urlSystemSizePush = $url . '/rest/V1/size/config';
+
                                 $postdata = "{\n    \"sizeConfig\": {\n        \"value\": \"$size\",\n        \"category_id\": \"$categoryId\",\n        \"store_id\": \"$storeValue\"\n    }\n}";
                                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                                 $ch = curl_init();
@@ -116,7 +113,6 @@ class ProceesPushSystemSize implements ShouldQueue
                                 $headers[] = 'Authorization: Bearer ' . $api_token;
                                 $headers[] = 'Content-Type: application/json';
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                                
 
                                 $response = curl_exec($ch);
                                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

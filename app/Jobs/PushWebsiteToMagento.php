@@ -56,7 +56,7 @@ class PushWebsiteToMagento implements ShouldQueue
                     \Log::channel('productUpdates')->info('Website pushed with id : ' . $id);
 
                     $websitePushLog = new WebsitePushLog();
-                    $websitePushLog->type = "website";
+                    $websitePushLog->type = 'website';
                     $websitePushLog->name = $website->name;
                     $websitePushLog->message = "Website {$website->name} pushed successfully";
                     $website->websitePushLogs()->save($websitePushLog);
@@ -80,7 +80,7 @@ class PushWebsiteToMagento implements ShouldQueue
                                     \Log::channel('productUpdates')->info('Website Store pushed =>' . $id);
 
                                     $websiteStorePushLog = new WebsitePushLog();
-                                    $websiteStorePushLog->type = "store";
+                                    $websiteStorePushLog->type = 'store';
                                     $websiteStorePushLog->name = $store->name;
                                     $websiteStorePushLog->message = "Website Store {$store->name} pushed successfully";
                                     $store->websitePushLogs()->save($websiteStorePushLog);
@@ -102,9 +102,9 @@ class PushWebsiteToMagento implements ShouldQueue
 
                                                 if (! empty($id) && is_numeric($id)) {
                                                     \Log::channel('productUpdates')->info('Website Store view pushed =>' . $id);
-                                                    
+
                                                     $websiteStoreViewPushLog = new WebsitePushLog();
-                                                    $websiteStoreViewPushLog->type = "store_view";
+                                                    $websiteStoreViewPushLog->type = 'store_view';
                                                     $websiteStoreViewPushLog->name = $sView->name;
                                                     $websiteStoreViewPushLog->message = "Website Store view {$sView->name} pushed successfully";
                                                     $sView->websitePushLogs()->save($websiteStoreViewPushLog);
@@ -113,7 +113,7 @@ class PushWebsiteToMagento implements ShouldQueue
                                                     $sView->save();
                                                 } else {
                                                     $websiteStoreViewPushLog = new WebsitePushLog();
-                                                    $websiteStoreViewPushLog->type = "store_view";
+                                                    $websiteStoreViewPushLog->type = 'store_view';
                                                     $websiteStoreViewPushLog->name = $sView->name;
                                                     $websiteStoreViewPushLog->message = "Error while pushing Website Store View {$sView->name}";
 
@@ -124,7 +124,7 @@ class PushWebsiteToMagento implements ShouldQueue
                                     }
                                 } else {
                                     $websiteStorePushLog = new WebsitePushLog();
-                                    $websiteStorePushLog->type = "store";
+                                    $websiteStorePushLog->type = 'store';
                                     $websiteStorePushLog->name = $store->name;
                                     $websiteStorePushLog->message = "Error while pushing Website Store {$store->name}";
 
@@ -135,7 +135,7 @@ class PushWebsiteToMagento implements ShouldQueue
                     }
                 } else {
                     $websitePushLog = new WebsitePushLog();
-                    $websitePushLog->type = "website";
+                    $websitePushLog->type = 'website';
                     $websitePushLog->name = $website->name;
                     $websitePushLog->message = "Error while pushing Website {$website->name}";
 

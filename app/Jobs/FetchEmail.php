@@ -46,7 +46,7 @@ class FetchEmail implements ShouldQueue
         //
         $emailAddress = $this->emailAddress;
         try {
-           $cm = new ClientManager();
+            $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => $emailAddress->host,
                 'port' => $emailAddress->port,

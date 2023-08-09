@@ -8,6 +8,7 @@ use App\LogRequest;
 class ChatGPTService
 {
     private $api_key = '';
+
     private $base_api = 'https://api.openai.com/v1/';
 
     public function __construct()
@@ -17,25 +18,24 @@ class ChatGPTService
 
     /**
      * Creates a completion for the provided prompt and parameters.
-     * @param $prompt
-     * @return array
      */
-    public function getCompletions($prompt, $temperature, $max_token, $number, $model="text-davinci-003"): array
+    public function getCompletions($prompt, $temperature, $max_token, $number, $model = 'text-davinci-003'): array
     {
         $params = [
-            "model" => $model,
-            "prompt" => $prompt,
-            "temperature" => $temperature, //0.7,
-            "max_tokens" => (int)$max_token, //1024
-            "n" => (int)$number
+            'model' => $model,
+            'prompt' => $prompt,
+            'temperature' => $temperature, //0.7,
+            'max_tokens' => (int) $max_token, //1024
+            'n' => (int) $number,
         ];
+
         return $this->callApi('POST', 'completions', $params);
     }
 
     /**
      * Lists the currently available models
-     * @param null $modalId
-     * @return array
+     *
+     * @param  null  $modalId
      */
     public function getModels($modalId = null): array
     {
@@ -44,85 +44,77 @@ class ChatGPTService
 
     /**
      * Creates a new edit for the provided input, instruction, and parameters.
-     * @param $input
-     * @param $instruction
-     * @return array
      */
     public function performEdit($input, $instruction, $number, $temperature = 0.7, $model = 'text-davinci-edit-001'): array
     {
         $params = [
-            "model" => $model, // code-davinci-edit-001
-            "input" => $input,
-            "instruction" => $instruction,
-            "n" => $number,
-            "temperature" => $temperature
+            'model' => $model, // code-davinci-edit-001
+            'input' => $input,
+            'instruction' => $instruction,
+            'n' => $number,
+            'temperature' => $temperature,
         ];
+
         return $this->callApi('POST', 'edits', $params);
     }
 
     /**
      * Creates an image given a prompt.
-     * @param $prompt
-     * @return array
      */
     public function generateImage($prompt, $number_of_image, $size): array
     {
         $params = [
-            "prompt" => $prompt,
-            "n" =>(int)$number_of_image, // MAX 10
-            "size" => $size, //256x256, 512x512, or 1024x1024,
+            'prompt' => $prompt,
+            'n' => (int) $number_of_image, // MAX 10
+            'size' => $size, //256x256, 512x512, or 1024x1024,
             'response_format' => 'url', // b64_json,
         ];
+
         return $this->callApi('POST', 'images/generations', $params);
     }
 
     /**
      * Creates an edited or extended image given an original image and a prompt.
-     * @param $image
-     * @param $mask
-     * @param $prompt
-     * @return array
      */
-    public function editGeneratedImage($image, $mask, $prompt,$number, $size): array
+    public function editGeneratedImage($image, $mask, $prompt, $number, $size): array
     {
         $params = [
-            "image" => new CURLFILE($image['tmp_name']),
-            "mask" => new CURLFILE($mask['tmp_name']),
-            "prompt" => $prompt,
-            "n" => $number, // MAX 10
-            "size" => $size, //256x256, 512x512, or 1024x1024,
+            'image' => new CURLFILE($image['tmp_name']),
+            'mask' => new CURLFILE($mask['tmp_name']),
+            'prompt' => $prompt,
+            'n' => $number, // MAX 10
+            'size' => $size, //256x256, 512x512, or 1024x1024,
             'response_format' => 'url', // b64_json,
         ];
+
         return $this->callApi('POST', 'images/edits', $params);
     }
 
     /**
      * Creates a variation of a given image.
-     * @param $image
-     * @return array
      */
     public function generateImageVariation($image, $number, $size = '1024x1024'): array
     {
         $params = [
-            "image" => new CURLFILE($image['tmp_name']),
-            "n" => $number, // MAX 10
-            "size" => $size, //256x256, 512x512, or 1024x1024,
+            'image' => new CURLFILE($image['tmp_name']),
+            'n' => $number, // MAX 10
+            'size' => $size, //256x256, 512x512, or 1024x1024,
             'response_format' => 'url', // b64_json,
         ];
+
         return $this->callApi('POST', 'images/variations', $params);
     }
 
     /**
      * Classifies if text violates OpenAI's Content Policy
-     * @param $input
-     * @return array
      */
-    public function identifyModeration($input,$modal = 'text-moderation-stable'): array
+    public function identifyModeration($input, $modal = 'text-moderation-stable'): array
     {
         $params = [
-            "input" => $input,
-            "model" =>  $modal //"text-moderation-stable" // text-moderation-latest
+            'input' => $input,
+            'model' => $modal, //"text-moderation-stable" // text-moderation-latest
         ];
+
         return $this->callApi('POST', 'moderations', $params);
     }
 
@@ -132,8 +124,8 @@ class ChatGPTService
     public function callApi($method, $url, array $params = []): array
     {
         $header = ['Authorization: Bearer ' . $this->api_key];
-        if (isset($params['image'], $params)){
-            array_push($header,  'Content-Type: multipart/form-data');
+        if (isset($params['image'], $params)) {
+            array_push($header, 'Content-Type: multipart/form-data');
         } else {
             array_push($header, 'Content-Type: application/json');
         }
@@ -148,18 +140,18 @@ class ChatGPTService
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-//            CURLOPT_HTTPHEADER => [
-//                'Content-Type: multipart/form-data',
-////                'Content-Type: application/json',
-//                'Authorization: Bearer ' . $this->api_key,
-//            ],
+            //            CURLOPT_HTTPHEADER => [
+            //                'Content-Type: multipart/form-data',
+            ////                'Content-Type: application/json',
+            //                'Authorization: Bearer ' . $this->api_key,
+            //            ],
             CURLOPT_HTTPHEADER => $header,
         ]);
 
-        if (($method == 'POST' || $method == 'PATCH' || $method == 'PUT') && !isset($params['image'], $params)) {
+        if (($method == 'POST' || $method == 'PATCH' || $method == 'PUT') && ! isset($params['image'], $params)) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
         } else {
-            curl_setopt($curl, CURLOPT_POSTFIELDS,$params);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         }
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -192,7 +184,7 @@ class ChatGPTService
 //            if (is_array($string)) {
 //                return implode(' , ', $string);
 //            } else {
-                return $string;
+            return $string;
 //            }
         } catch (Exception $e) {
             return $string;

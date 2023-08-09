@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Customer;
 use App\SmsService;
+use App\TwilioError;
 use App\StoreWebsite;
 use App\MessagingGroup;
 use App\MarketingMessage;
 use Illuminate\Http\Request;
 use App\MessagingGroupCustomer;
 use App\MarketingMessageCustomer;
-use App\TwilioError;
 
 class TwillioMessageController extends Controller
 {
@@ -54,16 +54,16 @@ class TwillioMessageController extends Controller
         }
         if ($request->account_sid) {
             $data = $data->where('account_sid', 'LIKE', '%' . $request->account_sid . '%');
-        } 
+        }
         if ($request->call_sid) {
             $data = $data->where('call_sid', 'LIKE', '%' . $request->call_sid . '%');
         }
         if ($request->error_code) {
             $data = $data->where('error_code', 'LIKE', '%' . $request->error_code . '%');
-        }  
+        }
         if ($request->message) {
             $data = $data->where('message_text', 'LIKE', '%' . $request->message . '%');
-        } 
+        }
         if ($request->date) {
             $data = $data->where('message_date', 'LIKE', '%' . $request->date . '%');
         }

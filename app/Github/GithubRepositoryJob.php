@@ -10,7 +10,7 @@ class GithubRepositoryJob extends Model
         'id',
         'github_organization_id',
         'github_repository_id',
-        'job_name'
+        'job_name',
     ];
 
     public function githubOrganization()

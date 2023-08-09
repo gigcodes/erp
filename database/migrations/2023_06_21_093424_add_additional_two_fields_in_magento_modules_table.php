@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddAdditionalTwoFieldsInMagentoModulesTable extends Migration
 {
@@ -16,7 +16,6 @@ class AddAdditionalTwoFieldsInMagentoModulesTable extends Migration
         Schema::table('magento_modules', function (Blueprint $table) {
             $table->integer('dev_verified_by')->nullable()->after('developer_name');
             $table->integer('dev_verified_status_id')->nullable()->after('dev_verified_by');
-            
         });
     }
 

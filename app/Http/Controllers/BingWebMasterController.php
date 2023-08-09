@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Auth;
 use App\Setting;
 use App\BingSite;
+use App\LogRequest;
 use App\BingWebmasterLog;
 use App\BingClientAccount;
 use App\BingSearchAnalytics;
 use Illuminate\Http\Request;
 use App\BingClientAccountMail;
 use Spatie\Activitylog\Models\Activity;
-use App\LogRequest;
 
 class BingWebMasterController extends Controller
 {
@@ -277,7 +277,7 @@ class BingWebMasterController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\BingWebMasterController::class, 'BinggetAccessToken');
         curl_close($curl);
-      
+
         if (isset($error_msg)) {
             activity('bing_sites')->log($error_msg);
         }
@@ -348,7 +348,7 @@ class BingWebMasterController extends Controller
     {
         $url = 'https://www.bing.com/webmasters/oauth/token';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init(); 
+        $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,

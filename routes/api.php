@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api;
-use App\Http\Controllers\GoogleDialogFlowController;
 use App\Http\Controllers\Logging;
 use App\Http\Controllers\Products;
 use Illuminate\Support\Facades\Route;

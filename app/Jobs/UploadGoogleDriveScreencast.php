@@ -10,7 +10,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\MagentoFrontendDocumentation;
 
-
 class UploadGoogleDriveScreencast
 {
     use Dispatchable, SerializesModels;

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Reply;
+use Exception;
 use App\Jobs\ProcessAllFAQ;
 use App\Jobs\ProceesPushFaq;
 use Illuminate\Http\Request;
 use App\Jobs\ProcessTranslateReply;
-use Exception;
+
 class FaqPushController extends Controller
 {
     //This API will put the records in Queue
@@ -82,35 +83,33 @@ class FaqPushController extends Controller
     public function mulitiplepushFaq(Request $request)
     {
         $replyIds = $request->input('reply_ids');
-        
+
         if (strpos($replyIds, ',') !== false) {
             $replyIdsArray = explode(',', $replyIds);
         } else {
             $replyIdsArray = [$replyIds];
         }
-    
+
         if (empty($replyIdsArray)) {
             return response()->json(['code' => 400, 'data' => [], 'message' => 'One of the API parameters is missing']);
         }
-    
+
         try {
             foreach ($replyIdsArray as $replyId) {
                 $insertArray = [];
                 $insertArray[] = $replyId;
                 $replyInfo = Reply::find($replyId);
-                if (!empty($replyInfo->is_translate)) {
+                if (! empty($replyInfo->is_translate)) {
                     ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 } elseif ($replyInfo) {
                     ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('replytranslation');
                     ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 }
             }
-    
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'FAQ added in the queue']);
         } catch (Exception $e) {
             return response()->json(['code' => 400, 'data' => [], 'message' => $e->getMessage()]);
         }
-        
     }
-    
 }

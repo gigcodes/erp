@@ -16,5 +16,4 @@ class StoreWebsiteEnvironmentHistoryStatus extends Model
      * @SWG\Property(property="name",type="string")
      */
     protected $fillable = ['name', 'color'];
-    
 }

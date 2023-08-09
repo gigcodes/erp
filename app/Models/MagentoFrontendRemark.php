@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoFrontendRemark extends Model
 {
@@ -18,5 +18,4 @@ class MagentoFrontendRemark extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }

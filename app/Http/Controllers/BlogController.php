@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use View;
 use File;
+use View;
 use App\Tag;
 use App\User;
 use Response;
@@ -218,7 +218,6 @@ class BlogController extends Controller
         return view('blogs.index', compact('users', 'store_website'));
     }
 
-
     /**
      * Show the form for creating a new resource.
      *
@@ -341,20 +340,21 @@ class BlogController extends Controller
     {
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
         if (! empty($storeWebsite)) {
-            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->orderBy('id','desc')->get();
-            if(!empty($blogData)){
+            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->orderBy('id', 'desc')->get();
+            if (! empty($blogData)) {
                 $FilePath = public_path('sitemap/web_' . $websiteId);
 
                 if (! file_exists($FilePath)) {
                     mkdir($FilePath, 0777, true);
                 }
                 $output = View::make('Sitemap.blog')->with(compact('blogData'))->render();
-                File::put($FilePath.'/blog.xml', $output);
+                File::put($FilePath . '/blog.xml', $output);
                 Response::make($output, 200)->header('Content-Type', 'application/xml');
+
                 return true;
             }
-          
         }
+
         return true;
     }
 

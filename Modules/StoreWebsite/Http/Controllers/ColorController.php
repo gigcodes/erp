@@ -48,7 +48,7 @@ class ColorController extends Controller
         }
 
         // Check for keyword search
-        $reqsstorecolor = $request->Store_Color ?? "";
+        $reqsstorecolor = $request->Store_Color ?? '';
         $reqStorecolour = $request->erp_colour;
 
         if ($request->keyword != null) {
@@ -56,13 +56,13 @@ class ColorController extends Controller
         }
         if ($request->website_ids != null) {
             $store_colors = $store_colors->WhereIn('store_website_id', $request->website_ids);
-        }     
+        }
         if ($request->erp_colour != null) {
             $store_colors = $store_colors->WhereIn('erp_color', $request->erp_colour);
         }
         if ($request->Store_Color != null) {
             $store_colors = $store_colors->where('store_color', 'LIKE', '%' . $request->Store_Color . '%');
-        }  
+        }
 
         $store_colors = $store_colors->get();
 
@@ -72,7 +72,7 @@ class ColorController extends Controller
             'store_colors' => $store_colors,
             'title' => $title,
             'reqsstorecolor' => $reqsstorecolor,
-            'reqStorecolour'=> $reqStorecolour,
+            'reqStorecolour' => $reqStorecolour,
         ]);
     }
 

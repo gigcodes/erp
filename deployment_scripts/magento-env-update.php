@@ -1,19 +1,19 @@
 <?php
-    $env_file_path="C:/xampp/htdocs/test/env_brands.php";
-    $search_key="cache/frontend/default/backend_options/server";
-    $value_update="testMMMMM";
-    
-    
+
+    $env_file_path = 'C:/xampp/htdocs/test/env_brands.php';
+    $search_key = 'cache/frontend/default/backend_options/server';
+    $value_update = 'testMMMMM';
+
     try {
         $array = include $env_file_path;
-    }catch(Exception $e) {
+    } catch(Exception $e) {
         throw new Exception($e->getMessage());
     }
-    
+
     //check search key is exists
     function array_get_value(array &$array, $parents, $glue = '/')
     {
-        if (!is_array($parents)) {
+        if (! is_array($parents)) {
             $parents = explode($glue, $parents);
         }
 
@@ -26,21 +26,22 @@
                 return null;
             }
         }
+
         return $ref;
     }
-    
-    //Update value to path 
+
+    //Update value to path
     function array_set_value(array &$array, $parents, $value, $glue = '/')
     {
-        if (!is_array($parents)) {
+        if (! is_array($parents)) {
             $parents = explode($glue, (string) $parents);
         }
 
         $ref = &$array;
 
         foreach ($parents as $parent) {
-            if (isset($ref) && !is_array($ref)) {
-                $ref = array();
+            if (isset($ref) && ! is_array($ref)) {
+                $ref = [];
             }
 
             $ref = &$ref[$parent];
@@ -48,24 +49,24 @@
 
         $ref = $value;
     }
-    
+
     try {
-       $old_value=array_get_value($array,$search_key);
-    
-        if($old_value!=null){
-            array_set_value($array,$search_key,$value_update);
-            
-            $content="<?php 
+        $old_value = array_get_value($array, $search_key);
+
+        if ($old_value != null) {
+            array_set_value($array, $search_key, $value_update);
+
+            $content = '<?php 
             return 
-               ".var_export($array, true).";";
-            $content=str_replace("array (","[",$content);
-            $content=str_replace("),","],",$content);
-            $content=str_replace(");","];",$content);
+               ' . var_export($array, true) . ';';
+            $content = str_replace('array (', '[', $content);
+            $content = str_replace('),', '],', $content);
+            $content = str_replace(');', '];', $content);
             file_put_contents($env_file_path, $content);
-            echo "success";
-        }else{
-            throw new Exception("Key path not found!");
+            echo 'success';
+        } else {
+            throw new Exception('Key path not found!');
         }
-    }catch(Exception $e) {
+    } catch(Exception $e) {
         throw new Exception($e->getMessage());
     }

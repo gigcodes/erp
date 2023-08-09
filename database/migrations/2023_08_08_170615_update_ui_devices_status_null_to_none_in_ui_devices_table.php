@@ -3,8 +3,6 @@
 use App\UiDevice;
 use App\UiResponsivestatusHistory;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class UpdateUiDevicesStatusNullToNoneInUiDevicesTable extends Migration
 {
@@ -22,13 +20,13 @@ class UpdateUiDevicesStatusNullToNoneInUiDevicesTable extends Migration
             $device->update(['status' => 10]); // 10 - None in site_development_statuses table
 
             $dataArray = [
-                "id" => $device->id,
-                "uicheck_id" => $device->uicheck_id,
-                "device_no" => $device->device_no,
-                "old_status" => $old_status,
-                "status" => 10,
+                'id' => $device->id,
+                'uicheck_id' => $device->uicheck_id,
+                'device_no' => $device->device_no,
+                'old_status' => $old_status,
+                'status' => 10,
             ];
-            
+
             $collection = collect($dataArray);
             // Convert the collection to an object
             $object = json_decode(json_encode($collection));
@@ -63,6 +61,5 @@ class UpdateUiDevicesStatusNullToNoneInUiDevicesTable extends Migration
      */
     public function down()
     {
-        
     }
 }

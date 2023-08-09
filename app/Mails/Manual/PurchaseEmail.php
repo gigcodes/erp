@@ -44,7 +44,7 @@ class PurchaseEmail extends Mailable
         if (! empty($this->customConfig)) {
             $email = $email->from($this->customConfig['from']);
         } else {
-            $from_email=\App\Helpers::getFromEmail();
+            $from_email = \App\Helpers::getFromEmail();
             $email = $email->from($from_email);
         }
 

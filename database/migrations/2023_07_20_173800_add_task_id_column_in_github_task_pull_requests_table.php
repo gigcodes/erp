@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddTaskIdColumnInGithubTaskPullRequestsTable extends Migration
 {
@@ -15,7 +15,7 @@ class AddTaskIdColumnInGithubTaskPullRequestsTable extends Migration
     {
         Schema::table('github_task_pull_requests', function (Blueprint $table) {
             $table->dropColumn('github_task_id');
-            $table->integer("task_id");
+            $table->integer('task_id');
         });
     }
 
