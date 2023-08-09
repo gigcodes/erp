@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoCssVariableVerifyHistory extends Model
 {
-
     public function magentoCssVariable()
     {
         return $this->belongsTo(MagentoCssVariable::class);

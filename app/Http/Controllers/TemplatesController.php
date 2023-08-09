@@ -9,6 +9,7 @@ use App\Product;
 use App\Setting;
 use App\Category;
 use App\Template;
+use App\LogRequest;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
 use Illuminate\Support\Str;
@@ -16,7 +17,6 @@ use Illuminate\Http\Request;
 use App\Helpers\GuzzleHelper;
 use Intervention\Image\ImageManagerStatic as Image;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class TemplatesController extends Controller
 {

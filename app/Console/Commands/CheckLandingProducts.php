@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use App\LandingPageProduct;
 use Illuminate\Console\Command;
 use App\Library\Shopify\Client as ShopifyClient;
-use App\Helpers\LogHelper;
 
 class CheckLandingProducts extends Command
 {
@@ -40,7 +40,7 @@ class CheckLandingProducts extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $client = new ShopifyClient();
@@ -61,7 +61,7 @@ class CheckLandingProducts extends Command
                 if ($product->shopify_id) {
                     $response = $client->updateProduct($product->shopify_id, $productData, $product->store_website_id);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:'.$product->shopify_id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:' . $product->shopify_id]);
                 }
             }
 
@@ -78,12 +78,12 @@ class CheckLandingProducts extends Command
                 if ($landingPage->shopify_id) {
                     $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:'.$landingPage->shopify_id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updating landing page product by shopify ID:' . $landingPage->shopify_id]);
                 } else {
                     $response = $client->addProduct($productData, $landingPage->store_website_id);
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

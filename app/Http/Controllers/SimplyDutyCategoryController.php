@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Response;
 use App\Setting;
+use App\LogRequest;
 use App\SimplyDutyCategory;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class SimplyDutyCategoryController extends Controller
 {
@@ -105,7 +105,7 @@ class SimplyDutyCategoryController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
-        $url = "https://www.api.simplyduty.com/api/Supporting/categories";
+        $url = 'https://www.api.simplyduty.com/api/Supporting/categories';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -123,7 +123,7 @@ class SimplyDutyCategoryController extends Controller
         curl_close($ch);
 
         $categories = json_decode($output);
-       
+
         foreach ($categories as $category) {
             $code = $category->Code;
             $description = $category->Description;

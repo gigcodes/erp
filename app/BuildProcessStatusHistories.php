@@ -2,11 +2,9 @@
 
 namespace App;
 
-use App\Github\GithubRepositoryJob;
-use Illuminate\Database\Eloquent\Model;
-use App\Helpers\GithubTrait;
 use App\Models\Project;
-use App\BuildProcessHistory;
+use App\Helpers\GithubTrait;
+use Illuminate\Database\Eloquent\Model;
 
 class BuildProcessStatusHistories extends Model
 {

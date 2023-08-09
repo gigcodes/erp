@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\ReplyTranslatorStatus;
@@ -11,15 +12,13 @@ class ReplyTranslatorStatusTableSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $lists = ['new', 'approved', 'rejected'];
 
-        foreach($lists as $list)
-        {
+        foreach ($lists as $list) {
             ReplyTranslatorStatus::firstOrCreate([
-                'name' => $list
+                'name' => $list,
             ]);
         }
     }

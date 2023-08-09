@@ -34,12 +34,12 @@ class Sop extends Model
 
     public function sopCategory()
     {
-        return $this->belongsToMany(SopCategory::class, "sop_has_categories", "sop_id", "sop_category_id");
+        return $this->belongsToMany(SopCategory::class, 'sop_has_categories', 'sop_id', 'sop_category_id');
     }
 
     public function hasSopCategory()
     {
-        return $this->hasMany(SopHasCategory::class, "sop_id", "id");
+        return $this->hasMany(SopHasCategory::class, 'sop_id', 'id');
     }
 
     /**

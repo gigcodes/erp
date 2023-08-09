@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
 use App\Models\MagentoModuleReturnTypeErrorStatus;
 use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
-use App\Http\Requests\MagentoModule\MagentoModuleReturntypeStatusRequest;
-use Illuminate\Http\Request;
-use Request as GlobalRequest;
 
 class MagentoModuleReturnTypeErrorStatusController extends Controller
 {
@@ -26,7 +25,6 @@ class MagentoModuleReturnTypeErrorStatusController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
             $items = MagentoModuleReturnTypeErrorStatus::query();
 
             return datatables()->eloquent($items)->toJson();
@@ -56,7 +54,6 @@ class MagentoModuleReturnTypeErrorStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,21 +62,21 @@ class MagentoModuleReturnTypeErrorStatusController extends Controller
             'return_type_name' => 'required|max:150|unique:magento_module_return_type_error_status',
         ]);
 
-      $magentoerror = new  MagentoModuleReturnTypeErrorStatus();
-      $magentoerror->return_type_name = $request->return_type_name;
-      $magentoerror->save();
-        return response()->json([
-                    'status' => true,
-                    'data' => $magentoerror,
-                    'message' => 'Stored successfully',
-                    'status_name' => 'success',
-                ], 200);
-    }
+        $magentoerror = new  MagentoModuleReturnTypeErrorStatus();
+        $magentoerror->return_type_name = $request->return_type_name;
+        $magentoerror->save();
 
+        return response()->json([
+            'status' => true,
+            'data' => $magentoerror,
+            'message' => 'Stored successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 
     public function returnTypeHistory(Request $request)
     {
-        $histories = MagentoModuleReturnTypeErrorHistoryStatus::with(['newLocation','oldLocation','user'])->where('magento_module_id', $request->id)->get();
+        $histories = MagentoModuleReturnTypeErrorHistoryStatus::with(['newLocation', 'oldLocation', 'user'])->where('magento_module_id', $request->id)->get();
 
         return response()->json([
             'status' => true,

@@ -2,9 +2,7 @@
 
 namespace App;
 
-use App\Models\UicheckHistory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UiDeviceBuilderIoData extends Model
 {
@@ -19,7 +17,6 @@ class UiDeviceBuilderIoData extends Model
         'builder_created_date',
         'builder_last_updated',
         'builder_created_by',
-        'builder_last_updated_by'
+        'builder_last_updated_by',
     ];
-
 }

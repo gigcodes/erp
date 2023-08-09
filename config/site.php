@@ -17,7 +17,7 @@ return [
             'Add internal and external linking',
             'Check plagiarism',
             'Send revision request to content team if require',
-            'Sent to development team after verification'
+            'Sent to development team after verification',
         ],
         'publish_checklist' => [
             'Upload in content',
@@ -26,5 +26,5 @@ return [
             'Analytics tracking',
             'Test page in various browsers',
         ],
-    ]
+    ],
 ];

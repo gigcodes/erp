@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\LogRequest;
 use App\CallRecording;
 use Illuminate\Http\Request;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
-use App\LogRequest;
 
 class ExotelController extends FindByNumberController
 {

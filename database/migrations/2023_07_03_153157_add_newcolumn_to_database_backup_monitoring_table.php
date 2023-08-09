@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddNewcolumnToDatabaseBackupMonitoringTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddNewcolumnToDatabaseBackupMonitoringTable extends Migration
     public function down()
     {
         Schema::table('database_backup_monitoring', function (Blueprint $table) {
-            $table->dropColumn("is_resolved");
+            $table->dropColumn('is_resolved');
         });
     }
 }

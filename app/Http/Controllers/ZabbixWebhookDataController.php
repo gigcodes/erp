@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ZabbixWebhookData;
-use App\ZabbixStatus;
-use App\ZabbixWebhookDataRemarkHistory;
-use App\ZabbixWebhookDataStatusHistory;
 use Auth;
 use Exception;
+use App\ZabbixStatus;
 use Illuminate\Http\Request;
+use App\Models\ZabbixWebhookData;
+use App\ZabbixWebhookDataRemarkHistory;
+use App\ZabbixWebhookDataStatusHistory;
 use Illuminate\Support\Facades\Validator;
 
 class ZabbixWebhookDataController extends Controller
@@ -43,10 +43,10 @@ class ZabbixWebhookDataController extends Controller
 
         $zabbixWebhookDatas = $zabbixWebhookDatas->paginate(10);
 
-        $zabbixStatuses = ZabbixStatus::pluck("name", "id")->toArray();
+        $zabbixStatuses = ZabbixStatus::pluck('name', 'id')->toArray();
         $getZabbixStatuses = ZabbixStatus::all();
 
-        return view('zabbix-webhook-data.index', compact('zabbixWebhookDatas', 'zabbixStatuses','getZabbixStatuses'));
+        return view('zabbix-webhook-data.index', compact('zabbixWebhookDatas', 'zabbixStatuses', 'getZabbixStatuses'));
     }
 
     public function storeZabbixStatus(Request $request)
@@ -55,7 +55,7 @@ class ZabbixWebhookDataController extends Controller
             'name' => 'required|unique:zabbix_statuses,name',
             'color' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -105,6 +105,7 @@ class ZabbixWebhookDataController extends Controller
 
         if ($zabbixWebhookDataRemarkHistory) {
             $update = ZabbixWebhookData::where('id', $request->zabbix_webhook_data_id)->update(['remarks' => $request->remarks]);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Remark added successfully',
@@ -129,8 +130,8 @@ class ZabbixWebhookDataController extends Controller
 
             $zaabbixWebhookData->save();
 
-            $statusColour =  ZabbixStatus::find($zaabbixWebhookData->zabbix_status_id);
-            $statusColour =  $statusColour->color;
+            $statusColour = ZabbixStatus::find($zaabbixWebhookData->zabbix_status_id);
+            $statusColour = $statusColour->color;
 
             $history = new ZabbixWebhookDataStatusHistory();
             $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;

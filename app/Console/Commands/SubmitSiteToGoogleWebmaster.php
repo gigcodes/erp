@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CronJobReport;
-use App\Helpers\LogHelper;
 use App\WebsiteStoreView;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\WebsiteStoreViewsWebmasterHistory;
-use App\LogRequest;
 
 class SubmitSiteToGoogleWebmaster extends Command
 {
@@ -82,7 +82,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 $response = curl_exec($curl);
                 $response = json_decode($response);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url_for_sites, 'PUT',json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\SubmitSiteToGoogleWebmaster::class, 'handle');
+                LogRequest::log($startTime, $url_for_sites, 'PUT', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\SubmitSiteToGoogleWebmaster::class, 'handle');
 
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
@@ -92,7 +92,6 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
 
                 curl_close($curl);
-                
 
                 if (! empty($response)) {
                     $history = [
@@ -117,7 +116,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

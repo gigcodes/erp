@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\Wetransfer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use App\LogRequest;
 
 class wetransferQueue extends Command
 {

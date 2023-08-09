@@ -1,9 +1,9 @@
 <?php
 
 use App\MagentoSettingStatus;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMagentoSettingStatusesTable extends Migration
 {
@@ -17,8 +17,8 @@ class CreateMagentoSettingStatusesTable extends Migration
         Schema::create('magento_setting_statuses', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string("name");
-            $table->string("color")->nullable();
+            $table->string('name');
+            $table->string('color')->nullable();
         });
 
         // Table magento_settings having only 2 status values, So created those 2 statuses statically

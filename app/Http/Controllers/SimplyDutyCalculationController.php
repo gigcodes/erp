@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
+use App\LogRequest;
 use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
 use App\SimplyDutyCalculation;
-use App\LogRequest;
 
 class SimplyDutyCalculationController extends Controller
 {
@@ -208,7 +208,7 @@ class SimplyDutyCalculationController extends Controller
         $post = json_encode($output);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
-        $url = "https://www.api.simplyduty.com/api/duty/calculatemultiple";
+        $url = 'https://www.api.simplyduty.com/api/duty/calculatemultiple';
 
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -232,9 +232,8 @@ class SimplyDutyCalculationController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($post), json_decode($response), $httpcode, \App\Http\Controllers\SimplyDutyCalculationController::class, 'calculate');
 
-
         curl_close($curl);
-        
+
         if ($response) {
             $req = json_decode($response);
             foreach ($req->Items as $item) {

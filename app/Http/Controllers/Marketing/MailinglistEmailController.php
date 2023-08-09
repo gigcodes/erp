@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Marketing;
 
 use App\Image;
+use App\LogRequest;
 use App\Mailinglist;
 use App\GmailDataList;
 use App\MailinglistEmail;
@@ -11,7 +12,6 @@ use App\MailingTemplateFile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use App\LogRequest;
 
 class MailinglistEmailController extends Controller
 {
@@ -89,10 +89,10 @@ class MailinglistEmailController extends Controller
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $paramters = [
-            'name' => $mailing_item->subject, 
-            'subject' => $mailing_item->subject, 
+            'name' => $mailing_item->subject,
+            'subject' => $mailing_item->subject,
             'run_at' => $mailing_item->scheduled_date,
-            'template_content' => $mailing_item->html
+            'template_content' => $mailing_item->html,
         ];
 
         if ($list->service) {
@@ -137,7 +137,7 @@ class MailinglistEmailController extends Controller
                             'subject' => $mailing_item->subject,
                         ];
 
-                        $url = "https://api.sendinblue.com/v3/smtp/templates";
+                        $url = 'https://api.sendinblue.com/v3/smtp/templates';
                         curl_setopt_array($curl, [
                             CURLOPT_URL => $url,
                             CURLOPT_RETURNTRANSFER => true,
@@ -158,8 +158,9 @@ class MailinglistEmailController extends Controller
                         if (! empty($response->id)) {
                             $mailing_item->api_template_id = $response->id;
                         }
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);                        curl_close($curl);
-                             
+                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        curl_close($curl);
+
                         LogRequest::log($startTime, $url, 'POST', json_encode($data), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
                     }
                 }

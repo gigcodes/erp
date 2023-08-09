@@ -117,8 +117,8 @@ class ProceesPushFaq implements ShouldQueue
                         // $faqCategoryId  =   1;
                         if (! empty($replyInfo->magento_url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
-                                $url = "";
-                                $url = rtrim($replyInfo->magento_url, "/");
+                                $url = '';
+                                $url = rtrim($replyInfo->magento_url, '/');
 
                                 $faqParentCategoryId = 0;
                                 if ($parentCategoryId) {
@@ -128,7 +128,7 @@ class ProceesPushFaq implements ShouldQueue
                                     if (empty($faqParentCategoryId)) {
                                         \Log::info('ParentCategory id not available');
                                         $faqParentCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $parentCategoryId, $storeValue, $url, $api_token, $replyInfo->id);
-                                        \Log::info('ParentCategory id:'.$faqParentCategoryId);
+                                        \Log::info('ParentCategory id:' . $faqParentCategoryId);
                                     }
 
                                     if (empty($faqParentCategoryId)) {
@@ -142,12 +142,13 @@ class ProceesPushFaq implements ShouldQueue
                                 if (empty($faqCategoryId)) {
                                     \Log::info('Category d not available');
                                     $faqCategoryId = (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyInfo->id);
-                                    \Log::info('Category id:'.$faqCategoryId);
+                                    \Log::info('Category id:' . $faqCategoryId);
                                 }
 
                                 if (empty($faqCategoryId)) {
                                     (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ category ID on ' . $url . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'Push');
-                                    continue; // If category id empty then move to next iteration. 
+
+                                    continue; // If category id empty then move to next iteration.
                                 }
 
                                 $language = isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != '' ? explode('-', $storeValue)[1] : '';
@@ -168,15 +169,15 @@ class ProceesPushFaq implements ShouldQueue
                                 }
 
                                 if (! empty($platform_id)) {
-                                    $urlFAQ    = $url . "/" . $storeValue . "/rest/V1/faq/" . $platform_id;
+                                    $urlFAQ = $url . '/' . $storeValue . '/rest/V1/faq/' . $platform_id;
                                     $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"id\": $platform_id,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 } else {
-                                    $urlFAQ = $url . "/" . $storeValue . "/rest/V1/faq";
+                                    $urlFAQ = $url . '/' . $storeValue . '/rest/V1/faq';
                                     $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 }
 
                                 $ch = curl_init();
-                                
+
                                 curl_setopt($ch, CURLOPT_URL, $urlFAQ);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                 curl_setopt($ch, CURLOPT_POST, 1);
@@ -188,7 +189,7 @@ class ProceesPushFaq implements ShouldQueue
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                                 $response = curl_exec($ch);
-                                \Log::info(print_r(['FAQ API:',$urlFAQ,$postdata,$api_token,$response],true));
+                                \Log::info(print_r(['FAQ API:', $urlFAQ, $postdata, $api_token, $response], true));
                                 $response = json_decode($response);
 
                                 curl_close($ch);

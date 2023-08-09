@@ -2,18 +2,19 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MemoryUsage extends Model
 {
     use HasFactory;
+
     protected $table = 'memory_usage';
 
     public static function boot()
     {
         parent::boot();
-        
+
         self::creating(function (MemoryUsage $memory) {
             $thresold_limit_for_memory_uses = Setting::where('name', 'thresold_limit_for_memory_uses')->first();
 
