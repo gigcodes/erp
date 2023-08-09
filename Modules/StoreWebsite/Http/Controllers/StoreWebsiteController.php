@@ -83,6 +83,23 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
     }
 
+    public function builderApiKey()
+    {
+        $title = 'Builder Api Key | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        
+        return view('storewebsite::index-builder-api-key', compact('title',  'storeWebsites'));
+    }
+
+    public function updateBuilderApiKey(Request $request, $id)
+    {
+        $website = StoreWebsite::findOrFail($id);
+        $website->builder_io_api_key = $request->input('builder_io_api_key');
+        $website->save();
+        
+        return redirect()->back()->with('success', 'API key updated successfully');
+    }
+
     public function apiToken()
     {
         $title = 'Api Token | Store Website';

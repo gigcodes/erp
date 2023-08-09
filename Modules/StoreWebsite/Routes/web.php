@@ -40,6 +40,8 @@ Route::group([
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
     Route::get('/download-file/{fileName}', [StoreWebsiteController::class, 'downloadFile'])->name('store-website.downloadFile');
     Route::get('/{id}/download/{type}/', [StoreWebsiteController::class, 'downloadDbEnv'])->name('store-website.downloadDbEnv');
+    Route::get('builder-api-key', [StoreWebsiteController::class, 'builderApiKey'])->name('store-website.builderApiKey');
+    Route::post('builder-api-key/update/{id}', [StoreWebsiteController::class, 'updateBuilderApiKey'])->name('store-website.updateBuilderApiKey');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
