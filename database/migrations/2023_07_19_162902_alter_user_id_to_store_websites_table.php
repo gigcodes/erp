@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AlterUserIdToStoreWebsitesTable extends Migration
 {
@@ -26,7 +26,7 @@ class AlterUserIdToStoreWebsitesTable extends Migration
     public function down()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-            $table->dropColumn("users_id");
+            $table->dropColumn('users_id');
         });
     }
 }

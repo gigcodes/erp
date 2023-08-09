@@ -17,7 +17,7 @@ class UserEvent extends Model
         'start', // date time to determine the start of event
         'end',
         'daily_activity_id',
-        'asset_manager_id'
+        'asset_manager_id',
     ];
 
     public function attendees()

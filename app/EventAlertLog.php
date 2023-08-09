@@ -6,7 +6,6 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EventAlertLog extends Model
 {
@@ -31,5 +30,4 @@ class EventAlertLog extends Model
     {
         return $this->morphTo();
     }
-
 }

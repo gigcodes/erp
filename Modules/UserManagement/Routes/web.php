@@ -118,5 +118,4 @@ Route::group([
     });
     Route::post('/whitelist-bulk-update', [UserManagementController::class, 'whitelistBulkUpdate'])->name('user-management.whitelist-bulk-update');
     Route::get('/user-access-listing', [UserManagementController::class, 'userAccessListing'])->name('user-management.user-access-listing');
-
 });

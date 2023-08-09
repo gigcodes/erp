@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class ChangeAmountColumnDatatypeInCashFlowsTable extends Migration
 {
@@ -14,7 +14,7 @@ class ChangeAmountColumnDatatypeInCashFlowsTable extends Migration
     public function up()
     {
         Schema::table('cash_flows', function (Blueprint $table) {
-            $table->decimal('amount', 8,2)->change();
+            $table->decimal('amount', 8, 2)->change();
         });
     }
 

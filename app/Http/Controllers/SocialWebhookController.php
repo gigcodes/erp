@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\LogRequest;
 use App\BusinessPost;
 use App\SocialContact;
 use App\BusinessComment;
@@ -10,7 +11,6 @@ use App\SocialWebhookLog;
 use App\Social\SocialConfig;
 use App\SocialContactThread;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class SocialWebhookController extends Controller
 {
@@ -483,7 +483,7 @@ class SocialWebhookController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
-       
+
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SocialWebhookController::class, 'getImageByCurl');
 
         return [

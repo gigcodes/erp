@@ -1252,7 +1252,7 @@ class SiteDevelopmentController extends Controller
         $page = $request->page;
         $selectedCategoryIds = $request->category_id;
 
-        $allCategories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
+        $allCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
         $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
@@ -1269,20 +1269,20 @@ class SiteDevelopmentController extends Controller
                     $q->where('site_developments.site_development_master_category_id', null);
                 }
             })->join('store_websites', 'store_websites.id', '=', 'site_developments.website_id')
-            ->where(function($query) use ($request) {
-                if(isset($request->search_master_category_id) && $request->search_master_category_id != "") {
-                    $query->where("site_development_categories.master_category_id", $request->search_master_category_id);
+            ->where(function ($query) use ($request) {
+                if (isset($request->search_master_category_id) && $request->search_master_category_id != '') {
+                    $query->where('site_development_categories.master_category_id', $request->search_master_category_id);
                 }
-                if(isset($request->category_id) && $request->category_id != "") {
-                    $query->whereIn("site_development_categories.id", $request->category_id);
+                if (isset($request->category_id) && $request->category_id != '') {
+                    $query->whereIn('site_development_categories.id', $request->category_id);
                 }
+
                 return $query;
             })
             ->groupBy('site_development_categories.id')
             // ->orderBy('website', 'asc')
             ->orderBy('site_development_categories.id', 'desc');
         $categories = $categories->paginate(25);
-
 
         $title = 'Store website Category';
 

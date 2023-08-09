@@ -22,6 +22,7 @@ use App\ErpLeads;
 use App\Language;
 use App\Supplier;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ChatMessage;
 use App\HsCodeGroup;
 use App\UserProduct;
@@ -70,7 +71,6 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class ProductController extends Controller
 {
@@ -459,7 +459,7 @@ class ProductController extends Controller
 
         // checking here for the product which is cropped
 
-        if(count($newProducts) > 0){
+        if (count($newProducts) > 0) {
             $productIds = $newProducts->pluck('id')->toArray();
 
             $siteCroppedImages = \App\SiteCroppedImages::select('product_id', DB::raw('group_concat(site_cropped_images.website_id) as website_ids'))->whereIn('product_id', $productIds)->groupBy('product_id')->pluck('website_ids', 'product_id')->toArray();
@@ -496,7 +496,7 @@ class ProductController extends Controller
                 'user_id' => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
                 'request' => $request->all(),
                 'categories_paths_array' => $categories_paths_array,
-                'siteCroppedImages' => $siteCroppedImages
+                'siteCroppedImages' => $siteCroppedImages,
             ]);
         }
 
@@ -532,7 +532,7 @@ class ProductController extends Controller
             'auto_push_product' => $auto_push_product,
             //'store_website_count' => StoreWebsite::count(),
             'categories_paths_array' => $categories_paths_array,
-            'siteCroppedImages' => $siteCroppedImages
+            'siteCroppedImages' => $siteCroppedImages,
         ]);
     }
 
@@ -4175,9 +4175,9 @@ class ProductController extends Controller
                 $query->where('sku', $request->get('sku'));
             });
         }
-        
+
         $supplier = Supplier::select('id', 'supplier')->get();
-    
+
         if ($request->supplier) {
             $query->whereIn('product_suppliers.supplier_id', $request->supplier); // Specify the table for the column 'supplier_id'
         }
@@ -4189,32 +4189,31 @@ class ProductController extends Controller
         }
         if ($request->product_title) {
             $products = $query->where('title', 'LIKE', '%' . $request->product_title . '%');
-        }  
+        }
         if ($request->product_description) {
             $products = $query->where('description', 'LIKE', '%' . $request->product_description . '%');
-        } 
+        }
         if ($request->product_color) {
             $products = $query->where('color', 'LIKE', '%' . $request->product_color . '%');
         }
         if ($request->product_size) {
             $products = $query->where('size', 'LIKE', '%' . $request->product_size . '%');
-        } 
+        }
         if ($request->product_composition) {
             $products = $query->where('composition', 'LIKE', '%' . $request->product_composition . '%');
-        } 
+        }
         if ($request->product_size_system) {
             $products = $query->where('size_system', 'LIKE', '%' . $request->product_size_system . '%');
-        } 
+        }
         if ($request->product_price) {
             $products = $query->where('price', 'LIKE', '%' . $request->product_price . '%');
-        } 
+        }
         if ($request->product_discount) {
             $products = $query->where('price_discounted', 'LIKE', '%' . $request->product_discount . '%');
-        } 
+        }
 
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-
 
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
@@ -4789,10 +4788,9 @@ class ProductController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $searchString, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
 
-
         // close curl resource to free up system resources
         curl_close($ch);
-        
+
         $categories = json_decode($output);
 
         if (! isset($categories->HSCode)) {

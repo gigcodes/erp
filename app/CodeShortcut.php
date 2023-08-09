@@ -2,11 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-use App\User;
-use App\Supplier;
-use App\CodeShortCutPlatform;
 use App\Models\CodeShortcutFolder;
+use Illuminate\Database\Eloquent\Model;
 
 class CodeShortcut extends Model
 {
@@ -34,12 +31,11 @@ class CodeShortcut extends Model
 
     public function platform()
     {
-        return $this->hasOne(CodeShortCutPlatform::class , 'id', 'code_shortcuts_platform_id');
+        return $this->hasOne(CodeShortCutPlatform::class, 'id', 'code_shortcuts_platform_id');
     }
 
     public function folder()
     {
-        return $this->hasOne(CodeShortcutFolder::class , 'id', 'folder_id');
+        return $this->hasOne(CodeShortcutFolder::class, 'id', 'folder_id');
     }
-
 }

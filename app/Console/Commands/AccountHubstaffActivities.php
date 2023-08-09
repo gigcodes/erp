@@ -6,10 +6,10 @@ use DB;
 use App\User;
 use Exception;
 use App\UserRate;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
-use App\Helpers\LogHelper;
 
 class AccountHubstaffActivities extends Command
 {
@@ -240,10 +240,10 @@ class AccountHubstaffActivities extends Command
                     $paymentAccount->ex_rate = 68;
                     $paymentAccount->save();
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved hubstaff payment account detail by ID:'.$paymentAccount->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved hubstaff payment account detail by ID:' . $paymentAccount->id]);
 
                     foreach ($entry['activityIds'] as $activityId) {
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update hubstaff activity detail by ID:'.$activityId]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update hubstaff activity detail by ID:' . $activityId]);
 
                         HubstaffActivity::where('id', $activityId)
                             ->update([
@@ -262,7 +262,7 @@ class AccountHubstaffActivities extends Command
                                     $developerTask->estimate_minutes += $task;
                                     $developerTask->save();
 
-                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update developer task estimation by ID:'. $developerTask->id]);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Update developer task estimation by ID:' . $developerTask->id]);
                                 }
                             }
                         }

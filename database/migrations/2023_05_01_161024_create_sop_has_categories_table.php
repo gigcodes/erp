@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateSopHasCategoriesTable extends Migration
 {
@@ -15,8 +15,8 @@ class CreateSopHasCategoriesTable extends Migration
     {
         Schema::create('sop_has_categories', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger("sop_id");
-            $table->bigInteger("sop_category_id");
+            $table->bigInteger('sop_id');
+            $table->bigInteger('sop_category_id');
             $table->timestamps();
         });
     }

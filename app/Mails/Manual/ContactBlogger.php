@@ -38,6 +38,7 @@ class ContactBlogger extends Mailable
         $this->withSwiftMessage(function ($swiftmessage) {
             Log::channel('customer')->info($swiftmessage->getId());
         });
+
         return $this->from($this->from_email)
             ->subject($this->subject)
             ->markdown('emails.customers.email');

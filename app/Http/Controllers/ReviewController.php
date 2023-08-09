@@ -12,15 +12,15 @@ use App\Scraper;
 use App\Setting;
 use App\Customer;
 use App\Complaint;
+use App\LogRequest;
 use App\Instruction;
 use App\StatusChange;
 use App\ReviewSchedule;
 use App\TargetLocation;
-use App\ReviewBrandList;
 //use InstagramAPI\Instagram;
+use App\ReviewBrandList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\LogRequest;
 
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -582,7 +582,6 @@ class ReviewController extends Controller
         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ReviewController::class, 'getImageByCurl');
 
         curl_close($curl);
-        
 
         if (! empty($err)) {
             return response()->json(['code' => 500, 'message' => 'Could not fetch response from server']);

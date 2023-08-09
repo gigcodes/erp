@@ -12,6 +12,7 @@ use App\Website;
 use App\Customer;
 use App\CreditLog;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ChatMessage;
 use App\LiveChatLog;
 use App\ChatbotReply;
@@ -34,7 +35,6 @@ use App\Mails\Manual\PurchaseEmail;
 use Google\Cloud\Translate\TranslateClient;
 use App\Library\Watson\Model as WatsonManager;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class LiveChatController extends Controller
 {
@@ -502,7 +502,7 @@ class LiveChatController extends Controller
 
         $post = ['chat_id' => $thread, 'event' => ['type' => 'message', 'text' => $message, 'recipients' => 'all']];
         $post = json_encode($post);
-        $url = "https://api.livechatinc.com/v3.1/agent/action/send_event";
+        $url = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
 
         $curl = curl_init();
 
@@ -632,8 +632,8 @@ class LiveChatController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'POST', json_encode(['file' => new CURLFILE('/Users/satyamtripathi/PhpstormProjects/untitled/images/1592232591.png')]),
-        json_decode($response),
-         $httpcode, \App\Http\Controllers\LiveChatController::class, 'curlCall');
+            json_decode($response),
+            $httpcode, \App\Http\Controllers\LiveChatController::class, 'curlCall');
         echo $response;
     }
 
@@ -1465,7 +1465,7 @@ class LiveChatController extends Controller
 
         $query = $query->select($selectArray);
 
-        if ($request->ticket_id !='') {
+        if ($request->ticket_id != '') {
             $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
 
@@ -1519,7 +1519,7 @@ class LiveChatController extends Controller
             $query = $query->whereDate('tickets.created_at', $request->date);
         }
 
-        $pageSize = Setting::get('pagination',25);
+        $pageSize = Setting::get('pagination', 25);
         if ($pageSize == '') {
             $pageSize = 1;
         }
@@ -1587,7 +1587,7 @@ class LiveChatController extends Controller
         $currency = $request->get('currency', 'EUR');
         $customercurrency = ! empty($customer->currency) ? $customer->currency : 'EUR';
 
-        if (!isset($customer->credit) || $customer->credit == null || $customer->credit == '') {
+        if (! isset($customer->credit) || $customer->credit == null || $customer->credit == '') {
             $customer->credit = 0;
         }
 

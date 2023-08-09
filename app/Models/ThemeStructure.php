@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\ProjectTheme;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemeStructure extends Model
 {
@@ -24,11 +23,10 @@ class ThemeStructure extends Model
     {
         return $this->belongsTo(ProjectTheme::class, 'theme_id', 'id');
     }
-    
+
     public static function tree()
     {
         return static::orderByRaw('-position DESC')->get()->nest();
-    
     }
 
     public static function treeList()
@@ -38,7 +36,6 @@ class ThemeStructure extends Model
                 ->nest()
                 ->setIndent('¦–– ')
                 ->listsFlattened('name');
-        
     }
 
     public function parent()

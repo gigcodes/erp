@@ -61,12 +61,12 @@ class SendgridEvent extends Model
 
     public function getEventColorAttribute()
     {
-        $eventColor = SendgridEventColor::where("name", $this->event)->first();
+        $eventColor = SendgridEventColor::where('name', $this->event)->first();
 
         if ($eventColor) {
             return $eventColor->color;
         }
 
-        return "";
+        return '';
     }
 }

@@ -26,7 +26,7 @@ class SendDailyActivityReport extends Mailable
     {
         $this->user = $user;
         $this->time_slots = $time_slots;
-        $this->fromMailer=\App\Helpers::getFromEmail();
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**

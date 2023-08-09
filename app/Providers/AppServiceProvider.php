@@ -7,8 +7,10 @@ use App\DatabaseLog;
 use Facebook\Facebook;
 use Studio\Totem\Totem;
 use App\CallBusyMessage;
-use App\Models\GoogleDocsCategory;
 use App\ScrapedProducts;
+use Illuminate\View\View;
+use Illuminate\Support\Facades;
+use App\Models\GoogleDocsCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
@@ -16,8 +18,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Observers\CallBusyMessageObserver;
-use Illuminate\Support\Facades;
-use Illuminate\View\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,10 +65,9 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
 
-
-        Facades\View::composer(['googledocs.index', 'development.flagtask', 'development.issue', 'task-module.show', "task-module.*"], function (View $view) {
+        Facades\View::composer(['googledocs.index', 'development.flagtask', 'development.issue', 'task-module.show', 'task-module.*'], function (View $view) {
             $googledocscategory = GoogleDocsCategory::get()->pluck('name', 'id')->toArray();
-            if(count($googledocscategory) > 0) {
+            if (count($googledocscategory) > 0) {
                 $view->with('googleDocCategory', $googledocscategory);
             } else {
                 $view->with('googleDocCategory', []);

@@ -10,9 +10,6 @@ use App\User;
 use App\Brand;
 use App\Email;
 use App\Order;
-use App\OrderStatusHistory;
-use App\PurchaseStatus;
-use App\StatusMapping;
 use App\Helpers;
 use App\Product;
 use App\Setting;
@@ -22,8 +19,11 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\OrderProduct;
 use App\StoreWebsite;
+use App\StatusMapping;
+use App\PurchaseStatus;
 use App\InventoryStatus;
 use App\ProductSupplier;
+use App\OrderStatusHistory;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use App\PurchaseProductOrder;
@@ -977,7 +977,7 @@ class PurchaseProductController extends Controller
             // Get purchase product orders
             $purchaseProductOrder = PurchaseProductOrder::FindOrFail($request->purchase_product_orders_id);
 
-            if($purchaseProductOrder) {
+            if ($purchaseProductOrder) {
                 // Get purchase status from request
                 $purchaseStatus = $request->purchase_status;
 
@@ -986,17 +986,17 @@ class PurchaseProductController extends Controller
                 $purchaseProductOrder->save();
 
                 // Find mapped order status
-                $mappedStatus = StatusMapping::where("purchase_status_id", $purchaseStatus)->first();
+                $mappedStatus = StatusMapping::where('purchase_status_id', $purchaseStatus)->first();
                 if ($mappedStatus) {
                     $orderStatusId = $mappedStatus->order_status_id;
                     $orderStatus = $mappedStatus->orderStatus->status;
 
                     $orderProductsOrderIds = json_decode($purchaseProductOrder->order_products_order_id, true);
                     $orderProducts = OrderProduct::whereIn('id', $orderProductsOrderIds)->get();
-                    
-                    if($orderProducts) {
+
+                    if ($orderProducts) {
                         // Loop all the order products one by one & update the status
-                        foreach($orderProducts as $orderProduct) {
+                        foreach ($orderProducts as $orderProduct) {
                             $orderProduct->order_product_status_id = $orderStatusId;
                             $orderProduct->save();
 
@@ -1020,10 +1020,11 @@ class PurchaseProductController extends Controller
                         }
                     }
                 }
+
                 return response()->json(['messages' => 'Status Updated successfully', 'code' => 200]);
             }
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Purchase product order not found!'], 404);
+            return response()->json(['message' => 'Purchase product order not found!'], 404);
         }
     }
 

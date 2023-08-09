@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\StoreWebsite;
 use App\MagentoSetting;
 use Illuminate\Console\Command;
 use App\MagentoSettingUpdateResponseLog;
-use App\LogRequest;
 
 class MagentoSettingAddUpdate extends Command
 {
@@ -71,7 +71,7 @@ class MagentoSettingAddUpdate extends Command
                     $resArr = is_string($response) ? json_decode($response, true) : $response;
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
                     curl_close($curl);
-                    
+
                     //dd($resArr, 'sdfgsdf');
                     if (is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
                         foreach ($resArr as $key1 => $res1) {

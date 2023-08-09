@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use App\UserFeedbackCategory;
 use Illuminate\Http\Response;
 use App\UserAvaibilityHistory;
+use App\UserPemfileHistoryLog;
 use App\UserFeedbackStatusUpdate;
 use App\Hubstaff\HubstaffActivity;
 use App\Http\Controllers\Controller;
@@ -39,7 +40,6 @@ use function GuzzleHttp\json_encode;
 use App\UserFeedbackCategorySopHistory;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
-use App\UserPemfileHistoryLog;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller
@@ -1597,27 +1597,34 @@ class UserManagementController extends Controller
             return response()->json(['code' => 500, 'message' => 'Please enter password and more then 6 length']);
         }
 
-
         $connectionInformation = config("database.connections.$connection");
-        if($connection!='mysql'){
-            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
-            if($storeWebsite){
-                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
-                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
-                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
-                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
-                $connectionInformation['host']=$storeWebsite->server_ip;
-                $connectionInformation['database']=$storeWebsite->database_name;
-                $connectionInformation['username']=$storeWebsite->mysql_username;
-                $connectionInformation['password']=$storeWebsite->mysql_password;
-            }else{
+        if ($connection != 'mysql') {
+            $storeWebsite = \App\StoreWebsite::where('id', $connection)->first();
+            if ($storeWebsite) {
+                if ($storeWebsite->server_ip == '') {
+                    return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);
+                }
+                if ($storeWebsite->database_name == '') {
+                    return response()->json(['code' => '500',  'message' => 'Database name is not set!']);
+                }
+                if ($storeWebsite->mysql_username == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);
+                }
+                if ($storeWebsite->mysql_password == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
+                }
+                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['database'] = $storeWebsite->database_name;
+                $connectionInformation['username'] = $storeWebsite->mysql_username;
+                $connectionInformation['password'] = $storeWebsite->mysql_password;
+            } else {
                 return response()->json(['code' => 500, 'message' => 'Site details is not found']);
             }
         }
         if (empty($connectionInformation)) {
             return response()->json(['code' => 500, 'message' => 'No , database connection is not available']);
         }
-        
+
         $user = \App\User::find($id);
         if ($user) {
             $database = \App\UserDatabase::where('user_id', $user->id)->where('database', $connection)->first();
@@ -1660,18 +1667,26 @@ class UserManagementController extends Controller
         }
 
         $connectionInformation = config("database.connections.$connection");
-        if($connection!='mysql'){
-            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
-            if($storeWebsite){
-                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
-                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
-                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
-                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
-                $connectionInformation['host']=$storeWebsite->server_ip;
-                $connectionInformation['database']=$storeWebsite->database_name;
-                $connectionInformation['username']=$storeWebsite->mysql_username;
-                $connectionInformation['password']=$storeWebsite->mysql_password;
-            }else{
+        if ($connection != 'mysql') {
+            $storeWebsite = \App\StoreWebsite::where('id', $connection)->first();
+            if ($storeWebsite) {
+                if ($storeWebsite->server_ip == '') {
+                    return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);
+                }
+                if ($storeWebsite->database_name == '') {
+                    return response()->json(['code' => '500',  'message' => 'Database name is not set!']);
+                }
+                if ($storeWebsite->mysql_username == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);
+                }
+                if ($storeWebsite->mysql_password == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
+                }
+                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['database'] = $storeWebsite->database_name;
+                $connectionInformation['username'] = $storeWebsite->mysql_username;
+                $connectionInformation['password'] = $storeWebsite->mysql_password;
+            } else {
                 return response()->json(['code' => 500, 'message' => 'Site details is not found']);
             }
         }
@@ -1742,18 +1757,26 @@ class UserManagementController extends Controller
         }
 
         $connectionInformation = config("database.connections.$connection");
-        if($connection!='mysql'){
-            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
-            if($storeWebsite){
-                if($storeWebsite->server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
-                if($storeWebsite->database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
-                if($storeWebsite->mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
-                if($storeWebsite->mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
-                $connectionInformation['host']=$storeWebsite->server_ip;
-                $connectionInformation['database']=$storeWebsite->database_name;
-                $connectionInformation['username']=$storeWebsite->mysql_username;
-                $connectionInformation['password']=$storeWebsite->mysql_password;
-            }else{
+        if ($connection != 'mysql') {
+            $storeWebsite = \App\StoreWebsite::where('id', $connection)->first();
+            if ($storeWebsite) {
+                if ($storeWebsite->server_ip == '') {
+                    return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);
+                }
+                if ($storeWebsite->database_name == '') {
+                    return response()->json(['code' => '500',  'message' => 'Database name is not set!']);
+                }
+                if ($storeWebsite->mysql_username == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);
+                }
+                if ($storeWebsite->mysql_password == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
+                }
+                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['database'] = $storeWebsite->database_name;
+                $connectionInformation['username'] = $storeWebsite->mysql_username;
+                $connectionInformation['password'] = $storeWebsite->mysql_password;
+            } else {
                 return response()->json(['code' => 500, 'message' => 'Site details is not found']);
             }
         }
@@ -1782,7 +1805,7 @@ class UserManagementController extends Controller
     public function chooseDatabase(Request $request, $id)
     {
         $connection = $request->get('connection');
-        
+
         $database = \App\UserDatabase::where('database', $connection)->where('user_id', $id)->first();
         $tablesExisting = [];
         if ($database) {
@@ -1793,28 +1816,36 @@ class UserManagementController extends Controller
 
         $list = [];
         $tables = [];
-        if($connection!='mysql'){
-            $storeWebsite=\App\StoreWebsite::where('id',$connection)->first();
-            if($storeWebsite){
-                $server_ip=$storeWebsite->server_ip;
-                $database_name=$storeWebsite->database_name;
-                $mysql_username=$storeWebsite->mysql_username;
-                $mysql_password=$storeWebsite->mysql_password;
-                if($server_ip==''){return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);}
-                if($database_name==''){return response()->json(['code' => '500',  'message' => 'Database name is not set!']);}
-                if($mysql_username==''){return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);}
-                if($mysql_password==''){return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);}
-                
+        if ($connection != 'mysql') {
+            $storeWebsite = \App\StoreWebsite::where('id', $connection)->first();
+            if ($storeWebsite) {
+                $server_ip = $storeWebsite->server_ip;
+                $database_name = $storeWebsite->database_name;
+                $mysql_username = $storeWebsite->mysql_username;
+                $mysql_password = $storeWebsite->mysql_password;
+                if ($server_ip == '') {
+                    return response()->json(['code' => '500',  'message' => 'Server ip  is not set!']);
+                }
+                if ($database_name == '') {
+                    return response()->json(['code' => '500',  'message' => 'Database name is not set!']);
+                }
+                if ($mysql_username == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username is not set!']);
+                }
+                if ($mysql_password == '') {
+                    return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
+                }
+
                 //dd([$server_ip,$mysql_username,$mysql_password,$database_name]);
                 //Creating a connection
-                try{
-                    $conn  = new \mysqli($server_ip, $mysql_username, $mysql_password, $database_name);
+                try {
+                    $conn = new \mysqli($server_ip, $mysql_username, $mysql_password, $database_name);
 
-                    if($conn ->connect_error){
-                        return response()->json(['code' => 500, 'message' => "Connection failed:".$conn ->connect_error]);
-                    }else{
-                        if($result = $conn->query('SHOW TABLES')){
-                            $tables =$result->fetch_all(MYSQLI_ASSOC);
+                    if ($conn->connect_error) {
+                        return response()->json(['code' => 500, 'message' => 'Connection failed:' . $conn->connect_error]);
+                    } else {
+                        if ($result = $conn->query('SHOW TABLES')) {
+                            $tables = $result->fetch_all(MYSQLI_ASSOC);
                         }
                     }
 
@@ -1823,10 +1854,10 @@ class UserManagementController extends Controller
                 } catch (\Exception $e) {
                     return response()->json(['code' => '500',  'message' => $e->getMessage()]);
                 }
-            }else{
+            } else {
                 return response()->json(['code' => 500, 'message' => 'Site details is not found']);
             }
-        }else{
+        } else {
             $tables = \DB::connection($connection)->select('SHOW TABLES');
         }
 
@@ -1849,7 +1880,7 @@ class UserManagementController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data]);
     }
-    
+
     public function updateStatus(Request $request)
     {
         if ($request->type == 'TASK') {
@@ -1879,25 +1910,26 @@ class UserManagementController extends Controller
         return response()->json(['code' => 200, 'data' => $shell_list]);
     }
 
-    public function downloadPemFile(Request $request,$id){
+    public function downloadPemFile(Request $request, $id)
+    {
         $pemHistory = UserPemfileHistory::find($id);
-        if (!$pemHistory) {
+        if (! $pemHistory) {
             return redirect()->back()->with('error', 'PEM File data not found!');
         }
-            
-        $server = AssetsManager::where('id',$pemHistory->server_id)->first();
-        if (!$server) {
+
+        $server = AssetsManager::where('id', $pemHistory->server_id)->first();
+        if (! $server) {
             return redirect()->back()->with('error', 'Server data not found!');
         }
-        $server=$server->ip;
-        $username=$pemHistory->username;
-        $public_key=$pemHistory->public_key;
-        if($public_key==''){
+        $server = $server->ip;
+        $username = $pemHistory->username;
+        $public_key = $pemHistory->public_key;
+        if ($public_key == '') {
             return redirect()->back()->with('error', 'Public key is not found!');
         }
-        
-        $access_type=$pemHistory->access_type;
-        $content=$pemHistory->pem_content;
+
+        $access_type = $pemHistory->access_type;
+        $content = $pemHistory->pem_content;
         $nameF = $pemHistory->server_name . '.pem';
 
         //header download
@@ -1910,39 +1942,37 @@ class UserManagementController extends Controller
 
         echo $content;
         exit;
-        
-        
     }
+
     public function userGenerateStorefile(Request $request)
     {
-
         $server_id = $request->get('for_server');
         $user = \App\User::find($request->get('userid', 0));
         if (! $user) {
-           return response()->json(['code' => 500, 'message' => "User data Not found!"]);
+            return response()->json(['code' => 500, 'message' => 'User data Not found!']);
         }
         $public_key = $request->public_key;
-        if ($public_key=='') {
-            return response()->json(['code' => 500, 'message' => "Please enter public key"]);
+        if ($public_key == '') {
+            return response()->json(['code' => 500, 'message' => 'Please enter public key']);
         }
         $access_type = $request->get('access_type', 'sftp');
-        $server = AssetsManager::where('id',$server_id)->first();
-        if(!$server){
-            return response()->json(['code' => 500, 'message' => "Server data Not found!"]);
+        $server = AssetsManager::where('id', $server_id)->first();
+        if (! $server) {
+            return response()->json(['code' => 500, 'message' => 'Server data Not found!']);
         }
         $user_role = $request->get('user_role');
         $username = str_replace(' ', '_', $user->name);
 
-        $var_t_sftp="true";
-        $var_b_ssh="false";
-        if($access_type=="ssh"){
-            $var_t_sftp="false";
-            $var_b_ssh="true";
+        $var_t_sftp = 'true';
+        $var_b_ssh = 'false';
+        if ($access_type == 'ssh') {
+            $var_t_sftp = 'false';
+            $var_b_ssh = 'true';
         }
-        $server_ip=$server->ip;
-        
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  -k "'. $public_key .'" -R '.$user_role.' 2>&1';
-        \Log::info("Generate Pem Files:");
+        $server_ip = $server->ip;
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t ' . $var_t_sftp . '  -b ' . $var_b_ssh . '  -k "' . $public_key . '" -R ' . $user_role . ' 2>&1';
+        \Log::info('Generate Pem Files:');
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput, $return_var);
@@ -1979,8 +2009,7 @@ class UserManagementController extends Controller
 
         (new UserPemfileHistoryLog())->saveLog($userPemfileHistory->id, $cmd, $allOutput, $return_var);
 
-        return response()->json(['code' => 200, 'message' => "PEM file generate sucessfully!"]);
-        
+        return response()->json(['code' => 200, 'message' => 'PEM file generate sucessfully!']);
     }
 
     public function userPemfileHistoryListing(Request $request)
@@ -1994,32 +2023,31 @@ class UserManagementController extends Controller
     {
         $pemHistory = UserPemfileHistory::find($id);
         if ($pemHistory) {
-
-            $server = AssetsManager::where('id',$pemHistory->server_id)->first();
-            if (!$server) {
+            $server = AssetsManager::where('id', $pemHistory->server_id)->first();
+            if (! $server) {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Server data not found!']);
             }
-            $access_type=$pemHistory->access_type;
-            $var_t_sftp=true;
-            $var_b_ssh=false;
-            if($access_type=="ssh"){
-                $var_t_sftp=false;
-                $var_b_ssh=true;
+            $access_type = $pemHistory->access_type;
+            $var_t_sftp = true;
+            $var_b_ssh = false;
+            if ($access_type == 'ssh') {
+                $var_t_sftp = false;
+                $var_b_ssh = true;
             }
 
-            \Log::info("Disable Pem Access:".$id);
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f disable -s ' . $server->id . ' -t '. $var_t_sftp .'  -b '. $var_b_ssh .'  2>&1';
+            \Log::info('Disable Pem Access:' . $id);
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f disable -s ' . $server->id . ' -t ' . $var_t_sftp . '  -b ' . $var_b_ssh . '  2>&1';
 
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
-            $pemHistory->action='disable';
-            $pemHistory->created_by=auth()->user()->id;
+            $pemHistory->action = 'disable';
+            $pemHistory->created_by = auth()->user()->id;
             $pemHistory->save();
 
             (new UserPemfileHistoryLog())->saveLog($pemHistory->id, $cmd, $allOutput, $return_var);
-            
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Pem access disable successfully']);
         } else {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'No request found']);
@@ -2030,19 +2058,18 @@ class UserManagementController extends Controller
     {
         $pemHistory = UserPemfileHistory::find($id);
         if ($pemHistory) {
-
-            $server = AssetsManager::where('id',$pemHistory->server_id)->first();
-            if (!$server) {
+            $server = AssetsManager::where('id', $pemHistory->server_id)->first();
+            if (! $server) {
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Server data not found!']);
             }
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f delete -s ' . $server->id . ' 2>&1';
-            \Log::info("Delete Pem Access:".$id);
+            \Log::info('Delete Pem Access:' . $id);
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
-            $pemHistory->action='delete';
-            $pemHistory->created_by=auth()->user()->id;
+            $pemHistory->action = 'delete';
+            $pemHistory->created_by = auth()->user()->id;
             $pemHistory->save();
             $pemHistory->delete();
 
@@ -2835,19 +2862,18 @@ class UserManagementController extends Controller
 
     public function userAccessListing(Request $request)
     {
-
-        $userAccessLists = New UserPemfileHistory();
+        $userAccessLists = new UserPemfileHistory();
         $userAccessLists = $userAccessLists->withTrashed();
-      
+
         if ($request->user_ids) {
-            $userAccessLists = $userAccessLists->whereIn('user_id', $request->user_ids );
+            $userAccessLists = $userAccessLists->whereIn('user_id', $request->user_ids);
         }
         if ($request->s_ids) {
             $userAccessLists = $userAccessLists->WhereIn('server_name', $request->s_ids);
         }
         if ($request->search_event) {
             $userAccessLists = $userAccessLists->where('action', 'LIKE', '%' . $request->search_event . '%');
-        } 
+        }
         if ($request->date) {
             $userAccessLists = $userAccessLists->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
@@ -2857,8 +2883,6 @@ class UserManagementController extends Controller
 
         $userAccessLists = $userAccessLists->with('user')->latest()->paginate(25);
 
-
         return view('user-management.user-access-list', compact('userAccessLists'));
-
     }
 }

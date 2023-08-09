@@ -16,9 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Customer;
-use App\EmailAddress;
-use App\Order;
 
 class Helpers
 {
@@ -402,46 +399,50 @@ class Helpers
 
         return $queue;
     }
-    public static function getFromEmail($customer_id=0){
-        if(!empty($customer_id)){
+
+    public static function getFromEmail($customer_id = 0)
+    {
+        if (! empty($customer_id)) {
             $customer = Customer::find($customer_id);
-            if($customer){
+            if ($customer) {
                 $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
-                if($emailAddressDetails){
+                if ($emailAddressDetails) {
                     return $emailAddressDetails->from_address;
                 }
             }
         }
+
         return config('env.MAIL_FROM_ADDRESS');
     }
     //How to call \App\Helpers::getFromEmail() |  pass custome id if available
-    
-    public static function getFromEmailByOrderId($order_id){
-        if(!empty($order_id)){
+
+    public static function getFromEmailByOrderId($order_id)
+    {
+        if (! empty($order_id)) {
             $order = Order::find($order_id);
-            if($order){
+            if ($order) {
                 return self::getFromEmail($order->customer->id);
             }
         }
+
         return config('env.MAIL_FROM_ADDRESS');
     }
 
-    public static function getAudioUrl($messages){
+    public static function getAudioUrl($messages)
+    {
         $reg_exUrl = '/\b(https?|ftp|file|http):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i';
         // The Text you want to filter for urls
-        $text = "The text you want to filter goes here. http://example.com";
+        $text = 'The text you want to filter goes here. http://example.com';
 
-        if(preg_match($reg_exUrl, $messages, $url)) {
-
+        if (preg_match($reg_exUrl, $messages, $url)) {
             return array_shift($url);
+        }
 
-        } 
         return $messages;
     }
 
-    public static function isBase64Encoded($string) {
+    public static function isBase64Encoded($string)
+    {
         return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string);
-
     }
-     
 }

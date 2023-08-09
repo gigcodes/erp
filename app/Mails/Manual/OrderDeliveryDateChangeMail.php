@@ -13,7 +13,9 @@ class OrderDeliveryDateChangeMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $order;
+
     public $fromMailer;
+
     /**
      * Create a new message instance.
      *
@@ -39,7 +41,7 @@ class OrderDeliveryDateChangeMail extends Mailable
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        
+
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         if ($storeWebsiteOrder) {

@@ -150,7 +150,7 @@ class UpdateLogController extends Controller
     }
 
     public function requestHeaderShow(Request $request)
-    {     
+    {
         $id = $request->input('id');
         $requestHeader = UpdateLog::where('id', $id)->value('request_header');
         $htmlContent = '<tr><td>' . $requestHeader . '</td></tr>';

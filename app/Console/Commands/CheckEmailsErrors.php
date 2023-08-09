@@ -6,9 +6,9 @@ use App\Agent;
 use App\Supplier;
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
-use App\Helpers\LogHelper;
 
 class CheckEmailsErrors extends Command
 {
@@ -83,8 +83,8 @@ class CheckEmailsErrors extends Command
                     } else {
                         $content = $email->getTextBody();
                     }
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting html body of the email ID:'.$email->id]);
-                    
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting html body of the email ID:' . $email->id]);
+
                     if (preg_match_all("/failed: ([\a-zA-Z0-9_.-@]+) host/i", preg_replace('/\s+/', ' ', $content), $match)) {
                         dump('Found address ' . $match[1][0]);
 

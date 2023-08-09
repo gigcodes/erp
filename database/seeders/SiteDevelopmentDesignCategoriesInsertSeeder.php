@@ -1,9 +1,10 @@
 <?php
+
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopmentMasterCategory;
-use Illuminate\Database\Seeder;
 
 class SiteDevelopmentDesignCategoriesInsertSeeder extends Seeder
 {
@@ -12,7 +13,6 @@ class SiteDevelopmentDesignCategoriesInsertSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title', 'Design')->first();
@@ -107,14 +107,13 @@ class SiteDevelopmentDesignCategoriesInsertSeeder extends Seeder
             'Order on the way mail',
             'Order Return Confirm Mail',
             'Track your Ticket by Email',
-            'Donation Email'
+            'Donation Email',
         ];
 
-        foreach($lists as $list)
-        {
+        foreach ($lists as $list) {
             SiteDevelopmentCategory::firstOrCreate([
                 'master_category_id' => $siteDevelopmentMasterCategory->id,
-                'title' => $list
+                'title' => $list,
             ]);
         }
     }
