@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddACreatedByFieldInGoogleDocsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddACreatedByFieldInGoogleDocsTable extends Migration
     public function up()
     {
         Schema::table('google_docs', function (Blueprint $table) {
-            $table->bigInteger("created_by")->nullable();
+            $table->bigInteger('created_by')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddACreatedByFieldInGoogleDocsTable extends Migration
     public function down()
     {
         Schema::table('google_docs', function (Blueprint $table) {
-            $table->dropColumn("created_by");
+            $table->dropColumn('created_by');
         });
     }
 }

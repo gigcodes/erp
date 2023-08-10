@@ -1,9 +1,9 @@
 <?php
 
 use App\ConfigRefactor;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddStoreWebsiteIdInConfigRefactorsTable extends Migration
 {
@@ -18,9 +18,9 @@ class AddStoreWebsiteIdInConfigRefactorsTable extends Migration
             $table->integer('store_website_id')->after('updated_at')->nullable();
         });
 
-        // Update all the old records to store_website_id = 9 (Brands & Labels) 
+        // Update all the old records to store_website_id = 9 (Brands & Labels)
         ConfigRefactor::whereNull('store_website_id')->update([
-            'store_website_id' => 9, 
+            'store_website_id' => 9,
         ]);
     }
 

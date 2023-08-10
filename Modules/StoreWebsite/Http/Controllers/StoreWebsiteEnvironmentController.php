@@ -2,62 +2,18 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use Auth;
 use App\User;
-use App\Service;
-use App\Setting;
 use App\Website;
-use Carbon\Carbon;
-use App\ChatMessage;
 use App\StoreWebsite;
-use App\WebsiteStore;
 use App\AssetsManager;
-use App\SocialStrategy;
-use App\SiteDevelopment;
-use App\StoreWebsiteGoal;
-use App\StoreWebsitePage;
-use App\StoreWebsiteSize;
-use App\WebsiteStoreView;
-use App\StoreWebsiteBrand;
-use App\StoreWebsiteColor;
-use App\StoreWebsiteImage;
-use App\StoreWebsiteUsers;
-use App\StoreWebsitesApiTokenLog;
-use Illuminate\Support\Str;
-use App\BuildProcessHistory;
-use App\LogStoreWebsiteUser;
-use App\StoreReIndexHistory;
-use App\StoreWebsiteProduct;
 use Illuminate\Http\Request;
-use App\StoreWebsiteAnalytic;
-use App\StoreWebsiteCategory;
 use Illuminate\Http\Response;
-use App\SocialStrategySubject;
-use App\StoreWebsiteSeoFormat;
-use App\Models\WebsiteStoreTag;
-use App\StoreViewCodeServerMap;
-use App\StoreWebsiteAttributes;
-use App\Github\GithubRepository;
-use App\SiteDevelopmentCategory;
-use App\StoreWebsiteCategorySeo;
-use App\StoreWebsiteUserHistory;
-use App\MagentoDevScripUpdateLog;
-use App\StoreWebsiteProductPrice;
-use App\StoreWebsiteTwilioNumber;
-use Illuminate\Routing\Controller;
-use App\ProductCancellationPolicie;
-use App\StoreWebsiteProductAttribute;
-use App\StoreWebsitesCountryShipping;
-use App\Jobs\DuplicateStoreWebsiteJob;
-use App\StoreWebsiteProductScreenshot;
-use App\MagentoSettingUpdateResponseLog;
 use App\StoreWebsiteEnvironment;
-use App\StoreWebsiteEnvironmentHistory;
-use App\StoreWebsiteEnvironmentHistoryStatus;
-use Illuminate\Support\Facades\Validator;
-use seo2websites\MagentoHelper\MagentoHelperv2;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Http;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\StoreWebsiteEnvironmentHistory;
+use Illuminate\Support\Facades\Validator;
+use App\StoreWebsiteEnvironmentHistoryStatus;
 
 class StoreWebsiteEnvironmentController extends Controller
 {
@@ -71,7 +27,7 @@ class StoreWebsiteEnvironmentController extends Controller
         $title = 'Store Website Environment ';
 
         $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
-        
+
         $paths = StoreWebsiteEnvironment::pluck('path', 'path');
 
         return view('storewebsite::environment.environment', [
@@ -80,40 +36,41 @@ class StoreWebsiteEnvironmentController extends Controller
             'paths' => $paths,
         ]);
     }
-    
+
     public function matrix(Request $request)
     {
         $title = 'Store Website Environment ';
 
         $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
-        
+
         $paths = StoreWebsiteEnvironment::pluck('path', 'path');
-        
+
         $env_paths = StoreWebsiteEnvironment::groupBy('path');
         $env_store_websites = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id')->select(['store_website_environments.store_website_id', 'sw.title as store_website_name', 'store_website_environments.path']);
-        if($request->store_websites){
-            $env_paths->whereIn('store_website_id',$request->store_websites);
-            $env_store_websites->whereIn('store_website_id',$request->store_websites);
+        if ($request->store_websites) {
+            $env_paths->whereIn('store_website_id', $request->store_websites);
+            $env_store_websites->whereIn('store_website_id', $request->store_websites);
         }
-        if($request->paths){
-            $env_paths->where('path',$request->paths);
-            $env_store_websites->where('path',$request->paths);
+        if ($request->paths) {
+            $env_paths->where('path', $request->paths);
+            $env_store_websites->where('path', $request->paths);
         }
-        
-        $env_paths=$env_paths->pluck('path', 'id');
-        $env_store_websites=$env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
-        
-        $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id','path','value')->get()->toArray();
+
+        $env_paths = $env_paths->pluck('path', 'id');
+        $env_store_websites = $env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
+
+        $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id', 'path', 'value')->get()->toArray();
 
         $result = [];
         array_walk($environments, function ($value, $key) use (&$result) {
-            $value['status_color'] = "";
-            if(isset($value['latest_store_website_environment_history']) && isset($value['latest_store_website_environment_history']['status'])) {
+            $value['status_color'] = '';
+            if (isset($value['latest_store_website_environment_history']) && isset($value['latest_store_website_environment_history']['status'])) {
                 $historyStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', $value['latest_store_website_environment_history']['status'])->select('color')->first();
-                if ($historyStatus)
+                if ($historyStatus) {
                     $value['status_color'] = $historyStatus->color;
+                }
             }
-            
+
             $result[$value['store_website_id']][] = $value;
         });
 
@@ -127,7 +84,8 @@ class StoreWebsiteEnvironmentController extends Controller
         ]);
     }
 
-    public function records(Request $request){
+    public function records(Request $request)
+    {
         $environments = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id');
 
         if ($request->store_website_id != null) {
@@ -146,11 +104,12 @@ class StoreWebsiteEnvironmentController extends Controller
             $attributes = $item->getAttributes();
             $recItems[] = $attributes;
         }
+
         return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'total' => $environments->total(),
             'pagination' => (string) $environments->links(),
         ]);
     }
-    
+
     /**
      * records Page
      *
@@ -202,27 +161,26 @@ class StoreWebsiteEnvironmentController extends Controller
     //         $cwd=$storeWebsite->working_directory;
     //         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
     //     }
-        
+
     //     if($assetsmanager && $assetsmanager->client_id!='')
     //     {
-            
-            
+
     //         $client_id=$assetsmanager->client_id;
     //         $url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
     //         $key=base64_encode("admin:86286706-032e-44cb-981c-588224f80a7d");
-            
+
     //         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            
+
     //         $ch = curl_init();
     //         curl_setopt($ch, CURLOPT_URL,$url);
     //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     //         curl_setopt($ch, CURLOPT_POST, 1);
     //         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
     //         $parameters = [
-    //             'command' => $cmd, 
+    //             'command' => $cmd,
     //             'cwd' => $cwd,
-    //             'is_sudo' => true, 
-    //             'timeout_sec' => 300, 
+    //             'is_sudo' => true,
+    //             'timeout_sec' => 300,
     //         ];
     //         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
@@ -231,32 +189,32 @@ class StoreWebsiteEnvironmentController extends Controller
     //         $headers[] = 'Content-Type: application/json';
     //         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     //         $result = curl_exec($ch);
-            
+
     //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            
-    //         \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result), 
+
+    //         \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result),
     //         $httpcode,\Modules\StoreWebsite\Http\Controllers\StoreWebsiteEnvironmentController::class, 'update');
-            
+
     //         \Log::info("API result: ".$result);
     //         \Log::info("API Error Number: ".curl_errno($ch));
     //         if (curl_errno($ch)) {
     //             \Log::info("API Error: ".curl_error($ch));
-                
+
     //             StoreWebsiteEnvironmentHistory::create(['environment_id' => $environment_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'key' => $path, 'old_value' => $old_value, 'new_value' => $new_value, 'command' => $cmd, 'status' => "Error", 'response' => curl_error($ch)]);
-                
+
     //             return response()->json(['code' => 500, 'error' =>curl_error($ch)]);
     //         }
-            
+
     //         $response = json_decode($result);
 
     //         curl_close($ch);
-                
-    //         if(isset($response->errors)){ 
+
+    //         if(isset($response->errors)){
     //             $message='';
     //             foreach($response->errors as $error){
     //                 $message.=" ".$error->code.":".$error->title.":".$error->detail;
     //             }
-                
+
     //             StoreWebsiteEnvironmentHistory::create(['environment_id' => $environment_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'key' => $path, 'old_value' => $old_value, 'new_value' => $new_value, 'command' => $cmd, 'status' => "Error", 'response' => $message]);
     //             \Log::info($message);
     //             return response()->json(['code' => 500, 'error' => $message]);
@@ -265,7 +223,7 @@ class StoreWebsiteEnvironmentController extends Controller
     //             if(isset($response->data) && isset($response->data->jid) ){
     //                 $job_id=$response->data->jid;
     //                 $status="Success";
-                    
+
     //                 StoreWebsiteEnvironmentHistory::create(['environment_id' => $environment_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'key' => $path, 'old_value' => $old_value, 'new_value' => $new_value, 'command' => $cmd, 'status' => "Success", 'response' => 'Success', 'job_id' => $job_id]);
     //                 $records->value=$new_value;
     //                 $records->save();
@@ -273,17 +231,17 @@ class StoreWebsiteEnvironmentController extends Controller
     //                 return response()->json(['code' => 200, 'data' => $records,'message'=>'Request pushed on website successfully']);
     //             }else{
     //                 StoreWebsiteEnvironmentHistory::create(['environment_id' => $environment_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'key' => $path, 'old_value' => $old_value, 'new_value' => $new_value, 'command' => $cmd, 'status' => "Error", 'response' =>"Job Id not found in response"]);
-                    
+
     //                 \Log::info("Job Id not found in response!");
     //                 return response()->json(['code' => 500, 'error' => 'Job Id not found in response!']);
     //             }
     //         }
     //     }else{
-            
+
     //         StoreWebsiteEnvironmentHistory::create(['environment_id' => $environment_id,'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'key' => $path, 'old_value' => $old_value, 'new_value' => $new_value, 'command' => $cmd, 'status' => "Error", 'response' => "Assets Manager & Client id not found the Store Website!"]);
-            
+
     //         \Log::info("Assets Manager & Client id not found the Store Website!");
-            
+
     //         return response()->json(['code' => 500, 'error' => 'Assets Manager & Client id not found the Store Website!']);
     //     }
 
@@ -292,7 +250,7 @@ class StoreWebsiteEnvironmentController extends Controller
     //     return response()->json(['code' => 200, 'data' => $records,'message'=>'update']);
     // }
 
-    // New Concept 
+    // New Concept
     public function updateValue(Request $request)
     {
         $post = $request->all();
@@ -321,29 +279,29 @@ class StoreWebsiteEnvironmentController extends Controller
         }
 
         $store_website_id = $records->store_website_id;
-        $storeWebsite=StoreWebsite::where('id', $store_website_id)->first();
+        $storeWebsite = StoreWebsite::where('id', $store_website_id)->first();
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'Store Website not found!']);
         }
 
-        \Log::info("Start Environment Pushed");
-        $environment_id=$records->id;
-        $old_value=$records->value;
-        $new_value=$request->value;
-        $updated_by=$request->user_id;
-        $path=$records->path;
+        \Log::info('Start Environment Pushed');
+        $environment_id = $records->id;
+        $old_value = $records->value;
+        $new_value = $request->value;
+        $updated_by = $request->user_id;
+        $path = $records->path;
         $encodeValue = base64_encode($new_value);
         $cwd = $storeWebsite->working_directory;
         $title = $storeWebsite->title;
         $serverIP = $storeWebsite->server_ip;
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-        
+
         $cmd = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\" 2>&1";
         $output = [];
         exec($cmd, $output, $statusCode);
-        \Log::info("Command Status".$statusCode);
-        \Log::info("Command OutPut".print_r($output,true));
-        
+        \Log::info('Command Status' . $statusCode);
+        \Log::info('Command OutPut' . print_r($output, true));
+
         if ($statusCode == 0) {
             // Assuming the output is stored in $output variable as an array
             $result = json_decode($output[0], true); // Decode the JSON string into an associative array
@@ -353,36 +311,36 @@ class StoreWebsiteEnvironmentController extends Controller
                 $status = $result['status'];
                 // Handle the values accordingly
                 if ($status === 'true') {
-                    $statusText = "Success";
+                    $statusText = 'Success';
                     $response = $output[0]; // This is json string
                 } else {
-                    $statusText = "Error";
+                    $statusText = 'Error';
                     $response = $output[0]; // This is json string
                 }
-            }  else {
+            } else {
                 // Invalid output format
-                $statusText = "Error";
-                $response = "Invalid output format";
+                $statusText = 'Error';
+                $response = 'Invalid output format';
             }
         } else {
-            $statusText = "Error";
-            $response = "Command Executed Failed";
+            $statusText = 'Error';
+            $response = 'Command Executed Failed';
         }
 
         StoreWebsiteEnvironmentHistory::create([
             'environment_id' => $environment_id,
-            'store_website_id' => $store_website_id, 
-            'updated_by' => $updated_by, 
-            'key' => $path, 
-            'old_value' => $old_value, 
-            'new_value' => $new_value, 
-            'command' => $cmd, 
-            'status' => $statusText, 
-            'response' => $response
+            'store_website_id' => $store_website_id,
+            'updated_by' => $updated_by,
+            'key' => $path,
+            'old_value' => $old_value,
+            'new_value' => $new_value,
+            'command' => $cmd,
+            'status' => $statusText,
+            'response' => $response,
         ]);
-        \Log::info("End Environment Pushed");
+        \Log::info('End Environment Pushed');
 
-        return response()->json(['code' => 200, 'data' => $records,'message'=>'update']);
+        return response()->json(['code' => 200, 'data' => $records, 'message' => 'update']);
     }
 
     /**
@@ -398,10 +356,10 @@ class StoreWebsiteEnvironmentController extends Controller
         $params = [
             'path' => 'required',
             'store_website_id' => 'required',
-            'command'           => 'required',
+            'command' => 'required',
         ];
         if (empty($id)) {
-            $params['value'] ='required';
+            $params['value'] = 'required';
         }
         $validator = Validator::make($post, $params);
 
@@ -424,10 +382,10 @@ class StoreWebsiteEnvironmentController extends Controller
         }
         $records->fill($post);
         $records->save();
+
         return response()->json(['code' => 200, 'data' => $records]);
     }
 
-   
     /**
      * Edit Page
      *
@@ -447,6 +405,7 @@ class StoreWebsiteEnvironmentController extends Controller
     public function history(Request $request, $id)
     {
         $histories = \App\StoreWebsiteEnvironmentHistory::select('store_website_environment_histories.*', 'u.name AS userName')->leftJoin('users AS u', 'u.id', 'store_website_environment_histories.updated_by')->where('environment_id', $id)->latest()->get();
+
         return response()->json(['code' => 200, 'data' => $histories]);
     }
 
@@ -475,5 +434,4 @@ class StoreWebsiteEnvironmentController extends Controller
             ], 500);
         }
     }
-   
 }

@@ -3,13 +3,15 @@
 namespace App\Models\Seo;
 
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeoProcessChecklistHistory extends Model
 {
     use HasFactory;
-    protected $table = "seo_process_checklist_history";
+
+    protected $table = 'seo_process_checklist_history';
+
     protected $fillable = [
         'seo_process_id',
         'field_name',

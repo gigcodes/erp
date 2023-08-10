@@ -75,6 +75,7 @@
 						<br>
 						<button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
 						<button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
+						<a href="{{route('codeShort.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>
 					</div>
 				</div>
 			</div>

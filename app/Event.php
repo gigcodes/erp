@@ -25,13 +25,15 @@ class Event extends Model
     ];
 
     const PRIVATE = 'PR';
-    const PUBLIC  = 'PU';
-    const ASSET   = 'AS';
+
+    const PUBLIC = 'PU';
+
+    const ASSET = 'AS';
 
     public static $eventTypes = [
         self::PRIVATE => 'Private',
-        self::PUBLIC  => 'Public',
-        self::ASSET   => 'Assets',
+        self::PUBLIC => 'Public',
+        self::ASSET => 'Assets',
     ];
 
     public function user()
@@ -57,7 +59,7 @@ class Event extends Model
         return $this->morphMany(EventAlertLog::class, 'eventalertloggable');
     }
 
-    // Scopes 
+    // Scopes
     public function scopeMyEvents($query, $userId)
     {
         return $query->where('user_id', $userId);
@@ -65,15 +67,16 @@ class Event extends Model
 
     public function getLinkAttribute()
     {
-        return url("event-schedule/".base64_encode('event:' . $this->user_id) . "/" . $this->slug);
-    } 
+        return url('event-schedule/' . base64_encode('event:' . $this->user_id) . '/' . $this->slug);
+    }
 
     public function getDateRangeTypeFullNameAttribute()
     {
-        if ($this->date_range_type == 'within')
-            return "Within a date range";
-        else 
-            return "Indefinitely into the future";
+        if ($this->date_range_type == 'within') {
+            return 'Within a date range';
+        } else {
+            return 'Indefinitely into the future';
+        }
     }
 
     /**

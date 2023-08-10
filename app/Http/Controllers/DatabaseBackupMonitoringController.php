@@ -8,21 +8,19 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\DatabaseBackupMonitoringStatus;
 use Exception;
 
-
 class DatabaseBackupMonitoringController extends Controller
 {
     public function getDbBackupLists(Request $request)
     {
-
-        $dbLists = New DatabaseBackupMonitoring();
-        $dbLists = $dbLists->where('is_resolved','0');
+        $dbLists = new DatabaseBackupMonitoring();
+        $dbLists = $dbLists->where('is_resolved', '0');
 
         if ($request->search_instance) {
             $dbLists = $dbLists->where('instance', 'LIKE', '%' . $request->search_instance . '%');
         }
         if ($request->search_error) {
             $dbLists = $dbLists->where('error', 'LIKE', '%' . $request->search_error . '%');
-        }  
+        }
         if ($request->s_ids) {
             $dbLists = $dbLists->WhereIn('server_name', $request->s_ids);
         }
@@ -38,16 +36,15 @@ class DatabaseBackupMonitoringController extends Controller
         $dbStatuses = DatabaseBackupMonitoringStatus::all();
 
         if ($request->ajax()) {
-            return response()->json(['code' => 200, 'data' => $dbLists, 'count'=> count($dbLists), 'message' => 'Listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $dbLists, 'count' => count($dbLists), 'message' => 'Listed successfully!!!']);
         }
 
 
         return view('databse-Backup.db-backup-list', compact('dbLists','dbStatuses'));
     }
 
-
     public function dbErrorShow(Request $request)
-    {     
+    {
         $id = $request->input('id');
         $errorData = DatabaseBackupMonitoring::where('id', $id)->value('error');
         $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
@@ -55,13 +52,13 @@ class DatabaseBackupMonitoringController extends Controller
         return $htmlContent;
     }
 
-    public function updateIsResolved(Request $request) 
+    public function updateIsResolved(Request $request)
     {
         $dbList = DatabaseBackupMonitoring::findOrFail($request->get('id'));
         $dbList->is_resolved = 1;
         $dbList->update();
 
-        return response()->json(['code' => 200, 'data' => $dbList, 'message' => 'Resolved successfully!!!']);     
+        return response()->json(['code' => 200, 'data' => $dbList, 'message' => 'Resolved successfully!!!']);
     }
 
     public function storeDbStatus(Request $request)

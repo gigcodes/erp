@@ -5,9 +5,9 @@ namespace App\Console\Commands;
 use App\Scraper;
 use App\ScrapLog;
 use App\ScraperProcess;
+use App\Helpers\LogHelper;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 
 class ScrapperNotRun extends Command
 {
@@ -42,7 +42,7 @@ class ScrapperNotRun extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('scraper_id', 'DESC')->groupBy('scraper_id')->get();
@@ -71,7 +71,7 @@ class ScrapperNotRun extends Command
                     ->where('is_resolved', 0)->orderBy('id', 'desc')->first();
 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'DeveloperTask model query finished']);
-                
+
                 if ($hasAssignedIssue != null and $hasAssignedIssue->assigned_to != null) {
                     $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                     $requestData = new Request();
@@ -94,7 +94,7 @@ class ScrapperNotRun extends Command
                         app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'send message successfully.']);
-                        
+
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to " . $userName, 'reason' => $reason]);
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
@@ -110,7 +110,7 @@ class ScrapperNotRun extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

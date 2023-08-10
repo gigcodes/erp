@@ -147,16 +147,16 @@ class Task extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            try{
+            try {
                 // Check the assinged user in any team ?
-                if ($model->assign_to > 0 && (empty($model->master_user_id) ||empty($model->second_master_user_id))) {
+                if ($model->assign_to > 0 && (empty($model->master_user_id) || empty($model->second_master_user_id))) {
                     $teamUser = \App\TeamUser::where('user_id', $model->assign_to)->first();
                     if ($teamUser) {
                         $team = $teamUser->team;
                         if ($team) {
                             $model->master_user_id = $team->user_id;
 
-                            if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                            if (strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0) {
                                 $model->second_master_user_id = $team->second_lead_id;
                             }
                         }
@@ -168,8 +168,7 @@ class Task extends Model
                         }
                     }
                 }
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 //
             }
         });

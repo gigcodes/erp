@@ -3,16 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\MonitorLog;
+use Illuminate\Http\Request;
 use App\Models\MonitorServer;
 use App\Models\MonitorServersUptime;
-use App\OrderStatus;
-use App\PurchaseStatus;
-use App\ReadOnly\ShippingStatus;
-use App\ReturnExchangeStatus;
-use App\StatusMapping;
-use App\StatusMappingHistory;
-use Illuminate\Http\Request;
-use Auth;
 
 class MonitorServerController extends Controller
 {
@@ -46,7 +39,7 @@ class MonitorServerController extends Controller
             });
         }
 
-        if($status){
+        if ($status) {
             $monitorJenkinsBuilds = $monitorServers->Where('status', $status);
         }
 
@@ -63,7 +56,7 @@ class MonitorServerController extends Controller
         $monitorServers = $monitorServers->where('status', 'Off');
         $monitorServers = $monitorServers->paginate($perPage);
 
-        return response()->json($monitorServers);    
+        return response()->json($monitorServers);
     }
 
     public function getServerUptimes(Request $request, $id)

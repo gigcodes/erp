@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddZabbixTaskIdInZabbixWebhookDataTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddZabbixTaskIdInZabbixWebhookDataTable extends Migration
     public function up()
     {
         Schema::table('zabbix_webhook_data', function (Blueprint $table) {
-            $table->integer("zabbix_task_id")->nullable();
+            $table->integer('zabbix_task_id')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddZabbixTaskIdInZabbixWebhookDataTable extends Migration
     public function down()
     {
         Schema::table('zabbix_webhook_data', function (Blueprint $table) {
-            $table->dropColumn("zabbix_task_id");
+            $table->dropColumn('zabbix_task_id');
         });
     }
 }

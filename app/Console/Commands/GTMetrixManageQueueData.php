@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
+use App\Helpers\LogHelper;
 use App\StoreViewsGTMetrix;
 use App\StoreGTMetrixAccount;
 use Illuminate\Http\Response;
 use App\StoreViewsGTMetrixUrl;
 use Illuminate\Console\Command;
 use Entrecore\GTMetrixClient\GTMetrixClient;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class GTMetrixManageQueueData extends Command
 {
@@ -44,7 +44,7 @@ class GTMetrixManageQueueData extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
 
             $gtmatrixAccount = StoreGTMetrixAccount::select('store_gt_metrix_account.*');
@@ -65,13 +65,13 @@ class GTMetrixManageQueueData extends Command
                     $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
                     $gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_id', $gt_metrix['website_id'])->first();
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved views GT metrix by ID'. $new_id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved views GT metrix by ID' . $new_id]);
 
                     try {
                         if (! empty($gtmatrix->account_id)) {
                             $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting GT Matrix account detail by ID'. $gtmatrix->account_id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting GT Matrix account detail by ID' . $gtmatrix->account_id]);
 
                             $curl = curl_init();
                             curl_setopt_array($curl, [
@@ -88,7 +88,7 @@ class GTMetrixManageQueueData extends Command
 
                             $response = curl_exec($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            $url = "https://gtmetrix.com/api/2.0/status";
+                            $url = 'https://gtmetrix.com/api/2.0/status';
                             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixManageQueueData::class, 'handle');
                             curl_close($curl);
                             $data = json_decode($response);
@@ -107,17 +107,17 @@ class GTMetrixManageQueueData extends Command
                                 ];
                                 $gtmetrix->update($update);
 
-                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:' . $gtmetrix->id]);
                             }
                         } else {
                             $AccountData = $gtmatrixAccount->orderBy('id', 'desc')->get();
 
                             foreach ($AccountData as $key => $value) {
                                 $curl = curl_init();
-                                $url = "https://gtmetrix.com/api/2.0/status";
+                                $url = 'https://gtmetrix.com/api/2.0/status';
 
                                 curl_setopt_array($curl, [
-                                    CURLOPT_URL =>  $url,
+                                    CURLOPT_URL => $url,
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                                     CURLOPT_ENCODING => '',
@@ -133,7 +133,7 @@ class GTMetrixManageQueueData extends Command
                                 $parameters = [];
                                 LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixManageQueueData::class);
                                 curl_close($curl);
-                               
+
                                 // decode the response
                                 $data = json_decode($response);
                                 $credits = $data->data->attributes->api_credits;
@@ -151,7 +151,7 @@ class GTMetrixManageQueueData extends Command
                                     ];
                                     $gtmetrix->update($update);
 
-                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:' . $gtmetrix->id]);
                                     break;
                                 }
                             }
@@ -165,12 +165,12 @@ class GTMetrixManageQueueData extends Command
                         ];
                         $gtmetrix->update($update);
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:'.$gtmetrix->id]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated GT Matrix view detail by ID:' . $gtmetrix->id]);
                         \Log::info('GTMetrix :: successfully' . $e->getMessage());
                     }
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

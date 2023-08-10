@@ -33,9 +33,11 @@ class MagentoCssVariableJobLog extends Model
                     $result .= $magento->project->name . ', ';
                 }
             }
+
             return rtrim($result, ', '); // Remove the trailing comma and space
         } else {
             $singleValue = $magento_css_variable_id;
+
             return optional($this->magentoCssVariable)->project?->name;
         }
     }

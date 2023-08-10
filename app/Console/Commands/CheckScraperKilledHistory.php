@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class CheckScraperKilledHistory extends Command
 {
@@ -40,7 +40,7 @@ class CheckScraperKilledHistory extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             \Log::info('Command has been started');
@@ -56,7 +56,7 @@ class CheckScraperKilledHistory extends Command
 
             \Log::info(print_r(['got this out for kill histoyr', $output], true));
 
-            LogHelper::createCustomLogForCron($this->signature, ['message' => 'get scraper path:'.$path]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'get scraper path:' . $path]);
 
             if (count($output) > 0) {
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'output found']);
@@ -64,17 +64,17 @@ class CheckScraperKilledHistory extends Command
                 foreach ($output as $_data) {
                     $scraper_name = trim($_data);
                     \Log::info('Found this scraper name ' . $scraper_name);
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Found this scraper name '.$scraper_name]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Found this scraper name ' . $scraper_name]);
 
                     if ($scraper_name) {
                         $scrapers = \App\Scraper::where('scraper_name', $scraper_name)->get();
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'getting Scraper detail by name'.$scraper_name]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'getting Scraper detail by name' . $scraper_name]);
 
                         if ($scrapers) {
                             \Log::info('record found this scraper name ' . $scraper_name);
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'record found this scraper name '.$scraper_name]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'record found this scraper name ' . $scraper_name]);
 
                             foreach ($scrapers as $_scrap) {
                                 $status = \App\ScraperKilledHistory::create([
@@ -83,7 +83,7 @@ class CheckScraperKilledHistory extends Command
                                     'comment' => 'Scraper killed',
                                 ]);
 
-                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved scraper killed history by ID:'.$status->id]);
+                                LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved scraper killed history by ID:' . $status->id]);
                             }
                         }
                     }
@@ -93,7 +93,7 @@ class CheckScraperKilledHistory extends Command
             \Log::info('Job end to finish');
 
             $report->update(['end_time' => Carbon::now()]);
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

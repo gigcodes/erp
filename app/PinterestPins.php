@@ -18,15 +18,18 @@ class PinterestPins extends Model
         'media_source',
     ];
 
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(PinterestAdsAccounts::class, 'id', 'pinterest_ads_account_id');
     }
 
-    public function board() {
+    public function board()
+    {
         return $this->hasOne(PinterestBoards::class, 'id', 'pinterest_board_id');
     }
 
-    public function boardSection() {
+    public function boardSection()
+    {
         return $this->hasOne(PinterestBoardSections::class, 'id', 'pinterest_board_section_id');
     }
 }

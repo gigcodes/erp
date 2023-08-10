@@ -3,13 +3,15 @@
 namespace App\Models\Seo;
 
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeoProcessStatusHistory extends Model
 {
     use HasFactory;
-    protected $table = "seo_process_status_history";
+
+    protected $table = 'seo_process_status_history';
+
     protected $fillable = [
         'user_id',
         'seo_process_id',

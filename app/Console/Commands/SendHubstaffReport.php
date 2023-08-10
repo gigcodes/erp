@@ -6,8 +6,8 @@ use DB;
 use Carbon\Carbon;
 use App\ChatMessage;
 use GuzzleHttp\Client;
-use App\Helpers\HubstaffTrait;
 use App\Helpers\LogHelper;
+use App\Helpers\HubstaffTrait;
 use Illuminate\Console\Command;
 use App\Library\Hubstaff\Src\Hubstaff;
 
@@ -86,7 +86,7 @@ class SendHubstaffReport extends Command
 
             ChatMessage::sendWithChatApi('971502609192', null, $message);
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

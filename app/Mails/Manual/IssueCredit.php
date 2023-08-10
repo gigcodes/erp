@@ -17,6 +17,7 @@ class IssueCredit extends Mailable
      * @return void
      */
     public $customer;
+
     public $fromMailer;
 
     public function __construct(Customer $customer)

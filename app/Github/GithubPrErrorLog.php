@@ -23,10 +23,11 @@ class GithubPrErrorLog extends Model
     }
 
     const TYPE_PR_REVIEW_COMMENTS = 'pr-review-comments';
-    const TYPE_PR_ACTIVITY_TIMELINE  = 'pr-activity-timeline';
+
+    const TYPE_PR_ACTIVITY_TIMELINE = 'pr-activity-timeline';
 
     public function getShortLogAttribute()
     {
-        return strlen($this->log) > 35 ? substr($this->log, 0, 35).'...' :  $this->log;
+        return strlen($this->log) > 35 ? substr($this->log, 0, 35) . '...' : $this->log;
     }
 }

@@ -247,6 +247,6 @@ class StoreWebsite extends Model
 
     public function versions()
     {
-        return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest("id");
+        return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest('id');
     }
 }

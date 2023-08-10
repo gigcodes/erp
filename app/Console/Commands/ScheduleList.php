@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
-use App\Helpers\LogHelper;
 
 class ScheduleList extends Command
 {
@@ -35,7 +35,7 @@ class ScheduleList extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $events = array_map(function ($event) {
                 return [
@@ -58,12 +58,12 @@ class ScheduleList extends Command
                             $cron->schedule = $schedule;
                             $cron->error_count = 0;
                             $cron->save();
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was saved."]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was saved.']);
                         }
                     }
                 }
             }
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

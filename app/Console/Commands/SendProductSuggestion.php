@@ -8,8 +8,8 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
 use App\SuggestedProduct;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class SendProductSuggestion extends Command
 {
@@ -145,7 +145,7 @@ class SendProductSuggestion extends Command
                                     if ($count == 0) {
                                         $chat_message = ChatMessage::create($params);
 
-                                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
                                     }
 
                                     $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
@@ -157,8 +157,8 @@ class SendProductSuggestion extends Command
                         }
                     }
                 } else {
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Deleted SuggestedProduct model query record by ID:'.$suggestion->id]);
-                    
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Deleted SuggestedProduct model query record by ID:' . $suggestion->id]);
+
                     $suggestion->products()->detach();
                     $suggestion->delete();
                 }

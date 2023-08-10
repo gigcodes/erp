@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use Plank\Mediable\Media;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\CompareImagesHelper;
-use App\Helpers\LogHelper;
 
 class AddBitsToMediaTable extends Command
 {
@@ -41,7 +41,7 @@ class AddBitsToMediaTable extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             DB::table('media')->whereNull('bits')->where('directory', 'like', '%product/%')->orderBy('id')->chunk(100, function ($medias) {
                 foreach ($medias as $m) {
@@ -50,7 +50,7 @@ class AddBitsToMediaTable extends Command
                         Media::where('id', $m->id)->update([
                             'bits' => 1,
                         ]);
-    
+
                         continue;
                     }
                     $a = 'https://erp.theluxuryunlimited.com/' . $m->disk . '/' . $m->directory . '/' . $m->filename . '.' . $m->extension;
@@ -59,27 +59,27 @@ class AddBitsToMediaTable extends Command
                         Media::where('id', $m->id)->update([
                             'bits' => 0,
                         ]);
-    
+
                         continue;
                     }
                     $i1 = CompareImagesHelper::createImage($a);
-    
+
                     $i1 = CompareImagesHelper::resizeImage($i1, $a);
-    
+
                     imagefilter($i1, IMG_FILTER_GRAYSCALE);
-    
+
                     $colorMean1 = CompareImagesHelper::colorMeanValue($i1);
-    
+
                     $bits1 = CompareImagesHelper::bits($colorMean1);
-    
+
                     Media::where('id', $m->id)->update([
                         'bits' => implode($bits1),
                     ]);
                 }
             });
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "media query finished."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'media query finished.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

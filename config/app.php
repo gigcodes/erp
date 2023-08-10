@@ -169,20 +169,20 @@ return [
         Nestable\NestableServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-//        Thujohn\Twitter\TwitterServiceProvider::class,
+        //        Thujohn\Twitter\TwitterServiceProvider::class,
         // BookStack replacement service providers (Extends Laravel)
-//        Modules\BookStack\Providers\PaginationServiceProvider::class,
-//        Modules\BookStack\Providers\TranslationServiceProvider::class,
-//
-//        // BookStack custom service providers
-//        Modules\BookStack\Providers\AuthServiceProvider::class,
-//        Modules\BookStack\Providers\AppServiceProvider::class,
-//        Modules\BookStack\Providers\BookStackServiceProvider::class,
-//        Modules\BookStack\Providers\CustomFacadeProvider::class,
-//        Modules\BookStack\Providers\BroadcastServiceProvider::class,
-//        Modules\BookStack\Providers\EventServiceProvider::class,
-//        Modules\BookStack\Providers\RouteServiceProvider::class,
-//        Modules\BookStack\Providers\CustomFacadeProvider::class,
+        //        Modules\BookStack\Providers\PaginationServiceProvider::class,
+        //        Modules\BookStack\Providers\TranslationServiceProvider::class,
+        //
+        //        // BookStack custom service providers
+        //        Modules\BookStack\Providers\AuthServiceProvider::class,
+        //        Modules\BookStack\Providers\AppServiceProvider::class,
+        //        Modules\BookStack\Providers\BookStackServiceProvider::class,
+        //        Modules\BookStack\Providers\CustomFacadeProvider::class,
+        //        Modules\BookStack\Providers\BroadcastServiceProvider::class,
+        //        Modules\BookStack\Providers\EventServiceProvider::class,
+        //        Modules\BookStack\Providers\RouteServiceProvider::class,
+        //        Modules\BookStack\Providers\CustomFacadeProvider::class,
 
         App\Providers\PermissionCheckServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
@@ -260,13 +260,13 @@ return [
         'Input' => Illuminate\Support\Facades\Request::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-//        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+        //        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
 
         // Custom Modules\BookStack
-//        'Activity' => Modules\BookStack\Facades\Activity::class,
-//        'Setting' => Modules\BookStack\Facades\Setting::class,
-//        'Views' => Modules\BookStack\Facades\Views::class,
-//        'Images' => Modules\BookStack\Facades\Images::class,
+        //        'Activity' => Modules\BookStack\Facades\Activity::class,
+        //        'Setting' => Modules\BookStack\Facades\Setting::class,
+        //        'Views' => Modules\BookStack\Facades\Views::class,
+        //        'Images' => Modules\BookStack\Facades\Images::class,
 
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,

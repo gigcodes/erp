@@ -20,8 +20,18 @@ class UiDevice extends Model
         return $this->hasOne(UiDeviceHistory::class, 'ui_devices_id', 'id')->orderBy('updated_at', 'desc');
     }
 
+    public function lastUpdatedStatusHistory()
+    {
+        return $this->hasOne(UiResponsivestatusHistory::class, 'ui_device_id', 'id')->orderBy('id', 'desc');
+    }
+
     public function uiDeviceHistories()
     {
         return $this->hasMany(UiDeviceHistory::class, 'ui_devices_id');
+    }
+
+    public function stausColor()
+    {
+        return $this->belongsTo(SiteDevelopmentStatus::class, 'status', 'id');
     }
 }
