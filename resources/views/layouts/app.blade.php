@@ -203,7 +203,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     left: 130px;
     }
     #database-backup-monitoring .database-alert-badge{
-        left: 310px;
+        left: 360px;
     }
     .red-alert-badge {
         position: absolute;
@@ -889,7 +889,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $dbBackupList = \App\Models\DatabaseBackupMonitoring::where('is_resolved', 0)->count();
                                     @endphp
-                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring" class="quick-icon" style="padding: 0px 1px;"><span>
+                                    <a title="database backup monitoring" type="button" id="database-backup-monitoring" class="quick-icon" style="padding: 0px 1px;"><span>
                                         <i class="fa fa-home fa-2x" aria-hidden="true"></i>
                                         @if ($dbBackupList)
                                         <span class="database-alert-badge"></span>
@@ -970,6 +970,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Create Documentation" type="button" id="create-documents" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -7786,7 +7788,8 @@ if (!\Auth::guest()) {
         $('#create-event-modal').modal('show');
     });
 
-    $(document).on('click','#database-backup-monitoring',function(e){        e.preventDefault();
+    $(document).on('click','#database-backup-monitoring',function(e){      
+        e.preventDefault();
         $('#db-errors-list-modal').modal('show');
         getdbbackupList(1);
     });
@@ -7814,16 +7817,24 @@ if (!\Auth::guest()) {
             var sNo = startIndex + index + 1; 
             html += "<tr>";
             html += "<td>" + sNo + "</td>";
-            html += "<td>" + dberrorlist.server_name + "</td>";
-            html += "<td>" + dberrorlist.instance + "</td>";
-            html += "<td>" + dberrorlist.database_name + "</td>";
+            html += "<td>" + (dberrorlist.server_name !== null ? dberrorlist.server_name : "") + "</td>";
+            html += "<td>" + (dberrorlist.instance !== null ? dberrorlist.instance : "") + "</td>";
+            html += "<td>" + (dberrorlist.database_name !== null ? dberrorlist.database_name : "") + "</td>";
             html += "<td class='expand-row' style='word-break: break-all'>";
+           if (dberrorlist.error) {
             html += "<span class='td-mini-container'>" + (dberrorlist.error.length > 15 ? dberrorlist.error.substr(0, 15) + '...' : dberrorlist.error) + "</span>";
             html += "<span class='td-full-container hidden'>" + dberrorlist.error + "</span>";
+            } else {
+                html += "";
+            }
             html += "</td>";
             html += "<td><input type='checkbox' name='is_resolved' value='1' data-id='" + dberrorlist.id + "' onchange='updateIsResolved(this)'></td>";
-            html += "<td>" + dberrorlist.date + "</td>";
-            html += "<td>" + dberrorlist.status + "</td>";
+            html += "<td>" + (dberrorlist.date !== null ? dberrorlist.date : "") + "</td>";
+            if (dberrorlist.db_status_colour) {
+                html += "<td>" + dberrorlist.db_status_colour.name + "</td>";
+            } else {
+                html += "";
+            }
             html += "</tr>";
           });
           $(".db-list").html(html);
@@ -7838,6 +7849,13 @@ if (!\Auth::guest()) {
         });
     }
 
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     function renderPagination(data) {
           var paginationContainer = $(".pagination-container");
