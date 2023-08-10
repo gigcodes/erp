@@ -1365,13 +1365,13 @@ class UicheckController extends Controller
                         $userAllDevice->update(['status' => $request->status]);
 
                         $dataArray = [
-                            "id" => $userAllDevice->id,
-                            "uicheck_id" => $userAllDevice->uicheck_id,
-                            "device_no" => $userAllDevice->device_no,
-                            "old_status" => $old_status,
-                            "status" => $request->status,
+                            'id' => $userAllDevice->id,
+                            'uicheck_id' => $userAllDevice->uicheck_id,
+                            'device_no' => $userAllDevice->device_no,
+                            'old_status' => $old_status,
+                            'status' => $request->status,
                         ];
-                        
+
                         $collection = collect($dataArray);
                         // Convert the collection to an object
                         $object = json_decode(json_encode($collection));
@@ -1396,7 +1396,7 @@ class UicheckController extends Controller
 
             $status = SiteDevelopmentStatus::find($request->status);
 
-            return response()->json(['code' => 200, 'message' => 'Status updated succesfully', 'data' => $status?->color,]);
+            return response()->json(['code' => 200, 'message' => 'Status updated succesfully', 'data' => $status?->color]);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }

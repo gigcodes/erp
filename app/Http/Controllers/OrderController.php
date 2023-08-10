@@ -3786,12 +3786,12 @@ class OrderController extends Controller
         $invoiceList = $invoiceList->paginate(20);
         $ids = $invoiceList->pluck('invoice_id')->toArray();
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->whereIn('id', $ids)->get();
-        
+
         if ($request->has('invoice_num') && ! empty($request->invoice_num)) {
             $invoices = $invoices->WhereIn('invoice_number', $request->invoice_num);
         }
 
-        if ($request->has('customer_name') && !empty($request->customer_name)) {
+        if ($request->has('customer_name') && ! empty($request->customer_name)) {
             $customerNames = $request->customer_name;
             $invoices = $invoices->filter(function ($invoice) use ($customerNames) {
                 return $invoice->orders->contains(function ($order) use ($customerNames) {
@@ -3799,7 +3799,7 @@ class OrderController extends Controller
                 });
             });
         }
-        
+
         $invoice_array = $invoices->toArray();
 
         $invoice_id = array_column($invoice_array, 'id');

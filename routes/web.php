@@ -1617,6 +1617,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
     Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
+    Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
+    Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
+
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );

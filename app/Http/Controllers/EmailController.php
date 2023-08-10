@@ -1793,4 +1793,52 @@ class EmailController extends Controller
 
         return redirect()->back()->with('success', 'The event color updated successfully.');
     }
+
+    public function updateEmailRead(Request $request)
+    {
+        $email = Email::findOrFail($request->get('id'));
+        $email->seen = 1;
+        $email->update();
+
+        return response()->json(['code' => 200, 'data' => $email, 'message' => 'Email Update successfully!!!']);
+    }
+
+    public function quickEmailList (Request $request)
+    {
+        $emails = new Email();
+        $email_categories = EmailCategory::get();
+
+        $senderEmailIds = Email::select('from')->groupBy('from')->get();
+        $receiverEmailIds = Email::select('to')->groupBy('to')->get();
+        $modelsTypes = Email::select('model_type')->groupBy('model_type')->get();
+        $mailTypes = Email::select('type')->groupBy('type')->get();
+        $emailStatuses = Email::select('status')->groupBy('status')->get();
+
+
+        if ($request->sender_ids) {
+            $emails = $emails->WhereIn('from', $request->sender_ids);
+        }
+        if ($request->receiver_ids) {
+                $emails = $emails->WhereIn('website_id', $request->receiver_ids);
+        }
+        if ($request->model_types) {
+            $emails = $emails->WhereIn('to', $request->model_types);
+        }
+        if ($request->mail_types) {
+            $emails = $emails->WhereIn('type', $request->mail_types);
+        } 
+        if ($request->cat_ids) {
+            $emails = $emails->WhereIn('email_category_id', $request->cat_ids);
+        }
+        if ($request->status) {
+            $emails = $emails->WhereIn('status', $request->status);
+        }
+        if ($request->date) {
+            $emails = $emails->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        
+        $emails = $emails->latest()->paginate(\App\Setting::get('pagination',25));
+
+        return view('emails.quick-email-list', compact('emails','email_categories','senderEmailIds','receiverEmailIds','modelsTypes','mailTypes','emailStatuses'));
+    }
 }
