@@ -636,35 +636,35 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         @foreach ($userEmails as $key => $userEmail)
                                             <tr>
                                                 <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
-                                                <td class="expand-row" style="word-break: break-all">
-                                                    <span class="td-mini-container">
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
                                                        {{ strlen($userEmail->from) > 30 ? substr($userEmail->from, 0, 15).'...' :  $userEmail->from }}
                                                     </span>
-                                                    <span class="td-full-container hidden">
+                                                    <span class="td-full-email-container hidden">
                                                         {{ $userEmail->from }}
                                                     </span>
                                                 </td>
-                                                <td class="expand-row" style="word-break: break-all">
-                                                    <span class="td-mini-container">
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
                                                        {{ strlen($userEmail->to) > 30 ? substr($userEmail->to, 0,15).'...' :  $userEmail->to }}
                                                     </span>
-                                                    <span class="td-full-container hidden">
+                                                    <span class="td-full-email-container hidden">
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td class="expand-row" style="word-break: break-all">
-                                                    <span class="td-mini-container">
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
                                                        {{ strlen($userEmail->subject) > 30 ? substr($userEmail->subject, 0,15).'...' :  $userEmail->subject }}
                                                     </span>
-                                                    <span class="td-full-container hidden">
+                                                    <span class="td-full-email-container hidden">
                                                         {{ $userEmail->subject }}
                                                     </span>
                                                 </td>
-                                                <td class="expand-row" style="word-break: break-all">
-                                                    <span class="td-mini-container">
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
                                                        {{ strlen($userEmail->message) > 30 ? substr($userEmail->message, 0,15).'...' :  $userEmail->message }}
                                                     </span>
-                                                    <span class="td-full-container hidden">
+                                                    <span class="td-full-email-container hidden">
                                                         {{ $userEmail->message }}
                                                     </span>
                                                 </td>
@@ -3800,6 +3800,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('quick.email.list') }}">Quick Emails</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -5824,11 +5827,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     })
 
-    $(document).on('click', '.expand-row', function () {
+    $(document).on('click', '.expand-row-email', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
-            $(this).find('.td-mini-container').toggleClass('hidden');
-            $(this).find('.td-full-container').toggleClass('hidden');
+            $(this).find('.td-mini-email-container').toggleClass('hidden');
+            $(this).find('.td-full-email-container').toggleClass('hidden');
         }
     });
 
