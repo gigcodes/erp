@@ -3786,6 +3786,20 @@ class OrderController extends Controller
         $invoiceList = $invoiceList->paginate(20);
         $ids = $invoiceList->pluck('invoice_id')->toArray();
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->whereIn('id', $ids)->get();
+        
+        if ($request->has('invoice_num') && ! empty($request->invoice_num)) {
+            $invoices = $invoices->WhereIn('invoice_number', $request->invoice_num);
+        }
+
+        if ($request->has('customer_name') && !empty($request->customer_name)) {
+            $customerNames = $request->customer_name;
+            $invoices = $invoices->filter(function ($invoice) use ($customerNames) {
+                return $invoice->orders->contains(function ($order) use ($customerNames) {
+                    return $order->customer && in_array($order->customer->name, $customerNames);
+                });
+            });
+        }
+        
         $invoice_array = $invoices->toArray();
 
         $invoice_id = array_column($invoice_array, 'id');
@@ -3803,7 +3817,7 @@ class OrderController extends Controller
                 $shipping_amount = ($shipping_countries->price * $product_qty);
             }
         }
-        $invoiceNumber = Invoice::orderBy('id', 'desc')->select('id', 'invoice_number')->get();
+        $invoiceNumber = Invoice::orderBy('id', 'desc')->select('id', 'invoice_number')->groupBy('invoice_number')->get();
         $customerName = Customer::select('id', 'name')->orderBy('id', 'desc')->groupBy('name')->get();
         $websiteName = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
 

@@ -216,4 +216,12 @@ class CodeShortcutController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
+    public function CodeShortCutTruncate(Request $request)
+    {
+        CodeShortcut::truncate();
+
+        return redirect()->route('code-shortcuts')->withSuccess('data Removed succesfully!');
+    }
+   
 }
