@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class DeleteCategoriesWithNoProduct extends Command
 {
@@ -39,14 +39,14 @@ class DeleteCategoriesWithNoProduct extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
-        try{
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
             set_time_limit(0);
 
             ini_set('memory_limit', '-1');
 
             $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Category query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Category query finished.']);
             if ($unKnownCategory) {
                 $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
                 $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
@@ -75,8 +75,8 @@ class DeleteCategoriesWithNoProduct extends Command
                     }
                 }
             }
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

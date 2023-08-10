@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\AppPaymentReport;
-use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 use App\LogRequest;
+use App\AppPaymentReport;
+use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class IosPaymentsReport extends Command
 {
@@ -41,8 +41,8 @@ class IosPaymentsReport extends Command
     public function handle()
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
-        try{
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
             // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
 
             $username = env('APPFIGURE_USER_EMAIL');
@@ -61,7 +61,7 @@ class IosPaymentsReport extends Command
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
-                $url ="https://api.appfigures.com/v2/reports/payments?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
+                $url = "https://api.appfigures.com/v2/reports/payments?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value";
                 curl_setopt_array($curl, [
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
@@ -80,11 +80,11 @@ class IosPaymentsReport extends Command
                 $result = curl_exec($curl);
                 // print($result);
                 $res = json_decode($result, true); //response decoded
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);  
-                LogRequest::log($startTime, $url, 'GET', json_encode([]),  $res, $httpcode, \App\Console\Commands\IosPaymentsReport::class, 'handle');
-                curl_close($curl);   
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                LogRequest::log($startTime, $url, 'GET', json_encode([]), $res, $httpcode, \App\Console\Commands\IosPaymentsReport::class, 'handle');
+                curl_close($curl);
 
-                LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api was called."]);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'CURL api was called.']);
 
                 if ($res) {
                     $r = new AppPaymentReport();
@@ -106,10 +106,11 @@ class IosPaymentsReport extends Command
                 $i += 1;
             }
 
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "App payment report was added."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'App payment report was added.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+
             return $this->info('Payments Report added');
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

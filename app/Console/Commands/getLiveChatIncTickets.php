@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use App\Tickets;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\Mails\Manual\TicketAck;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class getLiveChatIncTickets extends Command
 {
@@ -43,15 +43,15 @@ class getLiveChatIncTickets extends Command
     public function handle()
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
             $curl = curl_init();
-            $url = "https://api.livechatinc.com/v2/tickets";
+            $url = 'https://api.livechatinc.com/v2/tickets';
 
             curl_setopt_array($curl, [
                 CURLOPT_URL => $url,
@@ -71,7 +71,7 @@ class getLiveChatIncTickets extends Command
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\getLiveChatIncTickets::class, 'handle');
             $result = json_decode($response, true);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "CURL api call finished. => https://api.livechatinc.com/v2/tickets"]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'CURL api call finished. => https://api.livechatinc.com/v2/tickets']);
 
             if (! empty($result['tickets'])) {
                 $result = $result['tickets'];
@@ -86,7 +86,7 @@ class getLiveChatIncTickets extends Command
                     $name = (isset($author['name'])) ? $author['name'] : '';
 
                     $customer = \App\Customer::where('email', $email)->first();
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer query finished."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer query finished.']);
                     if (isset($customer->id) && ($customer->id) > 0) {
                         $customer_id = $customer->id;
                     } else {
@@ -94,7 +94,7 @@ class getLiveChatIncTickets extends Command
                         $customer->name = $name;
                         $customer->email = $email;
                         $customer->save();
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer saved."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer saved.']);
                         $customer_id = $customer->id;
                     }
 
@@ -104,12 +104,12 @@ class getLiveChatIncTickets extends Command
                     $date = (isset($event['date'])) ? $event['date'] : date();
 
                     $status = \App\TicketStatuses::where('name', $row['status'])->first();
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Ticket status query finished."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket status query finished.']);
                     if (! $status) {
                         $status = new \App\TicketStatuses;
                         $status->name = $row['status'];
                         $status->save();
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Ticket status was added."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket status was added.']);
                     }
 
                     $Tickets_data = [
@@ -124,11 +124,11 @@ class getLiveChatIncTickets extends Command
                     ];
 
                     $ticketObj = \App\Tickets::where('ticket_id', $ticket_id)->first();
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Ticket query finished."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket query finished.']);
                     if (isset($ticketObj->id) && $ticketObj->id > 0) {
                     } else {
                         $ticketObj = Tickets::create($Tickets_data);
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Ticket was added."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket was added.']);
                         $emailClass = (new TicketAck($ticketObj))->build();
 
                         if ($ticketObj) {
@@ -144,17 +144,17 @@ class getLiveChatIncTickets extends Command
                                 'status' => 'pre-send',
                                 'is_draft' => 1,
                             ]);
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Email was created."]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email was created.']);
                             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Email sent."]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email sent.']);
                         }
                     }
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report endtime was updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

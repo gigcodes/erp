@@ -2,29 +2,29 @@
 
 namespace App\Observers;
 
-use App\ChatbotQuestion;
-use App\ChatbotQuestionReply;
-use App\ChatMessage;
-use App\Customer;
-use App\Library\Google\DialogFlow\DialogFlowService;
-use App\Models\GoogleDialogAccount;
-use App\Models\TmpReplay;
-use App\Supplier;
 use App\Vendor;
+use App\Customer;
+use App\Supplier;
+use App\ChatMessage;
+use App\ChatbotQuestion;
+use App\Models\TmpReplay;
+use App\ChatbotQuestionReply;
+use App\Models\GoogleDialogAccount;
+use App\Library\Google\DialogFlow\DialogFlowService;
 
 class ChatMessageObserver
 {
     /**
      * Handle the ChatMessage "created" event.
      *
-     * @param \App\Models\ChatMessage $chatMessage
+     * @param  \App\Models\ChatMessage  $chatMessage
      * @return void
      */
     public function created(ChatMessage $chatMessage)
     {
         try {
             $session = \Cache::get('chatbot-session');
-            if (!$session) {
+            if (! $session) {
                 $session = uniqid();
                 \Cache::set('chatbot-session', $session);
             }
@@ -47,7 +47,7 @@ class ChatMessageObserver
                     $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
                 }
                 $isOut = ($chatMessage->number != $object->phone) ? true : false;
-                if ($object->is_auto_simulator == 1 && !$isOut) {
+                if ($object->is_auto_simulator == 1 && ! $isOut) {
                     $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                         ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
                         ->select('chatbot_questions.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
@@ -60,7 +60,7 @@ class ChatMessageObserver
                     $requestData = [
                         'chat_id' => $chatMessage->id,
                         'status' => 2,
-                        'add_autocomplete' => false
+                        'add_autocomplete' => false,
                     ];
                     if ($chatMessage->vendor_id > 0) {
                         $requestData['vendor_id'] = $chatMessage->vendor_id;
@@ -74,7 +74,7 @@ class ChatMessageObserver
                     $getFromGoogle = true;
                     if ($chatQuestions) {
                         if ($chatQuestions->auto_approve == 1) {
-                            $requestData['message'] = $dialogFlowService->purifyResponse($chatQuestions->suggested_reply, $objectType == 'customer' ? $object: null);
+                            $requestData['message'] = $dialogFlowService->purifyResponse($chatQuestions->suggested_reply, $objectType == 'customer' ? $object : null);
                             $request = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
@@ -86,7 +86,7 @@ class ChatMessageObserver
                             ->first();
 
                         if ($replay) {
-                            $requestData['message'] = $dialogFlowService->purifyResponse($replay->replay, $objectType == 'customer' ? $object: null);
+                            $requestData['message'] = $dialogFlowService->purifyResponse($replay->replay, $objectType == 'customer' ? $object : null);
                             $request = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
@@ -100,9 +100,9 @@ class ChatMessageObserver
                         $intentName = $intentName[count($intentName) - 1];
 
                         $question = ChatbotQuestion::where('google_response_id', $intentName)->first();
-                        if (!$question) {
+                        if (! $question) {
                             $question = ChatbotQuestion::where('value', $response->getIntent()->getDisplayName())->first();
-                            if (!$question) {
+                            if (! $question) {
                                 $question = ChatbotQuestion::create([
                                     'keyword_or_question' => 'intent',
                                     'is_active' => true,
@@ -110,13 +110,13 @@ class ChatMessageObserver
                                     'google_status' => 'google sended',
                                     'google_response_id' => $intentName,
                                     'value' => $response->getIntent()->getDisplayName(),
-                                    'suggested_reply' => $response->getFulfillmentText()
+                                    'suggested_reply' => $response->getFulfillmentText(),
                                 ]);
                             }
                         }
 
                         $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
-                        if (!$questionsR) {
+                        if (! $questionsR) {
                             $chatRply = new  ChatbotQuestionReply();
                             $chatRply->suggested_reply = $response->getFulfillmentText();
                             $chatRply->store_website_id = $googleAccount->site_id;
@@ -125,7 +125,7 @@ class ChatMessageObserver
                         }
                         $store_replay = new TmpReplay();
                         $store_replay->chat_message_id = $chatMessage->id;
-                        $store_replay->suggested_replay = $dialogFlowService->purifyResponse($response->getFulfillmentText(), $objectType == 'customer' ? $object: null);
+                        $store_replay->suggested_replay = $dialogFlowService->purifyResponse($response->getFulfillmentText(), $objectType == 'customer' ? $object : null);
                         $store_replay->type = $objectType;
                         $store_replay->type_id = $object->id;
                         $store_replay->save();
@@ -134,30 +134,27 @@ class ChatMessageObserver
             }
         } catch (\Exception $e) {
             _p([$e->getMessage()]);
-            die;
+            exit;
         }
     }
 
     /**
      * Handle the ChatMessage "updated" event.
      *
-     * @param \App\Models\ChatMessage $chatMessage
+     * @param  \App\Models\ChatMessage  $chatMessage
      * @return void
      */
     public function updated(ChatMessage $chatMessage)
     {
-
     }
 
     /**
      * Handle the ChatMessage "deleted" event.
      *
-     * @param \App\Models\ChatMessage $chatMessage
+     * @param  \App\Models\ChatMessage  $chatMessage
      * @return void
      */
     public function deleting(ChatMessage $chatMessage)
     {
-
     }
-
 }

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Migrations\Migration;
 
 class AddDefaultAccountColumnGoogleDialogAccount extends Migration
 {
@@ -13,8 +12,8 @@ class AddDefaultAccountColumnGoogleDialogAccount extends Migration
      */
     public function up()
     {
-        Schema::table('google_dialog_accounts', function($table) {
-            $table->boolean("default_selected")->default(0)->nullable();
+        Schema::table('google_dialog_accounts', function ($table) {
+            $table->boolean('default_selected')->default(0)->nullable();
         });
     }
 
@@ -25,8 +24,8 @@ class AddDefaultAccountColumnGoogleDialogAccount extends Migration
      */
     public function down()
     {
-        Schema::table('google_dialog_accounts', function($table) {
-            $table->dropColumn("default_selected");
+        Schema::table('google_dialog_accounts', function ($table) {
+            $table->dropColumn('default_selected');
         });
     }
 }

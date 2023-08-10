@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateStoreWebsiteEnvironmentHistoryStatusesTable extends Migration
 {
@@ -16,8 +16,8 @@ class CreateStoreWebsiteEnvironmentHistoryStatusesTable extends Migration
         Schema::create('store_website_environment_history_statuses', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string("name");
-            $table->string("color")->nullable();
+            $table->string('name');
+            $table->string('color')->nullable();
         });
     }
 

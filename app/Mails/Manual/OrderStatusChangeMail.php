@@ -14,6 +14,7 @@ class OrderStatusChangeMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $order;
+
     public $fromMailer;
 
     /**
@@ -56,7 +57,7 @@ class OrderStatusChangeMail extends Mailable
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        
+
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         $order_status = $order->order_status;

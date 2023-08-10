@@ -3,15 +3,15 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CronJobReport;
 use App\GTMatrixErrorLog;
+use App\Helpers\LogHelper;
 use App\GTMetrixCategories;
 use App\StoreViewsGTMetrix;
 use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
 use Entrecore\GTMetrixClient\GTMetrixClient;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class GTMetrixTestCMDGetReport extends Command
 {
@@ -74,7 +74,7 @@ class GTMetrixTestCMDGetReport extends Command
                     $this->GTMatrixError($value->id, 'pagespeed', 'API Key not found', 'API Key not found');
                 }
                 $curl = curl_init();
-                $url ="https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
+                $url = "https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
                 curl_setopt_array($curl, [
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
@@ -92,7 +92,7 @@ class GTMetrixTestCMDGetReport extends Command
                 $response = curl_exec($curl);
                 // Get possible error
                 $err = curl_error($curl);
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);          
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                 curl_close($curl);
                 if ($err) {
@@ -151,7 +151,7 @@ class GTMetrixTestCMDGetReport extends Command
                     $password = $gtmatrix['account_id'];
 
                     $curl = curl_init();
-                    $url ="https://gtmetrix.com/api/2.0/status";
+                    $url = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
                         CURLOPT_URL => $url,
@@ -170,7 +170,7 @@ class GTMetrixTestCMDGetReport extends Command
                     if ($err) {
                         $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                     }
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE); 
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
@@ -187,7 +187,7 @@ class GTMetrixTestCMDGetReport extends Command
                         $client->setAPIKey($password);
                         $client->getLocations();
                         $client->getBrowsers();
-                        
+
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to GTMetrixClient']);
                     } else {
                         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
@@ -195,10 +195,10 @@ class GTMetrixTestCMDGetReport extends Command
 
                         foreach ($AccountData as $key => $ValueData) {
                             $curl = curl_init();
-                            $url = "https://gtmetrix.com/api/2.0/status";
+                            $url = 'https://gtmetrix.com/api/2.0/status';
 
                             curl_setopt_array($curl, [
-                                CURLOPT_URL =>  $url,
+                                CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_USERPWD => $ValueData['account_id'] . ':' . '',
                                 CURLOPT_ENCODING => '',
@@ -217,7 +217,7 @@ class GTMetrixTestCMDGetReport extends Command
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
                             curl_close($curl);
-                            
+
                             // decode the response
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
@@ -276,7 +276,6 @@ class GTMetrixTestCMDGetReport extends Command
                             }
                             curl_close($ch);
                             LogRequest::log($startTime, $resources['report_pdf'], 'GET', json_encode([]), json_decode($response), $statusCode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
-
 
                             \Log::info(print_r(['Result started to fetch'], true));
 
@@ -366,7 +365,6 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_close($ch);
                             LogRequest::log($startTime, $resources['yslow'], 'GET', json_encode([]), json_decode($response), $statusCode, \App\Console\Commands\GTMetrixTestCMDGetReport::class, 'handle');
 
-
                             \Log::info(print_r(['Result started to fetch yslow json'], true));
 
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '_yslow.json';
@@ -397,7 +395,7 @@ class GTMetrixTestCMDGetReport extends Command
                             }
                         }
                     } catch (\Exception $e) {
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Got the error: '.$e->getMessage()]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Got the error: ' . $e->getMessage()]);
 
                         $value->status = 'error';
                         $value->error = $e->getMessage();
@@ -414,7 +412,7 @@ class GTMetrixTestCMDGetReport extends Command
             }
             \Log::info('GTMetrix :: Report cron complete ');
             $report->update(['end_time' => Carbon::now()]);
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

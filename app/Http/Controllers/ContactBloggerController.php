@@ -29,9 +29,9 @@ class ContactBloggerController extends Controller
         $email_template = BloggerEmailTemplate::first();
         $subject = $request->get('email_subject') ?: optional($email_template)->subject;
         $message = $request->get('email_message') ?: optional($email_template)->message;
-        $from_email=\App\Helpers::getFromEmail();
+        $from_email = \App\Helpers::getFromEmail();
 
-        $emailClass = (new \App\Mails\Manual\ContactBlogger($subject, $message,$from_email))->build();
+        $emailClass = (new \App\Mails\Manual\ContactBlogger($subject, $message, $from_email))->build();
 
         $email = Email::create([
             'model_id' => $blogger_contact->id,

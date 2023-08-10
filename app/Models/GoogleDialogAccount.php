@@ -12,7 +12,7 @@ class GoogleDialogAccount extends Model
         'site_id',
         'project_id',
         'default_selected',
-        'email'
+        'email',
     ];
 
     public function storeWebsite()

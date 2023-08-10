@@ -68,7 +68,7 @@ class Website extends Model
 
     public function getFullNameAttribute()
     {
-        if(isset($this->storeWebsite)) {
+        if (isset($this->storeWebsite)) {
             return $this->name . "({$this->storeWebsite->title})";
         }
 

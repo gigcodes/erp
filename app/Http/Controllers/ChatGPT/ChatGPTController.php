@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\ChatGPT;
 
-use App\ChatGptResponses;
-use App\Http\Controllers\Controller;
 use App\Setting;
-use Illuminate\Http\JsonResponse;
+use App\ChatGptResponses;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
 
 class ChatGPTController extends Controller
 {
-
     public function index(Request $request)
     {
         $responses = ChatGptResponses::where(function ($query) use ($request) {
@@ -30,6 +29,7 @@ class ChatGPTController extends Controller
     {
         try {
             $modelsList = $this->modelsList();
+
             return view('chat-gpt.request', compact('modelsList'));
         } catch (\Exception $e) {
             return Redirect::route('chatgpt.index')->with('error', $e->getMessage());
@@ -38,7 +38,7 @@ class ChatGPTController extends Controller
 
     public function modelsList($request = null)
     {
-        if (!empty($request)) {
+        if (! empty($request)) {
             $regenerate = filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
             if ($regenerate == false) {
                 $modelResponses = ChatGptResponses::where('prompt', 'Models List')->first();
@@ -48,12 +48,13 @@ class ChatGPTController extends Controller
             }
         } else {
             $modelResponses = ChatGptResponses::where('prompt', 'Models List')->first();
+
             return  unserialize($modelResponses->response);
         }
 
         $chatGpt = new ChatGPTService();
         $modelResponses = $chatGpt->getModels();
-        if (!$modelResponses['status']) {
+        if (! $modelResponses['status']) {
             return Redirect::route('chatgpt.index')->with('error', $modelResponses['message']);
         }
         $modelsList = [];
@@ -63,9 +64,10 @@ class ChatGPTController extends Controller
         $insertData = [
             'prompt' => 'Models List',
             'response' => serialize($modelsList),
-            'response_data' => serialize($modelResponses['data'])
+            'response_data' => serialize($modelResponses['data']),
         ];
         ChatGptResponses::create($insertData);
+
         return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $modelsList, 'getting_type' => 'chatGPT']]);
 
 //        return $modelsList;
@@ -94,44 +96,42 @@ class ChatGPTController extends Controller
         if ($request->type === 'moderations') {
             return $this->getModerations($request);
         }
+
         return response()->json(['status' => false, 'message' => 'Invalid Input']);
     }
 
     /**
      * Get completion from chat GPT.
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getCompletions(Request $request): JsonResponse
     {
         try {
-
             $regenerate = filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
             $chatGpt = new ChatGPTService();
             if ($regenerate == false) {
                 $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('prompt') . '%')->first();
                 if ($prompt) {
                     $res = $chatGpt->dataUnserialize($prompt->response);
+
                     return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $res, 'getting_type' => 'database']]);
                 }
             }
 
-
-            $response = $chatGpt->getCompletions($request->get('prompt'), (float)$request->get('temperature'), $request->get('max_tokens'), $request->get('n'), $request->get('completions_model') ? $request->get('completions_model') : 'text-davinci-003' );
-            if (!$response['status']) {
+            $response = $chatGpt->getCompletions($request->get('prompt'), (float) $request->get('temperature'), $request->get('max_tokens'), $request->get('n'), $request->get('completions_model') ? $request->get('completions_model') : 'text-davinci-003');
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
-
                 $choices = [];
-                foreach ($response['data']['choices'] as $key => $value){
-                    $choices['Response:' . $key + 1] = $value ['text'];
+                foreach ($response['data']['choices'] as $key => $value) {
+                    $choices['Response:' . $key + 1] = $value['text'];
                 }
                 $insertData = [
                     'prompt' => $request->get('prompt'),
                     'response' => serialize($choices),
-                    'response_data' => serialize($response['data'])
+                    'response_data' => serialize($response['data']),
                 ];
                 ChatGptResponses::create($insertData);
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $choices, 'getting_type' => 'chatGPT']]);
             }
         } catch (\Exception $e) {
@@ -141,36 +141,36 @@ class ChatGPTController extends Controller
 
     /**
      * Get edits from chat GPT.
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getEdits(Request $request): JsonResponse
     {
         try {
-            $regenerate =  filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
+            $regenerate = filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
             $chatGpt = new ChatGPTService();
             if ($regenerate == false) {
                 $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('input') . '%')->first();
                 if ($prompt) {
                     $res = $chatGpt->dataUnserialize($prompt->response);
-                    return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $res , 'getting_type' => 'database']]);
+
+                    return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $res, 'getting_type' => 'database']]);
                 }
             }
 
-            $response = $chatGpt->performEdit($request->get('input'), $request->get('instruction'), (int)$request->get('n'), (float)$request->get('temperature'), $request->get('model') ? $request->get('model') : 'text-davinci-edit-001');
-            if (!$response['status']) {
+            $response = $chatGpt->performEdit($request->get('input'), $request->get('instruction'), (int) $request->get('n'), (float) $request->get('temperature'), $request->get('model') ? $request->get('model') : 'text-davinci-edit-001');
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
                 $choices = [];
-                foreach ($response['data']['choices'] as $key => $value){
-                    $choices['Response:' .$key + 1] = $value ['text'];
+                foreach ($response['data']['choices'] as $key => $value) {
+                    $choices['Response:' . $key + 1] = $value['text'];
                 }
                 $insertData = [
                     'prompt' => $request->get('input'),
                     'response' => serialize($choices),
-                    'response_data' => serialize($response['data'])
+                    'response_data' => serialize($response['data']),
                 ];
                 ChatGptResponses::create($insertData);
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $choices,  'getting_type' => 'chatGPT']]);
             }
         } catch (\Exception $e) {
@@ -180,36 +180,36 @@ class ChatGPTController extends Controller
 
     /**
      * Generate images from input
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getImageGenerate(Request $request): JsonResponse
     {
         try {
-            $regenerate =  filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
+            $regenerate = filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
             $chatGpt = new ChatGPTService();
             if ($regenerate == false) {
                 $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('prompt') . '%')->first();
                 if ($prompt) {
                     $response = $chatGpt->dataUnserialize($prompt->response);
+
                     return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $response, 'getting_type' => 'database', 'type' => 'image_generate']]);
                 }
             }
 
             $response = $chatGpt->generateImage($request->get('prompt'), $request->get('n'), $request->get('size'));
-            if (!$response['status']) {
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
                 $url = [];
-                foreach ($response['data']['data'] as $key => $value){
-                    $url['Response:' .$key + 1] = $value['url'];
+                foreach ($response['data']['data'] as $key => $value) {
+                    $url['Response:' . $key + 1] = $value['url'];
                 }
                 $insertData = [
                     'prompt' => $request->get('prompt'),
                     'response' => serialize($url),
-                    'response_data' => serialize($response['data'])
+                    'response_data' => serialize($response['data']),
                 ];
                 ChatGptResponses::create($insertData);
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $url, 'getting_type' => 'chatGPT', 'type' => 'image_generate']]);
             }
         } catch (\Exception $e) {
@@ -219,13 +219,11 @@ class ChatGPTController extends Controller
 
     /**
      * Edit image and generate response
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getEditImage(Request $request): JsonResponse
     {
         try {
-            $regenerate =  filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
+            $regenerate = filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
             $image = $_FILES['image'];
             $mask = $_FILES['mask'];
             $chatGpt = new ChatGPTService();
@@ -233,26 +231,28 @@ class ChatGPTController extends Controller
                 $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('prompt') . '%')->first();
                 if ($prompt) {
                     $res = $chatGpt->dataUnserialize($prompt->response);
+
                     return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $res, 'getting_type' => 'database', 'type' => 'image_edit']]);
                 }
             }
 
-            $response = $chatGpt->editGeneratedImage($image,$mask, $request->get('prompt'), $request->get('n'), $request->get('size'));
+            $response = $chatGpt->editGeneratedImage($image, $mask, $request->get('prompt'), $request->get('n'), $request->get('size'));
 
-            if (!$response['status']) {
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
                 $url = [];
-                foreach ($response['data']['data'] as $key => $value){
-                    $url['Response:' .$key + 1] = $value['url'];
+                foreach ($response['data']['data'] as $key => $value) {
+                    $url['Response:' . $key + 1] = $value['url'];
                 }
                 $insertData = [
                     'prompt' => $request->get('prompt'),
                     'response' => serialize($url),
-                    'response_data' => serialize($response['data'])
+                    'response_data' => serialize($response['data']),
                 ];
 
                 ChatGptResponses::create($insertData);
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $url, 'getting_type' => 'chatGPT', 'type' => 'image_generate']]);
             }
         } catch (\Exception $e) {
@@ -262,8 +262,6 @@ class ChatGPTController extends Controller
 
     /**
      * Get image variations
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getImageVariation(Request $request): JsonResponse
     {
@@ -278,12 +276,12 @@ class ChatGPTController extends Controller
             $image = $_FILES['image'];
             $chatGpt = new ChatGPTService();
             $response = $chatGpt->generateImageVariation($image, $request->get('n'), $request->get('size'));
-            if (!$response['status']) {
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
                 $url = [];
-                foreach ($response['data']['data'] as $key => $value){
-                    $url['Response:' .$key + 1] = $value['url'];
+                foreach ($response['data']['data'] as $key => $value) {
+                    $url['Response:' . $key + 1] = $value['url'];
                 }
 //                $insertData = [
 //                    'prompt' => $request->get('image_variation_image'),
@@ -300,41 +298,39 @@ class ChatGPTController extends Controller
 
     /**
      * Get moderations
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getModerations(Request $request): JsonResponse
     {
         try {
             $validator = \Validator::make($request->all(), [
                 'model' => 'required',
-                'input' => 'required'
+                'input' => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json(['status' => false, 'message' => $validator->errors()->first()]);
             }
             $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('input') . '%')->first();
-            if ($prompt && $request->get(''))
-            if ($prompt) {
-                return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $prompt->response, 'getting_type' => 'database', 'type' => 'moderations']]);
+            if ($prompt && $request->get('')) {
+                if ($prompt) {
+                    return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $prompt->response, 'getting_type' => 'database', 'type' => 'moderations']]);
+                }
             }
             $chatGpt = new ChatGPTService();
-            $response = $chatGpt->identifyModeration($request->get('input'),$request->get('model') ? $request->get('model') : 'text-moderation-stable');
-            if (!$response['status']) {
+            $response = $chatGpt->identifyModeration($request->get('input'), $request->get('model') ? $request->get('model') : 'text-moderation-stable');
+            if (! $response['status']) {
                 return response()->json(['status' => false, 'message' => $response['message']]);
             } else {
-
                 $insertData = [
                     'prompt' => $request->get('input'),
                     'response' => serialize($response['data']['results'][0]),
-                    'response_data' => serialize($response['data'])
+                    'response_data' => serialize($response['data']),
                 ];
                 ChatGptResponses::create($insertData);
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $response['data']['results'][0], 'getting_type' => 'chatGPT', 'type' => 'moderations']]);
             }
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
-
 }

@@ -1112,7 +1112,8 @@ class Category extends Model
         return DB::select($query);
     }
 
-    public static function updateStatusIsHashtagsGeneratedCategories($category_id_arr) {
+    public static function updateStatusIsHashtagsGeneratedCategories($category_id_arr)
+    {
         \DB::table('categories')->whereIn('id', $category_id_arr)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
     }
 }

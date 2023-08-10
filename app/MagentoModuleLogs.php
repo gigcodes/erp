@@ -15,7 +15,7 @@ class MagentoModuleLogs extends Model
      *
      * @SWG\Property(property="name",type="string")
      */
-    protected $fillable = ['store_website_id','magento_module_id', 'updated_by', 'command', 'job_id', 'status', 'response'];
+    protected $fillable = ['store_website_id', 'magento_module_id', 'updated_by', 'command', 'job_id', 'status', 'response'];
 
     public function storeWebsite()
     {

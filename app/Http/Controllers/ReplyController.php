@@ -8,11 +8,13 @@ use App\Setting;
 use App\ReplyCategory;
 use App\WatsonAccount;
 use App\ChatbotQuestion;
+use App\Models\ReplyLog;
 use App\StoreWebsitePage;
 use App\TranslateReplies;
 use App\ReplyUpdateHistory;
 use Illuminate\Http\Request;
 use App\ChatbotQuestionReply;
+use App\ReplyTranslatorStatus;
 use App\ChatbotQuestionExample;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\ProcessTranslateReply;
@@ -20,8 +22,6 @@ use function GuzzleHttp\json_encode;
 use Illuminate\Support\Facades\Auth;
 use App\Models\QuickRepliesPermissions;
 use App\Models\RepliesTranslatorHistory;
-use App\Models\ReplyLog;
-use App\ReplyTranslatorStatus;
 
 class ReplyController extends Controller
 {
@@ -92,19 +92,23 @@ class ReplyController extends Controller
 
     public function categorySetDefault(Request $request)
     {
-        if($request->has('model') && $request->has('cat_id')){
-            $model=$request->model;
-            $cat_id=$request->cat_id;
-            $ReplyCategory=\App\ReplyCategory::find($cat_id);
+        if ($request->has('model') && $request->has('cat_id')) {
+            $model = $request->model;
+            $cat_id = $request->cat_id;
+            $ReplyCategory = \App\ReplyCategory::find($cat_id);
             if ($ReplyCategory) {
-                $ReplyCategory->default_for=$model;
+                $ReplyCategory->default_for = $model;
                 $ReplyCategory->save();
+
                 return response()->json(['success' => true, 'message' => 'Category Assignments Successfully']);
             }
+
             return response()->json(['success' => false, 'message' => 'The Reply Category data was not found']);
         }
+
         return response()->json(['success' => false, 'message' => 'The requested data was not found']);
     }
+
     public function categoryStore(Request $request)
     {
         $this->validate($request, [
@@ -649,7 +653,7 @@ class ReplyController extends Controller
         return response()->json(['status' => 200]);
     }
 
-    public function show_logs(Request $request, \App\Models\ReplyLog $ReplyLog)
+    public function show_logs(Request $request, ReplyLog $ReplyLog)
     {
         $data = $request->all();
 
@@ -659,12 +663,12 @@ class ReplyController extends Controller
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
     }
 
-    public function replyLogList (Request $request)
+    public function replyLogList(Request $request)
     {
         $replyLogs = new  ReplyLog();
 
-        $replyLogs = $replyLogs->latest()->paginate(\App\Setting::get('pagination',25));
-        
+        $replyLogs = $replyLogs->latest()->paginate(\App\Setting::get('pagination', 25));
+
         return view('reply.log-reply', compact('replyLogs'));
     }
 
@@ -680,11 +684,11 @@ class ReplyController extends Controller
                 $replyLog->is_flagged = 1;
                 $replyLog->save();
             }
-         }
+        }
 
         return response()->json(['message' => 'Flag Added successfully']);
     }
-    
+
     public function statusColor(Request $request)
     {
         $statusColor = $request->all();

@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ManageGoogle;
-use App\Jobs\ManageWatson;
-use App\Library\Google\DialogFlow\DialogFlowService;
-use App\Models\GoogleDialogAccount;
 use App\Setting;
 use App\WatsonJourney;
+use App\Jobs\ManageGoogle;
 use Illuminate\Http\Request;
 use App\ChatbotDialogResponse;
 use App\ChatbotQuestionExample;
@@ -364,7 +361,8 @@ class ChatbotMessageLogsController extends Controller
         return response()->json(['logs' => $logs]);
     }
 
-    public function pushQuickRepliesToGoogle() {
+    public function pushQuickRepliesToGoogle()
+    {
         $replyCategories = \App\ReplyCategory::where('push_to_google', 0)->get()->chunk(5)->toArray();
         $params['google_account_id'] = 0;
         $params['keyword_or_question'] = 'intent';

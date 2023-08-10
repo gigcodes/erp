@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\Newsletter;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class SendEmailNewsletter extends Command
 {
@@ -71,7 +71,7 @@ class SendEmailNewsletter extends Command
                                 'name' => $template->subject,
                                 'subject' => $template->subject,
                                 'run_at' => $newsletter->sent_at,
-                                'template_content' => view($template->mail_tpl, compact('products', 'newsletter'))
+                                'template_content' => view($template->mail_tpl, compact('products', 'newsletter')),
                             ];
                             curl_setopt_array($curl, [
                                 //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
@@ -83,7 +83,7 @@ class SendEmailNewsletter extends Command
                                 CURLOPT_FOLLOWLOCATION => true,
                                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                 CURLOPT_CUSTOMREQUEST => 'POST',
-                                CURLOPT_POSTFIELDS => $req
+                                CURLOPT_POSTFIELDS => $req,
                             ]);
 
                             $response = curl_exec($curl);

@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\ConfigRefactor;
-use App\ConfigRefactorRemarkHistory;
-use App\ConfigRefactorSection;
-use App\ConfigRefactorStatus;
-use App\ConfigRefactorStatusHistory;
-use App\ConfigRefactorUserHistory;
-use App\Models\ZabbixWebhookData;
-use App\StoreWebsite;
-use App\User;
-use App\ZabbixStatus;
-use App\ZabbixWebhookDataRemarkHistory;
-use App\ZabbixWebhookDataStatusHistory;
 use Auth;
+use App\User;
 use Exception;
+use App\StoreWebsite;
+use App\ConfigRefactor;
 use Illuminate\Http\Request;
+use App\ConfigRefactorStatus;
+use App\ConfigRefactorSection;
+use App\Models\ZabbixWebhookData;
+use App\ConfigRefactorUserHistory;
+use App\ConfigRefactorRemarkHistory;
+use App\ConfigRefactorStatusHistory;
 
 class ConfigRefactorController extends Controller
 {
@@ -59,8 +56,8 @@ class ConfigRefactorController extends Controller
 
         $configRefactors = $configRefactors->latest('config_refactors.created_at')->paginate(10);
 
-        $configRefactorStatuses = ConfigRefactorStatus::pluck("name", "id")->toArray();
-        $configRefactorSections = ConfigRefactorSection::pluck("name", "id")->toArray();
+        $configRefactorStatuses = ConfigRefactorStatus::pluck('name', 'id')->toArray();
+        $configRefactorSections = ConfigRefactorSection::pluck('name', 'id')->toArray();
         $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
         $users = $users->pluck('name', 'id');
         $store_websites = StoreWebsite::get()->pluck('website', 'id');
@@ -104,18 +101,18 @@ class ConfigRefactorController extends Controller
 
     public function duplicateCreate(Request $request)
     {
-        $configRefactors = ConfigRefactor::find(explode("," , $request->config_refactors));
+        $configRefactors = ConfigRefactor::find(explode(',', $request->config_refactors));
 
-        if (!$request->store_website_id) {
+        if (! $request->store_website_id) {
             return response()->json(['status' => false, 'message' => 'No website selected']);
         }
 
-        if($configRefactors) {
-            foreach($configRefactors as $configRefactor) {
-                foreach($request->store_website_id as $store_website_id) {
+        if ($configRefactors) {
+            foreach ($configRefactors as $configRefactor) {
+                foreach ($request->store_website_id as $store_website_id) {
                     ConfigRefactor::firstOrCreate([
-                        'store_website_id' => $store_website_id, 
-                        'config_refactor_section_id' => $configRefactor->config_refactor_section_id
+                        'store_website_id' => $store_website_id,
+                        'config_refactor_section_id' => $configRefactor->config_refactor_section_id,
                     ]);
                 }
             }

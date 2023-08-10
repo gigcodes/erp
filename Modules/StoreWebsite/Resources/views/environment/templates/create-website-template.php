@@ -37,7 +37,7 @@
                     <label for="name" class="mt-2 font-weight-normal">Store Website</label>
                     </div>
                     <div class="input-group">
-                    <?php echo Form::select("store_website_id",$storeWebsites,'',["class"=> "form-control select2-ele","id"=>"store_website_id","placeholder" => "Select Store website"]) ?>
+                    <?php echo Form::select('store_website_id', $storeWebsites, '', ['class' => 'form-control select2-ele', 'id' => 'store_website_id', 'placeholder' => 'Select Store website']) ?>
                     </div>
                 </div>
             </div>

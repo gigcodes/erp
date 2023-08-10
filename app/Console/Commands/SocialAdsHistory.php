@@ -3,13 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Setting;
+use App\LogRequest;
 use FacebookAds\Api;
 use Facebook\Facebook;
 use App\Social\SocialConfig;
 use App\Helpers\SocialHelper;
 use App\Social\SocialAdHistory;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class SocialAdsHistory extends Command
 {
@@ -93,7 +93,6 @@ class SocialAdsHistory extends Command
             $parameters = [];
             LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
             curl_close($ch);
-           
 
             $resp->token = $adaccountAds['config_id'];
 

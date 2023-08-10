@@ -2,10 +2,10 @@
 
 namespace App;
 
+use App\Models\Project;
+use App\Helpers\GithubTrait;
 use App\Github\GithubRepositoryJob;
 use Illuminate\Database\Eloquent\Model;
-use App\Helpers\GithubTrait;
-use App\Models\Project;
 
 class BuildProcessHistory extends Model
 {
@@ -36,23 +36,24 @@ class BuildProcessHistory extends Model
         $githubBranchStateName = $this->github_branch_state_name;
         // $githubRepositoryId = 231925646;
         // $githubBranchStateName = "master";
-        if(empty($githubRepositoryId) || $githubBranchStateName==''){
+        if (empty($githubRepositoryId) || $githubBranchStateName == '') {
             return [];
         }
         $githubActionRuns = $this->getGithubActionRuns($githubRepositoryId, 1, null, null, $githubBranchStateName);
-        
-        // Get Repo Jobs from DB & Prepare the status. 
-        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id',  $githubRepositoryId)->pluck('job_name')->toArray();
 
-        if($githubActionRuns->total_count > 0 && isset($githubActionRuns->workflow_runs)) {
+        // Get Repo Jobs from DB & Prepare the status.
+        $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id', $githubRepositoryId)->pluck('job_name')->toArray();
+
+        if ($githubActionRuns->total_count > 0 && isset($githubActionRuns->workflow_runs)) {
             $job_status = [];
             $githubActionRunJobs = $this->getGithubActionRunJobs($githubRepositoryId, $githubActionRuns->workflow_runs[0]->id);
             // Prepareing job status for every actions
             foreach ($githubActionRunJobs->jobs as $job) {
-                if(in_array($job->name, $githubRepositoryJobs)) {
+                if (in_array($job->name, $githubRepositoryJobs)) {
                     $job_status[$job->name] = $job->status;
                 }
             }
+
             return $job_status;
         } else {
             return [];

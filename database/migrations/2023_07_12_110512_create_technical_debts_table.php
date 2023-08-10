@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateTechnicalDebtsTable extends Migration
 {
@@ -19,9 +19,9 @@ class CreateTechnicalDebtsTable extends Migration
             $table->integer('user_id');
             $table->string('problem');
             $table->integer('priority');
-            $table->string('description')->nullable();  
-            $table->string('estimate_investigation')->nullable();  
-            $table->string('approximate_estimate')->nullable();   
+            $table->string('description')->nullable();
+            $table->string('estimate_investigation')->nullable();
+            $table->string('approximate_estimate')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });

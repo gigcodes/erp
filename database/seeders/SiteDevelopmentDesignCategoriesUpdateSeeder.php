@@ -1,11 +1,12 @@
 <?php
+
 namespace Database\Seeders;
 
+use App\StoreWebsite;
 use App\SiteDevelopment;
+use Illuminate\Database\Seeder;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopmentMasterCategory;
-use App\StoreWebsite;
-use Illuminate\Database\Seeder;
 
 class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
 {
@@ -14,7 +15,6 @@ class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title', 'Design')->first();
@@ -109,16 +109,15 @@ class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
             'Order on the way mail',
             'Order Return Confirm Mail',
             'Track your Ticket by Email',
-            'Donation Email'
+            'Donation Email',
         ];
 
         $all_website = StoreWebsite::get();
 
-        foreach($lists as $list)
-        {
+        foreach ($lists as $list) {
             $develop = SiteDevelopmentCategory::firstOrCreate([
                 'master_category_id' => $siteDevelopmentMasterCategory->id,
-                'title' => $list
+                'title' => $list,
             ]);
 
             if ($develop) {
@@ -127,7 +126,7 @@ class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
                     SiteDevelopment::firstOrCreate([
                         'site_development_category_id' => $develop->id,
                         'site_development_master_category_id' => $develop->master_category_id,
-                        'website_id' => $value->id
+                        'website_id' => $value->id,
                     ]);
                 }
             }

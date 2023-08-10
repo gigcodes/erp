@@ -94,7 +94,7 @@ class MissingBrandController extends Controller
 
         $title = 'Missing Brands';
 
-        return view('missingbrand.index', ['missingBrands' => $missingBrands, 'title' => $title, 'scrapers' => $scrapers,'brands' => $brands]);
+        return view('missingbrand.index', ['missingBrands' => $missingBrands, 'title' => $title, 'scrapers' => $scrapers, 'brands' => $brands]);
     }
 
     public function store(Request $request, Brand $brand)

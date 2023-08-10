@@ -15,7 +15,7 @@ class StoreWebsiteEnvironmentHistory extends Model
      *
      * @SWG\Property(property="name",type="string")
      */
-    protected $fillable = ['environment_id', 'updated_by','command', 'job_id', 'status' , 'store_website_id', 'key', 'old_value', 'new_value','response'];
+    protected $fillable = ['environment_id', 'updated_by', 'command', 'job_id', 'status', 'store_website_id', 'key', 'old_value', 'new_value', 'response'];
 
     public function storeWebsite()
     {

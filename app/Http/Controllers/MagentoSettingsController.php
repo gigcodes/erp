@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Website;
+use App\LogRequest;
 use App\StoreWebsite;
 use App\WebsiteStore;
 use App\MagentoSetting;
 use App\WebsiteStoreView;
 use App\MagentoSettingLog;
 use Illuminate\Http\Request;
+use App\MagentoSettingStatus;
 use App\MagentoSettingNameLog;
 use App\MagentoSettingPushLog;
 use Illuminate\Support\Facades\Auth;
-use App\AssetsManager;
-use App\LogRequest;
-use App\Jobs\PushMagentoSettings;
-use App\MagentoSettingStatus;
-use App\User;
 use App\Models\MagentoSettingValueHistory;
 
 class MagentoSettingsController extends Controller
@@ -24,8 +22,8 @@ class MagentoSettingsController extends Controller
     public function index(Request $request)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $all_paths = MagentoSetting::groupBy('path')->get()->pluck('path','path')->toArray();
-        $all_names = MagentoSetting::groupBy('name')->get()->pluck('name','name')->toArray();
+        $all_paths = MagentoSetting::groupBy('path')->get()->pluck('path', 'path')->toArray();
+        $all_names = MagentoSetting::groupBy('name')->get()->pluck('name', 'name')->toArray();
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
@@ -38,7 +36,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('store_websites.website',  'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
 
         if (is_array($request->website)) {
             foreach ($request->website as $website) {
@@ -69,10 +67,10 @@ class MagentoSettingsController extends Controller
             }
         }
 
-        if (isset($request->name) && !empty($request->name)) {
+        if (isset($request->name) && ! empty($request->name)) {
             $magentoSettings->whereIn('magento_settings.name', $request->name);
         }
-        if (isset($request->path) && !empty($request->path)) {
+        if (isset($request->path) && ! empty($request->path)) {
             $magentoSettings->whereIn('magento_settings.path', $request->path);
         }
         if ($request->status != '') {
@@ -130,26 +128,26 @@ class MagentoSettingsController extends Controller
         }
     }
 
-
-    public function getLogs(Request $request){
+    public function getLogs(Request $request)
+    {
         $storeWebsites = StoreWebsite::get();
         $magentoSettings = MagentoSetting::get();
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-        ->select('store_websites.website','magento_setting_push_logs.id','magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at', 'magento_setting_push_logs.store_website_id', 'magento_setting_push_logs.command_server','magento_setting_push_logs.job_id','magento_setting_push_logs.setting_id')
+        ->select('store_websites.website', 'magento_setting_push_logs.id', 'magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at', 'magento_setting_push_logs.store_website_id', 'magento_setting_push_logs.command_server', 'magento_setting_push_logs.job_id', 'magento_setting_push_logs.setting_id')
         ->orderBy('magento_setting_push_logs.id', 'DESC');
-        if($request->website){
-            $pushLogs->where('store_website_id',$request->website);
+        if ($request->website) {
+            $pushLogs->where('store_website_id', $request->website);
         }
-        if($request->date){
-            $pushLogs->whereDate('magento_setting_push_logs.created_at',$request->date);
+        if ($request->date) {
+            $pushLogs->whereDate('magento_setting_push_logs.created_at', $request->date);
         }
 
         $counter = MagentoSettingPushLog::select('*');
-        if($request->website){
-            $counter->where('store_website_id',$request->website);
+        if ($request->website) {
+            $counter->where('store_website_id', $request->website);
         }
-        if($request->search_status){
-            $pushLogs = $pushLogs->where('status',  $request->search_status);
+        if ($request->search_status) {
+            $pushLogs = $pushLogs->where('status', $request->search_status);
         }
         if ($request->search_url) {
             $pushLogs = $pushLogs->where('command_server', 'LIKE', '%' . $request->search_url . '%');
@@ -162,7 +160,7 @@ class MagentoSettingsController extends Controller
                 $query->where('name', 'LIKE', '%' . $request->request_setting . '%');
             });
         }
-        
+
         $pushLogs = $pushLogs->paginate(25)->withQueryString();
 
         $counter = $counter->count();
@@ -171,9 +169,8 @@ class MagentoSettingsController extends Controller
             'pushLogs' => $pushLogs,
             'storeWebsites' => $storeWebsites,
             'counter' => $counter,
-            'magentoSettings' =>$magentoSettings
+            'magentoSettings' => $magentoSettings,
         ]);
-
     }
 
     public function magentoSyncLogSearch(Request $request)
@@ -353,7 +350,7 @@ class MagentoSettingsController extends Controller
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
         $website_ids = $request->websites;
-        
+
         $m = MagentoSetting::where('id', $request->id)->first();
         if ($m) {
             MagentoSettingNameLog::insert([
@@ -371,8 +368,7 @@ class MagentoSettingsController extends Controller
             'value' => $value,
         ]);
 
-
-        if($value !== $m->value){
+        if ($value !== $m->value) {
             $history = new MagentoSettingValueHistory();
             $history->magento_setting_id = $m->id;
             $history->old_value = $m->value;
@@ -380,7 +376,6 @@ class MagentoSettingsController extends Controller
             $history->user_id = Auth::user()->id;
             $history->save();
         }
-       
 
         $entity = MagentoSetting::find($entity_id);
 
@@ -419,7 +414,7 @@ class MagentoSettingsController extends Controller
         //         $data['scopeId']=0;
         //         $data['scopeType']="default";
         //         $data['configs'][]=['path'=>$path,'value'=>$value];
-                
+
         //         $ch = curl_init($url);
         //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -428,7 +423,7 @@ class MagentoSettingsController extends Controller
         //         $result = curl_exec($ch);
         //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         //         \Log::info(print_r([json_encode($data), $url, $result], true));
-                
+
         //         LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
         //         if (curl_errno($ch)) {
@@ -443,7 +438,7 @@ class MagentoSettingsController extends Controller
         //             $m_setting->value_on_magento =$value;
         //             $m_setting->save();
         //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url,'job_id'=>$httpcode ]);
-                    
+
         //         }else{
         //             $m_setting->status ='Error';
         //             $m_setting->save();
@@ -457,7 +452,7 @@ class MagentoSettingsController extends Controller
         // if ($scope === 'websites') {
         //     $store = $request->store;
         //     $website = $request->website;
-            
+
         //     $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
         //         $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
         //     })->orWhere('id', $entity->scope_id)->get();
@@ -505,7 +500,7 @@ class MagentoSettingsController extends Controller
         //             $result = curl_exec($ch);
         //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         //             \Log::info(print_r([json_encode($data), $url, $result], true));
-                    
+
         //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
         //             if (curl_errno($ch)) {
@@ -520,7 +515,7 @@ class MagentoSettingsController extends Controller
         //                 $m_setting->value_on_magento =$value;
         //                 $m_setting->save();
         //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
-                        
+
         //             }else{
         //                 $m_setting->status ='Error';
         //                 $m_setting->save();
@@ -588,7 +583,7 @@ class MagentoSettingsController extends Controller
         //             $result = curl_exec($ch);
         //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         //             \Log::info(print_r([json_encode($data), $url, $result], true));
-                    
+
         //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
 
         //             if (curl_errno($ch)) {
@@ -603,7 +598,7 @@ class MagentoSettingsController extends Controller
         //                 $m_setting->value_on_magento =$value;
         //                 $m_setting->save();
         //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
-                        
+
         //             }else{
         //                 $m_setting->status ='Error';
         //                 $m_setting->save();
@@ -621,23 +616,23 @@ class MagentoSettingsController extends Controller
         // }
         // // #DEVTASK-23677-api implement for admin settings
 
-        // #DEVTASK-23690-Magento Admin Settings - The above logic was not need, So I hide that. 
+        // #DEVTASK-23690-Magento Admin Settings - The above logic was not need, So I hide that.
         return response()->json(['code' => 200, 'message' => 'Updated successfully !']);
     }
 
     public function pushMagentoSettings(Request $request)
     {
-        if($request->has('store_website_id') && $request->store_website_id!=''){
-
+        if ($request->has('store_website_id') && $request->store_website_id != '') {
             $store_website_id = $request->store_website_id;
             $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
-            $website_ids[]=$store_website_id;
+            $website_ids[] = $store_website_id;
             foreach ($magentoSettings as $magentoSetting) {
-                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting,$website_ids)->onQueue('pushmagentosettings');
+                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting, $website_ids)->onQueue('pushmagentosettings');
             }
 
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
+
         return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
     }
 
@@ -692,11 +687,10 @@ class MagentoSettingsController extends Controller
 
     public function magentoPushLogs($settingId)
     {
-        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->orderBy('id','desc')->get();
+        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->orderBy('id', 'desc')->get();
         $data = '';
         foreach ($logs as $log) {
-            
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_server'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_output'] . '</td><td>'. $log['job_id'].'</td><td>'. $log['status'].'</td></tr>';
+            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_server'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_output'] . '</td><td>' . $log['job_id'] . '</td><td>' . $log['status'] . '</td></tr>';
         }
         echo $data;
     }
@@ -718,9 +712,11 @@ class MagentoSettingsController extends Controller
                 $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
                 if ($storeWebsite->parent_id) {
                     $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+
                     return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
                 } else {
                     $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+
                     return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
                 }
             }
@@ -733,16 +729,15 @@ class MagentoSettingsController extends Controller
 
     public function pushRowMagentoSettings(Request $request)
     {
-        if($request->has('tagged_websites') && $request->has('row_id')){
-            
-            // Find individual setting 
+        if ($request->has('tagged_websites') && $request->has('row_id')) {
+            // Find individual setting
             $individualSetting = MagentoSetting::with(
                 'storeview.websiteStore.website.storeWebsite',
                 'store.website.storeWebsite',
                 'website',
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
 
-            if($request->has('new_value') &&  $individualSetting->value !== $request->new_value )  {
+            if ($request->has('new_value') && $individualSetting->value !== $request->new_value) {
                 $history = new MagentoSettingValueHistory();
                 $history->magento_setting_id = $individualSetting->id;
                 $history->old_value = $individualSetting->value;
@@ -750,17 +745,18 @@ class MagentoSettingsController extends Controller
                 $history->user_id = Auth::user()->id;
                 $history->save();
             }
-              // Assign new value when push
+            // Assign new value when push
             if ($request->has('new_value')) {
                 $individualSetting->value = $request->new_value;
                 $individualSetting->save();
             }
-            
+
             // Push individual setting to selected websites
             \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushmagentosettings');
-           
+
             return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
+
         return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
     }
 
@@ -786,10 +782,10 @@ class MagentoSettingsController extends Controller
             $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
         }
 
-        $allInstancesIds = $allInstances->pluck("id");
+        $allInstancesIds = $allInstances->pluck('id');
         // Find all the Magento settings for these instances & assing it to the selected user
-        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get()->pluck("id")->toArray();
-        if($allMagentoSettings) {
+        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get()->pluck('id')->toArray();
+        if ($allMagentoSettings) {
             $user = User::find($request->assign_user);
             $user->magentoSettings()->attach($allMagentoSettings);
         }
@@ -800,9 +796,9 @@ class MagentoSettingsController extends Controller
     public function assignIndividualSetting(Request $request)
     {
         $magentoSetting = MagentoSetting::where('id', $request->row_id)->first();
-        
+
         if ($magentoSetting) {
-            $assign_settings[]=$magentoSetting->id;
+            $assign_settings[] = $magentoSetting->id;
             if ($magentoSetting->store_website_id) {
                 $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
                 if ($storeWebsite->parent_id) {
@@ -810,12 +806,13 @@ class MagentoSettingsController extends Controller
                 } else {
                     $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
                 }
-                $allInstancesIds = $allInstances->pluck("id");
-                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path',$magentoSetting->path)->where('scope',$magentoSetting->scope)->get()->pluck("id")->toArray();
-                $assign_settings=array_merge($assign_settings,$allMagentoSettings);
+                $allInstancesIds = $allInstances->pluck('id');
+                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path', $magentoSetting->path)->where('scope', $magentoSetting->scope)->get()->pluck('id')->toArray();
+                $assign_settings = array_merge($assign_settings, $allMagentoSettings);
             }
             $user = User::find($request->assign_user);
-            $user->magentoSettings()->attach($assign_settings);    
+            $user->magentoSettings()->attach($assign_settings);
+
             return redirect()->back()->with('success', 'Assigned successfully.');
         }
 
@@ -828,7 +825,6 @@ class MagentoSettingsController extends Controller
             ->where('magento_setting_id', $id)
             ->latest()
             ->get();
-
 
         return response()->json([
             'status' => true,
