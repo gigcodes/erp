@@ -219,5 +219,11 @@ class CodeShortcutController extends Controller
         }
     }
 
+    public function CodeShortCutTruncate(Request $request)
+    {
+        CodeShortcut::truncate();
+
+        return redirect()->route('code-shortcuts')->withSuccess('data Removed succesfully!');
+    }
    
 }
