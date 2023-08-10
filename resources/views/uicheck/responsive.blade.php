@@ -832,6 +832,24 @@
     </div>
 </div>
 
+<!-- Modal for download history -->
+<div class="modal fade" id="downloadHistoryModal" tabindex="-1" role="dialog" aria-labelledby="downloadHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downloadHistoryModalLabel">Download History</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Download history data fetched via AJAX will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
@@ -1893,6 +1911,22 @@
 				toastr["error"](errObj.responseJSON.message);
 			});
 		})
+
+		$(document).on('click', '.show-download-history', function() {
+            var dataId = $(this).data('data-id');
+
+            $.ajax({
+                url: '/uicheck/get-builder-download-history/' + dataId,
+                method: 'GET',
+                success: function(response) {
+                    $('#downloadHistoryModal .modal-body').html(response);
+                    $('#downloadHistoryModal').modal('show');
+                },
+                error: function() {
+                    alert('Error fetching download history data.');
+                }
+            });
+        });
 	});
 </script>
 

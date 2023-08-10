@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\Http;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\UiDeviceBuilderIoDataDownloadHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
@@ -2343,10 +2344,25 @@ class UicheckController extends Controller
     {
         $data = UiDeviceBuilderIoData::findOrFail($id);
 
+        // Log the download
+        $log = new UiDeviceBuilderIoDataDownloadHistory();
+        $log->user_id = auth()->id(); // Assuming you have authentication in place
+        $log->ui_device_builder_io_data_id = $data->id;
+        $log->downloaded_at = now();
+        $log->save();
+
         $filename = $data->title . '.html';
 
         return response($data->html)
             ->header('Content-Type', 'text/html')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function getBuilderDownloadHistory($dataId)
+    {
+        $downloadHistory = UiDeviceBuilderIoDataDownloadHistory::where('ui_device_builder_io_data_id', $dataId)
+            ->get();
+
+        return view('uicheck.device-builder-download-history', compact('downloadHistory'));
     }
 }

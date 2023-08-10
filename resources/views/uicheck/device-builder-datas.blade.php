@@ -16,6 +16,7 @@
                 <td>
                     <a href="{{ route('uicheck.get-builder-html', $data->id) }}" target="blank" class="btn btn-sm btn-primary">View</a>
                     <a href="{{ route('uicheck.get-builder-download-html', $data->id) }}" class="btn btn-sm btn-success">Download</a>
+                    <button class="btn btn-sm btn-secondary show-download-history" data-data-id="{{ $data->id }}">Download History</button>
                 </td>
             </tr>
         @endforeach
