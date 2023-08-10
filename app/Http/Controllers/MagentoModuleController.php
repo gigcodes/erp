@@ -458,7 +458,7 @@ class MagentoModuleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getRemarks($magento_module, $type)
+    public function getRemarks($magento_module, $type='general')
     {
         $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->where('type', $type)->latest()->get();
 
