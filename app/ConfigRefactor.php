@@ -17,7 +17,7 @@ class ConfigRefactor extends Model
      */
     protected $fillable = [
         'store_website_id',
-        'config_refactor_section_id', 
+        'config_refactor_section_id',
         'user_id',
         'step_1_status',
         'step_1_remark',
@@ -28,7 +28,7 @@ class ConfigRefactor extends Model
         'step_3_1_status',
         'step_3_1_remark',
         'step_3_2_status',
-        'step_3_2_remark'
+        'step_3_2_remark',
     ];
 
     public function storeWebsite()

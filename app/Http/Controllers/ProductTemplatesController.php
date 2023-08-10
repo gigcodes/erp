@@ -6,6 +6,7 @@ use App\Product;
 use App\Setting;
 use App\Category;
 use App\Template;
+use App\LogRequest;
 use App\StoreWebsite;
 use App\BroadcastImage;
 use App\ProductTemplate;
@@ -13,7 +14,6 @@ use Plank\Mediable\Media;
 use App\ProductTemplateLog;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class ProductTemplatesController extends Controller
 {
@@ -651,7 +651,7 @@ class ProductTemplatesController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ProductTemplatesController::class, 'restartScript');
         curl_close($ch);
-    
+
         return $response;
     }
 

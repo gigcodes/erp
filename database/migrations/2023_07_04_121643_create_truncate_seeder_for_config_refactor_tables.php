@@ -1,9 +1,7 @@
 <?php
 
-use Database\Seeders\ConfigRefactorSectionTableSeeder;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Database\Seeders\ConfigRefactorSectionTableSeeder;
 
 class CreateTruncateSeederForConfigRefactorTables extends Migration
 {
@@ -15,7 +13,7 @@ class CreateTruncateSeederForConfigRefactorTables extends Migration
     public function up()
     {
         Artisan::call('db:seed', [
-            '--class' => ConfigRefactorSectionTableSeeder::class
+            '--class' => ConfigRefactorSectionTableSeeder::class,
         ]);
     }
 
@@ -26,6 +24,5 @@ class CreateTruncateSeederForConfigRefactorTables extends Migration
      */
     public function down()
     {
-
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\LogRequest;
 use App\SocialContact;
 use App\SocialWebhookLog;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class SocialAccountController extends Controller
 {

@@ -7,6 +7,7 @@ use App\Brand;
 use App\Product;
 use App\Setting;
 use App\Category;
+use App\LogRequest;
 use App\LogGoogleCse;
 use App\ScrapeQueues;
 use Plank\Mediable\Media;
@@ -20,8 +21,6 @@ use App\GoogleSearchRelatedImage;
 use Illuminate\Support\Facades\Storage;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
-use Google\Cloud\Dialogflow\V2\Intent\Parameter;
 
 class GoogleSearchImageController extends Controller
 {
@@ -846,7 +845,7 @@ class GoogleSearchImageController extends Controller
             $product->sku,
         ];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        
+
         //Looping Through Keywords
         foreach ($keywords as $keyword) {
             $link = $googleServer . '&q=' . urlencode($keyword) . '&searchType=image&imgSize=large';
@@ -905,10 +904,10 @@ class GoogleSearchImageController extends Controller
             }
             $parameter['searchImage'] = [
                 'product_id' => $product->id,
-                "image_url" => $product->crop_image
+                'image_url' => $product->crop_image,
 
             ];
-           
+
             //If Page Is Not Found
             if ($count == 0) {
                 $product->status_id = StatusHelper::$googleTextSearchFailed;
@@ -1220,7 +1219,7 @@ class GoogleSearchImageController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $parameter['searchImage'] = [
             'product_id' => $product->id,
-            "image_url" => $product->crop_image
+            'image_url' => $product->crop_image,
 
         ];
 
@@ -1282,7 +1281,7 @@ class GoogleSearchImageController extends Controller
             $log->save();
             $count++;
         }
-        
+
         //If Page Is Not Found
         if ($count == 0) {
             $product->status_id = StatusHelper::$googleTextSearchFailed;

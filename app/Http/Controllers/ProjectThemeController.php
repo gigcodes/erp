@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
 use App\Models\ProjectTheme;
+use Illuminate\Http\Request;
 use App\Models\ThemeStructure;
 
 class ProjectThemeController extends Controller
@@ -34,7 +34,7 @@ class ProjectThemeController extends Controller
         $projectThemes = $projectThemes->paginate(20);
 
         $projects = Project::get()->pluck('name', 'id');
-        
+
         return view('project-theme.index', compact('projects', 'projectThemes'));
     }
 
@@ -55,12 +55,12 @@ class ProjectThemeController extends Controller
         $projectTheme->project_id = $data['project_id'];
         $projectTheme->name = $data['name'];
         $projectTheme->save();
-        
-        $themeStructure = new ThemeStructure(); 
-        $themeStructure->theme_id=$projectTheme->id; 
-        $themeStructure->name=$projectTheme->name; 
-        $themeStructure->is_file=0; 
-        $themeStructure->is_root=1; 
+
+        $themeStructure = new ThemeStructure();
+        $themeStructure->theme_id = $projectTheme->id;
+        $themeStructure->name = $projectTheme->name;
+        $themeStructure->is_file = 0;
+        $themeStructure->is_root = 1;
         $themeStructure->save();
 
         return response()->json(
@@ -102,10 +102,10 @@ class ProjectThemeController extends Controller
         $projectTheme->name = $data['name'];
         $projectTheme->save();
 
-        $themeStructure = ThemeStructure::where('theme_id', $id)->where('is_root',1)->first();
+        $themeStructure = ThemeStructure::where('theme_id', $id)->where('is_root', 1)->first();
 
-        if($themeStructure &&  $themeStructure->name!=$projectTheme->name){
-            $themeStructure->name=$projectTheme->name;
+        if ($themeStructure && $themeStructure->name != $projectTheme->name) {
+            $themeStructure->name = $projectTheme->name;
             $themeStructure->save();
         }
 
@@ -126,5 +126,4 @@ class ProjectThemeController extends Controller
         return redirect()->route('project-theme.index')
             ->with('success', 'Project theme deleted successfully');
     }
-
 }

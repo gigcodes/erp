@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Pinterest;
 
 class PinterestService extends PinterestClient
 {
-
     public function __construct($clientId = null, $clientSecret = null, $accountId = null)
     {
         parent::__construct($clientId, $clientSecret, $accountId);

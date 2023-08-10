@@ -56,7 +56,7 @@ class LogAfterRequest
 
                 $r->save();
             } catch (\Exception $e) {
-                \Log::info('Log after request has issue '.$e->getMessage());
+                \Log::info('Log after request has issue ' . $e->getMessage());
             }
         }
     }

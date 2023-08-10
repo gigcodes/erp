@@ -64,6 +64,6 @@ class MagentoSetting extends Model
             }
         }
 
-        return "";
+        return '';
     }
 }

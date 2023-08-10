@@ -185,11 +185,11 @@ class PermissionController extends Controller
         }
 
         if ($request->search_row) {
-            if(!$request->assign_permission) {
+            if (! $request->assign_permission) {
                 $users = $users->select('users.*')->join('permission_user', 'permission_user.user_id', '=', 'users.id')->join('permissions', 'permission_user.permission_id', '=', 'permissions.id')->groupBy('permission_user.user_id');
                 $users = $users->whereIn('permissions.name', $request->search_row);
             }
-            
+
             $permissions = $permissions->whereIn('permissions.name', $request->search_row);
         }
 

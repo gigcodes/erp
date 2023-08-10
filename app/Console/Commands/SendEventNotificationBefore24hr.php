@@ -117,7 +117,7 @@ class SendEventNotificationBefore24hr extends Command
             //
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

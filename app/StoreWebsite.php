@@ -115,7 +115,7 @@ class StoreWebsite extends Model
         'working_directory',
         'database_name',
         'instance_number',
-        'builder_io_api_key'
+        'builder_io_api_key',
     ];
 
     const DB_CONNECTION = [
@@ -248,6 +248,6 @@ class StoreWebsite extends Model
 
     public function versions()
     {
-        return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest("id");
+        return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest('id');
     }
 }

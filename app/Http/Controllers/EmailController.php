@@ -6,30 +6,29 @@ use DB;
 use Auth;
 use Mail;
 use App\Email;
+use App\Reply;
 use App\EmailLog;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ModelColor;
 use App\Wetransfer;
 use App\EmailRemark;
 use App\EmailAddress;
 use App\CronJobReport;
+use App\ReplyCategory;
 use App\EmailRunHistories;
+use App\SendgridEventColor;
 use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
-use App\EmailCategory;
 use App\Mails\Manual\ForwardEmail;
 use App\Mails\Manual\ReplyToEmail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use App\Models\EmailCategoryHistory;
+use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use App\Models\EmailStatusChangeHistory;
-use App\ReplyCategory;
-use App\Reply;
-use App\LogRequest;
-use App\SendgridEventColor;
 
 class EmailController extends Controller
 {
@@ -71,7 +70,7 @@ class EmailController extends Controller
         $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
-        $query = $query->leftJoin('chat_messages','chat_messages.email_id', 'emails.id')
+        $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
             ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
             ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
             ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id');
@@ -188,7 +187,7 @@ class EmailController extends Controller
                 return $query->where('emails.status', '<>', 'bin')->orWhereNull('emails.status')->where('is_draft', $isDraft);
             });
         }
-        $query = $query->select('emails.*', 'chat_messages.customer_id','chat_messages.supplier_id','chat_messages.vendor_id','c.is_auto_simulator as customer_auto_simulator',
+        $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
             'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
         if ($admin == 1) {
             $query = $query->orderByDesc('emails.created_at');
@@ -225,10 +224,10 @@ class EmailController extends Controller
         //Get All Status
         $email_status = DB::table('email_status');
 
-        if(!empty($request->type) && $request->type == 'outgoing'){
-            $email_status = $email_status->where('type','sent');
-        }else{
-            $email_status = $email_status->where('type','!=','sent');
+        if (! empty($request->type) && $request->type == 'outgoing') {
+            $email_status = $email_status->where('type', 'sent');
+        } else {
+            $email_status = $email_status->where('type', '!=', 'sent');
         }
 
         $email_status = $email_status->get();
@@ -239,10 +238,10 @@ class EmailController extends Controller
         //Get All Category
         $email_categories = DB::table('email_category');
 
-        if(!empty($request->type) && $request->type == 'outgoing'){
-            $email_categories = $email_categories->where('type','sent');
-        }else{
-            $email_categories = $email_categories->where('type','!=','sent');
+        if (! empty($request->type) && $request->type == 'outgoing') {
+            $email_categories = $email_categories->where('type', 'sent');
+        } else {
+            $email_categories = $email_categories->where('type', '!=', 'sent');
         }
 
         $email_categories = $email_categories->get();
@@ -434,7 +433,7 @@ class EmailController extends Controller
     public function replyMail($id)
     {
         $email = Email::find($id);
-        $replyCategories = DB::table('reply_categories')->orderBy('name','asc')->get();
+        $replyCategories = DB::table('reply_categories')->orderBy('name', 'asc')->get();
         $storeWebsites = \App\StoreWebsite::get();
 
         $parentCategory = ReplyCategory::where('parent_id', 0)->get();
@@ -450,7 +449,8 @@ class EmailController extends Controller
         }
 
         $categories = $category;
-        return view('emails.reply-modal', compact('email','replyCategories','storeWebsites','parentCategory','subCategory','categories'));
+
+        return view('emails.reply-modal', compact('email', 'replyCategories', 'storeWebsites', 'parentCategory', 'subCategory', 'categories'));
     }
 
     /**
@@ -679,7 +679,7 @@ class EmailController extends Controller
 
     public function category(Request $request)
     {
-        $values = ['category_name' => $request->input('category_name'), 'priority' => $request->input('priority'),'type' => $request->type];
+        $values = ['category_name' => $request->input('category_name'), 'priority' => $request->input('priority'), 'type' => $request->type];
         DB::table('email_category')->insert($values);
 
         session()->flash('success', 'Category added successfully');
@@ -690,7 +690,7 @@ class EmailController extends Controller
     public function status(Request $request)
     {
         $email_id = $request->input('status');
-        $values = ['email_status' => $request->input('email_status'),'type' => $request->type];
+        $values = ['email_status' => $request->input('email_status'), 'type' => $request->type];
         DB::table('email_status')->insert($values);
 
         session()->flash('success', 'Status added successfully');
@@ -963,22 +963,22 @@ class EmailController extends Controller
     {
         Email::where('id', $request->email_id)->update(['status' => $request->status_id]);
 
-        $emailStatusHistory = EmailStatusChangeHistory::where('email_id',$request->email_id)->orderBy('id','desc')->first();
+        $emailStatusHistory = EmailStatusChangeHistory::where('email_id', $request->email_id)->orderBy('id', 'desc')->first();
 
         $old_status_id = '';
         $old_user_id = '';
 
-        if(!empty($emailStatusHistory)){
+        if (! empty($emailStatusHistory)) {
             $old_status_id = $emailStatusHistory->status_id;
             $old_user_id = $emailStatusHistory->user_id;
         }
 
         EmailStatusChangeHistory::create([
             'status_id' => $request->status_id,
-            'user_id'   => \Auth::id(),
+            'user_id' => \Auth::id(),
             'old_status_id' => $old_status_id,
-            'old_user_id'   => $old_user_id,
-            'email_id'  => $request->email_id
+            'old_user_id' => $old_user_id,
+            'email_id' => $request->email_id,
         ]);
 
         session()->flash('success', 'Status has been updated successfully');
@@ -1439,9 +1439,9 @@ class EmailController extends Controller
         if (! empty($request->email)) {
             $events = $events->where('email', 'like', '%' . $request->email . '%');
         }
-        
-        if (!empty($sender_email = $request->sender_email)) {
-            $events = $events->whereHas('sender', function ($query) use($sender_email) {
+
+        if (! empty($sender_email = $request->sender_email)) {
+            $events = $events->whereHas('sender', function ($query) use ($sender_email) {
                 // Define the condition for filtering the related emails
                 $query->where('from', $sender_email);
             });
@@ -1493,22 +1493,22 @@ class EmailController extends Controller
     {
         Email::where('id', $request->email_id)->update(['email_category_id' => $request->category_id]);
 
-        $emailCategoryHistory = EmailCategoryHistory::where('email_id',$request->email_id)->orderBy('id','desc')->first();
+        $emailCategoryHistory = EmailCategoryHistory::where('email_id', $request->email_id)->orderBy('id', 'desc')->first();
 
         $old_category_id = '';
         $old_user_id = '';
 
-        if(!empty($emailCategoryHistory)){
+        if (! empty($emailCategoryHistory)) {
             $old_category_id = $emailCategoryHistory->category_id;
             $old_user_id = $emailCategoryHistory->user_id;
         }
 
         EmailCategoryHistory::create([
             'category_id' => $request->category_id,
-            'user_id'   => \Auth::id(),
+            'user_id' => \Auth::id(),
             'old_category_id' => $old_category_id,
-            'old_user_id'   => $old_user_id,
-            'email_id'  => $request->email_id
+            'old_user_id' => $old_user_id,
+            'email_id' => $request->email_id,
         ]);
 
         session()->flash('success', 'Status has been updated successfully');
@@ -1696,29 +1696,36 @@ class EmailController extends Controller
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 
-    public function getEmailCategoryChangeLogs(Request $request){
+    public function getEmailCategoryChangeLogs(Request $request)
+    {
         $emailId = $request->email_id;
-        $emailCagoryLogs = EmailCategoryHistory::with(['category','oldCategory','updatedByUser','user'])->where('email_id',$emailId)->get();
+        $emailCagoryLogs = EmailCategoryHistory::with(['category', 'oldCategory', 'updatedByUser', 'user'])->where('email_id', $emailId)->get();
 
         $returnHTML = view('emails.categoryChangeLogs')->with('data', $emailCagoryLogs)->render();
+
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 
-    public function getEmailStatusChangeLogs(Request $request){
+    public function getEmailStatusChangeLogs(Request $request)
+    {
         $emailId = $request->email_id;
-        $emailCagoryLogs = EmailStatusChangeHistory::with(['status','oldstatus','updatedByUser','user'])->where('email_id',$emailId)->get();
+        $emailCagoryLogs = EmailStatusChangeHistory::with(['status', 'oldstatus', 'updatedByUser', 'user'])->where('email_id', $emailId)->get();
 
         $returnHTML = view('emails.statusChangeLogs')->with('data', $emailCagoryLogs)->render();
+
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 
-    public function getReplyListByCategory(Request $request){
-        $replies = Reply::where('category_id',$request->category_id)->get();
+    public function getReplyListByCategory(Request $request)
+    {
+        $replies = Reply::where('category_id', $request->category_id)->get();
         $returnHTML = view('emails.replyList')->with('data', $replies)->render();
+
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 
-    public function getReplyListFromQuickReply(Request $request){
+    public function getReplyListFromQuickReply(Request $request)
+    {
         $storeWebsite = $request->get('storeWebsiteId');
         $parent_category = $request->get('parentCategoryId');
         $category_ids = $request->get('categoryId');
@@ -1742,8 +1749,6 @@ class EmailController extends Controller
         if ($storeWebsite > 0) {
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
         }
-
-
 
         if (! empty($parent_category)) {
             if ($categoryChildNode) {
@@ -1772,6 +1777,7 @@ class EmailController extends Controller
         $replies = $replies->get();
 
         $returnHTML = view('emails.replyList')->with('data', $replies)->render();
+
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 

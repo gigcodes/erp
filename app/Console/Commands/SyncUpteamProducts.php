@@ -7,12 +7,12 @@ use App\Brand;
 use App\Product;
 use App\Category;
 use App\UpteamLog;
+use App\LogRequest;
 use App\ConversionRate;
-use App\Helpers\LogHelper;
 use App\ProductSupplier;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class SyncUpteamProducts extends Command
 {
@@ -48,20 +48,20 @@ class SyncUpteamProducts extends Command
     public function handle()
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             ini_set('max_execution_time', '300');
             $api = 'https://staging.upteamco.com/1api/files/1627/in/20220104-18-Cache-cd24d9267e8f2c8f866c7bc41d4a72af-1.json';
             UpteamLog::create(['log_description' => 'Api called ' . $api]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Api called ' . $api]);
             $ch = curl_init();
-    
+
             // set url
             curl_setopt($ch, CURLOPT_URL, $api);
-    
+
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    
+
             // $output contains the output string
             $output = curl_exec($ch);
             $products = json_decode($output); //response deocdes
@@ -81,7 +81,7 @@ class SyncUpteamProducts extends Command
             }
             UpteamLog::create(['log_description' => 'Total Results Found ' . count($productWithKeys)]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Total Results Found ' . count($productWithKeys)]);
-    
+
             foreach ($productWithKeys as $product) { //dd($product);
                 UpteamLog::create(['log_description' => 'Product importing ' . $product['product_name'] . ' with details ' . json_encode($product)]);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product importing ' . $product['product_name'] . ' with details ' . json_encode($product)]);
@@ -152,13 +152,13 @@ class SyncUpteamProducts extends Command
                     'price_inr' => round($conversionRate * $product['rrp']),
                     'price_inr_special' => round($conversionRate * $product['selling_price_usd']),
                 ];
-    
+
                 UpteamLog::create(['log_description' => 'Product to insert ' . json_encode($productToInsert)]);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product to insert ' . json_encode($productToInsert)]);
-    
+
                 UpteamLog::create(['log_description' => 'Product values to insert ' . $product['product_name'] . ' with details ' . json_encode($productToInsert)]);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product values to insert ' . $product['product_name'] . ' with details ' . json_encode($productToInsert)]);
-    
+
                 $insertedProd = Product::updateOrCreate(['sku' => $product['sku']],
                     $productToInsert
                 );
@@ -176,7 +176,7 @@ class SyncUpteamProducts extends Command
                     'color' => $insertedProd->color,
                     'composition' => $insertedProd->composition,
                 ]);
-    
+
                 UpteamLog::create(['log_description' => 'Product imported ' . $product['product_name']]);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product imported ' . $product['product_name']]);
                 $photos = explode(',', $product['photos']);
@@ -189,9 +189,9 @@ class SyncUpteamProducts extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Image  saved for ' . $product['product_name']]);
                 }
             }
-            
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        } catch(\Exception $e){
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

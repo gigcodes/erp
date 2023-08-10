@@ -24,5 +24,4 @@ class WebsitePushLog extends Model
     {
         return $this->morphTo();
     }
-
 }

@@ -4,11 +4,11 @@ namespace App\Console\Commands\Manual;
 
 use App\Customer;
 use App\Language;
+use App\LogRequest;
 use App\Mailinglist;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class CreateMailingListNewsLetters extends Command
 {
@@ -231,7 +231,7 @@ class CreateMailingListNewsLetters extends Command
             'name' => $website->title,
         ];
         $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
-        $url = "https://api.sendinblue.com/v3/contacts/lists";
+        $url = 'https://api.sendinblue.com/v3/contacts/lists';
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
