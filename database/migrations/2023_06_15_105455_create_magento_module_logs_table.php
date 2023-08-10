@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMagentoModuleLogsTable extends Migration
 {
@@ -15,12 +15,12 @@ class CreateMagentoModuleLogsTable extends Migration
     {
         Schema::create('magento_module_logs', function (Blueprint $table) {
             $table->id();
-            $table->integer("magento_module_id")->nullable();
-            $table->integer("store_website_id")->nullable();
-            $table->integer("updated_by")->nullable();
-            $table->string("command")->nullable();
-            $table->string("job_id")->nullable();
-            $table->string("status")->nullable();
+            $table->integer('magento_module_id')->nullable();
+            $table->integer('store_website_id')->nullable();
+            $table->integer('updated_by')->nullable();
+            $table->string('command')->nullable();
+            $table->string('job_id')->nullable();
+            $table->string('status')->nullable();
             $table->text('response')->nullable();
             $table->timestamps();
         });

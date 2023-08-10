@@ -24,7 +24,7 @@ var page = {
       e.preventDefault();
       page.createRecord();
     });
-   
+
     page.config.bodyView.on("click", ".btn-update-value", function (e) {
       e.preventDefault();
       page.updateEvnValue($(this));
@@ -44,7 +44,6 @@ var page = {
       e.preventDefault();
       page.loadHistory($(this));
     });
-
   },
   validationRule: function (response) {
     $(document)
@@ -59,7 +58,7 @@ var page = {
       });
   },
   loadFirst: function () {
-    if(!$("#page-view-result").length){
+    if (!$("#page-view-result").length) {
       location.reload();
     }
     var _z = {
@@ -72,8 +71,8 @@ var page = {
     this.sendAjax(_z, "showResults");
   },
   getResults: function (href) {
-    if(!$("#page-view-result").length){
-      return '';
+    if (!$("#page-view-result").length) {
+      return "";
     }
     var _z = {
       url:
@@ -145,12 +144,14 @@ var page = {
     var common = $(".common-modal");
     common.find(".modal-dialog").html(tplHtml);
     common.modal("show");
-    $("#store_website_id").val(response.data.store_website_id)
+    $("#store_website_id").val(response.data.store_website_id);
   },
   submitFormSite: function (ele) {
     var _z = {
       url:
-        typeof href != "undefined" ? href : this.config.baseUrl + "/environment/save",
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/environment/save",
       method: "post",
       data: ele.closest("form").serialize(),
       beforeSend: function () {
@@ -167,11 +168,13 @@ var page = {
       $("#loading-image").hide();
       toastr["error"](response.error, "");
     }
-  }, 
+  },
   submitFormUpdateValue: function (ele) {
     var _z = {
       url:
-        typeof href != "undefined" ? href : this.config.baseUrl + "/environment/updateValue",
+        typeof href != "undefined"
+          ? href
+          : this.config.baseUrl + "/environment/updateValue",
       method: "post",
       data: ele.closest("form").serialize(),
       beforeSend: function () {
@@ -184,7 +187,7 @@ var page = {
     if (response.code == 200) {
       page.loadFirst();
       $(".common-modal").modal("hide");
-      if(response.message!=''){
+      if (response.message != "") {
         toastr["success"](response.message, "");
       }
     } else {
@@ -245,8 +248,7 @@ var page = {
       $("#loading-image").hide();
       $(".preview-history-modal").modal("show");
     }
-  }, 
-  
+  },
 };
 
 $.extend(page, common);

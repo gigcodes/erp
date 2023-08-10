@@ -23,10 +23,11 @@ class ConfigRefactorSection extends Model
     }
 
     const NONDEFAULT = 'ND';
-    const DEFAULT  = 'DE';
+
+    const DEFAULT = 'DE';
 
     public static $types = [
         self::NONDEFAULT => 'Non Default',
-        self::DEFAULT  => 'Default',
+        self::DEFAULT => 'Default',
     ];
 }

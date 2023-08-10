@@ -2,9 +2,8 @@
 
 namespace App;
 
-use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ConfigRefactorUserHistory extends Model
 {
@@ -45,10 +44,10 @@ class ConfigRefactorUserHistory extends Model
     public function getOldUserNameAttribute()
     {
         return $this->oldUser?->name;
-    } 
+    }
 
     public function getNewUserNameAttribute()
     {
         return $this->newUser?->name;
-    } 
+    }
 }

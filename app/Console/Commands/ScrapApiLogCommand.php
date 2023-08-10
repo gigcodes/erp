@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Scraper;
+use App\LogRequest;
 use App\ScrapApiLog;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class ScrapApiLogCommand extends Command
 {

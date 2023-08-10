@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Auth;
 use App\Task;
 use App\User;
+use Exception;
 use Google\Client;
 use App\DeveloperTask;
 use App\GoogleScreencast;
@@ -12,7 +13,6 @@ use Google\Service\Drive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\UploadGoogleDriveScreencast;
-use Exception;
 
 class GoogleScreencastController extends Controller
 {
@@ -63,7 +63,7 @@ class GoogleScreencastController extends Controller
                 });
             }
         }
-        
+
         if ($keyword = request('user_id')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('user_id', $keyword);
@@ -179,7 +179,7 @@ class GoogleScreencastController extends Controller
             'id' => ['required'],
             'file_name' => ['required'],
             'file_id' => ['required'],
-            'file_remark' => ['required']
+            'file_remark' => ['required'],
         ]);
 
         try {
@@ -188,12 +188,10 @@ class GoogleScreencastController extends Controller
             $googlescreencast->google_drive_file_id = $request->file_id;
             $googlescreencast->remarks = $request->file_remark;
             $googlescreencast->save();
-            
+
             return back()->with('success', 'Data updated successfully.');
-            
         } catch (\Exception $e) {
             return back()->with('error', 'Error while updating data.');
-
         }
     }
 
@@ -300,21 +298,20 @@ class GoogleScreencastController extends Controller
             <button class="copy-button btn btn-secondary" data-message="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link">Copy</button></td>
             <td>' . $driveFile['remarks'] . '</td>
         </tr>';
-        
         }
         if ($driveFileData == '') {
             $driveFileData = '<tr><td colspan="4">No data found.</td></tr>';
         }
 
         return $driveFileData;
-    } 
+    }
 
-    public function getGoogleScreencast (Request $request){
-
+    public function getGoogleScreencast(Request $request)
+    {
         $datas = GoogleScreencast::latest()->take(10)->get();
 
         if (! Auth::user()->isAdmin()) {
-            $datas = GoogleScreencast::where('user_id','=', Auth::id())->latest()->take(10)->get();
+            $datas = GoogleScreencast::where('user_id', '=', Auth::id())->latest()->take(10)->get();
         }
 
         return response()->json([
@@ -336,9 +333,8 @@ class GoogleScreencastController extends Controller
         $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
-        return response()->json(['tasks' => $tasks, 'users' => $users , 'generalTask' => $generalTask]);
+        return response()->json(['tasks' => $tasks, 'users' => $users, 'generalTask' => $generalTask]);
     }
-
 
     public function addMultipleDocPermission(Request $request)
     {
@@ -416,10 +412,9 @@ class GoogleScreencastController extends Controller
         $fileIds = explode(',', request('remove_file_ids'));
         $fileIds = array_map('intval', $fileIds);
         $readArray = request('read');
-        $writeArray =  request('write');
+        $writeArray = request('write');
 
-        foreach ($fileIds as $fileId)
-        {
+        foreach ($fileIds as $fileId) {
             $file = GoogleScreencast::find($fileId);
             $permissionEmails = [];
             $client = new Client();
@@ -432,7 +427,7 @@ class GoogleScreencastController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($file->google_drive_file_id, $parameters);
-    
+
             $is_already_have_permission = false;
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
@@ -440,7 +435,7 @@ class GoogleScreencastController extends Controller
                 if (in_array($permission['emailAddress'], $readArray) && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
                     $driveService->permissions->delete($file->google_drive_file_id, $permission['id']);
                 }
-            }    
+            }
             $readUsers = array_diff(explode(',', $file->read), $readArray);
             $writeUsers = array_diff(explode(',', $file->write), $writeArray);
             $file->read = implode(',', $readUsers);
@@ -448,6 +443,6 @@ class GoogleScreencastController extends Controller
             $file->save();
         }
 
-        return back()->with('success', 'Permission successfully removed');     
+        return back()->with('success', 'Permission successfully removed');
     }
 }

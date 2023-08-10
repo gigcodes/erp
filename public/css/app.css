@@ -73,16 +73,16 @@ section {
 }
 
 body {
-    min-height: 100%;
-    margin: 0;
-    font-family: "Raleway", sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    line-height: 1.6;
-    color: #212529;
-    text-align: left;
-    background-color: #f5f8fa;
-    padding: 0;
+  min-height: 100%;
+  margin: 0;
+  font-family: "Raleway", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #212529;
+  text-align: left;
+  background-color: #f5f8fa;
+  padding: 0;
 }
 
 [tabindex="-1"]:focus {
@@ -11608,9 +11608,9 @@ input {
 .timeslot .btn-default {
   height: 30px !important;
 }
-#app{
-    overflow-x: hidden!important;
-    overflow-y: visible !important;
+#app {
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
 }
 .btn.btn-edit-template {
   padding: 1px 0px;

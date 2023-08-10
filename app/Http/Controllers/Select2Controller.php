@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Task;
 use App\User;
 use App\Brand;
 use App\Vendor;
 use App\Category;
 use App\Customer;
+use App\Platform;
 use App\Supplier;
-use App\DeveloperTask;
-use App\Models\ZabbixWebhookData;
 use App\SopCategory;
-use Illuminate\Http\Request;
-use App\TimeDoctor\TimeDoctorAccount;
-use App\TimeDoctor\TimeDoctorMember;
-use App\TimeDoctor\TimeDoctorProject;
-use Illuminate\Support\Facades\Auth;
-use App\CodeShortCutPlatform;
 use App\TaskCategory;
+use App\DeveloperTask;
 use App\ProductSupplier;
 use App\DocumentCategory;
-use App\Platform;
-use DB;
+use Illuminate\Http\Request;
+use App\CodeShortCutPlatform;
+use App\Models\ZabbixWebhookData;
+use App\Models\CodeShortcutFolder;
+use App\TimeDoctor\TimeDoctorMember;
+use Illuminate\Support\Facades\Auth;
+use App\TimeDoctor\TimeDoctorAccount;
+use App\TimeDoctor\TimeDoctorProject;
 
 class Select2Controller extends Controller
 {
@@ -398,9 +399,9 @@ class Select2Controller extends Controller
         if (isset(Auth::user()->id)) {
             $myTimeDoctorMember = TimeDoctorMember::where('user_id', Auth::user()->id)->latest()->first();
             if ($myTimeDoctorMember) {
-                // Check record exist, Otherwise it will ignore the below condition & get all the remaining accounts as usual. 
+                // Check record exist, Otherwise it will ignore the below condition & get all the remaining accounts as usual.
                 $accountExists = TimeDoctorAccount::where('id', $myTimeDoctorMember->time_doctor_account_id)->where('auth_token', '!=', '')->exists();
-                if($accountExists) {
+                if ($accountExists) {
                     $time_doctor_accounts = $time_doctor_accounts->where('id', $myTimeDoctorMember->time_doctor_account_id);
                 }
             }
@@ -492,7 +493,7 @@ class Select2Controller extends Controller
 
     public function taskCategory(Request $request)
     {
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $taskCategories = TaskCategory::where('is_approved', 1)
                 ->where('parent_id', 0)
                 ->where('title', 'LIKE', $request->q . '%')
@@ -504,9 +505,9 @@ class Select2Controller extends Controller
                 ->get()
                 ->toArray();
         }
-        
+
         $result = [];
-        
+
         if (empty($taskCategories)) {
             $result['items'][] = [
                 'id' => '',
@@ -520,6 +521,7 @@ class Select2Controller extends Controller
                 ];
             }
         }
+
         return response()->json($result);
     }
 
@@ -527,7 +529,7 @@ class Select2Controller extends Controller
     {
         $zabbixWebhookDatas = ZabbixWebhookData::select('id', 'subject')->whereNull('zabbix_task_id');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $zabbixWebhookDatas->where(function ($q) use ($request) {
                 $q->where('subject', 'LIKE', '%' . $request->q . '%');
             });
@@ -549,7 +551,7 @@ class Select2Controller extends Controller
     {
         $sopCategories = SopCategory::select('id', 'category_name');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $sopCategories->where(function ($q) use ($request) {
                 $q->where('category_name', 'LIKE', '%' . $request->q . '%');
             });
@@ -567,17 +569,15 @@ class Select2Controller extends Controller
         return response()->json($result);
     }
 
-
     public function shortcutplatform(Request $request)
     {
         $dataPlatforms = CodeShortCutPlatform::select('id', 'name')->get();
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $dataPlatforms->where(function ($q) use ($request) {
                 $q->where('subject', 'LIKE', '%' . $request->q . '%');
             });
         }
-
 
         $result = [];
 
@@ -602,14 +602,14 @@ class Select2Controller extends Controller
     {
         $dataSuppliers = Supplier::select('id', 'supplier')->get();
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $dataSuppliers->where(function ($q) use ($request) {
                 $q->where('subject', 'LIKE', '%' . $request->q . '%');
             });
         }
 
         $result = [];
-  
+
         if (empty($dataSuppliers)) {
             $result['items'][] = [
                 'id' => '',
@@ -627,18 +627,47 @@ class Select2Controller extends Controller
         return response()->json($result);
     }
 
+    public function shortcutFolders(Request $request)
+    {
+        $dataFolderNames = CodeShortcutFolder::select('id', 'name')->get();
+
+        if (! empty($request->q)) {
+            $dataFolderNames->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+
+        if (empty($dataFolderNames)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'FolderName not available',
+            ];
+        } else {
+            foreach ($dataFolderNames as $dataFolderName) {
+                $result['items'][] = [
+                    'id' => $dataFolderName->id,
+                    'text' => $dataFolderName->name,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
     public function productColors(Request $request)
     {
         $uniqueColorsQuery = ProductSupplier::distinct('color');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $uniqueColorsQuery->where('color', 'LIKE', '%' . $request->q . '%');
         }
-    
+
         $uniqueColors = $uniqueColorsQuery->pluck('color');
-    
+
         $result = [];
-    
+
         if ($uniqueColors->isEmpty()) {
             $result['items'][] = [
                 'id' => '',
@@ -652,7 +681,7 @@ class Select2Controller extends Controller
                 ];
             }
         }
-    
+
         return response()->json($result);
     }
 
@@ -660,14 +689,14 @@ class Select2Controller extends Controller
     {
         $uniqueSizeQuery = ProductSupplier::distinct('size_system');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $uniqueSizeQuery->where('size_system', 'LIKE', '%' . $request->q . '%');
         }
-    
+
         $uniqueSizeSystems = $uniqueSizeQuery->pluck('size_system');
-    
+
         $result = [];
-    
+
         if ($uniqueSizeSystems->isEmpty()) {
             $result['items'][] = [
                 'id' => '',
@@ -684,12 +713,12 @@ class Select2Controller extends Controller
 
         return response()->json($result);
     }
-                    
+
     public function shortcutdocumentCategory(Request $request)
     {
         $categories = DocumentCategory::select('id', 'name')->get();
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $categories->where(function ($q) use ($request) {
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
@@ -713,18 +742,19 @@ class Select2Controller extends Controller
 
         return response()->json($result);
     }
+
     public function vochuerPlatform(Request $request)
     {
         $platforms = Platform::get()->pluck('name', 'id');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $platforms->where(function ($q) use ($request) {
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
 
         $result = [];
-  
+
         if (empty($platforms)) {
             $result['items'][] = [
                 'id' => '',
@@ -746,14 +776,14 @@ class Select2Controller extends Controller
     {
         $vocherEmails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $vocherEmails->where(function ($q) use ($request) {
                 $q->where('from_address', 'LIKE', '%' . $request->q . '%');
             });
         }
 
         $result = [];
-  
+
         if (empty($vocherEmails)) {
             $result['items'][] = [
                 'id' => '',
@@ -775,14 +805,14 @@ class Select2Controller extends Controller
     {
         $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $whatsapp_configs->where(function ($q) use ($request) {
                 $q->where('number', 'LIKE', '%' . $request->q . '%');
             });
         }
 
         $result = [];
-  
+
         if (empty($whatsapp_configs)) {
             $result['items'][] = [
                 'id' => '',

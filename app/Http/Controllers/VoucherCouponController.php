@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use DB;
 use App\Platform;
+use App\CouponType;
 use App\VoucherCoupon;
 use App\VoucherCouponCode;
 use App\VoucherCouponOrder;
 use App\VoucherCouponRemark;
-use App\CouponType;
 use Illuminate\Http\Request;
 
 class VoucherCouponController extends Controller
@@ -46,7 +46,7 @@ class VoucherCouponController extends Controller
         $emails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
         $coupontypes = CouponType::get()->pluck('name', 'id');
 
-        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails','coupontypes'));
+        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails', 'coupontypes'));
     }
 
     /**
@@ -189,7 +189,7 @@ class VoucherCouponController extends Controller
     public function couponCodeList(Request $request)
     {
         try {
-            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name','Vct.name AS couponType')
+            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name', 'Vct.name AS couponType')
                 ->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
                 ->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)
                     ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
@@ -305,8 +305,8 @@ class VoucherCouponController extends Controller
         try {
             $perPage = 10;
             $couponTypeLists = new VoucherCouponCode();
-            
-            $couponTypeLists = $couponTypeLists->select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name','Vct.name AS couponType')
+
+            $couponTypeLists = $couponTypeLists->select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name', 'Vct.name AS couponType')
                 ->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
                 ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
                 ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
@@ -314,41 +314,36 @@ class VoucherCouponController extends Controller
                 ->latest()
                 ->paginate($perPage);
 
-            return response()->json(['code' => 200, 'data' => $couponTypeLists, 'count'=> count($couponTypeLists), 'message' => 'Listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $couponTypeLists, 'count' => count($couponTypeLists), 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
-
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-
     public function voucherscouponCodeList(Request $request)
     {
- 
         $vouCode = new VoucherCouponCode();
 
         if (($request->coupon_code) !== null) {
-            $vouCode =  $vouCode->where('coupon_code', 'LIKE', '%' . $request->coupon_code . '%');
+            $vouCode = $vouCode->where('coupon_code', 'LIKE', '%' . $request->coupon_code . '%');
         }
-        if ($request->coupon_types_ids  !== null) {
-            $vouCode =   $vouCode->whereIn('coupon_type_id', $request->coupon_types_ids);
+        if ($request->coupon_types_ids !== null) {
+            $vouCode = $vouCode->whereIn('coupon_type_id', $request->coupon_types_ids);
         }
         if ($request->username_ids !== null) {
-            $vouCode =  $vouCode->whereIn('user_id', $request->username_ids);
+            $vouCode = $vouCode->whereIn('user_id', $request->username_ids);
         }
-        if ($request->date  !== null) {
-            $vouCode =  $vouCode->where('valid_date', 'LIKE', '%' . $request->date . '%');
+        if ($request->date !== null) {
+            $vouCode = $vouCode->where('valid_date', 'LIKE', '%' . $request->date . '%');
         }
-        if ($request->platform_ids !==null) {
+        if ($request->platform_ids !== null) {
             $vouCode->whereHas('voucherCoupon.platform', function ($query) use ($request) {
                 $query->where('platform_id', $request->platform_ids);
             });
         }
 
-        $vouCode = $vouCode->latest()->paginate(\App\Setting::get('pagination',10));
+        $vouCode = $vouCode->latest()->paginate(\App\Setting::get('pagination', 10));
 
         return view('voucher-coupon.voucher-code-listing', compact('vouCode'));
-
     }
-
 }

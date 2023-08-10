@@ -26,11 +26,13 @@ class PinterestAdsGroups extends Model
         'bid_strategy_type',
     ];
 
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(PinterestAdsAccounts::class, 'id', 'pinterest_ads_account_id');
     }
 
-    public function campaign() {
+    public function campaign()
+    {
         return $this->hasOne(PinterestCampaigns::class, 'id', 'pinterest_campaign_id');
     }
 }

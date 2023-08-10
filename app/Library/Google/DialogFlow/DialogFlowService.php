@@ -4,20 +4,20 @@ namespace App\Library\Google\DialogFlow;
 
 use App\ChatbotQuestion;
 use App\Models\DialogflowEntityType;
-use Google\Cloud\Dialogflow\V2\AgentsClient;
-use Google\Cloud\Dialogflow\V2\EntityType;
-use Google\Cloud\Dialogflow\V2\EntityType\Entity;
-use Google\Cloud\Dialogflow\V2\EntityType\Kind;
-use Google\Cloud\Dialogflow\V2\EntityTypesClient;
 use Google\Cloud\Dialogflow\V2\Intent;
+use Google\Cloud\Dialogflow\V2\TextInput;
+use Google\Cloud\Dialogflow\V2\EntityType;
+use Google\Cloud\Dialogflow\V2\QueryInput;
+use Google\Cloud\Dialogflow\V2\AgentsClient;
+use Google\Cloud\Dialogflow\V2\IntentsClient;
 use Google\Cloud\Dialogflow\V2\Intent\Message;
+use Google\Cloud\Dialogflow\V2\SessionsClient;
+use Google\Cloud\Dialogflow\V2\EntityType\Kind;
+use Google\Cloud\Dialogflow\V2\EntityType\Entity;
+use Google\Cloud\Dialogflow\V2\EntityTypesClient;
 use Google\Cloud\Dialogflow\V2\Intent\Message\Text;
 use Google\Cloud\Dialogflow\V2\Intent\TrainingPhrase;
 use Google\Cloud\Dialogflow\V2\Intent\TrainingPhrase\Part;
-use Google\Cloud\Dialogflow\V2\IntentsClient;
-use Google\Cloud\Dialogflow\V2\QueryInput;
-use Google\Cloud\Dialogflow\V2\SessionsClient;
-use Google\Cloud\Dialogflow\V2\TextInput;
 
 class DialogFlowService
 {
@@ -31,7 +31,9 @@ class DialogFlowService
         'refund_status',
         'refund_id',
     ];
+
     private $googleAccount;
+
     private $credentials;
 
     public function __construct($googleAccount)
@@ -47,7 +49,7 @@ class DialogFlowService
 //            $name = explode('/', $detectIntent->getIntent()->getName());
 //            $updateId = $name[count($name) - 1];
 //        }
-        if (!$updateId) {
+        if (! $updateId) {
             $intents = $this->listIntents();
             $findIntent = array_search($parameters['name'], array_column($intents, 'display_name'));
             if ($findIntent) {
@@ -82,7 +84,7 @@ class DialogFlowService
             ->setTrainingPhrases($trainingPhrases)
             ->setMessages($messages);
 
-        if (isset($parameters['parent']) && !empty($parameters['parent'])) {
+        if (isset($parameters['parent']) && ! empty($parameters['parent'])) {
             $parentQuestion = ChatbotQuestion::find($parameters['parent']);
             if ($parentQuestion && $parentQuestion->google_response_id) {
                 $parentClient = new IntentsClient($this->credentials);
@@ -98,6 +100,7 @@ class DialogFlowService
             $response = $intentClient->createIntent($parent, $intent);
         }
         $intentClient->close();
+
         return $response->getName();
     }
 
@@ -109,10 +112,12 @@ class DialogFlowService
         $intentName = $intentsClient->intentName($projectId, $intentId);
         $response = $intentsClient->deleteIntent($intentName);
         $intentsClient->close();
+
         return $response;
     }
 
-    public function listIntents() {
+    public function listIntents()
+    {
         $intentsClient = new IntentsClient($this->credentials);
         $parent = $intentsClient->agentName($this->googleAccount->project_id);
         $response = $intentsClient->listIntents($parent, ['pageSize' => 1000]);
@@ -131,7 +136,7 @@ class DialogFlowService
     {
         // synonyms must be exactly [$entityValue] if the entityTypes'
         // kind is KIND_LIST
-        if (!$synonyms) {
+        if (! $synonyms) {
             $synonyms = [$entityValue];
         }
 
@@ -146,6 +151,7 @@ class DialogFlowService
         // create entity
         $response = $entityTypesClient->batchCreateEntities($parent, [$entity]);
         $entityTypesClient->close();
+
         return $response->getName();
     }
 
@@ -153,7 +159,7 @@ class DialogFlowService
     {
         // synonyms must be exactly [$entityValue] if the entityTypes'
         // kind is KIND_LIST
-        if (!$synonyms) {
+        if (! $synonyms) {
             $synonyms = [$entityValue];
         }
 
@@ -168,6 +174,7 @@ class DialogFlowService
         // create entity
         $response = $entityTypesClient->batchCreateEntities($parent, [$entity]);
         $entityTypesClient->close();
+
         return $response->getName();
     }
 
@@ -177,6 +184,7 @@ class DialogFlowService
         $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
         $response = $entityTypesClient->batchDeleteEntities($parent, [$entityValue]);
         $entityTypesClient->close();
+
         return $response;
     }
 
@@ -193,6 +201,7 @@ class DialogFlowService
         // create entity type
         $response = $entityTypesClient->createEntityType($parent, $entityType);
         $entityTypesClient->close();
+
         return $response->getName();
     }
 
@@ -202,6 +211,7 @@ class DialogFlowService
         $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
         $response = $entityTypesClient->deleteEntityType($parent);
         $entityTypesClient->close();
+
         return $response;
     }
 
@@ -219,6 +229,7 @@ class DialogFlowService
         $queryInput->setText($textInput);
         $response = $sessionsClient->detectIntent($session, $queryInput);
         $sessionsClient->close();
+
         return $response->getQueryResult();
     }
 
@@ -229,6 +240,7 @@ class DialogFlowService
         $parent = $agentsClient->projectName($this->googleAccount->project_id);
         $response = $agentsClient->trainAgent($parent);
         $agentsClient->close();
+
         return $response;
     }
 
@@ -236,7 +248,7 @@ class DialogFlowService
     {
         if ($question->keyword_or_question === 'intent') {
             $this->deleteIntent($question->google_response_id);
-        } else if ($question->keyword_or_question === 'entity') {
+        } elseif ($question->keyword_or_question === 'entity') {
             $ids = [];
             foreach ($question->chatbotQuestionExamples as $qu) {
                 $ids[] = $qu->types;
@@ -250,10 +262,11 @@ class DialogFlowService
     {
         $variables = [];
         foreach (self::VARIABLES as $VARIABLE) {
-            if (str_contains($text, "#{" . $VARIABLE. "}")) {
+            if (str_contains($text, '#{' . $VARIABLE . '}')) {
                 $variables[] = $VARIABLE;
             }
         }
+
         return $variables;
     }
 
@@ -265,9 +278,9 @@ class DialogFlowService
                 $text = $this->getReplacement($text, $variable, $customer, $orderId, $refundId);
             }
         }
+
         return $text;
     }
-
 
     public function getReplacement($text, $variable, $customer, $orderId = null, $refundId = null)
     {
@@ -329,6 +342,7 @@ class DialogFlowService
             default:
                 break;
         }
+
         return $text;
     }
 }

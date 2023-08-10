@@ -36,12 +36,12 @@ class TranslateReplies extends Model
 
     public function getStatusColorAttribute()
     {
-        $replyTranslatorStatus = ReplyTranslatorStatus::where("name", $this->status)->first();
+        $replyTranslatorStatus = ReplyTranslatorStatus::where('name', $this->status)->first();
 
         if ($replyTranslatorStatus) {
             return $replyTranslatorStatus->color;
         }
 
-        return "";
+        return '';
     }
 }

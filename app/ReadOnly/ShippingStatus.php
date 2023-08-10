@@ -1,4 +1,5 @@
 <?php
+
 namespace App\ReadOnly;
 
 use App\ReadOnlyBase;

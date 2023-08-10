@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddMetaUpdateColumnInMonitorJenkinsBuildsTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddMetaUpdateColumnInMonitorJenkinsBuildsTable extends Migration
     public function down()
     {
         Schema::table('monitor_jenkins_builds', function (Blueprint $table) {
-            $table->dropColumn("meta_update");
+            $table->dropColumn('meta_update');
         });
     }
 }

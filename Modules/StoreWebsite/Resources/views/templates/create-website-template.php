@@ -39,12 +39,11 @@
                      <?php
                         if (isset($services)) {
                             foreach ($services as $service) {
-                              $service_id=$service->id;
-                                 echo "<option {{if data.mailing_service_id == '" . ($service_id) . "'}} selected {{/if}} value='" . ($service_id) . "'>" . ($service->name) . '</option>';
-                                
+                                $service_id = $service->id;
+                                echo "<option {{if data.mailing_service_id == '" . ($service_id) . "'}} selected {{/if}} value='" . ($service_id) . "'>" . ($service->name) . '</option>';
                             }
                         }
-                     ?>
+   ?>
                   </select>
                </div>
             </div>
@@ -351,9 +350,9 @@
                         <option>--Select Assets Manager--</option>
                         <?php
                      foreach (\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
-                           echo "<option {{if data.assets_manager_id == '" . $l->id . "'}} selected {{/if}} value='" . $l->id . "'>" . $l->name . '</option>';
+                         echo "<option {{if data.assets_manager_id == '" . $l->id . "'}} selected {{/if}} value='" . $l->id . "'>" . $l->name . '</option>';
                      }
-                     ?>
+   ?>
                   </select>
                </div>
             </div>

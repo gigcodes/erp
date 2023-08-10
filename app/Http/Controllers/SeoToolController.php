@@ -7,6 +7,7 @@ use App\SiteIssue;
 use Carbon\Carbon;
 use App\Competitor;
 use App\KeywordTag;
+use App\LogRequest;
 use App\SemrushTag;
 use App\StoreWebsite;
 use App\DomainOverview;
@@ -20,7 +21,6 @@ use App\DomainOrganicPage;
 use App\BacklinkIndexedPage;
 use App\DomainSearchKeyword;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class SeoToolController extends Controller
 {
@@ -350,7 +350,6 @@ class SeoToolController extends Controller
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $api, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\SeoToolController::class, 'semrushCurlRequests');
                 curl_close($curl);
-                
             }
             if ($response != 'ERROR 50 :: NOTHING FOUND') {
                 if ($keyValuePair == 1) {

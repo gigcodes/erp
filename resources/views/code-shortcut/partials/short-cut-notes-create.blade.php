@@ -58,6 +58,12 @@
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
+                                <label>Folder Name</label>
+                                <?php echo Form::select("folder_id",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.shortcutfolders'), 'data-placeholder' => 'Folders']); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
                                 <strong>Upload File</strong>
                                 <input type="file" name="notesfile" id="shortnotefileInput" >
                             </div>
@@ -66,25 +72,25 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Code</label>
-                                <?php echo Form::text('code', null, ['class' => 'form-control code', 'required' => 'true', 'value' => "{{old('code')}}"]); ?>
+                                <?php echo Form::text('code', null, ['class' => 'form-control code', 'value' => "{{old('code')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Title</label>
-                                <?php echo Form::text('title', null, ['class' => 'form-control title', 'required' => 'true', 'value' => "{{old('title')}}"]); ?>
+                                <?php echo Form::text('title', null, ['class' => 'form-control title',  'value' => "{{old('title')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Solution</label>
-                                <?php echo Form::text('solution', null, ['class' => 'form-control solution', 'required' => 'true', 'value' => "{{old('solution')}}"]); ?>
+                                <?php echo Form::text('solution', null, ['class' => 'form-control solution', 'value' => "{{old('solution')}}"]); ?>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Description</label>
-                                <?php echo Form::text('description', null, ['class' => 'form-control description', 'required' => 'true', 'value' => "{{old('description')}}"]); ?>
+                                <?php echo Form::text('description', null, ['class' => 'form-control description', 'value' => "{{old('description')}}"]); ?>
                             </div>
                         </div>
                     </div>
@@ -93,6 +99,29 @@
                         <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="show_full_log_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Full Log</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="show_full_log_modal_content">
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>

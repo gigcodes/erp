@@ -38,10 +38,10 @@ class PushSizeToMagento extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Website query finished => ". json_encode($website->toArray())]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Website query finished => ' . json_encode($website->toArray())]);
             $sizes = \App\Size::all();
             foreach ($sizes as $s) {
                 echo 'Size Started  : ' . $s->name;
@@ -50,7 +50,7 @@ class PushSizeToMagento extends Command
                     echo 'Store Started  : ' . $web->website;
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store Started  : ' . $web->website]);
                     $checkSite = \App\StoreWebsiteSize::where('size_id', $s->id)->where('store_website_id', $web->id)->where('platform_id', '>', 0)->first();
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Store website size query finished. => " . json_encode($checkSite->toArray())]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store website size query finished. => ' . json_encode($checkSite->toArray())]);
                     if (! $checkSite) {
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
                         if (! empty($id)) {
@@ -60,13 +60,13 @@ class PushSizeToMagento extends Command
                             $sws->store_website_id = $web->id;
                             $sws->platform_id = $id;
                             $sws->save();
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Store website size added."]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store website size added.']);
                         }
                     }
                 }
             }
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

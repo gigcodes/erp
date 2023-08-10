@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateTmpRepliesTable extends Migration
 {
@@ -15,14 +15,13 @@ class CreateTmpRepliesTable extends Migration
     {
         Schema::create('tmp_replies', function (Blueprint $table) {
             $table->id();
-            $table->integer("chat_message_id");
-            $table->string("suggested_replay")->nullable();
-            $table->boolean("is_approved")->default(false)->nullable();
-            $table->boolean("is_reject")->default(false)->nullable();
-            $table->string("type")->nullable();
-            $table->string("type_id")->nullable();
+            $table->integer('chat_message_id');
+            $table->string('suggested_replay')->nullable();
+            $table->boolean('is_approved')->default(false)->nullable();
+            $table->boolean('is_reject')->default(false)->nullable();
+            $table->string('type')->nullable();
+            $table->string('type_id')->nullable();
             $table->timestamps();
-
         });
     }
 

@@ -80,6 +80,7 @@
                             <th width="35%">Full Log</th>
                             <th width="20%">Meta Update</th>
                             <th width="20%">Date Time</th>
+                            <th width="30%">Insert Code Shortcut</th>
                         </tr>
                         @foreach ($monitorJenkinsBuilds  as $key => $monitorJenkinsBuild)
                             <tr class="quick-website-task-{{ $monitorJenkinsBuild->id }}" data-id="{{ $monitorJenkinsBuild->id }}">
@@ -108,6 +109,8 @@
                                 </td>
                                 <td><span class="badge badge-pill" style = "background-color:{{ $monitorJenkinsBuild->meta_update === 0 ? 'green' : 'orange' }}">{{ $monitorJenkinsBuild->meta_update === 0 ? 'Success' : 'Failure' }}</span></td>
                                 <td>{{ $monitorJenkinsBuild->created_at }}</td>
+                                <td><button class="btn btn-success monitor-insert-code-shortcut" data-id="{{ $monitorJenkinsBuild->id }}">Insert Code</button>		
+                                </td>
                             </tr>
                         @endforeach
                     </table>
@@ -157,5 +160,23 @@
         $('#show_full_log_modal').modal('show');
         $('#show_full_log_modal_content').html(fullLog);
     });
+
+    $(document).on('click', '.monitor-insert-code-shortcut', function() {
+		var id = $(this).data('id');
+			$.ajax({
+				url: '{{route('monitor-jenkins-insert-code-shortcut')}}',
+				method: 'GET',
+				data: {
+					id: id
+				},
+				success: function(response) {
+                    toastr['success'](response.message);
+				},
+				error: function(xhr, status, error) {
+                    toastr['error'](response.message);
+				}
+			});
+		});
+
  </script>
 @endsection

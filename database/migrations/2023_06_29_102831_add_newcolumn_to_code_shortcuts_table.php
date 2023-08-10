@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddNewcolumnToCodeShortcutsTable extends Migration
 {
@@ -28,9 +28,9 @@ class AddNewcolumnToCodeShortcutsTable extends Migration
     public function down()
     {
         Schema::table('code_shortcuts', function (Blueprint $table) {
-            $table->dropColumn("title");
-            $table->dropColumn("solution");
-            $table->dropColumn("code_shortcuts_platform_id");
+            $table->dropColumn('title');
+            $table->dropColumn('solution');
+            $table->dropColumn('code_shortcuts_platform_id');
         });
     }
 }

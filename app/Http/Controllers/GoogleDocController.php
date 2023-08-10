@@ -13,10 +13,9 @@ use Google\Service\Drive;
 use Illuminate\Http\Request;
 use App\Jobs\CreateGoogleDoc;
 use Illuminate\Validation\Rule;
+use App\Models\GoogleDocsCategory;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\CreateGoogleSpreadsheet;
-use App\Models\GoogleDocsCategory;
-use Maatwebsite\Excel\Facades\Excel;
 
 class GoogleDocController extends Controller
 {
@@ -72,7 +71,7 @@ class GoogleDocController extends Controller
             'read' => ['sometimes'],
             'write' => ['sometimes'],
         ]);
-        
+
         DB::transaction(function () use ($data) {
             $googleDoc = new GoogleDoc();
             $googleDoc->type = $data['type'];
@@ -165,7 +164,7 @@ class GoogleDocController extends Controller
         if (isset($request->docId)) {
             $updateData['docId'] = $request->docId;
         }
-        if(count($updateData) > 0) {
+        if (count($updateData) > 0) {
             $modal = GoogleDoc::where('id', $request->id)->update($updateData);
             if ($modal) {
                 return back()->with('success', 'Google Doc Category successfully updated.');
@@ -266,9 +265,9 @@ class GoogleDocController extends Controller
 
     public function permissionRemove(Request $request)
     {
-        $googledocs = GoogleDoc::where(function($query) use ($request){
-            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
-            $query->orWhere("read", 'like', '%'.($request->remove_permission).'%');
+        $googledocs = GoogleDoc::where(function ($query) use ($request) {
+            $query->orWhere('read', 'like', '%' . ($request->remove_permission) . '%');
+            $query->orWhere('read', 'like', '%' . ($request->remove_permission) . '%');
         })->get();
 
         foreach ($googledocs as $googledoc) {
@@ -283,7 +282,7 @@ class GoogleDocController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($googledoc->docId, $parameters);
-            
+
             // dd($permissions->getPermissions());
 
             $is_already_have_permission = false;
@@ -359,7 +358,6 @@ class GoogleDocController extends Controller
         try {
             $authUser = Auth::user();
 
-
             DB::transaction(function () use ($data, $authUser, $request) {
                 $task = null;
                 $class = null;
@@ -380,12 +378,12 @@ class GoogleDocController extends Controller
                 $googleDoc->category = $data['doc_category'] ?? null;
 
                 // Add the task name and description in document name
-                if(isset($request->attach_task_detail)) {
+                if (isset($request->attach_task_detail)) {
                     if ($data['task_type'] == 'DEVTASK') {
-                        $googleDoc->name .= " (DEVTASK-$task->id ".($task->subject ?? "-").")";
+                        $googleDoc->name .= " (DEVTASK-$task->id " . ($task->subject ?? '-') . ')';
                     }
                     if ($data['task_type'] == 'TASK') {
-                        $googleDoc->name .= " (TASK-$task->id ".($task->task_subject ?? "-").")";
+                        $googleDoc->name .= " (TASK-$task->id " . ($task->task_subject ?? '-') . ')';
                     }
                 }
 
@@ -460,16 +458,17 @@ class GoogleDocController extends Controller
     public function updateGoogleDocCategory(Request $request)
     {
         try {
-            if(isset($request->category_id) && isset($request->doc_id)) {
+            if (isset($request->category_id) && isset($request->doc_id)) {
                 GoogleDoc::where('id', $request->doc_id)->update([
-                    "category" => $request->category_id
+                    'category' => $request->category_id,
                 ]);
-                return response()->json(["status"=> true, "message" => "Category updated."]);
+
+                return response()->json(['status' => true, 'message' => 'Category updated.']);
             } else {
-                return response()->json(["status"=> false, "message" => "Invalid request"]);
+                return response()->json(['status' => false, 'message' => 'Invalid request']);
             }
         } catch (\Exception $e) {
-            return response()->json(["status"=> false, "message" => "Error while updating status"]);
+            return response()->json(['status' => false, 'message' => 'Error while updating status']);
         }
     }
 
@@ -477,8 +476,9 @@ class GoogleDocController extends Controller
     {
         try {
             GoogleDocsCategory::create([
-                "name"=> $request->name
+                'name' => $request->name,
             ]);
+
             return redirect()->back()->with('success', 'Category added successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error while creating category');
@@ -488,38 +488,35 @@ class GoogleDocController extends Controller
     public function assignUserPermission(Request $request)
     {
         try {
-            
-            if(!isset($request->user_id)) {
-                throw new Exception("User Id required");
+            if (! isset($request->user_id)) {
+                throw new Exception('User Id required');
             }
-            if(!isset($request->document_id)) {
-                throw new Exception("Please select Document");
+            if (! isset($request->document_id)) {
+                throw new Exception('Please select Document');
             }
-            
+
             $user = User::find($request->user_id);
-            if(!$user) {
-                throw new Exception("User not found.");
+            if (! $user) {
+                throw new Exception('User not found.');
             }
             $doc = GoogleDoc::find($request->document_id);
-            if(!$doc) {
-                throw new Exception("Document not found.");
+            if (! $doc) {
+                throw new Exception('Document not found.');
             }
 
             $readPermission = [];
-            if($doc->read) {
-                $readPermission = explode(",", $doc->read);
+            if ($doc->read) {
+                $readPermission = explode(',', $doc->read);
             }
             $writePermission = [];
-            if($doc->read) {
-                $writePermission = explode(",", $doc->write);
+            if ($doc->read) {
+                $writePermission = explode(',', $doc->write);
             }
 
-            
-            if(!isset($user->gmail) || $user->gmail == ""){
-                throw new Exception("User Email not found.");
+            if (! isset($user->gmail) || $user->gmail == '') {
+                throw new Exception('User Email not found.');
             }
 
-            
             $permissionEmails = [];
             $client = new Client();
             $client->useApplicationDefaultCredentials();
@@ -531,7 +528,7 @@ class GoogleDocController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($doc->docId, $parameters);
-            
+
             // dd($permissions->getPermissions());
 
             $is_already_have_permission = false;
@@ -540,11 +537,11 @@ class GoogleDocController extends Controller
                 //Remove old Permission
                 if ($permission['emailAddress'] == $user->gmail && $permission['role'] != 'owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID'))) {
                     $driveService->permissions->delete($doc->docId, $permission['id']);
-                    unset( $readPermission[array_search( $user->gmail, $readPermission )] );
-                    unset( $writePermission[array_search( $user->gmail, $writePermission )] );
+                    unset($readPermission[array_search($user->gmail, $readPermission)]);
+                    unset($writePermission[array_search($user->gmail, $writePermission)]);
                 }
             }
-            
+
             //assign permission based on requested data
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
@@ -569,14 +566,14 @@ class GoogleDocController extends Controller
             // }
             $results = $batch->execute();
             $readPermission[] = $user->gmail;
-            
+
             $batch = $driveService->createBatch();
             $userPermission = new Drive\Permission([
                 'type' => 'user',
                 'role' => 'writer',
                 'emailAddress' => $user->gmail,
             ]);
-            
+
             $w_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($w_request, 'user' . rand(0, 999));
             // $index++;
@@ -585,17 +582,15 @@ class GoogleDocController extends Controller
             $results = $batch->execute();
             $writePermission[] = $user->gmail;
 
-            if($doc->belongable_id == null) {
+            if ($doc->belongable_id == null) {
                 $doc->belongable_id = $request->task_id;
-                $doc->belongable_type = ($request->task_type == "DEVTASK") ? DeveloperTask::class : Task::class;
+                $doc->belongable_type = ($request->task_type == 'DEVTASK') ? DeveloperTask::class : Task::class;
             }
             $doc->read = ! empty($readPermission) ? implode(',', $readPermission) : null;
             $doc->write = ! empty($writePermission) ? implode(',', $writePermission) : null;
             $doc->save();
 
-            return redirect()->back()->withSuccess("Permission assigned successsfully");
-            
-            
+            return redirect()->back()->withSuccess('Permission assigned successsfully');
         } catch (Exception $e) {
             return redirect()->back()->withError($e->getMessage());
         }
@@ -604,14 +599,15 @@ class GoogleDocController extends Controller
     public function getGoogleDocList(Request $request)
     {
         try {
-            $doc = GoogleDoc::select('id', "name as text")->get()->toArray();
+            $doc = GoogleDoc::select('id', 'name as text')->get()->toArray();
+
             return response()->json([
-                "status"=> true,
-                "docs" => $doc
+                'status' => true,
+                'docs' => $doc,
             ]);
         } catch (Exception $e) {
             return response()->json([
-                "status"=> false
+                'status' => false,
             ]);
         }
     }
@@ -623,9 +619,7 @@ class GoogleDocController extends Controller
         $readArray = request('read');
         $writeArray = request('write');
 
-
-        foreach ($fileIds as $fileId)
-        {
+        foreach ($fileIds as $fileId) {
             $file = GoogleDoc::find($fileId);
             $permissionEmails = [];
             $client = new Client();
@@ -638,7 +632,7 @@ class GoogleDocController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($file->docId, $parameters);
-    
+
             $is_already_have_permission = false;
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
@@ -648,17 +642,16 @@ class GoogleDocController extends Controller
                 }
             }
 
-            $readUsers = array_diff(explode(',', $file->read),$readArray);
-            $writeUsers = array_diff(explode(',', $file->write),$writeArray);
+            $readUsers = array_diff(explode(',', $file->read), $readArray);
+            $writeUsers = array_diff(explode(',', $file->write), $writeArray);
             $file->read = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();
         }
 
         return back()->with('success', 'Permission successfully removed');
-        
     }
-    
+
     public function addMulitpleDocPermission(Request $request)
     {
         $fileIds = explode(',', request('add_doc_ids'));
@@ -666,7 +659,7 @@ class GoogleDocController extends Controller
         $readData = request('read');
         $writeData = request('write');
         $permissionEmails = [];
-    
+
         foreach ($fileIds as $fileId) {
             $fileData = GoogleDoc::find($fileId);
             $client = new Client();
@@ -679,7 +672,7 @@ class GoogleDocController extends Controller
             $parameters['fields'] = 'permissions(*)';
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($fileData->docId, $parameters);
-            
+
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
                 //Remove Permission
@@ -724,7 +717,7 @@ class GoogleDocController extends Controller
             $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
             $fileData->save();
         }
+
         return back()->with('success', 'Permission successfully updated.');
-        
     }
 }

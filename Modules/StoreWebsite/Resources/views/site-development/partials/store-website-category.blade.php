@@ -56,6 +56,7 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
 
         </div>
     </div>
+    @if ($isAdmin || $isHod || $hasSiteDevelopment)
     <div class="col-lg-12 margin-tb">
         <div class="col-md-12">
             <div class="col-md-12 margin-tb">
@@ -65,15 +66,15 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                         <th>
                             <div style="display: flex;align-items: center;">
                                 <input type="checkbox" name="checkAll" id="checkAll"> 
-                                <label for="checkAll" class="ml-2">Category ID</label></th>
+                                <label for="checkAll" class="ml-2">Category ID</label>
                             </div>
+                        </th>
                         <th>Category</th>
                         <th>Master Category</th>
                         <th>Created at</th>
                         <th>Updated at</th>
                       </tr>
                     </thead>
-                    @if ($isAdmin || $isHod || $hasSiteDevelopment)
                         @foreach($categories as $category)
                         <tbody>
                         <tr>
@@ -94,7 +95,6 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                         </tr>
                         </tbody>
                         @endforeach
-                    @endif
                   </table>
             </div>
         </div>
@@ -102,6 +102,11 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
     <div class="col-md-12 margin-tb text-center">
         {!! $categories->appends(request()->capture()->except('page', 'pagination') + ['pagination' => true])->render() !!}
     </div>
+    @else
+    <div class="col-md-12 margin-tb text-center">
+        <h4>You are not authorised to view this data</h4>
+    </div>
+    @endif
 </div>
 @endif
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 

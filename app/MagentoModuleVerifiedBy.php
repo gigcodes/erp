@@ -11,7 +11,6 @@ class MagentoModuleVerifiedBy extends Model
 {
     protected $table = 'magento_module_verified_by_histories';
 
-    
     public function magentoModule()
     {
         return $this->belongsTo(\App\MagentoModule::class);
@@ -26,7 +25,7 @@ class MagentoModuleVerifiedBy extends Model
     {
         return $this->belongsTo(user::class, 'old_verified_by_id');
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

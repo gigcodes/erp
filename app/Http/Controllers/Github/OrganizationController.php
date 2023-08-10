@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Github;
 
+use Illuminate\Http\Request;
 use App\Github\GithubOrganization;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
@@ -35,24 +35,23 @@ class OrganizationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $request->validate([
-                'name' => 'required',
-                'username' => 'required',
-                'token' => 'required'
-            ]);
+            'name' => 'required',
+            'username' => 'required',
+            'token' => 'required',
+        ]);
 
         $mode = 'created';
 
-        if(strlen($request->organization_id) > 0){
+        if (strlen($request->organization_id) > 0) {
             $mode = 'updated';
 
             $githubOrganization = GithubOrganization::find($request->organization_id);
-        }else{
+        } else {
             $githubOrganization = new GithubOrganization;
         }
 
@@ -61,8 +60,8 @@ class OrganizationController extends Controller
         $githubOrganization->token = $request->token;
         $githubOrganization->save();
 
-        \Session::flash('sucess', 'Success! Organization has been '.$mode.'.');
-        
+        \Session::flash('sucess', 'Success! Organization has been ' . $mode . '.');
+
         return redirect('github/organizations');
     }
 
@@ -91,7 +90,6 @@ class OrganizationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -111,7 +109,7 @@ class OrganizationController extends Controller
         $isDeleted = GithubOrganization::destroy($id);
 
         \Session::flash('sucess', 'Success! Organization has been deleted.');
-        
+
         return redirect('github/organizations');
     }
 }
