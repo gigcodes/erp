@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\ConfigRefactor;
@@ -12,34 +13,30 @@ class ConfigRefactorSectionTableSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $sampleDataNDs = self::sampleDataND();
 
-        foreach($sampleDataNDs as $sampleDataND)
-        {
+        foreach ($sampleDataNDs as $sampleDataND) {
             ConfigRefactorSection::firstOrCreate([
-                'name' => $sampleDataND, 
-                'type' => "ND"
+                'name' => $sampleDataND,
+                'type' => 'ND',
             ]);
         }
 
         $sampleDataDEs = self::sampleDataDE();
 
-        foreach($sampleDataDEs as $sampleDataDE)
-        {
+        foreach ($sampleDataDEs as $sampleDataDE) {
             ConfigRefactorSection::firstOrCreate([
-                'name' => $sampleDataDE, 
-                'type' => "DE"
+                'name' => $sampleDataDE,
+                'type' => 'DE',
             ]);
         }
 
         $configRefactorSections = ConfigRefactorSection::all();
-        foreach($configRefactorSections as $configRefactorSection)
-        {
+        foreach ($configRefactorSections as $configRefactorSection) {
             ConfigRefactor::firstOrCreate([
-                'config_refactor_section_id' => $configRefactorSection->id, 
+                'config_refactor_section_id' => $configRefactorSection->id,
             ]);
         }
     }
@@ -144,7 +141,7 @@ class ConfigRefactorSectionTableSeeder extends Seeder
             'amlazyload',
             'email_marketing',
             'smile_elasticsuite_ajax_settings',
-            'hyva_react_checkout'
+            'hyva_react_checkout',
         ];
     }
 
@@ -197,7 +194,7 @@ class ConfigRefactorSectionTableSeeder extends Seeder
             'tax',
             'msp_securitysuite_recaptcha',
             'webapi',
-            'wishlist'
+            'wishlist',
         ];
     }
 }

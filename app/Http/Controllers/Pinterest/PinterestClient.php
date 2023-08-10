@@ -2,32 +2,48 @@
 
 namespace App\Http\Controllers\Pinterest;
 
-use App\PinterestBusinessAccountMails;
 use App\LogRequest;
+use App\PinterestBusinessAccountMails;
 
 class PinterestClient
 {
-
     const USER_ACCOUNT_READ = 'user_accounts:read';
+
     const USER_ACCOUNT_WRITE = 'user_accounts:write';
+
     const PINS_READ = 'pins:read';
+
     const PINS_WRITE = 'pins:write';
+
     const PINS_READ_SECRET = 'pins:read_secret';
+
     const PINS_WRITE_SECRET = 'pins:write_secret';
+
     const BOARDS_READ = 'boards:read';
+
     const BOARDS_WRITE = 'boards:write';
+
     const BOARDS_READ_SECRET = 'boards:read_secret';
+
     const BOARDS_WRITE_SECRET = 'boards:write_secret';
+
     const ADS_READ = 'ads:read';
+
     const ADS_WRITE = 'ads:write';
 
 //    private $BASE_API = 'https://api.pinterest.com/v5/';
     private $BASE_API = 'https://api-sandbox.pinterest.com/v5/';
+
     private $BASE_AUTH_API_URL = 'https://www.pinterest.com/oauth/';
+
     private $clientId = '';
+
     private $clientSecret = '';
+
     private $accountId = '';
+
     private $accessToken = '';
+
     private $scopes = [
         self::ADS_READ, self::ADS_WRITE,
         self::BOARDS_READ, self::BOARDS_WRITE,
@@ -48,20 +64,15 @@ class PinterestClient
         foreach ($query as $key => $item) {
             $url .= $key . '=' . $item;
         }
+
         return $url;
     }
 
-    /**
-     * @return string
-     */
     public function getBASEAPI(): string
     {
         return $this->BASE_API;
     }
 
-    /**
-     * @return string
-     */
     public function getBASEAUTHAPIURL(): string
     {
         return $this->BASE_AUTH_API_URL;
@@ -75,17 +86,11 @@ class PinterestClient
         return $this->scopes;
     }
 
-    /**
-     * @return string
-     */
     public function getAccessToken(): string
     {
         return $this->accessToken;
     }
 
-    /**
-     * @param string $accessToken
-     */
     public function setAccessToken(string $accessToken): void
     {
         $this->accessToken = $accessToken;
@@ -100,7 +105,7 @@ class PinterestClient
     }
 
     /**
-     * @param mixed|null $clientId
+     * @param  mixed|null  $clientId
      */
     public function setClientId($clientId): void
     {
@@ -116,7 +121,7 @@ class PinterestClient
     }
 
     /**
-     * @param mixed|null $clientSecret
+     * @param  mixed|null  $clientSecret
      */
     public function setClientSecret($clientSecret): void
     {
@@ -132,7 +137,7 @@ class PinterestClient
     }
 
     /**
-     * @param mixed|null $accountId
+     * @param  mixed|null  $accountId
      */
     public function setAccountId($accountId): void
     {
@@ -140,7 +145,6 @@ class PinterestClient
     }
 
     /**
-     * @param $accessToken
      * @throws \Exception
      */
     public function updateAccessToken($accessToken)
@@ -164,281 +168,279 @@ class PinterestClient
 
     /**
      * Get authorization URL
-     * @return string
      */
     public function getAuthURL(): string
     {
         $params = [
             'client_id' => $this->getClientId(),
-            'redirect_uri' => str_replace("http://", "https://", route('pinterest.accounts.connect.login')),
+            'redirect_uri' => str_replace('http://', 'https://', route('pinterest.accounts.connect.login')),
             'response_type' => 'code',
             'scope' => implode(',', $this->getScopes()),
-            'state' => base64_encode($this->getAccountId())
+            'state' => base64_encode($this->getAccountId()),
         ];
         $url = $this->getBASEAUTHAPIURL() . '?';
         foreach ($params as $key => $param) {
             $url .= $key . '=' . $param . '&';
         }
+
         return $url;
     }
 
     public function getSupportedCountries(): array
     {
         return [
-            "AI" => "Anguilla",
-            "AL" => "Albania",
-            "AM" => "Armenia",
-            "AO" => "Angola",
-            "AQ" => "Antarctica",
-            "AR" => "Argentina",
-            "AS" => "American Samoa",
-            "AT" => "Austria",
-            "AU" => "Australia",
-            "AW" => "Aruba",
-            "AX" => "Aland Islands",
-            "AZ" => "Azerbaijan",
-            "BA" => "Bosnia And Herzegovina",
-            "BB" => "Barbados",
-            "BD" => "Bangladesh",
-            "BE" => "Belgium",
-            "BF" => "Burkina Faso",
-            "BG" => "Bulgaria",
-            "BH" => "Bahrain",
-            "BI" => "Burundi",
-            "BJ" => "Benin",
-            "BL" => "Saint Barthelemy",
-            "BM" => "Bermuda",
-            "BN" => "Brunei Darussalam",
-            "BO" => "Bolivia",
-            "BR" => "Brazil",
-            "BS" => "Bahamas",
-            "BT" => "Bhutan",
-            "BV" => "Bouvet Island",
-            "BW" => "Botswana",
-            "BY" => "Belarus",
-            "BZ" => "Belize",
-            "CA" => "Canada",
-            "CC" => "Cocos (Keeling) Islands",
-            "CD" => "Congo, Democratic Republic",
-            "CF" => "Central African Republic",
-            "CG" => "Congo",
-            "CH" => "Switzerland",
-            "CI" => "Cote D'Ivoire",
-            "CK" => "Cook Islands",
-            "CL" => "Chile",
-            "CM" => "Cameroon",
-            "CN" => "China",
-            "CO" => "Colombia",
-            "CR" => "Costa Rica",
-            "CU" => "Cuba",
-            "CV" => "Cape Verde",
-            "CX" => "Christmas Island",
-            "CY" => "Cyprus",
-            "CZ" => "Czech Republic",
-            "DE" => "Germany",
-            "DJ" => "Djibouti",
-            "DK" => "Denmark",
-            "DM" => "Dominica",
-            "DO" => "Dominican Republic",
-            "DZ" => "Algeria",
-            "EC" => "Ecuador",
-            "EE" => "Estonia",
-            "EG" => "Egypt",
-            "EH" => "Western Sahara",
-            "ER" => "Eritrea",
-            "ES" => "Spain",
-            "ET" => "Ethiopia",
-            "FI" => "Finland",
-            "FJ" => "Fiji",
-            "FK" => "Falkland Islands (Malvinas)",
-            "FM" => "Micronesia, Federated States Of",
-            "FO" => "Faroe Islands",
-            "FR" => "France",
-            "GA" => "Gabon",
-            "GB" => "United Kingdom",
-            "GD" => "Grenada",
-            "GE" => "Georgia",
-            "GF" => "French Guiana",
-            "GG" => "Guernsey",
-            "GH" => "Ghana",
-            "GI" => "Gibraltar",
-            "GL" => "Greenland",
-            "GM" => "Gambia",
-            "GN" => "Guinea",
-            "GP" => "Guadeloupe",
-            "GQ" => "Equatorial Guinea",
-            "GR" => "Greece",
-            "GS" => "South Georgia And Sandwich Isl.",
-            "GT" => "Guatemala",
-            "GU" => "Guam",
-            "GW" => "Guinea-Bissau",
-            "GY" => "Guyana",
-            "HK" => "Hong Kong",
-            "HM" => "Heard Island & Mcdonald Islands",
-            "HN" => "Honduras",
-            "HR" => "Croatia",
-            "HT" => "Haiti",
-            "HU" => "Hungary",
-            "ID" => "Indonesia",
-            "IE" => "Ireland",
-            "IL" => "Israel",
-            "IM" => "Isle Of Man",
-            "IN" => "India",
-            "IO" => "British Indian Ocean Territory",
-            "IQ" => "Iraq",
-            "IR" => "Iran, Islamic Republic Of",
-            "IS" => "Iceland",
-            "IT" => "Italy",
-            "JE" => "Jersey",
-            "JM" => "Jamaica",
-            "JO" => "Jordan",
-            "JP" => "Japan",
-            "KE" => "Kenya",
-            "KG" => "Kyrgyzstan",
-            "KH" => "Cambodia",
-            "KI" => "Kiribati",
-            "KM" => "Comoros",
-            "KN" => "Saint Kitts And Nevis",
-            "KR" => "Korea",
-            "KW" => "Kuwait",
-            "KY" => "Cayman Islands",
-            "KZ" => "Kazakhstan",
-            "LA" => "Lao People's Democratic Republic",
-            "LB" => "Lebanon",
-            "LC" => "Saint Lucia",
-            "LI" => "Liechtenstein",
-            "LK" => "Sri Lanka",
-            "LR" => "Liberia",
-            "LS" => "Lesotho",
-            "LT" => "Lithuania",
-            "LU" => "Luxembourg",
-            "LV" => "Latvia",
-            "LY" => "Libyan Arab Jamahiriya",
-            "MA" => "Morocco",
-            "MC" => "Monaco",
-            "MD" => "Moldova",
-            "ME" => "Montenegro",
-            "MF" => "Saint Martin",
-            "MG" => "Madagascar",
-            "MH" => "Marshall Islands",
-            "MK" => "Macedonia",
-            "ML" => "Mali",
-            "MM" => "Myanmar",
-            "MN" => "Mongolia",
-            "MO" => "Macao",
-            "MP" => "Northern Mariana Islands",
-            "MQ" => "Martinique",
-            "MR" => "Mauritania",
-            "MS" => "Montserrat",
-            "MT" => "Malta",
-            "MU" => "Mauritius",
-            "MV" => "Maldives",
-            "MW" => "Malawi",
-            "MX" => "Mexico",
-            "MY" => "Malaysia",
-            "MZ" => "Mozambique",
-            "NA" => "Namibia",
-            "NC" => "New Caledonia",
-            "NE" => "Niger",
-            "NF" => "Norfolk Island",
-            "NG" => "Nigeria",
-            "NI" => "Nicaragua",
-            "NL" => "Netherlands",
-            "NO" => "Norway",
-            "NP" => "Nepal",
-            "NR" => "Nauru",
-            "NU" => "Niue",
-            "NZ" => "New Zealand",
-            "OM" => "Oman",
-            "PA" => "Panama",
-            "PE" => "Peru",
-            "PF" => "French Polynesia",
-            "PG" => "Papua New Guinea",
-            "PH" => "Philippines",
-            "PK" => "Pakistan",
-            "PL" => "Poland",
-            "PM" => "Saint Pierre And Miquelon",
-            "PN" => "Pitcairn",
-            "PR" => "Puerto Rico",
-            "PS" => "Palestinian Territory, Occupied",
-            "PT" => "Portugal",
-            "PW" => "Palau",
-            "PY" => "Paraguay",
-            "QA" => "Qatar",
-            "RE" => "Reunion",
-            "RO" => "Romania",
-            "RS" => "Serbia",
-            "RU" => "Russian Federation",
-            "RW" => "Rwanda",
-            "SA" => "Saudi Arabia",
-            "SB" => "Solomon Islands",
-            "SC" => "Seychelles",
-            "SD" => "Sudan",
-            "SE" => "Sweden",
-            "SG" => "Singapore",
-            "SH" => "Saint Helena",
-            "SI" => "Slovenia",
-            "SJ" => "Svalbard And Jan Mayen",
-            "SK" => "Slovakia",
-            "SL" => "Sierra Leone",
-            "SM" => "San Marino",
-            "SN" => "Senegal",
-            "SO" => "Somalia",
-            "SR" => "Suriname",
-            "ST" => "Sao Tome And Principe",
-            "SV" => "El Salvador",
-            "SY" => "Syrian Arab Republic",
-            "SZ" => "Swaziland",
-            "TC" => "Turks And Caicos Islands",
-            "TD" => "Chad",
-            "TF" => "French Southern Territories",
-            "TG" => "Togo",
-            "TH" => "Thailand",
-            "TJ" => "Tajikistan",
-            "TK" => "Tokelau",
-            "TL" => "Timor-Leste",
-            "TM" => "Turkmenistan",
-            "TN" => "Tunisia",
-            "TO" => "Tonga",
-            "TR" => "Turkey",
-            "TT" => "Trinidad And Tobago",
-            "TV" => "Tuvalu",
-            "TW" => "Taiwan",
-            "TZ" => "Tanzania",
-            "UA" => "Ukraine",
-            "UG" => "Uganda",
-            "UM" => "United States Outlying Islands",
-            "US" => "United States",
-            "UY" => "Uruguay",
-            "UZ" => "Uzbekistan",
-            "VA" => "Holy See (Vatican City State)",
-            "VC" => "Saint Vincent And Grenadines",
-            "VE" => "Venezuela",
-            "VG" => "Virgin Islands, British",
-            "VI" => "Virgin Islands, U.S.",
-            "VN" => "Vietnam",
-            "VU" => "Vanuatu",
-            "WF" => "Wallis And Futuna",
-            "WS" => "Samoa",
-            "YE" => "Yemen",
-            "YT" => "Mayotte",
-            "ZA" => "South Africa",
-            "ZM" => "Zambia",
-            "ZW" => "Zimbabwe"
+            'AI' => 'Anguilla',
+            'AL' => 'Albania',
+            'AM' => 'Armenia',
+            'AO' => 'Angola',
+            'AQ' => 'Antarctica',
+            'AR' => 'Argentina',
+            'AS' => 'American Samoa',
+            'AT' => 'Austria',
+            'AU' => 'Australia',
+            'AW' => 'Aruba',
+            'AX' => 'Aland Islands',
+            'AZ' => 'Azerbaijan',
+            'BA' => 'Bosnia And Herzegovina',
+            'BB' => 'Barbados',
+            'BD' => 'Bangladesh',
+            'BE' => 'Belgium',
+            'BF' => 'Burkina Faso',
+            'BG' => 'Bulgaria',
+            'BH' => 'Bahrain',
+            'BI' => 'Burundi',
+            'BJ' => 'Benin',
+            'BL' => 'Saint Barthelemy',
+            'BM' => 'Bermuda',
+            'BN' => 'Brunei Darussalam',
+            'BO' => 'Bolivia',
+            'BR' => 'Brazil',
+            'BS' => 'Bahamas',
+            'BT' => 'Bhutan',
+            'BV' => 'Bouvet Island',
+            'BW' => 'Botswana',
+            'BY' => 'Belarus',
+            'BZ' => 'Belize',
+            'CA' => 'Canada',
+            'CC' => 'Cocos (Keeling) Islands',
+            'CD' => 'Congo, Democratic Republic',
+            'CF' => 'Central African Republic',
+            'CG' => 'Congo',
+            'CH' => 'Switzerland',
+            'CI' => "Cote D'Ivoire",
+            'CK' => 'Cook Islands',
+            'CL' => 'Chile',
+            'CM' => 'Cameroon',
+            'CN' => 'China',
+            'CO' => 'Colombia',
+            'CR' => 'Costa Rica',
+            'CU' => 'Cuba',
+            'CV' => 'Cape Verde',
+            'CX' => 'Christmas Island',
+            'CY' => 'Cyprus',
+            'CZ' => 'Czech Republic',
+            'DE' => 'Germany',
+            'DJ' => 'Djibouti',
+            'DK' => 'Denmark',
+            'DM' => 'Dominica',
+            'DO' => 'Dominican Republic',
+            'DZ' => 'Algeria',
+            'EC' => 'Ecuador',
+            'EE' => 'Estonia',
+            'EG' => 'Egypt',
+            'EH' => 'Western Sahara',
+            'ER' => 'Eritrea',
+            'ES' => 'Spain',
+            'ET' => 'Ethiopia',
+            'FI' => 'Finland',
+            'FJ' => 'Fiji',
+            'FK' => 'Falkland Islands (Malvinas)',
+            'FM' => 'Micronesia, Federated States Of',
+            'FO' => 'Faroe Islands',
+            'FR' => 'France',
+            'GA' => 'Gabon',
+            'GB' => 'United Kingdom',
+            'GD' => 'Grenada',
+            'GE' => 'Georgia',
+            'GF' => 'French Guiana',
+            'GG' => 'Guernsey',
+            'GH' => 'Ghana',
+            'GI' => 'Gibraltar',
+            'GL' => 'Greenland',
+            'GM' => 'Gambia',
+            'GN' => 'Guinea',
+            'GP' => 'Guadeloupe',
+            'GQ' => 'Equatorial Guinea',
+            'GR' => 'Greece',
+            'GS' => 'South Georgia And Sandwich Isl.',
+            'GT' => 'Guatemala',
+            'GU' => 'Guam',
+            'GW' => 'Guinea-Bissau',
+            'GY' => 'Guyana',
+            'HK' => 'Hong Kong',
+            'HM' => 'Heard Island & Mcdonald Islands',
+            'HN' => 'Honduras',
+            'HR' => 'Croatia',
+            'HT' => 'Haiti',
+            'HU' => 'Hungary',
+            'ID' => 'Indonesia',
+            'IE' => 'Ireland',
+            'IL' => 'Israel',
+            'IM' => 'Isle Of Man',
+            'IN' => 'India',
+            'IO' => 'British Indian Ocean Territory',
+            'IQ' => 'Iraq',
+            'IR' => 'Iran, Islamic Republic Of',
+            'IS' => 'Iceland',
+            'IT' => 'Italy',
+            'JE' => 'Jersey',
+            'JM' => 'Jamaica',
+            'JO' => 'Jordan',
+            'JP' => 'Japan',
+            'KE' => 'Kenya',
+            'KG' => 'Kyrgyzstan',
+            'KH' => 'Cambodia',
+            'KI' => 'Kiribati',
+            'KM' => 'Comoros',
+            'KN' => 'Saint Kitts And Nevis',
+            'KR' => 'Korea',
+            'KW' => 'Kuwait',
+            'KY' => 'Cayman Islands',
+            'KZ' => 'Kazakhstan',
+            'LA' => "Lao People's Democratic Republic",
+            'LB' => 'Lebanon',
+            'LC' => 'Saint Lucia',
+            'LI' => 'Liechtenstein',
+            'LK' => 'Sri Lanka',
+            'LR' => 'Liberia',
+            'LS' => 'Lesotho',
+            'LT' => 'Lithuania',
+            'LU' => 'Luxembourg',
+            'LV' => 'Latvia',
+            'LY' => 'Libyan Arab Jamahiriya',
+            'MA' => 'Morocco',
+            'MC' => 'Monaco',
+            'MD' => 'Moldova',
+            'ME' => 'Montenegro',
+            'MF' => 'Saint Martin',
+            'MG' => 'Madagascar',
+            'MH' => 'Marshall Islands',
+            'MK' => 'Macedonia',
+            'ML' => 'Mali',
+            'MM' => 'Myanmar',
+            'MN' => 'Mongolia',
+            'MO' => 'Macao',
+            'MP' => 'Northern Mariana Islands',
+            'MQ' => 'Martinique',
+            'MR' => 'Mauritania',
+            'MS' => 'Montserrat',
+            'MT' => 'Malta',
+            'MU' => 'Mauritius',
+            'MV' => 'Maldives',
+            'MW' => 'Malawi',
+            'MX' => 'Mexico',
+            'MY' => 'Malaysia',
+            'MZ' => 'Mozambique',
+            'NA' => 'Namibia',
+            'NC' => 'New Caledonia',
+            'NE' => 'Niger',
+            'NF' => 'Norfolk Island',
+            'NG' => 'Nigeria',
+            'NI' => 'Nicaragua',
+            'NL' => 'Netherlands',
+            'NO' => 'Norway',
+            'NP' => 'Nepal',
+            'NR' => 'Nauru',
+            'NU' => 'Niue',
+            'NZ' => 'New Zealand',
+            'OM' => 'Oman',
+            'PA' => 'Panama',
+            'PE' => 'Peru',
+            'PF' => 'French Polynesia',
+            'PG' => 'Papua New Guinea',
+            'PH' => 'Philippines',
+            'PK' => 'Pakistan',
+            'PL' => 'Poland',
+            'PM' => 'Saint Pierre And Miquelon',
+            'PN' => 'Pitcairn',
+            'PR' => 'Puerto Rico',
+            'PS' => 'Palestinian Territory, Occupied',
+            'PT' => 'Portugal',
+            'PW' => 'Palau',
+            'PY' => 'Paraguay',
+            'QA' => 'Qatar',
+            'RE' => 'Reunion',
+            'RO' => 'Romania',
+            'RS' => 'Serbia',
+            'RU' => 'Russian Federation',
+            'RW' => 'Rwanda',
+            'SA' => 'Saudi Arabia',
+            'SB' => 'Solomon Islands',
+            'SC' => 'Seychelles',
+            'SD' => 'Sudan',
+            'SE' => 'Sweden',
+            'SG' => 'Singapore',
+            'SH' => 'Saint Helena',
+            'SI' => 'Slovenia',
+            'SJ' => 'Svalbard And Jan Mayen',
+            'SK' => 'Slovakia',
+            'SL' => 'Sierra Leone',
+            'SM' => 'San Marino',
+            'SN' => 'Senegal',
+            'SO' => 'Somalia',
+            'SR' => 'Suriname',
+            'ST' => 'Sao Tome And Principe',
+            'SV' => 'El Salvador',
+            'SY' => 'Syrian Arab Republic',
+            'SZ' => 'Swaziland',
+            'TC' => 'Turks And Caicos Islands',
+            'TD' => 'Chad',
+            'TF' => 'French Southern Territories',
+            'TG' => 'Togo',
+            'TH' => 'Thailand',
+            'TJ' => 'Tajikistan',
+            'TK' => 'Tokelau',
+            'TL' => 'Timor-Leste',
+            'TM' => 'Turkmenistan',
+            'TN' => 'Tunisia',
+            'TO' => 'Tonga',
+            'TR' => 'Turkey',
+            'TT' => 'Trinidad And Tobago',
+            'TV' => 'Tuvalu',
+            'TW' => 'Taiwan',
+            'TZ' => 'Tanzania',
+            'UA' => 'Ukraine',
+            'UG' => 'Uganda',
+            'UM' => 'United States Outlying Islands',
+            'US' => 'United States',
+            'UY' => 'Uruguay',
+            'UZ' => 'Uzbekistan',
+            'VA' => 'Holy See (Vatican City State)',
+            'VC' => 'Saint Vincent And Grenadines',
+            'VE' => 'Venezuela',
+            'VG' => 'Virgin Islands, British',
+            'VI' => 'Virgin Islands, U.S.',
+            'VN' => 'Vietnam',
+            'VU' => 'Vanuatu',
+            'WF' => 'Wallis And Futuna',
+            'WS' => 'Samoa',
+            'YE' => 'Yemen',
+            'YT' => 'Mayotte',
+            'ZA' => 'South Africa',
+            'ZM' => 'Zambia',
+            'ZW' => 'Zimbabwe',
         ];
     }
 
     /**
      * Validate and get access token from given code
-     * @param $params
-     * @return array
      */
     public function validateAccessTokenAndRefreshToken($params, $isRefresh = false): array
     {
         if ($isRefresh) {
             $postFields = 'grant_type=refresh_token&refresh_token=' . $params['refresh_token'] . '&scope=' . implode(',', $this->getScopes());
         } else {
-            $postFields = 'grant_type=authorization_code&code=' . $params['code'] . '&redirect_uri=' . str_replace("http://", "https://", route('pinterest.accounts.connect.login'));
+            $postFields = 'grant_type=authorization_code&code=' . $params['code'] . '&redirect_uri=' . str_replace('http://', 'https://', route('pinterest.accounts.connect.login'));
         }
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
@@ -464,9 +466,11 @@ class PinterestClient
         curl_close($curl);
         if ($err) {
             $message = 'Account :- ' . $this->getAccountId() . ', ';
+
             return ['status' => false, 'message' => $message . 'cURL Error #:' . $err];
         } else {
             $response = json_decode($response, true);
+
             return ['status' => true, 'message' => 'Data found', 'data' => $response];
         }
     }
@@ -506,6 +510,7 @@ class PinterestClient
         curl_close($curl);
         if ($err) {
             $message = 'Account :- ' . $this->getAccountId() . ', ';
+
             return ['status' => false, 'message' => $message . 'cURL Error #:' . $err];
         } else {
             $response = json_decode($response, true);
@@ -520,12 +525,14 @@ class PinterestClient
                         }
                     }
                 }
+
                 return ['status' => true, 'message' => 'Data found', 'data' => $response];
             } else {
                 if ($method == 'DELETE') {
                     return ['status' => true, 'message' => 'Data found', 'data' => $response];
                 } else {
                     $message = 'Account :- ' . $this->getAccountId() . ', ';
+
                     return ['status' => false, 'message' => $message . 'cURL Error #:' . $response];
                 }
             }

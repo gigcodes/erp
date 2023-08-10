@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use File;
 use App\WebsiteLog;
-use App\StoreWebsite;
+use App\CodeShortcut;
 //use InstagramAPI\Instagram;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\CodeShortCutPlatform;
-use App\CodeShortcut;
 
 class WebsiteLogController extends Controller
 {
@@ -84,24 +84,25 @@ class WebsiteLogController extends Controller
                     'Website' => '',
                     'Website' => $website,
                     'File_Path' => $filePath,
-                    'date' => date ("F d Y H:i:s.", filemtime($filePath)),
-                    'formatedDate' => date("Y-m-d", filemtime($filePath)),
+                    'date' => date('F d Y H:i:s.', filemtime($filePath)),
+                    'formatedDate' => date('Y-m-d', filemtime($filePath)),
                 ];
             }
         }
 
         usort($dataArr, function ($a, $b) {
-            $dateA = strtotime($a["date"]);
-            $dateB = strtotime($b["date"]);
+            $dateA = strtotime($a['date']);
+            $dateB = strtotime($b['date']);
+
             return $dateB - $dateA;
         });
 
-        if($searchDate){
+        if ($searchDate) {
             $dataArr = array_filter($dataArr, function ($item) use ($searchDate) {
                 return $item['formatedDate'] === $searchDate;
-              });
+            });
         }
-        
+
         $directories = readFolders($logFiles);
         // _p($directories);
 
@@ -314,21 +315,20 @@ class WebsiteLogController extends Controller
     public function searchWebsiteLogStoreView(Request $request)
     {
         try {
-
             $dataArr = new WebsiteLog();
             if ($request->search_error) {
                 $dataArr = $dataArr->where('error', 'LIKE', '%' . $request->search_error . '%');
             }
             if ($request->search_type) {
                 $dataArr = $dataArr->where('type', 'LIKE', '%' . $request->search_type . '%');
-            }  
+            }
             if ($request->website_ids) {
                 $dataArr = $dataArr->WhereIn('website_id', $request->website_ids);
             }
             if ($request->date) {
                 $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
             }
-            $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination',10));
+            $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination', 10));
             $search_error = $request->search_error;
             $search_type = $request->search_type;
             $website_id = $request->website_ids;
@@ -341,7 +341,7 @@ class WebsiteLogController extends Controller
     }
 
     public function websiteErrorShow(Request $request)
-    {     
+    {
         $id = $request->input('id');
         $errorData = WebsiteLog::where('id', $id)->value('error');
         $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
@@ -360,26 +360,25 @@ class WebsiteLogController extends Controller
     {
         $websiteLog = WebsiteLog::find($request->id);
 
-        $checkAlredyExist = CodeShortcut::where('website_log_view_id',$request->id)->first();
+        $checkAlredyExist = CodeShortcut::where('website_log_view_id', $request->id)->first();
 
-        if($checkAlredyExist) {
+        if ($checkAlredyExist) {
             return response()->json(['code' => 200, 'message' => 'Alreday Insert Into CodeShortcut!!!']);
         } else {
             $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
             $platformId = $platform->id;
-        
-            $codeShortcut =  new CodeShortcut();
+
+            $codeShortcut = new CodeShortcut();
             $codeShortcut->code_shortcuts_platform_id = $platformId;
             $codeShortcut->description = $websiteLog->file_path;
             $codeShortcut->title = $websiteLog->error;
             $codeShortcut->website = $websiteLog->website_id;
             $codeShortcut->user_id = auth()->user()->id;
             $codeShortcut->website_log_view_id = $request->id;
-            $codeShortcut->type = "website-log-view";
+            $codeShortcut->type = 'website-log-view';
             $codeShortcut->save();
 
             return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);
         }
-    
     }
 }

@@ -17,7 +17,6 @@ class AdvanceReceiptPDF extends Mailable
 
     public $fromMailer;
 
-
     /**
      * Create a new message instance.
      *

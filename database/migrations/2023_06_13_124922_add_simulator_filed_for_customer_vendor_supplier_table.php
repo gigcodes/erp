@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddSimulatorFiledForCustomerVendorSupplierTable extends Migration
 {
@@ -13,20 +13,20 @@ class AddSimulatorFiledForCustomerVendorSupplierTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function($table) {
+        Schema::table('chat_messages', function ($table) {
             $table->dropColumn('is_auto_simulator');
         });
 
         Schema::table('customers', function (Blueprint $table) {
-            $table->boolean("is_auto_simulator")->default(0)->nullable();
+            $table->boolean('is_auto_simulator')->default(0)->nullable();
         });
 
         Schema::table('vendors', function (Blueprint $table) {
-            $table->boolean("is_auto_simulator")->default(0)->nullable();
+            $table->boolean('is_auto_simulator')->default(0)->nullable();
         });
 
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->boolean("is_auto_simulator")->default(0)->nullable();
+            $table->boolean('is_auto_simulator')->default(0)->nullable();
         });
     }
 
@@ -37,18 +37,18 @@ class AddSimulatorFiledForCustomerVendorSupplierTable extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function($table) {
+        Schema::table('chat_messages', function ($table) {
             $table->boolean('is_auto_simulator');
         });
 
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn("is_auto_simulator");
+            $table->dropColumn('is_auto_simulator');
         });
         Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn("is_auto_simulator");
+            $table->dropColumn('is_auto_simulator');
         });
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->dropColumn("is_auto_simulator");
+            $table->dropColumn('is_auto_simulator');
         });
     }
 }

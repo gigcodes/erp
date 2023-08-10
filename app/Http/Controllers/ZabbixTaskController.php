@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ZabbixTask;
-use App\Models\ZabbixTaskAssigneeHistory;
-use App\Models\ZabbixWebhookData;
+use Auth;
 use App\Task;
 use App\User;
-use Auth;
+use App\Models\ZabbixTask;
 use Illuminate\Http\Request;
+use App\Models\ZabbixWebhookData;
+use App\Models\ZabbixTaskAssigneeHistory;
 
 class ZabbixTaskController extends Controller
 {
@@ -29,7 +29,7 @@ class ZabbixTaskController extends Controller
 
         $data = $request->except('_token');
 
-        // // old 
+        // // old
         // $zabbixTaskOld = ZabbixTask::where('task_name', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
         // // Save Zabbix Task
         // $zabbixTask = ZabbixTask::updateOrCreate([
@@ -37,9 +37,9 @@ class ZabbixTaskController extends Controller
         //     'assign_to' => $data['assign_to']
         // ]);
 
-        // Create task directly in tasks table instead of zabbix_tasks(this is not need now) table. 
-        $task = Task::where("task_subject", $data['task_name'])->where('assign_to', $data['assign_to'])->first();
-        if (!$task) {
+        // Create task directly in tasks table instead of zabbix_tasks(this is not need now) table.
+        $task = Task::where('task_subject', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
+        if (! $task) {
             $data['assign_from'] = Auth::id();
             $data['is_statutory'] = 0;
             $data['task_details'] = $data['task_name'];
@@ -55,7 +55,7 @@ class ZabbixTaskController extends Controller
 
         // Assign Zabbix Task Id to selected zabbix webhook datas
         $zabbixWebhookDatas = ZabbixWebhookData::whereIn('id', $data['zabbix_webhook_data_ids']);
-        $zabbixWebhookDatas->update(['zabbix_task_id'=>$task->id]);
+        $zabbixWebhookDatas->update(['zabbix_task_id' => $task->id]);
 
         // // Save assignee history
         // if($zabbixTaskOld == "" || $data['assign_to'] != $zabbixTaskOld->assign_to) {

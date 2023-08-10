@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class InsertDesignCategoriesInSiteDevelopmentTable extends Migration
 {
@@ -14,7 +12,7 @@ class InsertDesignCategoriesInSiteDevelopmentTable extends Migration
     public function up()
     {
         Artisan::call('db:seed', [
-            '--class' => SiteDevelopmentDesignCategoriesUpdateSeeder::class
+            '--class' => SiteDevelopmentDesignCategoriesUpdateSeeder::class,
         ]);
     }
 
@@ -25,6 +23,5 @@ class InsertDesignCategoriesInSiteDevelopmentTable extends Migration
      */
     public function down()
     {
-        
     }
 }

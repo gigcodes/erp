@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
-use Carbon\Carbon;
-use Illuminate\Http\Request; //Purpose : Add Setting - DEVTASK-4289
 use App\PageNotes;
+use Carbon\Carbon; //Purpose : Add Setting - DEVTASK-4289
+use Illuminate\Http\Request;
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;

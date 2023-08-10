@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PostmanApiIssueFixDoneHistory extends Model
 {
@@ -12,7 +12,7 @@ class PostmanApiIssueFixDoneHistory extends Model
 
     protected $table = 'postman_api_issue_fix_done_histories';
 
-    protected $fillable = ['postman_create_id','old_value', 'new_value',  'user_id'];
+    protected $fillable = ['postman_create_id', 'old_value', 'new_value',  'user_id'];
 
     protected $appends = ['new_value_text', 'old_value_text'];
 
@@ -25,35 +25,35 @@ class PostmanApiIssueFixDoneHistory extends Model
     public function getOldValueTextAttribute()
     {
         if ($this->old_value === 0) {
-            return "No";
+            return 'No';
         }
 
         if ($this->old_value === 1) {
-            return "Yes";
+            return 'Yes';
         }
 
         if ($this->old_value === 2) {
-            return "Lead Verified";
+            return 'Lead Verified';
         }
 
-        return "-";
+        return '-';
     }
 
     // Accessor for the new 'new_value_text' attribute
     public function getNewValueTextAttribute()
     {
         if ($this->new_value === 0) {
-            return "No";
+            return 'No';
         }
 
         if ($this->new_value === 1) {
-            return "Yes";
+            return 'Yes';
         }
 
         if ($this->new_value === 2) {
-            return "Lead Verified";
+            return 'Lead Verified';
         }
 
-        return "-";
+        return '-';
     }
 }

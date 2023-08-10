@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class CashflowOverdueStatus extends Command
 {
@@ -38,7 +38,7 @@ class CashflowOverdueStatus extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $cashflow = \App\CashFlow::where('type', 'pending')->whereDate('date', date('Y-m-d'))->get();
@@ -70,10 +70,10 @@ class CashflowOverdueStatus extends Command
                     $ca->due_amount_eur = $amountPending;
                     $ca->save();
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'CashFlow type '.$ca->type.' and due amount '.$amountPending.' updated for CashFlow ID:'.$ca->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'CashFlow type ' . $ca->type . ' and due amount ' . $amountPending . ' updated for CashFlow ID:' . $ca->id]);
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

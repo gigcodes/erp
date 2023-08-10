@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Customer;
+use App\Helpers\LogHelper;
 use App\ChatMessagesQuickData;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 
 class CustomerChatMessageQuickData extends Command
 {
@@ -40,9 +40,9 @@ class CustomerChatMessageQuickData extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
-        try{
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer chunk query started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer chunk query started.']);
             $customers = Customer::with(['allMessages' => function ($qr) {
                 $qr->orderBy('created_at', 'desc');
             }])->chunk(100, function ($customers) {
@@ -75,9 +75,9 @@ class CustomerChatMessageQuickData extends Command
                     }
                 }
             });
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Customer chunk query ended."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer chunk query ended.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

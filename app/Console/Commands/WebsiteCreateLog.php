@@ -7,8 +7,8 @@ use File;
 use Exception;
 use App\WebsiteLog;
 use App\StoreWebsite;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class WebsiteCreateLog extends Command
 {
@@ -118,7 +118,7 @@ class WebsiteCreateLog extends Command
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-            
+
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . '=====FAILED====' . PHP_EOL;

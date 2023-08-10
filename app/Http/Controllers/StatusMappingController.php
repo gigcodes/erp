@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\OrderStatus;
-use App\PurchaseStatus;
-use App\ReadOnly\ShippingStatus;
-use App\ReturnExchangeStatus;
-use App\StatusMapping;
-use App\StatusMappingHistory;
-use Illuminate\Http\Request;
 use Auth;
+use App\OrderStatus;
+use App\StatusMapping;
+use App\PurchaseStatus;
+use Illuminate\Http\Request;
+use App\ReturnExchangeStatus;
+use App\StatusMappingHistory;
+use App\ReadOnly\ShippingStatus;
 
 class StatusMappingController extends Controller
 {
@@ -37,9 +37,9 @@ class StatusMappingController extends Controller
     public function store(Request $request)
     {
         $input = $request->except(['_token']);
-        
+
         $statusMapping = StatusMapping::where('order_status_id', $input['orderStatusId'])->first();
-        
+
         if ($statusMapping) {
             return response()->json([
                 'status' => false,
@@ -67,13 +67,13 @@ class StatusMappingController extends Controller
         }
     }
 
-    public function update(Request $request, $id) 
+    public function update(Request $request, $id)
     {
         $input = $request->except(['_token']);
 
         $statusMapping = StatusMapping::where('id', $id)->first();
-        
-        if (!$statusMapping) {
+
+        if (! $statusMapping) {
             return response()->json([
                 'status' => false,
                 'message' => 'Record not exists',
@@ -120,7 +120,7 @@ class StatusMappingController extends Controller
                 $newStatusId = $input['returnExchangeStatusId'];
                 $statusMapping->return_exchange_status_id = $newStatusId;
             }
-            
+
             $statusMapping->save();
 
             $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldStatusId, $newStatusId, $input['statusType']);
@@ -131,8 +131,8 @@ class StatusMappingController extends Controller
                     'message' => 'Mapping updated successfully',
                     'status_name' => 'success',
                     'data' => [
-                        'lastUpdatedUser' => $lastUpdatedUser
-                    ]
+                        'lastUpdatedUser' => $lastUpdatedUser,
+                    ],
                 ], 200);
             } else {
                 return response()->json([
@@ -173,8 +173,8 @@ class StatusMappingController extends Controller
                 'message' => 'Mapping Deleted successfully',
                 'status_name' => 'success',
                 'data' => [
-                    'lastUpdatedUser' => $lastUpdatedUser
-                ]
+                    'lastUpdatedUser' => $lastUpdatedUser,
+                ],
             ], 200);
         } else {
             return response()->json([

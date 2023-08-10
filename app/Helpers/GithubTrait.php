@@ -5,9 +5,9 @@ namespace App\Helpers;
 use Exception;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
 use App\Github\GithubRepository;
 use App\Github\GithubOrganization;
-use Illuminate\Support\Arr;
 use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
@@ -43,7 +43,7 @@ trait GithubTrait
             // $response = $client->get($url);
             $githubClient = $this->connectGithubClient($userName, $token);
             $response = $githubClient->get($url);
-            
+
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
@@ -121,8 +121,8 @@ trait GithubTrait
 
         // /orgs/:org/invitations
         // $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
-        $url = 'https://api.github.com/orgs/'.$organization->name.'/invitations';
-        
+        $url = 'https://api.github.com/orgs/' . $organization->name . '/invitations';
+
         try {
             $githubClient->post(
                 $url,
@@ -172,15 +172,15 @@ trait GithubTrait
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/pulls/'.$pullNumber;
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/pulls/' . $pullNumber;
 
         try {
             $githubClient->patch($url,
-            [
-                'json' => [
-                    'state' => "closed"
-                ]
-            ]);
+                [
+                    'json' => [
+                        'state' => 'closed',
+                    ],
+                ]);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
@@ -197,7 +197,7 @@ trait GithubTrait
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs/heads/'.$branchName;
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs/heads/' . $branchName;
 
         try {
             $githubClient->delete($url);
@@ -217,14 +217,14 @@ trait GithubTrait
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
-        if(!empty($date)) {
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/actions/runs?page=' . $page;
+        if (! empty($date)) {
             $url .= "&created={$date}";
         }
-        if(!empty($status)) {
+        if (! empty($status)) {
             $url .= "&status={$status}";
         }
-        if(!empty($branch)) {
+        if (! empty($branch)) {
             $url .= "&branch={$branch}";
         }
 
@@ -244,7 +244,7 @@ trait GithubTrait
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs/'.$runId.'/jobs';
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/actions/runs/' . $runId . '/jobs';
 
         try {
             $response = $githubClient->get($url);
@@ -279,12 +279,12 @@ trait GithubTrait
 
     private function rerunAction($repoId, $jobId)
     {
-        $githubRepository  = GithubRepository::with('organization')->find($repoId);
+        $githubRepository = GithubRepository::with('organization')->find($repoId);
 
-        $url = 'https://api.github.com/repos/'.$githubRepository->organization->name."/".$githubRepository->name.'/actions/runs/'.$jobId.'/rerun-failed-jobs';
+        $url = 'https://api.github.com/repos/' . $githubRepository->organization->name . '/' . $githubRepository->name . '/actions/runs/' . $jobId . '/rerun-failed-jobs';
 
         $githubClient = $this->connectGithubClient($githubRepository->organization->username, $githubRepository->organization->token);
-        
+
         try {
             $githubClient->post($url);
             $data['status'] = true;

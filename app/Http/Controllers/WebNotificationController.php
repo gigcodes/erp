@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\LogRequest;
 use App\DeveloperTask;
 use App\NotificationToken;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class WebNotificationController extends Controller
 {

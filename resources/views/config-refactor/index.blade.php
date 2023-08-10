@@ -114,10 +114,10 @@
                                 <td>{{ ++$i }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($configRefactor->storeWebsite->title) > 12 ? substr($configRefactor->storeWebsite->title, 0, 12).'...' :  $configRefactor->storeWebsite->title }}
+                                       {{ strlen($configRefactor->storeWebsite?->title) > 12 ? substr($configRefactor->storeWebsite?->title, 0, 12).'...' :  $configRefactor->storeWebsite?->title }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $configRefactor->storeWebsite->title }}
+                                        {{ $configRefactor->storeWebsite?->title }}
                                     </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">

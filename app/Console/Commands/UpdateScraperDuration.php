@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Scraper;
+use App\LogRequest;
 use App\ScraperDuration;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use App\LogRequest;
 
 class UpdateScraperDuration extends Command
 {

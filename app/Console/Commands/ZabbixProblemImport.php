@@ -5,9 +5,8 @@ namespace App\Console\Commands;
 use App\Host;
 use App\Problem;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use App\LogRequest;
-
+use Illuminate\Console\Command;
 
 class ZabbixProblemImport extends Command
 {
@@ -112,7 +111,7 @@ class ZabbixProblemImport extends Command
     {
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url =env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
         $hostIds = \App\Host::pluck('hostid');
         $errorArray = [];
         foreach ($hostIds as $val) {

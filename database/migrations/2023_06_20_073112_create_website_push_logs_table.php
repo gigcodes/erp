@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateWebsitePushLogsTable extends Migration
 {
@@ -17,10 +17,10 @@ class CreateWebsitePushLogsTable extends Migration
             $table->id();
             $table->timestamps();
             $table->integer('websitepushloggable_id');
-            $table->string("websitepushloggable_type");
-            $table->string("type");
-            $table->string("name");
-            $table->text("message");
+            $table->string('websitepushloggable_type');
+            $table->string('type');
+            $table->string('name');
+            $table->text('message');
         });
     }
 

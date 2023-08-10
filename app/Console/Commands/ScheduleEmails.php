@@ -15,10 +15,10 @@ use App\TaskCategory;
 use App\DeveloperTask;
 use App\FlowCondition;
 use App\Loggers\FlowLog;
+use App\Helpers\LogHelper;
 use App\Mail\ScheduledEmail;
 use Illuminate\Console\Command;
 use App\Loggers\FlowLogMessages;
-use App\Helpers\LogHelper;
 
 class ScheduleEmails extends Command
 {
@@ -55,7 +55,7 @@ class ScheduleEmails extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             //dd("test");
@@ -89,7 +89,7 @@ class ScheduleEmails extends Command
                     ->select('flows.store_website_id', 'flows.id', 'store_websites.website', 'flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
                     ->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
                     ->get();
-                
+
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'FlowAction model query was finished']);
 
                 $flowlog = FlowLog::log(['flow_id' => $flow['id'], 'messages' => $flow['name'] . ' has found total Action  : ' . $flowActions->count()]);
@@ -242,7 +242,7 @@ class ScheduleEmails extends Command
                     }
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

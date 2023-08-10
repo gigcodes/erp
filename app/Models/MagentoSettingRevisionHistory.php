@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoSettingRevisionHistory extends Model
 {
@@ -21,17 +21,20 @@ class MagentoSettingRevisionHistory extends Model
     ];
 
     const ACTIVE = 1;
+
     const INACTIVE = 0;
+
     const SUCCESSFUL = 1;
+
     const FAILED = 0;
 
     public static $active = [
         self::ACTIVE => 'Active',
-        self::INACTIVE  => 'InActive',
+        self::INACTIVE => 'InActive',
     ];
 
     public static $status = [
         self::SUCCESSFUL => 'Successful',
-        self::FAILED  => 'Failed',
+        self::FAILED => 'Failed',
     ];
 }

@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Response;
 use Validator;
 use App\Setting;
+use App\LogRequest;
 use App\Wetransfer;
 use App\WeTransferLog;
 use Illuminate\Http\Request;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use App\LogRequest;
 
 class WeTransferController extends Controller
 {
@@ -342,7 +342,7 @@ class WeTransferController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        
+
         LogRequest::log($startTime, $url, 'POST', json_encode($payload), json_decode($response), $httpcode, \App\Http\Controllers\WeTransferController::class, 'downloadWetransferFiles');
         if ($response == 'Request Submitted!') {
             return true;

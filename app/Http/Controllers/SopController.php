@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SopHasCategory;
 use App\Sop;
 use App\User;
+use Exception;
 use Dompdf\Dompdf;
 use App\SopCategory; // sop category model
 use App\SopPermission;
 // use App\Mail\downloadData;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\SopHasCategory;
 use App\PurchaseProductOrderLog;
-use Exception;
 use Illuminate\Support\Facades\DB;
 
 class SopController extends Controller
@@ -26,17 +26,18 @@ class SopController extends Controller
             $usersop = $usersop->where('name', 'like', '%' . $request->get('search') . '%')
             ->orWhere('content', 'like', '%' . $request->get('search') . '%');
         }
-        
-        if($request->get("category")) {
-            $sop_ids = SopHasCategory::distinct('sop_id')->whereIn('sop_category_id', $request->get("category"))->select('sop_id')->get()->pluck('sop_id')->toArray();
+
+        if ($request->get('category')) {
+            $sop_ids = SopHasCategory::distinct('sop_id')->whereIn('sop_category_id', $request->get('category'))->select('sop_id')->get()->pluck('sop_id')->toArray();
             $usersop = $usersop->whereIn('id', $sop_ids);
-        } 
+        }
 
         $usersop = $usersop->orderBy('id', 'desc')->limit(25)->paginate(25);
 
         $total_record = $usersop->total();
         $category_result = SopCategory::all();
         $request = $request->all();
+
         return view('products.sop', compact('usersop', 'total_record', 'users', 'category_result', 'request'));
     }
 
@@ -107,11 +108,11 @@ class SopController extends Controller
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
-            
-            if(!empty($category) && count($category) > 0) {
+
+            if (! empty($category) && count($category) > 0) {
                 $sop->sopCategory()->attach($category);
             }
-            
+
             $params['purchase_product_order_id'] = $sop->id;
             $params['header_name'] = 'SOP Listing Approve Logs';
             $params['replace_from'] = '-';
@@ -128,14 +129,14 @@ class SopController extends Controller
 
         $only_date = $sop->created_at->todatestring();
 
-        return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params, 'appendData'=> $appendData]);
+        return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params, 'appendData' => $appendData]);
     }
 
     public function edit(Request $request)
     {
         $sopedit = Sop::with('sopCategory')->findOrFail($request->id);
 
-        if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+        if (isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
             $sopedit->sopCategory = $sopedit->sopCategory->pluck('id');
         }
 
@@ -153,7 +154,7 @@ class SopController extends Controller
         }
 
         $sopedit = Sop::where('id', $request->id)->first();
-        // ->where('category', $category)   
+        // ->where('category', $category)
         // dd($sopedit, $category, $request->id);
         if ($sopedit) {
             $sopedit->name = $request->get('name', '');
@@ -162,7 +163,7 @@ class SopController extends Controller
             $updatedSop = $sopedit->save();
 
             $sopedit->hasSopCategory()->delete();
-            if(!empty($category) && count($category) > 0) {
+            if (! empty($category) && count($category) > 0) {
                 $sopedit->sopCategory()->attach($category ?? []);
             }
             $params['purchase_product_order_id'] = $request->id;
@@ -171,12 +172,11 @@ class SopController extends Controller
             $params['replace_to'] = $request->get('name', '');
             $params['created_by'] = \Auth::id();
 
-
-            if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+            if (isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
                 $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
-                $sopedit->sopCategory = implode(",", $temp);
+                $sopedit->sopCategory = implode(',', $temp);
             }
-            
+
             $log = PurchaseProductOrderLog::create($params);
 
             if ($sopedit) {
@@ -195,7 +195,7 @@ class SopController extends Controller
             $sop->save();
 
             $sop->hasSopCategory()->delete();
-            if(!empty($category) && count($category) > 0) {
+            if (! empty($category) && count($category) > 0) {
                 $sop->sopCategory()->attach($category ?? []);
             }
 
@@ -205,9 +205,9 @@ class SopController extends Controller
             $params['replace_to'] = $request->get('name');
             $params['created_by'] = \Auth::id();
 
-            if(isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
+            if (isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
                 $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
-                $sopedit->sopCategory = implode(",", $temp);
+                $sopedit->sopCategory = implode(',', $temp);
             }
 
             $log = PurchaseProductOrderLog::create($params);
@@ -368,8 +368,8 @@ class SopController extends Controller
         try {
             SopHasCategory::where('sop_category_id', $request->id)->delete();
             SopCategory::destroy($request->id);
+
             return redirect()->back()->withSuccess('Caregory delete successfully.');
-            
         } catch (Exception $e) {
             return redirect()->back()->withError('Error while deleting category.');
         }
@@ -381,22 +381,23 @@ class SopController extends Controller
     public function categoryUpdate(Request $request)
     {
         try {
-            if(!isset($request->name) || $request->name == "") {
-                throw new Exception("Category name must required.");
+            if (! isset($request->name) || $request->name == '') {
+                throw new Exception('Category name must required.');
             }
-            if(!isset($request->id) || $request->id == "") {
-                throw new Exception("Category not found.");
+            if (! isset($request->id) || $request->id == '') {
+                throw new Exception('Category not found.');
             }
-            
+
             $sopcategory = SopCategory::find($request->id);
-            
-            if($sopcategory) {
+
+            if ($sopcategory) {
                 $sopcategory->category_name = $request->name;
                 $sopcategory->update();
             } else {
-                throw new Exception("Category not found.");
+                throw new Exception('Category not found.');
             }
-            return redirect()->back()->withSuccess("Category successfully created.");
+
+            return redirect()->back()->withSuccess('Category successfully created.');
         } catch (Exception $e) {
             //throw $th;
             return redirect()->back()->withError($e->getMessage());

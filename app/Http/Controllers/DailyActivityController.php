@@ -41,13 +41,13 @@ class DailyActivityController extends Controller
 
         // Save the data in user event
         $schedultDate = Carbon::parse($request->for_date);
-        $timeSlotArr = explode("-", $request->time_slot);
-        $c_start_at = Carbon::parse("$request->for_date ".$timeSlotArr[0]);
-        $c_end_at = Carbon::parse("$request->for_date ".$timeSlotArr[1]);
-        
+        $timeSlotArr = explode('-', $request->time_slot);
+        $c_start_at = Carbon::parse("$request->for_date " . $timeSlotArr[0]);
+        $c_end_at = Carbon::parse("$request->for_date " . $timeSlotArr[1]);
+
         $userEvent = new UserEvent();
         $userEvent->user_id = $request->user_id;
-        $userEvent->description = trim($timeSlotArr[0])."-".trim($timeSlotArr[1]).', '.$schedultDate->format('l').", ".$schedultDate->toDateString();
+        $userEvent->description = trim($timeSlotArr[0]) . '-' . trim($timeSlotArr[1]) . ', ' . $schedultDate->format('l') . ', ' . $schedultDate->toDateString();
         $userEvent->subject = $request->activity;
         $userEvent->date = $schedultDate;
         $userEvent->start = $c_start_at->toDateTime();
