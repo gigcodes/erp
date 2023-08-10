@@ -2945,6 +2945,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.builderApiKey') }}">Store Website Builder Key</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item"
                                             href="{{ route('payment-responses.index') }}">Payment Responses</a>
                                     </li>
