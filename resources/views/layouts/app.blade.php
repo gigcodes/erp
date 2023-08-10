@@ -934,6 +934,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Create Documentation" type="button" id="create-documents" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
