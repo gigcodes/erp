@@ -2814,6 +2814,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/folder/edit', [CodeShortcutController::class, 'shortcutEditFolder']);
         Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
+        Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
