@@ -3081,6 +3081,8 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
     Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
     Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+    Route::post('time-doctor/validate', [TimeDoctorController::class, 'updateValidate'])->name('time-doctor.updateValidate');
+    Route::Post('time-doctor/due-date/list', [TimeDoctorController::class, 'getduedateHistory'])->name('time-doctor.due-date-history.get');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
