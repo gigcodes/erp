@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class RunGoogleAnalytics extends Command
 {
@@ -35,19 +35,19 @@ class RunGoogleAnalytics extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
 
             app(\App\Http\Controllers\AnalyticsController::class)->cronGetUserShowData();
 
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

@@ -14,7 +14,8 @@ class PinterestAdsAccounts extends Model
         'ads_account_currency',
     ];
 
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(PinterestBusinessAccountMails::class, 'id', 'pinterest_mail_id');
     }
 }

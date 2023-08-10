@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use App\ProjectFileManager;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 
 class ProjectDirectory extends Command
 {
@@ -40,8 +40,8 @@ class ProjectDirectory extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
-        try{
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
             /*$cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
             app()->call([$cc, 'listTree'], []);*/
             // start throgh tree program
@@ -68,7 +68,7 @@ class ProjectDirectory extends Command
                         }
 
                         $projectManager = ProjectFileManager::where('name', $directoryStr)->first();
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => "Project file manager query was finished."]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Project file manager query was finished.']);
                         if ($projectManager) {
                             $projectManager->size = trim($size);
                             $projectManager->save();
@@ -80,15 +80,15 @@ class ProjectDirectory extends Command
                             }
                         } else {
                             $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, 'project_name' => 'erp', 'size' => trim($size), 'parent' => $parent]);
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => "Project file manager was added."]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Project file manager was added.']);
                         }
                         $lastFolder = $directoryStr;
                     }
                 }
             }
 
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        }catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

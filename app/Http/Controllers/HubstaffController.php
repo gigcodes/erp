@@ -6,6 +6,7 @@ use Storage;
 use App\User;
 use Exception;
 use App\Article;
+use App\LogRequest;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Hubstaff\HubstaffTask;
@@ -15,7 +16,6 @@ use App\Hubstaff\HubstaffProject;
 use App\Library\Hubstaff\Src\Hubstaff;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Validator;
-use App\LogRequest;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 // define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));

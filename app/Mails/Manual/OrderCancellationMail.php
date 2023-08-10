@@ -13,6 +13,7 @@ class OrderCancellationMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $order;
+
     public $fromMailer;
 
     /**
@@ -23,7 +24,7 @@ class OrderCancellationMail extends Mailable
     public function __construct($data)
     {
         $this->order = $data;
-        $this->fromMailer =  \App\Helpers::getFromEmail($this->order->customer->id);
+        $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
     /**
@@ -43,7 +44,7 @@ class OrderCancellationMail extends Mailable
         $content = 'Your order request has been cancelled';
 
         $this->subject = $subject;
-        
+
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
 

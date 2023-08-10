@@ -62,6 +62,7 @@
 
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#environmentHistoryStatusCreate"> Create Status </button>
+                    <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#environmentHistoryStatusList"> List Status</button>
                 </div>
 			</div>
         </div>
@@ -215,6 +216,43 @@
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+<div id="environmentHistoryStatusList" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">List Status</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('store-website.environment.updateEnvironmentHistoryStatus') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($historyStatuses as $historyStatus) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $historyStatus->name; ?></td>
+                            <td class="text-center"><?php echo $historyStatus->color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $historyStatus->id; ?>]" class="form-control" data-id="<?php echo $historyStatus->id; ?>" id="color_name_<?php echo $historyStatus->id; ?>" value="<?php echo $historyStatus->color; ?>" style="height:30px;padding:0px;"></td>
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 </div>
 

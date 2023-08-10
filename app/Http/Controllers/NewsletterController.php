@@ -38,7 +38,8 @@ class NewsletterController extends Controller
 
         $languages = Language::pluck('locale', 'code')->toArray();
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
-        return view('newsletter.review-translate', compact(['title', 'storeWebsites','languagesList']));
+
+        return view('newsletter.review-translate', compact(['title', 'storeWebsites', 'languagesList']));
     }
 
     public function records(Request $request)
@@ -59,7 +60,7 @@ class NewsletterController extends Controller
             $records = $records->where('newsletters.language', $request->language);
             $records = $records->where('newsletters.is_flagged_translation', 1);
         }
-        
+
         $dateFrom = request('date_from');
         if ($dateFrom != null) {
             $records = $records->where('newsletters.created_at', '>=', $dateFrom);

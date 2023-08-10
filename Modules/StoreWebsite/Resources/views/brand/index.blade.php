@@ -22,6 +22,12 @@
 		min-width: 50px !important;
 		max-width: 50px !important;
 	}
+	#page-view-result th,#page-view-result td {
+    	white-space: nowrap;
+	}
+	#page-view-result th br, div#page-view-result td br{
+    	display: none;
+	}
 
 </style>
 <style>
@@ -66,13 +72,13 @@
 	    	<div class="col col-md-3">
 		    	<div class="row">
 
-		  			<form class="form-inline message-search-handler" action="?" method="get">
+		  			<form class="form-inline message-search-handler" action="{{route('store-website.brand.list')}}" method="get">
 		  				<input type="hidden" name="push" value="1">
 						<div class="form-group" style="margin-left: 30px;">
-						    <label for="keyword">Store Wesbite:</label>
+						    <label for="keyword" style="justify-content: start;">Store Wesbite:</label>
 						    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2","placeholder" => "Select Website"]) ?>
 					  	</div>
-						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="push-brand"><i class="fa fa-info-circle"></i></button>
+						<button style="margin-top: 22px; padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="push-brand"><i class="fa fa-info-circle"></i></button>
 				  		&nbsp;
 						<div class="form-group">
 					  		<label for="button">&nbsp;</label>
@@ -83,18 +89,17 @@
 			  		</form>
 				 </div>
 		    </div>
-		    <div class="col col-md-2 reconsile-brand-form">
+		    <div class="col col-md-3 reconsile-brand-form">
 				<div class="loader-small"></div>
 					<div class="h" style="margin-bottom:10px;">
 					<div class="row">
-						<div class="form-group">
-							<label for="keyword">Store Wesbite:</label>
-			  				<?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2 store-website-id","placeholder" => "Select Website"]) ?>
+						<div class="form-group mb-0">
+							<label for="keyword" style="justify-content: start;">Store Wesbite:</label>
+			  				<?php echo Form::select("store_website_id[]",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2 store-website-id","placeholder" => "Select Website"]) ?>
 			  			</div>
-						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="reconsile"><i class="fa fa-info-circle"></i></button>
+						<button style="margin-top: 22px; padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="reconsile"><i class="fa fa-info-circle"></i></button>
 						&nbsp;
-						<div class="form-group" style="margin-top: 24px;">
-							<label for="button">&nbsp;</label>
+						<div class="form-group mb-0" style="margin-top: 22px;">
 							<button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
 						</div>
 					</div>
@@ -106,25 +111,28 @@
 				<form class="form-inline message-search-handler handle-search" method="get">
 					<div class="col">
 						<div class="form-group">
+							<label for="keywords">Search keywords</label>
 							<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 						</div>
 
-						<div class="form-group ml-2">
+						<div class="form-group ml-3 text-center"><br>
 							<label for="no-inventory">No Inventory</label>
 							<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
 						</div>
 
 
-						<div class="form-group ml-2">
+						<div class="form-group ml-3">
+							<label for="category">Search Category</label>
 							<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
 						</div>
 
-						<div class="form-group ml-2">
-							<?php echo Form::select("brd_store_website_id",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control select2","placeholder" => "Select Store Website"]) ?>
+						<div class="form-group ml-3">
+							<label for="websites">Search store websites</label>
+							<?php echo Form::select("brd_store_website_id[]",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control globalSelect2", "multiple"]) ?>
 						</div>
 
-						<div class="form-group ml-2">
-							<label for="no_brand">no Available brand</label>
+						<div class="form-group ml-3 text-center"><br>
+							<label for="no_brand">No Available brand</label>
 							<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
 						</div>
 						<div class="form-group">
@@ -132,6 +140,7 @@
 							<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 								<img src="/images/search.png" style="cursor: default;">
 							</button>
+							<a href="{{route('store-website.brand.list')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 						</div>
 					</div>
 				</form>

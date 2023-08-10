@@ -77,7 +77,8 @@ class ProductInventoryController extends Controller
     }
 
     // Function to flatten the 3-level array into a 2-level array
-    public function flattenCategories($array, &$result = []) {
+    public function flattenCategories($array, &$result = [])
+    {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $result[$key] = 0;
@@ -119,7 +120,7 @@ class ProductInventoryController extends Controller
             // Create a temporary array to store the flattened subcategories
             $flattened_subcategories = [];
             $this->flattenCategories($subcategories, $flattened_subcategories);
-            
+
             // Replace the first level keys with the flattened subcategories
             $category_tree[$category_id] = $flattened_subcategories;
         }

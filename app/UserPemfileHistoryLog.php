@@ -25,7 +25,7 @@ class UserPemfileHistoryLog extends Model
     protected $appends = ['output_string'];
 
     // $return_var === 0 - Command executed successfully
-    // $return_var != 0 - Command failed to execute. Error code is returing in this varibale. 
+    // $return_var != 0 - Command failed to execute. Error code is returing in this varibale.
     public function saveLog($user_pemfile_history_id, $cmd, $output = [], $return_var = null)
     {
         $this->user_pemfile_history_id = $user_pemfile_history_id;

@@ -241,8 +241,8 @@ class PageController extends Controller
         $post['is_latest_version_translated'] = 1;
         $post['is_latest_version_pushed'] = 0;
         $records->fill($post);
-        if($request->has('approved_by_user_id')){
-            activity()->causedBy(auth()->user())->performedOn($records)->log('Translation Approved by:'.optional(auth()->user())->name);
+        if ($request->has('approved_by_user_id')) {
+            activity()->causedBy(auth()->user())->performedOn($records)->log('Translation Approved by:' . optional(auth()->user())->name);
         }
         // if records has been save then call a request to push
         if ($records->save()) {

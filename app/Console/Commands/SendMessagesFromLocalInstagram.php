@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use InstagramAPI\Instagram;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class SendMessagesFromLocalInstagram extends Command
 {
@@ -92,7 +92,7 @@ class SendMessagesFromLocalInstagram extends Command
                 // execute!
                 $response = curl_exec($ch);
                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                LogRequest::log($startTime, $url, 'POST',json_encode($detail), json_decode($response), $httpcode, \App\Console\Commands\SendMessagesFromLocalInstagram::class, 'handle');
+                LogRequest::log($startTime, $url, 'POST', json_encode($detail), json_decode($response), $httpcode, \App\Console\Commands\SendMessagesFromLocalInstagram::class, 'handle');
 
                 // close the connection, release resources used
                 curl_close($ch);

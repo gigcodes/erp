@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Customer;
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\BulkCustomerRepliesKeyword;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
-use App\Helpers\LogHelper;
 
 class MakeKeywordAndCustomersIndex extends Command
 {

@@ -28,7 +28,7 @@ class PurchaseExport extends Mailable
         $this->path = $path;
         $this->subject = $subject;
         $this->message = $message;
-        $this->fromMailer=\App\Helpers::getFromEmail();
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**

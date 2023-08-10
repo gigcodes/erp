@@ -21,7 +21,7 @@ class Newsletter extends Model
      * @SWG\Property(property="store_website_id",type="integer")
      */
     protected $fillable = [
-        'subject', 'store_website_id', 'sent_at', 'sent_on', 'updated_by', 'mail_list_id', 'mail_list_temp_id','approved_by_user_id','is_flagged_translation',
+        'subject', 'store_website_id', 'sent_at', 'sent_on', 'updated_by', 'mail_list_id', 'mail_list_temp_id', 'approved_by_user_id', 'is_flagged_translation',
     ];
 
     public function newsletterProduct()

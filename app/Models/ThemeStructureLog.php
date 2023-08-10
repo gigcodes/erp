@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\ProjectTheme;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemeStructureLog extends Model
 {
@@ -23,5 +22,4 @@ class ThemeStructureLog extends Model
     {
         return $this->belongsTo(ProjectTheme::class, 'theme_id', 'id');
     }
-    
 }

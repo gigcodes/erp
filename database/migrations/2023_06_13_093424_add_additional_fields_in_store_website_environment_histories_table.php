@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddAdditionalFieldsInStoreWebsiteEnvironmentHistoriesTable extends Migration
 {
@@ -20,8 +20,6 @@ class AddAdditionalFieldsInStoreWebsiteEnvironmentHistoriesTable extends Migrati
             $table->string('job_id')->after('command')->nullable();
             $table->string('status')->after('job_id')->nullable();
             $table->text('response')->after('status')->nullable();
-            
-            
         });
     }
 

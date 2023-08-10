@@ -27,9 +27,9 @@ class UserController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
         return $githubClient;
     }
@@ -61,7 +61,7 @@ class UserController extends Controller
             [
                 'users' => $users,
                 'repoId' => $repoId,
-                'githubRepository' => $githubRepository
+                'githubRepository' => $githubRepository,
             ]
         );
     }
@@ -152,7 +152,7 @@ class UserController extends Controller
         $organization = $repository->organization;
 
         // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
-        $url = 'https://api.github.com/repos/'.$organization->name.'/'.$repository->name.'/collaborators/'.$user->username;
+        $url = 'https://api.github.com/repos/' . $organization->name . '/' . $repository->name . '/collaborators/' . $user->username;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
@@ -197,7 +197,7 @@ class UserController extends Controller
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
         // $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
-        $url = 'https://api.github.com/repos/'.$organization->name.'/'.$githubRepository->name.'/collaborators/'.$username;
+        $url = 'https://api.github.com/repos/' . $organization->name . '/' . $githubRepository->name . '/collaborators/' . $username;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
@@ -212,6 +212,6 @@ class UserController extends Controller
 
         // cannot update the database still as the above will raise and invitation
 
-        return redirect('/github/repos/'.$repoId.'/users');
+        return redirect('/github/repos/' . $repoId . '/users');
     }
 }

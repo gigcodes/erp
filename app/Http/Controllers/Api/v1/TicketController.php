@@ -237,10 +237,10 @@ class TicketController extends Controller
             $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->select('id', 'message', 'created_at', 'user_id')->latest()->get();
             foreach ($messages as $message) {
                 $message->send_by = 'Admin';
-                if($message->user_id!=''){
-                    $userData=\App\User::where('id',$message->user_id)->first();
-                    if($userData){
-                        $message->send_by= ($userData->screen_name!='') ? $userData->screen_name : $userData->name;
+                if ($message->user_id != '') {
+                    $userData = \App\User::where('id', $message->user_id)->first();
+                    if ($userData) {
+                        $message->send_by = ($userData->screen_name != '') ? $userData->screen_name : $userData->name;
                     }
                 }
                 if ($message->user_id == 6) {

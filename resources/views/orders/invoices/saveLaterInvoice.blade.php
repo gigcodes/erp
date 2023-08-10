@@ -24,17 +24,39 @@
     <form class="save-list-table" action="" method="get">
        
             <div class="form-group">
+               <label for="invoicenumber">From Date</label>
                 <input type="text" onfocus="(this.type = 'date')"  class="form-control" name="from_date" value="@if(request('from_date') != null){{request('from_date')}} @endif" placeholder="Select Date" />
             </div>
-        
-
-        
             <div class="form-group">
+               <label for="invoicenumber">To Date</label>
                 <input type="text" onfocus="(this.type = 'date')"  class="form-control" name="to_date" value="@if(request('to_date') != null){{request('to_date')}} @endif" placeholder="Select Date" />
             </div>
+            <div class="form-group">
+               <label for="invoicenumber">Invoice Number</label>
+               <select class="form-control globalSelect2" multiple="true" id="invoice_num" name="invoice_num[]">
+                  @foreach($invoiceNumber as $num)
+                  <option value="{{ $num['invoice_number']}}" 
+                  @if(is_array(request('invoice_num')) && in_array($num['invoice_number'], request('invoice_num')))
+                     selected
+                  @endif >{{ $num['invoice_number'] }}</option>
+                  @endforeach
+            </select> 
+         </div>
+         <div class="form-group">
+            <label for="customer_name">customer Name</label>
+            <select class="form-control globalSelect2" multiple="true" id="customer_name" name="customer_name[]">
+                @foreach($customerName as $customer)
+                    <option value="{{ $customer['name'] }}" @if(is_array(request('customer_name')) && in_array($customer['name'], request('customer_name'))) selected @endif>
+                        {{ $customer['name'] }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
         
 
         <button type="submit"  class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"style="margin-top:-6px;"></button>
+        <a href="{{ url('order/invoices/saveLaterList') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
     </form>
 </div>
 <div class="col-12">

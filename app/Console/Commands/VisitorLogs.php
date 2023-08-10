@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\VisitorLog;
-use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 use App\LogRequest;
+use App\VisitorLog;
+use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class VisitorLogs extends Command
 {
@@ -49,7 +49,7 @@ class VisitorLogs extends Command
             $curl = curl_init();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the visitors detail this api: https://api.livechatinc.com/v2/visitors']);
-            $url="https://api.livechatinc.com/v2/visitors";
+            $url = 'https://api.livechatinc.com/v2/visitors';
             curl_setopt_array($curl, [
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
@@ -82,7 +82,7 @@ class VisitorLogs extends Command
                     foreach ($logs as $log) {
                         $logExist = VisitorLog::where('ip', $log->ip)->whereDate('last_visit', '<=', $log->last_visit)->first();
                         if ($logExist == null) {
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'No found any visior log using ip: '.$log->ip]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'No found any visior log using ip: ' . $log->ip]);
 
                             $logSave = new VisitorLog();
                             $logSave->ip = $log->ip;
@@ -99,7 +99,7 @@ class VisitorLogs extends Command
                             $logSave->customer_name = $log->name;
                             $logSave->save();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved visitor log by ID: '.$logSave->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved visitor log by ID: ' . $logSave->id]);
                         }
                     }
                 }

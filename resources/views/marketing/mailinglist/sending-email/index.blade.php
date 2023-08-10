@@ -266,7 +266,7 @@
                         <td>{{$value->total_emails_scheduled}}</td>
                         <td>{{$value->total_emails_sent}}</td>
                         <td>{{$value->total_emails_undelivered}}</td>
-                        <td>{{$value->audience->name}}</td>
+                        <td>{{$value->audience?->name}}</td>
                         <td>{{$value->template->name}}</td>
               {{--          <td>{{$value["subject"]}}</td>--}}
                         <td>{{$value->scheduled_date}}</td>

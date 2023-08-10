@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddPushedToGoogleColumnRepliesTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddPushedToGoogleColumnRepliesTable extends Migration
     public function down()
     {
         Schema::table('replies', function (Blueprint $table) {
-            $table->dropColumn("pushed_to_google");
+            $table->dropColumn('pushed_to_google');
         });
     }
 }

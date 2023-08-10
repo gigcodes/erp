@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\gtmetrix;
 
 use App\Setting;
+use App\LogRequest;
 use App\StoreWebsite;
 use App\WebsiteStoreView;
 use App\GTMetrixCategories;
@@ -15,7 +16,6 @@ use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use App\Repositories\GtMatrixRepository;
 use Entrecore\GTMetrixClient\GTMetrixClient;
-use App\LogRequest;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -299,7 +299,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
 
                     $curl = curl_init();
-                    $url ="https://gtmetrix.com/api/2.0/status";
+                    $url = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
                         CURLOPT_URL => $url,
@@ -321,7 +321,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                     curl_close($curl);
                     // $stdClass = json_decode(json_encode($response));
-                   
+
                     $credits = $data->data->attributes->api_credits;
                     // print_r($data->data->attributes->api_credits);
                     if ($credits != 0) {
@@ -342,7 +342,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                     foreach ($AccountData as $key => $value) {
                         $curl = curl_init();
-                        $url ="https://gtmetrix.com/api/2.0/status";
+                        $url = 'https://gtmetrix.com/api/2.0/status';
 
                         curl_setopt_array($curl, [
                             CURLOPT_URL => $url,
@@ -362,7 +362,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         $parameters = [];
 
                         curl_close($curl);
-                    
+
                         LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
                         $credits = $data->data->attributes->api_credits;
                         if ($credits != 0) {
@@ -598,7 +598,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                         foreach ($AccountData as $key => $value) {
                             $curl = curl_init();
-                            $url = "https://gtmetrix.com/api/2.0/status";
+                            $url = 'https://gtmetrix.com/api/2.0/status';
                             curl_setopt_array($curl, [
                                 CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                                 CURLOPT_RETURNTRANSFER => true,

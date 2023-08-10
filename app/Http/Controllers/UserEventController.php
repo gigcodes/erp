@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\AssetsManager;
 use Auth;
 use App\User;
+use App\Event;
 use App\Learning;
 use Carbon\Carbon;
+use App\AssetsManager;
 use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
 use App\DailyActivitiesHistories;
-use App\Event;
-use App\Models\EventSchedule;
 use App\UserEvent\UserEventAttendee;
 use App\UserEvent\UserEventParticipant;
 
@@ -21,7 +20,7 @@ class UserEventController extends Controller
     {
         $userId = Auth::user()->id;
         $expireTime = Carbon::now()->addMinutes(30)->toDateTimeString();
-        $link = base64_encode('soloerp:' . $userId .":$expireTime");
+        $link = base64_encode('soloerp:' . $userId . ":$expireTime");
 
         return view(
             'user-event.index',
@@ -49,44 +48,42 @@ class UserEventController extends Controller
 
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
-        
+
         $c_start = Carbon::parse($start);
         $c_end = Carbon::parse($end);
 
         $assetsmanager = AssetsManager::where([
-            "user_name"=> $userId,
-            "active" => 1,
-            "payment_cycle" => "Monthly",
+            'user_name' => $userId,
+            'active' => 1,
+            'payment_cycle' => 'Monthly',
         ])->whereNotNull('due_date')->get();
-        
-        if(count($assetsmanager) > 0) {
+
+        if (count($assetsmanager) > 0) {
             foreach ($assetsmanager as $key => $val) {
                 $c_due_date = Carbon::parse($val->due_date);
                 // dd($c_due_date, $c_start);
-                if($c_due_date->lte($c_start) || $c_due_date->between($c_start, $c_end)) {
+                if ($c_due_date->lte($c_start) || $c_due_date->between($c_start, $c_end)) {
                     $arr = explode('-', $val->due_date);
-                    if($c_end->month - $c_start->month){
-
+                    if ($c_end->month - $c_start->month) {
                     }
-                    for ($i=0; $i < 2; $i++) {
+                    for ($i = 0; $i < 2; $i++) {
                         $arr[1] = $c_start->month + $i;
                         $arr[0] = $c_start->year;
-                        if($arr[1] == 13) {
+                        if ($arr[1] == 13) {
                             $arr[1] = 1;
                             $arr[0]++;
                         }
-                        $c_due_date = implode("-", $arr);
+                        $c_due_date = implode('-', $arr);
                         $c_due_date = Carbon::parse($c_due_date);
-                        
+
                         if ($c_start->lte($c_due_date) && $c_end->gte($c_due_date)) {
-    
-                            $exist = UserEvent::where('asset_manager_id', $val->id)->where('date', $c_due_date->format("Y-m-d"))->count();
-                            
-                            if($exist == 0) {
+                            $exist = UserEvent::where('asset_manager_id', $val->id)->where('date', $c_due_date->format('Y-m-d'))->count();
+
+                            if ($exist == 0) {
                                 $userEvent = new UserEvent;
                                 $userEvent->user_id = $val->user_name;
-                                $userEvent->subject = "Payment Due";
-                                $userEvent->subject .= " (Asset: ".($val->name ?? "-").", Provider name: $val->provider_name, Location: $val->location )";
+                                $userEvent->subject = 'Payment Due';
+                                $userEvent->subject .= ' (Asset: ' . ($val->name ?? '-') . ", Provider name: $val->provider_name, Location: $val->location )";
                                 $userEvent->description = "Provider name: $val->provider_name, Location: $val->location";
                                 $userEvent->date = $c_due_date;
                                 $userEvent->start = $c_due_date;
@@ -94,10 +91,9 @@ class UserEventController extends Controller
                                 $userEvent->asset_manager_id = $val->id;
                                 $userEvent->save();
                             }
-    
                         }
                     }
-                } 
+                }
             }
         }
 
@@ -533,7 +529,7 @@ class UserEventController extends Controller
 
         $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
         if ($result) {
-            // $result->attendees()->delete(); // No need to delete this, Because now softdelete logic is using in user_events. 
+            // $result->attendees()->delete(); // No need to delete this, Because now softdelete logic is using in user_events.
             $result->delete();
 
             return response()->json([
@@ -563,8 +559,8 @@ class UserEventController extends Controller
     {
         $calendarId = base64_decode($id);
         $calendarUserId = explode(':', $calendarId)[1];
-        if(!Carbon::parse(explode(':', $calendarId, 3)[2])->gte(Carbon::now())) {
-            abort(404, "Link expired");
+        if (! Carbon::parse(explode(':', $calendarId, 3)[2])->gte(Carbon::now())) {
+            abort(404, 'Link expired');
         }
         $user = User::find($calendarUserId, ['name']);
 

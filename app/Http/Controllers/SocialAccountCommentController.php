@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\LogRequest;
 use App\BusinessPost;
 use App\BusinessComment;
 use App\GoogleTranslate;
 use App\SocialWebhookLog;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
-use App\LogRequest;
 
 class SocialAccountCommentController extends Controller
 {
@@ -78,7 +78,6 @@ class SocialAccountCommentController extends Controller
 
             // Close the cURL session
             curl_close($ch);
-            
 
             // Process the response
             // $result = json_decode($response, true);

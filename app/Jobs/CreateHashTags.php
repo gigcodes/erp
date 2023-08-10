@@ -3,11 +3,11 @@
 namespace App\Jobs;
 
 use App\Brand;
-use App\Category;
 use App\HashTag;
-use App\KeywordSearchVariants;
+use App\Category;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use App\KeywordSearchVariants;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,8 +21,6 @@ class CreateHashTags implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param array $data
      */
     public function __construct(array $data)
     {
@@ -38,9 +36,9 @@ class CreateHashTags implements ShouldQueue
     {
         $insert_data = [];
         try {
-            self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : ' . date('Y-m-d H:i:s'));
             switch($this->data['type']) {
-                case('brand'):
+                case 'brand':
 
                     $brand_list = $this->data['data'];
                     $user_id = $this->data['user_id'];
@@ -48,11 +46,11 @@ class CreateHashTags implements ShouldQueue
                     if (count($brand_list) > 0) {
                         $processed_brand_id_array = [];
 
-                        foreach ($brand_list as $id=>$name) {
-                            foreach($category_postfix_string_list as $string) {
-                                $generated_string = $name .' '. $string->combined_string;
+                        foreach ($brand_list as $id => $name) {
+                            foreach ($category_postfix_string_list as $string) {
+                                $generated_string = $name . ' ' . $string->combined_string;
                                 $check_exist = HashTag::where('hashtag', $generated_string)->count();
-                                if($check_exist > 0) {
+                                if ($check_exist > 0) {
                                     continue;
                                 }
                                 $hashtag = new HashTag();
@@ -63,9 +61,9 @@ class CreateHashTags implements ShouldQueue
                                 $hashtag->updated_at = date('Y-m-d h:i:s');
                                 $hashtag->created_by = $user_id;
                                 $insert_data = $hashtag->toArray();
-                                if(isset($insert_data['hashtag'])) {
+                                if (isset($insert_data['hashtag'])) {
                                     \DB::table('hash_tags')->insert($insert_data);
-                                    CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                    CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));
                                 }
                             }
 
@@ -76,14 +74,14 @@ class CreateHashTags implements ShouldQueue
                     }
                     break;
 
-                case('category'):
+                case 'category':
 
                     $brandList = $this->data['brand_list'];
                     $keywordVariantsList = $this->data['keyword_variants'];
                     $categoryList = $this->data['data'];
                     $user_id = $this->data['user_id'];
 
-                    if (!empty($brandList)) {
+                    if (! empty($brandList)) {
                         $processed_category_id_array = [];
                         foreach ($categoryList as  $category_id => $category) {
                             foreach ($brandList as $brand) {
@@ -101,12 +99,11 @@ class CreateHashTags implements ShouldQueue
                                     $hashtag->updated_at = date('Y-m-d h:i:s');
                                     $hashtag->created_by = $user_id;
                                     $insert_data = $hashtag->toArray();
-                                    if(isset($insert_data['hashtag'])) {
+                                    if (isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
-                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                        CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));
                                     }
                                 }
-
                             }
                             $processed_category_id_array[] = $category_id;
                         }
@@ -115,16 +112,16 @@ class CreateHashTags implements ShouldQueue
 
                     break;
 
-                case ('keyword_variant'):
+                case 'keyword_variant':
                     $keywordVariants = $this->data['data'];
                     $brands = $this->data['brand_list'];
                     $categories = $this->data['category_list'];
                     $user_id = $this->data['user_id'];
-                    if (!empty($brands)) {
+                    if (! empty($brands)) {
                         $processed_variant_id_array = [];
                         foreach ($keywordVariants as $keywordId => $keywordVariant) {
                             foreach ($brands as $brand) {
-                                foreach($categories as $category) {
+                                foreach ($categories as $category) {
                                     $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
                                     $check_exist = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
@@ -138,15 +135,13 @@ class CreateHashTags implements ShouldQueue
                                     $hashtag->updated_at = date('Y-m-d h:i:s');
                                     $hashtag->created_by = $user_id;
                                     $insert_data = $hashtag->toArray();
-                                    if(isset($insert_data['hashtag'])) {
+                                    if (isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
-                                        CreateKeywordScrapperQueue::dispatch(['keyword'=> $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1,4)));
+                                        CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));
                                     }
                                 }
-
                             }
                             $processed_variant_id_array[] = $keywordId;
-
                         }
                         KeywordSearchVariants::updateStatusIsHashtagsGeneratedKeywordVariants($processed_variant_id_array);
                     }
@@ -156,11 +151,11 @@ class CreateHashTags implements ShouldQueue
                     $msg = 'Something went wrong.';
             }
 
-            self::putLog('Job start generategooglescraperkeywordsstart from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start generategooglescraperkeywordsstart from erp end time : ' . date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
-            self::putLog('Job start generategooglescraperkeywords Exception  from erp start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start generategooglescraperkeywords Exception  from erp start time : ' . date('Y-m-d H:i:s'));
             throw new \Exception($e->getMessage());
         }
     }
@@ -168,6 +163,7 @@ class CreateHashTags implements ShouldQueue
     public static function putLog($message)
     {
         \Log::channel('daily')->info($message);
+
         return true;
     }
 }
