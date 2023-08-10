@@ -6,6 +6,7 @@ use DB;
 use Auth;
 use App\User;
 use App\Email;
+use Exception;
 use App\CashFlow;
 use App\ChatMessage;
 use App\EmailAddress;
@@ -13,13 +14,12 @@ use App\StoreWebsite;
 use App\AssetsManager;
 use App\AssetPlateForm;
 use Illuminate\Support\Str;
+use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
 use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
-use App\UserEvent\UserEvent;
-use Exception;
 
 class AssetsManagerController extends Controller
 {
@@ -636,21 +636,22 @@ class AssetsManagerController extends Controller
     {
         try {
             $asset_manager = AssetsManager::find($request->asset_id);
-            if($asset_manager) {
-                if($asset_manager->active == 1){
+            if ($asset_manager) {
+                if ($asset_manager->active == 1) {
                     $asset_manager->active = 0;
                     $asset_manager->save();
-                    UserEvent::where("asset_manager_id", $asset_manager->id)->forceDelete();
+                    UserEvent::where('asset_manager_id', $asset_manager->id)->forceDelete();
                 } else {
                     $asset_manager->active = 1;
                     $asset_manager->save();
                 }
-                return response()->json(["status"=> true, "message"=> "Status updated"]);
+
+                return response()->json(['status' => true, 'message' => 'Status updated']);
             } else {
-                throw new Exception("Asset not found");
+                throw new Exception('Asset not found');
             }
         } catch (\Exception $e) {
-            return response()->json(["status"=> false, "message"=> "Error while updating status"]);
+            return response()->json(['status' => false, 'message' => 'Error while updating status']);
         }
     }
 }

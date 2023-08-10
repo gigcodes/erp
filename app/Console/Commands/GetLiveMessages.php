@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ChatMessage;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class GetLiveMessages extends Command
 {

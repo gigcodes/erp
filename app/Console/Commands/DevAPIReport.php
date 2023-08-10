@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use Google\Client;
 use App\GoogleDeveloper;
+use App\Helpers\LogHelper;
 use App\GoogleDeveloperLogs;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use App\Helpers\LogHelper;
 
 session_start();
 
@@ -45,7 +45,7 @@ class DevAPIReport extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
 
             if (env('GOOGLE_PLAY_STORE_DELETE_LOGS') == '1') {
@@ -132,7 +132,7 @@ class DevAPIReport extends Command
                             $r->report = 'crash';
                             $r->save();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:'.$r->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:' . $r->id]);
 
                             // $log = new GoogleDeveloperLogs();
 
@@ -171,7 +171,7 @@ class DevAPIReport extends Command
                             $log->result = $response;
                             $log->save();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:'.$log->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
                             echo 'crash report of ' . $app_value . ' added';
                         }
                     } else {
@@ -183,7 +183,7 @@ class DevAPIReport extends Command
                         $log->save();
                         echo 'crash report of ' . $app_value . ' failed';
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:'.$log->id]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
                     }
 
                     //ANR Report
@@ -228,8 +228,8 @@ class DevAPIReport extends Command
                             $r->timezone = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
                             $r->report = 'anr';
                             $r->save();
-                            
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:'.$r->id]);
+
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:' . $r->id]);
 
                             // $log = new GoogleDeveloperLogs();
 
@@ -269,7 +269,7 @@ class DevAPIReport extends Command
                             $log->result = $response;
                             $log->save();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:'.$log->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
 
                             echo 'anr report of ' . $app_value . ' added';
                         }
@@ -280,14 +280,14 @@ class DevAPIReport extends Command
                         $log->log_name = 'ANR ERROR';
                         $log->result = $res;
                         $log->save();
-                        
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:'.$log->id]);
 
-                        echo 'anr report of ' . $app_value . ' failed';                        
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
+
+                        echo 'anr report of ' . $app_value . ' failed';
                     }
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

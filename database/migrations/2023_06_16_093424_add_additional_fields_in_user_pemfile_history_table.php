@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddAdditionalFieldsInUserPemfileHistoryTable extends Migration
 {
@@ -18,7 +18,6 @@ class AddAdditionalFieldsInUserPemfileHistoryTable extends Migration
             $table->text('public_key')->nullable()->after('username');
             $table->string('access_type')->nullable()->after('public_key');
             $table->softDeletes();
-            
         });
     }
 

@@ -2,36 +2,32 @@
 
 namespace App\Http\Controllers\Pinterest;
 
-use App\Http\Controllers\Controller;
+use Validator;
+use App\Setting;
 use App\PinterestAds;
-use App\PinterestAdsAccounts;
+use App\PinterestPins;
 use App\PinterestAdsGroups;
 use App\PinterestCampaigns;
-use App\PinterestPins;
 use Illuminate\Http\Request;
-use App\PinterestBoards;
-use App\PinterestBoardSections;
-use App\PinterestBusinessAccountMails;
-use App\Setting;
+use App\PinterestAdsAccounts;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use App\PinterestBusinessAccountMails;
 use Illuminate\Support\Facades\Redirect;
-use Validator;
 
 class PinterestCampaignsController extends Controller
 {
-
     /**
      * Get all campaigns for a account.
-     * @param Request $request
-     * @param $id
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function campaignsIndex(Request $request, $id)
     {
         try {
             $pinterestBusinessAccountMail = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestBusinessAccountMail) {
+            if (! $pinterestBusinessAccountMail) {
                 return Redirect::route('pinterest.accounts.dashboard', [$id])
                     ->with('error', 'No account found');
             }
@@ -45,6 +41,7 @@ class PinterestCampaignsController extends Controller
                     }
                 })->paginate(Setting::get('pagination'), ['*'], 'pins');
             $pinterestAdsAccounts = PinterestAdsAccounts::where('pinterest_mail_id', $pinterestBusinessAccountMail->id)->pluck('ads_account_name', 'id')->toArray();
+
             return view('pinterest.campaigns-index', compact('pinterestBusinessAccountMail', 'pinterestCampaigns', 'pinterestAdsAccounts'));
         } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts.dashboard', [$id])
@@ -54,15 +51,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Create a new Campaign.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function createCampaign(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -72,21 +66,21 @@ class PinterestCampaignsController extends Controller
                 'status' => 'required|in:ACTIVE,PAUSED,ARCHIVED',
                 'lifetime_spend_cap' => 'required_without:daily_spend_cap|integer|nullable',
                 'daily_spend_cap' => 'required_without:lifetime_spend_cap|integer|nullable',
-//                'tracking_urls_impression' => 'sometimes|array|max:3',
-//                'tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
-//                'tracking_urls_click' => 'sometimes|array|max:3',
-//                'tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
-//                'tracking_urls_engagement' => 'sometimes|array|max:3',
-//                'tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
-//                'tracking_urls_buyable_button' => 'sometimes|array|max:3',
-//                'tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
-//                'tracking_urls_audience_verification' => 'sometimes|array|max:3',
-//                'tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
+                //                'tracking_urls_impression' => 'sometimes|array|max:3',
+                //                'tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
+                //                'tracking_urls_click' => 'sometimes|array|max:3',
+                //                'tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
+                //                'tracking_urls_engagement' => 'sometimes|array|max:3',
+                //                'tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
+                //                'tracking_urls_buyable_button' => 'sometimes|array|max:3',
+                //                'tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
+                //                'tracking_urls_audience_verification' => 'sometimes|array|max:3',
+                //                'tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
                 'start_time' => 'required|date',
                 'end_time' => 'required|date',
                 'summary_status' => 'sometimes|nullable|in:RUNNING,PAUSED,NOT_STARTED,COMPLETED,ADVERTISER_DISABLED,ARCHIVED',
                 'is_flexible_daily_budgets' => '',
-                'objective_type' => 'required|in:AWARENESS,CONSIDERATION,VIDEO_VIEW,WEB_CONVERSION,CATALOG_SALES'
+                'objective_type' => 'required|in:AWARENESS,CONSIDERATION,VIDEO_VIEW,WEB_CONVERSION,CATALOG_SALES',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
@@ -104,7 +98,7 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('lifetime_spend_cap') ? $request->get('lifetime_spend_cap', 0) * 1000000 : null,
                     'daily_spend_cap' => $request->has('daily_spend_cap') ? $request->get('daily_spend_cap', 0) * 1000000 : null,
-//                    'tracking_urls' => count($urls) > 0 ? $this->buildTrackingUrls($request->all()) : null,
+                    //                    'tracking_urls' => count($urls) > 0 ? $this->buildTrackingUrls($request->all()) : null,
                     'start_time' => $request->has('start_time') && $request->start_time ? strtotime($request->get('start_time')) : null,
                     'end_time' => $request->has('end_time') && $request->end_time ? strtotime($request->get('end_time')) : null,
                     'summary_status' => $request->get('summary_status'),
@@ -113,7 +107,7 @@ class PinterestCampaignsController extends Controller
                     'default_ad_group_budget_in_micro_currency' => null,
                     'is_automated_campaign' => false,
                     'objective_type' => $request->get('objective_type'),
-                ]
+                ],
             ]);
             if ($response['status']) {
                 PinterestCampaigns::create([
@@ -123,7 +117,7 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('lifetime_spend_cap') ? $request->get('lifetime_spend_cap', 0) : null,
                     'daily_spend_cap' => $request->has('daily_spend_cap') ? $request->get('daily_spend_cap', 0) : null,
-//                    'tracking_urls' => json_encode($this->buildTrackingUrls($request->all())),
+                    //                    'tracking_urls' => json_encode($this->buildTrackingUrls($request->all())),
                     'start_time' => $request->has('start_time') && $request->start_time ? strtotime($request->get('start_time')) : null,
                     'end_time' => $request->has('end_time') && $request->end_time ? strtotime($request->get('end_time')) : null,
                     'summary_status' => $request->get('summary_status'),
@@ -133,6 +127,7 @@ class PinterestCampaignsController extends Controller
                     'is_automated_campaign' => false,
                     'objective_type' => $request->get('objective_type'),
                 ]);
+
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
                     ->with('success', 'Campaign created successfully.');
             } else {
@@ -147,8 +142,6 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Build Tracking URL object
-     * @param $params
-     * @return array
      */
     public function buildTrackingUrls($params, $isEdit = false): array
     {
@@ -209,26 +202,25 @@ class PinterestCampaignsController extends Controller
         } else {
             unset($urls['audience_verification']);
         }
+
         return $urls;
     }
 
     /**
      * Get Campaign Details
-     * @param $id
-     * @param $campaignId
-     * @return JsonResponse
      */
     public function getCampaign($id, $campaignId): JsonResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccountMails::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return response()->json(['status' => false, 'message' => 'Account not found']);
             }
             $pinterestCampaign = PinterestCampaigns::findOrFail($campaignId);
-            if (!$pinterestCampaign) {
+            if (! $pinterestCampaign) {
                 return response()->json(['status' => false, 'message' => 'Campaign not found']);
             }
+
             return response()->json(['status' => true, 'message' => 'Account found', 'data' => $pinterestCampaign->toArray()]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
@@ -237,15 +229,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Update a Campaign.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function updateCampaign(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -256,20 +245,20 @@ class PinterestCampaignsController extends Controller
                 'edit_status' => 'required|in:ACTIVE,PAUSED,ARCHIVED',
                 'edit_lifetime_spend_cap' => 'required_without:edit_daily_spend_cap|integer|nullable',
                 'edit_daily_spend_cap' => 'required_without:edit_lifetime_spend_cap|integer|nullable',
-//                'edit_tracking_urls_impression' => 'sometimes|array|max:3',
-//                'edit_tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
-//                'edit_tracking_urls_click' => 'sometimes|array|max:3',
-//                'edit_tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
-//                'edit_tracking_urls_engagement' => 'sometimes|array|max:3',
-//                'edit_tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
-//                'edit_tracking_urls_buyable_button' => 'sometimes|array|max:3',
-//                'edit_tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
-//                'edit_tracking_urls_audience_verification' => 'sometimes|array|max:3',
-//                'edit_tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
+                //                'edit_tracking_urls_impression' => 'sometimes|array|max:3',
+                //                'edit_tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
+                //                'edit_tracking_urls_click' => 'sometimes|array|max:3',
+                //                'edit_tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
+                //                'edit_tracking_urls_engagement' => 'sometimes|array|max:3',
+                //                'edit_tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
+                //                'edit_tracking_urls_buyable_button' => 'sometimes|array|max:3',
+                //                'edit_tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
+                //                'edit_tracking_urls_audience_verification' => 'sometimes|array|max:3',
+                //                'edit_tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
                 'edit_start_time' => 'required|date',
                 'edit_end_time' => 'required|date',
                 'edit_summary_status' => 'sometimes|nullable|in:RUNNING,PAUSED,NOT_STARTED,COMPLETED,ADVERTISER_DISABLED,ARCHIVED',
-                'edit_is_flexible_daily_budgets' => ''
+                'edit_is_flexible_daily_budgets' => '',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
@@ -288,15 +277,15 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('edit_status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('edit_lifetime_spend_cap') && $request->edit_lifetime_spend_cap ? $request->get('edit_lifetime_spend_cap', 0) * 1000000 : null,
                     'daily_spend_cap' => $request->has('edit_daily_spend_cap') && $request->edit_daily_spend_cap ? $request->get('edit_daily_spend_cap', 0) * 1000000 : null,
-//                    'tracking_urls' => count($urls) > 0 ? $urls : null,
+                    //                    'tracking_urls' => count($urls) > 0 ? $urls : null,
                     'start_time' => $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) * 1000 : null,
                     'end_time' => $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) * 1000 : null,
                     'summary_status' => $request->get('edit_summary_status'),
                     'is_campaign_budget_optimization' => false,
                     'is_flexible_daily_budgets' => $request->has('edit_is_flexible_daily_budgets') ? $request->get('edit_is_flexible_daily_budgets') == 'true' : false,
                     'default_ad_group_budget_in_micro_currency' => null,
-                    'is_automated_campaign' => false
-                ]
+                    'is_automated_campaign' => false,
+                ],
             ]);
             if ($response['status']) {
                 $pinterestCampaign->pinterest_ads_account_id = $pinterestAdsAccount->id;
@@ -313,6 +302,7 @@ class PinterestCampaignsController extends Controller
                 $pinterestCampaign->default_ad_group_budget_in_micro_currency = null;
                 $pinterestCampaign->is_automated_campaign = false;
                 $pinterestCampaign->save();
+
                 return Redirect::route('pinterest.accounts.campaign.index', [$id])
                     ->with('success', 'Campaign updated successfully.');
             } else {
@@ -327,15 +317,14 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Get all Ads group for a account.
-     * @param Request $request
-     * @param $id
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function adsGroupIndex(Request $request, $id)
     {
         try {
             $pinterestBusinessAccountMail = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestBusinessAccountMail) {
+            if (! $pinterestBusinessAccountMail) {
                 return Redirect::route('pinterest.accounts.dashboard', [$id])
                     ->with('error', 'No account found');
             }
@@ -351,6 +340,7 @@ class PinterestCampaignsController extends Controller
             $pinterestCampaigns = PinterestCampaigns::whereHas('account', function ($query) use ($pinterestBusinessAccountMail) {
                 $query->where('pinterest_mail_id', $pinterestBusinessAccountMail->id);
             })->pluck('name', 'id')->toArray();
+
             return view('pinterest.ads-group-index', compact('pinterestBusinessAccountMail', 'pinterestCampaigns', 'pinterestAdsGroups'));
         } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts.dashboard', [$id])
@@ -360,15 +350,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Create a new Ads Group.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function createAdsGroup(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -410,7 +397,7 @@ class PinterestCampaignsController extends Controller
                     'pacing_delivery_type' => $request->get('pacing_delivery_type'),
                     'billable_event' => $request->get('billable_event'),
                     'bid_strategy_type' => $request->get('bid_strategy_type'),
-                ]
+                ],
             ]);
             if ($response['status']) {
                 PinterestAdsGroups::create([
@@ -430,6 +417,7 @@ class PinterestCampaignsController extends Controller
                     'pinterest_campaign_id' => $pinterestCampaign->id,
                     'ads_group_id' => $response['data']['items'][0]['data']['id'],
                 ]);
+
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('success', 'Ads Group created successfully.');
             } else {
@@ -444,21 +432,19 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Get Ads group Details
-     * @param $id
-     * @param $adsGroupId
-     * @return JsonResponse
      */
     public function getAdsGroup($id, $adsGroupId): JsonResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccountMails::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return response()->json(['status' => false, 'message' => 'Account not found']);
             }
             $pinterestAdsGroup = PinterestAdsGroups::findOrFail($adsGroupId);
-            if (!$pinterestAdsGroup) {
+            if (! $pinterestAdsGroup) {
                 return response()->json(['status' => false, 'message' => 'Campaign not found']);
             }
+
             return response()->json(['status' => true, 'message' => 'Account found', 'data' => $pinterestAdsGroup->toArray()]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
@@ -467,15 +453,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Update a Ads Group.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function updateAdsGroup(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -512,14 +495,14 @@ class PinterestCampaignsController extends Controller
                     'budget_in_micro_currency' => $request->has('edit_budget_in_micro_currency') && $request->edit_budget_in_micro_currency ? $request->get('edit_budget_in_micro_currency', 0) * 1000000 : null,
                     'bid_in_micro_currency' => $request->has('edit_bid_in_micro_currency') && $request->edit_bid_in_micro_currency ? $request->get('edit_bid_in_micro_currency', 0) * 1000000 : null,
                     'budget_type' => $request->get('edit_budget_type'),
-//                    'start_time' => $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) : null,
+                    //                    'start_time' => $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) : null,
                     'end_time' => $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) : null,
                     'lifetime_frequency_cap' => $request->has('edit_lifetime_frequency_cap') && $request->edit_lifetime_frequency_cap ? $request->get('edit_lifetime_frequency_cap', 0) * 1000000 : null,
                     'placement_group' => $request->get('edit_placement_group'),
                     'pacing_delivery_type' => $request->get('edit_pacing_delivery_type'),
                     'billable_event' => $request->get('edit_billable_event'),
                     'bid_strategy_type' => $request->get('edit_bid_strategy_type'),
-                ]
+                ],
             ]);
             if ($response['status']) {
                 $pinterestAdsGroup->pinterest_ads_account_id = $pinterestCampaign->account->id;
@@ -537,6 +520,7 @@ class PinterestCampaignsController extends Controller
                 $pinterestAdsGroup->billable_event = $request->get('edit_billable_event');
                 $pinterestAdsGroup->bid_strategy_type = $request->get('edit_bid_strategy_type');
                 $pinterestAdsGroup->save();
+
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('success', 'Ads Group updated successfully.');
             } else {
@@ -551,15 +535,14 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Get all Ads for a account.
-     * @param Request $request
-     * @param $id
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function adsIndex(Request $request, $id)
     {
         try {
             $pinterestBusinessAccountMail = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestBusinessAccountMail) {
+            if (! $pinterestBusinessAccountMail) {
                 return Redirect::route('pinterest.accounts.dashboard', [$id])
                     ->with('error', 'No account found');
             }
@@ -578,6 +561,7 @@ class PinterestCampaignsController extends Controller
             $pinterestPins = PinterestPins::whereHas('account', function ($query) use ($pinterestBusinessAccountMail) {
                 $query->where('pinterest_mail_id', $pinterestBusinessAccountMail->id);
             })->pluck('title', 'id')->toArray();
+
             return view('pinterest.ads-index', compact('pinterestBusinessAccountMail', 'pinterestAds', 'pinterestAdsGroups', 'pinterestPins'));
         } catch (\Exception $e) {
             return Redirect::route('pinterest.accounts.dashboard', [$id])
@@ -587,15 +571,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Create a new Ads.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function createAds(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -624,7 +605,7 @@ class PinterestCampaignsController extends Controller
                     'destination_url' => $request->has('destination_url') && $request->destination_url ? $request->get('destination_url') : null,
                     'name' => $request->has('name') && $request->name ? $request->get('name') : null,
                     'status' => $request->get('status'),
-                ]
+                ],
             ]);
             if ($response['status']) {
                 PinterestAds::create([
@@ -635,8 +616,9 @@ class PinterestCampaignsController extends Controller
                     'creative_type' => $request->get('creative_type'),
                     'destination_url' => $request->has('destination_url') && $request->destination_url ? $request->get('destination_url') : null,
                     'name' => $request->has('name') && $request->name ? $request->get('name') : null,
-                    'status' => $request->get('status')
+                    'status' => $request->get('status'),
                 ]);
+
                 return Redirect::route('pinterest.accounts.ads.index', [$id])
                     ->with('success', 'Ads created successfully.');
             } else {
@@ -651,21 +633,19 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Get Ads Details
-     * @param $id
-     * @param $adsId
-     * @return JsonResponse
      */
     public function getAds($id, $adsId): JsonResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccountMails::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return response()->json(['status' => false, 'message' => 'Account not found']);
             }
             $pinterestAds = PinterestAds::findOrFail($adsId);
-            if (!$pinterestAds) {
+            if (! $pinterestAds) {
                 return response()->json(['status' => false, 'message' => 'Pin not found']);
             }
+
             return response()->json(['status' => true, 'message' => 'Account found', 'data' => $pinterestAds->toArray()]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
@@ -674,15 +654,12 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Update a Ads.
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function updateAds(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts.adsGroup.index', [$id])
                     ->with('error', 'No account found');
             }
@@ -713,7 +690,7 @@ class PinterestCampaignsController extends Controller
                     'destination_url' => $request->has('edit_destination_url') && $request->edit_destination_url ? $request->get('edit_destination_url') : null,
                     'name' => $request->has('edit_name') && $request->edit_name ? $request->get('edit_name') : null,
                     'status' => $request->get('edit_status'),
-                ]
+                ],
             ]);
             if ($response['status']) {
                 $pinterestAds->pinterest_ads_account_id = $pinterestAdsGroup->account->id;
@@ -724,6 +701,7 @@ class PinterestCampaignsController extends Controller
                 $pinterestAds->name = $request->has('edit_name') && $request->edit_name ? $request->get('edit_name') : null;
                 $pinterestAds->status = $request->get('edit_status');
                 $pinterestAds->save();
+
                 return Redirect::route('pinterest.accounts.ads.index', [$id])
                     ->with('success', 'Ads updated successfully.');
             } else {
@@ -738,15 +716,14 @@ class PinterestCampaignsController extends Controller
 
     /**
      * Get Pinterest Client
-     * @param $pinterestAccount
-     * @return PinterestService
+     *
      * @throws \Exception
      */
     public function getPinterestClient($pinterestAccount): PinterestService
     {
         $pinterest = new PinterestService($pinterestAccount->account->pinterest_client_id, $pinterestAccount->account->pinterest_client_secret, $pinterestAccount->account->id);
         $pinterest->updateAccessToken($pinterestAccount->pinterest_access_token);
+
         return $pinterest;
     }
-
 }

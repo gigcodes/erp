@@ -495,7 +495,7 @@ class ChatMessagesController extends Controller
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
                     'is_auto_simulator' => $chatMessage->is_auto_simulator,
-                    'send_by_simulator' => $chatMessage->send_by_simulator
+                    'send_by_simulator' => $chatMessage->send_by_simulator,
                 ];
 
                 if ($chatMessage->message_type == 'email') {
@@ -503,8 +503,8 @@ class ChatMessagesController extends Controller
                     $arr['sendBy'] = $chatMessage->to_email;
                 }
                 $arr['is_audio'] = $chatMessage->is_audio;
-                if($chatMessage->is_audio){
-                    $arr['message']=\App\Helpers::getAudioUrl($chatMessage->message);
+                if ($chatMessage->is_audio) {
+                    $arr['message'] = \App\Helpers::getAudioUrl($chatMessage->message);
                 }
                 $messages[] = $arr;
             }
@@ -732,9 +732,9 @@ class ChatMessagesController extends Controller
                 $type = 'customer';
                 $sender = optional($row->customer)->name;
             }
-            $message=$row->message;
-            if($row->is_audio){
-                $message=\App\Helpers::getAudioUrl($row->message);
+            $message = $row->message;
+            if ($row->is_audio) {
+                $message = \App\Helpers::getAudioUrl($row->message);
                 //dd($message);
             }
             $recorsArray[] = [

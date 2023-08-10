@@ -594,7 +594,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <!-- email-search Modal-->
     <div id="menu-email-search-model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg"  role="document">
+        <div class="modal-dialog modal-xl"  role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Email Search</h4>
@@ -622,23 +622,59 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <th>Subject</th>
                                         <th>Body</th>
                                         <th>Action</th>
+                                        <th>Read</th>
                                     </tr>
                                     </thead>
                                     <tbody class="email_search_result">
                                         @php
-                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                           $userEmails = \App\Email::where('seen', '0')
+                                                        ->orderBy('created_at', 'desc')
+                                                        ->latest()
+                                                        ->take(20)
+                                                        ->get();
                                         @endphp
                                         @foreach ($userEmails as $key => $userEmail)
                                             <tr>
                                                 <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
-                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->from) > 30 ? substr($userEmail->from, 0, 15).'...' :  $userEmail->from }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->from }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->to) > 30 ? substr($userEmail->to, 0,15).'...' :  $userEmail->to }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->to }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->subject) > 30 ? substr($userEmail->subject, 0,15).'...' :  $userEmail->subject }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->subject }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->message) > 30 ? substr($userEmail->message, 0,15).'...' :  $userEmail->message }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->message }}
+                                                    </span>
+                                                </td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
                                                 </a></td>
+                                                <td>
+                                                    <input type="checkbox" name="email_read" id="is_email_read" value="1" data-id="{{ $userEmail->id }}" onclick="updateReadEmail(this)">
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -3766,6 +3802,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('quick.email.list') }}">Quick Emails</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -5789,6 +5828,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         }
     })
+
+    $(document).on('click', '.expand-row-email', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-email-container').toggleClass('hidden');
+            $(this).find('.td-full-email-container').toggleClass('hidden');
+        }
+    });
 
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
@@ -7832,7 +7879,27 @@ if (!\Auth::guest()) {
 			});	
 		};
 
-		
+
+		function updateReadEmail(checkbox) {
+			var emailId = checkbox.getAttribute('data-id');
+			$.ajax({	
+                url: '{{route('website.email.update')}}',
+                type: 'GET',
+                headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+				data: {
+					id: emailId
+				},
+				success: function(response) {
+                    toastr["success"](response.message, "Message");
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});	
+	    };
+
 
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();

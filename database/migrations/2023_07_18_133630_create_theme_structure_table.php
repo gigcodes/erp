@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateThemeStructureTable extends Migration
 {
@@ -21,10 +21,9 @@ class CreateThemeStructureTable extends Migration
             $table->integer('parent_id')->unsigned()->nullable();
             $table->integer('position')->unsigned()->nullable();
             $table->timestamps();
-            
+
             $table->foreign('parent_id')->references('id')->on('theme_structure')->onDelete('cascade');
         });
-
     }
 
     /**

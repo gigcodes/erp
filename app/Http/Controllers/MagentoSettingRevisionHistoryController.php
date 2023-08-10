@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MagentoSettingRevisionHistory;
 use Illuminate\Http\Request;
-use Auth;
+use App\Models\MagentoSettingRevisionHistory;
 
 class MagentoSettingRevisionHistoryController extends Controller
 {
@@ -34,11 +33,11 @@ class MagentoSettingRevisionHistoryController extends Controller
             });
         }
 
-        if(isset($status)){
+        if (isset($status)) {
             $magentoSettingRevisionHistories = $magentoSettingRevisionHistories->where('status', $status);
         }
 
-        if(isset($active)){
+        if (isset($active)) {
             $magentoSettingRevisionHistories = $magentoSettingRevisionHistories->where('active', $active);
         }
 

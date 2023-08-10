@@ -11,17 +11,18 @@ use Carbon\Carbon;
 //use App\InstagramPosts;
 //use App\InstagramPostsComments;
 //use App\InstagramUsersList;
-use App\CommentsStats;
+use App\LogRequest;
 //use App\Services\Instagram\Hashtags;
+use App\CommentsStats;
 use App\ScrapInfluencer;
 use Plank\Mediable\Media;
-use App\InfluencerKeyword;
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Signatures;
+use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
-use App\LogRequest;
+
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
@@ -851,7 +852,7 @@ class HashtagController extends Controller
                         \Log::info($response);
 
                         curl_close($curl);
-                        
+
                         $res = json_decode($response);
 
                         \App\Mailinglist::create([
@@ -892,7 +893,7 @@ class HashtagController extends Controller
             ];
             $url = 'https://api.sendinblue.com/v3/contacts';
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url ,
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -910,7 +911,6 @@ class HashtagController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
             curl_close($curl);
-            
         }
 
         return redirect()->back()->with('message', 'mailinglist create successfully');

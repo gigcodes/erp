@@ -114,14 +114,15 @@ class ViewInvoice extends Mailable
         $pdf = new Dompdf();
         $pdf->loadHtml($html);
         $pdf->render();
-        if(array_key_exists('savePDF',$this->param)){
-            $path = public_path().'/pdf';
+        if (array_key_exists('savePDF', $this->param)) {
+            $path = public_path() . '/pdf';
             \File::isDirectory($path) or \File::makeDirectory($path, 0777, true, true);
-            $file = time().'invoice.pdf';
-            file_put_contents('pdf/'.$file, $pdf->output());
+            $file = time() . 'invoice.pdf';
+            file_put_contents('pdf/' . $file, $pdf->output());
+
             return $file;
-        }else{
-            $pdf->stream(date('Y-m-d H:i:s').'invoice.pdf');
+        } else {
+            $pdf->stream(date('Y-m-d H:i:s') . 'invoice.pdf');
         }
     }
 

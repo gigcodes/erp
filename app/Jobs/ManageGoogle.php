@@ -3,16 +3,14 @@
 namespace App\Jobs;
 
 use App\ChatbotQuestion;
-use App\Library\Google\DialogFlow\DialogFlowService;
-use App\Models\GoogleDialogAccount;
-use App\Models\GoogleResponseId;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\GoogleResponseId;
+use App\Models\GoogleDialogAccount;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Library\Google\DialogFlow\DialogFlowService;
 
 class ManageGoogle implements ShouldQueue
 {
@@ -72,7 +70,6 @@ class ManageGoogle implements ShouldQueue
                     $chatBotQuestion->google_status = $e->getMessage();
                     $chatBotQuestion->save();
                 }
-
             }
         }
     }

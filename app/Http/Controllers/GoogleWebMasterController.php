@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Auth;
 use App\Site;
 use App\Setting;
+use App\LogRequest;
 use App\WebmasterLog;
 use App\GoogleWebMasters;
 use App\WebsiteStoreView;
@@ -16,7 +17,6 @@ use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
 use Spatie\Activitylog\Models\Activity;
 use App\WebsiteStoreViewsWebmasterHistory;
-use App\LogRequest;
 
 class GoogleWebMasterController extends Controller
 {
@@ -301,7 +301,7 @@ class GoogleWebMasterController extends Controller
     {
         $params = ['inspectionUrl' => $pageUrl, 'siteUrl' => $siteUrl];
         $url = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
-       
+
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
         //replace website name with code coming form site list
@@ -381,7 +381,7 @@ class GoogleWebMasterController extends Controller
             $error_msg = curl_error($curl);
         }
         curl_close($curl);
-       
+
         LogRequest::log($startTime, $url, 'GET', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'googleResultForAnaylist');
 
         if (isset($error_msg)) {
@@ -457,7 +457,6 @@ class GoogleWebMasterController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
             LogRequest::log($startTime, $url_for_sites, 'PUT', json_encode($params), $response, $httpcode, \App\Http\Controllers\GoogleWebMasterController::class, 'SubmitSiteToWebmaster');
-
 
             if (! empty($response)) {
                 $history = [
@@ -705,7 +704,7 @@ class GoogleWebMasterController extends Controller
 
                             echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                             $curl1 = curl_init();
-                            $url ="https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
+                            $url = "https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
                             //replace website name with code coming form site list
 
                             curl_setopt_array($curl1, [
@@ -755,7 +754,7 @@ class GoogleWebMasterController extends Controller
                 }
             }
         }
-        
+
         return redirect()->route('googlewebmaster.index');
     }
 

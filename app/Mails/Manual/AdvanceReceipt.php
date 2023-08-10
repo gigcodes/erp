@@ -25,9 +25,9 @@ class AdvanceReceipt extends Mailable
     public function __construct(Order $order)
     {
         $this->order = $order;
-        
-        $this->from_email=\App\Helpers::getFromEmail($order->customer->id);
-        
+
+        $this->from_email = \App\Helpers::getFromEmail($order->customer->id);
+
         $count = count($order->order_product);
         foreach ($order->order_product as $key => $order_product) {
             if ((($count - 1) == $key) && $key != 0) {

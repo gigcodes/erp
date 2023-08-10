@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreatePinterestAdsTable extends Migration
 {
@@ -19,7 +19,7 @@ class CreatePinterestAdsTable extends Migration
             $table->unsignedBigInteger('pinterest_ads_group_id');
             $table->unsignedBigInteger('pinterest_pin_id');
             $table->string('ads_id');
-            $table->enum('creative_type', ["REGULAR", "VIDEO", "SHOPPING", "CAROUSEL", "MAX_VIDEO", "SHOP_THE_PIN", "IDEA"]);
+            $table->enum('creative_type', ['REGULAR', 'VIDEO', 'SHOPPING', 'CAROUSEL', 'MAX_VIDEO', 'SHOP_THE_PIN', 'IDEA']);
             $table->text('carousel_android_deep_links')->nullable();
             $table->text('carousel_destination_urls')->nullable();
             $table->text('carousel_ios_deep_links')->nullable();

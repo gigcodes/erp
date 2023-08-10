@@ -3,12 +3,12 @@
 namespace App\Helpers;
 
 use Carbon\Carbon;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class LogHelper
 {
-    public static function createCustomLogForCron($fileName = 'laravel', $message = array())
+    public static function createCustomLogForCron($fileName = 'laravel', $message = [])
     {
         $currentDate = Carbon::now()->format('Y-m-d');
 
@@ -17,7 +17,7 @@ class LogHelper
 
         //first parameter passed to Monolog\Logger sets the logging channel name
         $cronLog = new Logger($fileName);
-        $cronLog->pushHandler(new StreamHandler(storage_path('logs/'.$fileName.'-'.$currentDate.'.log')), Logger::INFO);
+        $cronLog->pushHandler(new StreamHandler(storage_path('logs/' . $fileName . '-' . $currentDate . '.log')), Logger::INFO);
         $cronLog->info($cronPrefix, $message);
     }
 }

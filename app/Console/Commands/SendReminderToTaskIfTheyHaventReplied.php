@@ -47,12 +47,12 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-    
+
             $now = Carbon::now()->toDateTimeString();
-    
+
             // task page logic starting from here
             $tasks = \App\Task::where('frequency', '>', 0)->where('reminder_message', '!=', '')->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
-    
+
             if (! $tasks->isEmpty()) {
                 foreach ($tasks as $task) {
                     $templateMessage = "#TASK-{$task->id} - {$task->task_subject} - " . $task->reminder_message;
@@ -68,9 +68,9 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                     }
                 }
             }
-    
+
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

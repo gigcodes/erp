@@ -218,7 +218,7 @@ class GiftCardController extends Controller
                 'model_id' => $data['model_id'],
                 'model_type' => $data['model_class'],
                 'from' => $data['receiver_email'],
-                'to' => $data['sender_email'] ,
+                'to' => $data['sender_email'],
                 'subject' => $emailClass->subject,
                 'message' => $emailClass->render(),
                 'template' => 'gift-card',

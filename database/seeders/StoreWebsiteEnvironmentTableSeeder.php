@@ -1,9 +1,10 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\StoreWebsite;
-use App\StoreWebsiteEnvironment;
 use Illuminate\Database\Seeder;
+use App\StoreWebsiteEnvironment;
 
 class StoreWebsiteEnvironmentTableSeeder extends Seeder
 {
@@ -12,14 +13,12 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $sampleData = self::sampleData();
-        $storeWebsites = StoreWebsite::limit(2)->get(); // For testing, I am getting only 2 records. 
+        $storeWebsites = StoreWebsite::limit(2)->get(); // For testing, I am getting only 2 records.
 
-        foreach($storeWebsites as $storeWebsite)
-        {
+        foreach ($storeWebsites as $storeWebsite) {
             StoreWebsiteEnvironment::firstOrCreate(
                 ['store_website_id' => $storeWebsite->id],
                 ['env_data' => $sampleData]
@@ -31,13 +30,13 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
     {
         return [
             'backend' => [
-                'frontName' => 'brands-wadm-2-1'
+                'frontName' => 'brands-wadm-2-1',
             ],
             'install' => [
-                'date' => 'Thu, 24 Sep 2020 16:56:17 +0000'
+                'date' => 'Thu, 24 Sep 2020 16:56:17 +0000',
             ],
             'crypt' => [
-                'key' => 'XYLm7obbymFUpDbs6ocUTLMcgWL9wcvT'
+                'key' => 'XYLm7obbymFUpDbs6ocUTLMcgWL9wcvT',
             ],
             'session' => [
                 'save' => 'redis',
@@ -63,8 +62,8 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                     'sentinel_master' => '',
                     'sentinel_servers' => '',
                     'sentinel_connect_retries' => '5',
-                    'sentinel_verify_master' => '0'
-                ]
+                    'sentinel_verify_master' => '0',
+                ],
             ],
             'cache' => [
                 'frontend' => [
@@ -77,13 +76,13 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'port' => '6379',
                             'password' => '',
                             'compress_data' => '1',
-                            'compression_lib' => ''
-                        ]
+                            'compression_lib' => '',
+                        ],
                     ],
                     'page_cache' => [
-                        'id_prefix' => 'e1e_'
-                    ]
-                ]
+                        'id_prefix' => 'e1e_',
+                    ],
+                ],
             ],
             'db' => [
                 'table_prefix' => '',
@@ -96,14 +95,14 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                         'model' => 'mysql4',
                         'engine' => 'innodb',
                         'initStatements' => 'SET NAMES utf8;',
-                        'active' => '1'
-                    ]
-                ]
+                        'active' => '1',
+                    ],
+                ],
             ],
             'resource' => [
                 'default_setup' => [
-                    'connection' => 'default'
-                ]
+                    'connection' => 'default',
+                ],
             ],
             'x-frame-options' => 'SAMEORIGIN',
             'MAGE_MODE' => 'production',
@@ -124,38 +123,38 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                 'customer_notification' => 1,
                 'google_product' => 1,
                 'vertex' => 1,
-                'amasty_shopby' => 1
+                'amasty_shopby' => 1,
             ],
             'system' => [
                 'default' => [
                     'admin' => [
                         'url' => [
-                            'custom' => null
-                        ]
+                            'custom' => null,
+                        ],
                     ],
                     'dev' => [
                         'js' => [
                             'session_storage_key' => 'collected_errors',
-                            'enable_magepack_js_bundling' => '1'
+                            'enable_magepack_js_bundling' => '1',
                         ],
                         'restrict' => [
-                            'allow_ips' => '103.79.169.130'
+                            'allow_ips' => '103.79.169.130',
                         ],
                         'static' => [
-                            'sign' => '1'
-                        ]
+                            'sign' => '1',
+                        ],
                     ],
                     'system' => [
                         'smtp' => [
                             'host' => 'localhost',
-                            'port' => '25'
+                            'port' => '25',
                         ],
                         'full_page_cache' => [
                             'varnish' => [
                                 'access_list' => 'localhost',
                                 'backend_host' => 'localhost',
-                                'backend_port' => '8080'
-                            ]
+                                'backend_port' => '8080',
+                            ],
                         ],
                         'gmailsmtpapp' => [
                             'active' => '0',
@@ -166,39 +165,39 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'set_reply_to' => '1',
                             'set_from' => '0',
                             'password' => '0:3:tcdd1hR2q0rMtnMM4d0s+b8mb7cBnPjZdr/H8pIU1ksVACYdX0Lgk6oqrONRjQCY',
-                            'username' => 'brandsandlabelsdubai@gmail.com'
-                        ]
+                            'username' => 'brandsandlabelsdubai@gmail.com',
+                        ],
                     ],
                     'web' => [
                         'unsecure' => [
                             'base_url' => 'https://www.brands-labels.com/',
                             'base_link_url' => '{{unsecure_base_url}}',
                             'base_static_url' => 'https://www.brands-labels.com/static-2-1/',
-                            'base_media_url' => 'https://www.brands-labels.com/media-2-1/'
+                            'base_media_url' => 'https://www.brands-labels.com/media-2-1/',
                         ],
                         'secure' => [
                             'base_url' => 'https://www.brands-labels.com/',
                             'base_link_url' => '{{secure_base_url}}',
                             'base_static_url' => 'https://www.brands-labels.com/static-2-1/',
-                            'base_media_url' => 'https://www.brands-labels.com/media-2-1/'
+                            'base_media_url' => 'https://www.brands-labels.com/media-2-1/',
                         ],
                         'default' => [
-                            'front' => 'cms'
+                            'front' => 'cms',
                         ],
                         'cookie' => [
                             'cookie_path' => null,
-                            'cookie_domain' => null
-                        ]
+                            'cookie_domain' => null,
+                        ],
                     ],
                     'currency' => [
                         'import' => [
-                            'error_email' => null
-                        ]
+                            'error_email' => null,
+                        ],
                     ],
                     'customer' => [
                         'create_account' => [
-                            'email_domain' => 'example.com'
-                        ]
+                            'email_domain' => 'example.com',
+                        ],
                     ],
                     'catalog' => [
                         'search' => [
@@ -211,26 +210,26 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'elasticsearch5_server_port' => '9200',
                             'elasticsearch5_index_prefix' => 'magento2',
                             'elasticsearch5_enable_auth' => '0',
-                            'elasticsearch5_server_timeout' => '15'
+                            'elasticsearch5_server_timeout' => '15',
                         ],
                         'productalert_cron' => [
-                            'error_email' => null
+                            'error_email' => null,
                         ],
                         'product_video' => [
-                            'youtube_api_key' => null
-                        ]
+                            'youtube_api_key' => null,
+                        ],
                     ],
                     'cataloginventory' => [
                         'source_selection_distance_based_google' => [
-                            'api_key' => null
+                            'api_key' => null,
                         ],
                         'item_options' => [
-                            'manage_stock' => '0'
-                        ]
+                            'manage_stock' => '0',
+                        ],
                     ],
                     'payment' => [
                         'checkmo' => [
-                            'mailing_address' => null
+                            'mailing_address' => null,
                         ],
                         'authorizenet_directpost' => [
                             'debug' => '0',
@@ -241,56 +240,56 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'trans_key' => null,
                             'trans_md5' => null,
                             'cgi_url' => 'https://secure.authorize.net/gateway/transact.dll',
-                            'cgi_url_td' => 'https://api2.authorize.net/xml/v1/request.api'
+                            'cgi_url_td' => 'https://api2.authorize.net/xml/v1/request.api',
                         ],
                         'paypal_express' => [
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'paypal_express_bml' => [
-                            'publisher_id' => null
+                            'publisher_id' => null,
                         ],
                         'payflow_express' => [
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'payflowpro' => [
                             'user' => null,
                             'pwd' => null,
                             'partner' => null,
                             'sandbox_flag' => '0',
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'paypal_billing_agreement' => [
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'payflow_link' => [
                             'pwd' => null,
                             'url_method' => 'GET',
                             'sandbox_flag' => '0',
                             'use_proxy' => '0',
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'payflow_advanced' => [
                             'user' => 'PayPal',
                             'pwd' => null,
                             'url_method' => 'GET',
                             'sandbox_flag' => '0',
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'authorizenet_acceptjs' => [
                             'email_customer' => '0',
                             'login' => null,
                             'trans_key' => null,
-                            'trans_md5' => null
+                            'trans_md5' => null,
                         ],
                         'braintree' => [
                             'private_key' => null,
                             'merchant_id' => null,
                             'merchant_account_id' => null,
                             'descriptor_phone' => null,
-                            'descriptor_url' => null
+                            'descriptor_url' => null,
                         ],
                         'braintree_paypal' => [
-                            'merchant_name_override' => null
+                            'merchant_name_override' => null,
                         ],
                         'amazon_payment' => [
                             'merchant_id' => null,
@@ -299,7 +298,7 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'client_id' => null,
                             'client_secret' => null,
                             'credentials_json' => null,
-                            'sandbox' => '0'
+                            'sandbox' => '0',
                         ],
                         'amazon_payments' => [
                             'simplepath' => [
@@ -312,19 +311,19 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
         0c8IgxCikejdjGYCTR59GR32DPEkOw4QuSlAQ516/T+xqtCyEj9Dlj5ztO5yKJWM
         8wIDAQAB
         -----END PUBLIC KEY-----',
-                                'privatekey' => '0:3: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'
-                            ]
-                        ]
+                                'privatekey' => '0:3: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',
+                            ],
+                        ],
                     ],
                     'checkout' => [
                         'payment_failed' => [
-                            'copy_to' => null
-                        ]
+                            'copy_to' => null,
+                        ],
                     ],
                     'contact' => [
                         'email' => [
-                            'recipient_email' => 'hello@example.com'
-                        ]
+                            'recipient_email' => 'hello@example.com',
+                        ],
                     ],
                     'carriers' => [
                         'dhl' => [
@@ -332,7 +331,7 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'gateway_url' => 'https://xmlpi-ea.dhl.com/XMLShippingServlet',
                             'id' => null,
                             'password' => null,
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'fedex' => [
                             'account' => null,
@@ -342,7 +341,7 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'sandbox_mode' => '0',
                             'production_webservices_url' => 'https://ws.fedex.com:443/web-services/',
                             'sandbox_webservices_url' => 'https://wsbeta.fedex.com:443/web-services/',
-                            'smartpost_hubid' => null
+                            'smartpost_hubid' => null,
                         ],
                         'ups' => [
                             'access_license_number' => null,
@@ -353,36 +352,36 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'password' => null,
                             'is_account_live' => '0',
                             'shipper_number' => null,
-                            'debug' => '0'
+                            'debug' => '0',
                         ],
                         'usps' => [
                             'gateway_url' => 'http://production.shippingapis.com/ShippingAPI.dll',
                             'gateway_secure_url' => 'https://secure.shippingapis.com/ShippingAPI.dll',
                             'userid' => null,
-                            'password' => null
-                        ]
+                            'password' => null,
+                        ],
                     ],
                     'trans_email' => [
                         'ident_custom1' => [
                             'email' => 'care@brands-labels.com',
-                            'name' => 'Info'
+                            'name' => 'Info',
                         ],
                         'ident_custom2' => [
                             'email' => 'care@brands-labels.com',
-                            'name' => 'No-Reply'
+                            'name' => 'No-Reply',
                         ],
                         'ident_general' => [
                             'email' => 'care@brands-labels.com',
-                            'name' => 'Admin'
+                            'name' => 'Admin',
                         ],
                         'ident_sales' => [
                             'email' => 'care@brands-labels.com',
-                            'name' => 'Sales'
+                            'name' => 'Sales',
                         ],
                         'ident_support' => [
                             'email' => 'care@brands-labels.com',
-                            'name' => 'Care'
-                        ]
+                            'name' => 'Care',
+                        ],
                     ],
                     'analytics' => [
                         'url' => [
@@ -391,11 +390,11 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'bi_essentials' => 'https://dashboard.rjmetrics.com/v2/magento/signup',
                             'otp' => 'https://advancedreporting.rjmetrics.com/otp',
                             'report' => 'https://advancedreporting.rjmetrics.com/report',
-                            'notify_data_changed' => 'https://advancedreporting.rjmetrics.com/report'
+                            'notify_data_changed' => 'https://advancedreporting.rjmetrics.com/report',
                         ],
                         'general' => [
-                            'token' => null
-                        ]
+                            'token' => null,
+                        ],
                     ],
                     'newrelicreporting' => [
                         'general' => [
@@ -404,70 +403,70 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
                             'account_id' => '3537655',
                             'api' => '0:3:XY5X8cTFGdvdP86nC3+Nqec1xwI+dwwfhpg/oJtd5nFubo3BYH7pCszo4tQ9AHdf9KtOx+tyHgBmC1NA',
                             'app_id' => '1489738014',
-                            'insights_insert_key' => '0:3:I811ksE6+DDebvc/E4NAMXwSUZLxdg6gzOUA5D9QXsp2hjzqq+nV/6ba6ETkanf7tRr4RJ5WA7VRNv3ou+zf7Yc='
-                        ]
+                            'insights_insert_key' => '0:3:I811ksE6+DDebvc/E4NAMXwSUZLxdg6gzOUA5D9QXsp2hjzqq+nV/6ba6ETkanf7tRr4RJ5WA7VRNv3ou+zf7Yc=',
+                        ],
                     ],
                     'paypal' => [
                         'wpp' => [
                             'api_password' => null,
                             'api_signature' => null,
                             'api_username' => null,
-                            'sandbox_flag' => '0'
+                            'sandbox_flag' => '0',
                         ],
                         'fetch_reports' => [
                             'ftp_login' => null,
                             'ftp_password' => null,
                             'ftp_sandbox' => '0',
                             'ftp_ip' => null,
-                            'ftp_path' => null
+                            'ftp_path' => null,
                         ],
                         'general' => [
                             'merchant_country' => null,
-                            'business_account' => null
-                        ]
+                            'business_account' => null,
+                        ],
                     ],
                     'fraud_protection' => [
                         'signifyd' => [
                             'api_url' => 'https://api.signifyd.com/v2/',
-                            'api_key' => null
-                        ]
+                            'api_key' => null,
+                        ],
                     ],
                     'sitemap' => [
                         'generate' => [
-                            'error_email' => null
-                        ]
+                            'error_email' => null,
+                        ],
                     ],
                     'crontab' => [
                         'default' => [
                             'jobs' => [
                                 'analytics_collect_data' => [
                                     'schedule' => [
-                                        'cron_expr' => '00 02 * * *'
-                                    ]
+                                        'cron_expr' => '00 02 * * *',
+                                    ],
                                 ],
                                 'analytics_subscribe' => [
                                     'schedule' => [
-                                        'cron_expr' => '0 * * * *'
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'cron_expr' => '0 * * * *',
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                     'shellpea_erp' => [
                         'general' => [
                             'email' => 'admin@sololuxury.com',
                             'password' => 'yRTHjnK9UaSI',
-                            'enabled' => '1'
-                        ]
-                    ]
-                ]
+                            'enabled' => '1',
+                        ],
+                    ],
+                ],
             ],
             'lock' => [
                 'provider' => 'db',
                 'config' => [
-                    'prefix' => ''
-                ]
-            ]
+                    'prefix' => '',
+                ],
+            ],
         ];
     }
 }

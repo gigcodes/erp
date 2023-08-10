@@ -8,7 +8,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\CodeShortcut;
 
 class Supplier extends Model
 {
@@ -75,17 +74,17 @@ class Supplier extends Model
     {
         parent::boot();
         self::updating(function ($model) {
-            if (!empty(\Auth::id())) {
+            if (! empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });
         self::saving(function ($model) {
-            if (!empty(\Auth::id())) {
+            if (! empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });
         self::creating(function ($model) {
-            if (!empty(\Auth::id())) {
+            if (! empty(\Auth::id())) {
                 $model->updated_by = \Auth::id();
             }
         });

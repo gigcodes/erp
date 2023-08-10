@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\User;
 use stdClass;
 use Exception;
-use Illuminate\Http\Request;
 
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorLog;
 use App\TimeDoctor\TimeDoctorTask;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
 use App\Library\TimeDoctor\Src\Timedoctor;
-use Carbon\Carbon;
-use Auth;
 use App\Models\TimeDoctorAccountRemarkHistory;
+use App\Models\TimeDoctorDueDateHistory;
 
 class TimeDoctorController extends Controller
 {
@@ -531,7 +532,7 @@ class TimeDoctorController extends Controller
         try {
             $logs = TimeDoctorLog::query()->with(['user']);
 
-            if(!auth()->user()->isAdmin()) {
+            if (! auth()->user()->isAdmin()) {
                 $logs->where('user_id', auth()->user()->id);
             }
 
@@ -593,13 +594,13 @@ class TimeDoctorController extends Controller
 
         $logs = TimeDoctorLog::query()->with(['user']);
 
-        if(!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             $logs->where('user_id', auth()->user()->id);
         }
 
-        $currentLogs = $logs->where('created_at', 'like', '%'.$currentDate.'%')->get();
+        $currentLogs = $logs->where('created_at', 'like', '%' . $currentDate . '%')->get();
 
-         return response()->json([
+        return response()->json([
             'tbody' => view('partials.modals.timer-alerts-modal-html', compact('currentLogs'))->render(),
             'count' => $currentLogs->count(),
         ]);
@@ -617,33 +618,32 @@ class TimeDoctorController extends Controller
         }
         if ($request->date) {
             $timeDoctorAccounts = $timeDoctorAccounts->where('created_at', 'LIKE', '%' . $request->date . '%');
-        }  
+        }
         if ($request->search_password) {
             $timeDoctorAccounts = $timeDoctorAccounts->where('time_doctor_password', 'LIKE', '%' . $request->search_password . '%');
-        }       
-        
-        $timeDoctorAccounts = $timeDoctorAccounts->latest()->paginate(\App\Setting::get('pagination',25));
+        }
 
-        return view('time-doctor.user-account-list', compact('timeDoctorAccounts','timeDoctorAccountsEmails','reqAccountsEmail'));
+        $timeDoctorAccounts = $timeDoctorAccounts->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('time-doctor.user-account-list', compact('timeDoctorAccounts', 'timeDoctorAccountsEmails', 'reqAccountsEmail'));
     }
 
     public function listRemarkStore(Request $request)
     {
         $oldRemark = null;
         $timeDoctorAccounts = TimeDoctorAccount::find($request->member_id);
-        $oldRemark =  $timeDoctorAccounts->remarks;
+        $oldRemark = $timeDoctorAccounts->remarks;
         $timeDoctorAccounts->remarks = $request->remark;
         $timeDoctorAccounts->save();
 
         $timeRemark = new TimeDoctorAccountRemarkHistory();
         $timeRemark->time_doctor_account_id = $request->member_id;
-        $timeRemark->user_id =  Auth::user()->id;
+        $timeRemark->user_id = Auth::user()->id;
         $timeRemark->old_remark = $oldRemark;
         $timeRemark->new_remark = $request->remark;
         $timeRemark->save();
 
         return response()->json(['code' => 500, 'data' => [], 'message' => 'Reamrk Added successfully']);
-
     }
 
     public function getRemarkStore(Request $request)
@@ -656,6 +656,41 @@ class TimeDoctorController extends Controller
             'message' => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
-
     }
+
+    public function updateValidate(Request $request)
+    {
+        $timeDoctorAccount = TimeDoctorAccount::find($request->id);
+        $beforeDate = $timeDoctorAccount->created_at;
+        $timeDoctorAccount->validate = 1;
+        $timeDoctorAccount->due_date = $request->dueDate;
+        $timeDoctorAccount->save();
+
+        $history = new TimeDoctorDueDateHistory();
+        $history->time_doctor_account_id = $request->id;
+        $history->before_date = $beforeDate->addDays(15); 
+        $history->after_date = $request->dueDate;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json([
+            'status' => true,
+            'data' => $timeDoctorAccount,
+            'message' => 'Validate Updated successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getduedateHistory(Request $request)
+    {
+        $history = TimeDoctorDueDateHistory::with(['user'])->where('time_doctor_account_id', $request->member_id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $history,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+    
 }

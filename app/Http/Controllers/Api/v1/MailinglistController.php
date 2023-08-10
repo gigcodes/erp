@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api\v1;
 use App\Website;
 use App\Customer;
 use App\Language;
+use App\LogRequest;
 use App\Mailinglist;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\LogRequest;
 
 class MailinglistController extends Controller
 {
@@ -132,7 +132,7 @@ class MailinglistController extends Controller
         $api_key = ($send_in_blue_api != '') ? $send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
-        $url = "https://api.sendinblue.com/v3/contacts/";
+        $url = 'https://api.sendinblue.com/v3/contacts/';
         $data = [
             'email' => $email,
             'listIds' => [intval($id)],
@@ -161,7 +161,6 @@ class MailinglistController extends Controller
         curl_close($curl);
 
         LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
-        
 
         if (isset($res->message)) {
             if ($res->message == 'Contact already exist') {
@@ -188,10 +187,9 @@ class MailinglistController extends Controller
                 $parameters = [];
                 LogRequest::log($startTime, $url, 'DELETE', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl3);
-               
 
                 $curl2 = curl_init();
-                $url = "https://api.sendinblue.com/v3/contacts";
+                $url = 'https://api.sendinblue.com/v3/contacts';
                 curl_setopt_array($curl2, [
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
@@ -211,10 +209,10 @@ class MailinglistController extends Controller
                 $resp = curl_exec($curl2);
                 $ress = json_decode($resp);
                 $parameters = [];
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);    
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl2);
-               
+
                 if (isset($ress->message)) {
                     return response()->json(['status' => 'error']);
                 }

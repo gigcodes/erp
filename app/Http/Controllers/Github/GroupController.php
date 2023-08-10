@@ -30,9 +30,9 @@ class GroupController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
         return $githubClient;
     }
@@ -59,7 +59,7 @@ class GroupController extends Controller
                 'group' => $group,
                 'repositories' => $repositories,
                 'users' => $users,
-                'githubOrganizations' => $githubOrganizations
+                'githubOrganizations' => $githubOrganizations,
             ]
         );
     }
@@ -73,9 +73,9 @@ class GroupController extends Controller
             return $repository->id;
         });
 
-        $githubOrganizations = GithubOrganization::with(['repos' => function ($query) use ($repositoryIds){
-                $query->whereNotIn('id', $repositoryIds);
-            }])->get();
+        $githubOrganizations = GithubOrganization::with(['repos' => function ($query) use ($repositoryIds) {
+            $query->whereNotIn('id', $repositoryIds);
+        }])->get();
 
         return view(
             'github.group_add_repository',
@@ -111,8 +111,8 @@ class GroupController extends Controller
         $repository = GithubRepository::find($repoId);
 
         // https://api.github.com/organizations/:org_id/team/:team_id/repos/:owner/:repo
-        $url = 'https://api.github.com/organizations/'.$organization->name.'/team/'.$groupId.'/repos/'.$organization->name.'/'.$repository->name;
-        $url = 'https://api.github.com/organizations/'.$organization->name.'/team/'.$groupId.'/repos/'.$organization->name.'/'.$repository->name;
+        $url = 'https://api.github.com/organizations/' . $organization->name . '/team/' . $groupId . '/repos/' . $organization->name . '/' . $repository->name;
+        $url = 'https://api.github.com/organizations/' . $organization->name . '/team/' . $groupId . '/repos/' . $organization->name . '/' . $repository->name;
 
         try {
             $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -150,7 +150,7 @@ class GroupController extends Controller
             [
                 'group' => $group,
                 'users' => $userSelect,
-                'githubOrganizations' => $githubOrganizations
+                'githubOrganizations' => $githubOrganizations,
             ]
         );
     }
@@ -177,10 +177,10 @@ class GroupController extends Controller
     private function addUserToGroup($organizationId, $groupId, $username, $role)
     {
         $organization = GithubOrganization::find($organizationId);
-        
+
         // https://api.github.com/organizations/:org_id/team/:team_id/memberships/:username
         // $url = "https://api.github.com/organizations/" . getenv('GITHUB_ORG_ID') . "/team/" . $groupId . "/memberships/". $username;
-        $url = 'https://api.github.com/organizations/'.$organization->name.'/team/'.$groupId.'/memberships/'.$username;
+        $url = 'https://api.github.com/organizations/' . $organization->name . '/team/' . $groupId . '/memberships/' . $username;
 
         try {
             $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -212,11 +212,11 @@ class GroupController extends Controller
         $githubUser = GithubUser::find($userId);
 
         //https://api.github.com/teams/:team_id/memberships/:username
-        $url = 'https://api.github.com/teams/'.$groupId.'/memberships/'.$githubUser->username;
+        $url = 'https://api.github.com/teams/' . $groupId . '/memberships/' . $githubUser->username;
         // $this->client->delete($url);
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
-        
+
         $githubClient->delete($url);
 
         GithubGroupMember::where('github_groups_id', $groupId)->where('github_users_id', $userId)->delete();
@@ -234,10 +234,10 @@ class GroupController extends Controller
 
         //https://api.github.com/teams/:team_id/repos/:owner/:repo
         // $url = 'https://api.github.com/teams/' . $groupId . '/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repo->name;
-        $url = 'https://api.github.com/teams/'.$groupId.'/repos/'.$organization->name.'/'.$repo->name;
+        $url = 'https://api.github.com/teams/' . $groupId . '/repos/' . $organization->name . '/' . $repo->name;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
-        
+
         $githubClient->delete($url);
 
         GithubRepositoryGroup::where('github_repositories_id', $repoId)->where('github_groups_id', $groupId)->delete();

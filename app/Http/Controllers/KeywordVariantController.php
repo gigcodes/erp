@@ -18,7 +18,8 @@ class KeywordVariantController extends Controller
             $variant->keyword = $request->keyword;
             $variant->save();
             $this->generateHashTagKeywords();
-            return response()->json(['message' => "Variant add successfully"]);
+
+            return response()->json(['message' => 'Variant add successfully']);
         }
     }
 
@@ -44,16 +45,16 @@ class KeywordVariantController extends Controller
         return response()->json(['message' => 'delete successfully']);
     }
 
-    public function generateHashTagKeywords() {
+    public function generateHashTagKeywords()
+    {
         $brandList = Brand::getAll();
-        $categoryList = Category::select('title','id')->get()->toArray();
+        $categoryList = Category::select('title', 'id')->get()->toArray();
 
         /* Initialize queue for add hashtags */
         $keywordVariantList = KeywordSearchVariants::where('is_hashtag_generated', 0)->pluck('keyword', 'id')->chunk(100)->toArray();
 
         foreach ($keywordVariantList as $chunk) {
-            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'category_list' =>$categoryList, 'brand_list' => $brandList, 'type' => 'keyword_variant'])->onQueue('generategooglescraperkeywords');
+            CreateHashTags::dispatch(['data' => $chunk, 'user_id' => \Auth::user()->id, 'category_list' => $categoryList, 'brand_list' => $brandList, 'type' => 'keyword_variant'])->onQueue('generategooglescraperkeywords');
         }
     }
-
 }

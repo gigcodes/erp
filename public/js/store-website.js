@@ -640,61 +640,73 @@ var page = {
         this.sendAjax(_z, "saveSite");*/
     var id = $("#form-create-website #store_website_id").val();
     var title = $("#form-create-website #swTitle").val();
-    var website = $('#form-create-website #website').val();
-    var semrush_project_id = $('#form-create-website #semrush_project_id').val();
-    var mailing_service_id = $('#form-create-website #mailing_service_id').val();
-    var sale_old_products = $('#form-create-website #sale_old_products').val();
-    var is_debug_true = $('#form-create-website #is_debug_true').val();
-    var is_dev_website = $('#form-create-website #is_dev_website').val();
-    var description = $('#form-create-website #description').val();
-    var send_in_blue_account = $('#form-create-website #send_in_blue_account').val();
-    var send_in_blue_api =  $('#form-create-website #send_in_blue_api').val();
-    var send_in_blue_smtp_email_api = $('#form-create-website #send_in_blue_smtp_email_api').val();
-    var remote_software = $('#form-create-website #remote_software').val();
-    var magento_url = $('#form-create-website #magento_url').val();
-    var dev_magento_url = $('#form-create-website #dev_magento_url').val();
-    var stage_magento_url = $('#form-create-website #stage_magento_url').val();
-    var magento_username = $('#form-create-website #magento_username').val();
-    var magento_password = $('#form-create-website #magento_password').val();
-    var api_token = $('#form-create-website #api_token').val();
-    var dev_api_token = $('#form-create-website #dev_api_token').val();
-    var stage_api_token = $('#form-create-website #stage_api_token').val();
-    var facebook = $('#form-create-website #facebook').val();
-    var facebook_remarks = $('#form-create-website #facebook_remarks').val();
-    var product_markup = $('#form-create-website #product_markup').val();
-    var instagram = $('#form-create-website #instagram').val();
-    var instagram_remarks = $('#form-create-website #instagram_remarks').val();
-    var cropper_color = $('#form-create-website #cropper_color').val();
-    var cropping_size = $('#form-create-website #cropping_size').val();
-    var logo_color = $('#form-create-website #logo_color').val();
-    var logo_border_color = $('#form-create-website #logo_border_color').val();
-    var text_color = $('#form-create-website #text_color').val();
-    var border_color = $('#form-create-website #border_color').val();
-    var border_thickness = $('#form-create-website #border_thickness').val();
-    var country_duty = $('#form-create-website #country_duty').val(); //selected
-    var is_published = $('#form-create-website #is_published').val(); // selected
-    var disable_push = $('#form-create-website #disable_push').val(); //selected
-    var website_source = $('#form-create-website #website_source').val(); //selected
-    var server_ip = $('#form-create-website #server_ip').val();
-    var repository_id = $('#form-create-website #repository_id').val(); //selected
-    var staging_username = $('#form-create-website #staging_username').val();
-    var staging_password = $('#form-create-website #staging_password').val();
-    var mysql_username = $('#form-create-website #mysql_username').val();
-    var mysql_password = $('#form-create-website #mysql_password').val();
-    var mysql_staging_username = $('#form-create-website #mysql_staging_username').val();
-    var mysql_staging_password = $('#form-create-website #mysql_staging_password').val();
-    var push_web_key = $('#form-create-website #push_web_key').val();
-    var push_web_id = $('#form-create-website #push_web_id').val();
-    var icon = $('#form-create-website #icon').val();
-    var is_price_override = $('#form-create-website #is_price_override').val(); // selected
+    var website = $("#form-create-website #website").val();
+    var semrush_project_id = $(
+      "#form-create-website #semrush_project_id"
+    ).val();
+    var mailing_service_id = $(
+      "#form-create-website #mailing_service_id"
+    ).val();
+    var sale_old_products = $("#form-create-website #sale_old_products").val();
+    var is_debug_true = $("#form-create-website #is_debug_true").val();
+    var is_dev_website = $("#form-create-website #is_dev_website").val();
+    var description = $("#form-create-website #description").val();
+    var send_in_blue_account = $(
+      "#form-create-website #send_in_blue_account"
+    ).val();
+    var send_in_blue_api = $("#form-create-website #send_in_blue_api").val();
+    var send_in_blue_smtp_email_api = $(
+      "#form-create-website #send_in_blue_smtp_email_api"
+    ).val();
+    var remote_software = $("#form-create-website #remote_software").val();
+    var magento_url = $("#form-create-website #magento_url").val();
+    var dev_magento_url = $("#form-create-website #dev_magento_url").val();
+    var stage_magento_url = $("#form-create-website #stage_magento_url").val();
+    var magento_username = $("#form-create-website #magento_username").val();
+    var magento_password = $("#form-create-website #magento_password").val();
+    var api_token = $("#form-create-website #api_token").val();
+    var dev_api_token = $("#form-create-website #dev_api_token").val();
+    var stage_api_token = $("#form-create-website #stage_api_token").val();
+    var facebook = $("#form-create-website #facebook").val();
+    var facebook_remarks = $("#form-create-website #facebook_remarks").val();
+    var product_markup = $("#form-create-website #product_markup").val();
+    var instagram = $("#form-create-website #instagram").val();
+    var instagram_remarks = $("#form-create-website #instagram_remarks").val();
+    var cropper_color = $("#form-create-website #cropper_color").val();
+    var cropping_size = $("#form-create-website #cropping_size").val();
+    var logo_color = $("#form-create-website #logo_color").val();
+    var logo_border_color = $("#form-create-website #logo_border_color").val();
+    var text_color = $("#form-create-website #text_color").val();
+    var border_color = $("#form-create-website #border_color").val();
+    var border_thickness = $("#form-create-website #border_thickness").val();
+    var country_duty = $("#form-create-website #country_duty").val(); //selected
+    var is_published = $("#form-create-website #is_published").val(); // selected
+    var disable_push = $("#form-create-website #disable_push").val(); //selected
+    var website_source = $("#form-create-website #website_source").val(); //selected
+    var server_ip = $("#form-create-website #server_ip").val();
+    var repository_id = $("#form-create-website #repository_id").val(); //selected
+    var staging_username = $("#form-create-website #staging_username").val();
+    var staging_password = $("#form-create-website #staging_password").val();
+    var mysql_username = $("#form-create-website #mysql_username").val();
+    var mysql_password = $("#form-create-website #mysql_password").val();
+    var mysql_staging_username = $(
+      "#form-create-website #mysql_staging_username"
+    ).val();
+    var mysql_staging_password = $(
+      "#form-create-website #mysql_staging_password"
+    ).val();
+    var push_web_key = $("#form-create-website #push_web_key").val();
+    var push_web_id = $("#form-create-website #push_web_id").val();
+    var icon = $("#form-create-website #icon").val();
+    var is_price_override = $("#form-create-website #is_price_override").val(); // selected
     var files = $("#key_file_path1")[0].files[0];
-    var project_id = $('#form-create-website #project_id').val();
-    var site_folder = $('#form-create-website #site_folder').val();
-    var store_code_id = $('#form-create-website #store_code_id').val();
-    var working_directory = $('#form-create-website #working_directory').val();
-    var assets_manager_id = $('#form-create-website #assets_manager_id').val();
-    var database_name = $('#form-create-website #database_name').val();
-    var instance_number = $('#form-create-website #instance_number').val();
+    var project_id = $("#form-create-website #project_id").val();
+    var site_folder = $("#form-create-website #site_folder").val();
+    var store_code_id = $("#form-create-website #store_code_id").val();
+    var working_directory = $("#form-create-website #working_directory").val();
+    var assets_manager_id = $("#form-create-website #assets_manager_id").val();
+    var database_name = $("#form-create-website #database_name").val();
+    var instance_number = $("#form-create-website #instance_number").val();
 
     var formData = new FormData();
     formData.append("id", id);

@@ -19,7 +19,7 @@ class RefundProcessed extends Mailable
     public function __construct(string $order_id, string $product_names)
     {
         $this->order_id = $order_id;
-        $this->from_email=\App\Helpers::getFromEmailByOrderId($order_id);
+        $this->from_email = \App\Helpers::getFromEmailByOrderId($order_id);
         $this->product_names = $product_names;
     }
 

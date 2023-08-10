@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Response;
 use App\Setting;
+use App\LogRequest;
 use App\StoreWebsite;
 use App\SimplyDutyCountry;
 use App\SimplyDutySegment;
@@ -12,7 +13,6 @@ use Illuminate\Http\Request;
 use App\Loggers\LogListMagento;
 use App\SimplyDutyCountryHistory;
 use Illuminate\Support\Facades\Auth;
-use App\LogRequest;
 
 class SimplyDutyCountryController extends Controller
 {
@@ -105,7 +105,7 @@ class SimplyDutyCountryController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
-        $url = "https://www.api.simplyduty.com/api/Supporting/supported-countries";
+        $url = 'https://www.api.simplyduty.com/api/Supporting/supported-countries';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -118,12 +118,11 @@ class SimplyDutyCountryController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCountryController::class, 'getCountryFromApi');
 
-
         // close curl resource to free up system resources
         curl_close($ch);
 
         $countries = json_decode($output);
-       
+
         foreach ($countries as $country) {
             $countryDetail = $country->Country;
             $countryCode = $country->CountryCode;

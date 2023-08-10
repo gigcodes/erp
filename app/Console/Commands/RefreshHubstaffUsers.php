@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffMember;
 use App\Library\Hubstaff\Src\Hubstaff;
-use App\Helpers\LogHelper;
 
 class RefreshHubstaffUsers extends Command
 {
@@ -50,18 +50,18 @@ class RefreshHubstaffUsers extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report was added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
             $this->refreshUserList();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "refresh user list finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'refresh user list finished.']);
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "report endtime was updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 

@@ -11,13 +11,13 @@ use App\Images;
 use App\Setting;
 use App\Category;
 use Carbon\Carbon;
+use App\LogRequest;
 use Plank\Mediable\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
-use App\LogRequest;
-
 use function GuzzleHttp\json_decode;
+use Illuminate\Support\Facades\Redirect;
+
+use Illuminate\Support\Facades\Validator;
 
 class ImageController extends Controller
 {
@@ -715,7 +715,7 @@ class ImageController extends Controller
             LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
             $err = curl_error($curl);
             curl_close($curl);
-            
+
             $messages = 'new search queue added successfuly';
 
             return Redirect::Back()

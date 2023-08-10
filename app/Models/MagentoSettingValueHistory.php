@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
-
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoSettingValueHistory extends Model
 {
@@ -13,11 +12,10 @@ class MagentoSettingValueHistory extends Model
 
     protected $table = 'magento_setting_value_histories';
 
-    protected $fillable = ['magento_setting_id','old_value', 'new_value',  'user_id'];
+    protected $fillable = ['magento_setting_id', 'old_value', 'new_value',  'user_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 }

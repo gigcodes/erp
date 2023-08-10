@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Marketing\WhatsappBusinessAccounts;
 use App\LogRequest;
+use App\Marketing\WhatsappBusinessAccounts;
 
 class WhatsAppOfficialController extends Controller
 {
     private $account;
+
     private $BASE_API_URL = 'https://graph.facebook.com/v16.0/';
+
     private $ignorePhoneNumber;
 
     public function __construct($accountId)
@@ -46,12 +48,14 @@ class WhatsAppOfficialController extends Controller
             $urlResponse = $this->callApi('GET', $response['data']['id']);
             $response['data']['url'] = $urlResponse['data']['url'];
         }
+
         return $response;
     }
 
     public function sendMessage($params): array
     {
         $buildMessagesParams = $this->buildMessageParams($params);
+
         return $this->callApi('POST', 'messages', $buildMessagesParams);
     }
 
@@ -70,39 +74,36 @@ class WhatsAppOfficialController extends Controller
                 'type' => $params['file']->getClientMimeType(),
             ]);
             $finalParams = $finalParams + [
-                    $params['type'] => [
-                        'id' => $mediaResponse['data']['id'],
-                        'filename' => $params['file']->getClientOriginalName()
-                    ],
-                    'to' => $params['number'],
-                    'type' => $params['type'],
-                ];
+                $params['type'] => [
+                    'id' => $mediaResponse['data']['id'],
+                    'filename' => $params['file']->getClientOriginalName(),
+                ],
+                'to' => $params['number'],
+                'type' => $params['type'],
+            ];
         } else {
             $finalParams = $finalParams + [
-                    'text' => [
-                        'body' => $params['body'],
-                        'preview_url' => $params['preview_url']
-                    ],
-                    'to' => $params['number'],
-                    'type' => 'text',
-                    'preview_url' => true
-                ];
+                'text' => [
+                    'body' => $params['body'],
+                    'preview_url' => $params['preview_url'],
+                ],
+                'to' => $params['number'],
+                'type' => 'text',
+                'preview_url' => true,
+            ];
         }
+
         return $finalParams;
     }
 
     /**
      * Common function to fetch data from API using CURL.
-     * @param $method
-     * @param $url
-     * @param array $params
-     * @return array
      */
     public function callApi($method, $url, array $params = []): array
     {
         $finalUrl = $this->BASE_API_URL;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        if (!$this->ignorePhoneNumber) {
+        if (! $this->ignorePhoneNumber) {
             $finalUrl .= $this->account->business_phone_number_id . '/';
         }
         $finalUrl .= $url;
@@ -116,15 +117,15 @@ class WhatsAppOfficialController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-//            CURLOPT_HEADER => true,
+            //            CURLOPT_HEADER => true,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->account->business_access_token
-            ]
+                'Authorization: Bearer ' . $this->account->business_access_token,
+            ],
         ]);
 
         if ($method == 'POST' || $method == 'PATCH' || $method == 'PUT') {
-            if (!isset($params['messaging_product'])) {
+            if (! isset($params['messaging_product'])) {
                 $params['messaging_product'] = 'whatsapp';
             }
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
@@ -136,14 +137,16 @@ class WhatsAppOfficialController extends Controller
         LogRequest::log($startTime, $finalUrl, $method, json_encode($params), $response, $httpcode, \App\Http\Controllers\WhatsAppOfficialController::class, 'callApi');
         if ($err) {
             $message = 'Account :- ' . $this->account->id . ', ';
-            return ['status' => false, 'message' => $message . "cURL Error #:" . $err];
+
+            return ['status' => false, 'message' => $message . 'cURL Error #:' . $err];
         } else {
             $response = json_decode($response, true);
             if (is_array($response)) {
-                return ['status' => true, 'message' => "Data found", 'data' => $response];
+                return ['status' => true, 'message' => 'Data found', 'data' => $response];
             } else {
                 $message = 'Account :- ' . $this->account->id . ', ';
-                return ['status' => false, 'message' => $message . "cURL Error #:" . $response];
+
+                return ['status' => false, 'message' => $message . 'cURL Error #:' . $response];
             }
         }
     }
