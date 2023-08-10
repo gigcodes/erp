@@ -91,9 +91,9 @@ function initialize_select2(initial_skip = false) {
           : 10;
 
       options["minimumInputLength"] =
-          typeof $(elem).data("minimuminputlength") !== "undefined"
-            ? $(elem).data("minimuminputlength")
-            : "";
+        typeof $(elem).data("minimuminputlength") !== "undefined"
+          ? $(elem).data("minimuminputlength")
+          : "";
 
       options["allowClear"] =
         typeof $(elem).data("allowclear") !== "undefined" &&

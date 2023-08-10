@@ -9,7 +9,17 @@
                 </div>
                 <div class="modal-body">
                         <?php echo csrf_field(); ?>
-                        <div class="form-group normal-subject">
+                        <div class="from-group">
+                            <label for="">Select Website<span class="text-danger">*</span></label>
+                            <select name="store_website_id" id="store_website_id" class="form-control select2" style="width: 100%!important">
+                                <option value="">-- Select a Website --</option>
+                                @forelse($store_websites as $website_id => $website_name)
+                                    <option value="{{ $website_id }}">{{ $website_name }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                        </div>
+                        <div class="form-group  mt-3 normal-subject">
                             <label for="name">Section Name<span class="text-danger">*</span></label>
                             <input type="text" name="name" id="name" class="form-control"/>
                         </div>
