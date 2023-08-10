@@ -59,6 +59,7 @@ use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Support\Facades\Storage;
 use App\Models\StoreWebsiteApiTokenHistory;
+use App\Models\StoreWebsiteBuilderApiKeyHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -94,10 +95,36 @@ class StoreWebsiteController extends Controller
     public function updateBuilderApiKey(Request $request, $id)
     {
         $website = StoreWebsite::findOrFail($id);
+        $old = $website->builder_io_api_key;
         $website->builder_io_api_key = $request->input('builder_io_api_key');
         $website->save();
+
+        // Maintain history in table
+        if ($old != $request->input('builder_io_api_key')) {
+            $history = new StoreWebsiteBuilderApiKeyHistory();
+            $history->store_website_id = $website->id;
+            $history->old = $old;
+            $history->new = $request->input('builder_io_api_key');
+            $history->updated_by = Auth::user()->id;
+            $history->save();
+        }
         
         return redirect()->back()->with('success', 'API key updated successfully');
+    }
+
+    public function builderApiKeyHistory($id)
+    {
+        $datas = StoreWebsiteBuilderApiKeyHistory::with(['user'])
+            ->where('store_website_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function apiToken()

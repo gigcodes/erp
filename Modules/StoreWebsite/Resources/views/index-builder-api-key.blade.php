@@ -50,7 +50,12 @@
 									@csrf
 									<div style="display: flex">
 										<input type="text" class="form-control" name="builder_io_api_key" value="{{ $storeWebsite->builder_io_api_key }}">
-										<button type="submit">Update</button>
+										<button type="submit" title="Update Api Key" class="btn" style="padding:1px 5px;">
+											<a href="javascript:;" style="color:gray;"><i class="fa fa-save"></i></a>
+										</button>
+										<button title="History" data-id="{{ $storeWebsite->id }}" type="button" class="btn api-key-history" style="padding:1px 5px;">
+											<a href="javascript:;" style="color:gray;"><i class="fa fa-info-circle"></i></a>
+										</button>
 									</div>
 								</form>
 							</td>
@@ -70,6 +75,37 @@
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
+</div>
+
+<div id="builder-api-key-histories-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Builder Api Key Histories</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="25%">Old Key</th>
+                                <th width="25%">New Key</th>
+                                <th width="20%">Updated BY</th>
+                                <th width="40%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="builder-api-key-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
@@ -367,11 +403,12 @@ $('.select2').select2();
 		});
 	})
 	
-	$(document).on('click','.api-token-history',function(){
+	$(document).on('click','.api-key-history',function(){
         store_website_id = $(this).data('id');
+
 		$.ajax({
                 method: "GET",
-                url: `{{ route('store-website.token.histories', [""]) }}/` + store_website_id,
+                url: `{{ route('store-website.builder-api-key-histories', [""]) }}/` + store_website_id,
                 dataType: "json",
                 success: function(response) {
                     if (response.status) {
@@ -380,22 +417,22 @@ $('.select2').select2();
 							html += "<tr>";
 							html += "<td>" + (k + 1) + "</td>";
 							html += "<td class='expand-row' style='word-break: break-all'>";
-							html += "<span class='td-mini-container'>" + (v.old_api_token != null ? (v.old_api_token.length > 15 ? v.old_api_token.substr(0, 15) + '...' : v.old_api_token) : ' - ' ) + "</span>";
-							html += "<span class='td-full-container hidden'>" + (v.old_api_token != null ? v.old_api_token : ' - ' ) + "</span>";
+							html += "<span class='td-mini-container'>" + (v.old != null ? (v.old.length > 30 ? v.old.substr(0, 30) + '...' : v.old) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.old != null ? v.old : ' - ' ) + "</span>";
 							html += "</td>";
 							html += "<td class='expand-row' style='word-break: break-all'>";
-							html += "<span class='td-mini-container'>" + (v.new_api_token != null ? (v.new_api_token.length > 15 ? v.new_api_token.substr(0, 15) + '...' : v.new_api_token) : ' - ' ) + "</span>";
-							html += "<span class='td-full-container hidden'>" + (v.new_api_token != null ? v.new_api_token : ' - ' ) + "</span>";
+							html += "<span class='td-mini-container'>" + (v.new != null ? (v.new.length > 30 ? v.new.substr(0, 30) + '...' : v.new) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.new != null ? v.new : ' - ' ) + "</span>";
 							html += "</td>";
 							html += "<td class='expand-row' style='word-break: break-all'>";
-							html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 15 ? v.user.name.substr(0, 15) + '...' : v.user.name) : ' - ' ) + "</span>";
+							html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 20 ? v.user.name.substr(0, 20) + '...' : v.user.name) : ' - ' ) + "</span>";
 							html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
 							html += "</td>";
 							html += "<td>" + v.created_at + "</td>";
 							html += "</tr>";
                         });
-                        $("#api-token-histories-list").find(".api-token-list-view").html(html);
-                        $("#api-token-histories-list").modal("show");
+                        $("#builder-api-key-histories-list").find(".builder-api-key-list-view").html(html);
+                        $("#builder-api-key-histories-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
