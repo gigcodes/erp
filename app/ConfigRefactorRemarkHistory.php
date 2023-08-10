@@ -6,7 +6,6 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\ConfigRefactor;
 use Illuminate\Database\Eloquent\Model;
 
 class ConfigRefactorRemarkHistory extends Model

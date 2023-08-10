@@ -8,8 +8,8 @@ use App\Customer;
 use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class AutoInterestMessage extends Command
 {
@@ -112,10 +112,10 @@ class AutoInterestMessage extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:' . $chat_message->id]);
 
                     foreach ($products as $product) {
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:'.$product->id]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:' . $product->id]);
 
                         $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
                     }
@@ -164,11 +164,11 @@ class AutoInterestMessage extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat message record by ID:' . $chat_message->id]);
 
                     foreach ($products as $product) {
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:'.$product->id]);
-                        
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Upload the media on product id:' . $product->id]);
+
                         $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
                     }
                 }

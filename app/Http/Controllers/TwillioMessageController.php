@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Customer;
 use App\SmsService;
+use App\TwilioError;
 use App\StoreWebsite;
 use App\MessagingGroup;
 use App\MarketingMessage;
@@ -46,8 +47,29 @@ class TwillioMessageController extends Controller
 
     public function showErrors(Request $request)
     {
+        $data = new TwilioError();
+
+        if ($request->sid) {
+            $data = $data->where('sid', 'LIKE', '%' . $request->sid . '%');
+        }
+        if ($request->account_sid) {
+            $data = $data->where('account_sid', 'LIKE', '%' . $request->account_sid . '%');
+        }
+        if ($request->call_sid) {
+            $data = $data->where('call_sid', 'LIKE', '%' . $request->call_sid . '%');
+        }
+        if ($request->error_code) {
+            $data = $data->where('error_code', 'LIKE', '%' . $request->error_code . '%');
+        }
+        if ($request->message) {
+            $data = $data->where('message_text', 'LIKE', '%' . $request->message . '%');
+        }
+        if ($request->date) {
+            $data = $data->where('message_date', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $data = $data->latest()->paginate(15);
         $inputs = $request->input();
-        $data = \App\TwilioError::latest()->paginate(15);
 
         return view('twillio_sms.errors', compact('data', 'inputs'));
     }

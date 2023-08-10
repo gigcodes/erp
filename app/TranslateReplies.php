@@ -28,4 +28,20 @@ class TranslateReplies extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function reply()
+    {
+        return $this->belongsTo(Reply::class, 'replies_id');
+    }
+
+    public function getStatusColorAttribute()
+    {
+        $replyTranslatorStatus = ReplyTranslatorStatus::where('name', $this->status)->first();
+
+        if ($replyTranslatorStatus) {
+            return $replyTranslatorStatus->color;
+        }
+
+        return '';
+    }
 }

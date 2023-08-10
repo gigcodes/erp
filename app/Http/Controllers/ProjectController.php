@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\BuildProcessErrorLog;
-use App\Models\Project;
-use App\Models\ProjectServerenv;
-use App\Models\ProjectType;
 use App\StoreWebsite;
-use App\BuildProcessStatusHistories;
-use Illuminate\Http\Request;
+use App\Models\Project;
+use App\Models\ProjectType;
 use App\Helpers\GithubTrait;
+use Illuminate\Http\Request;
+use App\BuildProcessErrorLog;
+use App\Models\ProjectServerenv;
 
 class ProjectController extends Controller
 {
     use GithubTrait;
-    
+
     public function __construct()
     {
     }
@@ -34,7 +33,7 @@ class ProjectController extends Controller
 
         if ($searchStoreWebsite = $request->store_websites_search) {
             $projects->whereHas('storeWebsites', function ($query) use ($searchStoreWebsite) {
-                $query->whereIn("store_website_id", $searchStoreWebsite);
+                $query->whereIn('store_website_id', $searchStoreWebsite);
             });
         }
 
@@ -45,14 +44,14 @@ class ProjectController extends Controller
         $projecttype = ProjectType::get()->pluck('name', 'id');
         $repositories = \App\Github\GithubRepository::All();
         $organizations = \App\Github\GithubOrganization::All();
-        
-        return view('project.index', compact('projects', 'store_websites','repositories', 'organizations', 'serverenvs','projecttype'));
+
+        return view('project.index', compact('projects', 'store_websites', 'repositories', 'organizations', 'serverenvs', 'projecttype'));
     }
 
     public function getGithubRepos()
     {
         if ($build_organization = request('build_organization')) {
-            $repositories = \App\Github\GithubRepository::where('github_organization_id', $build_organization)->orderBy('created_at', 'desc')->get()->pluck('name', 'id')->toArray();  
+            $repositories = \App\Github\GithubRepository::where('github_organization_id', $build_organization)->orderBy('created_at', 'desc')->get()->pluck('name', 'id')->toArray();
             if ($repositories) {
                 $options = ['<option value="" >--  Select a Repository --</option>'];
                 foreach ($repositories as $key => $value) {
@@ -71,18 +70,18 @@ class ProjectController extends Controller
     public function getGithubBranches()
     {
         if ($build_repository = request('build_repository')) {
-            \Log::info("Project getGithubBranches");
+            \Log::info('Project getGithubBranches');
             $allBranchNames = [];
             try {
                 $repository = \App\Github\GithubRepository::find($build_repository);
                 $organization = $repository->organization;
 
                 $githubClient = $this->connectGithubClient($organization->username, $organization->token);
-                
-                $url = 'https://api.github.com/repositories/'.$build_repository.'/branches';
+
+                $url = 'https://api.github.com/repositories/' . $build_repository . '/branches';
                 $headResponse = $githubClient->head($url);
                 $linkHeader = $headResponse->getHeader('Link');
-                
+
                 $totalPages = 1;
                 if (count($linkHeader) > 0) {
                     $lastLink = null;
@@ -100,12 +99,12 @@ class ProjectController extends Controller
                     $totalPages = explode('=', $pageNumberString)[1];
                     $totalPages = intval($totalPages);
                 }
-                \Log::info("totalPages : ".$totalPages);
+                \Log::info('totalPages : ' . $totalPages);
 
                 $page = 1;
                 while ($page <= $totalPages) {
-                    $response = $githubClient->get($url.'?page='.$page);
-        
+                    $response = $githubClient->get($url . '?page=' . $page);
+
                     $branches = json_decode($response->getBody()->getContents());
 
                     $branchNames = array_map(
@@ -124,8 +123,7 @@ class ProjectController extends Controller
 
                     $page++;
                 }
-                if (!empty($allBranchNames)) {
-               
+                if (! empty($allBranchNames)) {
                     $options = ['<option value="" >--  Select a Branch --</option>'];
                     foreach ($allBranchNames as $key => $value) {
                         $options[] = '<option value="' . $value . '">' . $value . '</option>';
@@ -133,12 +131,10 @@ class ProjectController extends Controller
                 } else {
                     $options = ['<option value="" >No records found.</option>'];
                 }
-            }
-            catch(\Exception $e) {
-                \Log::info("Error : ".$e->getMessage());
+            } catch(\Exception $e) {
+                \Log::info('Error : ' . $e->getMessage());
                 $options = ['<option value="" >Please Select a Repository</option>'];
             }
-           
         } else {
             $options = ['<option value="" >Please Select a Repository</option>'];
         }
@@ -146,98 +142,106 @@ class ProjectController extends Controller
         return response()->json(['data' => implode('', $options)]);
     }
 
-    public function pullRequestsBuildProcess(Request $request){
-        
-        $repository_id =$request->build_process_repository;
+    public function pullRequestsBuildProcess(Request $request)
+    {
+        $repository_id = $request->build_process_repository;
         $branch_name = $request->build_process_branch;
-        $projects=$request->projects;
-        if(auth()->user()){
-            $user_id=auth()->user()->id;
-        }else{
-            $user_id=6;
+        $projects = $request->projects;
+        if (auth()->user()) {
+            $user_id = auth()->user()->id;
+        } else {
+            $user_id = 6;
         }
-        if($repository_id==''){
+        if ($repository_id == '') {
             BuildProcessErrorLog::log([
-                'project_id' => "",
+                'project_id' => '',
                 'error_message' => 'Repository data can not be empty!',
-                'error_code' => "500",
-                'github_organization_id' => "",
+                'error_code' => '500',
+                'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => ""
+                'github_branch_state_name' => '',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data can not be empty!']);
         }
         $repositoryData = \App\Github\GithubRepository::find($repository_id);
-        if(!$repositoryData){
+        if (! $repositoryData) {
             BuildProcessErrorLog::log([
-                'project_id' => "",
+                'project_id' => '',
                 'error_message' => 'Repository data not found!',
-                'error_code' => "500",
-                'github_organization_id' => "",
+                'error_code' => '500',
+                'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => ""
+                'github_branch_state_name' => '',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data not found!']);
         }
-        if($branch_name==''){
+        if ($branch_name == '') {
             BuildProcessErrorLog::log([
-                'project_id' => "",
+                'project_id' => '',
                 'error_message' => 'Branch data can not be empty!',
-                'error_code' => "500",
-                'github_organization_id' => "",
+                'error_code' => '500',
+                'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => $branch_name
+                'github_branch_state_name' => $branch_name,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
         }
-        if($request->has("project_type") && $request->project_type!=''){
-            $project_type=$request->project_type;
-            $projects=Project::where('project_type',$project_type)->get()->pluck('id')->toArray();
+        $initiate_from = 'Pull Requests Page';
+        if ($request->has('project_type') && $request->project_type != '') {
+            $initiate_from = 'Call Back URL';
+            $project_type = $request->project_type;
+            $projects = Project::where('project_type', $project_type)->get()->pluck('id')->toArray();
         }
-        if(empty($projects)){
+        $build_pr = '';
+        if ($request->has('build_pr') && $request->build_pr != '') {
+            $build_pr = $request->build_pr;
+        }
+        if (empty($projects)) {
             BuildProcessErrorLog::log([
-                'project_id' => "",
+                'project_id' => '',
                 'error_message' => 'Please select projects for build process!',
-                'error_code' => "500",
-                'github_organization_id' => "",
+                'error_code' => '500',
+                'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => $branch_name
+                'github_branch_state_name' => $branch_name,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select projects for build process!']);
         }
-        
+
         $repository = $repositoryData->name;
         $organization = $repositoryData->github_organization_id;
-        foreach($projects as $proj){
+        foreach ($projects as $proj) {
             $project = Project::find($proj);
-            if($project){
+            if ($project) {
                 $job_name = $project->job_name;
                 $serverenv = $project->serverenv;
-                if($job_name=='' || $serverenv==''){
+                if ($job_name == '' || $serverenv == '') {
                     $record = [
-                        'store_website_id' => $proj, 
-                        'created_by' =>$user_id, 
-                        'text' => 'Job name and serverenv can not be empty!', 
-                        'build_name' => '', 
-                        'build_number' => '', 
-                        'status' => 'ABORTED', 
+                        'store_website_id' => $proj,
+                        'created_by' => $user_id,
+                        'text' => 'Job name and serverenv can not be empty!',
+                        'build_name' => '',
+                        'build_number' => '',
+                        'status' => 'ABORTED',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
+                        'build_pr' => $build_pr,
+                        'initiate_from' => $initiate_from,
                     ];
                     \App\BuildProcessHistory::create($record);
-                    
+
                     BuildProcessErrorLog::log([
                         'project_id' => $proj,
                         'error_message' => 'Job name and serverenv can not be empty!',
-                        'error_code' => "500",
+                        'error_code' => '500',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
                     ]);
 
                     continue;
@@ -247,91 +251,98 @@ class ProjectController extends Controller
                 $branch_name = $branch_name;
                 $serverenv = $serverenv;
                 $verbosity = 'high';
-                
-                try{
+
+                try {
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                    $job =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
+                    $job = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($jenkins->getJob($jobName)) {
                         $job = $jenkins->getJob($jobName);
                         // $builds = $job->getBuilds();
                         $lastBuild = $job->getLastBuild();
-                        $latestBuildNumber = $latestBuildResult = "";
+                        $latestBuildNumber = $latestBuildResult = '';
                         if ($lastBuild) {
                             $latestBuildNumber = $lastBuild->getNumber();
                             $latestBuildResult = $lastBuild->getResult();
                         }
-                        
-                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
-                        
+
+                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
+
                         $record = [
-                            'store_website_id' => $proj, 
-                            'created_by' =>$user_id, 
-                            'text' => $buildDetail, 
-                            'build_name' => $jobName, 
-                            'build_number' => $latestBuildNumber, 
-                            'status' => $latestBuildResult, 
+                            'store_website_id' => $proj,
+                            'created_by' => $user_id,
+                            'text' => $buildDetail,
+                            'build_name' => $jobName,
+                            'build_number' => $latestBuildNumber,
+                            'status' => $latestBuildResult,
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'build_pr' => $build_pr,
+                            'initiate_from' => $initiate_from,
                         ];
 
                         \App\BuildProcessHistory::create($record);
-
                     } else {
                         $record = [
-                            'store_website_id' => $proj, 
-                            'created_by' =>$user_id, 
-                            'text' => 'Please try again, Jenkins job not created', 
-                            'build_name' => '', 
-                            'build_number' => '', 
-                            'status' => 'ABORTED', 
+                            'store_website_id' => $proj,
+                            'created_by' => $user_id,
+                            'text' => 'Please try again, Jenkins job not created',
+                            'build_name' => '',
+                            'build_number' => '',
+                            'status' => 'ABORTED',
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
                         ];
                         \App\BuildProcessHistory::create($record);
                         BuildProcessErrorLog::log([
                             'project_id' => $proj,
                             'error_message' => 'Jenkins job not created',
-                            'error_code' => "500",
+                            'error_code' => '500',
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'build_pr' => $build_pr,
+                            'initiate_from' => $initiate_from,
                         ]);
                     }
-                }catch (\Exception $e){
+                } catch (\Exception $e) {
                     $record = [
-                        'store_website_id' => $proj, 
-                        'created_by' =>$user_id, 
-                        'text' => $e->getMessage(), 
-                        'build_name' => '', 
-                        'build_number' => '', 
-                        'status' => 'ABORTED', 
+                        'store_website_id' => $proj,
+                        'created_by' => $user_id,
+                        'text' => $e->getMessage(),
+                        'build_name' => '',
+                        'build_number' => '',
+                        'status' => 'ABORTED',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
                     ];
                     \App\BuildProcessHistory::create($record);
                     BuildProcessErrorLog::log([
                         'project_id' => $proj,
                         'error_message' => $e->getMessage(),
-                        'error_code' => "500",
+                        'error_code' => '500',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
+                        'build_pr' => $build_pr,
+                        'initiate_from' => $initiate_from,
                     ]);
                 }
-            }else{
+            } else {
                 $record = [
-                    'store_website_id' => $proj, 
-                    'created_by' =>$user_id, 
-                    'text' => 'Project Data not found', 
-                    'build_name' => '', 
-                    'build_number' => '', 
-                    'status' => 'ABORTED', 
+                    'store_website_id' => $proj,
+                    'created_by' => $user_id,
+                    'text' => 'Project Data not found',
+                    'build_name' => '',
+                    'build_number' => '',
+                    'status' => 'ABORTED',
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
-                    'github_branch_state_name' => $branch_name
+                    'github_branch_state_name' => $branch_name,
+                    'build_pr' => $build_pr,
+                    'initiate_from' => $initiate_from,
                 ];
 
                 \App\BuildProcessHistory::create($record);
@@ -339,17 +350,17 @@ class ProjectController extends Controller
                 BuildProcessErrorLog::log([
                     'project_id' => $proj,
                     'error_message' => 'Project Data not found',
-                    'error_code' => "500",
+                    'error_code' => '500',
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
-                    'github_branch_state_name' => $branch_name
+                    'github_branch_state_name' => $branch_name,
                 ]);
             }
-
         }
+
         return response()->json(['code' => 200, 'message' => 'Process builed complete successfully. Please check builed process logs for more details']);
     }
-    
+
     public function buildProcess(Request $request)
     {
         $post = $request->all();
@@ -358,38 +369,40 @@ class ProjectController extends Controller
         $job_name = $request->job_name;
         $organization = $request->organization;
         $projectId = $request->project_id;
-        
-        if($repository==''){
+        $initiate_from = $request->initiate_from;
+
+        if ($repository == '') {
             BuildProcessErrorLog::log([
                 'project_id' => $projectId,
                 'error_message' => 'Please select repository',
-                'error_code' => "500",
-                'github_organization_id' => "",
+                'error_code' => '500',
+                'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => ""
+                'github_branch_state_name' => '',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select repository']);
         }
-        if($branch_name==''){
+        if ($branch_name == '') {
             BuildProcessErrorLog::log([
                 'project_id' => $projectId,
                 'error_message' => 'Please select Branch',
-                'error_code' => "500",
+                'error_code' => '500',
                 'github_organization_id' => $organization,
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => $branch_name
+                'github_branch_state_name' => $branch_name,
             ]);
+
             return response()->json(['code' => 500, 'message' => 'Please select Branch']);
         }
-        if($job_name==''){
+        if ($job_name == '') {
             BuildProcessErrorLog::log([
-                'project_id' => "",
+                'project_id' => '',
                 'error_message' => 'Please Enter Job Name',
-                'error_code' => "500",
+                'error_code' => '500',
                 'github_organization_id' => $organization,
                 'github_repository_id' => $repository_id,
-                'github_branch_state_name' => $branch_name
+                'github_branch_state_name' => $branch_name,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please Enter Job Name']);
@@ -400,43 +413,53 @@ class ProjectController extends Controller
 
             if ($project) {
                 $repositoryData = \App\Github\GithubRepository::find($request->repository);
-                
+
                 $repository = $request->repository;
-                if( $repositoryData){
+                if ($repositoryData) {
                     $repository = $repositoryData->name;
                 }
-                
+
                 $jobName = $request->job_name;
                 $branch_name = $request->branch_name;
                 $serverenv = $project->serverenv;
                 $verbosity = 'high';
                 //$branch_name="stage";$repository="brands-labels";
-                try{
+                try {
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                    $launchJobStatus =$jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
+                    $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
                         // $builds = $job->getBuilds();
-                        
-                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository .'<br> Branch Name: ' . $branch_name;
-                        
-                        $lastBuild = $job->getLastBuild();
-                        $latestBuildNumber = $latestBuildResult = "";
-                        if ($lastBuild) {
-                            $latestBuildNumber = $lastBuild->getNumber();
-                            $latestBuildResult = $lastBuild->getResult();
+
+                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
+                        $latestBuildNumber = $latestBuildResult = '';
+
+                        $job_api_url = "{$jenkins->getUrl()}/job/{$job_name}/api/json";
+                        $job_info = json_decode(file_get_contents($job_api_url), true);
+
+                        // Check if the job has any build in the queue
+                        if ($job_info && $job_info['inQueue']) {
+                            $latestBuildNumber = $job_info['nextBuildNumber'];
+                            $latestBuildResult = 'WAITING';
+                        } else {
+                            $lastBuild = $job->getLastBuild();
+                            if ($lastBuild) {
+                                $latestBuildNumber = $lastBuild->getNumber();
+                                $latestBuildResult = $lastBuild->getResult();
+                            }
                         }
 
                         $record = [
-                            'store_website_id' => $request->project_id, 
-                            'created_by' =>auth()->user()->id, 
-                            'text' => $buildDetail, 
-                            'build_name' => $jobName, 
-                            'build_number' => $latestBuildNumber, 
-                            'status' => $latestBuildResult, 
+                            'store_website_id' => $request->project_id,
+                            'created_by' => auth()->user()->id,
+                            'text' => $buildDetail,
+                            'build_name' => $jobName,
+                            'build_number' => $latestBuildNumber,
+                            'status' => $latestBuildResult,
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
+                            'initiate_from' => $initiate_from,
                         ];
 
                         \App\BuildProcessHistory::create($record);
@@ -446,48 +469,46 @@ class ProjectController extends Controller
                         BuildProcessErrorLog::log([
                             'project_id' => $request->project_id,
                             'error_message' => 'Jenkins job not created',
-                            'error_code' => "500",
+                            'error_code' => '500',
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name
+                            'github_branch_state_name' => $branch_name,
                         ]);
 
                         return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
                     }
-                }catch (\Exception $e){
+                } catch (\Exception $e) {
                     BuildProcessErrorLog::log([
                         'project_id' => $request->project_id,
                         'error_message' => $e->getMessage(),
-                        'error_code' => "500",
+                        'error_code' => '500',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
                     ]);
 
                     return response()->json(['code' => 500, 'message' => $e->getMessage()]);
-                }
-                catch (\RuntimeException $e){
+                } catch (\RuntimeException $e) {
                     BuildProcessErrorLog::log([
                         'project_id' => $request->project_id,
                         'error_message' => $e->getMessage(),
-                        'error_code' => "500",
+                        'error_code' => '500',
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
-                        'github_branch_state_name' => $branch_name
+                        'github_branch_state_name' => $branch_name,
                     ]);
 
                     return response()->json(['code' => 500, 'message' => $e->getMessage()]);
                 }
             }
-            
         }
+
         return response()->json(['code' => 500, 'message' => 'Project Data is not available.']);
-        
     }
-    
+
     public function buildProcessStatusLogs(Request $request)
     {
-        $histories = \App\BuildProcessStatusHistories::where('build_process_history_id', $request->id)->orderBy('id','desc')->get();
+        $histories = \App\BuildProcessStatusHistories::where('build_process_history_id', $request->id)->orderBy('id', 'desc')->get();
 
         return response()->json([
             'status' => true,
@@ -496,79 +517,135 @@ class ProjectController extends Controller
             'status_name' => 'success',
         ], 200);
     }
-    
+
     public function buildProcessErrorLogs(Request $request)
     {
         $buildProcessErrorLogs = BuildProcessErrorLog::with('project');
 
-        $buildProcessErrorLogs = $buildProcessErrorLogs->orderBy('id','desc')->paginate(10);
-        
+        $buildProcessErrorLogs = $buildProcessErrorLogs->orderBy('id', 'desc')->paginate(10);
+
         return view('project.build-process-error-logs', compact('buildProcessErrorLogs'));
     }
 
     // New concept in page
-    public function buildProcessLogs(Request $request, $id= null)
+    public function buildProcessLogs(Request $request, $id = null)
     {
-        $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u','u.id','=','build_process_histories.created_by')->select('build_process_histories.*','u.name as usersname');
+        $responseLogs = \App\BuildProcessHistory::with('project')->leftJoin('users as u', 'u.id', '=', 'build_process_histories.created_by')->select('build_process_histories.*', 'u.name as usersname');
+        $repo_names = \App\Github\GithubRepository::select('name', 'id')->get();
+        $organizations = \App\Github\GithubOrganization::select('name', 'id')->get();
+        $projects = \App\Models\Project::select('name', 'id')->get();
+        $users = \App\User::select('name', 'id')->get();
 
-        if($id){
-            $responseLogs->where('store_website_id', $id);
+        $reqproject = $request->projects ?? [];
+        $reqorganizations = $request->organizations ?? [];
+        $reqrepoids = $request->repo_ids ?? [];
+        $requsers = $request->users ?? [];
+        $reqstatus = $request->status ?? [];
+        $reqsBuildNumber = $request->search_build_number ?? ' ';
+        $reqsBuildName = $request->search_build_name ?? ' ';
+        $reqsBranchName = $request->search_branch_name ?? ' ';
+
+        if ($id) {
+            $responseValue = $responseLogs->where('store_website_id', $id)->get();
+            $reqproject = $responseValue->pluck('store_website_id')->toArray();
+            $reqstatus = $responseValue->pluck('status')->toArray();
+            $requsers = $responseValue->pluck('created_by')->toArray();
+            $reqorganizations = $responseValue->pluck('github_organization_id')->toArray();
+            $reqrepoids = $responseValue->pluck('github_repository_id')->toArray();
         }
-        
-        if($request->has('branch') && $request->branch!=''){
+
+        if ($request->has('branch') && $request->branch != '') {
             $responseLogs->where('github_branch_state_name', $request->branch);
         }
-        
-        if($request->has('buildby') && $request->buildby!=''){
+
+        if ($request->has('buildby') && $request->buildby != '') {
             $responseLogs->where('created_by', $request->buildby);
         }
 
-        $responseLogs=$responseLogs->orderBy('id','desc')->paginate(10);
-       
-        foreach($responseLogs as $responseLog){
-            
-            $github_organization_id=$responseLog->github_organization_id;
-            $job_name=$responseLog->build_name;
-            $build_number=$responseLog->build_number;
-            $project_id=$responseLog->store_website_id;
-            if($responseLog->status!='SUCCESS' && $responseLog->status!='ABORTED'){
-                try{
+        if ($request->projects && $request->projects != '') {
+            $responseLogs = $responseLogs->WhereIn('build_process_histories.store_website_id', $request->projects);
+        }
+
+        if ($request->organizations && $request->organizations != '') {
+            $responseLogs = $responseLogs->WhereIn('build_process_histories.github_organization_id', $request->organizations);
+        }
+
+        if ($request->repo_ids && $request->repo_ids != '') {
+            $responseLogs = $responseLogs->WhereIn('build_process_histories.github_repository_id', $request->repo_ids);
+        }
+
+        if ($request->users && $request->users != '') {
+            $responseLogs = $responseLogs->WhereIn('build_process_histories.created_by', $request->users);
+        }
+
+        if ($request->status && $request->status != '') {
+            $responseLogs = $responseLogs->WhereIn('build_process_histories.status', $request->status);
+        }
+        if ($request->search_build_number && $request->search_build_number != '') {
+            $responseLogs = $responseLogs->where('build_process_histories.build_number', 'LIKE', '%' . $request->search_build_number . '%');
+        }
+        if ($request->search_build_name && $request->search_build_name != '') {
+            $responseLogs = $responseLogs->where('build_process_histories.build_name', 'LIKE', '%' . $request->search_build_name . '%');
+        }
+        if ($request->search_branch_name && $request->search_branch_name != '') {
+            $responseLogs = $responseLogs->where('build_process_histories.github_branch_state_name', 'LIKE', '%' . $request->search_branch_name . '%');
+        }
+
+        $keyword = $request->keyword;
+        if (! empty($keyword)) {
+            $monitorServers = $responseLogs->where(function ($q) use ($keyword) {
+                $q->orWhere('build_process_histories.build_number', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.status', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.build_pr', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.initiate_from', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('build_process_histories.text', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
+        $responseLogs = $responseLogs->orderBy('id', 'desc')->paginate(10);
+
+        foreach ($responseLogs as $responseLog) {
+            $github_organization_id = $responseLog->github_organization_id;
+            $job_name = $responseLog->build_name;
+            $build_number = $responseLog->build_number;
+            $project_id = $responseLog->store_website_id;
+            if ($responseLog->status != 'SUCCESS' && $responseLog->status != 'ABORTED') {
+                try {
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $job = $jenkins->getJob($job_name);
-                    if($job){
-                        $build=$job->getJenkinsBuild($build_number);
-                        if($build){
-                            $build_status=$build->getResult();
-                            
-                            if($responseLog->status!=$build_status){
-                            
+                    if ($job) {
+                        $build = $job->getJenkinsBuild($build_number);
+                        if ($build) {
+                            $build_status = $build->getResult();
+
+                            if ($responseLog->status != $build_status) {
+                                $console_output_url = "{$jenkins->getUrl()}/job/{$job_name}/$build_number/consoleText";
+                                $console_output = file_get_contents($console_output_url);
+
                                 $record = [
-                                    'project_id' => $project_id, 
-                                    'build_process_history_id' => $responseLog->id, 
-                                    'build_number' => $build_number, 
+                                    'project_id' => $project_id,
+                                    'build_process_history_id' => $responseLog->id,
+                                    'build_number' => $build_number,
                                     'old_status' => $responseLog->status,
-                                    'status' => $build_status
+                                    'status' => $build_status,
                                 ];
-        
+
                                 \App\BuildProcessStatusHistories::create($record);
-                            
-                                $responseLog->status=$build_status;
+
+                                $responseLog->status = $build_status;
+                                $responseLog->text = $console_output;
                                 $responseLog->save();
                             }
-                            
                         }
                     }
-                    
-                }catch (\Exception $e){
-                    
-                }
-                catch (\RuntimeException $e){
-                    
+                } catch (\Exception $e) {
+                } catch (\RuntimeException $e) {
                 }
             }
-
         }
-        return view('project.build-process-logs', compact('responseLogs'));
+
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqproject', 'reqorganizations', 'reqrepoids', 'requsers', 'reqstatus', 'reqsBuildNumber', 'reqsBuildName', 'reqsBranchName'));
     }
 
     // Old concept in modal popup
@@ -583,14 +660,14 @@ class ProjectController extends Controller
     //                 //dd($res->created_at);
     //                 $html .= '<tr>';
     //                 $html .= '<td>' . $res->id . '</td>';
-                    
+
     //                 $html .= '<td>' .  $res->usersname .'</td>';
-                    
+
     //                 $html .= '<td>' . $res->build_number . '</td>';
     //                 $html .= '<td>' . $res->build_name . '</td>';
     //                 $html .= '<td>' . $res->text . '</td>';
     //                 $html .= '<td>' . $res->status . '</td>';
-                    
+
     //                 $html .= '<td>' . $res->created_at . '</td>';
     //                 $html .= '</tr>';
     //             }
@@ -619,7 +696,7 @@ class ProjectController extends Controller
                 'project_type' => 'required',
                 'job_name' => 'required',
                 'store_website_id' => 'required',
-                'serverenv' => 'required'
+                'serverenv' => 'required',
             ]
         );
 
@@ -674,7 +751,7 @@ class ProjectController extends Controller
                 'job_name' => 'required',
                 'project_type' => 'required',
                 'store_website_id' => 'required',
-                'serverenv' => 'required'
+                'serverenv' => 'required',
             ]
         );
 
@@ -724,6 +801,7 @@ class ProjectController extends Controller
             ]
         );
     }
+
     public function projectTypeStore(Request $request)
     {
         // Validation Part
@@ -748,5 +826,4 @@ class ProjectController extends Controller
             ]
         );
     }
-
 }

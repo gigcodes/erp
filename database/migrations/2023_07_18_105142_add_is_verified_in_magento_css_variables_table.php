@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIsVerifiedInMagentoCssVariablesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsVerifiedInMagentoCssVariablesTable extends Migration
     public function up()
     {
         Schema::table('magento_css_variables', function (Blueprint $table) {
-            $table->boolean("is_verified")->after("create_by");
+            $table->boolean('is_verified')->after('create_by');
         });
     }
 

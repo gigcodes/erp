@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\StoreWebsite;
 use App\ChatbotTypeErrorLog;
 use Illuminate\Http\Request;
 
@@ -18,12 +19,27 @@ class ChatbotTypeErrorLogController extends Controller
         $query = $query->select('chatbot_type_error_logs.id AS chatId', 'chatbot_type_error_logs.call_sid', 'chatbot_type_error_logs.type_error', 'store_websites.website', 'chatbot_type_error_logs.phone_number');
         $query = $query->leftJoin('store_websites', 'store_websites.id', '=', 'chatbot_type_error_logs.store_website_id');
         // $query =  $query->leftJoin('chatbot_questions', 'chatbot_questions.id', '=', 'chatbot_type_error_logs.chatbot_id');
+        $storeWebsites = StoreWebsite::Select('id', 'website')->get();
+
         if ($request->id) {
             $query = $query->where('chatbot_type_error_logs.id', $request->id);
         }
         if ($request->type != null) {
             $query = $query->where('chatbot_type_error_logs.type_error', $request->type);
         }
+        if ($request->storeweb_id != null) {
+            $query = $query->whereIn('chatbot_type_error_logs.store_website_id', $request->storeweb_id);
+        }
+        if ($request->missiong_word != null) {
+            $query = $query->where('chatbot_type_error_logs.type_error', $request->missiong_word);
+        }
+        if ($request->call_sid != null) {
+            $query = $query->where('chatbot_type_error_logs.call_sid', $request->call_sid);
+        }
+        if ($request->phone_number != null) {
+            $query = $query->where('chatbot_type_error_logs.phone_number', $request->phone_number);
+        }
+
         $data = $query->orderBy('chatbot_type_error_logs.id', 'asc')->paginate(25)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
@@ -33,7 +49,7 @@ class ChatbotTypeErrorLogController extends Controller
             ], 200);
         }
 
-        return view('chatboat-type-error-log.index', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('chatboat-type-error-log.index', compact('data', 'storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     /**

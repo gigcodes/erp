@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\HashTag;
 use App\Setting;
 use App\Affiliates;
+use App\LogRequest;
 use Illuminate\Http\Request;
 use App\Mails\Manual\AffiliateEmail;
-use App\LogRequest;
 
 class GoogleAffiliateController extends Controller
 {
@@ -416,7 +416,7 @@ class GoogleAffiliateController extends Controller
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url ,
+                CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

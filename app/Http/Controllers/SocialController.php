@@ -6,6 +6,7 @@ use Session;
 use App\Image;
 use App\Product;
 use App\Setting;
+use App\LogRequest;
 use FacebookAds\Api;
 use App\AdsSchedules;
 use Facebook\Facebook;
@@ -15,7 +16,6 @@ use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\Fields\AdFields;
-use App\LogRequest;
 
 class SocialController extends Controller
 {
@@ -76,7 +76,7 @@ class SocialController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $query, 'GET', json_encode([]), json_decode($resp), $httpcode, \App\Http\Controllers\SocialController::class, 'getSchedules');
         $resp = json_decode($resp);
-        
+
         $pagination = $resp->paging;
         $previous = $pagination->previous ?? '';
         $next = $pagination->next ?? '';
@@ -675,7 +675,7 @@ class SocialController extends Controller
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $query, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'adCreativereport');
             curl_close($ch);
-          
+
             $resp->token = $config->token;
 
             if ($resp->data) {
@@ -720,7 +720,6 @@ class SocialController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $query, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'adCreativepaginateReport');
         curl_close($ch);
-        
 
         if (isset($resp->error->error_user_msg)) {
             Session::flash('message', $resp->error->error_user_msg);
@@ -756,7 +755,7 @@ class SocialController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'changeAdStatus');
         curl_close($curl);
-        
+
         if (isset($resp->error->message)) {
             Session::flash('message', $resp->error->message);
         } else {
@@ -817,7 +816,7 @@ class SocialController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'storeCampaign');
             curl_close($curl);
-           
+
             if (isset($resp->error->message)) {
                 Session::flash('message', $resp->error->message);
             } else {
@@ -856,7 +855,7 @@ class SocialController extends Controller
         LogRequest::log($startTime, $query, 'POST', json_encode($parameters), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'createAdset');
 
         curl_close($ch);
-       
+
         if (isset($resp->error->error_user_msg)) {
             Session::flash('message', $resp->error->error_user_msg);
         } elseif (isset($resp->error->message)) {
@@ -958,7 +957,7 @@ class SocialController extends Controller
         LogRequest::log($startTime, $query, 'POST', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'createAd');
 
         curl_close($ch);
-       
+
         if (isset($resp->error->message)) {
             Session::flash('message', $resp->error->message);
         }
@@ -1004,7 +1003,6 @@ class SocialController extends Controller
             LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialController::class, 'storeAd');
 
             curl_close($curl);
-           
 
             if (isset($resp->error->error_user_msg)) {
                 Session::flash('message', $resp->error->error_user_msg);

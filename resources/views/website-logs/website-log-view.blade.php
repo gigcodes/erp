@@ -30,19 +30,15 @@
 				<input class="form-control" type="text" id="search_type" placeholder="Search type" name="search_type" value="{{ $search_type ?? '' }}">
 			</div>
 			<div class="col-lg-2">
-				<input class="form-control" type="date" name="date">
+				<input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
 			</div>
 
 			<div class="col-lg-2">
 				<button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
 				   <img src="{{ asset('images/search.png') }}" alt="Search">
 			   </button>
-			</div>
-
-			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-				<button type="submit" style="" class="btn btn-image pl-0"><img src="/images/filter.png"></button>
-				<a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-				<a href="{{route('website.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>		
+			   <a href="{{route('website.log.view')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+			   <a href="{{route('website.log.truncate')}}" class="btn btn-primary" onclick="return confirm('{{ __('Are you sure you want to Truncate a Data?Note : It will Remove All data') }}')">Truncate Data </a>
 			</div>
 		</form>
 	</div>
@@ -56,6 +52,7 @@
 			        <th width="10%">Type</th>
 			        <th width="10%">File Path</th>
 			        <th width="10%">Date</th>
+					<th width="10%">Insert CodeShortcut</th>
                 </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
@@ -71,6 +68,8 @@
 							<td>{{$data->type}}</td>
 							<td>{{$data->file_path}}</td>
 							<td>{{$data->created_at}}</td>
+							<td><button class="btn btn-success insert-code-shortcut" data-id="{{ $data->id }}">Insert Code Shortcut</button>		
+							</td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -172,6 +171,23 @@
 					alert("Error occured.please try again");
 				}
 			});
+		});
+
+		$(document).on('click', '.insert-code-shortcut', function() {
+			var id = $(this).data('id');
+				$.ajax({
+					url: '{{route('website.insert.code.shortcut')}}',
+					method: 'GET',
+					data: {
+						id: id
+					},
+					success: function(response) {
+						toastr['success'](response.message);
+					},
+					error: function(xhr, status, error) {
+						toastr['error'](response.message);
+					}
+				});
 		});
 </script> 
 @endsection

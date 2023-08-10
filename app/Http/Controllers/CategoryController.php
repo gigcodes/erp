@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Setting;
 use App\Brand;
-use App\BrandCategoryPriceRange;
+use App\Setting;
 use App\Category;
 use App\CategorySegment;
-use App\HashTag;
 use App\Jobs\CreateHashTags;
-use App\KeywordSearchVariants;
-use App\ScrappedCategoryMapping;
 use Illuminate\Http\Request;
+use App\KeywordSearchVariants;
+use App\BrandCategoryPriceRange;
+use App\ScrappedCategoryMapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
@@ -120,16 +119,16 @@ class CategoryController extends Controller
         return back()->with('success', 'New Category added successfully.');
     }
 
-    public function generateHashTagKeywords() {
+    public function generateHashTagKeywords()
+    {
         $brandList = Brand::getAll();
         $keywordVariants = KeywordSearchVariants::list();
 
         /* Initialize queue for add hashtags */
         $categoryList = Category::where('is_hashtag_generated', 0)->pluck('title', 'id')->chunk(1000)->toArray();
 
-
         foreach ($categoryList as $chunk) {
-            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>\Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
+            CreateHashTags::dispatch(['data' => $chunk, 'user_id' => \Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
         }
     }
 

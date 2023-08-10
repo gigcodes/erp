@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\scraperImags;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class scrappersImages extends Command
 {
@@ -97,7 +97,7 @@ class scrappersImages extends Command
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $WETRANSFER_API_URL, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\scrappersImages::class, 'handle');
-            curl_close($curl);         
+            curl_close($curl);
         } catch (\Throwable $th) {
             $this->output->write($th->getMessage(), true);
 

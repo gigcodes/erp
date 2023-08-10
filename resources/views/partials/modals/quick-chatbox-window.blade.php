@@ -148,6 +148,9 @@
     .selectedValue select.globalSelect2+span.select2 {
         width: 200px !important;
     }
+    .count-highlight {
+        background-color: yellow;
+    }
 </style>
 <div id="quick-chatbox-window-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="width:90%; max-width: 90%;">
@@ -458,6 +461,7 @@
             <div class="modal-header">
                 <h4 class="modal-title">Communication</h4>
                 <input type="text" name="search_chat_pop" class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                <span id="total-count" class="count-highlight"></span>
                 <input type="hidden" id="chat_obj_type" name="chat_obj_type">
                 <input type="hidden" id="chat_obj_id" name="chat_obj_id">
                 <button type="submit" class="btn btn-default downloadChatMessages">Download</button>

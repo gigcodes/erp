@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\TwilioConditionStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class TwilioCondition extends Model
@@ -13,4 +14,9 @@ class TwilioCondition extends Model
         'description',
         'status',
     ];
+
+    public function twilioStatusColour()
+    {
+        return $this->belongsTo(TwilioConditionStatus::class, 'status');
+    }
 }

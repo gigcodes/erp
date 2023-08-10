@@ -3033,10 +3033,10 @@ class CustomerController extends Controller
         $storeWebsiteId = $request->store_website_id;
 
         $customerQuery = Customer::query();
-        
-        if($storeWebsiteId == 'Others'){
+
+        if ($storeWebsiteId == 'Others') {
             $customerQuery = $customerQuery->whereNull('store_website_id')->orWhere('store_website_id', '');
-        }else{
+        } else {
             $customerQuery = $customerQuery->where('store_website_id', $storeWebsiteId);
         }
 
@@ -3375,8 +3375,8 @@ class CustomerController extends Controller
         return redirect()->back()->withSuccess('You have successfully Deleted');
     }
 
-    public function  customerName(request $request) {
-
+    public function customerName(request $request)
+    {
         $id = $request->input('id');
         $name = Customer::where('id', $id)->value('name');
         $htmlContent = '<tr><td>' . $name . '</td></tr>';

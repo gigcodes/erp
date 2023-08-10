@@ -6,6 +6,7 @@ use DB;
 use Auth;
 use App\User;
 use App\Email;
+use Exception;
 use App\CashFlow;
 use App\ChatMessage;
 use App\EmailAddress;
@@ -13,13 +14,12 @@ use App\StoreWebsite;
 use App\AssetsManager;
 use App\AssetPlateForm;
 use Illuminate\Support\Str;
+use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
 use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
-use App\UserEvent\UserEvent;
-use Exception;
 
 class AssetsManagerController extends Controller
 {
@@ -30,6 +30,7 @@ class AssetsManagerController extends Controller
      */
     public function index(Request $request)
     {
+        // dd($request);
         $archived = 0;
         if ($request->archived == 1) {
             $archived = 1;
@@ -45,6 +46,9 @@ class AssetsManagerController extends Controller
         $asset_plate_form_id = request('asset_plate_form_id');
         $email_address_id = request('email_address_id');
         $whatsapp_config_id = request('whatsapp_config_id');
+        $ip_ids = request('ip_ids');
+        $user_ids = request('user_ids');
+        $date = request('date');
 
         $assets = new AssetsManager;
         $assets = $assets->leftJoin('store_websites', 'store_websites.id', 'assets_manager.website_id')
@@ -89,6 +93,15 @@ class AssetsManagerController extends Controller
 
         if (! empty($whatsapp_config_id)) {
             $assets = $assets->where('assets_manager.purchase_type', $whatsapp_config_id);
+        }
+        if (! empty($user_ids)) {
+            $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
+        }
+        if (! empty($ip_ids)) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
+        }
+        if (! empty($ip_ids)) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
         }
         // $assets = $assets->orderBy("due_date", "ASC");
 
@@ -295,7 +308,7 @@ class AssetsManagerController extends Controller
     public function destroy($id)
     {
         $data['archived'] = 1;
-        AssetsManager::find($id)->update($data);
+        AssetsManager::destroy($id);
 
         return redirect()->route('assets-manager.index')
             ->with('success', 'Assets deleted successfully');
@@ -623,21 +636,22 @@ class AssetsManagerController extends Controller
     {
         try {
             $asset_manager = AssetsManager::find($request->asset_id);
-            if($asset_manager) {
-                if($asset_manager->active == 1){
+            if ($asset_manager) {
+                if ($asset_manager->active == 1) {
                     $asset_manager->active = 0;
                     $asset_manager->save();
-                    UserEvent::where("asset_manager_id", $asset_manager->id)->forceDelete();
+                    UserEvent::where('asset_manager_id', $asset_manager->id)->forceDelete();
                 } else {
                     $asset_manager->active = 1;
                     $asset_manager->save();
                 }
-                return response()->json(["status"=> true, "message"=> "Status updated"]);
+
+                return response()->json(['status' => true, 'message' => 'Status updated']);
             } else {
-                throw new Exception("Asset not found");
+                throw new Exception('Asset not found');
             }
         } catch (\Exception $e) {
-            return response()->json(["status"=> false, "message"=> "Error while updating status"]);
+            return response()->json(['status' => false, 'message' => 'Error while updating status']);
         }
     }
 }

@@ -7,16 +7,16 @@ use Response;
 use App\ImQueue;
 use App\Setting;
 use App\Customer;
+use App\LogRequest;
 use App\Notification;
 use App\StoreWebsite;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Marketing\WhatsappConfig;
-use App\Marketing\WhatsappBusinessAccounts;
 use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
+use App\Marketing\WhatsappBusinessAccounts;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class WhatsappConfigController extends Controller
 {
@@ -83,7 +83,7 @@ class WhatsappConfigController extends Controller
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
             'storeData' => $storeData,
-            'businessAccounts' => $businessAccounts
+            'businessAccounts' => $businessAccounts,
         ]);
     }
 
@@ -338,7 +338,7 @@ class WhatsappConfigController extends Controller
         // close curl resource to free up system resources
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-       
+
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getBarcode');
 
         $barcode = $output;
@@ -383,8 +383,8 @@ class WhatsappConfigController extends Controller
 
             // close curl resource to free up system resources
             curl_close($ch);
-      
-            LogRequest::log($startTime, $url, 'GET',  json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getScreen');
+
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getScreen');
             if ($whatsappConfig->is_use_own = 1) {
                 $content = base64_decode($output);
             } else {
@@ -565,7 +565,6 @@ class WhatsappConfigController extends Controller
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
 
-
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'checkInstanceAuthentication');
                 }
             }
@@ -621,7 +620,7 @@ class WhatsappConfigController extends Controller
             // close curl resource to free up system resources
             curl_close($ch);
             $response = json_decode($output); //response deocded
-            
+
             LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\WhatsappConfigController::class, 'getStatusInfo');
             if (! empty($output)) {
                 return Response::json(['success' => true, 'message' => $output]);

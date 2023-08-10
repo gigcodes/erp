@@ -1141,10 +1141,8 @@ var page = {
   afterDeletePemUser: function (response, ele) {
     if (response.code == 200) {
       toastr["success"](response.message);
-      
     } else {
       toastr["error"](response.message);
-      
     }
     location.reload();
   },
@@ -1162,10 +1160,8 @@ var page = {
   afterDisablePemUser: function (response, ele) {
     if (response.code == 200) {
       toastr["success"](response.message);
-      
     } else {
       toastr["error"](response.message);
-      
     }
     location.reload();
   },
@@ -1452,7 +1448,6 @@ $(document).on("click", ".submit-generete-file-btn", function (e) {
       jQuery("#loading-image").hide();
     },
   });
-  
 });
 /**
  * set due date

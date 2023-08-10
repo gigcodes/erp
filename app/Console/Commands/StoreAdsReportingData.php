@@ -3,13 +3,13 @@
 namespace App\Console\Commands;
 
 use App\GoogleAdsAccount;
+use App\Helpers\LogHelper;
 use App\GoogleAdsReporting;
 use Illuminate\Console\Command;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Symfony\Component\Config\Definition\Exception\Exception;
-use App\Helpers\LogHelper;
 
 class StoreAdsReportingData extends Command
 {
@@ -44,7 +44,7 @@ class StoreAdsReportingData extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
@@ -57,7 +57,7 @@ class StoreAdsReportingData extends Command
                     $this->getAllCampaignData($googleAdsAccount, $campaignIds);
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

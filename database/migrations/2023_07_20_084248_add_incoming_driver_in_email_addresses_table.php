@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIncomingDriverInEmailAddressesTable extends Migration
 {
@@ -14,8 +14,7 @@ class AddIncomingDriverInEmailAddressesTable extends Migration
     public function up()
     {
         Schema::table('email_addresses', function (Blueprint $table) {
-            $table->string("incoming_driver")->nullable();
-            
+            $table->string('incoming_driver')->nullable();
         });
     }
 
@@ -27,7 +26,7 @@ class AddIncomingDriverInEmailAddressesTable extends Migration
     public function down()
     {
         Schema::table('email_addresses', function (Blueprint $table) {
-            $table->dropColumn("incoming_driver");
+            $table->dropColumn('incoming_driver');
         });
     }
 }

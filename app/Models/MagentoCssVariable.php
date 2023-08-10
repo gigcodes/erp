@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\MagentoCssVariableJobLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoCssVariable extends Model
 {
@@ -17,15 +18,16 @@ class MagentoCssVariable extends Model
         'variable',
         'value',
         'create_by',
-        'is_verified'
+        'is_verified',
     ];
 
     const VERIFIED = 1;
+
     const NOTVERIFIED = 0;
 
     public static $verifiedOptions = [
         self::VERIFIED => 'Yes',
-        self::NOTVERIFIED  => 'No',
+        self::NOTVERIFIED => 'No',
     ];
 
     public function project()
@@ -38,4 +40,10 @@ class MagentoCssVariable extends Model
         return $this->belongsTo(User::class, 'create_by');
     }
 
+    public function lastLog()
+    {
+        return $this->hasOne(MagentoCssVariableJobLog::class)
+            ->orderByDesc('created_at')
+            ->latest();
+    }
 }

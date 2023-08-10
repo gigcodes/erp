@@ -109,11 +109,9 @@ class DocumentController extends Controller
 
         if ($request->task_subject && $request->task_subject != null) {
             $developertask = $developertask->where('subject', 'LIKE', "%$request->task_subject%");
-            
         }
         if (! empty($request->user_id)) {
             $developertask = $developertask->where('developer_task_documents.created_by', $request->user_id);
-           
         }
         if (! empty($request->term_id)) {
             $developertask = $developertask->where('developer_task_documents.developer_task_id', $request->term_id);
@@ -124,7 +122,7 @@ class DocumentController extends Controller
         // $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
 
         $uploadDocData = DB::table('tasks')
-                ->select('task_subject as subject','task_details as description',
+                ->select('task_subject as subject', 'task_details as description',
                     'tasks.id as developer_task_id', 'tasks.created_at', 'mediables.tag as tag',
                     'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
                     'media.extension as extension', 'users.name as username', DB::raw("'Task' as type"), 'media.id as media_id')
@@ -151,7 +149,7 @@ class DocumentController extends Controller
         $uploadDocData = $uploadDocData->orderBy('media_id', 'desc');
         $DataCount = $uploadDocData->count();
         $uploadDocData = $uploadDocData->paginate(50);
-        
+
         $users = User::get();
 
         $totalCount = $DataCount;
@@ -624,6 +622,16 @@ class DocumentController extends Controller
             'category' => $category,
             'api_keys' => $api_keys,
             'emailAddresses' => $emailAddresses,
+        ]);
+    }
+
+    public function listShorcut(Request $request)
+    {
+        $datas = Document::latest()->get();
+
+        return response()->json([
+            'tbody' => view('partials.modals.list-documentation-shortcut-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
         ]);
     }
 }

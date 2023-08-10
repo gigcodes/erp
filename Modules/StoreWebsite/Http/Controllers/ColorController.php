@@ -20,7 +20,7 @@ class ColorController extends Controller
     public function index(Request $request)
     {
         $title = 'Colors | Store Website';
-        $store_colors = StoreWebsiteColor::all();
+        $store_colors = new StoreWebsiteColor();
 
         if ($request->get('push') == 1) {
             $website = \App\StoreWebsite::where('website_source', 'magento')->where('id', $request->get('store_website_id'))->where('api_token', '!=', '')->get();
@@ -48,15 +48,31 @@ class ColorController extends Controller
         }
 
         // Check for keyword search
+        $reqsstorecolor = $request->Store_Color ?? '';
+        $reqStorecolour = $request->erp_colour;
+
         if ($request->keyword != null) {
             $store_colors = $store_colors->where('erp_color', 'like', '%' . $request->keyword . '%');
         }
+        if ($request->website_ids != null) {
+            $store_colors = $store_colors->WhereIn('store_website_id', $request->website_ids);
+        }
+        if ($request->erp_colour != null) {
+            $store_colors = $store_colors->WhereIn('erp_color', $request->erp_colour);
+        }
+        if ($request->Store_Color != null) {
+            $store_colors = $store_colors->where('store_color', 'LIKE', '%' . $request->Store_Color . '%');
+        }
+
+        $store_colors = $store_colors->get();
 
         return view('storewebsite::color.index', [
             'erp_colors' => (new Colors())->all(),
             'store_websites' => StoreWebsite::pluck('title', 'id')->toArray(),
             'store_colors' => $store_colors,
             'title' => $title,
+            'reqsstorecolor' => $reqsstorecolor,
+            'reqStorecolour' => $reqStorecolour,
         ]);
     }
 

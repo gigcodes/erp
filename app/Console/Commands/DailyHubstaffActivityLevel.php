@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 
 class DailyHubstaffActivityLevel extends Command
 {

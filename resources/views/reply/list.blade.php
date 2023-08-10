@@ -10,12 +10,15 @@
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-2 pd-sm">
+                                {!! Form::label('store_website_id', 'Search Store Website', ['class' => 'form-control-label']) !!}
                                 {{ Form::select("store_website_id[]", \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
                             </div>
                             <!-- <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Parent Category', ['class' => 'form-control-label']) !!}
                                 {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
                             </div> -->
                             <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search Parent Category', ['class' => 'form-control-label']) !!}
                                 <select class="form-control globalSelect2" style="width:100%" name="parent_category_ids[]" data-placeholder="Search Parent Category By Name.." multiple >
                                     @if ($parentCategory)
                                         @foreach($parentCategory as $key => $parentCategory)
@@ -25,6 +28,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search category', ['class' => 'form-control-label']) !!}
                                 <select class="form-control globalSelect2" style="width:100%" name="category_ids[]" data-placeholder="Search Category By Name.." multiple >
                                     @if ($category)
                                         @foreach($category as $key => $category)
@@ -34,6 +38,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search SubCategory', ['class' => 'form-control-label']) !!}
                                 <select class="form-control globalSelect2" style="width:100%" name="sub_category_ids[]" data-placeholder="Search Sub Category By Name.." multiple >
                                     @if ($subCategory)
                                         @foreach($subCategory as $key => $subCategory)
@@ -43,16 +48,30 @@
                                 </select>
                             </div>
                             <div class="col-md-2 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                                <br>
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
-                            <div class="col-md-2 pd-sm pl-0 mt-2">
-                                 <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                                 <button type="submit" class="btn btn-primary search push_all_faq">
-                                    Push FAQ
-                                </button>
-                            </div>
+                        <div class="col-md-2 pd-sm">
+                            <br>
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                <img src="{{ asset('images/search.png') }}" alt="Search">
+                            </button>
+                            <a href="{{route('reply.replyList')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                        </div>
+                        <div class="">
+                            <br>
+                            <button type="submit" class="btn btn-primary search push_all_faq">
+                                Push FAQ
+                            </button>
+                            <a href="{{ route('reply.listing') }}" target="_blank" class="btn btn-primary">
+                                Reply Log
+                            </a>
+                            <button type="submit" class="btn btn-primary search push_multi_toggle">
+                                Add Flag
+                            </button>
+                            <button type="submit" class="btn btn-primary search push_multi_faq">
+                                Mulitiple Push FAQ
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -75,6 +94,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
+                            <th width="5%"></th>
                             <th width="5%">ID</th>
                             <th width="10%">Store website</th>
                             <th width="9%">Parent Category</th>
@@ -86,10 +106,12 @@
                             <th width="7%">Updated On</th>
                             <th width="9%">Is Pushed</th>
                             <th width="9%">Is Pushed To Watson</th>
+                            <th width="9%">Is Translated</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr class="quick-website-task-{{ $reply->id }}" data-id="{{ $reply->id }}">
+                                <td><input type="checkbox" name="replyCheckbox" class="replyCheckbox" value="{{ $reply->id }}" data-id="{{ $reply->id }}" data-select="true"></td>
                                 <td id="reply_id">{{ $reply->id }}</td>
                                 <td class="expand-row" id="reply-store-website" style="word-break: break-all;">
                                     <span class="td-mini-container">
@@ -124,11 +146,14 @@
                                     </span>
                                 </td>
                                 <td style="cursor:pointer; word-break: break-all;" id="reply_text" class="change-reply-text expand-row" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">
-                                     <span class="td-mini-container">
+                                    <span class="td-mini-container">
                                         {{ strlen($reply->reply) > 10 ? substr($reply->reply, 0, 10).'...' : $reply->reply }}
                                     </span>
                                     <span class="td-full-container hidden">
                                         {{$reply->reply}}
+                                    </span>
+                                    <span class="edit-icon">
+                                        <i class="fa fa-pencil" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}"  style="float: right";></i>
                                     </span>
                                 </td>
                                 <td class="expand-row" id="reply_model" style="word-break: break-all;">
@@ -156,9 +181,21 @@
                                     </span>
                                 </td>
                                 <td>
-                                    {{ $reply->is_pushed ? 'True' : 'False' }}
+                                    @if($reply->is_pushed)
+                                        <span class="badge badge-success">True</span>
+                                    @else
+                                        <span class="badge badge-danger">False</span>
+                                    @endif
                                 </td>
+                                
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
+                                <td>
+                                    @if($reply->is_translate)
+                                        <span class="badge badge-success">True</span>
+                                    @else
+                                        <span class="badge badge-danger">False</span>
+                                    @endif
+                                </td>
                                 <td class="Website-task"title="">
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$reply->id}}')"><i class="fa fa-arrow-down"></i></button>
                                 </td>
@@ -169,7 +206,9 @@
                                 <td id="reply_action"  colspan="10" >
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
                                     @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
-                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    @if(Auth::user()->isAdmin())
+                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    @endif
                                     <!-- To push the FAQ Over every website using the API -->
                                     
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
@@ -672,5 +711,98 @@ $(document).on('click', '.expand-row', function () {
         $(this).find('.td-full-container').toggleClass('hidden');
     }
 });
+
+    $(document).on('click', '.push_multi_toggle', function (e) {
+        e.preventDefault();
+        var selectedCheckboxes = [];
+        var replyIDs = [];
+
+        $('input[name="replyCheckbox"]:checked').each(function() {
+            var replyID = $(this).data('id');
+            var checkboxValue = $(this).val();
+
+            replyIDs.push(replyID);
+            selectedCheckboxes.push(checkboxValue);
+        });
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
+
+        var reply_ids = selectedCheckboxes.join(',');
+        // Instead of $('#multiple_file_id').val(selectedCheckboxes.join(',')), just store the value in a variable.
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('reply.mulitiple.flag') }}",
+            type: 'POST',
+            data: {
+                reply_ids: reply_ids, // Use the variable here to pass the reply_ids data.
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            },
+            success: function (response) {
+                $("#loading-image-preview").hide();
+                toastr["success"](response.message);
+            },
+            error: function (xhr, status, error) {
+                // Handle the AJAX error response if needed.
+            },
+            complete: function () {
+                $("#loading-image-preview").hide();
+            }
+        });
+    });
+
+    $(document).on('click', '.push_multi_faq', function (e) {
+        e.preventDefault();
+        var selectedCheckboxes = [];
+        var replyIDs = [];
+
+        $('input[name="replyCheckbox"]:checked').each(function() {
+            var replyID = $(this).data('id');
+            var checkboxValue = $(this).val();
+
+            replyIDs.push(replyID);
+            selectedCheckboxes.push(checkboxValue);
+        });
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
+
+        var reply_ids = selectedCheckboxes.join(',');
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ url('push/faq/mulitiple') }}",
+            type: 'POST',
+            data: {
+                reply_ids: reply_ids, // Use the variable here to pass the reply_ids data.
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            },
+            success: function (response) {
+                $("#loading-image-preview").hide();
+                toastr["success"](response.message);
+            },
+            error: function (xhr, status, error) {
+                // Handle the AJAX error response if needed.
+            },
+            complete: function () {
+                $("#loading-image-preview").hide();
+            }
+        });
+    });
 </script>
 @endsection

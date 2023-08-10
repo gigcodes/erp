@@ -5,10 +5,10 @@ namespace Modules\StoreWebsite\Http\Controllers;
 use App\Website;
 use App\StoreWebsite;
 use App\WebsiteStore;
+use App\WebsitePushLog;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\WebsitePushLog;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteController extends Controller
@@ -30,7 +30,7 @@ class WebsiteController extends Controller
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'countries' => $countries,
-            'websites' => $websites
+            'websites' => $websites,
         ]);
     }
 
@@ -82,11 +82,10 @@ class WebsiteController extends Controller
 
     public function pushAllLogs(Request $request)
     {
-        
         $perPage = 10; // Number of records per page
 
         $websitePushLogs = WebsitePushLog::latest();
-        if( $request->has('website_id') ) {
+        if ($request->has('website_id')) {
             $websitePushLogs = $websitePushLogs->where('websitepushloggable_id', $request->query('website_id'))
                 ->where('websitepushloggable_type', \App\Website::class);
         }
@@ -519,36 +518,35 @@ class WebsiteController extends Controller
 
         return response()->json(['code' => 500, 'data' => [], 'error' => 'Copy field or Store Website id is not selected']);
     }
-    public function websitesStores(Request $request){
 
+    public function websitesStores(Request $request)
+    {
         $websites = Website::with('stores.storeViewMany')->whereNotNull('platform_id')->get();
-       
-        $returnData=[];
-        foreach($websites as $key=>$website){
-            
-            $websiteArray=[];
-            $websiteArray['website_id']=$website->platform_id;
-            $websiteArray['name']=$website->name;
-            $websiteArray['code']=$website->code;
-            $websiteArray['default_display_currency_code']='';
-            $websiteArray['store_list']=[];
-            if($website->stores){
-                foreach($website->stores as $stores){
-                    if($stores->storeViewMany){
-                        foreach($stores->storeViewMany as $view){
-                            $storesViewArray=[];
-                            $storesViewArray['id']=$view->id;
-                            $storesViewArray['code']=$view->code;
-                            $storesViewArray['name']=$view->name;
-                            $websiteArray['store_list'][]=$storesViewArray;
+
+        $returnData = [];
+        foreach ($websites as $key => $website) {
+            $websiteArray = [];
+            $websiteArray['website_id'] = $website->platform_id;
+            $websiteArray['name'] = $website->name;
+            $websiteArray['code'] = $website->code;
+            $websiteArray['default_display_currency_code'] = '';
+            $websiteArray['store_list'] = [];
+            if ($website->stores) {
+                foreach ($website->stores as $stores) {
+                    if ($stores->storeViewMany) {
+                        foreach ($stores->storeViewMany as $view) {
+                            $storesViewArray = [];
+                            $storesViewArray['id'] = $view->id;
+                            $storesViewArray['code'] = $view->code;
+                            $storesViewArray['name'] = $view->name;
+                            $websiteArray['store_list'][] = $storesViewArray;
                         }
                     }
-                    
                 }
-                
             }
-            $returnData[]=$websiteArray;
+            $returnData[] = $websiteArray;
         }
+
         return json_encode($returnData);
     }
 }

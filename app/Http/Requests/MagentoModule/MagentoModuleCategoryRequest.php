@@ -24,7 +24,7 @@ class MagentoModuleCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'category_name' => 'required|max:150|unique:module_categories,category_name',
+            'category_name' => 'required|max:150|unique:magento_module_categories,category_name',
         ];
     }
 

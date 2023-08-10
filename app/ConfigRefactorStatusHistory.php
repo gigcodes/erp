@@ -38,10 +38,10 @@ class ConfigRefactorStatusHistory extends Model
     public function getOldStatusNameAttribute()
     {
         return $this->oldStatus?->name;
-    } 
+    }
 
     public function getNewStatusNameAttribute()
     {
         return $this->newStatus?->name;
-    } 
+    }
 }

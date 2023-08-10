@@ -3,12 +3,11 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use App\MagentoCssVariableJobLog;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\LogRequest;
-use App\MagentoCssVariableJobLog;
 
 class PushMagentoCssVariables implements ShouldQueue
 {
@@ -37,61 +36,61 @@ class PushMagentoCssVariables implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info("PushMagentoCssVariables Queue");
+        \Log::info('PushMagentoCssVariables Queue');
         try {
             // Set time limit
             set_time_limit(0);
 
             // Load product and website
             $magentoCssVariable = $this->magentoCssVariable;
-            $project_name=optional($magentoCssVariable->project)->name;
-            $filepath=$magentoCssVariable->file_path;
-            $key=$magentoCssVariable->variable;
-            $value=$magentoCssVariable->value;
+            $project_name = optional($magentoCssVariable->project)->name;
+            $filepath = $magentoCssVariable->file_path;
+            $key = $magentoCssVariable->variable;
+            $value = $magentoCssVariable->value;
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -p "' . $project_name . '" -f "' . $filepath . '" -k "'.$key. '" -v "'.$value. '" 2>&1';
-            \Log::info("Start Magento Css Variable Update Vaule");
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -p "' . $project_name . '" -f "' . $filepath . '" -k "' . $key . '" -v "' . $value . '" 2>&1';
+            \Log::info('Start Magento Css Variable Update Vaule');
             $result = exec($cmd, $output, $return_var);
-            \Log::info("command:".$cmd);
-            \Log::info("output:".print_r($output,true));
-            \Log::info("return_var:".$return_var);
-            \Log::info("End Magento Css Variable Update Vaule");
-            if(!isset($output[0])){
+            \Log::info('command:' . $cmd);
+            \Log::info('output:' . print_r($output, true));
+            \Log::info('return_var:' . $return_var);
+            \Log::info('End Magento Css Variable Update Vaule');
+            if (! isset($output[0])) {
                 // return response()->json(['code' => 500, 'message' => 'The response is not found!']);
-                // Maintain Error Log here in new table. 
+                // Maintain Error Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' => json_encode($output), 
-                    'status' => 'Error', 
+                    'message' => json_encode($output),
+                    'status' => 'Error',
                 ]);
             }
 
             $response = json_decode($output[0]);
-            if(isset($response->status)  && ($response->status=='true' || $response->status)){
-                $message = "Variable updated";
-                if(isset($response->message) && $response->message!=''){
+            if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+                $message = 'Variable updated';
+                if (isset($response->message) && $response->message != '') {
                     $message = $response->message;
                 }
-                // Maintain Success Log here in new table. 
+                // Maintain Success Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' => json_encode($output), 
-                    'status' => 'Success', 
+                    'message' => json_encode($output),
+                    'status' => 'Success',
                 ]);
-                // return response()->json(['code' => 200, 'message' => $message]);
-            }else{
-                $message = "Something Went Wrong! Please check Logs for more details";
-                if(isset($response->message) && $response->message!=''){
-                    $message=$response->message;
+            // return response()->json(['code' => 200, 'message' => $message]);
+            } else {
+                $message = 'Something Went Wrong! Please check Logs for more details';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
                 }
-                // Maintain Error Log here in new table. 
+                // Maintain Error Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
                     'command' => $cmd,
-                    'message' =>  json_encode($output), 
-                    'status' => 'Error', 
+                    'message' => json_encode($output),
+                    'status' => 'Error',
                 ]);
                 // return response()->json(['code' => 500, 'message' => $message]);
             }

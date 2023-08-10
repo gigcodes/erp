@@ -13,4 +13,9 @@ class VoucherCoupon extends Model
     {
         return $this->hasMany(VoucherCouponRemark::class, 'voucher_coupons_id', 'id');
     }
+
+    public function platform()
+    {
+        return $this->belongsTo(Platform::class, 'platform_id', 'id');
+    }
 }

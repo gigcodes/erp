@@ -6,12 +6,13 @@ use App\Brand;
 use App\HashTag;
 use App\Setting;
 use App\Category;
+use App\LogRequest;
 use App\InstagramPosts;
 use Illuminate\Http\Request;
 use App\KeywordSearchVariants;
 use App\Library\Watson\Response;
 use Yajra\DataTables\DataTables;
-use App\LogRequest;
+
 //use App\InstagramPosts;
 
 class GoogleSearchController extends Controller
@@ -395,7 +396,7 @@ class GoogleSearchController extends Controller
             $parameters['Scraper'] = [
                 'searchKeywords' => $searchKeywords,
             ];
-    
+
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
             curl_setopt_array($curl, [

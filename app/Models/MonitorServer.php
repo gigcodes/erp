@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MonitorServer extends Model
 {
     use HasFactory;
 
     protected $table = 'monitor_servers';
+
     protected $primaryKey = 'server_id';
 
     public $fillable = [

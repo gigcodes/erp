@@ -241,7 +241,7 @@
 				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
-				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
+				{{-- <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp; --}}
 				{{-- <label for="usr">Show Inactive Records:</label>
 				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}> --}}
 				@endif
@@ -263,6 +263,7 @@
 							<th style="width: auto">User Name</th>
 						@endif
 						<th style="width: 7%">Type</th>
+						<th style="width: 150px">Status</th>
 						<th style="width: auto">Device1 (1024px)</th>
 						<th style="width: auto">Device2 (767px)</th>
 						<th style="width: auto">Device3 (1920px)</th>
@@ -273,7 +274,6 @@
 						{{-- <th style="width: auto">Device8</th>
 						<th style="width: auto">Device9</th>
 						<th style="width: auto">Device10</th> --}}
-						<th style="width: 150px">Status</th>
 						
 					</tr>
 				</thead>
@@ -282,11 +282,11 @@
 						@php
 							$deviceBgColors =  array_fill(1, 10, '#ffffff');
 
-							if (isset($uiDevData->uichecks) && isset($uiDevData->uichecks->uiDevice)) {
-								foreach ($uiDevData->uichecks->uiDevice as $device) {
+							if (isset($uiDevData->uichecks) && $uiDevData->uichecks->uiDevices($uiDevData->user_id)) {
+								foreach ($uiDevData->uichecks->uiDevices($uiDevData->user_id) as $device) {
 									$deviceNo = $device->device_no;
-									if (isset($device->lastUpdatedHistory) && $device->lastUpdatedHistory->status != ''){
-										$color = $device->lastUpdatedHistory->stausColor->color;
+									if (isset($device->stausColor) && $device->status != ''){
+										$color = $device->stausColor->color;
 										if ($color != '')
 											$deviceBgColors[$deviceNo] = $color;
 									}
@@ -324,81 +324,97 @@
 								@endif
 
 								<td class="uicheck-username">{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
+								
+								<?php 
+									$devid = '';
+									$status = '';
+									$uiDev = App\UiDevice::where('device_no', 1)
+										->where('uicheck_id', $uiDevData->uicheck_id)
+										->where('user_id', $uiDevData->user_accessable_user_id)
+										->first();
+									$device_no = $uiDev->device_no  ?? '';
+									$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
+									$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
+								?>
+								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}">
+									<?php echo Form::select("statuschanges",[ "" => "-- Select --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
+									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button>
+								</td>
 							
 								<td>
-									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="1"></i>
+									<input type="text"  name="uidevmessage1{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['1']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1', '{{$uiDevData->user_accessable_user_id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="1"></i>
 									@include('uicheck.partials.device-google-screencast-button')
 									
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="1" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '1')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2"></i>
+									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '2')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['3']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3"></i>
+									<input type="text"  name="uidevmessage3{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['3']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="3" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '3')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4"></i>
+									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '4')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['5']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5"></i>
+									<input type="text"  name="uidevmessage5{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['5']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="5" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '5')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('6', '{{$uiDevData->uicheck_id}}', '6');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('6', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6"></i>
+									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('6', '{{$uiDevData->uicheck_id}}', '6', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('6', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="6" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '6')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
 								</td>
 								<td>
-									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
-									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('7', '{{$uiDevData->uicheck_id}}', '7');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('7', '{{$uiDevData->uicheck_id}}');"></i>
-									<i class="btn btn-xs fa fa-clock-o toggle-event" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7"></i>
+									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
+									<button class="btn pr-0 btn-xs btn-image div-message-language" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}" onclick="funDevUpdate('7', '{{$uiDevData->uicheck_id}}', '7', {{$uiDevData->user_accessable_user_id}});"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;" /></button>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('7', '{{$uiDevData->uicheck_id}}', '{{$uiDevData->user_accessable_user_id}}');"></i>
+									<i class="btn btn-xs fa fa-clock-o toggle-event" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7"></i>
 									@include('uicheck.partials.device-google-screencast-button')
-									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
+									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '7')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
@@ -427,21 +443,6 @@
 									@include('uicheck.partials.device-google-screencast-button')
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-device_no="10" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 								</td> --}}
-								
-								<?php 
-										$devid = '';
-										$status = '';
-										$uiDev = App\UiDevice::where('device_no', 1)
-											->where('uicheck_id', $uiDevData->uicheck_id)
-											->first();
-											$device_no = $uiDev->device_no  ?? '';
-											$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
-											$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
-											?>
-								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
-									
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
-									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
 							</tr>
 						
 					@endforeach
@@ -598,7 +599,7 @@
 								<th width="10%" style="word-break: break-all;">Expected start time</th>
 								<th width="10%" style="word-break: break-all;">Expected completion time</th>
 								<th width="10%" style="word-break: break-all;">Estimated Time</th>
-								<th width="15%" style="word-break: break-all;">Status</th>
+								{{-- <th width="15%" style="word-break: break-all;">Status</th> --}}
 								<th width="15%">Created at</th>
 							</tr>
 						</thead>
@@ -801,6 +802,7 @@
 								<td>
 									<div class="form-group flex gap-5">
 										<input type="hidden" name="uidev_uicheck_id" class="uidev_uicheck_id" style="margin-top: 0px;width:40% !important;" id="uidev_uicheck_id"/>
+										<input type="hidden" name="uidev_user_accessable_user_id" class="uidev_user_accessable_user_id" style="margin-top: 0px;width:40% !important;" id="uidev_user_accessable_user_id"/>
 										<div class='input-group date cls-start-due-date'>
 											<input placeholder="Expected start time" type="text" class="form-control" id="modal_expected_start_time" name="modal_expected_start_time" value="" />
 											<span class="input-group-addon">
@@ -870,6 +872,12 @@
 		var uicheck_id = $(this).parent().data('uicheck_id');
 		var device_no = $(this).parent().data('device_no');
 		var old_status = $(this).parent().data('old_status');
+		var user_access_user_id = $(this).parent().data("user_accessable_user_id");
+
+		if (!id) {
+			toastr['error']("Id not found, Some issue in this record. Status not changed");
+			return;
+		}
 
 		var status = $(this).val();
 
@@ -882,6 +890,7 @@
 				device_no : device_no,
 				old_status : old_status,
 				status: status,
+				update_status_all_device: true,
 				"_token": "{{ csrf_token() }}",
 			},
 			beforeSend: function() {
@@ -891,6 +900,11 @@
 				if (response.code == 200) {
 					//$(".statuschanges").val("");
 					toastr['success'](response.message);
+					window.location.reload();
+					//update respective td background
+					var dynamicClass = '.uidevmessage' + device_no + uicheck_id + user_access_user_id;
+					// $(dynamicClass).parent('td').css("background-color",response.data);
+					$(dynamicClass).css("background-color",response.data);
 				} else {
 					toastr['error'](response.message);
 				}
@@ -1210,6 +1224,7 @@
 	
 	$(document).on("click", "#uidev_update_esttime", function(e) {
 		var uicheckId = $("#uidev_uicheck_id").val();
+		var user_access_user_id = $("#uidev_user_accessable_user_id").val();
 		let uidevmessage = jQuery('#uidev_message').val();
 		let uidevstatus = '';
 		var device_no = jQuery('#uidev_id').val();
@@ -1236,7 +1251,8 @@
 				uidevdatetime : uidevdatetime,
 				uidevstatus : uidevstatus,
 				uidevExpectedStartTime: uidevExpectedStartTime,
-				uidevExpectedCompletionTime: uidevExpectedCompletionTime
+				uidevExpectedCompletionTime: uidevExpectedCompletionTime,
+				user_access_user_id: user_access_user_id
 			},
 			beforeSend: function() {
 				//jQuery("#loading-image").show();
@@ -1257,9 +1273,11 @@
 		let mdl = jQuery('#modalCreateDevice');
 		var uidev_id=$(this).attr('data-device_no');
 		var uidev_uicheck_id=$(this).attr('data-uicheck_id');
+		var uidev_user_accessable_user_id=$(this).attr('data-user_accessable_user_id');
 		console.log(uidev_id);
 		$("#uidev_id").val(uidev_id);
 		$("#uidev_uicheck_id").val(uidev_uicheck_id);
+		$("#uidev_user_accessable_user_id").val(uidev_user_accessable_user_id);
 		$("#uidev_message").val('');
 		$("#uidev_estimated_time").val('');
 		$("#modal_expected_start_time").val('');
@@ -1268,11 +1286,11 @@
 		
 		mdl.modal("show");
 	});
-	function funDevUpdate(id, uicheckId, device_no) {
+	function funDevUpdate(id, uicheckId, device_no, user_access_user_id) {
 		//siteLoader(true);
 		//let mdl = jQuery('#modalCreateDevice');
 		var uicheckId = uicheckId;
-		let uidevmessage = jQuery('.uidevmessage'+id+uicheckId).val();
+		let uidevmessage = jQuery('.uidevmessage'+id+uicheckId+user_access_user_id).val();
 		let uidevstatus = jQuery('.statusVal'+uicheckId).val();
 		var device_no = device_no;
 		let uidevdatetime = jQuery('.uidevestimated_time'+id).val();
@@ -1288,7 +1306,8 @@
 				uicheck_id : uicheckId,
 				message : uidevmessage,
 				uidevdatetime : uidevdatetime,
-				uidevstatus : uidevstatus
+				uidevstatus : uidevstatus,
+				user_access_user_id: user_access_user_id
 			},
 			beforeSend: function() {
 				//jQuery("#loading-image").show();
@@ -1303,7 +1322,7 @@
 		});
 	}
 
-	function funGetDevHistory(id,uicheckId) {
+	function funGetDevHistory(id,uicheckId, user_access_user_id) {
 		//siteLoader(true);
 		let mdl = jQuery('#modalGetDevMessageHistory');
 		var uicheckId = uicheckId;
@@ -1317,6 +1336,7 @@
 			data: {
 				device_no: id,
 				uicheck_id : uicheckId,
+				user_access_user_id: user_access_user_id
 			},
 			beforeSend: function() {
 				//jQuery("#loading-image").show();
@@ -1510,6 +1530,8 @@
 		var status_id = $(this).val();
 		var deviceno = $(this).data("deviceno");
 		var uicheckid = $(this).data("uicheckid");
+		var user_access_user_id = $(this).data("user_access_user_id");
+
 		if(confirm("Are you sure you want to change status?")) {
 			$.ajax({
 			url: "{{route('uicheck.device.status')}}",
@@ -1527,7 +1549,7 @@
 			toastr["success"](response.message);
 
 			//update respective td background
-			var dynamicClass = '.uidevmessage' + deviceno + uicheckid;
+			var dynamicClass = '.uidevmessage' + deviceno + uicheckid + user_access_user_id;
 			// $(dynamicClass).parent('td').css("background-color",response.data);
 			$(dynamicClass).css("background-color",response.data);
 
@@ -1711,6 +1733,7 @@
 
 			var uicheckId = $this.data('uicheck_id');
 			var deviceNo = $this.data('device_no');
+			var user_access_user_id = $this.data('user_accessable_user_id');
 			if ($this.hasClass('text-danger')) {
 				var eventType = false;
 				$this.removeClass('text-danger');
@@ -1729,7 +1752,8 @@
 				data: {
 					deviceNo : deviceNo,
 					uicheckId : uicheckId,
-					eventType : eventType
+					eventType : eventType,
+					user_access_user_id: user_access_user_id
 				},
 				beforeSend: function() {
 					//jQuery("#loading-image").show();

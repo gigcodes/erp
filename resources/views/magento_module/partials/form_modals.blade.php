@@ -32,7 +32,7 @@
                 @method('PUT')
                 {!! Form::hidden('id', null, ['id'=>'id']) !!}
                 <div class="modal-header">
-                    <h4 class="modal-title">Update Store Color</h4>
+                    <h4 class="modal-title">Edit {{ $title }}</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">

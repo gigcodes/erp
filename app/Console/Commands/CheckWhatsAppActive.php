@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use App\Marketing\WhatsappConfig;
-use App\Helpers\LogHelper;
 
 class CheckWhatsAppActive extends Command
 {
@@ -66,7 +66,7 @@ class CheckWhatsAppActive extends Command
                     foreach ($phones as $phone) {
                         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Send message successfully on phone:'.$phone]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Send message successfully on phone:' . $phone]);
                     }
                 }
             } else {
@@ -76,7 +76,7 @@ class CheckWhatsAppActive extends Command
             }
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
-            
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

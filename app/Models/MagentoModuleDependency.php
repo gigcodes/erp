@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoModuleDependency extends Model
 {
@@ -12,7 +12,7 @@ class MagentoModuleDependency extends Model
 
     protected $table = 'magento_module_dependancies';
 
-    protected $fillable = ['user_id','magento_module_id', 'depency_remark',  'depency_module_issues', 'depency_theme_issues'];
+    protected $fillable = ['user_id', 'magento_module_id', 'depency_remark',  'depency_module_issues', 'depency_theme_issues'];
 
     public function user()
     {

@@ -21,6 +21,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
+            {{-- @dd('hi'); --}}
             <h2 class="page-heading">Total Product found ({{$products_count}})</h2>
         </div>
     </div>
@@ -28,26 +29,73 @@
     <div class="col-md-12 pl-5 pr-5">
     <form action="{{ action([\App\Http\Controllers\ProductController::class, 'productDescription']) }}" method="get">
         <div class="row mb-5">
-            <div class="col-md-3">
-                <div class="form-group">
-                <select class="form-control" name="supplier" id="supplier">
-                    <option value="">Supplier</option>
-                    @foreach($supplier as  $k => $val)
-                        <option {{ $request->get('supplier')==$val->id ? 'selected' : '' }} value="{{ $val->id }}">{{ ucwords($val->supplier) }}</option>
+			<div class="col-md-2 pd-sm">
+                <h5>Search Suppliers </h5>	
+                <select class="form-control globalSelect2" multiple="true" id="supplier" name="supplier[]" placeholder="Select suppliers">
+                    <option value="">Select Suppliers</option>
+                    @foreach($supplier as $supplier)
+                    <option value="{{ $supplier->id }}" @if(in_array($supplier->id, $request->input('supplier', []))) selected @endif>{{ $supplier->supplier }}</option>
                     @endforeach
                 </select>
-                </div>
             </div>
-            <div class="col-md-3">
-            <input type="text" name="product_id" class="form-control" id="product_id" placeholder="Enter Product ID" value="{{isset($request->product_id) ? $request->product_id : ''}}">
+            <div class="col-md-2 pd-sm">
+                <h5>Search Colors </h5>	
+            <?php echo Form::select("colors[]", [], null, [
+                "class" => "form-control globalSelect2",
+                "style" => "width: 100%;",
+                'data-ajax' => route('select2.productsColors'),
+                'data-placeholder' => 'Select colors',
+                'multiple' => 'multiple',
+            ]); ?>
             </div>
-            <div class="col-md-3">
-            <input type="text" name="sku" class="form-control" id="sku" placeholder="Enter SKU" value="{{isset($request->sku) ? $request->sku : ''}}">
+            <div class="col-md-2 pd-sm">
+                <h5>Search Size system </h5>	
+                <?php echo Form::select("sizeSystem[]", [], null, [
+                    "class" => "form-control globalSelect2",
+                    "style" => "width: 100%;",
+                    'data-ajax' => route('select2.productsSizesystem'),
+                    'data-placeholder' => 'Select Sizesystem',
+                    'multiple' => 'multiple',
+                ]); ?>
             </div>
-            <div class="col-md-1">
+            {{-- <div class="col-md-2 pd-sm"><br><br>
+                <?php //echo Form::select("sizeSystem",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.productsSizesystem'), 'data-placeholder' => 'Select Sizesystem']); ?>
+            </div> --}}
+			<div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_id" class="form-control" id="product_id" placeholder="Enter Product ID" value="{{isset($request->product_id) ? $request->product_id : ''}}">
+            </div>
+			<div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="sku" class="form-control" id="sku" placeholder="Enter SKU" value="{{isset($request->sku) ? $request->sku : ''}}">
+            </div>
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_title" class="form-control" id="product_title" placeholder="Enter Title" value="{{isset($request->product_title) ? $request->product_title : ''}}">
+            </div>
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_description" class="form-control" id="product_description" placeholder="Enter Description" value="{{isset($request->product_description) ? $request->product_description : ''}}">
+            </div>
+            {{-- <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_color" class="form-control" id="product_color" placeholder="Enter Color" value="{{isset($request->product_color) ? $request->product_color : ''}}">
+            </div> --}}
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_size" class="form-control" id="product_size" placeholder="Enter Size" value="{{isset($request->product_size) ? $request->product_size : ''}}">
+            </div>
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_composition" class="form-control" id="product_composition" placeholder="Enter Composition" value="{{isset($request->product_composition) ? $request->product_composition : ''}}">
+            </div>
+            {{-- <div class="col-md-2 pd-sm"><br>
+                <input type="text" name="product_size_system" class="form-control" id="product_size_system" placeholder="Enter Size system" value="{{isset($request->product_size_system) ? $request->product_size_system : ''}}">
+            </div> --}}
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_price" class="form-control" id="product_price" placeholder="Enter Product price" value="{{isset($request->product_price) ? $request->product_price : ''}}">
+            </div>
+            <div class="col-md-2 pd-sm"><br><br>
+                <input type="text" name="product_discount" class="form-control" id="product_discount" placeholder="Enter Product Discounts" value="{{isset($request->product_discount) ? $request->product_discount : ''}}">
+            </div>
+			<div class="col-md-2 pd-sm"><br><br>
                 <button class="btn btn-image mt-0">
                     <img src="{{ asset('images/search.png') }}" alt="Search">
                 </button>
+                <a href="{{route('products.description')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             </div>
         </div>
     </form>

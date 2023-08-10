@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreatePinterestAdsGroupsTable extends Migration
 {
@@ -28,10 +28,10 @@ class CreatePinterestAdsGroupsTable extends Migration
             $table->string('lifetime_frequency_cap')->nullable();
             $table->json('tracking_urls')->nullable();
             $table->boolean('auto_targeting_enabled')->default(false);
-            $table->enum('placement_group', ["ALL", "SEARCH", "BROWSE", "OTHER"])->default('ALL');
-            $table->enum('pacing_delivery_type', ["STANDARD", "ACCELERATED"])->default('STANDARD');
-            $table->enum('billable_event', ["CLICKTHROUGH", "IMPRESSION", 'VIDEO_V_50_MRC']);
-            $table->enum('bid_strategy_type', ["AUTOMATIC_BID", "MAX_BID", 'TARGET_AVG'])->nullable();
+            $table->enum('placement_group', ['ALL', 'SEARCH', 'BROWSE', 'OTHER'])->default('ALL');
+            $table->enum('pacing_delivery_type', ['STANDARD', 'ACCELERATED'])->default('STANDARD');
+            $table->enum('billable_event', ['CLICKTHROUGH', 'IMPRESSION', 'VIDEO_V_50_MRC']);
+            $table->enum('bid_strategy_type', ['AUTOMATIC_BID', 'MAX_BID', 'TARGET_AVG'])->nullable();
             $table->foreign('pinterest_campaign_id')->references('id')->on('pinterest_campaigns')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('pinterest_ads_account_id')->references('id')->on('pinterest_ads_accounts')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();

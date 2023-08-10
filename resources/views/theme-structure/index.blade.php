@@ -14,7 +14,7 @@
     </div>
 @endif
 <div class="row m-3">
-    <div class="col-lg-4">
+    <div class="col-lg-12">
         <div class="ml-2">
             <div class="form-group">
                 <label for="button">Select Theme</label>
@@ -24,12 +24,50 @@
     </div>
 </div> 
 <div class="row m-3">
-    <div class="col-lg-12">
+    <div class="col-lg-5">
         <div class="card-header">
             <a href="#" class="collapse-all">Collapse All</a> |
             <a href="#" class="expand-all">Expand All</a>
         </div>
         <div id="jstree" style="font-size: 16px;"></div>
+    </div>
+    <div class="col-lg-7">
+        <h2 class="page-heading">Theme Structure Logs ({{ $themeStructureLogs->total() }})</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered" style="table-layout: fixed;" id="theme-structure-logs-list">
+                <tr>
+                    <th width="3%">ID</th>
+                    <th width="15%">Command</th>
+                    <th width="15%">Message</th>
+                    <th width="10%">Status</th>
+                </tr>
+                @foreach ($themeStructureLogs as $key => $themeStructureLog)
+                    <tr data-id="{{ $themeStructureLog->id }}">
+                        <td>{{ $themeStructureLog->id }}</td>
+                        <td class="expand-row" style="word-break: break-all">
+                            <span class="td-mini-container">
+                               {{ strlen($themeStructureLog->command) > 30 ? substr($themeStructureLog->command, 0, 30).'...' :  $themeStructureLog->command }}
+                            </span>
+                            <span class="td-full-container hidden">
+                                {{ $themeStructureLog->command }}
+                            </span>
+                        </td>
+                        <td class="expand-row" style="word-break: break-all">
+                            <span class="td-mini-container">
+                               {{ strlen($themeStructureLog->message) > 30 ? substr($themeStructureLog->message, 0, 30).'...' :  $themeStructureLog->message }}
+                            </span>
+                            <span class="td-full-container hidden">
+                                {{ $themeStructureLog->message }}
+                            </span>
+                        </td>
+                        <td class="expand-row" style="word-break: break-all">
+                            {{ $themeStructureLog->status }}
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+        {!! $themeStructureLogs->appends(request()->except('page'))->links() !!}
     </div>
 </div>   
 @endsection
@@ -38,6 +76,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <script>
     $(document).ready(function () {
+            $(document).on('click', '.expand-row', function () {
+                var selection = window.getSelection();
+                if (selection.toString().length === 0) {
+                    $(this).find('.td-mini-container').toggleClass('hidden');
+                    $(this).find('.td-full-container').toggleClass('hidden');
+                }
+            });
+            
             $(document).on('change', '.select-theme', function () {
                     var lan=$(this).val()
                     window.location.href = '<?php echo url("/"); ?>'+"/theme-structure/"+lan;
@@ -54,19 +100,27 @@
                             'create_folder': {
                                 'label': 'Create Folder',
                                 'action': function (data) {
-                                    var inst = $.jstree.reference(data.reference),
-							        obj = inst.get_node(data.reference);
-                                    var fullpath = inst.get_path(inst.get_selected(),'/');
-							        createFolder(node,fullpath);
+                                    if (node.original.type == 'file') {
+                                        toastr['error']('Cannot create a folder or file inside a file.', 'error');
+                                    } else {
+                                        var inst = $.jstree.reference(data.reference),
+                                        obj = inst.get_node(data.reference);
+                                        var fullpath = inst.get_path(inst.get_selected(),'/');
+                                        createFolder(node,fullpath);
+                                    }
                                 }
                             },
                             'create_file': {
                                 'label': 'Create File',
                                 'action': function (data) {
-                                    var inst = $.jstree.reference(data.reference),
-							        obj = inst.get_node(data.reference);
-                                    var fullpath = inst.get_path(inst.get_selected(),'/');
-							        createFile(node,fullpath);
+                                    if (node.original.type == 'file') {
+                                        toastr['error']('Cannot create a folder or file inside a file.', 'error');
+                                    } else {
+                                        var inst = $.jstree.reference(data.reference),
+                                        obj = inst.get_node(data.reference);
+                                        var fullpath = inst.get_path(inst.get_selected(),'/');
+                                        createFile(node,fullpath);
+                                    }
                                 }
                             },
                             'delete': {

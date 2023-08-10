@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ScrapedProducts;
+use App\Helpers\LogHelper;
 use App\Helpers\StatusHelper;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 
 class FixErpColorIssue extends Command
 {
@@ -41,7 +41,7 @@ class FixErpColorIssue extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $products = Product::join('scraped_products as sp', 'sp.product_id', 'products.id')->where('products.status_id', StatusHelper::$unknownColor)->where('products.supplier_id', '>', 0)
@@ -52,7 +52,7 @@ class FixErpColorIssue extends Command
                 })->select('products.*')->get();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product model query was finished']);
-            
+
             //\Log::info("fix-erp-color-issue: Fetch product end found product => ". $products->count());
 
             if (! $products->isEmpty()) {
@@ -69,7 +69,7 @@ class FixErpColorIssue extends Command
 
                     //\Log::info("fix-erp-color-issue: scraped product found status => ". ($scrapedProduct) ? "yes" : "no");
                     if ($scrapedProduct) {
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraped products found for product id:'.$product->id]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraped products found for product id:' . $product->id]);
 
                         $this->info('Started for product id :' . $product->id . ' and find the scraped product');
 
@@ -83,7 +83,7 @@ class FixErpColorIssue extends Command
                         $this->info('Started for product id :' . $product->id . ' and find the color =>' . $color);
                         //\Log::info("fix-erp-color-issue: scraped product color match start => ". $color);
                         if ($color) {
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Color found for product id:'.$product->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Color found for product id:' . $product->id]);
 
                             // check for the auto crop
                             $product->color = $color;
@@ -102,25 +102,25 @@ class FixErpColorIssue extends Command
                             $product->save();
                             $product->checkExternalScraperNeed();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:'.$product->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:' . $product->id]);
                         //\Log::info("fix-erp-color-issue: scraped product color match finish => ". $product->status_id);
                         } else {
                             //\Log::info("fix-erp-color-issue: scraped product no color found => ". $product->status_id);
                             $product->status_id = StatusHelper::$unknownColor;
                             $product->save();
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:'.$product->id]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:' . $product->id]);
                         }
                     } else {
                         //\Log::info("fix-erp-color-issue: scraped product no color found condition no#2 => ". $product->status_id);
                         $product->status_id = StatusHelper::$unknownColor;
                         $product->save();
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:'.$product->id]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated products detail or product id:' . $product->id]);
                     }
                 }
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

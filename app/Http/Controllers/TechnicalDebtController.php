@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TechnicalFrameWork;
 use App\Models\TechnicalDebt;
 use App\Models\TechnicalRemark;
+use App\Models\TechnicalFrameWork;
 
 class TechnicalDebtController extends Controller
 {
@@ -20,7 +20,7 @@ class TechnicalDebtController extends Controller
         if ($request->usernames) {
             $technicaldebt = $technicaldebt->WhereIn('user_id', $request->usernames);
         }
-      
+
         if ($request->problem) {
             $technicaldebt = $technicaldebt->where('problem', 'LIKE', '%' . $request->problem . '%');
         }
@@ -33,17 +33,16 @@ class TechnicalDebtController extends Controller
         if ($request->approximate) {
             $technicaldebt = $technicaldebt->where('approximate_estimate', 'LIKE', '%' . $request->approximate . '%');
         }
-        if($request->status){
-            $technicaldebt = $technicaldebt->where('status',  $request->status);
+        if ($request->status) {
+            $technicaldebt = $technicaldebt->where('status', $request->status);
         }
-        if($request->priority){
-            $technicaldebt = $technicaldebt->where('priority',  $request->priority);
+        if ($request->priority) {
+            $technicaldebt = $technicaldebt->where('priority', $request->priority);
         }
 
-        $data['technicaldebts'] = $technicaldebt->latest()->paginate(\App\Setting::get('pagination',10));
+        $data['technicaldebts'] = $technicaldebt->latest()->paginate(\App\Setting::get('pagination', 10));
 
-        return view('technical-debt.index' ,$data);
-
+        return view('technical-debt.index', $data);
     }
 
     public function frameWorkStore(Request $request)
@@ -55,10 +54,8 @@ class TechnicalDebtController extends Controller
         return back()->with('success', 'Platform successfully created.');
     }
 
-
     public function technicalDeptStore(Request $request)
     {
-
         $validated = new TechnicalDebt();
         $validated->user_id = auth()->user()->id;
         $validated->problem = $request->problem;
@@ -68,12 +65,10 @@ class TechnicalDebtController extends Controller
         $validated->status = $request->status;
         $validated->technical_framework_id = $request->framework_id;
         $validated->priority = $request->priority;
-        $validated->save();     
-         
-        return back()->with('success', 'Code Shortcuts successfully saved.');
-        
-    }
+        $validated->save();
 
+        return back()->with('success', 'Code Shortcuts successfully saved.');
+    }
 
     public function technicalDebtGetRemark(Request $request)
     {
@@ -108,10 +103,10 @@ class TechnicalDebtController extends Controller
                 $input_html .= '<span class="td-password-remark" style="margin:0px;"> ' . $i . '.' . $technicalRemarkData->remark . '</span>';
                 $i++;
             }
+
             return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark ' . $msg . ' listed Successfully']);
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => '', 'remark_data' => '', 'message' => $e->getMessage()]);
         }
     }
-
 }

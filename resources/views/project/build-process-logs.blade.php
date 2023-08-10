@@ -4,47 +4,91 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Build process logs</h2>
-        {{-- <div class="pull">
+        <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
-                    <form action="{{ route('project.index') }}" method="get" class="search">
+                <div class="mt-3 col-md-12">
+                    <form action="{{ route('project.buildProcessLogs') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-3 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                            <div class="col-md-2 pd-sm">
+                                <h5>Search projects</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="project-select" name="projects[]" placeholder="Select projects">
+                                    @foreach($projects as $project)
+                                        <option value="{{ $project->id }}" @if(in_array($project->id, $reqproject)) selected @endif>{{ $project->name }}</option>
+                                    @endforeach
+                                </select> 
                             </div>
-                            <div class="col-md-3">
-                                <?php 
-									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
-									else{ $store_websites_search = []; }
-								?>
-								<select name="store_websites_search[]" id="store_websites_search" class="form-control select2" multiple>
-									<option value="" @if($store_websites_search=='') selected @endif>-- Select a Store website --</option>
-									@forelse($store_websites as $swId => $swName)
-									<option value="{{ $swId }}" @if(in_array($swId, $store_websites_search)) selected @endif>{!! $swName !!}</option>
-									@empty
-									@endforelse
-								</select>
+
+                            <div class="col-md-2 pd-sm">                                      
+                                 <h5>Search organizations</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="organizations-select" name="organizations[]" placeholder="Select organizations">
+                                    @foreach($organizations as $organization)
+                                    <option value="{{ $organization->id }}" @if(in_array($organization->id, $reqorganizations)) selected @endif>{{ $organization->name }}</option>
+                                    @endforeach
+                                </select> 
                             </div>
-                            
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
-                                 <button type="submit" class="btn btn-image search">
+                            <div class="col-md-2 pd-sm">                                
+                                <h5>Search Repository</h5>	
+                                <select class="form-control globalSelect2" multiple="true" id="repo_ids" name="repo_ids[]" placeholder="Select Repos">
+                                    @foreach($repo_names as $repo_name)
+                                    <option value="{{ $repo_name->id }}"  @if(in_array($repo_name->id, $reqrepoids)) selected @endif>{{ $repo_name->name }}</option>
+                                    @endforeach
+                                </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                                
+                                <h5>Search Build By</h5>	
+                                    <select class="form-control globalSelect2" multiple="true" id="platform-Users" name="users[]" placeholder="Select Users">
+                                        @foreach($users as $user)
+                                        <option value="{{ $user->id }}" @if(in_array($user->id, $requsers)) selected @endif>{{ $user->name }}</option>
+                                        @endforeach
+                                    </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                 <h5>Search Status</h5>	
+                                    <select class="form-control globalSelect2" multiple="true" id="status-select" name="status[]" placeholder="Select Status">
+                                        <option value="SUCCESS" @if(in_array('SUCCESS', $reqstatus)) selected @endif>success</option>
+                                        <option value="FAILURE" @if(in_array('FAILURE', $reqstatus)) selected @endif>failure</option>
+                                        <option value="RUNNING" @if(in_array('RUNNING', $reqstatus)) selected @endif>running</option>
+                                        <option value="WAITING" @if(in_array('WAITING', $reqstatus)) selected @endif>waiting</option>
+                                        <option value="UNSTABLE" @if(in_array('UNSTABLE', $reqstatus)) selected @endif>unstable</option>
+                                        <option value="ABORTED" @if(in_array('ABORTED', $reqstatus)) selected @endif>aborted</option>
+                                    </select> 
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                 <h5>Search Branch name</h5>	
+                                <input class="form-control" type="text" id="search_branch_name" placeholder="Search Branch name" name="search_branch_name" value="{{ $reqsBranchName ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                              
+                                <h5>Search Build Number</h5>	
+                                <input class="form-control" type="text" id="search_build_number" placeholder="Search Build Number" name="search_build_number" value="{{ $reqsBuildNumber ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                             
+                                <h5>Search Build Name</h5>	
+                                <input class="form-control" type="text" id="search_build_name" placeholder="Search Build Name" name="search_build_name" value="{{ $reqsBuildName ?? '' }}">
+                            </div>
+                            <div class="col-md-2 pd-sm">                               
+                                <h5>Search By keyword</h5>	
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                            </div>
+                            <div class="col-md-2 pd-sm"><br>
+                                <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('project.index') }}" class="btn btn-image" id="">
+                                <a href="{{ route('project.buildProcessLogs') }}" class="btn btn-image" id="">
                                     <img src="/images/resend2.png" style="cursor: nwse-resize;">
                                 </a>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
-                    <div class="pull-right">
+                <br>
+                <br>
+                <div class="">
+                    <br>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#project-create"> Create Project </button>
-                    </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </div>
 </div>
 
@@ -69,6 +113,8 @@
                             <th width="10%">Build By</th>
                             <th width="10%">Build Number</th>
                             <th width="10%">Build Name</th>
+                            <th width="10%">PR</th>
+                            <th width="10%">Initiate From</th>
                             <th width="10%">Text</th>
                             <th width="5%">Status</th>
                             <th width="5%">Date</th>
@@ -104,11 +150,20 @@
                                     {{ $responseLog->build_name }}
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
+                                    {{ $responseLog->build_pr }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($responseLog->text) > 30 ? substr($responseLog->text, 0, 30).'...' :  $responseLog->text }}
+                                       {{ strlen($responseLog->initiate_from) > 30 ? substr($responseLog->initiate_from, 0, 30).'...' :  $responseLog->initiate_from }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $responseLog->text }}
+                                        {{ $responseLog->initiate_from }}
+                                    </span>
+                                </td>
+                                <td style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                       {{ strlen($responseLog->text) > 10 ? substr($responseLog->text, 0, 10).'...' :  $responseLog->text }}
+								       <i class="fa fa-eye show_logs show-full-text" data-full-text="{{ nl2br($responseLog->text) }}" style="color: #808080;float: right;"></i>
                                     </span>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
@@ -165,10 +220,53 @@
     </div>
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="show_full_text_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Text</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="show_full_text_modal_content">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+@section("styles")
+<style>
+    /* CSS to make specific modal body scrollable */
+    #show_full_text_modal .modal-body {
+      max-height: 400px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+    }
+</style>
 @endsection
 @section('scripts')
 <script>
 $( document ).ready(function() {
+    $(document).on('click', '.expand-row', function () {
+        
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    });
+
+    $(document).on('click', '.show-full-text', function() {
+        var fullText = $(this).data('full-text');
+        $('#show_full_text_modal').modal('show');
+        $('#show_full_text_modal_content').html(fullText);
+    });
+
     $(document).on('click', '.show-status-modal', function() {
             var id = $(this).attr('data-id');
             $("#loading-image-preview").show();
@@ -200,5 +298,8 @@ $( document ).ready(function() {
             });
         });
 });
+
+
+
 </script>
 @endsection

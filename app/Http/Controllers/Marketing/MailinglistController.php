@@ -8,13 +8,13 @@ use App\Setting;
 use App\Customer;
 use Carbon\Carbon;
 use App\EmailEvent;
+use App\LogRequest;
 use App\Mailinglist;
 use App\StoreWebsite;
 use App\MailingRemark;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\LogRequest;
 
 class MailinglistController extends Controller
 {
@@ -50,7 +50,7 @@ class MailinglistController extends Controller
         // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch,
-            CURLOPT_POSTFIELDS,$req);
+            CURLOPT_POSTFIELDS, $req);
 
         $headers = [];
         $headers[] = 'Accept: application/json';
@@ -119,7 +119,7 @@ class MailinglistController extends Controller
                 curl_close($curl);
                 \Log::info($response);
                 $res = json_decode($response);
-               
+
                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                 LogRequest::log($startTime, $url, 'POST', json_encode($data), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'create');
                 if (! isset($res->id) && isset($res->code) && isset($res->message)) {
@@ -373,7 +373,7 @@ class MailinglistController extends Controller
                 $parameters = [];
                 curl_close($curl);
                 $res = json_decode($response);
-             
+
                 LogRequest::log($startTime, $url, 'GET', json_encode([]), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 if (isset($res->subscribers)) {
                     foreach ($res->subscribers as $subscriber) {
@@ -439,7 +439,7 @@ class MailinglistController extends Controller
             'email' => $email,
             'listIds' => [intval($id)],
         ];
-        $url = "https://api.sendinblue.com/v3/contacts}";
+        $url = 'https://api.sendinblue.com/v3/contacts}';
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -488,7 +488,7 @@ class MailinglistController extends Controller
                 LogRequest::log($startTime, $url, 'GET', json_encode($data), json_deocde($res), $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
 
                 $curl2 = curl_init();
-                $url = "https://api.sendinblue.com/v3/contacts";
+                $url = 'https://api.sendinblue.com/v3/contacts';
                 curl_setopt_array($curl2, [
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
@@ -544,7 +544,7 @@ class MailinglistController extends Controller
 
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL =>  $url,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -646,7 +646,6 @@ class MailinglistController extends Controller
 
                 LogRequest::log($startTime, $url, 'DELETE', json_encode([]), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'deleteList');
 
-
                 if (isset($res->message) && isset($res->code)) {
                     $errror_message = $res->code . ': ' . $res->message;
 
@@ -696,7 +695,7 @@ class MailinglistController extends Controller
             'email' => $email,
             'listIds' => [intval($id)],
         ];
-        $url = "https://api.sendinblue.com/v3/contacts";
+        $url = 'https://api.sendinblue.com/v3/contacts';
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -724,7 +723,7 @@ class MailinglistController extends Controller
                 $curl3 = curl_init();
                 $url = "https://api.sendinblue.com/v3/contacts/' . $email";
                 curl_setopt_array($curl3, [
-                    CURLOPT_URL =>$url,
+                    CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -745,10 +744,9 @@ class MailinglistController extends Controller
                 $respw = json_decode($respw);
 
                 LogRequest::log($startTime, $url, 'DELETE', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addManual');
-        
 
                 $curl2 = curl_init();
-                $url ="https://api.sendinblue.com/v3/contacts";
+                $url = 'https://api.sendinblue.com/v3/contacts';
                 curl_setopt_array($curl2, [
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,

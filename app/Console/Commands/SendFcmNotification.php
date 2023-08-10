@@ -5,12 +5,12 @@ namespace App\Console\Commands;
 use FCM;
 use App\Translations;
 use App\GoogleTranslate;
+use App\Helpers\LogHelper;
 use App\PushFcmNotification;
 use Illuminate\Console\Command;
 use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
-use App\Helpers\LogHelper;
 
 class SendFcmNotification extends Command
 {
@@ -45,7 +45,7 @@ class SendFcmNotification extends Command
      */
     public function handle()
     {
-        try{
+        try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $fromdate = date('Y-m-d H:i:s');
@@ -134,7 +134,7 @@ class SendFcmNotification extends Command
                             $errorMessage = json_encode($downstreamResponse->tokensWithError());
                             \Log::info('fcm:send Message Error message =>' . $errorMessage);
 
-                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error'.$errorMessage]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error' . $errorMessage]);
                         }
                     } catch (\Exception $e) {
                         $Notification->status = 'Failed';
@@ -142,13 +142,13 @@ class SendFcmNotification extends Command
                         $errorMessage = $e->getMessage();
                         \Log::info('fcm:send Exception Error message =>' . $errorMessage);
 
-                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error'.$errorMessage]);
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error' . $errorMessage]);
                     }
 
                     $Notification->sent_on = date('Y-m-d H:i');
                     $Notification->save();
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'notification detail updated by ID'.$Notification->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'notification detail updated by ID' . $Notification->id]);
 
                     \App\PushFcmNotificationHistory::create([
                         'token' => $token,
@@ -165,7 +165,7 @@ class SendFcmNotification extends Command
                 \Log::info('fcm:send Exception No notification available for sending at the moment');
                 $this->info('No notification available for sending at the moment');
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

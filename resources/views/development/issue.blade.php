@@ -1721,7 +1721,13 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     },
                     success: function (response) {
                         $("#loading-image").hide();
-                        $("#taskGoogleDocListModal tbody").html(response.data);
+                        if(typeof response.data != 'undefined') {
+                            $("#taskGoogleDocListModal tbody").html(response.data);
+                        } else {
+                            // display unauthorized permission message
+                            $("#taskGoogleDocListModal tbody").html(response);
+                        }
+
                         $("#taskGoogleDocListModal").modal('show');
                     },
                     error: function(response) {

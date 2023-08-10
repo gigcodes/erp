@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\ProjectServerenv;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateProjectServerenvsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateProjectServerenvsTable extends Migration
         Schema::create('project_serverenvs', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string("name");
+            $table->string('name');
         });
 
         $currentTime = date('Y-m-d H:i:s');

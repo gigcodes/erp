@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\ThemeStructure;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIsRootColumnInThemeStructureTable extends Migration
 {
@@ -21,7 +21,7 @@ class AddIsRootColumnInThemeStructureTable extends Migration
         ThemeStructure::create([
             'name' => 'Root Folder',
             'is_file' => 0,
-            'is_root' => 1
+            'is_root' => 1,
         ]);
     }
 
