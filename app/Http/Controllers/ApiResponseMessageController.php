@@ -205,9 +205,9 @@ class ApiResponseMessageController extends Controller
         $rowValues = [];
         foreach ($apiResponseMessagesTranslations as $apiResponseMessagesTranslation) {
             $rowValues[$apiResponseMessagesTranslation->store_website_id][$apiResponseMessagesTranslation->key][$apiResponseMessagesTranslation->lang_name] = [
-                    'value' => $apiResponseMessagesTranslation->value,
-                    'approved_by_user_id' => $apiResponseMessagesTranslation->approved_by_user_id,
-                ];
+                'value' => $apiResponseMessagesTranslation->value,
+                'approved_by_user_id' => $apiResponseMessagesTranslation->approved_by_user_id,
+            ];
         }
 
         return view('apiResponse/message-translate-list', compact('languages', 'apiResponseMessagesTranslationsRows', 'rowValues'));

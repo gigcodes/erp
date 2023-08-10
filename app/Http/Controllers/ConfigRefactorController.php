@@ -33,6 +33,7 @@ class ConfigRefactorController extends Controller
         $status = $request->get('status');
 
         $configRefactors = ConfigRefactor::with(['storeWebsite', 'configRefactorSection'])
+            ->select('config_refactors.*')
             ->join('config_refactor_sections', 'config_refactor_sections.id', 'config_refactors.config_refactor_section_id');
 
         if ($section) {
@@ -69,6 +70,7 @@ class ConfigRefactorController extends Controller
         // Validation Part
         $this->validate(
             $request, [
+                'store_website_id' => 'required',
                 'name' => 'required|unique:config_refactor_sections,name',
                 'type' => 'required',
             ]
@@ -84,6 +86,7 @@ class ConfigRefactorController extends Controller
 
         // Save one entry in config refactor table
         $configRefactor = new ConfigRefactor();
+        $configRefactor->store_website_id = $data['store_website_id'];
         $configRefactor->config_refactor_section_id = $configRefactorSection->id;
         $configRefactor->save();
 

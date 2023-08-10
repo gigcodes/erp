@@ -1617,6 +1617,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
     Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
+    Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
+    Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
+
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -2811,6 +2814,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/folder/edit', [CodeShortcutController::class, 'shortcutEditFolder']);
         Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
+        Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -3077,6 +3081,8 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
     Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
     Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+    Route::post('time-doctor/validate', [TimeDoctorController::class, 'updateValidate'])->name('time-doctor.updateValidate');
+    Route::Post('time-doctor/due-date/list', [TimeDoctorController::class, 'getduedateHistory'])->name('time-doctor.due-date-history.get');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
