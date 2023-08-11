@@ -390,6 +390,8 @@ Route::middleware('auth')->group(function () {
             });
         });
         Route::get('/store-website/category', [SiteDevelopmentController::class, 'storeWebsiteCategory'])->name('site-development.store-website-category');
+        Route::post('/store-website/builder-io/save', [SiteDevelopmentController::class, 'updateBuilderIO'])->name('site-development.update-builder-io');
+        Route::get('/store-website/builder-io/histories/{id}', [SiteDevelopmentController::class, 'builderIOHistories'])->name('site-development.builder-io.histories');
         Route::post('/store-website/category/save', [SiteDevelopmentController::class, 'updateMasterCategory'])->name('site-development.update-category');
         Route::post('/store-website/category/savebulk', [SiteDevelopmentController::class, 'updateBulkMasterCategory'])->name('site-development.update-category-bulk');
     });

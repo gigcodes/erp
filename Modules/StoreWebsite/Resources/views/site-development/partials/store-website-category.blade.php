@@ -71,6 +71,7 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                         </th>
                         <th>Category</th>
                         <th>Master Category</th>
+                        <th>Builder IO</th>
                         <th>Created at</th>
                         <th>Updated at</th>
                       </tr>
@@ -89,6 +90,16 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                             <td style="vertical-align:middle;">{{ $category->title }}</td>
                             <td style="vertical-align:middle;">
                                 {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, $category->site_development_master_category_id, ['class' => 'select2 globalSelect2 master_category_id','data-websiteid'=>$category->website_id, 'data-site' => $category->site_development_id ,'data-category' => $category->id, 'data-title' => $category->title]) }}    
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <select name="builder_io" class="builder-io-dropdown select2 globalSelect2" data-id="{{$category->id}}">
+                                      <option value="">Select</option>
+                                      <option value="0" {{$category->builder_io === 0 ? 'selected' : ''}}>No</option>
+                                      <option value="1" {{$category->builder_io === 1 ? 'selected' : ''}}>Yes</option>
+                                    </select>
+                                    <button type="button" data-id="{{ $category->id  }}" class="btn btn-image builder-io-history-show p-0 ml-2"  title="Histories" ><i class="fa fa-info-circle"></i></button>
+                                </div>
                             </td>
                             <td>{{ $category->created_at }}</td>
                             <td>{{ $category->updated_at }}</td>
@@ -115,6 +126,37 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
 <div id="records-modal" class="modal" role="dialog">
     <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px !important; width: 100% !important;">
         <div class="modal-content" id="record-content">
+        </div>
+    </div>
+</div>
+
+<div id="builder-io-histories-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Histories</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="15%">Old Value</th>
+                                <th width="15%">New Value</th>
+                                <th width="30%">Updated BY</th>
+                                <th width="30%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="builder-io-histories-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -181,6 +223,59 @@ $(document).on("click", "#bulk_action" , function(){
     } else {
         toastr['error']('Select master category');
     }
+});
+
+$('.builder-io-dropdown').change(function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    var selectedValue = $(this).val();
+
+    // Make an AJAX request to update the status
+    $.ajax({
+    url: "{{ route('site-development.update-builder-io') }}",
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    data: {
+        id: id,
+        selectedValue: selectedValue
+    },
+    success: function(response) {
+        toastr['success'](response.message, 'success');
+    },
+    error: function(xhr, status, error) {
+        // Handle the error here
+        console.error(error);
+    }
+    });
+});
+
+$(document).on('click', '.builder-io-history-show', function() {
+    var id = $(this).attr('data-id');
+    $.ajax({
+        method: "GET",
+        url: `{{ route('site-development.builder-io.histories', [""]) }}/` + id,
+        dataType: "json",
+        success: function(response) {
+            if (response.status) {
+                var html = "";
+                $.each(response.data, function(k, v) {
+                    html += `<tr>
+                                <td> ${k + 1} </td>
+                                <td> ${v.old_value_text} </td>
+                                <td> ${v.new_value_text} </td>
+                                <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                <td> ${v.created_at} </td>
+                            </tr>`;
+                });
+                $("#builder-io-histories-list").find(".builder-io-histories-list-view").html(html);
+                $("#builder-io-histories-list").modal("show");
+            } else {
+                toastr["error"](response.error, "Message");
+            }
+        }
+    });
 });
 </script>
 @endsection
