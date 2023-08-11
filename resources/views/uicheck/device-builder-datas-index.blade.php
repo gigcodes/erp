@@ -618,6 +618,7 @@
 
         $(document).on('change','.build-status',function(e){
             if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+               var buildId = $('option:selected', this).attr('data-id');
                 $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -626,15 +627,12 @@
                 url : "{{ route('uicheck.device.update.status') }}",
                 data : {
                     statusId : $('option:selected', this).val(),
-                    buildId : $('option:selected', this).attr('data-id')
+                    buildId : buildId,
                 },
                 success: function(response) {
-                toastr["success"](response.message);
-                var colourCode = response.colourCode;
-                
-                // Update the background color of the row
-                $(`#builder-data-list tr[data-id="${buildId}"]`).css('background-color', colourCode);
-            },
+                    toastr["success"](response.message);
+                    $(`#builder-data-list tr[data-id="${buildId}"]`).css('background-color', response.colourCode);
+               },
                 error: function(response) {
                     toastr["error"]("Oops, something went wrong");
                 }
