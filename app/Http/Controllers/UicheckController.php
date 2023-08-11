@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\Http;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\Task;
 use App\UiDeviceBuilderIoDataDownloadHistory;
 use App\UiDeviceBuilderIoDataRemarkHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -2544,5 +2545,55 @@ class UicheckController extends Controller
         ], 200);
     }
 
+    public function builderIOTaskstore(Request $request)
+    {
+        // Validation Part
+        $request->validate([
+                'task_name' => 'required',
+                'selected_rows' => 'required',
+                'assign_to' => 'required',
+            ]
+        );
 
+        $data = $request->except('_token');
+
+        $selectedRows = explode(',', $data['selected_rows']);
+        if (! $selectedRows) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Rows not selected',
+                ]
+            );
+        }
+
+        // Create task directly in tasks table.
+        $task = Task::where('task_subject', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
+        if (! $task) {
+            $data['assign_from'] = Auth::id();
+            $data['is_statutory'] = 0;
+            $data['task_details'] = $data['task_name'];
+            $data['task_subject'] = $data['task_name'];
+            $data['assign_to'] = $data['assign_to'];
+
+            $task = Task::create($data);
+
+            if ($data['assign_to']) {
+                $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+            }
+        }
+
+        // Assign Zabbix Task Id to selected zabbix webhook datas
+        $uiDeviceBuilderIoDatas = UiDeviceBuilderIoData::whereIn('id', $selectedRows);
+        $uiDeviceBuilderIoDatas->update(['task_id' => $task->id]);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Builder IO task has been created!',
+            ]
+        );
+    }
 }

@@ -103,6 +103,7 @@
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#buildStatusList"> List Status </button>
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#buildStatusCreate"> Create Status </button>      
+                    <button type="button" class="btn btn-secondary" onclick="createBuilderIOTask()"> Create Task </button>
                 </div>
             </div>
         </div>
@@ -115,7 +116,9 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" name="select_all" class="select_all"></th>
                             <th>#</th>
+                            <th>Task ID</th>
                             <th style="max-width: 150px">Categories</th>
                             <th>Website</th>
                             @if (Auth::user()->isAdmin())
@@ -134,7 +137,13 @@
                     <tbody>
                         @foreach ($builderDatas as $key => $builderData)
                             <tr>
+                                <td>
+                                    @if ($builderData->task_id == "")
+                                    <input type="checkbox" name="bulk_select_row[]" class="d-inline bulk_select_row" value="{{$builderData->id}}">
+                                    @endif
+                                </td>
                                 <td>{{ ++$i }}</td>
+                                <td>{{ $builderData->task_id }}</td>
                                 <td style="max-width: 150px">
                                     <div data-message="{{ $builderData->category }}" data-title="Category" style="cursor: pointer" class="showFullMessage">
                                         {{ show_short_message($builderData->category, 15) }}
@@ -343,8 +352,8 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="30%">oldStatus</th>
-                                    <th width="30%">newStatus</th>
+                                    <th width="30%">Old Status</th>
+                                    <th width="30%">New Status</th>
                                     <th width="20%">Updated BY</th>
                                     <th width="30%">Created Date</th>
                                 </tr>
@@ -354,6 +363,35 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="builder-task-create" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form id="builder-task-create-form" action="<?php echo route('uicheck.store.builder-io-task'); ?>" method="post">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Builder IO Task</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                            <?php echo csrf_field(); ?>
+                            <div class="form-group normal-subject">
+                                <label for="task_name">Task Name<span class="text-danger">*</span></label>
+                                <input type="text" name="task_name" id="task_name" class="form-control" value="Builder IO Task" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label for="assign_to">Assigned to<span class="text-danger">*</span></label>
+                                <?php echo Form::select("assign_to",['' => ''],null,["class" => "form-control assign_to globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder' => 'Assign to']); ?>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary save-builder-task-window">Save</butto>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -370,6 +408,54 @@
         $("#search_user").select2();
         $('#search_task').select2({
             minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+        });
+
+        $('.select_all').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.bulk_select_row').prop('checked', isChecked);
+        });
+
+        var selected_rows = [];
+        function createBuilderIOTask()
+        {
+            event.preventDefault();
+
+            selected_rows = [];
+            $(".bulk_select_row").each(function () {
+                if ($(this).prop("checked") == true) {
+                    selected_rows.push($(this).val());
+                }
+            });
+
+            if (selected_rows.length == 0) {
+                alert('Please select any row');
+                return false;
+            }
+
+            $('#builder-task-create').modal('show');
+        }
+
+        $(document).on('submit', '#builder-task-create-form', function (e) {
+            e.preventDefault();
+            var data = $(this).serializeArray();
+            data.push({name: 'selected_rows', value: selected_rows});
+            $.ajax({
+                url: "{{route('uicheck.store.builder-io-task')}}",
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    if (response.code == 200) {
+                        toastr['success'](response.message);
+                        $('#builder-task-create').modal('hide');
+                        window.location.reload();
+                    } else {
+                        toastr['error'](response.message);
+                    }
+                },
+                error: function () {
+                    alert('There was error loading priority task list data');
+                }
+            });
         });
 
         $(document).on("click", ".showFullMessage", function() {

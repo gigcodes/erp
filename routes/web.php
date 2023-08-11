@@ -4205,6 +4205,7 @@ Route::middleware('auth')->group(function () {
         Route::get('get-builder-download-history/{id}', [UicheckController::class, 'getBuilderDownloadHistory'])->name('uicheck.get-builder-download-history');
         Route::post('fetch-device-builder-data', [UicheckController::class, 'fetchDeviceBuilderData'])->name('uicheck.fetch-device-builder-data');
         Route::post('device-builder-datas/store-remark', [UicheckController::class, 'storeBuilderDataRemark'])->name('uicheck.store.builder-data-remark');
+        Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
         Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');

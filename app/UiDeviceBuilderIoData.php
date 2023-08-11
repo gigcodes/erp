@@ -19,7 +19,8 @@ class UiDeviceBuilderIoData extends Model
         'builder_last_updated',
         'builder_created_by',
         'builder_last_updated_by',
-        'status_id'
+        'status_id',
+        'task_id'
     ];
 
     // Define custom accessors
