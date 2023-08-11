@@ -120,16 +120,15 @@
 		    <thead>
 			    <tr>
                     <th width="2%">Read</th>
-			    	<th width="5%">Date</th>
+			    	<th width="7%">Date</th>
 			        <th width="12%">Sender</th>
 			        <th width="12%">Receiver</th>
 			        <th width="8%">Model Type</th>
 			        <th width="8%">Mail Type</th>
-					<th width="10%">Subject</th>
-                    <th width="10%">Body</th>
+                    <th width="10%">Subject & Body</th>
                     <th width="10%">Status</th>
                     <th width="5%">Draft</th>
-                    <th width="12%">Error Message</th>
+                    <th width="14%">Error Message</th>
                     <th width="20%">Category</th>
                 </tr>
 		    	<tbody>
@@ -158,22 +157,7 @@
                             </td>
                             <td>{{$email->model_type}}</td>
 							<td>{{$email->type}}</td>
-                            <td class="expand-row" style="word-break: break-all">
-                                <span class="td-mini-container">
-                                   {{ strlen($email->subject) > 30 ? substr($email->subject, 0, 10).'...' :  $email->subject }}
-                                </span>
-                                <span class="td-full-container hidden">
-                                    {{ $email->subject }}
-                                </span>
-                            </td>
-                            <td class="expand-row" style="word-break: break-all">
-                                <span class="td-mini-container">
-                                   {{ strlen($email->message) > 30 ? substr($email->message, 0, 20).'...' :  $email->message }}
-                                </span>
-                                <span class="td-full-container hidden">
-                                    {{ $email->message }}
-                                </span>
-                            </td>
+                            <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
                             <td>{{$email->status}}</td>
                             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
                             <td style="word-break: break-all">

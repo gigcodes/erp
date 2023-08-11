@@ -29,6 +29,7 @@ use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\EmailCategory;
 
 class EmailController extends Controller
 {

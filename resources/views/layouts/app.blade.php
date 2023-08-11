@@ -217,6 +217,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         width: 10px;
     }
 
+    #view-quick-email .modal-body {
+      max-height: 500px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+    }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -619,8 +624,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <th>Date</th>
                                         <th>Sender</th>
                                         <th>Receiver</th>
-                                        <th>Subject</th>
-                                        <th>Body</th>
+                                        <th>Subject & Body</th>
                                         <th>Action</th>
                                         <th>Read</th>
                                     </tr>
@@ -652,22 +656,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td class="expand-row-email" style="word-break: break-all">
-                                                    <span class="td-mini-email-container">
-                                                       {{ strlen($userEmail->subject) > 30 ? substr($userEmail->subject, 0,15).'...' :  $userEmail->subject }}
-                                                    </span>
-                                                    <span class="td-full-email-container hidden">
-                                                        {{ $userEmail->subject }}
-                                                    </span>
-                                                </td>
-                                                <td class="expand-row-email" style="word-break: break-all">
-                                                    <span class="td-mini-email-container">
-                                                       {{ strlen($userEmail->message) > 30 ? substr($userEmail->message, 0,15).'...' :  $userEmail->message }}
-                                                    </span>
-                                                    <span class="td-full-email-container hidden">
-                                                        {{ $userEmail->message }}
-                                                    </span>
-                                                </td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -683,6 +672,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-quick-email" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Email</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                  </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Subject : </strong><span id="quickemailSubject"></span> </p>
+                <p><strong>Message : </strong><span id="quickmessage"></span></p>
+                <iframe src="" id="iframe" scrolling="yes" style="width:100%;" frameborder="0" onload="autoIframe('iframe');"></iframe>
+            </div>
             </div>
         </div>
     </div>
@@ -5840,6 +5847,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     });
 
+    function openQucikMsg(userEmail) {
+        $('#iframe').attr('src', "");
+        var userEmaillUrl = '/email/email-frame/'+userEmail.id;
+        $('#quickemailSubject').html(userEmail.subject);
+        $('#iframe').attr('src', userEmaillUrl);
+    }
+    
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
         table = document.getElementById("database-table-list1");
