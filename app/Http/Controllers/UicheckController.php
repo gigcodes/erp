@@ -52,6 +52,7 @@ use App\UiDeviceBuilderIoDataDownloadHistory;
 use App\UiDeviceBuilderIoDataRemarkHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Support\Facades\Validator;
+use App\UiDeviceBuilderIoDataStatusHistory;
 use App\UiDeviceBuilderIoDataStatus;
 
 class UicheckController extends Controller
@@ -2494,4 +2495,43 @@ class UicheckController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function updateDeviceUpdateStatus(Request $request)
+    {
+        $uiBuild = UiDeviceBuilderIoData::find($request->buildId);
+        $oldStatusId = $uiBuild->status_id;
+        $uiBuild->status_id = $request->statusId;
+        $uiBuild->save();
+
+
+        UiDeviceBuilderIoDataStatusHistory::create([
+            'ui_device_builder_io_data_id' => $request->buildId,
+            'user_id' => \Auth::id(),
+            'old_status_id' => $oldStatusId,
+            'new_status_id' => $request->statusId,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Status Update successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getBuilderDataStatus($id)
+    {
+        $status = UiDeviceBuilderIoDataStatusHistory::with(['user','newStatus','oldStatus'])
+            ->where('ui_device_builder_io_data_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $status,
+            'message' => 'Status get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
 }

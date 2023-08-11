@@ -126,6 +126,7 @@
                             <th>Title</th>
                             <th>Builder Created Date</th>
                             <th>Builder Last Updated</th>
+                            <th>Status</th>
                             <th>Remark</th>
                             <th>Action</th>
                         </tr>
@@ -150,6 +151,17 @@
                                 <td>{{ $builderData->title }}</td>
                                 <td>{{ $builderData->builder_created_date }}</td>
                                 <td>{{ $builderData->builder_last_updated }}</td>
+                                <td>
+                                    <div class="flex">
+                                    <select class="form-control selecte2 build-status">
+                                        <option  value="" >Please select</option>
+                                        @foreach($getbuildStatuses as $status)
+                                            <option  value="{{ $status->id }}" data-id="{{$builderData->id}}" {{$status->id == $builderData->status_id ? 'selected' : '' }}>{{$status->name }}</option>
+                                        @endforeach
+                                      </select>
+                                      <button type="button" class="btn btn-xs btn-image load-status-history ml-2" data-id="{{$builderData->id}}" title="Load Status"> <img src="/images/chat.png" alt="" style="cursor: default; float:right"> </button>
+                                    </div>
+                                </td>
                                 <td>
                                     <input type="text" id="remarks_{{$builderData->id}}" name="remarks" class="form-control" placeholder="Remark" />
                                     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" data-id="{{$builderData->id}}" onclick="saveRemarks({{$builderData->id}})"><img src="/images/filled-sent.png"></button>
@@ -316,6 +328,35 @@
             </div>
         </div>
     </div>
+
+    <div id="status-area-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Status History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+    
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">oldStatus</th>
+                                    <th width="30%">newStatus</th>
+                                    <th width="20%">Updated BY</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="status-action-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
 @endsection
 @section('scripts')
@@ -401,7 +442,6 @@
                     location.reload();
                 },
                 error: function(xhr, status, error) { 
-                    toastr["error"](response.message);
                 },
             });
         });
@@ -471,5 +511,56 @@
                 }
             });
         });
+
+        $(document).on('change','.build-status',function(e){
+            if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+                $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type : "POST",
+                url : "{{ route('uicheck.device.update.status') }}",
+                data : {
+                    statusId : $('option:selected', this).val(),
+                    buildId : $('option:selected', this).attr('data-id')
+                },
+                success : function (response){
+                    toastr["success"](response.message);
+                },
+                error : function (response){
+                    toastr["error"]("Oops,something went wrong");
+                }
+                })
+            }
+        });
+
+        
+        $(document).on('click', '.load-status-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('uicheck.get.builder-data-status', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_status !== null ? v.old_status.name : ""} </td>
+                                        <td> ${v.new_status !== null ? v.new_status.name : ""} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#status-area-list").find(".status-action-list-view").html(html);
+                        $("#status-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
     </script>
 @endsection
