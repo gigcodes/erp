@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\StoreWebsiteApiTokenHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\StoreWebsiteBuilderApiKeyHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -79,6 +80,49 @@ class StoreWebsiteController extends Controller
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
+    }
+
+    public function builderApiKey()
+    {
+        $title = 'Builder Api Key | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+
+        return view('storewebsite::index-builder-api-key', compact('title', 'storeWebsites'));
+    }
+
+    public function updateBuilderApiKey(Request $request, $id)
+    {
+        $website = StoreWebsite::findOrFail($id);
+        $old = $website->builder_io_api_key;
+        $website->builder_io_api_key = $request->input('builder_io_api_key');
+        $website->save();
+
+        // Maintain history in table
+        if ($old != $request->input('builder_io_api_key')) {
+            $history = new StoreWebsiteBuilderApiKeyHistory();
+            $history->store_website_id = $website->id;
+            $history->old = $old;
+            $history->new = $request->input('builder_io_api_key');
+            $history->updated_by = Auth::user()->id;
+            $history->save();
+        }
+        
+        return redirect()->back()->with('success', 'API key updated successfully');
+    }
+
+    public function builderApiKeyHistory($id)
+    {
+        $datas = StoreWebsiteBuilderApiKeyHistory::with(['user'])
+            ->where('store_website_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function apiToken()

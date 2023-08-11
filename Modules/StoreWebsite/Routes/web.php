@@ -40,6 +40,9 @@ Route::group([
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
     Route::get('/download-file/{fileName}', [StoreWebsiteController::class, 'downloadFile'])->name('store-website.downloadFile');
     Route::get('/{id}/download/{type}/', [StoreWebsiteController::class, 'downloadDbEnv'])->name('store-website.downloadDbEnv');
+    Route::get('builder-api-key', [StoreWebsiteController::class, 'builderApiKey'])->name('store-website.builderApiKey');
+    Route::post('builder-api-key/update/{id}', [StoreWebsiteController::class, 'updateBuilderApiKey'])->name('store-website.updateBuilderApiKey');
+    Route::get('builder-api-key-histories/{id}', [StoreWebsiteController::class, 'builderApiKeyHistory'])->name('store-website.builder-api-key-histories');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
@@ -335,6 +338,8 @@ Route::group([
 
         Route::post('updateValue', [StoreWebsiteEnvironmentController::class, 'updateValue'])->name('store-website.environment.updateValue');
         Route::post('store-environment-history-status', [StoreWebsiteEnvironmentController::class, 'storeEnvironmentHistoryStatus'])->name('store-website.environment.storeEnvironmentHistoryStatus');
+        Route::post('update-environment-history-status', [StoreWebsiteEnvironmentController::class, 'updateEnvironmentHistoryStatus'])->name('store-website.environment.updateEnvironmentHistoryStatus');
+        
 
         Route::get('/{id}/edit', [StoreWebsiteEnvironmentController::class, 'edit'])->name('store-website.environment.edit');
 
@@ -385,6 +390,8 @@ Route::middleware('auth')->group(function () {
             });
         });
         Route::get('/store-website/category', [SiteDevelopmentController::class, 'storeWebsiteCategory'])->name('site-development.store-website-category');
+        Route::post('/store-website/builder-io/save', [SiteDevelopmentController::class, 'updateBuilderIO'])->name('site-development.update-builder-io');
+        Route::get('/store-website/builder-io/histories/{id}', [SiteDevelopmentController::class, 'builderIOHistories'])->name('site-development.builder-io.histories');
         Route::post('/store-website/category/save', [SiteDevelopmentController::class, 'updateMasterCategory'])->name('site-development.update-category');
         Route::post('/store-website/category/savebulk', [SiteDevelopmentController::class, 'updateBulkMasterCategory'])->name('site-development.update-category-bulk');
     });

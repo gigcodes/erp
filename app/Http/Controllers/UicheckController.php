@@ -34,6 +34,7 @@ use App\UiCheckCommunication;
 use App\UicheckLangAttchment;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentStatus;
+use App\UiDeviceBuilderIoData;
 use App\UiCheckAssignToHistory;
 use App\UiCheckIssueHistoryLog;
 use App\SiteDevelopmentCategory;
@@ -43,9 +44,11 @@ use App\UiResponsivestatusHistory;
 use App\UiTranslatorStatusHistory;
 use Illuminate\Routing\Controller;
 use App\UiDeveloperStatusHistoryLog;
+use Illuminate\Support\Facades\Http;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\UiDeviceBuilderIoDataDownloadHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
@@ -2256,5 +2259,110 @@ class UicheckController extends Controller
         }
 
         return response()->json(['messages' => 'Not changed', 'code' => 500]);
+    }
+
+    public function fetchDeviceBuilderData(Request $request)
+    {
+        try {
+            $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->where('user_id', '=', $request->user_access_user_id)->first();
+            if (! $uiDevice) {
+                return response()->json(['message' => 'Device not found'], 400);
+            }
+
+            $uiCheckStoreWebsiteWithbuilderAPIKey = Uicheck::where('id', $request->uicheckId)->whereHas('storeWebsite', function ($store_website) {
+                $store_website->whereNotNull('builder_io_api_key')->orWhere('builder_io_api_key', '<>', '');
+            })->first();
+
+            if (! $uiCheckStoreWebsiteWithbuilderAPIKey) {
+                return response()->json(['message' => 'API key not found for this website'], 400);
+            }
+
+            $apiKey = $uiCheckStoreWebsiteWithbuilderAPIKey->storeWebsite->builder_io_api_key;
+
+            $baseUrl = 'https://cdn.builder.io/api/v1/html/page';
+            $url = $uiCheckStoreWebsiteWithbuilderAPIKey->siteDevelopmentCategory->title;
+            // $url = "/home"; // Testing purpose only, once all good remove this variable.
+            $device = 'device' . $uiDevice->device_no;
+
+            $response = Http::get("$baseUrl?apiKey=$apiKey&url=$url&device=$device");
+
+            if ($response->successful()) {
+                $responseData = json_decode($response->body(), true);
+
+                // Check if a record with the same lastUpdated value exists
+                $existingRecord = UiDeviceBuilderIoData::where([
+                    'uicheck_id' => $uiDevice->uicheck_id,
+                    'ui_device_id' => $uiDevice->id,
+                    'title' => $responseData['data']['title'],
+                    'builder_last_updated' => $responseData['lastUpdated'],
+                ])->first();
+
+                if (! $existingRecord) {
+                    UiDeviceBuilderIoData::create([
+                        'uicheck_id' => $uiDevice->uicheck_id,
+                        'ui_device_id' => $uiDevice->id,
+                        'title' => $responseData['data']['title'],
+                        'html' => $responseData['data']['html'],
+                        'builder_created_date' => $responseData['createdDate'],
+                        'builder_last_updated' => $responseData['lastUpdated'],
+                        'builder_created_by' => $responseData['createdBy'],
+                        'builder_last_updated_by' => $responseData['lastUpdatedBy'],
+                    ]);
+
+                    return response()->json(['message' => 'Data saved successfully']);
+                } else {
+                    return response()->json(['message' => 'Data fetched already up to date, No new entry.'], 400);
+                }
+            } else {
+                return response()->json(['message' => 'Error fetching data from Builder.io'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred.'], 500);
+        }
+    }
+
+    public function getDeviceBuilderDatas(Request $request)
+    {
+        $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->where('user_id', '=', $request->user_access_user_id)->first();
+        if (! $uiDevice) {
+            return response()->json(['message' => 'Device not found'], 400);
+        }
+
+        $history = UiDeviceBuilderIoData::where('uicheck_id', $uiDevice->uicheck_id)->where('ui_device_id', $uiDevice->id)->get();
+
+        return view('uicheck.device-builder-datas', compact('history'));
+    }
+
+    public function getBuilderHtml($id)
+    {
+        $data = UiDeviceBuilderIoData::findOrFail($id);
+
+        return view('uicheck.device-builder-html', compact('data'));
+    }
+
+    public function getBuilderDownloadHtml($id)
+    {
+        $data = UiDeviceBuilderIoData::findOrFail($id);
+
+        // Log the download
+        $log = new UiDeviceBuilderIoDataDownloadHistory();
+        $log->user_id = auth()->id(); // Assuming you have authentication in place
+        $log->ui_device_builder_io_data_id = $data->id;
+        $log->downloaded_at = now();
+        $log->save();
+
+        $filename = $data->title . '.html';
+
+        return response($data->html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function getBuilderDownloadHistory($dataId)
+    {
+        $downloadHistory = UiDeviceBuilderIoDataDownloadHistory::where('ui_device_builder_io_data_id', $dataId)
+            ->get();
+
+        return view('uicheck.device-builder-download-history', compact('downloadHistory'));
     }
 }
