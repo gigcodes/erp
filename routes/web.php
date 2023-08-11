@@ -4199,6 +4199,7 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::get('get-device-builder-datas', [UicheckController::class, 'getDeviceBuilderDatas'])->name('uicheck.get-device-builder-datas');
+        Route::get('device-builder-datas', [UicheckController::class, 'deviceBuilderDatas'])->name('uicheck.device-builder-datas');
         Route::get('get-builder-html/{id}', [UicheckController::class, 'getBuilderHtml'])->name('uicheck.get-builder-html');
         Route::get('get-builder-download-html/{id}', [UicheckController::class, 'getBuilderDownloadHtml'])->name('uicheck.get-builder-download-html');
         Route::get('get-builder-download-history/{id}', [UicheckController::class, 'getBuilderDownloadHistory'])->name('uicheck.get-builder-download-history');

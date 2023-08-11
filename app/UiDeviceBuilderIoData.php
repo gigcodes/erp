@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class UiDeviceBuilderIoData extends Model
@@ -19,4 +20,31 @@ class UiDeviceBuilderIoData extends Model
         'builder_created_by',
         'builder_last_updated_by',
     ];
+
+    // Define custom accessors
+    public function getBuilderCreatedDateAttribute($value)
+    {
+        return $this->formatTimestamp($value);
+    }
+
+    public function getBuilderLastUpdatedAttribute($value)
+    {
+        return $this->formatTimestamp($value);
+    }
+
+    // Helper function to format timestamps
+    protected function formatTimestamp($timestamp)
+    {
+        if ($timestamp) {
+            $timestampInSeconds = $timestamp / 1000; // Convert milliseconds to seconds
+            return Carbon::createFromTimestamp($timestampInSeconds)->format('Y-m-d H:i:s');
+        }
+        
+        return null;
+    }
+
+    public function uiDevice()
+    {
+        return $this->belongsTo(UiDevice::class);
+    }
 }

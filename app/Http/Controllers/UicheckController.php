@@ -1213,7 +1213,7 @@ class UicheckController extends Controller
             $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
 
-            return view('uicheck.device-logs', compact('uiDevices', 'siteDevelopmentCategories', 'allUsers', 'allStatus', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 5);
+            return view('uicheck.device-logs', compact('uiDevices', 'siteDevelopmentCategories', 'allUsers', 'allStatus', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 10);
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -2282,7 +2282,7 @@ class UicheckController extends Controller
             $baseUrl = 'https://cdn.builder.io/api/v1/html/page';
             $url = $uiCheckStoreWebsiteWithbuilderAPIKey->siteDevelopmentCategory->title;
             // $url = "/home"; // Testing purpose only, once all good remove this variable.
-            $device = 'device' . $uiDevice->device_no;
+            $device = 'device ' . $uiDevice->device_no;
 
             $response = Http::get("$baseUrl?apiKey=$apiKey&url=$url&device=$device");
 
@@ -2319,6 +2319,36 @@ class UicheckController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'An error occurred.'], 500);
         }
+    }
+
+    public function deviceBuilderDatas(Request $request)
+    {
+        $builderDatas = UiDeviceBuilderIoData::join('ui_devices as uid', 'uid.id', 'ui_device_builder_io_datas.ui_device_id')
+                ->join('uichecks as uic', 'uic.id', 'ui_device_builder_io_datas.uicheck_id')
+                ->leftJoin('uicheck_user_accesses as uua', function ($join) {
+                    $join->on('uid.uicheck_id', '=', 'uua.uicheck_id')
+                         ->on('uid.user_id', '=', 'uua.user_id');
+                })
+                ->leftJoin('users as u', 'u.id', 'uua.user_id')
+                ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status');
+
+        $builderDatas = $builderDatas->select(
+                'ui_device_builder_io_datas.*', 
+                'uid.device_no', 
+                'sw.website', 
+                'sdc.title as category', 
+                'u.name', 
+                'uic.uicheck_type_id', 
+                'sds.color'
+            )
+            ->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
+            ->paginate(10);
+
+        $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+
+        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function getDeviceBuilderDatas(Request $request)
