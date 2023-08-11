@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use App\CronJob;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\StoreWebsite;
 use App\CronJobReport;
 use App\PaymentResponse;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class GetPaymentResponses extends Command
 {
@@ -137,6 +137,7 @@ class GetPaymentResponses extends Command
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($server_output), $httpcode, \App\Console\Commands\GetPaymentResponses::class, 'getDataApi');
+
         return  $server_output;
     }
 }

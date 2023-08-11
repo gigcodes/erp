@@ -34,7 +34,7 @@ class EmailAddressesController extends Controller
                 if ($request->status) {
                     $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
                 }
-            }, 'history_last_message_error'
+            }, 'history_last_message_error',
         ]);
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
@@ -58,12 +58,12 @@ class EmailAddressesController extends Controller
         //$query->where('id', 1);
 
         // dd($query);
-        $emailAddress = $query->paginate(\App\Setting::get('pagination',10))->appends(request()->query());
+        $emailAddress = $query->paginate(\App\Setting::get('pagination', 10))->appends(request()->query());
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         $allDriver = EmailAddress::pluck('driver')->unique();
         $allIncomingDriver = EmailAddress::pluck('incoming_driver')->unique();
-        
+
         $allPort = EmailAddress::pluck('port')->unique();
         $allEncryption = EmailAddress::pluck('encryption')->unique();
 
@@ -98,7 +98,7 @@ class EmailAddressesController extends Controller
                 'defaultPort' => $defaultPort,
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
-                'fromAddresses' => $fromAddresses
+                'fromAddresses' => $fromAddresses,
             ]);
         } else {
             return view('email-addresses.index', [
@@ -115,7 +115,7 @@ class EmailAddressesController extends Controller
                 'defaultPort' => $defaultPort,
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
-                'fromAddresses' => $fromAddresses
+                'fromAddresses' => $fromAddresses,
             ]);
         }
     }
@@ -467,7 +467,7 @@ class EmailAddressesController extends Controller
     public function searchEmailAddress(Request $request)
     {
         $search = $request->search;
-        
+
         if ($search != null) {
             $emailAddress = EmailAddress::where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%')->get();
         } else {

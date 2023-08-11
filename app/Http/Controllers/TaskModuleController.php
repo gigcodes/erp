@@ -33,6 +33,7 @@ use App\GoogleScreencast;
 use App\PushNotification;
 use App\ScheduledMessage;
 use App\NotificationQueue;
+use App\UserEvent\UserEvent;
 use App\WhatsAppGroupNumber;
 use Illuminate\Http\Request;
 use App\DeveloperTaskHistory;
@@ -51,7 +52,6 @@ use App\Jobs\UploadGoogleDriveScreencast;
 use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\Tasks\TaskHistoryForStartDate;
-use App\UserEvent\UserEvent;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -103,7 +103,7 @@ class TaskModuleController extends Controller
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -1259,22 +1259,21 @@ class TaskModuleController extends Controller
 
         // Save the data in user event
         $schedultDate = Carbon::parse($request->planned_at);
-        $timeSlotArr = explode("-", $request->time_slot);
-        $c_start_at = Carbon::parse("$request->planned_at ".$timeSlotArr[0]);
-        $c_end_at = Carbon::parse("$request->planned_at ".$timeSlotArr[1]);
-        
+        $timeSlotArr = explode('-', $request->time_slot);
+        $c_start_at = Carbon::parse("$request->planned_at " . $timeSlotArr[0]);
+        $c_end_at = Carbon::parse("$request->planned_at " . $timeSlotArr[1]);
+
         // Delete old event of plan task task
-        UserEvent::where('subject', "LIKE", "%Planned task $task->id%")->delete();
+        UserEvent::where('subject', 'LIKE', "%Planned task $task->id%")->delete();
 
         $userEvent = new UserEvent();
         $userEvent->user_id = $user->id;
-        $userEvent->description = trim($timeSlotArr[0])."-".trim($timeSlotArr[1]).', '.$schedultDate->format('l').", ".$schedultDate->toDateString();
+        $userEvent->description = trim($timeSlotArr[0]) . '-' . trim($timeSlotArr[1]) . ', ' . $schedultDate->format('l') . ', ' . $schedultDate->toDateString();
         $userEvent->subject = "Planned task $task->id ($task->task_subject)";
         $userEvent->date = $schedultDate;
         $userEvent->start = $c_start_at->toDateTime();
         $userEvent->end = $c_end_at->toDateTime();
         $userEvent->save();
-
 
         return response()->json(
             [
@@ -1477,7 +1476,7 @@ class TaskModuleController extends Controller
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ')';
+            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ')';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -4756,7 +4755,7 @@ class TaskModuleController extends Controller
             return respJson(
                 200, '', [
                     'data' => $single,
-                    'user'=> $single->assignedTo ?? null
+                    'user' => $single->assignedTo ?? null,
                 ]
             );
         } catch(\Throwable $th) {
@@ -4943,9 +4942,9 @@ class TaskModuleController extends Controller
                 DB::transaction(function () use ($file, $data) {
                     $task = Task::find($data['task_id']);
                     $googleScreencast = new GoogleScreencast();
-                    
+
                     $googleScreencast->file_name = $file->getClientOriginalName();
-                    $googleScreencast->file_name .= " (TASK-$task->id ".($task->task_subject ?? "-").")";
+                    $googleScreencast->file_name .= " (TASK-$task->id " . ($task->task_subject ?? '-') . ')';
                     // dd($googleScreencast->file_name);
 
                     $googleScreencast->extension = $file->extension();

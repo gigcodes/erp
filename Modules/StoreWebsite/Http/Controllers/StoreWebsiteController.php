@@ -22,7 +22,6 @@ use App\StoreWebsiteBrand;
 use App\StoreWebsiteColor;
 use App\StoreWebsiteImage;
 use App\StoreWebsiteUsers;
-use App\StoreWebsitesApiTokenLog;
 use Illuminate\Support\Str;
 use App\BuildProcessHistory;
 use App\LogStoreWebsiteUser;
@@ -43,22 +42,22 @@ use App\StoreWebsiteCategorySeo;
 use App\StoreWebsiteUserHistory;
 use App\MagentoDevScripUpdateLog;
 use App\StoreWebsiteProductPrice;
+use App\StoreWebsitesApiTokenLog;
 use App\StoreWebsiteTwilioNumber;
 use Illuminate\Routing\Controller;
 use App\ProductCancellationPolicie;
+use Illuminate\Support\Facades\Http;
 use App\StoreWebsiteProductAttribute;
 use App\StoreWebsitesCountryShipping;
 use App\Jobs\DuplicateStoreWebsiteJob;
 use App\StoreWebsiteProductScreenshot;
-use App\MagentoSettingUpdateResponseLog;
-use App\StoreWebsiteEnvironment;
-use App\StoreWebsiteEnvironmentHistory;
-use Illuminate\Support\Facades\Validator;
-use seo2websites\MagentoHelper\MagentoHelperv2;
-use Illuminate\Support\Facades\Http;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Support\Facades\Storage;
+use App\MagentoSettingUpdateResponseLog;
+use Illuminate\Support\Facades\Validator;
 use App\Models\StoreWebsiteApiTokenHistory;
+use seo2websites\MagentoHelper\MagentoHelperv2;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\StoreWebsiteBuilderApiKeyHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -83,101 +82,147 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
     }
 
+    public function builderApiKey()
+    {
+        $title = 'Builder Api Key | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+
+        return view('storewebsite::index-builder-api-key', compact('title', 'storeWebsites'));
+    }
+
+    public function updateBuilderApiKey(Request $request, $id)
+    {
+        $website = StoreWebsite::findOrFail($id);
+        $old = $website->builder_io_api_key;
+        $website->builder_io_api_key = $request->input('builder_io_api_key');
+        $website->save();
+
+        // Maintain history in table
+        if ($old != $request->input('builder_io_api_key')) {
+            $history = new StoreWebsiteBuilderApiKeyHistory();
+            $history->store_website_id = $website->id;
+            $history->old = $old;
+            $history->new = $request->input('builder_io_api_key');
+            $history->updated_by = Auth::user()->id;
+            $history->save();
+        }
+        
+        return redirect()->back()->with('success', 'API key updated successfully');
+    }
+
+    public function builderApiKeyHistory($id)
+    {
+        $datas = StoreWebsiteBuilderApiKeyHistory::with(['user'])
+            ->where('store_website_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function apiToken()
     {
         $title = 'Api Token | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
-        
-        return view('storewebsite::index-api-token', compact('title',  'storeWebsites',  'storeWebsiteUsers'));
+
+        return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
+
     public function getApiTokenLogs(Request $request)
     {
-        $logs = StoreWebsitesApiTokenLog::with(['storeWebsite','StoreWebsiteUsers','user'])->where('store_website_id', $request->store_website_id)->orderBy('id','desc')->get();
+        $logs = StoreWebsitesApiTokenLog::with(['storeWebsite', 'StoreWebsiteUsers', 'user'])->where('store_website_id', $request->store_website_id)->orderBy('id', 'desc')->get();
         //dd($logs);
-        $data='';
-        if($logs->isNotEmpty()){
-            foreach($logs as $log){
-                $data.='<tr>';
-                    $data.='<td>';
-                        $data.=$log->id;
-                    $data.='</td>';
-                    $data.='<td>';
-                        if($log->user)
-                            $data.=$log->user->name;
-                    $data.='</td>';
-                    $data.='<td>';
-                        if($log->storeWebsite)
-                            $data.=$log->storeWebsite->title;
-                    $data.='</td>';
-                    $data.='<td>';
-                    if($log->StoreWebsiteUsers)
-                        $data.=$log->StoreWebsiteUsers->first_name.' '.$log->StoreWebsiteUsers->last_name.' ('.$log->StoreWebsiteUsers->email.')';
-                    $data.='</td>';
-                    $data.='<td>';
-                        $data.=$log->response;
-                    $data.='</td>';
-                    $data.='<td>';
-                        $data.=$log->status_code;
-                    $data.='</td>';
-                    $data.='<td>';
-                        $data.=$log->status;
-                    $data.='</td>';
-                    $data.='<td>';
-                        $data.=$log->created_at;
-                    $data.='</td>';
-                    
-                $data.='</tr>';
+        $data = '';
+        if ($logs->isNotEmpty()) {
+            foreach ($logs as $log) {
+                $data .= '<tr>';
+                $data .= '<td>';
+                $data .= $log->id;
+                $data .= '</td>';
+                $data .= '<td>';
+                if ($log->user) {
+                    $data .= $log->user->name;
+                }
+                $data .= '</td>';
+                $data .= '<td>';
+                if ($log->storeWebsite) {
+                    $data .= $log->storeWebsite->title;
+                }
+                $data .= '</td>';
+                $data .= '<td>';
+                if ($log->StoreWebsiteUsers) {
+                    $data .= $log->StoreWebsiteUsers->first_name . ' ' . $log->StoreWebsiteUsers->last_name . ' (' . $log->StoreWebsiteUsers->email . ')';
+                }
+                $data .= '</td>';
+                $data .= '<td>';
+                $data .= $log->response;
+                $data .= '</td>';
+                $data .= '<td>';
+                $data .= $log->status_code;
+                $data .= '</td>';
+                $data .= '<td>';
+                $data .= $log->status;
+                $data .= '</td>';
+                $data .= '<td>';
+                $data .= $log->created_at;
+                $data .= '</td>';
+
+                $data .= '</tr>';
             }
-        }else{
-            $data.='<tr><td>No Data found!</td></tr>';
+        } else {
+            $data .= '<tr><td>No Data found!</td></tr>';
         }
-        
+
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
-    public function testApiToken(Request $request){
-        if($request->has('store_website_id') && $request->store_website_id==''){
+    public function testApiToken(Request $request)
+    {
+        if ($request->has('store_website_id') && $request->store_website_id == '') {
             return response()->json(['success' => false, 'message' => 'The request parameter store website is missing']);
         }
-        $storeWebsite=StoreWebsite::where('id', $request->store_website_id)->first();
-        if($storeWebsite){
+        $storeWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
+        if ($storeWebsite) {
             $magento_url = $storeWebsite->magento_url;
             $api_token = $storeWebsite->api_token;
             $storeWebsiteCode = $storeWebsite->storeCode;
-            if( !empty ( $magento_url ) && !empty ($storeWebsiteCode)){
-                
-                
+            if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                 $response = Http::withBody(json_encode([
-                    'category' =>[
-                        "name" => "Default Category"
-                    ]
+                    'category' => [
+                        'name' => 'Default Category',
+                    ],
                 ]), 'application/json')->withHeaders([
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer '.$api_token,
+                    'Authorization' => 'Bearer ' . $api_token,
                 ])->get(rtrim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/categories?fields=id,parent_id,name");
-                    
-                if($response->ok())
-                {
+
+                if ($response->ok()) {
                     StoreWebsitesApiTokenLog::create([
                         'user_id' => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
-                        'response' => 'API Token Test:- '.$response->body(),
+                        'response' => 'API Token Test:- ' . $response->body(),
                         'status_code' => $response->status(),
                         'status' => 'Success',
                     ]);
-                    return response()->json(['success' => true, 'message' =>'API Token Test Success!' ]);
-                }else{
+
+                    return response()->json(['success' => true, 'message' => 'API Token Test Success!']);
+                } else {
                     StoreWebsitesApiTokenLog::create([
                         'user_id' => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
-                        'response' => 'API Token Test:- '.$response->json('message'),
+                        'response' => 'API Token Test:- ' . $response->json('message'),
                         'status_code' => $response->status(),
                         'status' => 'Error',
                     ]);
+
                     return response()->json(['success' => false, 'message' => 'API Token Test failed. Please check logs for more details']);
                 }
-
             }
             StoreWebsitesApiTokenLog::create([
                 'user_id' => Auth::id(),
@@ -189,35 +234,34 @@ class StoreWebsiteController extends Controller
 
             return response()->json(['success' => false, 'message' => 'The store website URL  or Store Code is not found.']);
         }
+
         return response()->json(['success' => false, 'message' => 'The Store Website data not found']);
     }
 
     public function apiTokenGenerate(Request $request)
     {
-        if($request->has('store_website_id') && $request->store_website_id==''){
+        if ($request->has('store_website_id') && $request->store_website_id == '') {
             return response()->json(['success' => false, 'message' => 'The request parameter store_website_id is missing']);
         }
-        if($request->has('store_website_users_id') && $request->store_website_users_id==''){
+        if ($request->has('store_website_users_id') && $request->store_website_users_id == '') {
             return response()->json(['success' => false, 'message' => 'The request parameter store_website_users_id is missing']);
         }
-        $storeWebsite=StoreWebsite::where('id', $request->store_website_id)->first();
-        $oldWebsiteApi=$storeWebsite->api_token;
-        $StoreWebsiteUser=StoreWebsiteUsers::where('id', $request->store_website_users_id)->first();
-        if($storeWebsite && $StoreWebsiteUser){
+        $storeWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
+        $oldWebsiteApi = $storeWebsite->api_token;
+        $StoreWebsiteUser = StoreWebsiteUsers::where('id', $request->store_website_users_id)->first();
+        if ($storeWebsite && $StoreWebsiteUser) {
             $storeWebsiteCode = $storeWebsite->storeCode;
             $magento_url = $storeWebsite->magento_url;
-            if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
-
+            if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                 //$url=$magento_url."/rest/V1/integration/admin/token";
-                
+
                 $token_response = Http::post(rtrim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/integration/admin/token", [
-                    'username' => $StoreWebsiteUser->username, 
+                    'username' => $StoreWebsiteUser->username,
                     'password' => $StoreWebsiteUser->password,
                 ]);
-               
-                if($token_response->ok())
-                {
-                    $generated_token = trim($token_response->body(),'"');
+
+                if ($token_response->ok()) {
+                    $generated_token = trim($token_response->body(), '"');
                     $storeWebsite->api_token = $generated_token;
                     $storeWebsite->save();
 
@@ -236,8 +280,9 @@ class StoreWebsiteController extends Controller
                         'status_code' => $token_response->status(),
                         'status' => 'Success',
                     ]);
-                    return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
-                }else{
+
+                    return response()->json(['success' => true, 'message' => 'API Token updated successfully!', 'token' => $generated_token]);
+                } else {
                     StoreWebsitesApiTokenLog::create([
                         'user_id' => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
@@ -246,6 +291,7 @@ class StoreWebsiteController extends Controller
                         'status_code' => $token_response->status(),
                         'status' => 'Error',
                     ]);
+
                     return response()->json(['success' => false, 'message' => $token_response->json('message')]);
                 }
             }
@@ -257,34 +303,35 @@ class StoreWebsiteController extends Controller
                 'status_code' => '404',
                 'status' => 'Error',
             ]);
+
             return response()->json(['success' => false, 'message' => 'The store website URL or Store Code is not found.']);
         }
+
         return response()->json(['success' => false, 'message' => 'The Store Website and User not found']);
     }
 
     public function apiTokenBulkGenerate(Request $request)
     {
-        if($request->has('ids') && empty($request->ids)){
+        if ($request->has('ids') && empty($request->ids)) {
             return response()->json(['success' => false, 'message' => 'The request parameter ids missing']);
         }
-        
-        foreach($request->ids as $storeWebsiteId) {
-            $storeWebsite=StoreWebsite::where('id', $storeWebsiteId)->first();
-            $oldWebsiteApi = $storeWebsite->api_token;
-            $StoreWebsiteUser=StoreWebsiteUsers::where('store_website_id', $storeWebsiteId)->where('email', "apiuser@theluxuryunlimited.com")->first();
 
-            if($storeWebsite && $StoreWebsiteUser){
+        foreach ($request->ids as $storeWebsiteId) {
+            $storeWebsite = StoreWebsite::where('id', $storeWebsiteId)->first();
+            $oldWebsiteApi = $storeWebsite->api_token;
+            $StoreWebsiteUser = StoreWebsiteUsers::where('store_website_id', $storeWebsiteId)->where('email', 'apiuser@theluxuryunlimited.com')->first();
+
+            if ($storeWebsite && $StoreWebsiteUser) {
                 $storeWebsiteCode = $storeWebsite->storeCode;
                 $magento_url = $storeWebsite->magento_url;
-                if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
+                if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                     $token_response = Http::post(rtrim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/integration/admin/token", [
-                        'username' => $StoreWebsiteUser->username, 
+                        'username' => $StoreWebsiteUser->username,
                         'password' => $StoreWebsiteUser->password,
                     ]);
-                
-                    if($token_response->ok())
-                    {
-                        $generated_token = trim($token_response->body(),'"');
+
+                    if ($token_response->ok()) {
+                        $generated_token = trim($token_response->body(), '"');
                         $storeWebsite->api_token = $generated_token;
                         $storeWebsite->save();
                         $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
@@ -302,8 +349,8 @@ class StoreWebsiteController extends Controller
                             'status_code' => $token_response->status(),
                             'status' => 'Success',
                         ]);
-                        // return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
-                    }else{
+                    // return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
+                    } else {
                         StoreWebsitesApiTokenLog::create([
                             'user_id' => Auth::id(),
                             'store_website_id' => $storeWebsite->id,
@@ -327,7 +374,7 @@ class StoreWebsiteController extends Controller
                 }
             }
         }
-        
+
         return response()->json(['success' => true, 'message' => 'Bulk API token generate completed, You can check logs individually.']);
     }
 
@@ -1301,11 +1348,11 @@ class StoreWebsiteController extends Controller
                     //dd($res->created_at);
                     $html .= '<tr>';
                     $html .= '<td>' . $res->id . '</td>';
-                    if(isset($res->user->name)){
-                    $html .= '<td>' .  $res->user->name .'</td>';
-                    }else{
+                    if (isset($res->user->name)) {
+                        $html .= '<td>' . $res->user->name . '</td>';
+                    } else {
                         $html .= '<td></td>';
-                    } 
+                    }
                     $html .= '<td>' . $res->type . '</td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
                     <span class="show-short-response-' . $res->id . '">' . Str::limit($res->cmd, 50, '...') . '</span>
@@ -1316,8 +1363,7 @@ class StoreWebsiteController extends Controller
                     <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . json_encode($res->output) . '</span>
                     </td>';
                     $html .= '<td>' . $res->created_at . '</td>';
-                    if( $res->download_url )
-                    {
+                    if ($res->download_url) {
                         $filename = basename($res->download_url);
                         $downloadRoute = route('store-website.downloadFile', $filename);
 
@@ -1343,6 +1389,7 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'data' => [], 'message' => $msg]);
         }
     }
+
     public function getMagentoUpdateWebsiteSetting(Request $request, $store_website_id)
     {
         try {
@@ -1508,7 +1555,7 @@ class StoreWebsiteController extends Controller
     public function generateApiToken(Request $request)
     {
         $storeId = current(array_filter($request->update_website_api_id));
-        $oldStoreWebsite =  StoreWebsite::find($storeId);
+        $oldStoreWebsite = StoreWebsite::find($storeId);
         $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
         $storeWebsiteHistory->store_websites_id = $oldStoreWebsite->id;
         $storeWebsiteHistory->old_api_token = $oldStoreWebsite->api_token;
@@ -1520,7 +1567,7 @@ class StoreWebsiteController extends Controller
             foreach ($apiTokens as $key => $apiToken) {
                 StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
             }
-            $newStoreWebsite =  StoreWebsite::find($storeId);
+            $newStoreWebsite = StoreWebsite::find($storeId);
             $storeWebsiteHistory->new_api_token = $newStoreWebsite->api_token;
             $storeWebsiteHistory->save();
 
@@ -1538,12 +1585,12 @@ class StoreWebsiteController extends Controller
     {
         $search = $request->search;
         $store_ids = $request->store_ids;
-        
+
         $storeWebsites = StoreWebsite::whereNull('deleted_at');
         if ($search != null) {
             $storeWebsites = $storeWebsites->where('title', 'Like', '%' . $search . '%');
         }
-        if($store_ids != null) {
+        if ($store_ids != null) {
             $storeWebsites = $storeWebsites->whereIn('id', $store_ids);
         }
         $storeWebsites = $storeWebsites->get();
@@ -1799,7 +1846,7 @@ class StoreWebsiteController extends Controller
     public function flattenArray($array, $prefix = '')
     {
         $result = [];
-        
+
         foreach ($array as $key => $value) {
             $newKey = $prefix . $key;
             if (is_array($value)) {
@@ -1808,82 +1855,87 @@ class StoreWebsiteController extends Controller
                 $result[$newKey] = $value;
             }
         }
+
         return $result;
     }
 
-    public function downloadDbEnv(Request $request,$id,$type){
-
-        $storeWebsite=StoreWebsite::where('id', $id)->first();
-        if(!$storeWebsite){
+    public function downloadDbEnv(Request $request, $id, $type)
+    {
+        $storeWebsite = StoreWebsite::where('id', $id)->first();
+        if (! $storeWebsite) {
             return response()->json(['status' => 'error', 'message' => 'Store Website data is not found!']);
         }
-        if($type!='db' && $type!='env'){
+        if ($type != 'db' && $type != 'env') {
             return response()->json(['status' => 'error', 'message' => 'You can only download database or env data']);
         }
-        if($type=='db' && $storeWebsite->database_name==''){
+        if ($type == 'db' && $storeWebsite->database_name == '') {
             return response()->json(['status' => 'error', 'message' => 'Store Website database name is not found!']);
         }
-        if($storeWebsite->instance_number=='') {
+        if ($storeWebsite->instance_number == '') {
             return response()->json(['status' => 'error', 'message' => 'Store Website instance number is not found!']);
         }
-        
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' 2>&1';
-        $filename=".env";
-        if($type=='db'){
-            $filename=$storeWebsite->database_name.".sql";
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n '.$storeWebsite->instance_number. ' -d '.$storeWebsite->database_name. ' 2>&1';
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' 2>&1';
+        $filename = '.env';
+        if ($type == 'db') {
+            $filename = $storeWebsite->database_name . '.sql';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' -d ' . $storeWebsite->database_name . ' 2>&1';
         }
 
-        \Log::info("Start Download DB/ENV");
-        
+        \Log::info('Start Download DB/ENV');
+
         $result = exec($cmd, $output, $return_var);
 
-        $downloadDatabaseEnvLogsenvLog =  (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
-        \Log::info("command:".$cmd);
-        \Log::info("output:".print_r($output,true));
-        \Log::info("return_var:".$return_var);
+        $downloadDatabaseEnvLogsenvLog = (new \App\DownloadDatabaseEnvLogs())->saveLog($storeWebsite->id, auth()->user()->id, $type, $cmd, $output, $return_var);
+        \Log::info('command:' . $cmd);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
 
-        \Log::info("End Download DB/ENV");
-        if(!isset($output[0])){
+        \Log::info('End Download DB/ENV');
+        if (! isset($output[0])) {
             return response()->json(['status' => 'error', 'message' => 'The response is not found!']);
         }
-        $response=json_decode($output[0]);
-        if(isset($response->status)  && ($response->status=='true' || $response->status)){
-            if(isset($response->url) && $response->url!=''){
-                $path=$response->url;
-            }else{
-                $path=Storage::path('download_db');
-                $path.="/".$filename;
+        $response = json_decode($output[0]);
+        if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+            if (isset($response->url) && $response->url != '') {
+                $path = $response->url;
+            } else {
+                $path = Storage::path('download_db');
+                $path .= '/' . $filename;
             }
-            if(file_exists($path)){
+            if (file_exists($path)) {
                 // return response()->download($path)->deleteFileAfterSend(true);
                 $response = [
                     'status' => 'success',
                     'message' => 'Download successfully!',
                     'download_url' => $path, // Add the download URL to the response,
-                    'filename' => $filename
+                    'filename' => $filename,
                 ];
-                
+
                 // Update the log entry with the download_url
                 \App\DownloadDatabaseEnvLogs::where('id', $downloadDatabaseEnvLogsenvLog->id)->update(['download_url' => $path]);
+
                 return response()->json($response);
-            }else{
+            } else {
                 return response()->json(['status' => 'error', 'message' => 'File Not found on server!']);
             }
             \App\DownloadDatabaseEnvLogs::where('id', $downloadDatabaseEnvLogsenvLog->id)->update(['download_url' => $path]);
-        }else{
-            $message="Something Went Wrong! Please check Logs for more details";
-            if(isset($response->message) && $response->message!=''){
-                $message=$response->message;
+        } else {
+            $message = 'Something Went Wrong! Please check Logs for more details';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
             }
+
             return response()->json(['status' => 'error', 'message' => $message]);
         }
-        return response()->json(['status' => 'error', 'message' =>'Download successfully!']);
+
+        return response()->json(['status' => 'error', 'message' => 'Download successfully!']);
     }
 
-    public function downloadFile(Request $request, $fileName) {
+    public function downloadFile(Request $request, $fileName)
+    {
         // Get the full path to the file you want to download
-        $filePath = storage_path('app/download_db/'.$fileName);
+        $filePath = storage_path('app/download_db/' . $fileName);
 
         // Check if the file exists
         if (file_exists($filePath)) {
@@ -1900,62 +1952,59 @@ class StoreWebsiteController extends Controller
             abort(404);
         }
     }
-  
+
     public function runFilePermissions(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where('id', $id)->first();
-        if(!$storeWebsite){
+        if (! $storeWebsite) {
             return response()->json(['code' => 500, 'message' => 'Store Website is not found!']);
         }
-        $website=$storeWebsite->website;
-        $server_ip=$storeWebsite->server_ip;
-        $working_directory=$storeWebsite->working_directory;
-        if($server_ip==''){
+        $website = $storeWebsite->website;
+        $server_ip = $storeWebsite->server_ip;
+        $working_directory = $storeWebsite->working_directory;
+        if ($server_ip == '') {
             return response()->json(['code' => 500, 'message' => 'Store Website server ip not found!']);
         }
-        if($working_directory==''){
+        if ($working_directory == '') {
             return response()->json(['code' => 500, 'message' => 'Store Website working directory not found!']);
         }
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'file_permission.sh -w=' . $website . ' -s=' . $server_ip . ' -d='.$working_directory.' 2>&1';
-        \Log::info("Start run File Permissions");
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'file_permission.sh -w=' . $website . ' -s=' . $server_ip . ' -d=' . $working_directory . ' 2>&1';
+        \Log::info('Start run File Permissions');
         $result = exec($cmd, $output, $return_var);
-        \Log::info("command:".$cmd);
-        \Log::info("output:".print_r($output,true));
-        \Log::info("return_var:".$return_var);
-        \Log::info("End run File Permissions");
+        \Log::info('command:' . $cmd);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+        \Log::info('End run File Permissions');
 
         return response()->json(['code' => 200, 'message' => 'Run Successfully']);
-
     }
 
     public function clearCloudflareCaches(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where('id', $id)->first();
-        if(!$storeWebsite){
+        if (! $storeWebsite) {
             return response()->json(['code' => 500, 'message' => 'Store Website is not found!']);
         }
-        $magento_url=$storeWebsite->magento_url;
-        $domain_name=parse_url($magento_url, PHP_URL_HOST);
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'cloudflare_cache_clear.sh -d=' . $domain_name .' 2>&1';
-        \Log::info("Start run Clear Cloudflare Caches");
+        $magento_url = $storeWebsite->magento_url;
+        $domain_name = parse_url($magento_url, PHP_URL_HOST);
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'cloudflare_cache_clear.sh -d=' . $domain_name . ' 2>&1';
+        \Log::info('Start run Clear Cloudflare Caches');
         $result = exec($cmd, $output, $return_var);
-        \Log::info("command:".$cmd);
-        \Log::info("output:".print_r($output,true));
-        \Log::info("return_var:".$return_var);
-        \Log::info("End run Clear Cloudflare Caches");
+        \Log::info('command:' . $cmd);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+        \Log::info('End run Clear Cloudflare Caches');
 
         return response()->json(['code' => 200, 'message' => 'Clear Cloudflare Caches Successfully']);
-
     }
-    
+
     public function userPermission(Request $request)
     {
         $storeWebsite = StoreWebsite::find($request->store_website_id);
         $storeWebsite->users_id = $request->users_id;
         $storeWebsite->save();
-        
-        return response()->json(['code' => 200, 'message' => 'User permission updated successfully']);
 
+        return response()->json(['code' => 200, 'message' => 'User permission updated successfully']);
     }
 
     public function apiTokenHistory($id)
@@ -1976,6 +2025,7 @@ class StoreWebsiteController extends Controller
     public function versionNumbers()
     {
         $storeWebsites = StoreWebsite::all();
+
         return view('storewebsite::version-number', compact('storeWebsites'));
     }
 

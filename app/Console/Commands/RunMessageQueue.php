@@ -4,14 +4,14 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\MessageQueue;
 use App\CronJobReport;
+use App\Helpers\LogHelper;
 use App\Jobs\SendMessageToAll;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendMessageToSelected;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class RunMessageQueue extends Command
 {
@@ -201,7 +201,7 @@ class RunMessageQueue extends Command
         if (! empty($instanceId) && ! empty($token)) {
             // executing curl
             $curl = curl_init();
-            $url ="https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
+            $url = "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
 
             curl_setopt_array($curl, [
                 CURLOPT_URL => $url,
@@ -221,7 +221,6 @@ class RunMessageQueue extends Command
 
             $err = curl_error($curl);
             curl_close($curl);
-            
 
             if ($err) {
                 // throw some error if you want

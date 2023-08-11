@@ -25,7 +25,7 @@ class SendIssueCredit extends Mailable
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;
-        $this->fromMailer=\App\Helpers::getFromEmail($this->customer->id);
+        $this->fromMailer = \App\Helpers::getFromEmail($this->customer->id);
     }
 
     /**
@@ -39,7 +39,7 @@ class SendIssueCredit extends Mailable
         $customer = $this->customer;
 
         $this->subject = $subject;
-        
+
         try {
             if ($customer) {
                 if ($customer->store_website_id > 0) {

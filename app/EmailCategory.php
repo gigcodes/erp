@@ -21,7 +21,8 @@ class EmailCategory extends Model
 
     protected $fillable = ['category_name'];
 
-    public function categoryHistory(){
-        return $this->hasMany(EmailCategoryHistory::class,'category_id');
+    public function categoryHistory()
+    {
+        return $this->hasMany(EmailCategoryHistory::class, 'category_id');
     }
 }

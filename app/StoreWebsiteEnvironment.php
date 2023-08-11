@@ -15,7 +15,7 @@ class StoreWebsiteEnvironment extends Model
      *
      * @SWG\Property(property="name",type="string")
      */
-    protected $fillable = ['store_website_id', 'env_data','path','value','command','created_by'];
+    protected $fillable = ['store_website_id', 'env_data', 'path', 'value', 'command', 'created_by'];
 
     //Tell laravel to fetch text values and set them as arrays
     protected $casts = [
@@ -27,7 +27,8 @@ class StoreWebsiteEnvironment extends Model
         return $this->belongsTo(StoreWebsite::class);
     }
 
-    public function latestStoreWebsiteEnvironmentHistory() {
-        return $this->hasOne(StoreWebsiteEnvironmentHistory::class, "environment_id")->latest();
+    public function latestStoreWebsiteEnvironmentHistory()
+    {
+        return $this->hasOne(StoreWebsiteEnvironmentHistory::class, 'environment_id')->latest();
     }
 }

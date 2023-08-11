@@ -11,7 +11,6 @@ use App\Hubstaff\HubstaffActivity;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use App\CodeShortcut;
 use App\Hubstaff\HubstaffPaymentAccount;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;

@@ -7,12 +7,11 @@ use DataTables;
 use App\Product;
 use App\Category;
 use App\Supplier;
+use App\LogRequest;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
-use App\LogRequest;
-
 
 class CroppedImageReferenceController extends Controller
 {

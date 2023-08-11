@@ -248,10 +248,10 @@ class Email extends Model
     {
         // new lines removed.
         $properText = str_replace(["\n", "\r"], '', $value);
-        if(\App\Helpers::isBase64Encoded($properText)) {
+        if (\App\Helpers::isBase64Encoded($properText)) {
             return base64_decode($properText, true);
         }
-        // If not a base64encoded string then pass value as usual. 
+        // If not a base64encoded string then pass value as usual.
         return $value;
     }
 }

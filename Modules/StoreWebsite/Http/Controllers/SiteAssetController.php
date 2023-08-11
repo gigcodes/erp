@@ -11,6 +11,7 @@ use App\SiteDevelopment;
 use Illuminate\Http\Request;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopmentDocument;
+use App\SiteDevelopmentMasterCategory;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -26,7 +27,10 @@ class SiteAssetController extends Controller
         $data = [];
         $data['all_store_websites'] = StoreWebsite::all();
         $data['categories'] = SiteDevelopmentCategory::all();
-        $data['search_website'] = is_array($request->store_webs) ? $request->store_webs : '';
+        $data['master_categories'] = SiteDevelopmentMasterCategory::all();
+        $data['search_website'] = $request->store_webs ?? "";
+        $data['master_cat'] = $request->master_cat ?? "";
+
         $data['search_category'] = isset($request->categories) ? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
@@ -39,7 +43,11 @@ class SiteAssetController extends Controller
             ->where('is_site_asset', 1);
 
         if ($data['search_category'] != '') {
-            $site_development_categories = $site_development_categories->where('site_development_categories.id', $data['search_category']);
+            $site_development_categories = $site_development_categories->whereIn('site_development_categories.id', $data['search_category']);
+        }
+
+        if ($data['master_cat'] != '') {
+            $site_development_categories = $site_development_categories->whereIn('site_development_categories.master_category_id', $data['master_cat']);
         }
 
         if (isset($request->site_development_status_id) && ! empty($request->site_development_status_id)) {
@@ -91,7 +99,7 @@ class SiteAssetController extends Controller
         $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
         $data['categories'] = SiteDevelopmentCategory::all()->pluck('title', 'id');
         $data['search_website'] = isset($request->store_webs) ? $request->store_webs : ['1', '2', '3', '5', '9'];
-        $data['search_website_string'] = implode("," , $data['search_website']);
+        $data['search_website_string'] = implode(',', $data['search_website']);
         $data['search_category'] = isset($request->categories) ? $request->categories : [];
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');

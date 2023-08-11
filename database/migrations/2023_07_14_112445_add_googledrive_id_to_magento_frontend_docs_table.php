@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddGoogledriveIdToMagentoFrontendDocsTable extends Migration
 {
@@ -19,7 +19,7 @@ class AddGoogledriveIdToMagentoFrontendDocsTable extends Migration
             $table->string('google_drive_file_id', 1000);
             $table->text('read');
             $table->text('write');
-            $table->integer("user_id");
+            $table->integer('user_id');
         });
     }
 

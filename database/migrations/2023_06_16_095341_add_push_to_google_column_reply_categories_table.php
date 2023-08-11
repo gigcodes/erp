@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddPushToGoogleColumnReplyCategoriesTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddPushToGoogleColumnReplyCategoriesTable extends Migration
     public function down()
     {
         Schema::table('reply_categories', function (Blueprint $table) {
-            $table->dropColumn("push_to_google");
+            $table->dropColumn('push_to_google');
         });
     }
 }

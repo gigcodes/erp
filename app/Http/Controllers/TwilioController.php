@@ -32,6 +32,7 @@ use Twilio\Twiml;
 use App\Recording;
 use App\TwilioLog;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CallHistory;
 use App\ChatMessage;
 use App\OrderStatus;
@@ -78,12 +79,10 @@ use Twilio\TwiML\VoiceResponse;
 use App\StoreWebsiteTwilioNumber;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TwilioConditionStatus;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
 use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\LogRequest;
-use App\Models\TwilioConditionStatus;
-
 
 /**
  * Class TwilioController - active record
@@ -3274,7 +3273,7 @@ class TwilioController extends FindByNumberController
             }
         }
 
-        return view('twilio.manage-accounts', compact('all_accounts', 'twilio_user_list', 'store_websites', 'twilio_key_arr','twiliconditionsemails','twiliAccountIds','twiliAuthTokens'));
+        return view('twilio.manage-accounts', compact('all_accounts', 'twilio_user_list', 'store_websites', 'twilio_key_arr', 'twiliconditionsemails', 'twiliAccountIds', 'twiliAuthTokens'));
     }
 
     public function addAccount(Request $request)
@@ -3759,7 +3758,7 @@ class TwilioController extends FindByNumberController
             if (curl_errno($ch)) {
                 echo 'Error:' . curl_error($ch);
             }
-            curl_close($ch);     
+            curl_close($ch);
 
             LogRequest::log($startTime, $url, 'POST', json_encode(['VoiceUrl=' . $base_url . '/run-webhook/' . $number_details->sid]), json_decode($result), $httpcode, \App\Http\Controllers\TwilioController::class, 'twilioCallForward');
 
@@ -4136,7 +4135,7 @@ class TwilioController extends FindByNumberController
 
         $twilio_key_arr = [];
         $html = '';
-      
+
         //if($keydata)
 
         //{
@@ -4808,13 +4807,13 @@ class TwilioController extends FindByNumberController
             ->orderBy('twilio_call_statistics.id', 'desc');
 
             $customers = Customer::Select('id', 'name')->get();
-            $twiliconditionsemails = TwilioCredential::Select('id','twilio_email')->get();
-            $storeWebsites = StoreWebsite::Select('id','website')->get();
-            $reqcustomerNames  = $request->customer_names;
-            $reqtwiliconditionEmail  = $request->twilicondition_email;
-            $reqCustomerWebsites  = $request->customer_websites;
-            $reqTwilioWebsites  = $request->twilio_websites;
-            
+            $twiliconditionsemails = TwilioCredential::Select('id', 'twilio_email')->get();
+            $storeWebsites = StoreWebsite::Select('id', 'website')->get();
+            $reqcustomerNames = $request->customer_names;
+            $reqtwiliconditionEmail = $request->twilicondition_email;
+            $reqCustomerWebsites = $request->customer_websites;
+            $reqTwilioWebsites = $request->twilio_websites;
+
             if (isset($input['search_account_sid'])) {
                 $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.account_sid', 'like', '%' . $input['search_account_sid'] . '%');
             }
@@ -4825,21 +4824,21 @@ class TwilioController extends FindByNumberController
                 $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.customer_number', 'like', '%' . $input['search_customer_number'] . '%');
             }
             if (isset($input['customer_names'])) {
-                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_id',  $input['customer_names']);
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_id', $input['customer_names']);
             }
             if (isset($input['twilicondition_email'])) {
-                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_credentials_id',  $input['twilicondition_email']);
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_credentials_id', $input['twilicondition_email']);
             }
             if (isset($input['customer_websites'])) {
-                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_website_id',  $input['customer_websites']);
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.customer_website_id', $input['customer_websites']);
             }
             if (isset($input['twilio_websites'])) {
-                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_number_website_id',  $input['twilio_websites']);
+                $twilioCallStatistic = $twilioCallStatistic->whereIn('twilio_call_statistics.twilio_number_website_id', $input['twilio_websites']);
             }
             $twilioCallStatistic = $twilioCallStatistic->paginate(20);
             //$twilioCallBlocks = $twilioCallBlocks->get();
             //dd($twilioCallBlocks);
-            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic', 'input','customers','storeWebsites','twiliconditionsemails','reqcustomerNames','reqtwiliconditionEmail','reqCustomerWebsites','reqTwilioWebsites'));
+            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic', 'input', 'customers', 'storeWebsites', 'twiliconditionsemails', 'reqcustomerNames', 'reqtwiliconditionEmail', 'reqCustomerWebsites', 'reqTwilioWebsites'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'please try again');
         }
@@ -4881,13 +4880,12 @@ class TwilioController extends FindByNumberController
         if ($request->date) {
             $accountLogs = $accountLogs->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
-        
-        $accountLogs = $accountLogs->latest()->paginate(\App\Setting::get('pagination',50));
+
+        $accountLogs = $accountLogs->latest()->paginate(\App\Setting::get('pagination', 50));
 
         $twiliAccountemails = TwilioAccountLog::distinct('email')->pluck('email');
 
-
-        return view('twilio.account_logs', compact('accountLogs','twiliAccountemails'));
+        return view('twilio.account_logs', compact('accountLogs', 'twiliAccountemails'));
     }
 
     public function getConditions(Request $request)
@@ -4899,7 +4897,7 @@ class TwilioController extends FindByNumberController
             $conditions = TwilioCondition::where('description', 'LIKE', '%' . $request->description . '%')->get();
         } elseif ($request->condition && $request->condition != null) {
             $conditions = TwilioCondition::where('condition', $request->condition)->get();
-        } else if ($request->active_status != null) {
+        } elseif ($request->active_status != null) {
             $conditions = TwilioCondition::where('status', $request->active_status)->get();
         } else {
             $conditions = TwilioCondition::all();
@@ -4911,13 +4909,13 @@ class TwilioController extends FindByNumberController
     public function updateConditionStatus(Request $request)
     {
         $input = $request->input();
-        $twiliConditions  = TwilioCondition::where('id', $input['id'])->update(['status' => $input['status']]);
+        $twiliConditions = TwilioCondition::where('id', $input['id'])->update(['status' => $input['status']]);
         $twiliConditions = TwilioCondition::find($input['id']);
 
-        if($twiliConditions->status == 0){
-            $statusColor=  TwilioConditionStatus::find(2);
+        if ($twiliConditions->status == 0) {
+            $statusColor = TwilioConditionStatus::find(2);
         } else {
-            $statusColor=  TwilioConditionStatus::find($twiliConditions->status);
+            $statusColor = TwilioConditionStatus::find($twiliConditions->status);
         }
 
         return response()->json([
@@ -4926,7 +4924,6 @@ class TwilioController extends FindByNumberController
             'message' => 'Status Updated',
             'status_name' => 'success',
         ], 200);
-
     }
 
     public function saveMessageTone(Request $request)
@@ -4964,15 +4961,14 @@ class TwilioController extends FindByNumberController
 
         $websiteIds = $request->input('website_ids', []);
 
-        if( $websiteIds)
-        {
+        if ($websiteIds) {
             $twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id', 'store_websites.id')
             ->select('twilio_message_tones.*', 'store_websites.title as website', 'store_websites.id as websiteId')
             ->whereIn('store_websites.id', $websiteIds)
             ->get();
         }
-  
-        return view('twilio.manage-tones', compact('twilioMessageTones','websiteIds'));
+
+        return view('twilio.manage-tones', compact('twilioMessageTones', 'websiteIds'));
     }
 
     public function twilioCallJourney(Request $request)
@@ -4994,7 +4990,7 @@ class TwilioController extends FindByNumberController
                 $query->where('id', 'like', $request->store_id);
             });
         }
-        
+
         if ($request->account_id) {
             $call_Journeies = $call_Journeies->where('account_sid', 'like', $request->account_id . '%');
         }
@@ -5005,38 +5001,38 @@ class TwilioController extends FindByNumberController
 
         if ($request->filled('call_entered') && $request->call_entered === 'yes' || $request->call_entered === 'Yes') {
             $call_Journeies = $call_Journeies->where('call_entered', 1);
-        }else if($request->filled('call_entered') && $request->call_entered === 'No' || $request->call_entered === 'no'){
-            $call_Journeies = $call_Journeies->where('call_entered','!=', 1);
+        } elseif ($request->filled('call_entered') && $request->call_entered === 'No' || $request->call_entered === 'no') {
+            $call_Journeies = $call_Journeies->where('call_entered', '!=', 1);
         }
 
         if ($request->filled('handled_by_chatbot') && $request->handled_by_chatbot === 'yes' || $request->handled_by_chatbot === 'Yes') {
             $call_Journeies = $call_Journeies->where('handled_by_chatbot', 1);
-        }else if($request->filled('handled_by_chatbot') && $request->handled_by_chatbot === 'No' || $request->handled_by_chatbot === 'no'){
-            $call_Journeies = $call_Journeies->where('handled_by_chatbot','!=', 1);
+        } elseif ($request->filled('handled_by_chatbot') && $request->handled_by_chatbot === 'No' || $request->handled_by_chatbot === 'no') {
+            $call_Journeies = $call_Journeies->where('handled_by_chatbot', '!=', 1);
         }
-        
+
         if ($request->filled('called_working_hours') && $request->called_working_hours === 'yes' || $request->called_working_hours === 'Yes') {
             $call_Journeies = $call_Journeies->where('called_in_working_hours', 1);
-        }else if($request->filled('called_working_hours') && $request->called_working_hours === 'No' || $request->called_working_hours === 'no'){
-            $call_Journeies = $call_Journeies->where('called_in_working_hours','!=', 1);
+        } elseif ($request->filled('called_working_hours') && $request->called_working_hours === 'No' || $request->called_working_hours === 'no') {
+            $call_Journeies = $call_Journeies->where('called_in_working_hours', '!=', 1);
         }
 
         if ($request->filled('avaiable_agent') && $request->avaiable_agent === 'yes' || $request->avaiable_agent === 'Yes') {
             $call_Journeies = $call_Journeies->where('agent_available', 1);
-        }else if($request->filled('avaiable_agent') && $request->avaiable_agent === 'No' || $request->avaiable_agent === 'no'){
-            $call_Journeies = $call_Journeies->where('agent_available','!=', 1);
+        } elseif ($request->filled('avaiable_agent') && $request->avaiable_agent === 'No' || $request->avaiable_agent === 'no') {
+            $call_Journeies = $call_Journeies->where('agent_available', '!=', 1);
         }
 
         if ($request->filled('agent_online') && $request->agent_online === 'yes' || $request->agent_online === 'Yes') {
             $call_Journeies = $call_Journeies->where('agent_online', 1);
-        }else if($request->filled('agent_online') && $request->agent_online === 'No' || $request->agent_online === 'no'){
-            $call_Journeies = $call_Journeies->where('agent_online','!=', 1);
+        } elseif ($request->filled('agent_online') && $request->agent_online === 'No' || $request->agent_online === 'no') {
+            $call_Journeies = $call_Journeies->where('agent_online', '!=', 1);
         }
 
         if ($request->filled('call_answered') && $request->call_answered === 'yes' || $request->call_answered === 'Yes') {
             $call_Journeies = $call_Journeies->where('call_answered', 1);
-        }else if($request->filled('call_answered') && $request->call_answered === 'No' || $request->call_answered === 'no'){
-            $call_Journeies = $call_Journeies->where('call_answered','!=', 1);
+        } elseif ($request->filled('call_answered') && $request->call_answered === 'No' || $request->call_answered === 'no') {
+            $call_Journeies = $call_Journeies->where('call_answered', '!=', 1);
         }
 
         $call_Journeies = $call_Journeies->with(['twilio_credential:id,account_id,twilio_email'])
@@ -5065,11 +5061,10 @@ class TwilioController extends FindByNumberController
      */
     public function twilioDeliveryLogs(Request $request)
     {
-
         $query = TwilioMessageDeliveryLogs::orderBy('created_at', 'desc')->with('customers:id,name,email');
 
         $twiliCoustomerEmails = Customer::select('id', 'email')->get();
-    
+
         if ($request->twilicustomer_email) {
             $query->whereIn('customer_id', $request->twilicustomer_email);
         }
@@ -5088,10 +5083,10 @@ class TwilioController extends FindByNumberController
         if ($request->date) {
             $query->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
-    
+
         $twilioDeliveryLogs = $query->paginate(50);
-    
-        return view('twilio.delivery_logs', compact('twilioDeliveryLogs','twiliCoustomerEmails'));
+
+        return view('twilio.delivery_logs', compact('twilioDeliveryLogs', 'twiliCoustomerEmails'));
     }
 
     /**
@@ -5193,26 +5188,25 @@ class TwilioController extends FindByNumberController
 
     public function StatusColourUpdate(request $request)
     {
-            $formData = $request->input('formData');
-        
-            if (is_array($formData)) {
-                foreach ($formData as $data) {
-                    // Search for an existing record based on status_name
-                    $statusColor = TwilioConditionStatus::firstOrCreate([
-                        'status_name' => $data['status'],
-                    ]);
-        
-                    // Update the existing record with the new color code
-                    $statusColor->color = $data['colorCode'];
-                    $statusColor->save();
-                }
-        
-                // Return a success response if needed
-                return response()->json(['message' => 'Status colors saved successfully']);
+        $formData = $request->input('formData');
+
+        if (is_array($formData)) {
+            foreach ($formData as $data) {
+                // Search for an existing record based on status_name
+                $statusColor = TwilioConditionStatus::firstOrCreate([
+                    'status_name' => $data['status'],
+                ]);
+
+                // Update the existing record with the new color code
+                $statusColor->color = $data['colorCode'];
+                $statusColor->save();
             }
-        
-            // Return an error response if formData is not an array
-            return response()->json(['error' => 'Invalid form data']);
-        
+
+            // Return a success response if needed
+            return response()->json(['message' => 'Status colors saved successfully']);
+        }
+
+        // Return an error response if formData is not an array
+        return response()->json(['error' => 'Invalid form data']);
     }
 }

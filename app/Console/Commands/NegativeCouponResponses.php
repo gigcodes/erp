@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\NegativeCouponResponse;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class NegativeCouponResponses extends Command
 {
@@ -46,7 +46,7 @@ class NegativeCouponResponses extends Command
                 $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
                 // Init cURL
                 $curl = curl_init();
-                $url ="'https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
+                $url = "'https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
                 // Set cURL options
                 curl_setopt_array($curl, [
                     CURLOPT_URL => $url,
@@ -73,7 +73,6 @@ class NegativeCouponResponses extends Command
 
                 // Close cURL
                 curl_close($curl);
-                
 
                 // Check for errors
                 if ($err) {

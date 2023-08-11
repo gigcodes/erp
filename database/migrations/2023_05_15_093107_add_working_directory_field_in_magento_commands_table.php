@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddWorkingDirectoryFieldInMagentoCommandsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddWorkingDirectoryFieldInMagentoCommandsTable extends Migration
     public function up()
     {
         Schema::table('magento_commands', function (Blueprint $table) {
-            $table->string("working_directory")->nullable()->after('command_type');
+            $table->string('working_directory')->nullable()->after('command_type');
         });
     }
 
@@ -26,7 +26,7 @@ class AddWorkingDirectoryFieldInMagentoCommandsTable extends Migration
     public function down()
     {
         Schema::table('magento_commands', function (Blueprint $table) {
-            $table->string("working_directory");
+            $table->string('working_directory');
         });
     }
 }

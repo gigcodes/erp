@@ -5,13 +5,13 @@ namespace App\Console\Commands;
 use App\Service;
 use App\Setting;
 use App\Customer;
+use App\LogRequest;
 use App\Mailinglist;
-use App\MailinglistTemplate;
+use  App\MailinglistTemplate;
 use  Illuminate\Console\Command;
-use  App\MaillistCustomerHistory;
+use App\MaillistCustomerHistory;
 use App\Loggers\MailinglistIinfluencersLogs;
 use App\Loggers\MailinglistIinfluencersDetailLogs;
-use App\LogRequest;
 
 class CreateMailinglistInfluencers extends Command
 {
@@ -138,7 +138,7 @@ class CreateMailinglistInfluencers extends Command
 
                             $response = curl_exec($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            LogRequest::log($startTime, $url, 'POST', json_encode($req), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');     
+                            LogRequest::log($startTime, $url, 'POST', json_encode($req), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');
                             curl_close($curl);
                             $res = json_decode($response);
                             if ($res->status == 1) {
@@ -224,13 +224,13 @@ class CreateMailinglistInfluencers extends Command
                             $url = 'https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid=' . $mllist->remote_id;
                             $requestData = [
                                 'api_token' => config('env.ACELLE_MAIL_API_TOKEN'),
-                                'EMAIL' => $list->email
+                                'EMAIL' => $list->email,
                             ];
                             curl_setopt($ch, CURLOPT_URL, $url);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 1);
-                            curl_setopt($ch, CURLOPT_POSTFIELDS,$requestData
-                        );
+                            curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData
+                            );
 
                             $headers = [];
                             $headers[] = 'Accept: application/json';
@@ -249,7 +249,7 @@ class CreateMailinglistInfluencers extends Command
                                 'response_data' => json_encode($response),
 
                             ]);
-                            LogRequest::log($startTime, $url, 'GET', json_encode($requestData), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle',);
+                            LogRequest::log($startTime, $url, 'GET', json_encode($requestData), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'handle');
                             if (curl_errno($ch)) {
                                 echo 'Error:' . curl_error($ch);
 
@@ -427,7 +427,7 @@ class CreateMailinglistInfluencers extends Command
 
         $response = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, $method, json_encode($data), json_decode($response), $httpcode,  \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');     
+        LogRequest::log($startTime, $url, $method, json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\CreateMailinglistInfluencers::class, 'callApi');
         curl_close($curl);
         \Log::info($response);
 

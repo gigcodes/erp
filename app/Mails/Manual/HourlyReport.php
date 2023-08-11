@@ -16,7 +16,7 @@ class HourlyReport extends Mailable
      * @return void
      */
     protected $path;
-    
+
     public $fromMailer;
 
     public function __construct($path)

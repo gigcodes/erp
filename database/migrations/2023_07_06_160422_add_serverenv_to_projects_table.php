@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddServerenvToProjectsTable extends Migration
 {
@@ -26,7 +26,7 @@ class AddServerenvToProjectsTable extends Migration
     public function down()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-            $table->dropColumn("serverenv");
+            $table->dropColumn('serverenv');
         });
     }
 }
