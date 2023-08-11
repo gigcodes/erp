@@ -455,6 +455,7 @@
 
         $(document).on('submit', '#builder-task-create-form', function (e) {
             e.preventDefault();
+            var self = $(this);
             var data = $(this).serializeArray();
             data.push({name: 'selected_rows', value: selected_rows});
             $.ajax({
@@ -470,8 +471,14 @@
                         toastr['error'](response.message);
                     }
                 },
-                error: function () {
-                    alert('There was error loading priority task list data');
+                error: function(xhr, status, error) { // if error occured
+                    if(xhr.status == 422){
+                        var errors = JSON.parse(xhr.responseText).errors;
+                        customFnErrors(self, errors);
+                    }
+                    else{
+                        Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                    }
                 }
             });
         });
