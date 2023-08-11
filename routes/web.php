@@ -531,7 +531,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
-    Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
