@@ -14,9 +14,13 @@
                 <td>{{ $data->builder_created_date }}</td>
                 <td>{{ $data->builder_last_updated }}</td>
                 <td>
-                    <a href="{{ route('uicheck.get-builder-html', $data->id) }}" target="blank" class="btn btn-sm btn-primary">View</a>
-                    <a href="{{ route('uicheck.get-builder-download-html', $data->id) }}" class="btn btn-sm btn-success">Download</a>
-                    <button class="btn btn-sm btn-secondary show-download-history" data-data-id="{{ $data->id }}">Download History</button>
+                    <a target="_blank" href="{{ route('uicheck.get-builder-html', $data->id) }}">
+                        <i class="btn btn-xs fa fa-eye" title="View Builder HTML"></i>
+                    </a>
+                    <a href="{{ route('uicheck.get-builder-download-html', $data->id) }}">
+                        <i class="btn btn-xs fa fa-download" title="Download Builder HTML"></i>
+                    </a>
+                    <i data-data-id="{{ $data->id }}" class="btn btn-xs fa fa-info-circle show-download-history" title="Download History"></i>
                 </td>
             </tr>
         @endforeach
