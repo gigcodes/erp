@@ -2302,7 +2302,10 @@ class UicheckController extends Controller
                 ])->first();
 
                 if (! $existingRecord) {
-                    UiDeviceBuilderIoData::create([
+                    // Check "Fetched" Status exists. Otherwise create & use. 
+                    $fetchedStatus = UiDeviceBuilderIoDataStatus::firstOrCreate(['name' =>  "Fetched"]);
+                    
+                    $builderIoData = UiDeviceBuilderIoData::create([
                         'uicheck_id' => $uiDevice->uicheck_id,
                         'ui_device_id' => $uiDevice->id,
                         'title' => $responseData['data']['title'],
@@ -2311,6 +2314,14 @@ class UicheckController extends Controller
                         'builder_last_updated' => $responseData['lastUpdated'],
                         'builder_created_by' => $responseData['createdBy'],
                         'builder_last_updated_by' => $responseData['lastUpdatedBy'],
+                        'status_id' => $fetchedStatus->id
+                    ]);
+
+                    UiDeviceBuilderIoDataStatusHistory::create([
+                        'ui_device_builder_io_data_id' => $builderIoData->id,
+                        'user_id' => \Auth::id(),
+                        'old_status_id' => null,
+                        'new_status_id' => $fetchedStatus->id,
                     ]);
 
                     return response()->json(['message' => 'Data saved successfully']);
