@@ -118,6 +118,7 @@
                             <th>Title</th>
                             <th>Builder Created Date</th>
                             <th>Builder Last Updated</th>
+                            <th>Remark</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -127,7 +128,7 @@
                                 <td>{{ ++$i }}</td>
                                 <td style="max-width: 150px">
                                     <div data-message="{{ $builderData->category }}" data-title="Category" style="cursor: pointer" class="showFullMessage">
-                                        {{ show_short_message($builderData->category, 25) }}
+                                        {{ show_short_message($builderData->category, 15) }}
                                     </div>
                                 </td>
                                 <td>
@@ -141,6 +142,11 @@
                                 <td>{{ $builderData->title }}</td>
                                 <td>{{ $builderData->builder_created_date }}</td>
                                 <td>{{ $builderData->builder_last_updated }}</td>
+                                <td>
+                                    <input type="text" id="remarks_{{$builderData->id}}" name="remarks" class="form-control" placeholder="Remark" />
+                                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" data-id="{{$builderData->id}}" onclick="saveRemarks({{$builderData->id}})"><img src="/images/filled-sent.png"></button>
+                                    <button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-id="{{$builderData->id}}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>
+                                </td>
                                 <td>
                                     <a target="_blank" href="{{ route('uicheck.get-builder-html', $builderData->id) }}">
                                         <i class="btn btn-xs fa fa-eye" title="View Builder HTML"></i>
@@ -206,6 +212,38 @@
             </div>
         </div>
     </div>
+
+    <div id="remark-area-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remark History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+    
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Remark</th>
+                                    <th width="20%">Updated BY</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="remark-action-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 @endsection
 @section('scripts')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -264,5 +302,71 @@
                 $("#loading-image").hide();
             });
         }
+
+        // Store Remarks
+        function saveRemarks(row_id) {
+            var remark = $("#remarks_" + row_id).val();
+            $.ajax({
+                url: `{{ route('uicheck.store.builder-data-remark') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remarks: remark,
+                    ui_device_builder_io_data_id: row_id
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    $("#remarks_" + row_id).val('');
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        // $('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
+                        toastr["warning"](value);
+                    });
+                } else if(jqXHR.responseJSON.message !== undefined) {
+                    toastr["error"](jqXHR.responseJSON.message);
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+        // Load Remark
+        $(document).on('click', '.load-module-remark', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('uicheck.get.builder-data-remark', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.remarks } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#remark-area-list").find(".remark-action-list-view").html(html);
+                        $("#remark-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
     </script>
 @endsection

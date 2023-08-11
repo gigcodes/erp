@@ -49,6 +49,7 @@ use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\UiDeviceBuilderIoDataDownloadHistory;
+use App\UiDeviceBuilderIoDataRemarkHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
@@ -2394,5 +2395,52 @@ class UicheckController extends Controller
             ->get();
 
         return view('uicheck.device-builder-download-history', compact('downloadHistory'));
+    }
+
+    public function storeBuilderDataRemark(Request $request)
+    {
+        $input = $request->except(['_token']);
+        if ($request->remarks == '') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please enter remarks',
+                'status_name' => 'error',
+            ], 500);
+        }
+
+        $input['user_id'] = Auth::user()->id;
+
+        $remarkHistory = UiDeviceBuilderIoDataRemarkHistory::create($input);
+
+        if ($remarkHistory) {
+            UiDeviceBuilderIoData::where('id', $request->ui_device_builder_io_data_id)->update(['remarks' => $request->remarks]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Remark added successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Remark added unsuccessfully',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+    public function getBuilderDataRemarks($id)
+    {
+        $remarks = UiDeviceBuilderIoDataRemarkHistory::with(['user'])
+            ->where('ui_device_builder_io_data_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
