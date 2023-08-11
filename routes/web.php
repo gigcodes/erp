@@ -5024,6 +5024,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('plan/basis/create', [PlanController::class, 'newBasis'])->name('plan.create.basis');
         Route::post('plan/type/create', [PlanController::class, 'newType'])->name('plan.create.type');
         Route::post('plan/category/create', [PlanController::class, 'newCategory'])->name('plan.create.category');
+        Route::post('plan/status/update', [PlanController::class, 'changeStatusCategory'])->name('plan.status.update');
+        Route::post('plan/add/remark', [PlanController::class, 'addPlanRemarks'])->name('plan.reamrk.add');
+        Route::post('plan/list/remark', [PlanController::class, 'getRemarkList'])->name('plan.remark.list');
+
     });
 });
 Route::middleware('auth')->group(function () {

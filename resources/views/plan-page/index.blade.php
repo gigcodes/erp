@@ -35,6 +35,7 @@ div#plan-action textarea {height: 200px;}
 <div class="col-md-12 p-0">
   <h2 class="page-heading">Plans page</h2>
 </div>
+@include('partials.flash_messages')
 <div class="col-md-12">
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -58,7 +59,7 @@ div#plan-action textarea {height: 200px;}
               </div>
               <div class="form-group col-md-1 mr-3s no-pd">
                 <select class="form-control" name="categoryfilter">
-                    <option value="">Select Type</option>
+                    <option value="">Select Category</option>
                     @foreach($categoryList as $value )
                         <option value="{{$value->category}}">{{$value->category}}</option>
                     @endforeach;
@@ -81,6 +82,7 @@ div#plan-action textarea {height: 200px;}
               </div>
               <div class="col-md-1 no-pd">
               <button type="submit" class="btn mt-0 btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+              <a href="{{route('plan.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
               </div>
               
               <div class="col-md-4">
@@ -97,7 +99,6 @@ div#plan-action textarea {height: 200px;}
        
 </div>
 </div>
-@include('partials.flash_messages')
  <div class="col-md-12">
 <div class="table-responsive">
     <table class="table table-bordered" id="store_website-analytics-table"style="table-layout: fixed;">
@@ -108,14 +109,15 @@ div#plan-action textarea {height: 200px;}
                 <th width="6%">Category</th>
                 <th width="6%">Subject</th>
                 <th width="7%">Sub subject</th>
-                <th width="8%">Description</th>
-                <th width="5%">Priority</th>
-                <th width="5%">Budget</th>
-                <th width="4%">Basis</th>
-                <th width="7%">Implications</th>
                 <th width="8%">Solutions</th>
                 <th width="6%">DeadLine</th>
-                <th width="5%">status</th>
+                <th width="5%">Budget</th>
+                <th width="4%">Basic</th>
+                <th width="7%">Implications</th>
+                <th width="15%">Priority</th>
+                <th width="8%">Description</th>
+                <th width="15%">Remarks</th>
+                <th width="8%">status</th>
                 <th width="7%">Date</th>
                 <th width="8%">Action</th>
             </tr>
@@ -128,6 +130,8 @@ div#plan-action textarea {height: 200px;}
                 <td class="Website-task" style="vertical-align:middle">{{$record->category}}</td>
                 <td class="Website-task" style="vertical-align:middle">{{$record->subject}}</td>
                 <td class="Website-task" style="vertical-align:middle">{{$record->sub_subject}}</td>
+                <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
+                <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
                 <td width="15%" style="vertical-align:middle">
                     <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
                         <?php
@@ -136,14 +140,31 @@ div#plan-action textarea {height: 200px;}
                             }
                          ?>
                      </span>
-                </td>
-                <td style="vertical-align:middle">{{$record->priority}}</td>
-                <td style="vertical-align:middle">{{$record->budget}}</td>
+                </td>              
                 <td class="Website-task"style="vertical-align:middle">{{$record->basis}}</td>
+                <td style="vertical-align:middle">{{$record->budget}}</td>
+                <td style="vertical-align:middle">{{$record->priority}}</td>
+
                 <td class="Website-task"style="vertical-align:middle">{{$record->implications}}</td>
-                <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
-                <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
-                <td>{{$record->status}}</td>
+                <td>
+                  <div style="width: 100%;">
+                    <div class="d-flex">
+                      <input type="text" name="remark_pop" class="form-control remark-plan{{$record->id}}" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
+                      <button type="button" class="btn btn-sm btn-image add_remark" title="Send message" data-record_id="{{$record->id}}">
+                          <img src="{{asset('images/filled-sent.png')}}">
+                      </button>
+                    <button data-record_id="{{$record->id}}" class="btn btn-xs btn-image show-plan-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                    <select class="form-control plan-status" name="plan-status">
+                      <option value="">Please Select status</option>
+                      <option value="complete" {{ ($record->status == "complete") ? "selected" : "" }} data-id ="{{$record->id}}">complete</option>
+                      <option value="pending" {{ ($record->status == "pending") ? "selected" : "" }}  data-id ="{{$record->id}}">pending</option>
+                  </select>
+                  </td>
+              
                 <td class="r-date"style="vertical-align:middle">{{$record->date}}</td>
                 <td class="actions-main"style="vertical-align:middle">
                     <button type="button" class="btn mt-0 btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
@@ -158,35 +179,35 @@ div#plan-action textarea {height: 200px;}
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="9" style="border:none;"></th>
-                <th>Remark</th>
-                <th>description</th>
+                <th colspan="10" style="border:none;"></th>
                 <th>priority</th>
+                <th>description</th>
+                <th>Remark</th>
                 <th>status</th>
                 <th>date</th>
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="9" class="no-border"></td>
-                        <td width="10%">
-                            <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
-                                <?php
-                                    if($sublist->remark) {
-                                        echo (strlen($sublist->remark) > 12) ? substr($sublist->remark, 0, 10).".." : $sublist->remark;
-                                    }
-                                 ?>
-                             </span>
-                        </td>
-                        <td width="15%">
-                            <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->description, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->description) ? $sublist->description : '' ?>">
-                                <?php
-                                    if($sublist->description) {
-                                        echo (strlen($sublist->description) > 12) ? substr($sublist->description, 0, 10).".." : $sublist->description;
-                                    }
-                                 ?>
-                             </span>
-                        </td>
+                        <td colspan="10" class="no-border"></td>
                         <td>{{$sublist->priority}}</td>
+                        <td width="15%">
+                          <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->description, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->description) ? $sublist->description : '' ?>">
+                              <?php
+                                  if($sublist->description) {
+                                      echo (strlen($sublist->description) > 12) ? substr($sublist->description, 0, 10).".." : $sublist->description;
+                                  }
+                               ?>
+                           </span>
+                      </td>
+                        <td width="10%">
+                          <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
+                              <?php
+                                  if($sublist->remark) {
+                                      echo (strlen($sublist->remark) > 12) ? substr($sublist->remark, 0, 10).".." : $sublist->remark;
+                                  }
+                               ?>
+                           </span>
+                      </td>
                         <td>{{$sublist->status}}</td>
                         <td>{{$sublist->date}}</td>
                         <td>
@@ -600,6 +621,36 @@ div#plan-action textarea {height: 200px;}
   </div>
 </div>
 
+<div id="plan-list-remark-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Task Remark</h4>
+          </div>
+          <div class="modal-body">
+              <div class="col-md-12">
+                  <table class="table table-bordered">
+                      <thead>
+                      <tr>
+                          <th style="width:1%;">ID</th>
+                          <th style=" width: 12%">Update By</th>
+                          <th style="word-break: break-all; width:12%">Remark</th>
+                          <th style="width: 11%">Created at</th>
+                          <th style="width: 11%">Action</th>
+                      </tr>
+                      </thead>
+                      <tbody class="plan-reamrk-list-view">
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 @endsection
 
 <script>
@@ -735,6 +786,81 @@ div#plan-action textarea {height: 200px;}
             $this.addClass("has-small")
             $this.html($this.data("small-title"));
         }
+    });
+
+    $(document).on('change','.plan-status',function(e){
+      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('plan.status.update') }}",
+          data : {
+            status : $('option:selected', this).val(),
+            plan_id : $('option:selected', this).attr('data-id')
+          },
+          success : function (response){
+             location.reload();
+             toastr['success'](response.message, 'success');
+          },
+          error : function (response){
+            toastr['error']("An error occurred");
+          }
+        })
+      }
+  });
+
+  $(document).on("click",".add_remark",function(e) {
+        e.preventDefault();
+        var thiss = $(this);
+        var plan_id = $(this).data('record_id');
+        var remark = $(`.remark-plan`+plan_id).val();
+        $.ajax({
+            type: "POST",
+            url: "{{ route('plan.reamrk.add') }}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              plan_id : plan_id,
+              remark : remark,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
+                $("#loading-image").hide();
+                toastr['success'](response.message);
+        }).fail(function (response) {
+            $("#loading-image").hide();
+            toastr['error'](response.message);
+        });
+    });
+
+    $(document).on("click",".show-plan-remark",function(e) {
+        e.preventDefault();
+        var record_id = $(this).data('record_id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('plan.remark.list') }}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              recordId : record_id,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
+                $("#loading-image").hide();
+                $("#plan-list-remark-modal").modal("show");
+                $(".plan-reamrk-list-view").html(response.data);
+                toastr['success'](response.message);
+        }).fail(function (response) {
+            toastr['error'](response.message);
+        });
     });
 
     //old code
