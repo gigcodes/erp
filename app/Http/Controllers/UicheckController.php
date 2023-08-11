@@ -2348,49 +2348,41 @@ class UicheckController extends Controller
                 ->leftJoin('users as u', 'u.id', 'uua.user_id')
                 ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
                 ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status');
+                ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status')
+                ->leftJoin('ui_device_builder_io_data_statuses as bs', 'bs.id', 'ui_device_builder_io_datas.status_id');
            
-                $webIds = request()->input('web_ids');
+            $webIds = request()->input('web_ids');
             if (is_array($webIds) && count($webIds) > 0) {
                 $builderDatas->whereIn('sw.id', $webIds);
             }
 
             $catIds = request()->input('cat_name');
             if (is_array($catIds) && count($catIds) > 0) {
-                $builderDatas->whereIn('uic.id', $catIds);
+                $builderDatas->whereIn('sdc.id', $catIds);
             }
 
-            $catIds = request()->input('cat_name');
-            if (is_array($catIds) && count($catIds) > 0) {
-                $builderDatas->whereIn('uic.id', $catIds);
+            $statusIds = request()->input('status');
+            if (is_array($statusIds) && count($statusIds) > 0) {
+                $builderDatas->whereIn('bs.id', $statusIds);
             }
 
-            
-            $builderDatas = $builderDatas->join('ui_device_builder_io_data_statuses as bs', 'bs.id', 'ui_device_builder_io_datas.status_id')
-            ->select(
+            $builderDatas = $builderDatas->select(
                 'ui_device_builder_io_datas.*', 
                 'uid.device_no', 
                 'sw.website', 
                 'sdc.title as category', 
                 'u.name', 
                 'uic.uicheck_type_id', 
-                'bs.color as status_color'
             );
-        
-            // Add filtering based on status parameter
-            $statusIds = request()->input('status');
-            if (is_array($statusIds) && count($statusIds) > 0) {
-                $builderDatas->whereIn('bs.id', $statusIds);
-            }
-        
-        $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
-            ->paginate(10);
-        
-        $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+    
+            $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
+                ->paginate(10);
+            
+            $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
 
-        $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
-        $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
-        $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
+            $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
+            $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
+            $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
 
         return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses','siteDevelopmentCategories','storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
