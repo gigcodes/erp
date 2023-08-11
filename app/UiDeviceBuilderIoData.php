@@ -48,4 +48,9 @@ class UiDeviceBuilderIoData extends Model
     {
         return $this->belongsTo(UiDevice::class);
     }
+
+    public function UiBuilderStatusColour()
+    {
+        return $this->belongsTo(UiDeviceBuilderIoDataStatus::class, 'status_id');
+    }
 }

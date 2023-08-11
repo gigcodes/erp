@@ -2348,24 +2348,50 @@ class UicheckController extends Controller
                 ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
                 ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                 ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status');
+           
+                $webIds = request()->input('web_ids');
+            if (is_array($webIds) && count($webIds) > 0) {
+                $builderDatas->whereIn('sw.id', $webIds);
+            }
 
-        $builderDatas = $builderDatas->select(
+            $catIds = request()->input('cat_name');
+            if (is_array($catIds) && count($catIds) > 0) {
+                $builderDatas->whereIn('uic.id', $catIds);
+            }
+
+            $catIds = request()->input('cat_name');
+            if (is_array($catIds) && count($catIds) > 0) {
+                $builderDatas->whereIn('uic.id', $catIds);
+            }
+
+            
+            $builderDatas = $builderDatas->join('ui_device_builder_io_data_statuses as bs', 'bs.id', 'ui_device_builder_io_datas.status_id')
+            ->select(
                 'ui_device_builder_io_datas.*', 
                 'uid.device_no', 
                 'sw.website', 
                 'sdc.title as category', 
                 'u.name', 
                 'uic.uicheck_type_id', 
-                'sds.color'
-            )
-            ->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
+                'bs.color as status_color'
+            );
+        
+            // Add filtering based on status parameter
+            $statusIds = request()->input('status');
+            if (is_array($statusIds) && count($statusIds) > 0) {
+                $builderDatas->whereIn('bs.id', $statusIds);
+            }
+        
+        $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
             ->paginate(10);
-
+        
         $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
 
         $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
+        $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
+        $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
 
-        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses','siteDevelopmentCategories','storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function getDeviceBuilderDatas(Request $request)
@@ -2522,10 +2548,14 @@ class UicheckController extends Controller
             'new_status_id' => $request->statusId,
         ]);
 
+        $statusColour = UiDeviceBuilderIoDataStatus::find($request->statusId);
+        $statusColour = $statusColour->color;
+
         return response()->json([
             'status' => true,
             'message' => 'Status Update successfully',
             'status_name' => 'success',
+            'colourCode' => $statusColour,
         ], 200);
     }
 

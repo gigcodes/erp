@@ -29,73 +29,54 @@
             <div class="pull-left">
                 <div class="form-group">
                     <div class="row">
-                        {{-- <form class="form-inline message-search-handler" method="get">
-                            <div class="form-group m-1">
-                                <?php 
-									if(request('category')){   $categoriesArr = request('category'); }
-									else{ $categoriesArr = ''; }
-								?>
-								<select name="category" id="store-categories" class="form-control select2">
-									<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
-									@forelse($siteDevelopmentCategories as $sdcId => $siteDevelopmentCategory)
-									<option value="{{ $sdcId }}" @if($categoriesArr==$sdcId) selected @endif>{!! $siteDevelopmentCategory !!}</option>
-									@empty
-									@endforelse
-								</select>
-                            </div>
-                            <div class="form-group m-1">
-                                <?php 
-									if(request('uicheck_type')){   $uicheck_type = request('uicheck_type'); }
-									else{ $uicheck_type = ''; }
-								?>
-								<select name="uicheck_type" id="uicheck-type" class="form-control select2">
-									<option value="" @if($uicheck_type=='') selected @endif>-- Select a type --</option>
-									@forelse($allUicheckTypes as $typeId => $uicheckType)
-									<option value="{{ $typeId }}" @if($uicheck_type==$typeId) selected @endif>{!! $uicheckType !!}</option>
-									@empty
-									@endforelse
-								</select>
-                            </div>
-                            <div class="form-group m-1">
-                                <?php 
-									if(request('status')){   $status = request('status'); }
-									else{ $status = ''; }
-								?>
-								<select name="status" id="status" class="form-control select2">
-									<option value="" @if($status=='') selected @endif>-- Select a status --</option>
-									@forelse($allStatus as $sId => $sName)
-									<option value="{{ $sId }}" @if($status==$sId) selected @endif>{!! $sName !!}</option>
-									@empty
-									@endforelse
-								</select>
-                            </div>
+                        <form class="form-inline message-search-handler" method="get" action="{{route('uicheck.device-builder-datas')}}">
 							<div class="form-group m-1">
-                                <?php 
-									if(request('user_name')){   $userNameArr = request('user_name'); }
-									else{ $userNameArr = []; }
-								?>
-								<select name="user_name[]" id="user_name" class="form-control select2" multiple>
-									<option value="" @if($userNameArr=='') selected @endif>-- Select a User --</option>
-									@forelse($allUsers as $uId => $uName)
-									<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
+                                <h5><b>Search website</b></h5>
+								<select name="web_ids[]" id="web_ids" class="form-control select2" multiple>
+									@forelse($storeWebsites as $uId => $storeWebsite)
+									<option value="{{  $storeWebsite->id}}" 
+                                        @if(is_array(request('web_ids')) && in_array( $storeWebsite->id, request('web_ids')))
+                                            selected
+                                        @endif >{{ $storeWebsite->website }}</option>
 									@empty
 									@endforelse
 								</select>
-                            </div>
-                           <div class="form-group sm-1">
-							<input name="daterange" type="text" class="form-control" value="" placeholder="Select Date Range" id="term">
-                            </div>
+                            </div> &nbsp;&nbsp;
+                            <div class="form-group m-1">
+                                <h5><b>Search Category</b></h5>
+								<select name="cat_name[]" id="cat_name" class="form-control select2" multiple>
+									@forelse($siteDevelopmentCategories as $sdcId => $siteDevelopmentCategory)
+                                    <option value="{{  $sdcId}}" 
+                                    @if(is_array(request('cat_name')) && in_array( $sdcId, request('cat_name')))
+                                        selected
+                                    @endif >{{ $siteDevelopmentCategory}}</option>
+                                                                        @empty
+									@endforelse
+								</select>
+                            </div>&nbsp;&nbsp;
+                            <div class="form-group sm-1">  
+                                <h5><b>Search Status</b></h5>                          
+                              <select name="status[]" id="status" class="form-control select2" multiple>
+                                    @forelse($getbuildStatuses as $uId => $status)
+                                    <option value="{{  $status->id}}" 
+                                        @if(is_array(request('status')) && in_array( $status->id, request('status')))
+                                            selected
+                                        @endif >{{ $status->name }}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                             </div>
                             <div class="form-group">
                                 <label for="button">&nbsp;</label>
                                 <button type="submit" style="display: inline-block;width: 10%"
                                     class="btn btn-sm btn-image btn-search-action">
                                     <img src="/images/search.png" style="cursor: default;">
                                 </button>
-                                <a href="/uicheck/device-logs" class="btn btn-image" id="">
+                                <a href="{{route('uicheck.device-builder-datas')}}" class="btn btn-image" id="">
 									<img src="/images/resend2.png" style="cursor: nwse-resize;">
 								</a>
                             </div>
-                        </form> --}}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -112,7 +93,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered" id="builder-data-list">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -133,7 +114,7 @@
                     </thead>
                     <tbody>
                         @foreach ($builderDatas as $key => $builderData)
-                            <tr>
+                            <tr data-id="{{ $builderData->id }}" style="background-color: {{$builderData->UiBuilderStatusColour?->color}};">
                                 <td>{{ ++$i }}</td>
                                 <td style="max-width: 150px">
                                     <div data-message="{{ $builderData->category }}" data-title="Category" style="cursor: pointer" class="showFullMessage">
@@ -441,8 +422,20 @@
                     toastr["success"](response.message);
                     location.reload();
                 },
-                error: function(xhr, status, error) { 
-                },
+                error: function(xhr, status, error) {
+                // Parse the JSON response
+                var response = xhr.responseJSON;
+                if (response && response.message) {
+                    toastr["error"](response.message);
+                } else {
+                    toastr["error"]("An error occurred.");
+                }
+                
+                // Hide the loading image on the save button
+                button.html("Save");
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
             });
         });
 
@@ -524,13 +517,17 @@
                     statusId : $('option:selected', this).val(),
                     buildId : $('option:selected', this).attr('data-id')
                 },
-                success : function (response){
-                    toastr["success"](response.message);
-                },
-                error : function (response){
-                    toastr["error"]("Oops,something went wrong");
+                success: function(response) {
+                toastr["success"](response.message);
+                var colourCode = response.colourCode;
+                
+                // Update the background color of the row
+                $(`#builder-data-list tr[data-id="${buildId}"]`).css('background-color', colourCode);
+            },
+                error: function(response) {
+                    toastr["error"]("Oops, something went wrong");
                 }
-                })
+              })
             }
         });
 
