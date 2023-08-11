@@ -7866,8 +7866,8 @@ if (!\Auth::guest()) {
     $(document).on('click', '.expand-row-dblist', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
-            $(this).find('.expand-row-dblist .td-mini-container').toggleClass('hidden');
-            $(this).find('.expand-row-dblist .td-full-container').toggleClass('hidden');
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
 
