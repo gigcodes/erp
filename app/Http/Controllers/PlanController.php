@@ -83,7 +83,8 @@ class PlanController extends Controller
                 PlanTypes::insert($data);
             }
 
-            $category = PlanCategories::find($request->category);
+            $category = PlanCategories::where('category',$request->category)->first();
+
             if (! $category) {
                 $data = [
                     'category' => $request->category,

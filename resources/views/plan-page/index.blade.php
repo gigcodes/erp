@@ -49,7 +49,7 @@ div#plan-action textarea {height: 200px;}
               <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                   <input name="date" type="date" class="form-control" value="{{ request('date') }}" placeholder="Search.." style="width:100%;">
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                 <select class="form-control" name="typefilter">
                     <option value="">Select Type</option>
                     @foreach($typeList as $value )
@@ -57,7 +57,7 @@ div#plan-action textarea {height: 200px;}
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                 <select class="form-control" name="categoryfilter">
                     <option value="">Select Category</option>
                     @foreach($categoryList as $value )
@@ -65,7 +65,7 @@ div#plan-action textarea {height: 200px;}
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                   <select class="form-control" name="priority">
                       <option value="">Select priority</option>
                       <option value="high">High</option>
@@ -73,7 +73,7 @@ div#plan-action textarea {height: 200px;}
                       <option value="low">Low</option>
                   </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                   <select class="form-control" name="status">
                       <option value="">Select status</option>
                       <option value="complete">complete</option>
@@ -132,20 +132,19 @@ div#plan-action textarea {height: 200px;}
                 <td class="Website-task" style="vertical-align:middle">{{$record->sub_subject}}</td>
                 <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
                 <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
-                <td width="15%" style="vertical-align:middle">
-                    <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
-                        <?php
-                            if($record->description) {
-                                echo (strlen($record->description) > 12) ? substr($record->description, 0, 10).".." : $record->description;
-                            }
-                         ?>
-                     </span>
-                </td>              
-                <td class="Website-task"style="vertical-align:middle">{{$record->basis}}</td>
                 <td style="vertical-align:middle">{{$record->budget}}</td>
-                <td style="vertical-align:middle">{{$record->priority}}</td>
-
+                <td class="Website-task"style="vertical-align:middle">{{$record->basis}}</td>
                 <td class="Website-task"style="vertical-align:middle">{{$record->implications}}</td>
+                <td style="vertical-align:middle">{{$record->priority}}</td>
+                <td width="15%" style="vertical-align:middle">
+                  <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
+                      <?php
+                          if($record->description) {
+                              echo (strlen($record->description) > 12) ? substr($record->description, 0, 10).".." : $record->description;
+                          }
+                       ?>
+                   </span>
+              </td>   
                 <td>
                   <div style="width: 100%;">
                     <div class="d-flex">
@@ -890,8 +889,10 @@ div#plan-action textarea {height: 200px;}
     $(document).on("click",".plan-action",function(ele) {
         var id = $(this).data('id');
         $("#plan-action").find('input[name="id"]').attr('value',id);
+        var url = '{{ route("plan.action.addons", ":id") }}';
+        url = url.replace(':id', id);      
         $.ajax({
-            url: "/plan/"+id+"/plan-action-addons",
+            url: url,
             beforeSend: function () {
                 $("#loading-image").show();
             }
@@ -906,8 +907,10 @@ div#plan-action textarea {height: 200px;}
     });
     $(document).on("click",".show-solutions",function(ele) {
       var id = $(this).data('id');
+      var url = '{{ route("plan.show.solutions", ":id") }}';
+      url = url.replace(':id', id);
       $.ajax({
-          url: "/plan/plan-action/solutions-get/"+id,
+          url: url,
           beforeSend: function () {
               $("#loading-image").show();
           }
@@ -933,7 +936,7 @@ div#plan-action textarea {height: 200px;}
           if($(this).val().length > 0){
             $.ajax({
                 type: 'POST',
-                url: "/plan/plan-action/solutions-store",
+                url: "{{ route('plan.solution.store') }}",
                 data: {
                   _token: "{{ csrf_token() }}",
                   solution: $(this).val(),
@@ -991,7 +994,7 @@ div#plan-action textarea {height: 200px;}
         let formData = new FormData(form);
         $.ajax({
             type: 'POST',
-            url: "/plan/plan-action/store",
+            url: "{{route('plan.action.store')}}",
             data: formData,
             contentType: false,
             processData: false,

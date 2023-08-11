@@ -5016,10 +5016,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('/{id}/update', [PlanController::class, 'update'])->name('plan.update');
         Route::get('/delete/{id}', [PlanController::class, 'delete'])->name('plan.delete');
         Route::get('/{id}/plan-action', [PlanController::class, 'planAction']);
-        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn']);
-        Route::post('/plan-action/store', [PlanController::class, 'planActionStore']);
-        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore']);
-        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet']);
+        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn'])->name('plan.action.addons');
+        Route::post('/plan-action/store', [PlanController::class, 'planActionStore'])->name('plan.action.store');
+        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore'])->name('plan.solution.store');
+        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet'])->name('plan.show.solutions');
 
         Route::post('plan/basis/create', [PlanController::class, 'newBasis'])->name('plan.create.basis');
         Route::post('plan/type/create', [PlanController::class, 'newType'])->name('plan.create.type');
