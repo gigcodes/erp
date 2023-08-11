@@ -20,9 +20,12 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
+
     <div class="row">
         <div class="col-lg-12 margin-tb">
+
             <h2 class="page-heading">Builder Datas</h2>
+            @include('partials.flash_messages')
             <div class="pull-left">
                 <div class="form-group">
                     <div class="row">
@@ -96,10 +99,15 @@
                     </div>
                 </div>
             </div>
+            <div class="col-12">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#buildStatusList"> List Status </button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#buildStatusCreate"> Create Status </button>      
+                </div>
+            </div>
         </div>
     </div>
 
-    @include('partials.flash_messages')
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -206,6 +214,75 @@
             </div>
         </div>
     </div>
+
+    <div id="buildStatusCreate" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                
+                <form id="build_status_create_form" class="form mb-15" >
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Build Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Status Name :</strong>
+                        {!! Form::text('name', null, ['placeholder' => 'Status Name', 'id' => 'name', 'class' => 'form-control', 'required' => 'required']) !!}
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Status Color :</strong>
+                        <input type="color" name="color" class="form-control"  id="color" value="" style="height:30px;padding:0px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Add</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="buildStatusList" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">List Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="{{ route('uicheck.device-builder.status.color.update') }}" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <div class="form-group col-md-12">
+                        <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                            <tr>
+                                <td class="text-center"><b>Status Name</b></td>
+                                <td class="text-center"><b>Color Code</b></td>
+                                <td class="text-center"><b>Color</b></td>
+                            </tr>
+                            <?php
+                            foreach ($getbuildStatuses as $status) { ?>
+                            <tr>
+                                <td>&nbsp;&nbsp;&nbsp;<?php echo $status->name; ?></td>
+                                <td class="text-center"><?php echo $status->color; ?></td>
+                                <td class="text-center"><input type="color" name="color_name[<?php echo $status->id; ?>]" class="form-control" data-id="<?php echo $status->id; ?>" id="color_name_<?php echo $status->id; ?>" value="<?php echo $status->color; ?>" style="height:30px;padding:0px;"></td>
+                            </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
 @endsection
 @section('scripts')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -264,5 +341,35 @@
                 $("#loading-image").hide();
             });
         }
+
+        $(document).on('submit', '#build_status_create_form', function(e){
+            e.preventDefault();
+            var self = $(this);
+            let formData = new FormData(document.getElementById("build_status_create_form"));
+            var button = $(this).find('[type="submit"]');
+            $.ajax({
+                url: '{{ route("uicheck.device-builder.status.store") }}',
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                beforeSend: function() {
+                    button.html(spinner_html);
+                    button.prop('disabled', true);
+                    button.addClass('disabled');
+                },
+                success: function(response) {
+                    $('#buildStatusCreate #build_status_create_form').trigger('reset');
+                    toastr["success"](response.message);
+                    location.reload();
+                },
+                error: function(xhr, status, error) { 
+                    toastr["error"](response.message);
+                },
+            });
+    });
     </script>
 @endsection

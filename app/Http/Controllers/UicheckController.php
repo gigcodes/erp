@@ -50,6 +50,8 @@ use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\UiDeviceBuilderIoDataDownloadHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Illuminate\Support\Facades\Validator;
+use App\UiDeviceBuilderIoDataStatus;
 
 class UicheckController extends Controller
 {
@@ -2348,7 +2350,9 @@ class UicheckController extends Controller
 
         $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
 
-        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 10);
+        $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
+
+        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function getDeviceBuilderDatas(Request $request)
@@ -2394,5 +2398,52 @@ class UicheckController extends Controller
             ->get();
 
         return view('uicheck.device-builder-download-history', compact('downloadHistory'));
+    }
+
+    public function deviceBuilderStatusStore (Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:ui_device_builder_io_data_statuses,name',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'status_name' => 'error',
+            ], 422);
+        }
+
+        $input = $request->except(['_token']);
+
+        $data = UiDeviceBuilderIoDataStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Status Created Successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something Error Occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+    public function deviceBuilderStatusColorUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = UiDeviceBuilderIoDataStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

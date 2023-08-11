@@ -4225,6 +4225,9 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
         Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
+        Route::post('device-builder-status-store', [UicheckController::class, 'deviceBuilderStatusStore'])->name('uicheck.device-builder.status.store');
+        Route::post('device-builder-status-update', [UicheckController::class, 'deviceBuilderStatusColorUpdate'])->name('uicheck.device-builder.status.color.update');
+
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
