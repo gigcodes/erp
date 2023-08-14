@@ -4199,10 +4199,14 @@ Route::middleware('auth')->group(function () {
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::get('get-device-builder-datas', [UicheckController::class, 'getDeviceBuilderDatas'])->name('uicheck.get-device-builder-datas');
+        Route::get('device-builder-datas', [UicheckController::class, 'deviceBuilderDatas'])->name('uicheck.device-builder-datas');
         Route::get('get-builder-html/{id}', [UicheckController::class, 'getBuilderHtml'])->name('uicheck.get-builder-html');
         Route::get('get-builder-download-html/{id}', [UicheckController::class, 'getBuilderDownloadHtml'])->name('uicheck.get-builder-download-html');
         Route::get('get-builder-download-history/{id}', [UicheckController::class, 'getBuilderDownloadHistory'])->name('uicheck.get-builder-download-history');
         Route::post('fetch-device-builder-data', [UicheckController::class, 'fetchDeviceBuilderData'])->name('uicheck.fetch-device-builder-data');
+        Route::post('device-builder-datas/store-remark', [UicheckController::class, 'storeBuilderDataRemark'])->name('uicheck.store.builder-data-remark');
+        Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
+        Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
@@ -4224,6 +4228,11 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
         Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
+        Route::post('device-builder-status-store', [UicheckController::class, 'deviceBuilderStatusStore'])->name('uicheck.device-builder.status.store');
+        Route::post('device-builder-status-update', [UicheckController::class, 'deviceBuilderStatusColorUpdate'])->name('uicheck.device-builder.status.color.update');
+        Route::post('device-change-status', [UicheckController::class, 'updateDeviceUpdateStatus'])->name('uicheck.device.update.status');
+        Route::get('device-builder-datas/get-statuss/{id}', [UicheckController::class, 'getBuilderDataStatus'])->name('uicheck.get.builder-data-status');
+
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');

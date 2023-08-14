@@ -1876,7 +1876,7 @@ class StoreWebsiteController extends Controller
         }
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' 2>&1';
-        $filename = '.env';
+        $filename = 'env.php'; // because from command it returns env.php in url. So need to use same filename.
         if ($type == 'db') {
             $filename = $storeWebsite->database_name . '.sql';
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' -d ' . $storeWebsite->database_name . ' 2>&1';

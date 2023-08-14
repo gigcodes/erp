@@ -4255,6 +4255,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{ route('project.index') }}">Projects</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessLogs') }}">Project Build Process Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessErrorLogs') }}">Project Build Process Error Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('project-theme.index') }}">Project Themes</a>
                                             </li>
                                             <li class="nav-item dropdown">
@@ -7834,7 +7840,7 @@ if (!\Auth::guest()) {
             html += "<td>" + (dberrorlist.server_name !== null ? dberrorlist.server_name : "") + "</td>";
             html += "<td>" + (dberrorlist.instance !== null ? dberrorlist.instance : "") + "</td>";
             html += "<td>" + (dberrorlist.database_name !== null ? dberrorlist.database_name : "") + "</td>";
-            html += "<td class='expand-row' style='word-break: break-all'>";
+            html += "<td class='expand-row-dblist' style='word-break: break-all'>";
            if (dberrorlist.error) {
             html += "<span class='td-mini-container'>" + (dberrorlist.error.length > 15 ? dberrorlist.error.substr(0, 15) + '...' : dberrorlist.error) + "</span>";
             html += "<span class='td-full-container hidden'>" + dberrorlist.error + "</span>";
@@ -7863,7 +7869,7 @@ if (!\Auth::guest()) {
         });
     }
 
-    $(document).on('click', '.expand-row', function () {
+    $(document).on('click', '.expand-row-dblist', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
             $(this).find('.td-mini-container').toggleClass('hidden');
