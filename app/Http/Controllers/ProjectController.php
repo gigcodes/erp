@@ -536,14 +536,11 @@ class ProjectController extends Controller
         $projects = \App\Models\Project::select('name', 'id')->get();
         $users = \App\User::select('name', 'id')->get();
 
-        $reqproject = $request->projects ?? [];
-        $reqorganizations = $request->organizations ?? [];
-        $reqrepoids = $request->repo_ids ?? [];
-        $requsers = $request->users ?? [];
+        $store_websites = StoreWebsite::get()->pluck('title', 'id');
+        $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
+        $projecttype = ProjectType::get()->pluck('name', 'id');
+
         $reqstatus = $request->status ?? [];
-        $reqsBuildNumber = $request->search_build_number ?? ' ';
-        $reqsBuildName = $request->search_build_name ?? ' ';
-        $reqsBranchName = $request->search_branch_name ?? ' ';
 
         if ($id) {
             $responseValue = $responseLogs->where('store_website_id', $id)->get();
@@ -645,7 +642,7 @@ class ProjectController extends Controller
             }
         }
 
-        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqproject', 'reqorganizations', 'reqrepoids', 'requsers', 'reqstatus', 'reqsBuildNumber', 'reqsBuildName', 'reqsBranchName'));
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqstatus','store_websites','serverenvs','projecttype'));
     }
 
     // Old concept in modal popup
