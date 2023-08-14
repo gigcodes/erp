@@ -10,6 +10,7 @@ use App\Models\PlanAction;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\PlanRemarkHistory;
 
 class PlanController extends Controller
 {
@@ -82,7 +83,8 @@ class PlanController extends Controller
                 PlanTypes::insert($data);
             }
 
-            $category = PlanCategories::find($request->category);
+            $category = PlanCategories::where('category',$request->category)->first();
+
             if (! $category) {
                 $data = [
                     'category' => $request->category,
@@ -394,4 +396,47 @@ class PlanController extends Controller
 
         return response()->json(['code' => 500, 'message' => 'Data not found!']);
     }
+
+    public function changeStatusCategory(Request $request)
+    {
+        $plan = Plan::where('id', $request->plan_id)->first();
+        $plan->status = $request->status;
+        $plan->update();
+
+        return response()->json(['code' => 500, 'message' => 'Status Update Successfully!']);
+    }
+
+    public function addPlanRemarks(Request $request)
+    {
+        $plan = Plan::where('id', $request->plan_id)->first();
+        $plan->remark = $request->remark;
+        $plan->save();
+
+        $planRemarkhistory = new PlanRemarkHistory();
+        $planRemarkhistory->plan_id = $request->plan_id;
+        $planRemarkhistory->remarks = $request->remark;
+        $planRemarkhistory->user_id = \Auth::id();
+        $planRemarkhistory->save();
+
+        return response()->json(['code' => 500, 'message' => 'Remark Added Successfully!']);
+    }
+
+
+    public function getRemarkList(Request $request)
+    {
+        $taskRemarkData = PlanRemarkHistory::where('plan_id', '=', $request->recordId)->get();
+
+        $html = '';
+        foreach ($taskRemarkData as $taskRemark) {
+            $html .= '<tr>';
+            $html .= '<td>' . $taskRemark->id . '</td>';
+            $html .= '<td>' . $taskRemark->user->name . '</td>';
+            $html .= '<td>' . $taskRemark->remarks . '</td>';
+            $html .= '<td>' . $taskRemark->created_at . '</td>';
+            $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remarks . "'></i></td>";
+        }
+
+        return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
+    }
+
 }
