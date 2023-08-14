@@ -13,7 +13,7 @@ class SiteDevelopmentCategory extends Model
     /**
      * @var string
      */
-    protected $fillable = ['title', 'master_category_id'];
+    protected $fillable = ['title', 'master_category_id', 'builder_io'];
 
     public function development()
     {
@@ -33,5 +33,10 @@ class SiteDevelopmentCategory extends Model
         }
 
         return $development->first();
+    }
+
+    public function masterCategory()
+    {
+        return $this->belongsTo(SiteDevelopmentMasterCategory::class, 'master_category_id');
     }
 }

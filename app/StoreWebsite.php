@@ -115,6 +115,7 @@ class StoreWebsite extends Model
         'working_directory',
         'database_name',
         'instance_number',
+        'builder_io_api_key',
     ];
 
     const DB_CONNECTION = [

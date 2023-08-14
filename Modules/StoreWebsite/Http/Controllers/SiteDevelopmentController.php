@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use App\SiteDevelopmentCategory;
 use Illuminate\Routing\Controller;
 use App\SiteDevelopmentArtowrkHistory;
+use App\SiteDevelopmentCategoryBuilderIoHistory;
 use App\SiteDevelopmentMasterCategory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -1255,7 +1256,7 @@ class SiteDevelopmentController extends Controller
         $allCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
+        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_development_categories.builder_io', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
             DB::raw('count(site_developments.id) as cnt')
         )
             ->joinSub($site_dev, 'site_dev', function ($join) {
@@ -1309,5 +1310,40 @@ class SiteDevelopmentController extends Controller
         }
 
         return response()->json(['code' => 200, 'messages' => 'Master Categories Saved Sucessfully']);
+    }
+
+    public function updateBuilderIO(Request $request)
+    {
+        $id = $request->input('id');
+        $selectedValue = $request->input('selectedValue');
+
+        $siteDevelopmentCategory = SiteDevelopmentCategory::findOrFail($id);
+
+        $history = new SiteDevelopmentCategoryBuilderIoHistory();
+        $history->site_development_category_id = $id;
+        $history->old_value = $siteDevelopmentCategory->builder_io;
+        $history->new_value = $selectedValue;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $siteDevelopmentCategory->builder_io = $selectedValue;
+        $siteDevelopmentCategory->save();
+
+        return response()->json(['message' => 'Updated successfully']);
+    }
+
+    public function builderIOHistories($id)
+    {
+        $datas = SiteDevelopmentCategoryBuilderIoHistory::with(['user'])
+                ->where('site_development_category_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
