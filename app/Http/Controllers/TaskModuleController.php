@@ -92,18 +92,20 @@ class TaskModuleController extends Controller
             $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
+           
+            $userIdsString = implode(',', $userid);
 
-            $searchMasterUserId = $userid;
+            $searchMasterUserId = $userIdsString;
             if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
             }
 
-            $searchSecondMasterUserId = $userid;
+            $searchSecondMasterUserId = $userIdsString;
             if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_to IN (' . $userIdsString . ') OR master_user_id IN (' . $searchMasterUserId . ') OR  second_master_user_id IN (' . $searchSecondMasterUserId . ') OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id IN (' . $userIdsString . ') AND type LIKE "%User%")) ';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
