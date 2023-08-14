@@ -160,7 +160,7 @@
 
     @include('partials.flash_messages')
 
-    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
+    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task ({{$issues->total()}})</p>
     @if (auth()->user()->isReviwerLikeAdmin())
         <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
     @endif
