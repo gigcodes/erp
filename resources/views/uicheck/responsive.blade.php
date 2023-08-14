@@ -241,7 +241,7 @@
 				<button class="btn btn-secondary my-3" data-toggle="modal1" data-target="#list-user-access-modal1" onclick="listUserAccess()"> User Access </button>
 				<button class="btn btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
 				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
-				<button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
+				{{-- <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp; --}}
 				{{-- <label for="usr">Show Inactive Records:</label>
 				<input type="checkbox" id="show_lock_rec" name="show_lock_rec" value="1" style="height: 13px;" {{ $show_inactive ? 'checked="checked"' : '' }}> --}}
 				@endif
@@ -282,11 +282,11 @@
 						@php
 							$deviceBgColors =  array_fill(1, 10, '#ffffff');
 
-							if (isset($uiDevData->uichecks) && isset($uiDevData->uichecks->uiDevice)) {
-								foreach ($uiDevData->uichecks->uiDevice as $device) {
+							if (isset($uiDevData->uichecks) && $uiDevData->uichecks->uiDevices($uiDevData->user_id)) {
+								foreach ($uiDevData->uichecks->uiDevices($uiDevData->user_id) as $device) {
 									$deviceNo = $device->device_no;
-									if (isset($device->lastUpdatedHistory) && $device->lastUpdatedHistory->status != ''){
-										$color = $device->lastUpdatedHistory->stausColor->color;
+									if (isset($device->stausColor) && $device->status != ''){
+										$color = $device->stausColor->color;
 										if ($color != '')
 											$deviceBgColors[$deviceNo] = $color;
 									}
@@ -336,8 +336,8 @@
 									$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
 									$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
 								?>
-								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
+								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}">
+									<?php echo Form::select("statuschanges",[ "" => "-- Select --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:100% !important;float: left;"]); ?>
 									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button>
 								</td>
 							
@@ -352,6 +352,12 @@
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '1')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="1"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="1"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage2{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['2']}} !important" />
@@ -362,6 +368,12 @@
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="2" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '2')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
+									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="2"></i>
 									</button>
 								</td>
 								<td>
@@ -374,6 +386,12 @@
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '3')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="3"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage4{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['4']}} !important" />
@@ -384,6 +402,12 @@
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="4" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '4')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
+									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="4"></i>
 									</button>
 								</td>
 								<td>
@@ -396,6 +420,12 @@
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '5')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="5"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage6{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['6']}} !important" />
@@ -407,6 +437,12 @@
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '6')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
 									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="6"></i>
+									</button>
 								</td>
 								<td>
 									<input type="text"  name="uidevmessage7{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}{{$uiDevData->user_accessable_user_id}}" style="margin-top: 0px; width: 100% !important;background-color: {{$deviceBgColors['7']}} !important" />
@@ -417,6 +453,12 @@
 									<button title="Estimated Time" class="btn pr-0 btn-xs btn-image showDevice" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-device_no="7" data-uicheck_id="{{$uiDevData->uicheck_id}}"><i class="fa fa-hourglass-start" aria-hidden="true"></i></button>
 									<button type="button" title="Update Approve Status" onclick="updateIsApprove(this, '{{$uiDevData->uicheck_id}}', '7')" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-toggle-off"></i>
+									</button>
+									<button type="button" title="Fetch Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-refresh fetch-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7"></i>
+									</button>
+									<button type="button" title="Get Builder Data" class="btn" style="padding: 0px 1px;">
+										<i class="fa fas fa-info-circle get-builder-data" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="7"></i>
 									</button>
 								</td>
 								{{-- <td>
@@ -599,7 +641,7 @@
 								<th width="10%" style="word-break: break-all;">Expected start time</th>
 								<th width="10%" style="word-break: break-all;">Expected completion time</th>
 								<th width="10%" style="word-break: break-all;">Estimated Time</th>
-								<th width="15%" style="word-break: break-all;">Status</th>
+								{{-- <th width="15%" style="word-break: break-all;">Status</th> --}}
 								<th width="15%">Created at</th>
 							</tr>
 						</thead>
@@ -773,6 +815,42 @@
     </div>
 </div>
 
+<!-- Modal for history -->
+<div class="modal fade" id="getBuilderDataModal" tabindex="-1" role="dialog" aria-labelledby="getBuilderDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getBuilderDataModalLabel">History Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- History data fetched via AJAX will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for download history -->
+<div class="modal fade" id="downloadHistoryModal" tabindex="-1" role="dialog" aria-labelledby="downloadHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downloadHistoryModalLabel">Download History</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Download history data fetched via AJAX will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -872,6 +950,12 @@
 		var uicheck_id = $(this).parent().data('uicheck_id');
 		var device_no = $(this).parent().data('device_no');
 		var old_status = $(this).parent().data('old_status');
+		var user_access_user_id = $(this).parent().data("user_accessable_user_id");
+
+		if (!id) {
+			toastr['error']("Id not found, Some issue in this record. Status not changed");
+			return;
+		}
 
 		var status = $(this).val();
 
@@ -884,6 +968,7 @@
 				device_no : device_no,
 				old_status : old_status,
 				status: status,
+				update_status_all_device: true,
 				"_token": "{{ csrf_token() }}",
 			},
 			beforeSend: function() {
@@ -893,6 +978,11 @@
 				if (response.code == 200) {
 					//$(".statuschanges").val("");
 					toastr['success'](response.message);
+					window.location.reload();
+					//update respective td background
+					var dynamicClass = '.uidevmessage' + device_no + uicheck_id + user_access_user_id;
+					// $(dynamicClass).parent('td').css("background-color",response.data);
+					$(dynamicClass).css("background-color",response.data);
 				} else {
 					toastr['error'](response.message);
 				}
@@ -1518,6 +1608,8 @@
 		var status_id = $(this).val();
 		var deviceno = $(this).data("deviceno");
 		var uicheckid = $(this).data("uicheckid");
+		var user_access_user_id = $(this).data("user_access_user_id");
+
 		if(confirm("Are you sure you want to change status?")) {
 			$.ajax({
 			url: "{{route('uicheck.device.status')}}",
@@ -1535,7 +1627,7 @@
 			toastr["success"](response.message);
 
 			//update respective td background
-			var dynamicClass = '.uidevmessage' + deviceno + uicheckid;
+			var dynamicClass = '.uidevmessage' + deviceno + uicheckid + user_access_user_id;
 			// $(dynamicClass).parent('td').css("background-color",response.data);
 			$(dynamicClass).css("background-color",response.data);
 
@@ -1754,6 +1846,87 @@
 				toastr["error"](errObj.responseJSON.message);
 			});
 		})
+
+		$('.fetch-builder-data').click(function() {
+			var $this = $(this);
+
+			var uicheckId = $this.data('uicheck_id');
+			var deviceNo = $this.data('device_no');
+			var user_access_user_id = $this.data('user_accessable_user_id');
+
+			jQuery.ajax({
+				headers: {
+					'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+				},
+				url: "/uicheck/fetch-device-builder-data",
+				type: 'POST',
+				data: {
+					deviceNo : deviceNo,
+					uicheckId : uicheckId,
+					user_access_user_id: user_access_user_id
+				},
+				beforeSend: function() {
+					//jQuery("#loading-image").show();
+				}
+			}).done(function(response) {
+				toastr["success"](response.message);
+				//mdl.find('tbody').html(response.html);
+				//mdl.modal("show");
+			}).fail(function(errObj) {
+				console.log(errObj);
+				$this.removeClass('text-danger');
+				toastr["error"](errObj.responseJSON.message);
+			});
+		})
+
+		$('.get-builder-data').click(function() {
+			var $this = $(this);
+
+			var uicheckId = $this.data('uicheck_id');
+			var deviceNo = $this.data('device_no');
+			var user_access_user_id = $this.data('user_accessable_user_id');
+
+			jQuery.ajax({
+				headers: {
+					'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+				},
+				url: "/uicheck/get-device-builder-datas",
+				type: 'GET',
+				data: {
+					deviceNo : deviceNo,
+					uicheckId : uicheckId,
+					user_access_user_id: user_access_user_id
+				},
+				beforeSend: function() {
+					//jQuery("#loading-image").show();
+				}
+			}).done(function(response) {
+				$('#getBuilderDataModal .modal-body').html(response);
+				$('#getBuilderDataModal').modal('show');
+				//mdl.find('tbody').html(response.html);
+				//mdl.modal("show");
+			}).fail(function(errObj) {
+				console.log(errObj);
+				$this.removeClass('text-danger');
+				toastr["error"](errObj.responseJSON.message);
+			});
+		})
+
+		$(document).on('click', '.show-download-history', function() {
+            var dataId = $(this).data('data-id');
+
+            $.ajax({
+                url: '/uicheck/get-builder-download-history/' + dataId,
+                method: 'GET',
+                success: function(response) {
+                    $('#downloadHistoryModal .modal-body').html(response);
+                    $('#downloadHistoryModal').modal('show');
+                },
+                error: function() {
+                    alert('Error fetching download history data.');
+                }
+            });
+        });
 	});
 </script>
 

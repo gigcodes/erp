@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GitHubBranchState;
-use App\Github\GithubOrganization;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Helpers\GithubTrait;
 use Illuminate\Console\Command;
+use App\Github\GitHubBranchState;
+use App\Github\GithubOrganization;
 
 class LoadBranchState extends Command
 {
@@ -58,11 +58,11 @@ class LoadBranchState extends Command
 
             $organizations = GithubOrganization::get();
 
-            foreach($organizations as $organization){
+            foreach ($organizations as $organization) {
                 $organizationId = $organization->name;
                 $userName = $organization->username;
                 $token = $organization->token;
-                
+
                 $repositoryIds = $this->getAllRepositoriesIds($organizationId, $userName, $token);
 
                 $repoBranches = [];
@@ -81,10 +81,10 @@ class LoadBranchState extends Command
                         $comparison = $this->compareRepoBranches($userName, $token, $repoId, $branch);
                         $filters = [
                             'state' => 'all',
-                            'head' => $organizationId.":".$branch
+                            'head' => $organizationId . ':' . $branch,
                         ];
                         $pullRequests = $this->pullRequests($userName, $token, $repoId, $filters);
-                        if(!empty($pullRequests) && count($pullRequests) > 0){
+                        if (! empty($pullRequests) && count($pullRequests) > 0) {
                             $pullRequest[$repoId][$branch] = $pullRequests[0];
                         }
                         $comparisons[$repoId][$branch] = $comparison;
@@ -94,7 +94,7 @@ class LoadBranchState extends Command
                 foreach ($comparisons as $repoId => $branches) {
                     $branchNames = [];
                     foreach ($branches as $branchName => $comparison) {
-                        $this->info($repoId." : ".$branchName);
+                        $this->info($repoId . ' : ' . $branchName);
                         GithubBranchState::updateOrCreate(
                             [
                                 'repository_id' => $repoId,
@@ -106,7 +106,7 @@ class LoadBranchState extends Command
                                 'branch_name' => $branchName,
                                 'ahead_by' => $comparison['ahead_by'],
                                 'behind_by' => $comparison['behind_by'],
-                                'status' => !empty($pullRequest[$repoId]) && !empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : "",
+                                'status' => ! empty($pullRequest[$repoId]) && ! empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : '',
                                 'last_commit_author_username' => $comparison['last_commit_author_username'],
                                 'last_commit_time' => $comparison['last_commit_time'],
                             ]
@@ -130,9 +130,9 @@ class LoadBranchState extends Command
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
         return $githubClient;
     }
@@ -141,10 +141,10 @@ class LoadBranchState extends Command
     {
         $repositories = [];
 
-        try{
+        try {
             //https://api.github.com/orgs/ludxb/repos
             // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
-            $url = 'https://api.github.com/orgs/'.$organizationId.'/repos';
+            $url = 'https://api.github.com/orgs/' . $organizationId . '/repos';
 
             $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -158,8 +158,7 @@ class LoadBranchState extends Command
                 },
                 $repositories
             );
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             //
         }
 
@@ -171,7 +170,7 @@ class LoadBranchState extends Command
         $allBranchNames = [];
         try {
             //https://api.github.com/repositories/:repoId/branches
-            $url = 'https://api.github.com/repositories/'.$repoId.'/branches';
+            $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
             // $headResponse = $this->githubClient->head($url);
 
             $githubClient = $this->connectGithubClient($userName, $token);
@@ -216,8 +215,8 @@ class LoadBranchState extends Command
 
                 // $response = $this->githubClient->get($url . '?page=' . $page);
 
-                $response = $githubClient->get($url.'?page='.$page);
-    
+                $response = $githubClient->get($url . '?page=' . $page);
+
                 $branches = json_decode($response->getBody()->getContents());
 
                 $branchNames = array_map(

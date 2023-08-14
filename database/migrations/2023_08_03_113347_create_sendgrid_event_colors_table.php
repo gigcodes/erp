@@ -1,9 +1,9 @@
 <?php
 
-use Database\Seeders\SendgridEventColorTableSeeder;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use Database\Seeders\SendgridEventColorTableSeeder;
 
 class CreateSendgridEventColorsTable extends Migration
 {
@@ -17,12 +17,12 @@ class CreateSendgridEventColorsTable extends Migration
         Schema::create('sendgrid_event_colors', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string("name");
-            $table->string("color")->nullable();
+            $table->string('name');
+            $table->string('color')->nullable();
         });
 
         Artisan::call('db:seed', [
-            '--class' => SendgridEventColorTableSeeder::class
+            '--class' => SendgridEventColorTableSeeder::class,
         ]);
     }
 

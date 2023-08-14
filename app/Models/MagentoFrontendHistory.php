@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
 use App\SiteDevelopmentCategory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoFrontendHistory extends Model
 {
@@ -13,8 +13,7 @@ class MagentoFrontendHistory extends Model
 
     public $table = 'magento_frontend_histories';
 
-
-    protected $fillable = ['magento_frontend_docs_id','store_website_category_id', 'location',  'admin_configuration','frontend_configuration','updated_by'];
+    protected $fillable = ['magento_frontend_docs_id', 'store_website_category_id', 'location',  'admin_configuration', 'frontend_configuration', 'updated_by'];
 
     public function storeWebsiteCategory()
     {

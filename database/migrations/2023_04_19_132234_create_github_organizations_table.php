@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateGithubOrganizationsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateGithubOrganizationsTable extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('username')->nullable();
-            $table->string('token','1048')->nullable();
+            $table->string('token', '1048')->nullable();
             $table->timestamps();
         });
     }

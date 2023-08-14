@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class ModifiedChatMessage extends Migration
 {
@@ -14,8 +14,8 @@ class ModifiedChatMessage extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->boolean("is_auto_simulator")->default(0)->nullable();
-            $table->boolean("send_by_simulator")->default(0)->nullable();
+            $table->boolean('is_auto_simulator')->default(0)->nullable();
+            $table->boolean('send_by_simulator')->default(0)->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class ModifiedChatMessage extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->dropColumn("is_auto_simulator");
-            $table->dropColumn("send_by_simulator");
+            $table->dropColumn('is_auto_simulator');
+            $table->dropColumn('send_by_simulator');
         });
     }
 }

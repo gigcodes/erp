@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-#use App\Models\Theme;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+//use App\Models\Theme;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemeFile extends Model
 {
@@ -24,9 +24,9 @@ class ThemeFile extends Model
     {
         return $this->belongsTo(ProjectTheme::class, 'theme_id', 'id');
     }
-    
+
     public function folder()
     {
-       return $this->belongsTo(ThemeStructure::class, 'parent_id');
+        return $this->belongsTo(ThemeStructure::class, 'parent_id');
     }
 }

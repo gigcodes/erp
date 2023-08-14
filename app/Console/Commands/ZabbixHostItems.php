@@ -5,9 +5,9 @@ namespace App\Console\Commands;
 use App\Host;
 use App\HostItem;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ZabbixHistory;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class ZabbixHostItems extends Command
 {
@@ -140,7 +140,7 @@ class ZabbixHostItems extends Command
     {
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST'). '/api_jsonrpc.php';
+        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
         $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',

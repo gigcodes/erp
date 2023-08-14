@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateCodeShortCutsTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateCodeShortCutsTable extends Migration
             $table->integer('user_id');
             $table->integer('supplier_id');
             $table->string('code');
-            $table->string('description');           
+            $table->string('description');
             $table->timestamps();
         });
     }

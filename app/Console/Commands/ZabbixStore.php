@@ -5,9 +5,8 @@ namespace App\Console\Commands;
 use App\Host;
 use App\HostItem;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use App\LogRequest;
-
+use Illuminate\Console\Command;
 
 class ZabbixStore extends Command
 {

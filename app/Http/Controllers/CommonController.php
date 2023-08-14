@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use App\Email;
+use App\Vendor;
 use App\Charity;
 use App\Customer;
-use App\Email;
-use App\User;
+use App\Supplier;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
 use App\Mails\Manual\PurchaseEmail;
-use App\Order;
-use App\Supplier;
-use App\Vendor;
 
 class CommonController extends Controller
 {
@@ -354,23 +353,23 @@ class CommonController extends Controller
         //$multi_id = explode(',',$request->id);
         // $multi_email = explode(',', $request->sendto);
         $objects = [
-            "vendor"=> Vendor::class,
-            "user"=> User::class,
-            "supplier"=> Supplier::class,
-            "customer"=> Customer::class,
-            "charity"=> Charity::class,
+            'vendor' => Vendor::class,
+            'user' => User::class,
+            'supplier' => Supplier::class,
+            'customer' => Customer::class,
+            'charity' => Charity::class,
         ];
         $multi_email = [];
-        if(isset($request->send_to) && count($request->send_to) > 0){
+        if (isset($request->send_to) && count($request->send_to) > 0) {
             $multi_email = $request->send_to;
         }
-        
+
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'send_to' => 'required',
             'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email'
+            'bcc.*' => 'nullable|email',
         ]);
         try {
             foreach ($multi_email as $data) {
@@ -449,7 +448,7 @@ class CommonController extends Controller
                 }
 
                 $email = Email::create($params);
-                
+
                 \App\EmailLog::create(
                     [
                         'email_id' => $email->id,
@@ -457,13 +456,14 @@ class CommonController extends Controller
                         'message' => $email->to,
                     ]
                 );
-                
+
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
             }
+
             return redirect()->back()->withSuccess('You have successfully sent email!');
-            
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return redirect()->back()->withErrors($msg);
             // return response()->json(['code' => 500, 'message' => $msg]);
         }

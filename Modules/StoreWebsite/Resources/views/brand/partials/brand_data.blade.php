@@ -22,15 +22,17 @@ foreach($brands as $brand) {
 		$checked = (isset($apppliedResult[$brand->id]) && in_array($swid, $apppliedResult[$brand->id])) ? "checked" : ""; 
 	?>
 		<td>
-			<input id="<?php echo $brand->id.$swid; ?>" data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
+			<div style="display: flex; align-items: center; gap: 5px;">
+			<input style="margin: 0;" id="<?php echo $brand->id.$swid; ?>" data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
 			<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history btn p-0">
-				<i class="fa fa-info-circle icon-log-history" aria-hidden="true"></i>
+				<i style="margin: 0 !important;" class="fa fa-info-circle icon-log-history" aria-hidden="true"></i>
 			</a>
 			<br>
 			<span>
 				@php $magentoStoreBrandId = $brand->storewebsitebrand($swid); @endphp
 				{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
 			</span>
+			<div>
 		</td>
 	<?php 
 	} 

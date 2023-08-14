@@ -35,7 +35,7 @@ class AssetsManager extends Model
      * @SWG\Property(property="due_date",type="datetime")
      */
     protected $fillable = [
-        'name', 'capacity', 'asset_type', 'category_id', 'start_date', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency', 'usage', 'due_date', 'user_name', 'assigned_to', 'ip', 'ip_name', 'folder_name', 'server_password', 'website_id', 'asset_plate_form_id', 'email_address_id', 'whatsapp_config_id', 'created_by', 'link', 'ip','client_id'];
+        'name', 'capacity', 'asset_type', 'category_id', 'start_date', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency', 'usage', 'due_date', 'user_name', 'assigned_to', 'ip', 'ip_name', 'folder_name', 'server_password', 'website_id', 'asset_plate_form_id', 'email_address_id', 'whatsapp_config_id', 'created_by', 'link', 'ip', 'client_id'];
 
     public function category()
     {
@@ -52,7 +52,7 @@ class AssetsManager extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class,'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public static function assertTypeList()

@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\WhatsAppOfficialController;
-use App\Marketing\WhatsappBusinessAccounts;
 use App\Setting;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use App\Marketing\WhatsappBusinessAccounts;
+use App\Http\Controllers\WhatsAppOfficialController;
 
 class WhatsappBusinessAccountController extends Controller
 {
     /**
      * Get all whatsapp business account.
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
@@ -30,13 +30,12 @@ class WhatsappBusinessAccountController extends Controller
                 });
             }
         })->paginate(Setting::get('pagination'), '*', 'whatsapp_accounts');
+
         return view('marketing.whatsapp-business-accounts.index', compact('whatsappBusinessAccounts'));
     }
 
     /**
      * Create a whatsapp business account
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function createAccount(Request $request): RedirectResponse
     {
@@ -46,7 +45,7 @@ class WhatsappBusinessAccountController extends Controller
                 'business_account_id' => 'required',
                 'business_access_token' => 'required',
                 'business_phone_number_id' => 'required',
-                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png'
+                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('whatsapp.business.account.index')
@@ -63,6 +62,7 @@ class WhatsappBusinessAccountController extends Controller
             $whatsappApiController = new WhatsAppOfficialController($account->id);
             $whatsappApiController->updateBusinessProfile($request->all());
             $request->file('profile_picture_url')->getPathname();
+
             return Redirect::route('whatsapp.business.account.index')
                 ->with('success', 'Whatsapp business account added successfully');
         } catch (\Exception $e) {
@@ -73,15 +73,14 @@ class WhatsappBusinessAccountController extends Controller
 
     /**
      * Update a whatsapp business account
-     * @param Request $request
+     *
      * @param $id
-     * @return RedirectResponse
      */
     public function updateAccount(Request $request): RedirectResponse
     {
         try {
             $whatsappBusinessAccount = WhatsappBusinessAccounts::find($request->edit_id);
-            if (!$whatsappBusinessAccount) {
+            if (! $whatsappBusinessAccount) {
                 return Redirect::route('whatsapp.business.account.index')
                     ->with('error', 'No account found');
             }
@@ -90,7 +89,7 @@ class WhatsappBusinessAccountController extends Controller
                 'business_account_id' => 'required',
                 'business_access_token' => 'required',
                 'business_phone_number_id' => 'required',
-                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png'
+                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('whatsapp.business.account.index')
@@ -105,6 +104,7 @@ class WhatsappBusinessAccountController extends Controller
             $whatsappBusinessAccount->save();
             $whatsappApiController = new WhatsAppOfficialController($whatsappBusinessAccount->id);
             $whatsappApiController->updateBusinessProfile($request->all());
+
             return Redirect::route('whatsapp.business.account.index')
                 ->with('success', 'Whatsapp business account updated successfully');
         } catch (\Exception $e) {
@@ -115,19 +115,17 @@ class WhatsappBusinessAccountController extends Controller
 
     /**
      * Delete a whatsapp business account
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function deleteAccount(Request $request, $id): RedirectResponse
     {
         try {
             $whatsappBusinessAccount = WhatsappBusinessAccounts::find($id);
-            if (!$whatsappBusinessAccount) {
+            if (! $whatsappBusinessAccount) {
                 return Redirect::route('whatsapp.business.account.index')
                     ->with('error', 'No account found');
             }
             $whatsappBusinessAccount->delete();
+
             return Redirect::route('whatsapp.business.account.index')
                 ->with('success', 'Whatsapp business account deleted successfully');
         } catch (\Exception $e) {
@@ -138,17 +136,15 @@ class WhatsappBusinessAccountController extends Controller
 
     /**
      * Get the account by id
-     * @param Request $request
-     * @param         $id
-     * @return JsonResponse
      */
     public function getAccount(Request $request, $id): JsonResponse
     {
         try {
             $account = WhatsappBusinessAccounts::findOrFail($id);
-            if (!$account) {
+            if (! $account) {
                 return response()->json(['status' => false, 'message' => 'Account not found']);
             }
+
             return response()->json(['status' => true, 'message' => 'Account found', 'data' => $account->toArray()]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);

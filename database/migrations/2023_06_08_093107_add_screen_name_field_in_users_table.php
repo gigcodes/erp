@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddScreenNameFieldInUsersTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddScreenNameFieldInUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string("screen_name")->nullable();
+            $table->string('screen_name')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddScreenNameFieldInUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn("screen_name");
+            $table->dropColumn('screen_name');
         });
     }
 }

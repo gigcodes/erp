@@ -20,6 +20,7 @@ class MagnetoLocationHistory extends Model
     {
         return $this->belongsTo(MagentoModuleLocation::class, 'new_location_id');
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

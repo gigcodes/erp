@@ -14,6 +14,7 @@ use App\Setting;
 use App\Category;
 use App\Supplier;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\ScrapApiLog;
 use App\ScrapeQueues;
 use App\StoreWebsite;
@@ -37,7 +38,6 @@ use App\Services\Products\ProductsCreator;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Products\GnbProductsCreator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class ScrapController extends Controller
 {
@@ -2044,7 +2044,7 @@ class ScrapController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'restartNode');
             curl_close($curl);
-            
+
             if ($response) {
                 return response()->json(['code' => 200, 'message' => 'Script Restarted']);
             } else {
@@ -2095,7 +2095,7 @@ class ScrapController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getStatus');
             curl_close($curl);
-           
+
             if ($response) {
                 $re = '/\d+/m';
                 $str = $response;
@@ -2132,7 +2132,7 @@ class ScrapController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'updateNode');
             curl_close($curl);
-            
+
             $duration = json_decode($response);
             $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null;
             if ($response) {
@@ -2357,9 +2357,7 @@ class ScrapController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\ScrapController::class, 'getLatestLog');
 
-
             curl_close($curl);
-            
 
             if (! empty($response)) {
                 $response = json_decode($response);

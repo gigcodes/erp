@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\StoreWebsite;
 use App\ChatbotTypeErrorLog;
 use Illuminate\Http\Request;
-use App\StoreWebsite;
 
 class ChatbotTypeErrorLogController extends Controller
 {
@@ -19,8 +19,8 @@ class ChatbotTypeErrorLogController extends Controller
         $query = $query->select('chatbot_type_error_logs.id AS chatId', 'chatbot_type_error_logs.call_sid', 'chatbot_type_error_logs.type_error', 'store_websites.website', 'chatbot_type_error_logs.phone_number');
         $query = $query->leftJoin('store_websites', 'store_websites.id', '=', 'chatbot_type_error_logs.store_website_id');
         // $query =  $query->leftJoin('chatbot_questions', 'chatbot_questions.id', '=', 'chatbot_type_error_logs.chatbot_id');
-        $storeWebsites = StoreWebsite::Select('id','website')->get();
-        
+        $storeWebsites = StoreWebsite::Select('id', 'website')->get();
+
         if ($request->id) {
             $query = $query->where('chatbot_type_error_logs.id', $request->id);
         }
@@ -49,7 +49,7 @@ class ChatbotTypeErrorLogController extends Controller
             ], 200);
         }
 
-        return view('chatboat-type-error-log.index', compact('data','storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('chatboat-type-error-log.index', compact('data', 'storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     /**

@@ -45,20 +45,20 @@ class SendDailyPlannerReport extends Command
      */
     public function handle()
     {
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report was added."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report was added.']);
 
             $users_array = [6, 7, 56];
             $planned_tasks = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->whereNull('is_completed')->whereIn('assign_to', $users_array)->orderBy('time_slot', 'ASC')->get()->groupBy(['assign_to', 'time_slot']);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Planned Task query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Planned Task query finished.']);
 
             $statutory = Task::where('is_statutory', 1)->whereNull('is_verified')->whereIn('assign_to', $users_array)->get()->groupBy('assign_to');
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Statutory Task query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Statutory Task query finished.']);
 
             $daily_activities = DailyActivity::where('for_date', Carbon::now()->format('Y-m-d'))->whereIn('user_id', $users_array)->get()->groupBy(['user_id', 'time_slot']);
 
@@ -119,15 +119,15 @@ class SendDailyPlannerReport extends Command
             foreach ($time_slots as $user_id => $data) {
                 if ($user = User::find($user_id)) {
                     Mail::to('yogeshmordani@icloud.com')->send(new SendDailyActivityReport($user, $data));
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => "Mail sent."]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Mail sent.']);
                     // Mail::to('vysniukass@gmail.com')->send(new SendDailyActivityReport($user, $data));
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report endtime updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-        } catch(\Exception $e){
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -203,7 +203,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     left: 130px;
     }
     #database-backup-monitoring .database-alert-badge{
-        left: 310px;
+        left: 360px;
     }
     .red-alert-badge {
         position: absolute;
@@ -215,6 +215,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         color: white;
         height: 10px;
         width: 10px;
+    }
+
+    #view-quick-email .modal-body {
+      max-height: 500px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
     }
 
     </style>
@@ -594,7 +599,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <!-- email-search Modal-->
     <div id="menu-email-search-model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg"  role="document">
+        <div class="modal-dialog modal-xl"  role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Email Search</h4>
@@ -619,26 +624,46 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <th>Date</th>
                                         <th>Sender</th>
                                         <th>Receiver</th>
-                                        <th>Subject</th>
-                                        <th>Body</th>
+                                        <th>Subject & Body</th>
                                         <th>Action</th>
+                                        <th>Read</th>
                                     </tr>
                                     </thead>
                                     <tbody class="email_search_result">
                                         @php
-                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                           $userEmails = \App\Email::where('seen', '0')
+                                                        ->orderBy('created_at', 'desc')
+                                                        ->latest()
+                                                        ->take(20)
+                                                        ->get();
                                         @endphp
                                         @foreach ($userEmails as $key => $userEmail)
                                             <tr>
                                                 <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
-                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->from) > 30 ? substr($userEmail->from, 0, 15).'...' :  $userEmail->from }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->from }}
+                                                    </span>
+                                                </td>
+                                                <td class="expand-row-email" style="word-break: break-all">
+                                                    <span class="td-mini-email-container">
+                                                       {{ strlen($userEmail->to) > 30 ? substr($userEmail->to, 0,15).'...' :  $userEmail->to }}
+                                                    </span>
+                                                    <span class="td-full-email-container hidden">
+                                                        {{ $userEmail->to }}
+                                                    </span>
+                                                </td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
                                                 </a></td>
+                                                <td>
+                                                    <input type="checkbox" name="email_read" id="is_email_read" value="1" data-id="{{ $userEmail->id }}" onclick="updateReadEmail(this)">
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -647,6 +672,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-quick-email" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Email</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                  </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Subject : </strong><span id="quickemailSubject"></span> </p>
+                <p><strong>Message : </strong><span id="quickmessage"></span></p>
+                <iframe src="" id="iframe" scrolling="yes" style="width:100%;" frameborder="0" onload="autoIframe('iframe');"></iframe>
+            </div>
             </div>
         </div>
     </div>
@@ -853,7 +896,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $dbBackupList = \App\Models\DatabaseBackupMonitoring::where('is_resolved', 0)->count();
                                     @endphp
-                                    <a title="database-backup-monitoring" type="button" id="database-backup-monitoring" class="quick-icon" style="padding: 0px 1px;"><span>
+                                    <a title="database backup monitoring" type="button" id="database-backup-monitoring" class="quick-icon" style="padding: 0px 1px;"><span>
                                         <i class="fa fa-home fa-2x" aria-hidden="true"></i>
                                         @if ($dbBackupList)
                                         <span class="database-alert-badge"></span>
@@ -934,6 +977,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Create Documentation" type="button" id="create-documents" class="quick-icon" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="vouchers"  type="button" class="quick-icon vochuers" id="add-vochuer" style="padding: 0px 1px;"><span>
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -2909,6 +2954,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('store-website.apiToken') }}">Store Website API Token</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.builderApiKey') }}">Store Website Builder Key</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item"
                                             href="{{ route('payment-responses.index') }}">Payment Responses</a>
                                     </li>
@@ -3762,6 +3810,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('quick.email.list') }}">Quick Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
@@ -5788,6 +5839,21 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     })
 
+    $(document).on('click', '.expand-row-email', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-email-container').toggleClass('hidden');
+            $(this).find('.td-full-email-container').toggleClass('hidden');
+        }
+    });
+
+    function openQucikMsg(userEmail) {
+        $('#iframe').attr('src', "");
+        var userEmaillUrl = '/email/email-frame/'+userEmail.id;
+        $('#quickemailSubject').html(userEmail.subject);
+        $('#iframe').attr('src', userEmaillUrl);
+    }
+    
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
         table = document.getElementById("database-table-list1");
@@ -7736,7 +7802,8 @@ if (!\Auth::guest()) {
         $('#create-event-modal').modal('show');
     });
 
-    $(document).on('click','#database-backup-monitoring',function(e){        e.preventDefault();
+    $(document).on('click','#database-backup-monitoring',function(e){      
+        e.preventDefault();
         $('#db-errors-list-modal').modal('show');
         getdbbackupList(1);
     });
@@ -7764,16 +7831,24 @@ if (!\Auth::guest()) {
             var sNo = startIndex + index + 1; 
             html += "<tr>";
             html += "<td>" + sNo + "</td>";
-            html += "<td>" + dberrorlist.server_name + "</td>";
-            html += "<td>" + dberrorlist.instance + "</td>";
-            html += "<td>" + dberrorlist.database_name + "</td>";
-            html += "<td class='expand-row' style='word-break: break-all'>";
+            html += "<td>" + (dberrorlist.server_name !== null ? dberrorlist.server_name : "") + "</td>";
+            html += "<td>" + (dberrorlist.instance !== null ? dberrorlist.instance : "") + "</td>";
+            html += "<td>" + (dberrorlist.database_name !== null ? dberrorlist.database_name : "") + "</td>";
+            html += "<td class='expand-row-dblist' style='word-break: break-all'>";
+           if (dberrorlist.error) {
             html += "<span class='td-mini-container'>" + (dberrorlist.error.length > 15 ? dberrorlist.error.substr(0, 15) + '...' : dberrorlist.error) + "</span>";
             html += "<span class='td-full-container hidden'>" + dberrorlist.error + "</span>";
+            } else {
+                html += "";
+            }
             html += "</td>";
             html += "<td><input type='checkbox' name='is_resolved' value='1' data-id='" + dberrorlist.id + "' onchange='updateIsResolved(this)'></td>";
-            html += "<td>" + dberrorlist.date + "</td>";
-            html += "<td>" + dberrorlist.status + "</td>";
+            html += "<td>" + (dberrorlist.date !== null ? dberrorlist.date : "") + "</td>";
+            if (dberrorlist.db_status_colour) {
+                html += "<td>" + dberrorlist.db_status_colour.name + "</td>";
+            } else {
+                html += "";
+            }
             html += "</tr>";
           });
           $(".db-list").html(html);
@@ -7788,6 +7863,13 @@ if (!\Auth::guest()) {
         });
     }
 
+    $(document).on('click', '.expand-row-dblist', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     function renderPagination(data) {
           var paginationContainer = $(".pagination-container");
@@ -7830,7 +7912,27 @@ if (!\Auth::guest()) {
 			});	
 		};
 
-		
+
+		function updateReadEmail(checkbox) {
+			var emailId = checkbox.getAttribute('data-id');
+			$.ajax({	
+                url: '{{route('website.email.update')}}',
+                type: 'GET',
+                headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+				data: {
+					id: emailId
+				},
+				success: function(response) {
+                    toastr["success"](response.message, "Message");
+				},
+				error: function(xhr, status, error) {
+					alert("Error occured.please try again");
+				}
+			});	
+	    };
+
 
     $(document).on('click','#jenkins-build-status',function(e){
         e.preventDefault();
