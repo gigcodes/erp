@@ -540,7 +540,15 @@ class ProjectController extends Controller
         $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
         $projecttype = ProjectType::get()->pluck('name', 'id');
 
+       
+        $reqproject = $request->projects ?? [];
+        $reqorganizations = $request->organizations ?? [];
+        $reqrepoids = $request->repo_ids ?? [];
+        $requsers = $request->users ?? [];
         $reqstatus = $request->status ?? [];
+        $reqsBuildNumber = $request->search_build_number ?? ' ';
+        $reqsBuildName = $request->search_build_name ?? ' ';
+        $reqsBranchName = $request->search_branch_name ?? ' ';
 
         if ($id) {
             $responseValue = $responseLogs->where('store_website_id', $id)->get();
@@ -642,7 +650,7 @@ class ProjectController extends Controller
             }
         }
 
-        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqstatus','store_websites','serverenvs','projecttype'));
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users','reqproject' ,'reqorganizations','reqrepoids','requsers','reqstatus','store_websites','serverenvs','projecttype'));
     }
 
     // Old concept in modal popup
