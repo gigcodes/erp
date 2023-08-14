@@ -376,6 +376,8 @@ use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
+use App\Http\Controllers\DeploymentVersionController;
+
 
 Auth::routes();
 
@@ -5509,3 +5511,9 @@ Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('
 Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
 Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
 Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');
+
+Route::middleware('auth')->group(function () {
+    Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
+    Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
+    Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
+});
