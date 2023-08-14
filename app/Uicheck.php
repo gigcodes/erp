@@ -70,4 +70,14 @@ class Uicheck extends Model
     {
         return $this->hasMany(UiDevice::class, 'uicheck_id', 'id')->where('user_id', $userId)->count();
     }
+
+    public function storeWebsite()
+    {
+        return $this->belongsTo(StoreWebsite::class, 'website_id', 'id');
+    }
+
+    public function siteDevelopmentCategory()
+    {
+        return $this->belongsTo(SiteDevelopmentCategory::class, 'site_development_category_id', 'id');
+    }
 }

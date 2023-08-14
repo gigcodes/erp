@@ -84,32 +84,48 @@
 			</div>
 			<div class="col-md-6 pull-right">
 				<form>
-					<div class="col-md-4">
-						<select name="store_webs" class="form-control select2">
+					<div class="col-md-3">
+						<label for ="storeWebsite" >Select websites</label>
+						<select name="store_webs[]" class="form-control select2" multiple="true">
 							<option value="">-- Select a website --</option>
 							@forelse($all_store_websites as $asw)
 								<option value="{{ $asw->id }}" 
-								@if($search_website == $asw->id) 
+								@if(is_array(request('store_webs')) && in_array($asw->id, request('store_webs')))
 									selected	
 								@endif>{{ $asw->title }}</option>
 							@empty
 							@endforelse
 						</select>
 					</div>
-					<div class="col-md-4">
-						<select name="categories" class="form-control select2">
+					<div class="col-md-3">
+						<label for ="storeWebsite" >Select Categories</label>
+						<select name="categories[]" class="form-control select2" multiple="true">
 							<option value="">-- Select a categories --</option>
 							@forelse($categories as $ct)
 								<option value="{{ $ct->id }}" 
-								@if($search_category == $ct->id) 
-								selected	
+									@if(is_array(request('categories')) && in_array($ct->id, request('categories')))
+									selected
 								@endif>{{ $ct->title }}</option>
 							@empty
 							@endforelse
 						</select>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-3">
+						<label for ="storeWebsite" >Select Master categories</label>
+						<select name="master_cat[]" class="form-control select2" multiple="true">
+							<option value="">-- Select a Master categories --</option>
+							@forelse($master_categories as $masterCat)
+								<option value="{{ $masterCat->id }}" 
+									@if(is_array(request('master_cat')) && in_array($masterCat->id, request('master_cat')))
+									selected	
+								@endif>{{ $masterCat->title }}</option>
+							@empty
+							@endforelse
+						</select>
+					</div>
+					<div class="col-md-2"><br>
 						<button type="submit" class="btn btn-secondary">Search</button>
+						<a href="{{route('site-asset.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
 				</form>
 			</div>
@@ -129,6 +145,7 @@
 					<tr>
 						<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
 						<th width="10%">Categories</th>
+						<th width="10%">Master Categories</th>
 						@foreach($store_websites as $sw) 
 							<th>{{ $sw->title }}</th>
 						@endforeach

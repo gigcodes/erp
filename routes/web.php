@@ -533,7 +533,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
-    Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
@@ -3083,6 +3083,8 @@ Route::middleware('auth')->group(function () {
     Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
     Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
     Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+    Route::post('time-doctor/validate', [TimeDoctorController::class, 'updateValidate'])->name('time-doctor.updateValidate');
+    Route::Post('time-doctor/due-date/list', [TimeDoctorController::class, 'getduedateHistory'])->name('time-doctor.due-date-history.get');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -4198,6 +4200,15 @@ Route::middleware('auth')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
+        Route::get('get-device-builder-datas', [UicheckController::class, 'getDeviceBuilderDatas'])->name('uicheck.get-device-builder-datas');
+        Route::get('device-builder-datas', [UicheckController::class, 'deviceBuilderDatas'])->name('uicheck.device-builder-datas');
+        Route::get('get-builder-html/{id}', [UicheckController::class, 'getBuilderHtml'])->name('uicheck.get-builder-html');
+        Route::get('get-builder-download-html/{id}', [UicheckController::class, 'getBuilderDownloadHtml'])->name('uicheck.get-builder-download-html');
+        Route::get('get-builder-download-history/{id}', [UicheckController::class, 'getBuilderDownloadHistory'])->name('uicheck.get-builder-download-history');
+        Route::post('fetch-device-builder-data', [UicheckController::class, 'fetchDeviceBuilderData'])->name('uicheck.fetch-device-builder-data');
+        Route::post('device-builder-datas/store-remark', [UicheckController::class, 'storeBuilderDataRemark'])->name('uicheck.store.builder-data-remark');
+        Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
+        Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
@@ -4219,6 +4230,11 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
         Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
+        Route::post('device-builder-status-store', [UicheckController::class, 'deviceBuilderStatusStore'])->name('uicheck.device-builder.status.store');
+        Route::post('device-builder-status-update', [UicheckController::class, 'deviceBuilderStatusColorUpdate'])->name('uicheck.device-builder.status.color.update');
+        Route::post('device-change-status', [UicheckController::class, 'updateDeviceUpdateStatus'])->name('uicheck.device.update.status');
+        Route::get('device-builder-datas/get-statuss/{id}', [UicheckController::class, 'getBuilderDataStatus'])->name('uicheck.get.builder-data-status');
+
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -5012,14 +5028,18 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('/{id}/update', [PlanController::class, 'update'])->name('plan.update');
         Route::get('/delete/{id}', [PlanController::class, 'delete'])->name('plan.delete');
         Route::get('/{id}/plan-action', [PlanController::class, 'planAction']);
-        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn']);
-        Route::post('/plan-action/store', [PlanController::class, 'planActionStore']);
-        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore']);
-        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet']);
+        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn'])->name('plan.action.addons');
+        Route::post('/plan-action/store', [PlanController::class, 'planActionStore'])->name('plan.action.store');
+        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore'])->name('plan.solution.store');
+        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet'])->name('plan.show.solutions');
 
         Route::post('plan/basis/create', [PlanController::class, 'newBasis'])->name('plan.create.basis');
         Route::post('plan/type/create', [PlanController::class, 'newType'])->name('plan.create.type');
         Route::post('plan/category/create', [PlanController::class, 'newCategory'])->name('plan.create.category');
+        Route::post('plan/status/update', [PlanController::class, 'changeStatusCategory'])->name('plan.status.update');
+        Route::post('plan/add/remark', [PlanController::class, 'addPlanRemarks'])->name('plan.reamrk.add');
+        Route::post('plan/list/remark', [PlanController::class, 'getRemarkList'])->name('plan.remark.list');
+
     });
 });
 Route::middleware('auth')->group(function () {
@@ -5461,6 +5481,11 @@ Route::post('/whitelist-ip', [IpLogController::class, 'whitelistIP'])->name('whi
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
 Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');
+Route::post('database/backup/store-status', [DatabaseBackupMonitoringController::class, 'storeDbStatus'])->name('db-store-status');
+Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
+Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
+
+
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
 

@@ -34,6 +34,7 @@ use App\UiCheckCommunication;
 use App\UicheckLangAttchment;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentStatus;
+use App\UiDeviceBuilderIoData;
 use App\UiCheckAssignToHistory;
 use App\UiCheckIssueHistoryLog;
 use App\SiteDevelopmentCategory;
@@ -43,10 +44,17 @@ use App\UiResponsivestatusHistory;
 use App\UiTranslatorStatusHistory;
 use Illuminate\Routing\Controller;
 use App\UiDeveloperStatusHistoryLog;
+use Illuminate\Support\Facades\Http;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\Task;
+use App\UiDeviceBuilderIoDataDownloadHistory;
+use App\UiDeviceBuilderIoDataRemarkHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Illuminate\Support\Facades\Validator;
+use App\UiDeviceBuilderIoDataStatusHistory;
+use App\UiDeviceBuilderIoDataStatus;
 
 class UicheckController extends Controller
 {
@@ -1210,7 +1218,7 @@ class UicheckController extends Controller
             $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
 
-            return view('uicheck.device-logs', compact('uiDevices', 'siteDevelopmentCategories', 'allUsers', 'allStatus', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 5);
+            return view('uicheck.device-logs', compact('uiDevices', 'siteDevelopmentCategories', 'allUsers', 'allStatus', 'allUicheckTypes'))->with('i', ($request->input('page', 1) - 1) * 10);
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -2256,5 +2264,358 @@ class UicheckController extends Controller
         }
 
         return response()->json(['messages' => 'Not changed', 'code' => 500]);
+    }
+
+    public function fetchDeviceBuilderData(Request $request)
+    {
+        try {
+            $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->where('user_id', '=', $request->user_access_user_id)->first();
+            if (! $uiDevice) {
+                return response()->json(['message' => 'Device not found'], 400);
+            }
+
+            $uiCheckStoreWebsiteWithbuilderAPIKey = Uicheck::where('id', $request->uicheckId)->whereHas('storeWebsite', function ($store_website) {
+                $store_website->whereNotNull('builder_io_api_key')->orWhere('builder_io_api_key', '<>', '');
+            })->first();
+
+            if (! $uiCheckStoreWebsiteWithbuilderAPIKey) {
+                return response()->json(['message' => 'API key not found for this website'], 400);
+            }
+
+            $apiKey = $uiCheckStoreWebsiteWithbuilderAPIKey->storeWebsite->builder_io_api_key;
+
+            $baseUrl = 'https://cdn.builder.io/api/v1/html/page';
+            $url = $uiCheckStoreWebsiteWithbuilderAPIKey->siteDevelopmentCategory->title;
+            // $url = "/home"; // Testing purpose only, once all good remove this variable.
+            $device = 'device ' . $uiDevice->device_no;
+
+            $response = Http::get("$baseUrl?apiKey=$apiKey&url=$url&device=$device");
+
+            if ($response->successful()) {
+                $responseData = json_decode($response->body(), true);
+
+                // Check if a record with the same lastUpdated value exists
+                $existingRecord = UiDeviceBuilderIoData::where([
+                    'uicheck_id' => $uiDevice->uicheck_id,
+                    'ui_device_id' => $uiDevice->id,
+                    'title' => $responseData['data']['title'],
+                    'builder_last_updated' => $responseData['lastUpdated'],
+                ])->first();
+
+                if (! $existingRecord) {
+                    // Check "Fetched" Status exists. Otherwise create & use. 
+                    $fetchedStatus = UiDeviceBuilderIoDataStatus::firstOrCreate(['name' =>  "Fetched"]);
+                    
+                    $builderIoData = UiDeviceBuilderIoData::create([
+                        'uicheck_id' => $uiDevice->uicheck_id,
+                        'ui_device_id' => $uiDevice->id,
+                        'title' => $responseData['data']['title'],
+                        'html' => $responseData['data']['html'],
+                        'builder_created_date' => $responseData['createdDate'],
+                        'builder_last_updated' => $responseData['lastUpdated'],
+                        'builder_created_by' => $responseData['createdBy'],
+                        'builder_last_updated_by' => $responseData['lastUpdatedBy'],
+                        'status_id' => $fetchedStatus->id
+                    ]);
+
+                    UiDeviceBuilderIoDataStatusHistory::create([
+                        'ui_device_builder_io_data_id' => $builderIoData->id,
+                        'user_id' => \Auth::id(),
+                        'old_status_id' => null,
+                        'new_status_id' => $fetchedStatus->id,
+                    ]);
+
+                    return response()->json(['message' => 'Data saved successfully']);
+                } else {
+                    return response()->json(['message' => 'Data fetched already up to date, No new entry.'], 400);
+                }
+            } else {
+                return response()->json(['message' => 'Error fetching data from Builder.io'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred.'], 500);
+        }
+    }
+
+    public function deviceBuilderDatas(Request $request)
+    {
+        $builderDatas = UiDeviceBuilderIoData::join('ui_devices as uid', 'uid.id', 'ui_device_builder_io_datas.ui_device_id')
+                ->join('uichecks as uic', 'uic.id', 'ui_device_builder_io_datas.uicheck_id')
+                ->leftJoin('uicheck_user_accesses as uua', function ($join) {
+                    $join->on('uid.uicheck_id', '=', 'uua.uicheck_id')
+                         ->on('uid.user_id', '=', 'uua.user_id');
+                })
+                ->leftJoin('users as u', 'u.id', 'uua.user_id')
+                ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status')
+                ->leftJoin('ui_device_builder_io_data_statuses as bs', 'bs.id', 'ui_device_builder_io_datas.status_id');
+           
+            $webIds = request()->input('web_ids');
+            if (is_array($webIds) && count($webIds) > 0) {
+                $builderDatas->whereIn('sw.id', $webIds);
+            }
+
+            $catIds = request()->input('cat_name');
+            if (is_array($catIds) && count($catIds) > 0) {
+                $builderDatas->whereIn('sdc.id', $catIds);
+            }
+
+            $statusIds = request()->input('status');
+            if (is_array($statusIds) && count($statusIds) > 0) {
+                $builderDatas->whereIn('bs.id', $statusIds);
+            }
+
+            $builderDatas = $builderDatas->select(
+                'ui_device_builder_io_datas.*', 
+                'uid.device_no', 
+                'sw.website', 
+                'sdc.title as category', 
+                'u.name', 
+                'uic.uicheck_type_id', 
+            );
+    
+            $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
+                ->paginate(10);
+            
+            $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+
+            $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
+            $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
+            $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
+
+        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses','siteDevelopmentCategories','storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    public function getDeviceBuilderDatas(Request $request)
+    {
+        $uiDevice = UiDevice::where('uicheck_id', '=', $request->uicheckId)->where('device_no', '=', $request->deviceNo)->where('user_id', '=', $request->user_access_user_id)->first();
+        if (! $uiDevice) {
+            return response()->json(['message' => 'Device not found'], 400);
+        }
+
+        $history = UiDeviceBuilderIoData::where('uicheck_id', $uiDevice->uicheck_id)->where('ui_device_id', $uiDevice->id)->get();
+
+        return view('uicheck.device-builder-datas', compact('history'));
+    }
+
+    public function getBuilderHtml($id)
+    {
+        $data = UiDeviceBuilderIoData::findOrFail($id);
+
+        return view('uicheck.device-builder-html', compact('data'));
+    }
+
+    public function getBuilderDownloadHtml($id)
+    {
+        $data = UiDeviceBuilderIoData::findOrFail($id);
+
+        // Log the download
+        $log = new UiDeviceBuilderIoDataDownloadHistory();
+        $log->user_id = auth()->id(); // Assuming you have authentication in place
+        $log->ui_device_builder_io_data_id = $data->id;
+        $log->downloaded_at = now();
+        $log->save();
+
+        $filename = $data->title . '.html';
+
+        return response($data->html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function getBuilderDownloadHistory($dataId)
+    {
+        $downloadHistory = UiDeviceBuilderIoDataDownloadHistory::where('ui_device_builder_io_data_id', $dataId)
+            ->get();
+
+        return view('uicheck.device-builder-download-history', compact('downloadHistory'));
+    }
+
+    public function deviceBuilderStatusStore (Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:ui_device_builder_io_data_statuses,name',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'status_name' => 'error',
+            ], 422);
+        }
+
+        $input = $request->except(['_token']);
+
+        $data = UiDeviceBuilderIoDataStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Status Created Successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something Error Occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+    
+    public function storeBuilderDataRemark(Request $request)
+    {
+        $input = $request->except(['_token']);
+        if ($request->remarks == '') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please enter remarks',
+                'status_name' => 'error',
+            ], 500);
+        }
+
+        $input['user_id'] = Auth::user()->id;
+
+        $remarkHistory = UiDeviceBuilderIoDataRemarkHistory::create($input);
+
+        if ($remarkHistory) {
+            UiDeviceBuilderIoData::where('id', $request->ui_device_builder_io_data_id)->update(['remarks' => $request->remarks]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Remark added successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Remark added unsuccessfully',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+    public function deviceBuilderStatusColorUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = UiDeviceBuilderIoDataStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+    
+    public function getBuilderDataRemarks($id)
+    {
+        $remarks = UiDeviceBuilderIoDataRemarkHistory::with(['user'])
+            ->where('ui_device_builder_io_data_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function updateDeviceUpdateStatus(Request $request)
+    {
+        $uiBuild = UiDeviceBuilderIoData::find($request->buildId);
+        $oldStatusId = $uiBuild->status_id;
+        $uiBuild->status_id = $request->statusId;
+        $uiBuild->save();
+
+
+        UiDeviceBuilderIoDataStatusHistory::create([
+            'ui_device_builder_io_data_id' => $request->buildId,
+            'user_id' => \Auth::id(),
+            'old_status_id' => $oldStatusId,
+            'new_status_id' => $request->statusId,
+        ]);
+
+        $statusColour = UiDeviceBuilderIoDataStatus::find($request->statusId);
+        $statusColour = $statusColour->color;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Status Update successfully',
+            'status_name' => 'success',
+            'colourCode' => $statusColour,
+        ], 200);
+    }
+
+    public function getBuilderDataStatus($id)
+    {
+        $status = UiDeviceBuilderIoDataStatusHistory::with(['user','newStatus','oldStatus'])
+            ->where('ui_device_builder_io_data_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $status,
+            'message' => 'Status get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function builderIOTaskstore(Request $request)
+    {
+        // Validation Part
+        $request->validate([
+                'task_name' => 'required',
+                'selected_rows' => 'required',
+                'assign_to' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $selectedRows = explode(',', $data['selected_rows']);
+        if (! $selectedRows) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Rows not selected',
+                ]
+            );
+        }
+
+        // Create task directly in tasks table.
+        $task = Task::where('task_subject', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
+        if (! $task) {
+            $data['assign_from'] = Auth::id();
+            $data['is_statutory'] = 0;
+            $data['task_details'] = $data['task_name'];
+            $data['task_subject'] = $data['task_name'];
+            $data['assign_to'] = $data['assign_to'];
+
+            $task = Task::create($data);
+
+            if ($data['assign_to']) {
+                $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+            }
+        }
+
+        // Assign Zabbix Task Id to selected zabbix webhook datas
+        $uiDeviceBuilderIoDatas = UiDeviceBuilderIoData::whereIn('id', $selectedRows);
+        $uiDeviceBuilderIoDatas->update(['task_id' => $task->id]);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Builder IO task has been created!',
+            ]
+        );
     }
 }

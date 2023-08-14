@@ -20,7 +20,6 @@ use App\EmailRunHistories;
 use App\SendgridEventColor;
 use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
-use App\EmailCategory;
 use App\Mails\Manual\ForwardEmail;
 use App\Mails\Manual\ReplyToEmail;
 use Webklex\PHPIMAP\ClientManager;
@@ -30,6 +29,7 @@ use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\EmailCategory;
 
 class EmailController extends Controller
 {

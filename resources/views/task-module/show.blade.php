@@ -270,7 +270,7 @@
                     @if(auth()->user()->checkPermission('activity-list'))
                         <div class="col-xs-12 col-md-2 pd-2">
                             <div class="form-group ml-3">
-                                <select id="search_by_user" class="form-control input-sm select2" name="selected_user">
+                                <select id="search_by_user" class="form-control globalSelect2"  multiple = "true" name="selected_user[]">
                                     <option value="">Select a User</option>
                                     @foreach ($users as $id => $user)
                                         <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>

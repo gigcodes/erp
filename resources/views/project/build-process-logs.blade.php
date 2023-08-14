@@ -13,7 +13,9 @@
                                 <h5>Search projects</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="project-select" name="projects[]" placeholder="Select projects">
                                     @foreach($projects as $project)
-                                        <option value="{{ $project->id }}" @if(in_array($project->id, $reqproject)) selected @endif>{{ $project->name }}</option>
+                                        <option value="{{ $project->id }}"  @if(is_array(request('projects')) && in_array($project->id, request('projects')))
+                                            selected
+                                            @endif >{{ $project->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -22,7 +24,9 @@
                                  <h5>Search organizations</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="organizations-select" name="organizations[]" placeholder="Select organizations">
                                     @foreach($organizations as $organization)
-                                    <option value="{{ $organization->id }}" @if(in_array($organization->id, $reqorganizations)) selected @endif>{{ $organization->name }}</option>
+                                    <option value="{{ $organization->id }}"@if(is_array(request('organizations')) && in_array($organization->id, request('organizations')))
+                                        selected
+                                        @endif >{{ $organization->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -30,7 +34,9 @@
                                 <h5>Search Repository</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="repo_ids" name="repo_ids[]" placeholder="Select Repos">
                                     @foreach($repo_names as $repo_name)
-                                    <option value="{{ $repo_name->id }}"  @if(in_array($repo_name->id, $reqrepoids)) selected @endif>{{ $repo_name->name }}</option>
+                                    <option value="{{ $repo_name->id }}"@if(is_array(request('repo_ids')) && in_array($repo_name->id, request('repo_ids')))
+                                        selected
+                                        @endif>{{ $repo_name->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -38,7 +44,9 @@
                                 <h5>Search Build By</h5>	
                                     <select class="form-control globalSelect2" multiple="true" id="platform-Users" name="users[]" placeholder="Select Users">
                                         @foreach($users as $user)
-                                        <option value="{{ $user->id }}" @if(in_array($user->id, $requsers)) selected @endif>{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}"@if(is_array(request('users')) && in_array($user->id, request('users')))
+                                            selected
+                                            @endif>{{ $user->name }}</option>
                                         @endforeach
                                     </select> 
                             </div>
@@ -55,15 +63,15 @@
                             </div>
                             <div class="col-md-2 pd-sm">                               
                                  <h5>Search Branch name</h5>	
-                                <input class="form-control" type="text" id="search_branch_name" placeholder="Search Branch name" name="search_branch_name" value="{{ $reqsBranchName ?? '' }}">
+                                <input class="form-control" type="text" id="search_branch_name" placeholder="Search Branch name" name="search_branch_name" value="{{ request()->get('search_branch_name') }}">
                             </div>
                             <div class="col-md-2 pd-sm">                              
                                 <h5>Search Build Number</h5>	
-                                <input class="form-control" type="text" id="search_build_number" placeholder="Search Build Number" name="search_build_number" value="{{ $reqsBuildNumber ?? '' }}">
+                                <input class="form-control" type="text" id="search_build_number" placeholder="Search Build Number" name="search_build_number" value="{{ request()->get('search_build_number') }}">
                             </div>
                             <div class="col-md-2 pd-sm">                             
                                 <h5>Search Build Name</h5>	
-                                <input class="form-control" type="text" id="search_build_name" placeholder="Search Build Name" name="search_build_name" value="{{ $reqsBuildName ?? '' }}">
+                                <input class="form-control" type="text" id="search_build_name" placeholder="Search Build Name" name="search_build_name" value="{{ request()->get('search_build_name') }}">
                             </div>
                             <div class="col-md-2 pd-sm">                               
                                 <h5>Search By keyword</h5>	
@@ -97,6 +105,10 @@
         <p>{{ $message }}</p>
     </div>
 @endif
+
+@include('project.partials.serverenv-create-modal')
+@include('project.partials.project-create-modal')
+
 
 <div class="tab-content">
     <div class="tab-pane active" id="1">
@@ -254,6 +266,8 @@
 @endsection
 @section('scripts')
 <script>
+$('.select2').select2();
+
 $( document ).ready(function() {
     $(document).on('click', '.expand-row', function () {
         
