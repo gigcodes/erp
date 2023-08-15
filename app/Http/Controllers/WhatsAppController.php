@@ -2213,7 +2213,11 @@ class WhatsAppController extends FindByNumberController
 
                 return response()->json(['message' => $chat_message]);
             } elseif ($context == 'task') {
-                $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
+                if ($request->task_id == 'undefined') {
+                    $this->logchatmessage('#10', null, $request->message, 'If context conndition task is exit');
+                } else {
+                    $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
+                }
                 $data['task_id'] = $request->task_id;
                 $data['is_audio'] = $request->get('is_audio', 0);
                 $task = Task::find($request->task_id);
