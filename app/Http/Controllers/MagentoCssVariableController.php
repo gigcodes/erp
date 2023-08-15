@@ -50,6 +50,15 @@ class MagentoCssVariableController extends Controller
             $magentoCssVariables = $magentoCssVariables->where('variable', 'LIKE', '%' . $search_variable . '%');
         }
 
+        $search_verify = $request->get('verify');
+        if($search_verify == "NotVerify"){
+            $magentoCssVariables = $magentoCssVariables->doesntHave('lastLog');
+        } else if($search_verify == "Error" || $search_verify == "Success"){
+            $magentoCssVariables = $magentoCssVariables->whereHas('lastLog', function ($magentoCssVariables) use ($search_verify) {
+                $magentoCssVariables->where('status', 'LIKE', '%' . $search_verify . '%');
+            });
+        }
+
         $magentoCssVariables = $magentoCssVariables->paginate(50);
 
         $projects = Project::get()->pluck('name', 'id');
@@ -173,22 +182,21 @@ class MagentoCssVariableController extends Controller
             ->with('success', 'Magento CSS variable deleted successfully');
     }
 
-    public function verify($id)
+    public function verify(Request $request, $id)
     {
         $magentoCssVariable = MagentoCssVariable::findOrFail($id);
-        $magentoCssVariable->is_verified = 1;
+        $magentoCssVariable->is_verified = $request->verfied;
         $magentoCssVariable->save();
 
         // Maintain history here
         $history = new MagentoCssVariableVerifyHistory();
         $history->magento_css_variable_id = $magentoCssVariable->id;
         $history->value = $magentoCssVariable->value;
-        $history->is_verified = 1;
+        $history->is_verified = $request->verfied;
         $history->user_id = Auth::user()->id;
         $history->save();
 
-        return redirect()->route('magento-css-variable.index')
-            ->with('success', 'Magento CSS variable verified successfully');
+        return response()->json(['code' => 500, 'message' => 'Verifed status Update Successfully!']);
     }
 
     public function verifyHistories($id)
@@ -552,6 +560,28 @@ class MagentoCssVariableController extends Controller
             return Response::download($filePath);
         } else {
             abort(404, 'The file you are trying to download does not exist.');
+        }
+    }
+
+    public function updateSelectedVerified(Request $request)
+    {
+        if ($request->has('selectedIds') && $request->selectedIds != '') {
+        
+            foreach ($request->selectedIds as $selectId){
+                $magentoCssVariable = MagentoCssVariable::findOrFail($selectId);
+                $magentoCssVariable->is_verified = 1;
+                $magentoCssVariable->save();
+        
+                // Maintain history here
+                $history = new MagentoCssVariableVerifyHistory();
+                $history->magento_css_variable_id = $magentoCssVariable->id;
+                $history->value = $magentoCssVariable->value;
+                $history->is_verified = 1;
+                $history->user_id = Auth::user()->id;
+                $history->save();
+            }
+
+            return response()->json(['code' => 500, 'message' => 'Verifed status Update Successfully!']);
         }
     }
 }
