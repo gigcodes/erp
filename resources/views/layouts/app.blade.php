@@ -679,20 +679,26 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <div id="view-quick-email" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">View Email</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                 <span aria-hidden="true">&times;</span>
-                  </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Subject : </strong><span id="quickemailSubject"></span> </p>
-                <p><strong>Message : </strong><span id="quickmessage"></span></p>
-                <iframe src="" id="iframe" scrolling="yes" style="width:100%;" frameborder="0" onload="autoIframe('iframe');"></iframe>
-            </div>
+                <div class="modal-header">
+                    <h4 class="modal-title">View Email</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
+                    <p><strong>Message : </strong><span id="quickemailSubject"></span></p>
+                    <div id="formattedContent"></div>
+
+                        <div class="col-md-12">
+                            <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    
 
     <div id="menu-sopupdate" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -5859,6 +5865,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     function openQucikMsg(userEmail) {
         $('#iframe').attr('src', "");
         var userEmaillUrl = '/email/email-frame/'+userEmail.id;
+        var formattedHTML = formatContentToHTML(userEmail.message);
+        $('#formattedContent').html(formattedHTML);
+
+            function formatContentToHTML(rawContent) {
+                var decodedContent = $('<textarea/>').html(rawContent).text();
+                var formattedContent = decodedContent.replace(/\n/g, '<br>');
+                formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+                formattedContent = '<div>' + formattedContent + '</div>';
+
+                return formattedContent;
+            }
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
