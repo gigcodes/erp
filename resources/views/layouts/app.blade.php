@@ -656,7 +656,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -5862,20 +5862,30 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     });
 
-    function openQucikMsg(userEmail) {
+    function openQuickMsg(userEmail) {
         $('#iframe').attr('src', "");
         var userEmaillUrl = '/email/email-frame/'+userEmail.id;
-        var formattedHTML = formatContentToHTML(userEmail.message);
-        $('#formattedContent').html(formattedHTML);
+        var isHTML = isHTMLContent(userEmail.message);
+        if (isHTML) {
+            $('#formattedContent').html(userEmail.message);
+        } else {
+            var formattedHTML = formatContentToHTML(userEmail.message);
+            $('#formattedContent').html(formattedHTML);
+        }
 
-            function formatContentToHTML(rawContent) {
-                var decodedContent = $('<textarea/>').html(rawContent).text();
-                var formattedContent = decodedContent.replace(/\n/g, '<br>');
-                formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
-                formattedContent = '<div>' + formattedContent + '</div>';
+        function isHTMLContent(content) {
+            // Check if the content contains any HTML tags
+            return /<[a-z][\s\S]*>/i.test(content);
+        }
 
-                return formattedContent;
-            }
+        function formatContentToHTML(rawContent) {
+            var decodedContent = $('<textarea/>').html(rawContent).text();
+            var formattedContent = decodedContent.replace(/\n/g, '<br>');
+            formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+            formattedContent = '<div>' + formattedContent + '</div>';
+
+            return formattedContent;
+        }
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
