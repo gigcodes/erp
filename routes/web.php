@@ -653,6 +653,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
+    Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
