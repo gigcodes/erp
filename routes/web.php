@@ -377,6 +377,7 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\DeploymentVersionController;
+use App\Http\Controllers\MagentoBackendDocumentationController;
 
 
 Auth::routes();
@@ -654,6 +655,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
+
+    Route::get('magento-backend/documentation', [MagentoBackendDocumentationController::class, 'magentoBackendeDocs'])->name('magento.backend.listing');
+    Route::get('/get/backend-dropdown/list', [MagentoBackendDocumentationController::class, 'getBackendDropdownDatas'])->name('getBackendDropdownDatas');
+    Route::post('magento-backend/store', [MagentoBackendDocumentationController::class, 'magentoBackendStore'])->name('magento-backend-store');
+    Route::post('/magento-backend/updateOptions', [MagentoBackendDocumentationController::class, 'magentoBackendOptions'])->name('magento-backend.update.option');
+    Route::get('magento-backend-category/histories', [MagentoBackendDocumentationController::class, 'magentoBackendCategoryHistoryShow'])->name('magentobackend_category.histories.show');
+    Route::get('magento-backend-postman/histories', [MagentoBackendDocumentationController::class, 'magentoBackendPostmanHistoryShow'])->name('magentobackend_postman.histories.show');
+    Route::get('magento-backend-module/histories', [MagentoBackendDocumentationController::class, 'magentoBackendModuleHistoryShow'])->name('magentobackend_module.histories.show');
+    Route::post('magento-backend/remark/store', [MagentoBackendDocumentationController::class, 'magentobackendstoreRemark'])->name('magento-backend-remark-store');
+    Route::get('magento-backend-remark/histories', [MagentoBackendDocumentationController::class, 'magentoBackendRemarkHistoryShow'])->name('magentobackend_remark.histories.show');
+    Route::post('magento-backend/folder-store', [MagentoBackendDocumentationController::class, 'magentoStorebackendFolder'])->name('magento-backend-parent-folder-store');
+    Route::post('magento-backend/description/upload', [MagentoBackendDocumentationController::class, 'magentoBackendDescriptionUpload'])->name('magento-backend-description-upload');
+    Route::post('magento-backendadmin-config-store', [MagentoBackendDocumentationController::class, 'magentoStorebackendadminConfig'])->name('magento-backendadmin-config-store');
+    Route::post('magento-backend/admin/upload', [MagentoBackendDocumentationController::class, 'magentoBackendadminConfigUpload'])->name('magento-backend-admin-upload');
+    Route::get('magento-backend-description/histories', [MagentoBackendDocumentationController::class, 'magentoBackenddescriptionHistoryShow'])->name('magentobackend_description.histories.show');
+    Route::get('magento-backend-admin-config/histories', [MagentoBackendDocumentationController::class, 'magentoBackendAdminHistoryShow'])->name('magentobackend_admin.histories.show');
+    Route::delete('/magento-backend/delete/{id}', [MagentoBackendDocumentationController::class, 'magentobackenddelete'])->name('magento-backend.destroy');
+
+
+
+
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
