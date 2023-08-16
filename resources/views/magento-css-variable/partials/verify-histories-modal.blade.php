@@ -12,7 +12,8 @@
                             <tr>
                                 <th width="10%">No</th>
                                 <th width="30%">Value</th>
-                                <th width="20%">Verified BY</th>
+                                <th width="30%">Verified status</th>
+                                <th width="30%">Verified BY</th>
                                 <th width="30%">Created</th>
                             </tr>
                         </thead>
