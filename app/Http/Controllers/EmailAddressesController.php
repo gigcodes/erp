@@ -61,11 +61,14 @@ class EmailAddressesController extends Controller
         $emailAddress = $query->paginate(\App\Setting::get('pagination', 10))->appends(request()->query());
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
-        $allDriver = EmailAddress::pluck('driver')->unique();
-        $allIncomingDriver = EmailAddress::pluck('incoming_driver')->unique();
+        // Retrieve all email addresses
+        $emailAddresses = EmailAddress::all();
+        $runHistoriesCount = EmailRunHistories::count();
 
-        $allPort = EmailAddress::pluck('port')->unique();
-        $allEncryption = EmailAddress::pluck('encryption')->unique();
+        $allDriver = $emailAddresses->pluck('driver')->unique()->toArray();
+        $allIncomingDriver = $emailAddresses->pluck('incoming_driver')->unique()->toArray();
+        $allPort = $emailAddresses->pluck('port')->unique()->toArray();
+        $allEncryption = $emailAddresses->pluck('encryption')->unique()->toArray();
 
         // default values for add form
         $defaultDriver = 'smtp';
@@ -75,8 +78,8 @@ class EmailAddressesController extends Controller
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
-        $userEmails = EmailAddress::groupBy('username')->get(['username'])->toArray();
-        $fromAddresses = EmailAddress::groupBy('from_address')->pluck('from_address')->toArray();
+        $userEmails = $emailAddresses->pluck('username')->unique()->toArray();
+        $fromAddresses = $emailAddresses->pluck('from_address')->unique()->toArray();
 
         $ops = '';
         foreach ($users as $key => $user) {
@@ -99,6 +102,7 @@ class EmailAddressesController extends Controller
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
                 'fromAddresses' => $fromAddresses,
+                'runHistoriesCount' => $runHistoriesCount
             ]);
         } else {
             return view('email-addresses.index', [
@@ -116,8 +120,16 @@ class EmailAddressesController extends Controller
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
                 'fromAddresses' => $fromAddresses,
+                'runHistoriesCount' => $runHistoriesCount
             ]);
         }
+    }
+
+    public function runHistoriesTruncate()
+    {
+        EmailRunHistories::truncate();
+
+        return redirect()->back()->withSuccess('Data Removed Successfully!');
     }
 
     /**
@@ -790,15 +802,22 @@ class EmailAddressesController extends Controller
 
             return response()->json(['status' => 'success', 'message' => 'Successfully'], 200);
         } catch (\Exception $e) {
-            \Log::channel('customer')->info($e->getMessage());
+            $exceptionMessage = $e->getMessage();
+
+            if ($e->getPrevious() !== null) {
+                $previousMessage = $e->getPrevious()->getMessage();
+                $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
+            }
+            
+            \Log::channel('customer')->info($exceptionMessage);
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
                 'is_success' => 0,
-                'message' => $e->getMessage(),
+                'message' => $exceptionMessage,
             ];
             EmailRunHistories::create($historyParam);
-            \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
-            throw new \Exception($e->getMessage());
+            \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
+            throw new \Exception($exceptionMessage);
         }
     }
 }

@@ -1253,14 +1253,21 @@ class EmailController extends Controller
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
-                \Log::channel('customer')->info($e->getMessage());
+                $exceptionMessage = $e->getMessage();
+
+                if ($e->getPrevious() !== null) {
+                    $previousMessage = $e->getPrevious()->getMessage();
+                    $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
+                }
+                
+                \Log::channel('customer')->info($exceptionMessage);
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
                     'is_success' => 0,
-                    'message' => $e->getMessage(),
+                    'message' => $exceptionMessage,
                 ];
                 EmailRunHistories::create($historyParam);
-                \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
+                \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
                 $failedEmailAddresses[] = $emailAddress->username;
             }
         }

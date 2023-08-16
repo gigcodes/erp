@@ -353,14 +353,21 @@ class FetchEmail implements ShouldQueue
 
             dump('__________');
         } catch (\Exception $e) {
-            \Log::channel('customer')->info($e->getMessage());
+            $exceptionMessage = $e->getMessage();
+
+            if ($e->getPrevious() !== null) {
+                $previousMessage = $e->getPrevious()->getMessage();
+                $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
+            }
+
+            \Log::channel('customer')->info($exceptionMessage);
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
                 'is_success' => 0,
-                'message' => $e->getMessage(),
+                'message' => $exceptionMessage,
             ];
             EmailRunHistories::create($historyParam);
-            \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
+            \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
             //throw new \Exception($e->getMessage());
         }
     }
