@@ -45,7 +45,7 @@ class IpLogController extends Controller
         $ipAddress = $validatedData['ip_address'];
         $comment = $validatedData['comment'];
 
-        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'webaccess-firewall.sh' . '-f ' . $serverName . '-i' . $ipAddress . '-c ' . $comment;
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'webaccess-firewall.sh ' . '-s ' . $serverName . ' -i ' . $ipAddress . ' -c ' . $comment;
 
         $allOutput = [];
         $allOutput[] = $command;

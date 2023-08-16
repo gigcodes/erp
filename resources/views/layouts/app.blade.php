@@ -4255,10 +4255,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{ route('project.index') }}">Projects</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessLogs') }}">Project Build Process Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessErrorLogs') }}">Project Build Process Error Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('project-theme.index') }}">Project Themes</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('magento-css-variable.index') }}">Magento CSS Variables</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('deployement-version.index') }}">Deployment Version</a>
                                             </li>
                                         </ul>
                                     </li>
