@@ -122,6 +122,13 @@ class EmailAddressesController extends Controller
         }
     }
 
+    public function runHistoriesTruncate()
+    {
+        EmailRunHistories::truncate();
+
+        return redirect()->route('email-addresses.index')->withSuccess('Data Removed Successfully!');
+    }
+
     /**
      * Show the form for creating a new resource.
      *
