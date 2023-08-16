@@ -63,6 +63,7 @@ class EmailAddressesController extends Controller
         $allStores = StoreWebsite::all();
         // Retrieve all email addresses
         $emailAddresses = EmailAddress::all();
+        $runHistoriesCount = EmailRunHistories::count();
 
         $allDriver = $emailAddresses->pluck('driver')->unique()->toArray();
         $allIncomingDriver = $emailAddresses->pluck('incoming_driver')->unique()->toArray();
@@ -101,6 +102,7 @@ class EmailAddressesController extends Controller
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
                 'fromAddresses' => $fromAddresses,
+                'runHistoriesCount' => $runHistoriesCount
             ]);
         } else {
             return view('email-addresses.index', [
@@ -118,6 +120,7 @@ class EmailAddressesController extends Controller
                 'defaultEncryption' => $defaultEncryption,
                 'defaultHost' => $defaultHost,
                 'fromAddresses' => $fromAddresses,
+                'runHistoriesCount' => $runHistoriesCount
             ]);
         }
     }

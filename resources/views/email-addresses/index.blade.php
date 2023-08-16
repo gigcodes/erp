@@ -50,7 +50,7 @@
                       </Select>
                     </div>
                     </div>
-                    <div class="col-2 pd-2">
+                    <div class="col-1 pd-2">
                     <div class="form-group status mb-0">
                       <button type="submit" class="btn btn-xs mt-1 ml-3">
                         <i class="fa fa-filter"></i>
@@ -59,8 +59,9 @@
                     </div>
                     </div>
                     <!-- Language Selection -->
-                    <div class="col-2 d-flex" style=" justify-content: end !important;padding-right: 22px;">
+                    <div class="col-3 d-flex" style=" justify-content: end !important;padding-right: 22px;">
                         <div class="form-group mb-0">
+                  			   <a href="{{route('email-addresses.run-histories-truncate')}}" class="btn btn-xs btn-secondary" onclick="return confirm('{{ __('Are you sure you want to truncate the datas? Note : It will remove all the datas') }}')">Truncate Data ({{$runHistoriesCount}})</a>
                             <button type="button" class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
                               <i class="fa fa-plus" style=" width:25px"></i>
