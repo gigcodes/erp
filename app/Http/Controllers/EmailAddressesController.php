@@ -129,7 +129,7 @@ class EmailAddressesController extends Controller
     {
         EmailRunHistories::truncate();
 
-        return redirect()->route('email-addresses.index')->withSuccess('Data Removed Successfully!');
+        return redirect()->back()->withSuccess('Data Removed Successfully!');
     }
 
     /**

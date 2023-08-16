@@ -2701,12 +2701,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('google-server', GoogleServerController::class);
     Route::post('log-google-cse', [GoogleServerController::class, 'logGoogleCse'])->name('log.google.cse');
 
-    Route::resource('email-addresses', EmailAddressesController::class);
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
     Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
     Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
+    Route::resource('email-addresses', EmailAddressesController::class);
 
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
