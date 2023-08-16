@@ -77,8 +77,8 @@ class EmailAddressesController extends Controller
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
-        $userEmails = $emailAddresses->groupBy('username')->pluck('username')->toArray();
-        $fromAddresses = $emailAddresses->groupBy('from_address')->pluck('from_address')->toArray();
+        $userEmails = $emailAddresses->pluck('username')->unique()->toArray();
+        $fromAddresses = $emailAddresses->pluck('from_address')->unique()->toArray();
 
         $ops = '';
         foreach ($users as $key => $user) {

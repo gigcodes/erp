@@ -26,7 +26,7 @@
                           <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}" list="username-lists">
                         <datalist id="username-lists">
                           @foreach($userEmails as $emailAdd)
-                            <option value="{{$emailAdd['username']}}">
+                            <option value="{{$emailAdd}}">
                           @endforeach
                         </datalist>
                       </div>
