@@ -288,6 +288,18 @@ class MagentoBackendDocumentationController extends Controller
     {
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
 
+
+        $backendId = $request->magento_back_end_id;
+        $newData = $magentobackenddoc->google_drive_file_id;
+        $columnname = "description";
+
+        $magnetohistory =  new MagentoBackendDocumentationHistory();
+        $magnetohistory->magento_backend_docs_id = $backendId;
+        $magnetohistory->column_name = $columnname;
+        $magnetohistory->new_value = $newData;
+        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->save();
+
         if ($request->hasFile('upload_description')) {
             foreach ($request->upload_description as $file) {
                 $magentobackenddoc->description_file_name = $file->getClientOriginalName();
@@ -311,6 +323,19 @@ class MagentoBackendDocumentationController extends Controller
     public function magentoBackendadminConfigUpload(Request $request)
     {
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
+
+
+        $backendId = $request->magento_back_end_id;
+        $newData = $magentobackenddoc->google_drive_file_id;
+        $columnname = "admin_configuration";
+
+        $magnetohistory =  new MagentoBackendDocumentationHistory();
+        $magnetohistory->magento_backend_docs_id = $backendId;
+        $magnetohistory->column_name = $columnname;
+        $magnetohistory->new_value = $newData;
+        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->save();
+
 
         if ($request->hasFile('child_folder_image')) {
             foreach ($request->child_folder_image as $file) {
