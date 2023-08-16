@@ -54,6 +54,7 @@ use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\TaskHubstaffCreateLog;
 
 class TaskModuleController extends Controller
 {
@@ -3938,6 +3939,12 @@ class TaskModuleController extends Controller
                         $taskSummery, $hubstaffUserId, $hubstaff_project_id
                     );
                 } else {
+                    $log = new TaskHubstaffCreateLog();
+                    $log->task_id = $request->id;
+                    $log->error_message = 'Hubstaff member not found';
+                    $log->user_id = Auth::id();
+                    $log->save();
+
                     return response()->json(
                         [
                             'message' => 'Hubstaff member not found',
@@ -3952,6 +3959,13 @@ class TaskModuleController extends Controller
                     }
                     $task->save();
                 } else {
+
+                    $log = new TaskHubstaffCreateLog();
+                    $log->task_id = $request->id;
+                    $log->error_message = 'Hubstaff task not create';
+                    $log->user_id = Auth::id();
+                    $log->save();
+
                     return response()->json(
                         [
                             'message' => 'Hubstaff task not created',
@@ -3969,6 +3983,12 @@ class TaskModuleController extends Controller
             } else {
                 $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
 
+                $log = new TaskHubstaffCreateLog();
+                $log->task_id = $request->id;
+                $log->error_message = $timeDoctorTaskResponse['message'];
+                $log->user_id = Auth::id();
+                $log->save();
+
                 return response()->json([
                     'message' => $timeDoctorTaskResponse['message'],
                 ], $timeDoctorTaskResponse['code']);
@@ -3980,6 +4000,13 @@ class TaskModuleController extends Controller
                 ], 200
             );
         } else {
+
+            $log = new TaskHubstaffCreateLog();
+            $log->task_id = $request->id;
+            $log->error_message = "Task not found";
+            $log->user_id = Auth::id();
+            $log->save();
+
             return response()->json(
                 [
                     'message' => 'Task not found',
@@ -4993,5 +5020,19 @@ class TaskModuleController extends Controller
                 'data' => view('task-module.google-drive-list', ['result' => null])->render(),
             ]);
         }
+    }
+
+    public function taskModuleListLogHistory(Request $request)
+    {
+        $logs = TaskHubstaffCreateLog::with(['user','task'])
+        ->where('task_id', $request->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $logs,
+            'message' => 'Successfully get Logs history status',
+            'status_name' => 'success',
+        ], 200);
+
     }
 }
