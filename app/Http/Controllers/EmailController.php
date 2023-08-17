@@ -558,10 +558,21 @@ class EmailController extends Controller
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
         $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+
+        $emailAddress = $email->from;
+        $emailPattern = '/<([^>]+)>/';
+        $matches = array();
+        if (preg_match($emailPattern, $emailAddress, $matches)) {
+            $extractedEmail = $matches[1];
+            $emailFrom =  $extractedEmail;
+        } else {
+            $emailFrom = $email->from;
+        }
+
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
-            'from' => $email->from,
+            'from' => $emailFrom,
             'to' => $request->receiver_email,
             'subject' => $subject,
             'message' => $message_to_store,
@@ -1524,6 +1535,17 @@ class EmailController extends Controller
         return response()->json(['type' => 'success'], 200);
     }
 
+
+    public function changeEmailStatus(Request $request)
+    {
+        Email::where('id', $request->status)->update(['status' => $request->status_id]);
+
+        session()->flash('success', 'Status has been updated successfully');
+
+        return response()->json(['type' => 'success'], 200);
+    }
+
+    
     /**
      * To view email in iframe
      */
@@ -1822,6 +1844,16 @@ class EmailController extends Controller
         $mailTypes = Email::select('type')->groupBy('type')->get();
         $emailStatuses = Email::select('status')->groupBy('status')->get();
 
+        //Get All Status
+        $email_status = DB::table('email_status');
+
+        if (! empty($request->type) && $request->type == 'outgoing') {
+            $email_status = $email_status->where('type', 'sent');
+        } else {
+            $email_status = $email_status->where('type', '!=', 'sent');
+        }
+
+        $email_status = $email_status->get();
 
         if ($request->sender_ids) {
             $emails = $emails->WhereIn('from', $request->sender_ids);
@@ -1847,6 +1879,6 @@ class EmailController extends Controller
         
         $emails = $emails->latest()->paginate(\App\Setting::get('pagination',25));
 
-        return view('emails.quick-email-list', compact('emails','email_categories','senderEmailIds','receiverEmailIds','modelsTypes','mailTypes','emailStatuses'));
+        return view('emails.quick-email-list', compact('emails','email_categories','senderEmailIds','receiverEmailIds','modelsTypes','mailTypes','emailStatuses','email_status'));
     }
 }

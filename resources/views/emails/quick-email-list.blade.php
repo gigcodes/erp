@@ -114,6 +114,9 @@
 			   <a href="{{route('quick.email.list')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 			</div>
 		</form>
+        <div class="pull-right mt-3">
+            <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#statusModel">Create Status</button>
+        </div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -157,8 +160,23 @@
                             </td>
                             <td>{{$email->model_type}}</td>
 							<td>{{$email->type}}</td>
-                            <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-                            <td>{{$email->status}}</td>
+                            <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
+                            <td width="1%">
+                               @if($email->status) 
+                               {{$email->status}}
+                               @else
+                               <select class="form-control selecte2 status-change">
+                                <option  value="" >Please select</option>
+                                @foreach($email_status as $status)
+                                @if($status->id == (int)$email->status)
+                                <option  value="{{ $status->id }}" data-id="{{$email->id}}"  {{ $status->id->id == $email->status ? 'selected' : '' }}>{{ $status->email_status }}</option>
+                                @else
+                                <option  value="{{ $status->id }}" data-id="{{$email->id}}" >{{$status->email_status }}</option>
+                                @endif
+                                @endforeach
+                              </select>
+                               @endif
+                            </td>
                             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
                             <td style="word-break: break-all">
                                 @if($email->error_message)
@@ -176,6 +194,7 @@
                                 @endforeach
                               </select>
                             </td>
+                           
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -211,6 +230,42 @@
     </div>
 </div>
 
+<div id="statusModel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Email Status</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="{{ url('email/status') }}" method="POST">
+          @csrf
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="text" name="email_status" value="{{ old('email_status') }}" class="form-control" placeholder="Status">
+            </div>
+  
+            <div class="form-group">
+              <select class="form-control" id="status_type" name="type">
+                  <option value="read">Read</option>
+                  <option value="unread">Unread</option>
+                  <option value="sent">Sent</option>
+                  <option value="trash">Trash</option>
+                  <option value="draft">Draft</option>
+                  <option value="queue">Queue</option>
+              </select>
+            </div>
+  
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Create</button>
+            </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 @section('scripts')
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
@@ -245,6 +300,28 @@
           },
           error : function (response){
             //
+          }
+        })
+      }
+  });
+
+  $(document).on('change','.status-change',function(e){
+      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('changeEmailStatus') }}",
+          data : {
+            status_id : $('option:selected', this).val(),
+            email_id : $('option:selected', this).attr('data-id')
+          },
+          success : function (response){
+            toastr['success']("status updated");
+          },
+          error : function (response){
+            alert(response);
           }
         })
       }
