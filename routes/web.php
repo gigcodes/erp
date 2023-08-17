@@ -2706,6 +2706,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
     Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
     Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
+    Route::get('email-addresses/run-job/lists', [EmailAddressesController::class, 'listEmailRunLogs'])->name('email-addresses.run-histories-listing');
     Route::resource('email-addresses', EmailAddressesController::class);
 
 

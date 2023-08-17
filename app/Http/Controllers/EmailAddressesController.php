@@ -15,6 +15,7 @@ use App\Exports\EmailFailedReport;
 use Webklex\PHPIMAP\ClientManager;
 use Maatwebsite\Excel\Facades\Excel;
 use EmailReplyParser\Parser\EmailParser;
+use Illuminate\Support\Facades\DB;
 
 class EmailAddressesController extends Controller
 {
@@ -812,5 +813,47 @@ class EmailAddressesController extends Controller
             \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
             throw new \Exception($e->getMessage());
         }
+    }
+
+    public function listEmailRunLogs(Request $request)
+    {
+        $eIds = $request->e_ids;
+        $searchMessage = $request->search_message;
+        $date = $request->date;
+        $fromName = $request->search_name;
+        $status =  $request->status ?? " "; 
+
+            $emailJobsQuery = DB::table('email_run_histories')
+                ->join('email_addresses', 'email_run_histories.email_address_id', '=', 'email_addresses.id')
+                ->select(
+                    'email_run_histories.*',
+                    'email_addresses.from_name as email_from_name'
+                )
+                ->when($request->search_message, function ($query, $searchMessage) {
+                    return $query->where('email_run_histories.message', 'LIKE', '%' . $searchMessage . '%');
+                })
+                ->when($request->date, function ($query, $date) {
+                    return $query->where('email_run_histories.created_at', 'LIKE', '%' . $date . '%');
+                })
+                ->when($fromName, function ($query, $fromName) {
+                    return $query->where('email_addresses.from_name', 'LIKE', '%' . $fromName . '%');
+                })
+                ->latest();
+
+                if($status != " "){
+                    if ($status !== "failed") {
+                        $emailJobsQuery->where('email_run_histories.is_success', 1);
+                    }
+                
+                    if ($status === "failed") {
+                        $emailJobsQuery->where('email_run_histories.is_success', 0);
+                    }
+                }
+            
+            $emailJobs = $emailJobsQuery->paginate(\App\Setting::get('pagination', 25));
+
+
+
+        return view('email-addresses.email-run-log-listing', compact('emailJobs'));
     }
 }
