@@ -3611,7 +3611,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email
                                                 Addresses</a>
                                         </li>
-
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('email-addresses.run-histories-listing') }}">Email
+                                                Addresses Run Jobs</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('api-response-message') }}">Api
                                                 Response Messages</a>

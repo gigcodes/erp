@@ -61,6 +61,7 @@
                     <!-- Language Selection -->
                     <div class="col-3 d-flex" style=" justify-content: end !important;padding-right: 22px;">
                         <div class="form-group mb-0">
+                          <a href="{{route('email-addresses.run-histories-listing')}}" class="btn btn-xs btn-secondary" target="_blank">View Email Run Job </a>
                   			   <a href="{{route('email-addresses.run-histories-truncate')}}" class="btn btn-xs btn-secondary" onclick="return confirm('{{ __('Are you sure you want to truncate the datas? Note : It will remove all the datas') }}')">Truncate Data ({{$runHistoriesCount}})</a>
                             <button type="button" class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
