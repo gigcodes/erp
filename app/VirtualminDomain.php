@@ -13,7 +13,7 @@ class VirtualminDomain extends Model
 
     protected $fillable = [
         'name',
-        'status',
+        'is_enabled',
     ];
 
 }

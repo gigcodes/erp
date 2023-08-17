@@ -22,39 +22,83 @@ class VirtualminHelper
     public function syncDomains()
     {
         try {
-            $url = $this->_options['endpoint'] . "program=list-domains&json=1";
+            $url = $this->_options['endpoint'] . "?program=list-domains&json=1&multiline=";
 
             $response = Http::withOptions(['verify' => false])
                 ->withBasicAuth($this->_options['user'], $this->_options['pass'])
                 ->get($url);
 
-            $result = json_decode($response->getBody()->getContents(), true);
-
-            // From the provided output:
-            // The first item in the array appears to contain the column names, which seems to represent the header of a table.
-            // The second item represents a row of dashes, possibly indicating the separation between header and data.
-            // The remaining items are domains with associated data.
-
-            if ($result['status'] === 'success') {
-                $domainNames = [];
-                for ($i = 2; $i < count($result['data']); $i++) {
-                    $name = trim($result['data'][$i]['name']); // Extract the name
-                    if (!empty($name) && strpos($name, '----') === false) {
-                        preg_match('/^([\w.-]+)/', $name, $matches);
-                        if (isset($matches[1])) {
-                            $domainNames[] = $matches[1];
-                        }
+            if ($response->successful()) {
+                $responseData = $response->json();
+                $domainsData = $responseData['data'];
+                foreach ($domainsData as $domainInfo) {
+                    $domainName = $domainInfo['name'];
+                    if (isset($domainInfo['values']['disabled_at']) && !empty($domainInfo['values']['disabled_at'][0])) {
+                        // Domain is disabled
+                        $disabledTimestamp = $domainInfo['values']['disabled_at'][0];
+                        // Process the disabled domain as needed
+                        VirtualminDomain::updateOrCreate(
+                            ['name' => $domainName],
+                            ['is_enabled' => false]
+                        );
+                    } else {
+                        // Domain is enabled
+                        VirtualminDomain::updateOrCreate(
+                            ['name' => $domainName],
+                            ['is_enabled' => true]
+                        );
                     }
                 }
-
-                // Save domain names to the local database
-                foreach ($domainNames as $domainName) {
-                    VirtualminDomain::updateOrCreate(['name' => $domainName]);
-                }
             }
-            return ['code' => 200, 'data' => [], 'message' => "Domains fetched successfully"];
+
+            return $response->json();
         } catch (\Exception $e) {
-            return ['code' => $e->getCode(), 'data' => [], 'message' => $e->getMessage()];
+            throw new \Exception('Failed to sync domain: ' . $e->getMessage());
+        }
+    }
+
+    public function enableDomain($domainName)
+    {
+        try {
+            $url = $this->_options['endpoint'] . "?program=enable-domain&domain={$domainName}&json=1&multiline=";
+
+            $response = Http::withOptions(['verify' => false])
+                ->withBasicAuth($this->_options['user'], $this->_options['pass'])
+                ->get($url);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to enable domain: ' . $e->getMessage());
+        }
+    }
+
+    public function disableDomain($domainName)
+    {
+        try {
+            $url = $this->_options['endpoint'] . "?program=disable-domain&domain={$domainName}&json=1&multiline=";
+
+            $response = Http::withOptions(['verify' => false])
+                ->withBasicAuth($this->_options['user'], $this->_options['pass'])
+                ->get($url);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to disable domain: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteDomain($domainName)
+    {
+        try {
+            $url = $this->_options['endpoint'] . "?program=delete-domain&domain={$domainName}&json=1&multiline=";
+
+            $response = Http::withOptions(['verify' => false])
+                ->withBasicAuth($this->_options['user'], $this->_options['pass'])
+                ->get($url);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to delete domain: ' . $e->getMessage());
         }
     }
 

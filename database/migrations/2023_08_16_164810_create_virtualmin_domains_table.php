@@ -17,7 +17,7 @@ class CreateVirtualminDomainsTable extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name');
-            $table->string('status');
+            $table->boolean('is_enabled');
         });
     }
 

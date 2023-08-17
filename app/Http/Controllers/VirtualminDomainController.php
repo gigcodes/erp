@@ -37,7 +37,67 @@ class VirtualminDomainController extends Controller
     {
         $this->virtualminHelper->syncDomains();
 
-        return redirect()->back()->with('status', 'Domains synced successfully.');
+        return redirect()->back()->with('success', 'Domains synced successfully.');
+    }
+
+    public function enableDomain(Request $request, $id)
+    {
+        try {
+            // Find the domain in the local database
+            $domain = VirtualminDomain::findOrFail($id);
+
+            // Enable the domain using Virtualmin API
+            $response = $this->virtualminHelper->enableDomain($domain->name);
+
+            // Maintain Log depends on the response in new Table
+
+            // Update the domain status in your local database if needed
+            $domain->update(['is_enabled' => true]);
+
+            return redirect()->back()->with('success', 'Domain enabled successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function disableDomain(Request $request, $id)
+    {
+        try {
+            // Find the domain in the local database
+            $domain = VirtualminDomain::findOrFail($id);
+
+            // Disable the domain using Virtualmin API
+            $response = $this->virtualminHelper->disableDomain($domain->name);
+
+            // Maintain Log depends on the response in new Table
+
+            // Update the domain status in your local database if needed
+            $domain->update(['is_enabled' => false]);
+
+            return redirect()->back()->with('success', 'Domain disabled successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function deleteDomain(Request $request, $id)
+    {
+        try {
+            // Find the domain in the local database
+            $domain = VirtualminDomain::findOrFail($id);
+
+            // Disable the domain using Virtualmin API
+            $response = $this->virtualminHelper->deleteDomain($domain->name);
+
+            // Maintain Log depends on the response in new Table
+
+            // Update the domain status in your local database if needed
+            $domain->delete();
+
+            return redirect()->back()->with('success', 'Domain deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
     }
 
 }

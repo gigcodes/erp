@@ -45,7 +45,7 @@
         <div class="row" style="margin:10px;">
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered" style="table-layout: fixed;" id="zabbix-webhook-data-list">
+                    <table class="table table-bordered" style="table-layout: fixed;" id="virtualmin-domains-list">
                         <tr>
                             <th width="5%">ID</th>
                             <th width="10%">Name</th>
@@ -65,13 +65,27 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($domain->status) > 30 ? substr($domain->status, 0, 30).'...' :  $domain->status }}
+                                       {{ strlen($domain->is_enabled) > 30 ? substr($domain->is_enabled, 0, 30).'...' :  $domain->is_enabled }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $domain->status }}
+                                        {{ $domain->is_enabled }}
                                     </span>
                                 </td>
-                                <td>Actions</td>
+                                <td>
+                                    @if ($domain->is_enabled === 0)
+                                        <a href="{{ route('virtualmin.domains.enable', ['id' => $domain->id]) }}" class="btn btn-xs" title="Enable">
+                                            <i class="fa fa-check" style="color: #808080;"></i>
+                                        </a>
+                                    @endif
+                                    @if ($domain->is_enabled === 1)
+                                    <a href="{{ route('virtualmin.domains.disable', ['id' => $domain->id]) }}" class="btn btn-xs" title="Disable">
+                                        <i class="fa fa-ban" style="color: #808080;"></i>
+                                    </a>
+                                    @endif
+                                    <a href="{{ route('virtualmin.domains.delete', ['id' => $domain->id]) }}" class="btn btn-xs" title="Delete">
+                                        <i class="fa fa-trash" style="color: #808080;"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </table>
