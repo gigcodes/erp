@@ -817,40 +817,39 @@ class EmailAddressesController extends Controller
 
     public function listEmailRunLogs(Request $request)
     {
-        $eIds = $request->e_ids;
         $searchMessage = $request->search_message;
-        $date = $request->date;
-        $fromName = $request->search_name;
-        $status =  $request->status ?? " "; 
+        $searchDate = $request->date;
+        $searchName = $request->search_name;
+        $searchStatus =  $request->status ?? ""; 
 
-            $emailJobsQuery = DB::table('email_run_histories')
+            $emailRunHistoryQuery = DB::table('email_run_histories')
                 ->join('email_addresses', 'email_run_histories.email_address_id', '=', 'email_addresses.id')
                 ->select(
                     'email_run_histories.*',
                     'email_addresses.from_name as email_from_name'
                 )
-                ->when($request->search_message, function ($query, $searchMessage) {
+                ->when($searchMessage, function ($query, $searchMessage) {
                     return $query->where('email_run_histories.message', 'LIKE', '%' . $searchMessage . '%');
                 })
-                ->when($request->date, function ($query, $date) {
-                    return $query->where('email_run_histories.created_at', 'LIKE', '%' . $date . '%');
+                ->when($searchDate, function ($query, $searchDate) {
+                    return $query->where('email_run_histories.created_at', 'LIKE', '%' . $searchDate . '%');
                 })
-                ->when($fromName, function ($query, $fromName) {
-                    return $query->where('email_addresses.from_name', 'LIKE', '%' . $fromName . '%');
+                ->when($searchName, function ($query, $searchName) {
+                    return $query->where('email_addresses.from_name', 'LIKE', '%' . $searchName . '%');
                 })
                 ->latest();
 
-                if($status != " "){
-                    if ($status !== "failed") {
-                        $emailJobsQuery->where('email_run_histories.is_success', 1);
+                if($searchStatus !=""){
+                    if ($searchStatus === "success") {
+                        $emailRunHistoryQuery->where('email_run_histories.is_success', 1);
                     }
                 
-                    if ($status === "failed") {
-                        $emailJobsQuery->where('email_run_histories.is_success', 0);
+                    if ($searchStatus === "failed") {
+                        $emailRunHistoryQuery->where('email_run_histories.is_success', 0);
                     }
                 }
             
-            $emailJobs = $emailJobsQuery->paginate(\App\Setting::get('pagination', 25));
+            $emailJobs = $emailRunHistoryQuery->paginate(\App\Setting::get('pagination', 25));
 
 
 

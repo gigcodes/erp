@@ -17,7 +17,7 @@
 	<div class="mt-3 col-md-12">
 		<form action="{{route('email-addresses.run-histories-listing')}}" method="get" class="search">
 			<div class="col-md-2 pd-sm">
-                <label> Search Name </label>
+                <label> Search From Name </label>
                 <input class="form-control" type="text" id="search_name" placeholder="Search Name" name="search_name" value="{{ request('search_name') ?? '' }}">
 			</div>
 			<div class="col-lg-2">
