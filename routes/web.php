@@ -376,6 +376,8 @@ use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
+use App\Http\Controllers\DeploymentVersionController;
+
 
 Auth::routes();
 
@@ -650,6 +652,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
+    Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 });
@@ -1613,6 +1616,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
     Route::post('change-email-category', [EmailController::class, 'changeEmailCategory'])->name('changeEmailCategory');
+    Route::post('change-email-status', [EmailController::class, 'changeEmailStatus'])->name('changeEmailStatus');
+
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
@@ -2699,11 +2704,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('google-server', GoogleServerController::class);
     Route::post('log-google-cse', [GoogleServerController::class, 'logGoogleCse'])->name('log.google.cse');
 
-    Route::resource('email-addresses', EmailAddressesController::class);
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
     Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
+    Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
+    Route::get('email-addresses/run-job/lists', [EmailAddressesController::class, 'listEmailRunLogs'])->name('email-addresses.run-histories-listing');
+    Route::resource('email-addresses', EmailAddressesController::class);
+
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -5027,14 +5035,18 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('/{id}/update', [PlanController::class, 'update'])->name('plan.update');
         Route::get('/delete/{id}', [PlanController::class, 'delete'])->name('plan.delete');
         Route::get('/{id}/plan-action', [PlanController::class, 'planAction']);
-        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn']);
-        Route::post('/plan-action/store', [PlanController::class, 'planActionStore']);
-        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore']);
-        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet']);
+        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn'])->name('plan.action.addons');
+        Route::post('/plan-action/store', [PlanController::class, 'planActionStore'])->name('plan.action.store');
+        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore'])->name('plan.solution.store');
+        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet'])->name('plan.show.solutions');
 
         Route::post('plan/basis/create', [PlanController::class, 'newBasis'])->name('plan.create.basis');
         Route::post('plan/type/create', [PlanController::class, 'newType'])->name('plan.create.type');
         Route::post('plan/category/create', [PlanController::class, 'newCategory'])->name('plan.create.category');
+        Route::post('plan/status/update', [PlanController::class, 'changeStatusCategory'])->name('plan.status.update');
+        Route::post('plan/add/remark', [PlanController::class, 'addPlanRemarks'])->name('plan.reamrk.add');
+        Route::post('plan/list/remark', [PlanController::class, 'getRemarkList'])->name('plan.remark.list');
+
     });
 });
 Route::middleware('auth')->group(function () {
@@ -5506,3 +5518,10 @@ Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('
 Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
 Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
 Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');
+
+Route::middleware('auth')->group(function () {
+    Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
+    Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
+    Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
+    Route::post('restore-version-jenkins', [DeploymentVersionController::class, 'restoreRevision'])->name('deployement-restore-revision');
+});

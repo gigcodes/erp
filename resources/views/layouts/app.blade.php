@@ -656,7 +656,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQucikMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -679,20 +679,33 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <div id="view-quick-email" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">View Email</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                 <span aria-hidden="true">&times;</span>
-                  </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Subject : </strong><span id="quickemailSubject"></span> </p>
-                <p><strong>Message : </strong><span id="quickmessage"></span></p>
-                <iframe src="" id="iframe" scrolling="yes" style="width:100%;" frameborder="0" onload="autoIframe('iframe');"></iframe>
-            </div>
+                <div class="modal-header">
+                    <h4 class="modal-title">View Email</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
+                    <p><strong>Message : </strong><span id="quickemailSubject"></span></p>
+                    <input type="hidden" id="receiver_email">
+                    <input type="hidden" id="reply_email_id">
+                    <div id="formattedContent"></div>
+
+                        <div class="col-md-12">
+                            <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default submit-reply-email">Reply</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    
 
     <div id="menu-sopupdate" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -3598,7 +3611,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email
                                                 Addresses</a>
                                         </li>
-
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('email-addresses.run-histories-listing') }}">Email
+                                                Addresses Run Jobs</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('api-response-message') }}">Api
                                                 Response Messages</a>
@@ -4255,10 +4271,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <a class="dropdown-item" href="{{ route('project.index') }}">Projects</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessLogs') }}">Project Build Process Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('project.buildProcessErrorLogs') }}">Project Build Process Error Logs</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('project-theme.index') }}">Project Themes</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('magento-css-variable.index') }}">Magento CSS Variables</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('deployement-version.index') }}">Deployment Version</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -5847,12 +5872,68 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     });
 
-    function openQucikMsg(userEmail) {
+    function openQuickMsg(userEmail) {
         $('#iframe').attr('src', "");
         var userEmaillUrl = '/email/email-frame/'+userEmail.id;
+        var isHTML = isHTMLContent(userEmail.message);
+        if (isHTML) {
+            $('#formattedContent').html(userEmail.message);
+        } else {
+            var formattedHTML = formatContentToHTML(userEmail.message);
+            $('#formattedContent').html(formattedHTML);
+        }
+
+        $('#receiver_email').val(userEmail.to);
+        $('#reply_email_id').val(userEmail.id);
+
+        function isHTMLContent(content) {
+            return /<[a-z][\s\S]*>/i.test(content);
+        }
+
+        function formatContentToHTML(rawContent) {
+            var decodedContent = $('<textarea/>').html(rawContent).text();
+            var formattedContent = decodedContent.replace(/\n/g, '<br>');
+            formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+            formattedContent = '<div>' + formattedContent + '</div>';
+
+            return formattedContent;
+        }
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
+
+    $(document).on('click', '.submit-reply-email', function (e) {
+        e.preventDefault();
+
+        var quickemailSubject = $("#quickemailSubject").text();
+        var formattedContent = $("#formattedContent").html();
+        var replyMessage = $("#reply-message").val();
+        var receiver_email = $('#receiver_email').val();
+        var reply_email_id= $('#reply_email_id').val();
+
+            $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '/email/replyAllMail',
+            type: 'post',
+            data: {
+            'receiver_email': receiver_email,
+            'subject': quickemailSubject,
+            'message': replyMessage,
+            'reply_email_id': reply_email_id
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+            $("#loading-image").hide();
+            toastr['success'](response.message);
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+            toastr['error'](response.errors[0]);
+        });
+    });
     
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
