@@ -1616,6 +1616,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
     Route::post('change-email-category', [EmailController::class, 'changeEmailCategory'])->name('changeEmailCategory');
+    Route::post('change-email-status', [EmailController::class, 'changeEmailStatus'])->name('changeEmailStatus');
+
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');

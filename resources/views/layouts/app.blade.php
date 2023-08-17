@@ -687,11 +687,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
                 <div class="modal-body">
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
                     <p><strong>Message : </strong><span id="quickemailSubject"></span></p>
+                    <input type="hidden" id="receiver_email">
+                    <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
 
                         <div class="col-md-12">
                             <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default submit-reply-email">Reply</button>
                         </div>
                     </div>
                 </div>
@@ -5873,8 +5880,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $('#formattedContent').html(formattedHTML);
         }
 
+        $('#receiver_email').val(userEmail.to);
+        $('#reply_email_id').val(userEmail.id);
+
         function isHTMLContent(content) {
-            // Check if the content contains any HTML tags
             return /<[a-z][\s\S]*>/i.test(content);
         }
 
@@ -5889,6 +5898,39 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
+
+    $(document).on('click', '.submit-reply-email', function (e) {
+        e.preventDefault();
+
+        var quickemailSubject = $("#quickemailSubject").text();
+        var formattedContent = $("#formattedContent").html();
+        var replyMessage = $("#reply-message").val();
+        var receiver_email = $('#receiver_email').val();
+        var reply_email_id= $('#reply_email_id').val();
+
+            $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '/email/replyAllMail',
+            type: 'post',
+            data: {
+            'receiver_email': receiver_email,
+            'subject': quickemailSubject,
+            'message': replyMessage,
+            'reply_email_id': reply_email_id
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+            $("#loading-image").hide();
+            toastr['success'](response.message);
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+            toastr['error'](response.errors[0]);
+        });
+    });
     
     $(document).on("keyup", ".app-search-table", function (e) {
         var keyword = $(this).val();
