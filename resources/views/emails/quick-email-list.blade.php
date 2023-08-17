@@ -318,7 +318,7 @@
             email_id : $('option:selected', this).attr('data-id')
           },
           success : function (response){
-            toastr['success'](response.message);
+            toastr['success']("status updated");
           },
           error : function (response){
             alert(response);

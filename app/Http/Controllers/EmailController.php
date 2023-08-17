@@ -1538,7 +1538,7 @@ class EmailController extends Controller
 
     public function changeEmailStatus(Request $request)
     {
-        Email::where('id', $request->status)->update(['email_status' => $request->status_id]);
+        Email::where('id', $request->status)->update(['status' => $request->status_id]);
 
         session()->flash('success', 'Status has been updated successfully');
 
