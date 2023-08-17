@@ -119,6 +119,9 @@
 							<td><button type="button" title="Deploy" data-id="{{$deploymentVersion->id}}" class="btn btn-xs btn-deploy-verison" data-toggle="modal" data-target="#create-server-modal" style="padding: 0px 5px !important";>
 								<i class="fa fa-upload" aria-hidden="true"></i>
 							</button>
+							<button type="button" title="Restore revision" data-id="{{$deploymentVersion->id}}" class="btn btn-xs btn-restore-verison" style="padding: 0px 5px !important";>
+								<i class="fa fa-simplybuilt" aria-hidden="true"></i>
+							</button>
 							<button type="button" class="btn btn-xs show-developing-log_history-modal" title="Show deploying History" data-id="{{$deploymentVersion->id}}" data-toggle="modal" data-target="#deployemnt-show-history" style="padding: 0px 5px !important";><i class="fa fa-info-circle"></i></button>
 						</td>
 
@@ -284,5 +287,31 @@
 		});
 	});
 
+	$(document).on('click', '.btn-restore-verison', function () {
+		var deployVersionId = $(this).data('id');
+			$.ajax({
+				url: "{{ route('deployement-restore-revision') }}",
+				type: 'PoST',
+				headers: {
+					'X-CSRF-TOKEN': "{{ csrf_token() }}"
+				},
+				data: {
+					deployVersionId: deployVersionId,
+				},
+				dataType: "json",
+				beforeSend: function () {
+					$("#loading-image").show();
+				}
+				}).done(function (response) {
+					if(response.code == 200){
+						toastr['success'](response.message, 'success');
+					}else {
+						toastr["error"](response.message);
+					}
+				$("#loading-image").hide();
+				}).fail(function (response, ajaxOptions, thrownError) {
+				$("#loading-image").hide();
+			});
+	});
 
 </script>
