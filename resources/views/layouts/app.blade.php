@@ -2806,11 +2806,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false" v-pre>Plesk<span
+                                            aria-haspopup="true" aria-expanded="false" v-pre>Virtualmin<span
                                                 class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('plesk.domains')}}">Domains</a>
+                                                <a class="dropdown-item" href="{{route('virtualmin.domains')}}">Domains</a>
                                             </li>
                                         </ul>
                                     </li>
