@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use Illuminate\Support\Collection;
+use App\Models\EventCategory;
 
 class EventController extends Controller
 {
@@ -65,6 +66,7 @@ class EventController extends Controller
         $endDate = $request->get('end_date');
         $dateRangeType = $request->get('date_range_type');
         $eventType = $request->get('event_type');
+        $eventcategoryId = $request->get('event_category_id');
 
         $errors = [];
         if (empty(trim($name))) {
@@ -106,6 +108,7 @@ class EventController extends Controller
         $event->duration_in_min = $durationInMin;
         $event->event_type = $eventType;
         $event->date_range_type = $dateRangeType;
+        $event->event_category_id = $eventcategoryId;
         $event->save();
 
         // Event Availabilities
@@ -639,5 +642,14 @@ class EventController extends Controller
             'code' => 200,
             'message' => 'Updated successfully !!',
         ]);
+    }
+
+    public function eventCategoryStore(Request $request)
+    {
+        $eventCategory = new EventCategory();
+        $eventCategory->category = $request->category;
+        $eventCategory->save();
+
+        return response()->json(['code' => 200, 'data' => $eventCategory, 'message' => 'Category create Succcesfully']);
     }
 }

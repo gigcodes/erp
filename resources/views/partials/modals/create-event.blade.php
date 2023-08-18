@@ -22,6 +22,16 @@
                             </label>
                           </div>
                     </div>
+                    <div class="form-group eventCategory">
+                        <label for="event-name">Eventcategory</label>
+                        <select name="event_category_id" id="event-category" class="form-control select2">
+                            <option value="">-- Select category --</option>
+                            @php  $eventcatgories =  \App\Models\EventCategory::get(); @endphp
+                            @foreach ($eventcatgories as $cat)
+                                <option value="{{$cat->id}}">{{$cat->category}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="event-name">Name</label>
                         <input id="event-name" name="name" class="form-control" type="text">
