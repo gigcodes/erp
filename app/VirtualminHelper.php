@@ -5,6 +5,8 @@ namespace App;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Http;
+use App\Models\VirtualminDomainHistory;
+use Auth;
 
 class VirtualminHelper
 {
@@ -37,13 +39,13 @@ class VirtualminHelper
                         // Domain is disabled
                         $disabledTimestamp = $domainInfo['values']['disabled_at'][0];
                         // Process the disabled domain as needed
-                        VirtualminDomain::updateOrCreate(
+                        $virtualminDomain = VirtualminDomain::updateOrCreate(
                             ['name' => $domainName],
                             ['is_enabled' => false]
                         );
                     } else {
                         // Domain is enabled
-                        VirtualminDomain::updateOrCreate(
+                        $virtualminDomain = VirtualminDomain::updateOrCreate(
                             ['name' => $domainName],
                             ['is_enabled' => true]
                         );
@@ -51,14 +53,25 @@ class VirtualminHelper
                 }
             }
 
-            return $response->json();
+            $result = $response->json();
+            $domainId = $virtualminDomain->id;
+            $domainName = $virtualminDomain->name;
+           
+            $output =  $domainName ." synced successfully ";
+
+            $this->saveDomainHistory($domainId, $result, $output);
+
+            return $result;
         } catch (\Exception $e) {
             throw new \Exception('Failed to sync domain: ' . $e->getMessage());
         }
     }
 
-    public function enableDomain($domainName)
+    public function enableDomain($domain)
     {
+        $domainName =  $domain->name;
+        $domainId = $domain->id;
+
         try {
             $url = $this->_options['endpoint'] . "?program=enable-domain&domain={$domainName}&json=1&multiline=";
 
@@ -66,14 +79,23 @@ class VirtualminHelper
                 ->withBasicAuth($this->_options['user'], $this->_options['pass'])
                 ->get($url);
 
-            return $response->json();
+            $result = $response->json();
+
+            $output = $result['full_log'] ?? $result['output'];
+
+            $this->saveDomainHistory($domainId, $result, $output);
+
+            return $result;
         } catch (\Exception $e) {
             throw new \Exception('Failed to enable domain: ' . $e->getMessage());
         }
     }
 
-    public function disableDomain($domainName)
+    public function disableDomain($domain)
     {
+        $domainName =  $domain->name;
+        $domainId = $domain->id;
+
         try {
             $url = $this->_options['endpoint'] . "?program=disable-domain&domain={$domainName}&json=1&multiline=";
 
@@ -81,7 +103,13 @@ class VirtualminHelper
                 ->withBasicAuth($this->_options['user'], $this->_options['pass'])
                 ->get($url);
 
-            return $response->json();
+            $result = $response->json();
+
+            $output = $result['full_log'] ?? $result['output'];
+
+            $this->saveDomainHistory($domainId, $result, $output);
+            
+            return $result;
         } catch (\Exception $e) {
             throw new \Exception('Failed to disable domain: ' . $e->getMessage());
         }
@@ -142,5 +170,17 @@ class VirtualminHelper
         } catch (\Exception $e) {
             return ['code' => $e->getCode(), 'data' => [], 'message' => $e->getMessage()];
         }
+    }
+
+    public function saveDomainHistory($domainId, $result, $output)
+    {
+        $virtualminDomainHistory = new VirtualminDomainHistory();
+        $virtualminDomainHistory->Virtual_min_domain_id = $domainId;
+        $virtualminDomainHistory->user_id = Auth::user()->id;
+        $virtualminDomainHistory->command =$result['command'];
+        $virtualminDomainHistory->error = $result['error'] ?? null;
+        $virtualminDomainHistory->output = $output;
+        $virtualminDomainHistory->status = $result['status'];
+        $virtualminDomainHistory->save();
     }
 }

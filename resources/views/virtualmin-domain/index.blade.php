@@ -85,6 +85,11 @@
                                     <a href="{{ route('virtualmin.domains.delete', ['id' => $domain->id]) }}" class="btn btn-xs" title="Delete">
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </a>
+                                    <button type="button" class="btn btn-xs domain-history"
+                                            data-id="{{ $domain->id }}" title="Domain History" onclick="listdomainhistory()">
+                                            <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                        </button>
+                                        
                                 </td>
                             </tr>
                         @endforeach
@@ -106,6 +111,31 @@
 {{-- @include('partials.modals.zabbix-task-create-window') --}}
 
 {{-- @include('zabbix-webhook-data.partials.zabbix-status-listing') --}}
+
+
+<div id="domain-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h4 class="modal-title"><b>Virtualmin Domains History</b></h4>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-12" id="domain-history-modal-html">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -264,5 +294,74 @@
             toastr['error'](response.responseJSON.message);
         });
     });
+                                
+    function listdomainhistory(pageNumber = 1) {
+        var button = document.querySelector('.btn.btn-xs.domain-history'); // Corrected class name
+        var id = button.getAttribute('data-id');
+
+            $.ajax({
+                url: '{{ route('virtualmin.domains.history') }}',
+                dataType: "json",
+                data: {
+                    id: id,
+                    page:pageNumber,
+                },
+            }).done(function(response) {
+                $('.ajax-loader').hide();
+                $('#domain-history-modal-html').empty().html(response.html);
+                $('#domain-history-modal').modal('show');
+                renderdomainPagination(response.data);
+            }).fail(function(response) {
+                $('.ajax-loader').hide();
+                console.log(response);
+            });
+    }
+
+        function renderdomainPagination(response) {
+            var paginationContainer = $(".pagination-container-domain");
+            var currentPage = response.current_page;
+            var totalPages = response.last_page;
+            var html = "";
+            var maxVisiblePages = 10;
+
+            if (totalPages > 1) {
+                html += "<ul class='pagination'>";
+                if (currentPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changedomainPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+                }
+                var startPage = 1;
+                var endPage = totalPages;
+
+                if (totalPages > maxVisiblePages) {
+                if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                    endPage = maxVisiblePages;
+                } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                    startPage = totalPages - maxVisiblePages + 1;
+                } else {
+                    startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                    endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+                }
+
+                if (startPage > 1) {
+                    html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changedomainPage(1)'>1</a></li>";
+                    if (startPage > 2) {
+                    html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                    }
+                }
+                }
+
+                for (var i = startPage; i <= endPage; i++) {
+                html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changedomainPage(" + i + ")'>" + i + "</a></li>";
+                }
+                html += "</ul>";
+            }
+            paginationContainer.html(html);
+         }
+
+        function changedomainPage(pageNumber) {
+            listdomainhistory(pageNumber);
+        }
+          
+
 </script>
 @endsection

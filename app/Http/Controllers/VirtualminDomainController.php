@@ -12,6 +12,7 @@ use App\VirtualminHelper;
 use App\ZabbixWebhookDataRemarkHistory;
 use App\ZabbixWebhookDataStatusHistory;
 use Illuminate\Support\Facades\Validator;
+use App\Models\VirtualminDomainHistory;
 
 class VirtualminDomainController extends Controller
 {
@@ -47,7 +48,7 @@ class VirtualminDomainController extends Controller
             $domain = VirtualminDomain::findOrFail($id);
 
             // Enable the domain using Virtualmin API
-            $response = $this->virtualminHelper->enableDomain($domain->name);
+            $response = $this->virtualminHelper->enableDomain($domain);
 
             // Maintain Log depends on the response in new Table
 
@@ -67,7 +68,7 @@ class VirtualminDomainController extends Controller
             $domain = VirtualminDomain::findOrFail($id);
 
             // Disable the domain using Virtualmin API
-            $response = $this->virtualminHelper->disableDomain($domain->name);
+            $response = $this->virtualminHelper->disableDomain($domain);
 
             // Maintain Log depends on the response in new Table
 
@@ -100,4 +101,17 @@ class VirtualminDomainController extends Controller
         }
     }
 
+    public function domainShow(Request $request)
+    {
+        $perPage = 5;
+
+        $histories = VirtualminDomainHistory::with(['user'])
+        ->where('Virtual_min_domain_id', $request->id)
+        ->latest()
+        ->paginate($perPage);
+
+        $html = view('virtualmin-domain.domain-history-modal-html')->with('domainHistories', $histories)->render();
+
+        return response()->json(['code' => 200, 'data' => $histories, 'html'=> $html,'message' => 'Content render']);
+    }
 }
