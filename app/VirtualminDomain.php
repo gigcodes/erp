@@ -16,4 +16,18 @@ class VirtualminDomain extends Model
         'is_enabled',
     ];
 
+    protected $appends = ['is_enabled_text'];
+
+    public function getIsEnabledTextAttribute()
+    {
+        $isEnabledText = '';
+        if ($this->is_enabled === 1) {
+            $isEnabledText = 'Enabled';        
+        } else {
+            $isEnabledText = 'Disabled';
+        }
+        return $isEnabledText;
+    }
+   
+
 }

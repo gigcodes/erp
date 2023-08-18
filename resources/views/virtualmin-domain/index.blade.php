@@ -7,22 +7,26 @@
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-8">
-                    {{-- <form action="{{ route('zabbix-webhook-data.index') }}" method="get" class="search">
+                    <form action="{{ route('virtualmin.domains') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-4 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
-                            </div>
-                            <div class="col-lg-4">
-                                <input class="form-control" type="date" name="event_start" value="{{ request()->get('event_start') }}">
+                            </div>                            
+                            <div class="col-md-3 pd-sm">                                
+                                <select name="status" id="status" class="form-control select2">
+                                    <option value="">-- Select a status --</option> 
+                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Enabled</option>
+                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Disabled</option>
+                                </select>
                             </div>
                             <div class="col-md-4 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('zabbix-webhook-data.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                                <a href="{{ route('virtualmin.domains') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
-                    </form> --}}
+                    </form>
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
@@ -65,10 +69,10 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                       {{ strlen($domain->is_enabled) > 30 ? substr($domain->is_enabled, 0, 30).'...' :  $domain->is_enabled }}
+                                       {{ strlen($domain->is_enabled_text) > 30 ? substr($domain->is_enabled_text, 0, 30).'...' :  $domain->is_enabled_text }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ $domain->is_enabled }}
+                                        {{ $domain->is_enabled_text }}
                                     </span>
                                 </td>
                                 <td>

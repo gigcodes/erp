@@ -27,9 +27,24 @@ class VirtualminDomainController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $domains = VirtualminDomain::latest()->paginate(10);
+
+        $keyword = $request->get('keyword');
+        $status = $request->get('status');
+
+        // data search action        
+        $domains = VirtualminDomain::latest();
+
+        if (!empty($keyword) || isset($keyword)) {
+            $domains = $domains->where('name', 'LIKE', '%' . $keyword . '%');  
+        }
+        if (!empty($status) || isset($status)) {            
+            $domains = $domains->where('is_enabled', $status);  
+        }
+
+        $domains = $domains->paginate(10);
+        
         return view('virtualmin-domain.index', ['domains' => $domains]);
     }
 
