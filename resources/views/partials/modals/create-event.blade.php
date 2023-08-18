@@ -131,12 +131,12 @@
                     </div>
                     <div class="form-group">
                         <label for="event-start-date">Start Date</label>
-                        <input id="event-start-date" name="start_date" type="text" class="form-control event-dates" value="" placeholder="Select Start Date">
+                        <input type="date" name="start_date" id="event-start-date" value=""  class="form-control input-sm" placeholder="Select Start Date">
                         <span id="start_date_error" class="text-danger"></span>
                     </div>
                     <div class="form-group" id="end-date-div">
                         <label for="event-end-date">End Date</label>
-                        <input id="event-end-date" name="end_date" type="text" class="form-control event-dates" value="" placeholder="Select End Date">
+                        <input type="date" name="end_date" id="event-end-date" value=""  class="form-control input-sm" placeholder="Select End Date">
                         <span id="end_date_error" class="text-danger"></span>
                     </div>
                     
@@ -200,7 +200,6 @@
 
 <script>
     $(document).ready(function() {
-        // Initialize the Select2 plugin
         $('.select2').select2();
 
         // Add Vendor button click event
