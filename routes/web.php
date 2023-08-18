@@ -419,6 +419,7 @@ use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\VirtualminDomainController;
 
 Auth::routes();
 
@@ -1381,6 +1382,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/mail/accounts/{id}', [PleskController::class, 'getMailAccounts'])->name('plesk.domains.mail-accounts');
         Route::post('/domains/mail/change-password', [PleskController::class, 'changePassword'])->name('plesk.domains.mail-accounts.change-password');
         Route::get('/domains/view/{id}', [PleskController::class, 'show'])->name('plesk.domains.view');
+    });
+
+    Route::prefix('virtualmin')->middleware('auth')->group(static function () {
+        Route::get('/domains', [VirtualminDomainController::class, 'index'])->name('virtualmin.domains');
+        Route::get('/domains/sync', [VirtualminDomainController::class, 'syncDomains'])->name('virtualmin.domains.sync');
+        Route::get('/domains/{id}/enable', [VirtualminDomainController::class, 'enableDomain'])->name('virtualmin.domains.enable');
+        Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
+        Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
+        Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
     });
 
     //plesk
