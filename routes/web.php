@@ -1365,6 +1365,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/enable', [VirtualminDomainController::class, 'enableDomain'])->name('virtualmin.domains.enable');
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
+        Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
     });
 
     //plesk
