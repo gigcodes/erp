@@ -183,10 +183,10 @@ class EventController extends Controller
         }
 
         $subject = 'Event Scdhuled';
-        $message = "Event Name: " .  $event->name . " " . "Event Description: " .$event->description.
+        $message = "";
         $user = User::find($event->user_id);
         $eventLink = "https://us05web.zoom.us/j/6928700773?pwd=Qnp6V2VQWGJ1NkhYd3c4ZHdBTjFoZz09";
-        $emailClass = (new EventEmail($subject, $message, $user->email, $eventLink))->build();
+        $emailClass = (new EventEmail($subject, $message, $event->user->email, $eventLink))->build();
 
         $email = \App\Email::create([
             'model_id' => $event->id,
