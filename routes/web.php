@@ -4413,6 +4413,8 @@ Route::middleware('auth')->group(function () {
     Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
+    Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
+
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');

@@ -16,6 +16,7 @@
         <h2 class="page-heading">Events</h2>
     </div>
 </div>
+{{-- @dd('hii'); --}}
 @include('partials.flash_messages')
 {{-- <p class="text-secondary">Calendar link:</p>
 <div class="border border-light p-2 my-3">
@@ -120,7 +121,7 @@
         color: white!important;
         border: 1px solid #6c757d;
     }
-    .duration .select2-container, .date-range-type .select2-container {
+    .duration .select2-container, .date-range-type .select2-container  {
         display: block;
     }
     .fc-unthemed td.fc-today {
@@ -135,6 +136,7 @@
     }
 </style>
 @include('partials.modals.user-event-modal')
+@include('events.event-category-create')
 
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
@@ -163,13 +165,18 @@
                     click: function() {
                         window.location.href = '{{ route('event.public') }}'; 
                     }
-                }
-                
+                },
+                createCategory: {
+                    text: 'Create Category',
+                    click: function() {
+                        $("#event-create-category-modal").modal("show");
+                    }
+                },
             },
             header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'createEvent publicEvent dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+            right: 'createCategory createEvent publicEvent dayGridMonth,timeGridWeek,timeGridDay,listMonth'
             },
             defaultView: 'dayGridMonth',
             allDaySlot: false,
