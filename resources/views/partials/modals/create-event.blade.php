@@ -22,15 +22,83 @@
                             </label>
                           </div>
                     </div>
-                    <div class="form-group eventCategory">
-                        <label for="event-name">Eventcategory</label>
-                        <select name="event_category_id" id="event-category" class="form-control select2">
+                    <div class="form-group duration">
+                        <label for="event-name">Event Category</label>
+                        <select name="event_category_id" id="event_category_id" class="form-control select2">
                             <option value="">-- Select category --</option>
                             @php  $eventcatgories =  \App\Models\EventCategory::get(); @endphp
                             @foreach ($eventcatgories as $cat)
                                 <option value="{{$cat->id}}">{{$cat->category}}</option>
                             @endforeach
                         </select>
+                        <span id="event_category_id_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group duration">
+                        <label for="event-name">Event User</label>
+                        <select name="user_id" id="user_id" class="form-control select2">
+                            <option value="">-- Select User --</option>
+                            @php  $users =  \App\User::get(); @endphp
+                            @foreach ($users as $user)
+                                <option value="{{$user->id}}">{{$user->name}}</option>
+                            @endforeach
+                        </select>
+                        <span id="user_id_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group duration">
+                        <label for="event-name">Event Vendor
+                            <button type="button" class="btn custom-button float-right mr-3 add-vendor">Add Vendor</button>
+                        </label>
+                        <select name="vendor_id" id="vendor_id" class="form-control select2">
+                            <option value="">-- Select Vendor --</option>
+                            @php  $vendors =  \App\Vendor::get(); @endphp
+                            @foreach ($vendors as $vendor)
+                                <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                      <div class="form-group duration" id="vendor-inputs" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Vendor category</label>
+                                    <select class="form-control" name="vendor_category_id"  placeholder="Category:">
+                                        @php  $categories =  \App\VendorCategory::get(); @endphp
+                                        <option value="">Select a Category</option>
+                                        @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                        @endforeach
+                                      </select>
+                                      <span id="vendor_category_id_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Vendor Name</label>
+                                    <input type="text" name="vendor_name" id="vendor_name" class="form-control" placeholder="Enter Vendor Name">
+                                    <span id="vendor_name_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-email">Email</label>
+                                    <input type="email" name="vendor_email" id="vendor_email" class="form-control" placeholder="Enter Email Name">
+                                    <span id="vendor_email_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Phone Number</label>
+                                    <input type="number" name="vendor_phone" id="vendor_phone" class="form-control" placeholder="Enter Phone Number">
+                                    <span id="vendor_phone_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-from-address">Email From Address</label>
+                        <input type="email" id="email_from_address" name="from_address" class="form-control" value="info@mio-moda.com">
+                        <span id="email_from_address_error" class="text-danger"></span>
+
                     </div>
                     <div class="form-group">
                         <label for="event-name">Name</label>
@@ -63,12 +131,12 @@
                     </div>
                     <div class="form-group">
                         <label for="event-start-date">Start Date</label>
-                        <input id="event-start-date" name="start_date" type="text" class="form-control event-dates" value="" placeholder="Select Start Date">
+                        <input type="date" name="start_date" id="event-start-date" value=""  class="form-control input-sm" placeholder="Select Start Date">
                         <span id="start_date_error" class="text-danger"></span>
                     </div>
                     <div class="form-group" id="end-date-div">
                         <label for="event-end-date">End Date</label>
-                        <input id="event-end-date" name="end_date" type="text" class="form-control event-dates" value="" placeholder="Select End Date">
+                        <input type="date" name="end_date" id="event-end-date" value=""  class="form-control input-sm" placeholder="Select End Date">
                         <span id="end_date_error" class="text-danger"></span>
                     </div>
                     
@@ -129,3 +197,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2();
+
+        // Add Vendor button click event
+        $('.add-vendor').click(function() {
+            $('#vendor-inputs').toggle();
+            $("#vendor_id").css({
+                style: 'display: none;',
+            });
+        });
+    });
+</script>
