@@ -200,8 +200,6 @@
 
 <script>
     $(document).ready(function() {
-        $('.select2').select2();
-
         // Add Vendor button click event
         $('.add-vendor').click(function() {
             $('#vendor-inputs').toggle();
