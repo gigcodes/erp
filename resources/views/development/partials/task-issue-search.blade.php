@@ -3,7 +3,7 @@
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
                 <label for="assiged users">Assigned User </label>
-                <select class="form-control globalSelect2", multiple = "true", name="assigned_to[]" id="assigned_to">
+                <select class="form-control select2" multiple name="assigned_to[]" id="assigned_to">
                     @foreach($users as $id=>$user)
                         <option value="{{$id}}" 
                             @if(is_array(request('assigned_to')) && in_array($id, request('assigned_to')))
@@ -16,7 +16,7 @@
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
                 <label for="assiged users">Lead Developer</label>
-                <select class="form-control globalSelect2", multiple = "true" name="master_user_id[]" id="master_user_id">
+                <select class="form-control select2", multiple name="master_user_id[]" id="master_user_id">
                     @foreach($users as $id=>$user)
                         <option value="{{$id}}" 
                             @if(is_array(request('master_user_id')) && in_array($id, request('master_user_id')))
@@ -29,7 +29,7 @@
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
                 <label for="assiged users">Team lead</label>
-                <select class="form-control globalSelect2", multiple = "true" name="team_lead_id[]" id="team_lead_id">
+                <select class="form-control select2", multiple name="team_lead_id[]" id="team_lead_id">
                     @foreach($users as $id=>$user)
                     <option value="{{$id}}" 
                     @if(is_array(request('team_lead_id')) && in_array($id, request('team_lead_id')))
@@ -42,7 +42,7 @@
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
                 <label for="assiged users">Tester</label>
-                <select class="form-control globalSelect2", multiple = "true" name="tester_id[]" id="tester_id">
+                <select class="form-control select2", multiple name="tester_id[]" id="tester_id">
                     @foreach($users as $id=>$user)
                     <option value="{{$id}}" 
                     @if(is_array(request('tester_id')) && in_array($id, request('tester_id')))
