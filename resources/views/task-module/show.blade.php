@@ -270,7 +270,7 @@
                     @if(auth()->user()->checkPermission('activity-list'))
                         <div class="col-xs-12 col-md-2 pd-2">
                             <div class="form-group ml-3">
-                                <select id="search_by_user" class="form-control globalSelect2"  multiple = "true" name="selected_user[]">
+                                <select id="search_by_user" class="form-control select2" name="selected_user[]" multiple>
                                     <option value="">Select a User</option>
                                     @foreach ($users as $id => $user)
                                         <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
@@ -425,7 +425,8 @@
                                 <div class="cls_categoryfilter_box">
                                     <div class="cls_categoryfilter_first">
                                         <div class="">
-                                            <?php echo Form::select("category",['' => ''],null,["class" => "form-control  category_ globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.taskcategories'), 'data-placeholder' => 'Category To select..']); ?>
+                                            <?php //echo Form::select("category",['' => ''],null,["class" => "form-control select2" ,"style" => "width:100%;", 'data-ajax' => route('select2.taskcategories'), 'data-placeholder' => 'Category To select..']); ?>
+                                            {!! $task_categories_dropdown !!}
                                             {{-- <strong>Category:</strong> --}}
                                             {{-- {!! $task_categories_dropdown !!} --}}
                                             {{-- <select class="form-control input-sm" name="category" id="required_category" required>

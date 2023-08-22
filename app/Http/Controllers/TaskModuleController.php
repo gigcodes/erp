@@ -1469,12 +1469,10 @@ class TaskModuleController extends Controller
         } else {
             $userid = $request->input('selected_user');
 
-            $searchMasterUserId = $userid;
             if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
             }
 
-            $searchSecondMasterUserId = $userid;
             if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
