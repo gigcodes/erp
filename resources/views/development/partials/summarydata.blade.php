@@ -34,6 +34,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
     </td>
     <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
     <td>
+        <label for="" style="font-size: 12px;margin-top:10px;"><strong>Assigned To </strong></label>
         <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
         <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
             <option value="">Select...</option>
