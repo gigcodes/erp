@@ -10,6 +10,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css"> 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.css">
 
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -134,6 +135,9 @@
     .fc-disabled-day {
         visibility:hidden;
     }
+    .day-row {
+        display: none;
+    }
 </style>
 @include('partials.modals.user-event-modal')
 @include('events.event-category-create')
@@ -147,6 +151,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.js"></script>
+
 <script>
     let calendar;
     document.addEventListener('DOMContentLoaded', function() {
@@ -161,9 +167,9 @@
                     }
                 },
                 publicEvent: {
-                    text: 'Public Event List',
+                    text: 'Event Lists',
                     click: function() {
-                        window.location.href = '{{ route('event.public') }}'; 
+                        window.open('{{ route('event.public') }}', '_blank');
                     }
                 },
                 createCategory: {
@@ -351,14 +357,6 @@
             format: 'YYYY-MM-DD'
         });
 
-        $('select[name="date_range_type"]').on('change', function() {
-            if($(this).val() == 'within') {
-                $('#event-end-date').val("");
-                $('#end-date-div').removeClass('hide')
-            } else {
-                $('#end-date-div').addClass('hide');
-            } 
-        });
 
         $(document).on("submit", "#create-event-submit-form", function(e) {
             e.preventDefault();

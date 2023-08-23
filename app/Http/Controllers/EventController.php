@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use App\Models\EventCategory;
 use App\Vendor;
 use App\User;
+use App\Models\EventRemarkHistory;
 
 class EventController extends Controller
 {
@@ -36,7 +37,33 @@ class EventController extends Controller
 
     public function publicEvents(Request $request)
     {
-        $events = Event::myEvents(Auth::user()->id)->where('event_type', 'PU')->latest()->paginate(25);
+        $events = Event::myEvents(Auth::user()->id);
+
+        if($request->search_name) {
+            $events =  $events->where('name', 'LIKE', '%' . $request->search_name . '%');
+        }
+
+        if($request->search_description) {
+            $events =  $events->where('description', 'LIKE', '%' . $request->search_description . '%');
+        }
+
+        if($request->search_duration) {
+            $events =  $events->where('duration_in_min', 'LIKE', '%' . $request->search_duration . '%');
+        }
+
+        if($request->search_date_range_type) {
+            $events =  $events->where('date_range_type', 'LIKE', '%' . $request->search_date_range_type . '%');
+        }
+
+        if($request->date) {
+            $events =  $events->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        if($request->search_event_type) {
+            $events =  $events->where('event_type', 'LIKE', '%' . $request->search_event_type . '%');
+        }
+
+        $events = $events->latest()->paginate(25);
 
         if ($request->ajax()) {
             return response()->json([
@@ -731,5 +758,37 @@ class EventController extends Controller
         $eventCategory->save();
 
         return response()->json(['code' => 200, 'data' => $eventCategory, 'message' => 'Category create Succcesfully']);
+    }
+
+    public function addEventsRemarks(Request $request)
+    {
+        $plan = Event::where('id', $request->event_id)->first();
+        $plan->remarks = $request->remark;
+        $plan->save();
+
+        $planRemarkhistory = new EventRemarkHistory();
+        $planRemarkhistory->event_id = $request->event_id;
+        $planRemarkhistory->remarks = $request->remark;
+        $planRemarkhistory->user_id = \Auth::id();
+        $planRemarkhistory->save();
+
+        return response()->json(['code' => 500, 'message' => 'Remark Added Successfully!']);
+    }
+
+    public function getEventremarkList(Request $request)
+    {
+        $taskRemarkData = EventRemarkHistory::where('event_id', '=', $request->eventId)->get();
+
+        $html = '';
+        foreach ($taskRemarkData as $taskRemark) {
+            $html .= '<tr>';
+            $html .= '<td>' . $taskRemark->id . '</td>';
+            $html .= '<td>' . $taskRemark->user->name . '</td>';
+            $html .= '<td>' . $taskRemark->remarks . '</td>';
+            $html .= '<td>' . $taskRemark->created_at . '</td>';
+            $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remarks . "'></i></td>";
+        }
+
+        return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
     }
 }
