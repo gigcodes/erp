@@ -160,7 +160,7 @@
 
     @include('partials.flash_messages')
 
-    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task ({{$issues->total()}})</p>
+    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dfghev Task ({{$issues->total()}})</p>
     @if (auth()->user()->isReviwerLikeAdmin())
         <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
     @endif
@@ -197,11 +197,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2 pd-sm">
-                            <select class="form-control" name="lead" id="lead">
+                        <div class="col-md-2 pd-sm custom-select2">
+                            <select class="form-control" name="lead[]" id="lead" multiple="multiple" data-placeholder="Search Lead By Name">
                                 <option value="">Lead</option>
                                 @foreach ($users as $id => $user)
-                                    <option {{ $request->get('lead') == $id ? 'selected' : '' }}
+                                    <option @if($request->get('lead')){{ (in_array($id, $request->get('lead'))) ? 'selected' : '' }}@endif
                                             value="{{ $id }}">{{ $user }}</option>
                                 @endforeach
                             </select>
@@ -229,7 +229,7 @@
                         <?php echo Form::select(
                             'task_status[]', $statusList, request()->get('task_status', array_values($statusList)), [
                                                'class' => 'form-control multiselect',
-                                               'multiple' => true
+                                               'multiple' => "multiple",
                                            ]
                         ); ?>
 
@@ -241,8 +241,8 @@
 
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
-                            id="show"><img src="<?php echo $base_url; ?>/images/filter.png"/></button>
-
+                            id="show"><img src="<?php echo $base_url; ?>/images/filter.png"/></button><br>
+                            <a href="{{route('development.summarylist')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 
                 </form>
 
@@ -1950,7 +1950,7 @@
                     isLoadingProducts = false;
                 });
         }
-
+    $("#lead").select2();
     $("#assigned_to").select2();
     </script>
 @endsection
