@@ -172,10 +172,12 @@
                                     </span>
                                 </td>
                                 <td style="word-break: break-all">
+                                    @if($responseLog->command)
                                     <span class="td-mini-container">
                                        {{ strlen($responseLog->command) > 10 ? substr($responseLog->command, 0, 10).'...' :  $responseLog->command }}
 								       <i class="fa fa-eye show_logs show-full-command" data-full-text="{{ nl2br($responseLog->command) }}" style="color: #808080;float: right;"></i>
                                     </span>
+                                    @endif
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->status }}

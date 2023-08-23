@@ -232,6 +232,7 @@ class ProjectController extends Controller
                         'github_branch_state_name' => $branch_name,
                         'build_pr' => $build_pr,
                         'initiate_from' => $initiate_from,
+                        'command' => "",
                     ];
                     \App\BuildProcessHistory::create($record);
 
@@ -279,6 +280,7 @@ class ProjectController extends Controller
                             'github_branch_state_name' => $branch_name,
                             'build_pr' => $build_pr,
                             'initiate_from' => $initiate_from,
+                            'command' => "",
                         ];
 
                         \App\BuildProcessHistory::create($record);
@@ -293,6 +295,7 @@ class ProjectController extends Controller
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
+                            'command' => "",
                         ];
                         \App\BuildProcessHistory::create($record);
                         BuildProcessErrorLog::log([
@@ -317,6 +320,7 @@ class ProjectController extends Controller
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
                         'github_branch_state_name' => $branch_name,
+                        'command' => "",
                     ];
                     \App\BuildProcessHistory::create($record);
                     BuildProcessErrorLog::log([
@@ -343,6 +347,7 @@ class ProjectController extends Controller
                     'github_branch_state_name' => $branch_name,
                     'build_pr' => $build_pr,
                     'initiate_from' => $initiate_from,
+                     'command' => "",
                 ];
 
                 \App\BuildProcessHistory::create($record);
