@@ -137,7 +137,7 @@ class MagentoService
                 return false;
             }
         } else {
-            ProductPushErrorLog::log('', $this->product->id, $this->topParent . ' cond  check_if_website_token_exists', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
+            ProductPushErrorLog::log('', $this->product->id, $this->topParent . ' cond  check_if_website_token_exists', 'success', $website->id, null, null, $this->log->id, $this->conditionsWithIds['check_if_images_exists']);
         }
 
         // started to check for the category
@@ -711,6 +711,25 @@ class MagentoService
             $data['product']['custom_attributes'][] = [
                 'attribute_code' => 'color_v2',
                 'value' => $this->storeColor,
+            ];
+        }
+
+        //add_to_sale_products for the custom attributes
+        $data['product']['custom_attributes'][] = [
+            'attribute_code' => 'add_to_sale_products',
+            'value' => 0,
+        ];
+        //add_to_most_popular for the custom attributes
+        $data['product']['custom_attributes'][] = [
+            'attribute_code' => 'add_to_most_popular',
+            'value' => 0,
+        ];
+
+        if ($data['product']['type_id'] == 'donation') {
+            //firas_donation_min_amount for the custom attributes
+            $data['product']['custom_attributes'][] = [
+                'attribute_code' => 'firas_donation_min_amount',
+                'value' => 0,
             ];
         }
 
