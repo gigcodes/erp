@@ -5439,6 +5439,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <th>Source</th>
                                 <th>Comment</th>
                                 <th>Command</th>
+                                <th>Status</th>
+                                <th>Message</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -6747,6 +6749,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td> ' + v.command + ' </td>';
+                    ip += '<td> ' + v.status + ' </td>';
+                    ip += '<td> ' + v.message + ' </td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
                     ip += '</tr>';

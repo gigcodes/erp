@@ -15,7 +15,8 @@ class AddCommandResponseToUserSystemIpTable extends Migration
     {
         Schema::table('user_system_ip', function (Blueprint $table) {
             $table->text('command')->nullable();
-            $table->text('response')->nullable();
+            $table->string('status')->nullable();
+            $table->text('message')->nullable();
         });
     }
 
@@ -28,7 +29,8 @@ class AddCommandResponseToUserSystemIpTable extends Migration
     {
         Schema::table('user_system_ip', function (Blueprint $table) {
             $table->dropColumn('command');
-            $table->dropColumn('response');
+            $table->dropColumn('status');
+            $table->dropColumn('message');
         });
     }
 }
