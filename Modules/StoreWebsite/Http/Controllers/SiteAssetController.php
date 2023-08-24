@@ -11,8 +11,8 @@ use App\SiteDevelopment;
 use Illuminate\Http\Request;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopmentDocument;
-use App\SiteDevelopmentMasterCategory;
 use Illuminate\Routing\Controller;
+use App\SiteDevelopmentMasterCategory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteAssetController extends Controller
@@ -28,8 +28,8 @@ class SiteAssetController extends Controller
         $data['all_store_websites'] = StoreWebsite::all();
         $data['categories'] = SiteDevelopmentCategory::all();
         $data['master_categories'] = SiteDevelopmentMasterCategory::all();
-        $data['search_website'] = $request->store_webs ?? "";
-        $data['master_cat'] = $request->master_cat ?? "";
+        $data['search_website'] = $request->store_webs ?? '';
+        $data['master_cat'] = $request->master_cat ?? '';
 
         $data['search_category'] = isset($request->categories) ? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];

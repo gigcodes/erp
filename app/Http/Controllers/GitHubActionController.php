@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\GitHubAction;
+use Illuminate\Http\Request;
 
 class GitHubActionController extends Controller
 {
@@ -11,7 +11,7 @@ class GitHubActionController extends Controller
     {
         $githubAction = new GitHubAction();
 
-        $githubAction->github_actor  = $request->input('github_actor');
+        $githubAction->github_actor = $request->input('github_actor');
         $githubAction->github_api_url = $request->input('github_api_url');
         $githubAction->github_base_ref = $request->input('github_base_ref');
         $githubAction->github_event_name = $request->input('github_event_name');

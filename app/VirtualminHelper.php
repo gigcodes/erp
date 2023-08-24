@@ -2,11 +2,11 @@
 
 namespace App;
 
+use Auth;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Http;
 use App\Models\VirtualminDomainHistory;
-use Auth;
 
 class VirtualminHelper
 {
@@ -24,7 +24,7 @@ class VirtualminHelper
     public function syncDomains()
     {
         try {
-            $url = $this->_options['endpoint'] . "?program=list-domains&json=1&multiline=";
+            $url = $this->_options['endpoint'] . '?program=list-domains&json=1&multiline=';
 
             $response = Http::withOptions(['verify' => false])
                 ->withBasicAuth($this->_options['user'], $this->_options['pass'])
@@ -35,7 +35,7 @@ class VirtualminHelper
                 $domainsData = $responseData['data'];
                 foreach ($domainsData as $domainInfo) {
                     $domainName = $domainInfo['name'];
-                    if (isset($domainInfo['values']['disabled_at']) && !empty($domainInfo['values']['disabled_at'][0])) {
+                    if (isset($domainInfo['values']['disabled_at']) && ! empty($domainInfo['values']['disabled_at'][0])) {
                         // Domain is disabled
                         $disabledTimestamp = $domainInfo['values']['disabled_at'][0];
                         // Process the disabled domain as needed
@@ -56,8 +56,8 @@ class VirtualminHelper
             $result = $response->json();
             $domainId = $virtualminDomain->id;
             $domainName = $virtualminDomain->name;
-           
-            $output =  $domainName ." synced successfully ";
+
+            $output = $domainName . ' synced successfully ';
 
             $this->saveDomainHistory($domainId, $result, $output);
 
@@ -69,7 +69,7 @@ class VirtualminHelper
 
     public function enableDomain($domain)
     {
-        $domainName =  $domain->name;
+        $domainName = $domain->name;
         $domainId = $domain->id;
 
         try {
@@ -93,7 +93,7 @@ class VirtualminHelper
 
     public function disableDomain($domain)
     {
-        $domainName =  $domain->name;
+        $domainName = $domain->name;
         $domainId = $domain->id;
 
         try {
@@ -108,7 +108,7 @@ class VirtualminHelper
             $output = $result['full_log'] ?? $result['output'];
 
             $this->saveDomainHistory($domainId, $result, $output);
-            
+
             return $result;
         } catch (\Exception $e) {
             throw new \Exception('Failed to disable domain: ' . $e->getMessage());
@@ -177,7 +177,7 @@ class VirtualminHelper
         $virtualminDomainHistory = new VirtualminDomainHistory();
         $virtualminDomainHistory->Virtual_min_domain_id = $domainId;
         $virtualminDomainHistory->user_id = Auth::user()->id;
-        $virtualminDomainHistory->command =$result['command'];
+        $virtualminDomainHistory->command = $result['command'];
         $virtualminDomainHistory->error = $result['error'] ?? null;
         $virtualminDomainHistory->output = $output;
         $virtualminDomainHistory->status = $result['status'];

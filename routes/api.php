@@ -29,6 +29,7 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\InfluencersController;
 use App\Http\Controllers\ResourceImgController;
 use App\Http\Controllers\SearchQueueController;
+use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\GoogleSearchController;
 use App\Http\Controllers\MissingBrandController;
 use App\Http\Controllers\SocialWebhookController;
@@ -45,7 +46,6 @@ use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutyCurrencyController;
 use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\MagentoCustomerReferenceController;
-use App\Http\Controllers\GitHubActionController;
 
 /*
 |--------------------------------------------------------------------------

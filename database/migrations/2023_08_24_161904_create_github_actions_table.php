@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateGithubActionsTable extends Migration
 {
@@ -30,7 +30,7 @@ class CreateGithubActionsTable extends Migration
             $table->string('github_workflow');
             $table->string('runner_name');
             $table->text('status')->nullable();
-            $table->text('data')->nullable();;
+            $table->text('data')->nullable();
             $table->timestamps();
         });
     }
