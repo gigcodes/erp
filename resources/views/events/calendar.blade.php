@@ -142,6 +142,10 @@
 @include('partials.modals.user-event-modal')
 @include('events.event-category-create')
 
+<div id="loading-image-preview"
+style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+</div>
+
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/timegrid/main.js') }}"></script>
@@ -366,14 +370,19 @@
                 url: $form.attr("action"),
                 data: $form.serialize(),
                 dataType: "json",
+                beforeSend: function() {
+                 $("#loading-image-preview").show();
+                },
                 success: function(data) {
                     if (data.code == 200) {
+                        $("#loading-image-preview").hide();
                         $form[0].reset();
                         $("#create-event-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
                         location.reload();
                     } else {
                         toastr['error'](data.message, 'Message');
+                        $("#loading-image-preview").hide();
                     }
                 },
                 error: function(xhr, status, error) {
