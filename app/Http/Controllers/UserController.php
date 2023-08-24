@@ -698,7 +698,7 @@ class UserController extends Controller
                 'source' => 'system',
                 'command' => $shell_bash_cmd,
                 'status' => $data['status'] ?? '',
-                'message' => $data['message'] ?? ''
+                'message' => $data['message'] ?? '',
             ]);
 
             $userID = $request->user_id ?? null;
