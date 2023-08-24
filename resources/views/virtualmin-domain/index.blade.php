@@ -105,6 +105,8 @@
     </div>
 </div>
 
+<div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+</div>
 {{-- zabbixStatusCreate --}}
 {{-- @include('zabbix-webhook-data.partials.zabbix-status-create-modal') --}}
 {{-- #remark-area-list --}}
@@ -310,13 +312,16 @@
                     id: id,
                     page:pageNumber,
                 },
+                beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
             }).done(function(response) {
-                $('.ajax-loader').hide();
                 $('#domain-history-modal-html').empty().html(response.html);
                 $('#domain-history-modal').modal('show');
                 renderdomainPagination(response.data);
+                $("#loading-image-preview").hide();
             }).fail(function(response) {
-                $('.ajax-loader').hide();
+                $('.loading-image-preview').show();
                 console.log(response);
             });
     }
