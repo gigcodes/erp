@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddSoftdeleteToVirtualminDomainsTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddSoftdeleteToVirtualminDomainsTable extends Migration
     {
         Schema::table('virtualmin_domains', function (Blueprint $table) {
             $table->softDeletes();
-
         });
     }
 

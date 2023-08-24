@@ -6,10 +6,10 @@ use DB;
 use Log;
 use Auth;
 use Storage;
+use App\Task;
 use App\User;
 use Exception;
 use App\Uicheck;
-use App\Language;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -18,6 +18,7 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use DB;
 */
+use App\Language;
 use App\UiDevice;
 use App\UiLanguage;
 use App\UicheckType;
@@ -44,17 +45,16 @@ use App\UiResponsivestatusHistory;
 use App\UiTranslatorStatusHistory;
 use Illuminate\Routing\Controller;
 use App\UiDeveloperStatusHistoryLog;
+use App\UiDeviceBuilderIoDataStatus;
 use Illuminate\Support\Facades\Http;
 use App\SiteDevelopmentMasterCategory;
 use App\UicheckLanguageMessageHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
-use App\Task;
-use App\UiDeviceBuilderIoDataDownloadHistory;
-use App\UiDeviceBuilderIoDataRemarkHistory;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Support\Facades\Validator;
+use App\UiDeviceBuilderIoDataRemarkHistory;
 use App\UiDeviceBuilderIoDataStatusHistory;
-use App\UiDeviceBuilderIoDataStatus;
+use App\UiDeviceBuilderIoDataDownloadHistory;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
 {
@@ -2303,9 +2303,9 @@ class UicheckController extends Controller
                 ])->first();
 
                 if (! $existingRecord) {
-                    // Check "Fetched" Status exists. Otherwise create & use. 
-                    $fetchedStatus = UiDeviceBuilderIoDataStatus::firstOrCreate(['name' =>  "Fetched"]);
-                    
+                    // Check "Fetched" Status exists. Otherwise create & use.
+                    $fetchedStatus = UiDeviceBuilderIoDataStatus::firstOrCreate(['name' => 'Fetched']);
+
                     $builderIoData = UiDeviceBuilderIoData::create([
                         'uicheck_id' => $uiDevice->uicheck_id,
                         'ui_device_id' => $uiDevice->id,
@@ -2315,7 +2315,7 @@ class UicheckController extends Controller
                         'builder_last_updated' => $responseData['lastUpdated'],
                         'builder_created_by' => $responseData['createdBy'],
                         'builder_last_updated_by' => $responseData['lastUpdatedBy'],
-                        'status_id' => $fetchedStatus->id
+                        'status_id' => $fetchedStatus->id,
                     ]);
 
                     UiDeviceBuilderIoDataStatusHistory::create([
@@ -2350,41 +2350,41 @@ class UicheckController extends Controller
                 ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                 ->leftJoin('site_development_statuses as sds', 'sds.id', 'uid.status')
                 ->leftJoin('ui_device_builder_io_data_statuses as bs', 'bs.id', 'ui_device_builder_io_datas.status_id');
-           
-            $webIds = request()->input('web_ids');
-            if (is_array($webIds) && count($webIds) > 0) {
-                $builderDatas->whereIn('sw.id', $webIds);
-            }
 
-            $catIds = request()->input('cat_name');
-            if (is_array($catIds) && count($catIds) > 0) {
-                $builderDatas->whereIn('sdc.id', $catIds);
-            }
+        $webIds = request()->input('web_ids');
+        if (is_array($webIds) && count($webIds) > 0) {
+            $builderDatas->whereIn('sw.id', $webIds);
+        }
 
-            $statusIds = request()->input('status');
-            if (is_array($statusIds) && count($statusIds) > 0) {
-                $builderDatas->whereIn('bs.id', $statusIds);
-            }
+        $catIds = request()->input('cat_name');
+        if (is_array($catIds) && count($catIds) > 0) {
+            $builderDatas->whereIn('sdc.id', $catIds);
+        }
 
-            $builderDatas = $builderDatas->select(
-                'ui_device_builder_io_datas.*', 
-                'uid.device_no', 
-                'sw.website', 
-                'sdc.title as category', 
-                'u.name', 
-                'uic.uicheck_type_id', 
-            );
-    
-            $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
-                ->paginate(10);
-            
-            $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+        $statusIds = request()->input('status');
+        if (is_array($statusIds) && count($statusIds) > 0) {
+            $builderDatas->whereIn('bs.id', $statusIds);
+        }
 
-            $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
-            $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
-            $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
+        $builderDatas = $builderDatas->select(
+            'ui_device_builder_io_datas.*',
+            'uid.device_no',
+            'sw.website',
+            'sdc.title as category',
+            'u.name',
+            'uic.uicheck_type_id',
+        );
 
-        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes','getbuildStatuses','siteDevelopmentCategories','storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 10);
+        $builderDatas = $builderDatas->orderBy('ui_device_builder_io_datas.created_at', 'DESC')
+            ->paginate(10);
+
+        $allUicheckTypes = UicheckType::get()->pluck('name', 'id')->toArray();
+
+        $getbuildStatuses = UiDeviceBuilderIoDataStatus::all();
+        $siteDevelopmentCategories = SiteDevelopmentCategory::get()->pluck('title', 'id')->toArray();
+        $storeWebsites = StoreWebsite::select('id', 'website')->orderBy('id', 'desc')->groupBy('website')->get();
+
+        return view('uicheck.device-builder-datas-index', compact('builderDatas', 'allUicheckTypes', 'getbuildStatuses', 'siteDevelopmentCategories', 'storeWebsites'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function getDeviceBuilderDatas(Request $request)
@@ -2432,7 +2432,7 @@ class UicheckController extends Controller
         return view('uicheck.device-builder-download-history', compact('downloadHistory'));
     }
 
-    public function deviceBuilderStatusStore (Request $request)
+    public function deviceBuilderStatusStore(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:ui_device_builder_io_data_statuses,name',
@@ -2465,7 +2465,7 @@ class UicheckController extends Controller
             ], 500);
         }
     }
-    
+
     public function storeBuilderDataRemark(Request $request)
     {
         $input = $request->except(['_token']);
@@ -2510,7 +2510,7 @@ class UicheckController extends Controller
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
-    
+
     public function getBuilderDataRemarks($id)
     {
         $remarks = UiDeviceBuilderIoDataRemarkHistory::with(['user'])
@@ -2533,7 +2533,6 @@ class UicheckController extends Controller
         $uiBuild->status_id = $request->statusId;
         $uiBuild->save();
 
-
         UiDeviceBuilderIoDataStatusHistory::create([
             'ui_device_builder_io_data_id' => $request->buildId,
             'user_id' => \Auth::id(),
@@ -2554,7 +2553,7 @@ class UicheckController extends Controller
 
     public function getBuilderDataStatus($id)
     {
-        $status = UiDeviceBuilderIoDataStatusHistory::with(['user','newStatus','oldStatus'])
+        $status = UiDeviceBuilderIoDataStatusHistory::with(['user', 'newStatus', 'oldStatus'])
             ->where('ui_device_builder_io_data_id', $id)
             ->latest()
             ->get();
@@ -2571,10 +2570,10 @@ class UicheckController extends Controller
     {
         // Validation Part
         $request->validate([
-                'task_name' => 'required',
-                'selected_rows' => 'required',
-                'assign_to' => 'required',
-            ]
+            'task_name' => 'required',
+            'selected_rows' => 'required',
+            'assign_to' => 'required',
+        ]
         );
 
         $data = $request->except('_token');

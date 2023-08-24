@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Task;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TaskHubstaffCreateLog extends Model
 {
@@ -15,11 +15,11 @@ class TaskHubstaffCreateLog extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function task()
     {
-        return $this->belongsTo(Task::class,'task_id');
+        return $this->belongsTo(Task::class, 'task_id');
     }
 }
