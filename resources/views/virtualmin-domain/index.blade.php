@@ -126,6 +126,7 @@
                 <div>
                     <h4 class="modal-title"><b>Virtualmin Domains History</b></h4>
                 </div>
+                <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
 
             <div class="modal-body">
