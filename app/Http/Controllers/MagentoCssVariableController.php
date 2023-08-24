@@ -102,14 +102,69 @@ class MagentoCssVariableController extends Controller
         $magentoCssVariable->create_by = Auth::user()->id;
         $magentoCssVariable->save();
 
+        $action = "Add";
+        $projectName = $magentoCssVariable->project->name;
+        $filepath = $data['file_path'];
+        $magentoCssVariableId =  $magentoCssVariable->id;
+
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
+        
+        \Log::info('Start Magento Css Variable Update Vaule');
+
+        $result = exec($command, $output, $return_var);
+
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+
+        if (! isset($output[0])) {
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
+            return response()->json(['code' => 500, 'message' => 'The script response is not found!']);
+        }
+        $response = json_decode($output[0]);
+        if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+            $message = 'Magento CSS variable created successfully';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Success',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
+            return response()->json(['code' => 200,  'data' => [], 'message' => $message]);
+        } else {
+            $message = 'Something Went Wrong! Please check Logs for more details';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
         return response()->json(
             [
-                'code' => 200,
+                'code' => 500,
                 'data' => [],
-                'message' => 'Magento CSS variable created successfully!',
+                'message' =>  $message,
             ]
         );
-    }
+     }
+}
 
     public function edit(Request $request, $id)
     {
@@ -164,20 +219,133 @@ class MagentoCssVariableController extends Controller
             $history->save();
         }
 
+        $action = "update";
+        $projectName = $magentoCssVariable->project->name;
+        $filepath = $data['file_path'];
+        $magentoCssVariableId =  $magentoCssVariable->id;
+
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
+        
+        \Log::info('Start Magento Css Variable Update Vaule');
+
+        $result = exec($command, $output, $return_var);
+
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+
+        if (! isset($output[0])) {
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
+            return response()->json(['code' => 500, 'message' => 'The script response is not found!']);
+        }
+        $response = json_decode($output[0]);
+        if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+            $message = 'Magento CSS variable updated successfully!';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Success',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
+            return response()->json(['code' => 200,  'data' => [], 'message' => $message]);
+        } else {
+            $message = 'Something Went Wrong! Please check Logs for more details';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+
         return response()->json(
             [
-                'code' => 200,
+                'code' => 500,
                 'data' => [],
-                'message' => 'Magento CSS variable updated successfully!',
+                'message' =>  $message,
             ]
         );
+        }
     }
 
     public function destroy($id)
     {
         $magentoCssVariable = MagentoCssVariable::findOrFail($id);
+        
+        $action = "delete";
+        $projectName = $magentoCssVariable->project->name;
+        $filepath = $magentoCssVariable->file_path;
+        $magentoCssVariableId =  $magentoCssVariable->id;
+        $variable = $magentoCssVariable->variable;
+        $value = $magentoCssVariable->value;
+
         $magentoCssVariable->delete();
 
+       
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $variable . ' -v ' . $value;
+        
+        \Log::info('Start Magento Css Variable Update Vaule');
+
+        $result = exec($command, $output, $return_var);
+
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+
+        if (! isset($output[0])) {
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+                'csv_file_path' => $filepath,
+                'magento_css_variable_id' => $magentoCssVariableId,
+            ]);
+        }
+        if($output)
+        {
+            $response = json_decode($output[0]);
+            if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+                $message = 'Magento CSS variable updated successfully!';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
+                }
+                MagentoCssVariableJobLog::create([
+                    'command' => $command,
+                    'message' => json_encode($output),
+                    'status' => 'Success',
+                    'csv_file_path' => $filepath,
+                    'magento_css_variable_id' => $magentoCssVariableId,
+                ]);
+            } else {
+                $message = 'Something Went Wrong! Please check Logs for more details';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
+                }
+                MagentoCssVariableJobLog::create([
+                    'command' => $command,
+                    'message' => json_encode($output),
+                    'status' => 'Error',
+                    'csv_file_path' => $filepath,
+                    'magento_css_variable_id' => $magentoCssVariableId,
+                ]);
+            }
+        }
+       
         return redirect()->route('magento-css-variable.index')
             ->with('success', 'Magento CSS variable deleted successfully');
     }
@@ -392,7 +560,9 @@ class MagentoCssVariableController extends Controller
             // Get the path to the stored CSV file
             $fullFilePath = Storage::disk('public')->path($filePath);
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+            $action = "bulk";
+            // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');
 
@@ -440,8 +610,8 @@ class MagentoCssVariableController extends Controller
                 if (isset($response->message) && $response->message != '') {
                     $message = $response->message;
                 }
-                $selectedIds = implode(',', $selectedIds);
-                // Maintain Error Log here in new table.
+                 $selectedIds = implode(',', $selectedIds); 
+                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
                     'command' => $cmd,
@@ -488,7 +658,9 @@ class MagentoCssVariableController extends Controller
             // Get the path to the stored CSV file
             $fullFilePath = Storage::disk('public')->path($filePath);
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+            $action = "signleUpdate";
+            // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');
 
@@ -582,6 +754,60 @@ class MagentoCssVariableController extends Controller
             }
 
             return response()->json(['code' => 500, 'message' => 'Verifed status Update Successfully!']);
+        }
+    }
+
+    public function syncVariables(Request $request)
+    {
+        $action = $request->sync;
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action ;
+
+        \Log::info('Start Magento Css Variable Update Vaule');
+
+        $result = exec($command, $output, $return_var);
+
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($output, true));
+        \Log::info('return_var:' . $return_var);
+
+        \Log::info('End Magento Css Variable Update Vaule');
+        if (! isset($output[0])) {
+            // Maintain Error Log here in new table.
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+            ]);
+
+            return response()->json(['code' => 500, 'message' => 'The script response is not found!']);
+        }
+        $response = json_decode($output[0]);
+        if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+            $message = 'Variable updated';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            // Maintain Success Log here in new table.
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Success',
+            ]);
+
+            return response()->json(['code' => 200, 'message' => $message]);
+        } else {
+            $message = 'Something Went Wrong! Please check Logs for more details';
+            if (isset($response->message) && $response->message != '') {
+                $message = $response->message;
+            }
+            // Maintain Error Log here in new table.
+            MagentoCssVariableJobLog::create([
+                'command' => $command,
+                'message' => json_encode($output),
+                'status' => 'Error',
+            ]);
+
+            return response()->json(['code' => 500, 'message' => $message]);
         }
     }
 }
