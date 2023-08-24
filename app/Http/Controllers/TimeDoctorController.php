@@ -14,9 +14,9 @@ use App\TimeDoctor\TimeDoctorTask;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
+use App\Models\TimeDoctorDueDateHistory;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\TimeDoctorAccountRemarkHistory;
-use App\Models\TimeDoctorDueDateHistory;
 
 class TimeDoctorController extends Controller
 {
@@ -668,7 +668,7 @@ class TimeDoctorController extends Controller
 
         $history = new TimeDoctorDueDateHistory();
         $history->time_doctor_account_id = $request->id;
-        $history->before_date = $beforeDate->addDays(15); 
+        $history->before_date = $beforeDate->addDays(15);
         $history->after_date = $request->dueDate;
         $history->user_id = Auth::user()->id;
         $history->save();
@@ -692,5 +692,4 @@ class TimeDoctorController extends Controller
             'status_name' => 'success',
         ], 200);
     }
-    
 }
