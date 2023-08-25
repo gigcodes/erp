@@ -623,6 +623,8 @@ Route::middleware('auth')->group(function () {
     Route::get('project/{id}', [ProjectController::class, 'edit'])->name('project.edit');
     Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::delete('project/{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('project/multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
+
 
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
