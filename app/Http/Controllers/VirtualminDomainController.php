@@ -2,16 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use Exception;
-use App\ZabbixStatus;
-use Illuminate\Http\Request;
-use App\Models\ZabbixWebhookData;
 use App\VirtualminDomain;
 use App\VirtualminHelper;
-use App\ZabbixWebhookDataRemarkHistory;
-use App\ZabbixWebhookDataStatusHistory;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use App\Models\VirtualminDomainHistory;
 
 class VirtualminDomainController extends Controller
@@ -30,22 +23,21 @@ class VirtualminDomainController extends Controller
      */
     public function index(Request $request)
     {
-
         $keyword = $request->get('keyword');
         $status = $request->get('status');
 
-        // data search action        
+        // data search action
         $domains = VirtualminDomain::latest();
 
-        if (!empty($keyword) || isset($keyword)) {
-            $domains = $domains->where('name', 'LIKE', '%' . $keyword . '%');  
+        if (! empty($keyword) || isset($keyword)) {
+            $domains = $domains->where('name', 'LIKE', '%' . $keyword . '%');
         }
-        if (!empty($status) || isset($status)) {            
-            $domains = $domains->where('is_enabled', $status);  
+        if (! empty($status) || isset($status)) {
+            $domains = $domains->where('is_enabled', $status);
         }
 
         $domains = $domains->paginate(10);
-        
+
         return view('virtualmin-domain.index', ['domains' => $domains]);
     }
 
@@ -127,6 +119,6 @@ class VirtualminDomainController extends Controller
 
         $html = view('virtualmin-domain.domain-history-modal-html')->with('domainHistories', $histories)->render();
 
-        return response()->json(['code' => 200, 'data' => $histories, 'html'=> $html,'message' => 'Content render']);
+        return response()->json(['code' => 200, 'data' => $histories, 'html' => $html, 'message' => 'Content render']);
     }
 }

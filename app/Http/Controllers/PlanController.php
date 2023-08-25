@@ -9,8 +9,8 @@ use App\PlanBasisStatus;
 use App\Models\PlanAction;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\PlanRemarkHistory;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
@@ -83,7 +83,7 @@ class PlanController extends Controller
                 PlanTypes::insert($data);
             }
 
-            $category = PlanCategories::where('category',$request->category)->first();
+            $category = PlanCategories::where('category', $request->category)->first();
 
             if (! $category) {
                 $data = [
@@ -421,7 +421,6 @@ class PlanController extends Controller
         return response()->json(['code' => 500, 'message' => 'Remark Added Successfully!']);
     }
 
-
     public function getRemarkList(Request $request)
     {
         $taskRemarkData = PlanRemarkHistory::where('plan_id', '=', $request->recordId)->get();
@@ -438,5 +437,4 @@ class PlanController extends Controller
 
         return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
     }
-
 }

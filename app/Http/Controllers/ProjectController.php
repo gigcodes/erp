@@ -540,7 +540,6 @@ class ProjectController extends Controller
         $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
         $projecttype = ProjectType::get()->pluck('name', 'id');
 
-       
         $reqproject = $request->projects ?? [];
         $reqorganizations = $request->organizations ?? [];
         $reqrepoids = $request->repo_ids ?? [];
@@ -650,7 +649,7 @@ class ProjectController extends Controller
             }
         }
 
-        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users','reqproject' ,'reqorganizations','reqrepoids','requsers','reqstatus','store_websites','serverenvs','projecttype'));
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqproject', 'reqorganizations', 'reqrepoids', 'requsers', 'reqstatus', 'store_websites', 'serverenvs', 'projecttype'));
     }
 
     // Old concept in modal popup
@@ -834,18 +833,17 @@ class ProjectController extends Controller
 
     public function buildMultipleProcess(Request $request)
     {
-        $selectedIdsString = $request->input('selectedIds'); 
+        $selectedIdsString = $request->input('selectedIds');
         $projectIds = explode(',', $selectedIdsString);
 
-        foreach ($projectIds as $projectId)
-        {
+        foreach ($projectIds as $projectId) {
             $project = Project::find($projectId);
-            $job_name =  $project->job_name;
+            $job_name = $project->job_name;
             $repository_id = $repository = $request->repository;
             $branch_name = $request->branch_name;
             $organization = $request->organization;
             $initiate_from = $request->initiate_from;
-         
+
             if ($repository == '') {
                 BuildProcessErrorLog::log([
                     'project_id' => $projectId,
@@ -976,6 +974,7 @@ class ProjectController extends Controller
                     }
                 }
             }
+
             return response()->json(['code' => 500, 'message' => 'Project Data is not available.']);
         }
     }

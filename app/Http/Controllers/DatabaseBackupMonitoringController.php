@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\DatabaseBackupMonitoring;
 use Illuminate\Support\Facades\Validator;
 use App\Models\DatabaseBackupMonitoringStatus;
-use Exception;
 
 class DatabaseBackupMonitoringController extends Controller
 {
@@ -39,8 +39,7 @@ class DatabaseBackupMonitoringController extends Controller
             return response()->json(['code' => 200, 'data' => $dbLists, 'count' => count($dbLists), 'message' => 'Listed successfully!!!']);
         }
 
-
-        return view('databse-Backup.db-backup-list', compact('dbLists','dbStatuses'));
+        return view('databse-Backup.db-backup-list', compact('dbLists', 'dbStatuses'));
     }
 
     public function dbErrorShow(Request $request)
@@ -67,7 +66,7 @@ class DatabaseBackupMonitoringController extends Controller
             'name' => 'required|unique:database_backup_monitoring_statuses,name',
             'color' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -116,8 +115,8 @@ class DatabaseBackupMonitoringController extends Controller
             $dbMonitoring->db_status_id = $request->status;
             $dbMonitoring->save();
 
-            $statusColour =  DatabaseBackupMonitoringStatus::find($request->status);
-            $statusColour =  $statusColour->color;
+            $statusColour = DatabaseBackupMonitoringStatus::find($request->status);
+            $statusColour = $statusColour->color;
 
             return response()->json(
                 [

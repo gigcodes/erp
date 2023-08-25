@@ -15,6 +15,7 @@ use App\Wetransfer;
 use App\EmailRemark;
 use App\EmailAddress;
 use App\CronJobReport;
+use App\EmailCategory;
 use App\ReplyCategory;
 use App\EmailRunHistories;
 use App\SendgridEventColor;
@@ -29,7 +30,6 @@ use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use App\EmailCategory;
 
 class EmailController extends Controller
 {
@@ -561,10 +561,10 @@ class EmailController extends Controller
 
         $emailAddress = $email->from;
         $emailPattern = '/<([^>]+)>/';
-        $matches = array();
+        $matches = [];
         if (preg_match($emailPattern, $emailAddress, $matches)) {
             $extractedEmail = $matches[1];
-            $emailFrom =  $extractedEmail;
+            $emailFrom = $extractedEmail;
         } else {
             $emailFrom = $email->from;
         }
@@ -1270,7 +1270,7 @@ class EmailController extends Controller
                     $previousMessage = $e->getPrevious()->getMessage();
                     $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
                 }
-                
+
                 \Log::channel('customer')->info($exceptionMessage);
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
@@ -1535,7 +1535,6 @@ class EmailController extends Controller
         return response()->json(['type' => 'success'], 200);
     }
 
-
     public function changeEmailStatus(Request $request)
     {
         Email::where('id', $request->status)->update(['status' => $request->status_id]);
@@ -1545,7 +1544,6 @@ class EmailController extends Controller
         return response()->json(['type' => 'success'], 200);
     }
 
-    
     /**
      * To view email in iframe
      */
@@ -1833,7 +1831,7 @@ class EmailController extends Controller
         return response()->json(['code' => 200, 'data' => $email, 'message' => 'Email Update successfully!!!']);
     }
 
-    public function quickEmailList (Request $request)
+    public function quickEmailList(Request $request)
     {
         $emails = new Email();
         $email_categories = EmailCategory::get();
@@ -1859,14 +1857,14 @@ class EmailController extends Controller
             $emails = $emails->WhereIn('from', $request->sender_ids);
         }
         if ($request->receiver_ids) {
-                $emails = $emails->WhereIn('website_id', $request->receiver_ids);
+            $emails = $emails->WhereIn('website_id', $request->receiver_ids);
         }
         if ($request->model_types) {
             $emails = $emails->WhereIn('to', $request->model_types);
         }
         if ($request->mail_types) {
             $emails = $emails->WhereIn('type', $request->mail_types);
-        } 
+        }
         if ($request->cat_ids) {
             $emails = $emails->WhereIn('email_category_id', $request->cat_ids);
         }
@@ -1876,9 +1874,9 @@ class EmailController extends Controller
         if ($request->date) {
             $emails = $emails->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
-        
-        $emails = $emails->latest()->paginate(\App\Setting::get('pagination',25));
 
-        return view('emails.quick-email-list', compact('emails','email_categories','senderEmailIds','receiverEmailIds','modelsTypes','mailTypes','emailStatuses','email_status'));
+        $emails = $emails->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('emails.quick-email-list', compact('emails', 'email_categories', 'senderEmailIds', 'receiverEmailIds', 'modelsTypes', 'mailTypes', 'emailStatuses', 'email_status'));
     }
 }
