@@ -419,6 +419,7 @@ use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use App\Http\Controllers\SonarQubeController;
 use App\Http\Controllers\VirtualminDomainController;
 
 Auth::routes();
@@ -1391,6 +1392,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
+    });
+
+    Route::group(['prefix' => 'sonarqube'], function () {
+        Route::post('project/create', [SonarqubeController::class, 'createProject'])->name('sonarqube.createProject');
+        Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
+        Route::get('issues/search', [SonarqubeController::class, 'searchIssues']);
+        Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
     });
 
     //plesk
