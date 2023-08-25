@@ -51,9 +51,9 @@ class MagentoCssVariableController extends Controller
         }
 
         $search_verify = $request->get('verify');
-        if($search_verify == "NotVerify"){
+        if ($search_verify == 'NotVerify') {
             $magentoCssVariables = $magentoCssVariables->doesntHave('lastLog');
-        } else if($search_verify == "Error" || $search_verify == "Success"){
+        } elseif ($search_verify == 'Error' || $search_verify == 'Success') {
             $magentoCssVariables = $magentoCssVariables->whereHas('lastLog', function ($magentoCssVariables) use ($search_verify) {
                 $magentoCssVariables->where('status', 'LIKE', '%' . $search_verify . '%');
             });
@@ -566,12 +566,11 @@ class MagentoCssVariableController extends Controller
     public function updateSelectedVerified(Request $request)
     {
         if ($request->has('selectedIds') && $request->selectedIds != '') {
-        
-            foreach ($request->selectedIds as $selectId){
+            foreach ($request->selectedIds as $selectId) {
                 $magentoCssVariable = MagentoCssVariable::findOrFail($selectId);
                 $magentoCssVariable->is_verified = 1;
                 $magentoCssVariable->save();
-        
+
                 // Maintain history here
                 $history = new MagentoCssVariableVerifyHistory();
                 $history->magento_css_variable_id = $magentoCssVariable->id;

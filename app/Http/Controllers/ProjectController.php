@@ -642,7 +642,7 @@ class ProjectController extends Controller
             }
         }
 
-        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqstatus','store_websites','serverenvs','projecttype'));
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqstatus', 'store_websites', 'serverenvs', 'projecttype'));
     }
 
     // Old concept in modal popup

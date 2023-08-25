@@ -29,5 +29,4 @@ class UiDeviceBuilderIoDataStatusHistory extends Model
     {
         return $this->belongsTo(UiDeviceBuilderIoDataStatus::class, 'old_status_id');
     }
-
 }

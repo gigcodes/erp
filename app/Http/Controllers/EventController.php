@@ -9,10 +9,10 @@ use App\AssetsManager;
 use App\EventAvailability;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use Illuminate\Support\Collection;
-use App\Models\EventCategory;
 
 class EventController extends Controller
 {

@@ -47,6 +47,7 @@ use App\SiteDevelopmentCategory;
 use App\TimeDoctor\TimeDoctorTask;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TaskHubstaffCreateLog;
 use App\Models\Tasks\TaskHistoryForCost;
 use App\Jobs\UploadGoogleDriveScreencast;
 use GuzzleHttp\Exception\ClientException;
@@ -54,7 +55,6 @@ use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\TaskHubstaffCreateLog;
 
 class TaskModuleController extends Controller
 {
@@ -93,7 +93,7 @@ class TaskModuleController extends Controller
             $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  tasks.id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-           
+
             $userIdsString = implode(',', $userid);
 
             $searchMasterUserId = $userIdsString;
@@ -3961,7 +3961,6 @@ class TaskModuleController extends Controller
                     }
                     $task->save();
                 } else {
-
                     $log = new TaskHubstaffCreateLog();
                     $log->task_id = $request->id;
                     $log->error_message = 'Hubstaff task not create';
@@ -4002,10 +4001,9 @@ class TaskModuleController extends Controller
                 ], 200
             );
         } else {
-
             $log = new TaskHubstaffCreateLog();
             $log->task_id = $request->id;
-            $log->error_message = "Task not found";
+            $log->error_message = 'Task not found';
             $log->user_id = Auth::id();
             $log->save();
 
@@ -5026,7 +5024,7 @@ class TaskModuleController extends Controller
 
     public function taskModuleListLogHistory(Request $request)
     {
-        $logs = TaskHubstaffCreateLog::with(['user','task'])
+        $logs = TaskHubstaffCreateLog::with(['user', 'task'])
         ->where('task_id', $request->id)->get();
 
         return response()->json([
@@ -5035,6 +5033,5 @@ class TaskModuleController extends Controller
             'message' => 'Successfully get Logs history status',
             'status_name' => 'success',
         ], 200);
-
     }
 }

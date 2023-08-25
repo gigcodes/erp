@@ -7,10 +7,9 @@ use Google\Client;
 use App\GoogleScreencast;
 use Google\Service\Drive;
 use Illuminate\Queue\SerializesModels;
+use App\Models\MagentoBackendDocumentation;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\MagentoFrontendDocumentation;
-use App\Models\MagentoBackendDocumentation;
-
 
 class UploadGoogleDriveScreencast
 {
