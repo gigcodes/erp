@@ -1397,7 +1397,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::group(['prefix' => 'sonarqube'], function () {
         Route::post('project/create', [SonarqubeController::class, 'createProject'])->name('sonarqube.createProject');
         Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
-        Route::get('issues/search', [SonarqubeController::class, 'searchIssues']);
+        Route::get('issues/search', [SonarqubeController::class, 'searchIssues'])->name('sonarqube.list.page');
         Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
     });
 
