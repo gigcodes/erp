@@ -2249,6 +2249,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/event">Event</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/all/events">All Event list</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
