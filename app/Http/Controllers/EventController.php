@@ -14,8 +14,8 @@ use Illuminate\Http\Request;
 use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
-use Illuminate\Support\Collection;
 use App\Models\EventRemarkHistory;
+use Illuminate\Support\Collection;
 
 class EventController extends Controller
 {
@@ -39,28 +39,28 @@ class EventController extends Controller
     {
         $events = Event::myEvents(Auth::user()->id);
 
-        if($request->search_name) {
-            $events =  $events->where('name', 'LIKE', '%' . $request->search_name . '%');
+        if ($request->search_name) {
+            $events = $events->where('name', 'LIKE', '%' . $request->search_name . '%');
         }
 
-        if($request->search_description) {
-            $events =  $events->where('description', 'LIKE', '%' . $request->search_description . '%');
+        if ($request->search_description) {
+            $events = $events->where('description', 'LIKE', '%' . $request->search_description . '%');
         }
 
-        if($request->search_duration) {
-            $events =  $events->where('duration_in_min', 'LIKE', '%' . $request->search_duration . '%');
+        if ($request->search_duration) {
+            $events = $events->where('duration_in_min', 'LIKE', '%' . $request->search_duration . '%');
         }
 
-        if($request->search_date_range_type) {
-            $events =  $events->where('date_range_type', 'LIKE', '%' . $request->search_date_range_type . '%');
+        if ($request->search_date_range_type) {
+            $events = $events->where('date_range_type', 'LIKE', '%' . $request->search_date_range_type . '%');
         }
 
-        if($request->date) {
-            $events =  $events->where('created_at', 'LIKE', '%' . $request->date . '%');
+        if ($request->date) {
+            $events = $events->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if($request->search_event_type) {
-            $events =  $events->where('event_type', 'LIKE', '%' . $request->search_event_type . '%');
+        if ($request->search_event_type) {
+            $events = $events->where('event_type', 'LIKE', '%' . $request->search_event_type . '%');
         }
 
         $events = $events->latest()->paginate(25);

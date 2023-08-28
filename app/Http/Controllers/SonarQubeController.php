@@ -18,11 +18,11 @@ class SonarQubeController extends Controller
                     'name' => $request->name,
                 ]);
 
-                if($response->status() == 200){
-                    return response()->json(['code' => 200, 'data' => $response, 'message' => 'Project created successfully!']);
-                }else {
-                    return response()->json(['code' => 400, 'data' => $response, 'message' => 'Project Name Already exixts!']);
-                }
+            if ($response->status() == 200) {
+                return response()->json(['code' => 200, 'data' => $response, 'message' => 'Project created successfully!']);
+            } else {
+                return response()->json(['code' => 400, 'data' => $response, 'message' => 'Project Name Already exixts!']);
+            }
         } catch (\Illuminate\Http\Client\RequestException $exception) {
             $response = $exception->response;
             if ($response->status() === 400 && strpos($response->body(), 'Project already exists')) {
