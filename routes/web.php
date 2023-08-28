@@ -658,7 +658,6 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
     Route::post('magento-css-variable/sync', [MagentoCssVariableController::class, 'syncVariables'])->name('magento-css-variable.sync');
 
-
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
     Route::get('magento-backend/documentation', [MagentoBackendDocumentationController::class, 'magentoBackendeDocs'])->name('magento.backend.listing');
