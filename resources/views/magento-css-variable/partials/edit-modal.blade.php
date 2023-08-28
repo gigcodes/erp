@@ -79,7 +79,11 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                toastr["success"](response.message);
+                if (response.code == 200) {
+                    toastr["success"](response.message);
+                }else{
+                    toastr['error'](response.message, 'error');
+                }
                 location.reload();
             },
             error: function(xhr, status, error) { // if error occured
