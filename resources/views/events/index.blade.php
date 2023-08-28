@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css">  
 
     <style type="text/css">
-        .duration .select2-container, .date-range-type .select2-container {
+        .search_duration .select2-container, .date-range-type .select2-container {
         display: block;
     }
     </style>
@@ -22,7 +22,50 @@
     <div class="col-md-12 pl-3 pr-3">
         <div class="row m-0">
             <div class="col-lg-12 margin-tb p-0">
-                <h2 class="page-heading">Public Events</h2>
+                <h2 class="page-heading"> Events Lists</h2>
+                <div class="mt-3 col-md-12">
+                    <form action="{{route('event.public')}}" method="get" class="search">
+                        <div class="col-lg-2">
+                            <input class="form-control" type="text" id="search_name" placeholder="Search Name" name="search_name" value="{{ request('search_name') ?? "" }}">
+                        </div>
+                        <div class="col-md-2 pd-sm">
+                            <select name="search_event_type" id="search_event_type" class="form-control globalSelect">
+                                <option value="">-- Select Event type --</option>
+                                <option value="PU" {{ (request('search_event_type') == "PU") ? "selected" : "" }}>public</option>
+                                <option value="PR" {{ (request('search_event_type') == "PR") ? "selected" : "" }}>private</option>
+                            </select>
+                        </div>      
+                        <div class="col-lg-2">
+                            <input class="form-control" type="text" id="search_error" placeholder="Search Description" name="search_description" value="{{ request('search_description') ?? "" }}">
+                        </div>
+                        <div class="col-md-2 pd-sm">
+                            <select name="search_duration" id="search_duration" class="form-control globalSelect">
+                                <option value="">-- Select duration --</option>
+                                <option value="15" {{ (request('search_duration') == "15") ? "selected" : "" }}>15min</option>
+                                <option value="30" {{ (request('search_duration') == "30") ? "selected" : "" }}>30min</option>
+                                <option value="45" {{ (request('search_duration') == "45") ? "selected" : "" }} >45min</option>
+                                <option value="60" {{ (request('search_duration') == "60") ? "selected" : "" }}>60min</option>
+                            </select>
+                        </div>  
+                        <div class="col-md-2 pd-sm">
+                            <select name="search_date_range_type" id="search_date_range_type" class="form-control globalSelect">
+                                <option value="">-- Select date range type --</option>
+                                <option value="within" {{ (request('search_date_range_type') == "within") ? "selected" : "" }}>Within a date range</option>
+                                <option value="indefinitely" {{ (request('search_date_range_type') == "indefinitely") ? "selected" : "" }}>Indefinitely into the future</option>
+                            </select>
+                        </div>        
+                        <div class="col-lg-2">
+                            <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+                        </div>
+            
+                        <div class="col-lg-2"><br>
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                               <img src="{{ asset('images/search.png') }}" alt="Search">
+                           </button>
+                           <a href="{{route('event.public')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                        </div>
+                    </form>
+                </div>
                 <div class="pull-right">
                     <a class="btn btn-secondary" href="{{route('event.index')}}">Back to calendar</a>
                 </div>
@@ -31,6 +74,7 @@
                 <table id="magento_list_tbl_895" class="table table-bordered table-hover">
                     <thead>
                         <th>Name</th>
+                        <th>Event Type</th>
                         <th>Public Link</th>
                         <th>Description</th>
                         <th>Duration (min)</th>
@@ -38,12 +82,14 @@
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Created At</th>
+                        <th>Remark</th>
                         <th>Action</th>
                     </thead>
                     <tbody class="infinite-scroll-pending-inner">
                         @foreach ($events as $event)
                             <tr>
                                 <td> {{ $event->name }} </td>
+                                <td> {{ $event->event_type == "PU" ? "Public" : "Private"}} </td>
                                 <td class="expand-row"> 
                                     <span class="td-mini-container">
                                         {{ strlen($event->link) > 10 ? substr($event->link, 0, 10).'...' : $event->link }}
@@ -59,6 +105,17 @@
                                 <td> {{ $event->end_date }} </td>
                                 <td> {{ $event->created_at }} </td>
                                 <td>
+                                    <div style="width: 100%;">
+                                      <div class="d-flex">
+                                        <input type="text" name="event_remark_pop" class="form-control remark-event{{$event->id}}" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
+                                        <button type="button" class="btn btn-sm btn-image add_event_remark" title="Send message" data-event_id="{{$event->id}}">
+                                            <img src="{{asset('images/filled-sent.png')}}">
+                                        </button>
+                                      <button data-event_id="{{$event->id}}" class="btn btn-xs btn-image show-event-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                      </div>
+                                    </div>
+                                  </td>
+                                <td>
                                     <i class="fa fa-calendar reschedule-event" data-id="{{ $event->id }}"></i>
                                     <i class="fa fa-trash fa-trash-bin-record" data-id="{{ $event->id }}"></i>
                                     @if ($event->date_range_type == "indefinitely")
@@ -69,10 +126,43 @@
                         @endforeach()
                     </tbody>
                 </table>
+                {!! $events->appends(Request::except('page'))->links() !!}
             </div>
         </div>
     </div>
     @include('partials.modals.reschedule-event')
+    <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+    </div>
+
+    <div id="event-list-remark-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Task Remark</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th style="width:1%;">ID</th>
+                                <th style=" width: 12%">Update By</th>
+                                <th style="word-break: break-all; width:12%">Remark</th>
+                                <th style="width: 11%">Created at</th>
+                                <th style="width: 11%">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="event-remark-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+      </div>
 @endsection
 
 @section('scripts')
@@ -240,5 +330,59 @@
             });
         });
         //End load more functionality
+
+        $(document).on("click",".add_event_remark",function(e) {
+            e.preventDefault();
+            var thiss = $(this);
+            var event_id = $(this).data('event_id');
+            var remark = $(`.remark-event`+event_id).val();
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('event.remark.add') }}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                event_id : event_id,
+                remark : remark,
+                },
+                beforeSend: function () {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function (response) {
+                    $("#loading-image-preview").hide();
+                    toastr['success'](response.message);
+            }).fail(function (response) {
+                $("#loading-image-preview").hide();
+                toastr['error'](response.message);
+            });
+         });
+
+    $(document).on("click",".show-event-remark",function(e) {
+        e.preventDefault();
+        var event_id = $(this).data('event_id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('event.remark.list') }}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              eventId : event_id,
+            },
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            }
+        }).done(function (response) {
+                $("#loading-image-preview").hide();
+                $("#event-list-remark-modal").modal("show");
+                $(".event-remark-list-view").html(response.data);
+                toastr['success'](response.message);
+        }).fail(function (response) {
+            toastr['error'](response.message);
+        });
+    });
+
     </script>
 @endsection

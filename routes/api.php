@@ -29,6 +29,7 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\InfluencersController;
 use App\Http\Controllers\ResourceImgController;
 use App\Http\Controllers\SearchQueueController;
+use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\GoogleSearchController;
 use App\Http\Controllers\MissingBrandController;
 use App\Http\Controllers\SocialWebhookController;
@@ -328,3 +329,5 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 });
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
+
+Route::post('/github-action', [GitHubActionController::class, 'store']);
