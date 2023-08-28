@@ -95,6 +95,7 @@
                         <a class="btn btn-secondary ml-3" href="{{ route('magento-css-variable.logs') }}">Logs</a>
                         <button class="btn btn-secondary ml-3" onclick="bulkUpdateVerify()"> Bulk Update Is Verified </button>&nbsp;
                         <button class="btn btn-secondary ml-3" onclick="bulkUpdateValues()"> Bulk Update Values </button>&nbsp;
+                        <button class="btn btn-secondary ml-3" onclick="syncVariables()"> Sync </button>&nbsp;
                         {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
                             <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                                 <select class="form-control projects select2" name="project_id" data-placeholder="Please select project" style="width:200px !important;">
@@ -522,6 +523,35 @@
             toastr["error"]("Something went wrong");
         });
     }
+
+    function syncVariables()
+    {
+        event.preventDefault();
+        var sync = "sync";
+		if(confirm('Are you sure you want to sync?')==false)
+		{
+            	return false;
+		}
+        $.ajax({
+            type: "post",
+            url: "{{ route('magento-css-variable.sync') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                sync: sync,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+                $("#loading-image-preview").show();
+            }
+        }).done(function(data) {
+            toastr["success"]("variables synced SuccessFully!", "Message")
+            $("#loading-image-preview").hide();
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"]("Something went wrong");
+        });
+    }
+
 
 </script>
 @endsection

@@ -157,6 +157,7 @@ use App\Http\Controllers\ScrapLogsController;
 use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\SERankingController;
 use App\Http\Controllers\SkuFormatController;
+use App\Http\Controllers\SonarQubeController;
 use App\Http\Controllers\TaskTypesController;
 use App\Http\Controllers\TemplatesController;
 use App\Http\Controllers\UpdateLogController;
@@ -377,7 +378,6 @@ use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
-use App\Http\Controllers\InstagramAutomatedMessagesController;
 
 Auth::routes();
 
@@ -404,6 +404,7 @@ Route::prefix('youtube')->middleware('auth')->group(function () {
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
+use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\MagentoBackendDocumentationController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
@@ -655,6 +656,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
     Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
+    Route::post('magento-css-variable/sync', [MagentoCssVariableController::class, 'syncVariables'])->name('magento-css-variable.sync');
+
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
@@ -1388,6 +1391,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
+    });
+
+    Route::group(['prefix' => 'sonarqube'], function () {
+        Route::post('project/create', [SonarqubeController::class, 'createProject'])->name('sonarqube.createProject');
+        Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
+        Route::get('issues/search', [SonarqubeController::class, 'searchIssues'])->name('sonarqube.list.page');
+        Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
     });
 
     //plesk
