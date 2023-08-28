@@ -4419,6 +4419,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
+    Route::post('event/add/remark', [EventController::class, 'addEventsRemarks'])->name('event.remark.add');
+    Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
