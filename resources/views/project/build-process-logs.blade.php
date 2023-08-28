@@ -13,9 +13,7 @@
                                 <h5>Search projects</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="project-select" name="projects[]" placeholder="Select projects">
                                     @foreach($projects as $project)
-                                        <option value="{{ $project->id }}"  @if(is_array(request('projects')) && in_array($project->id, request('projects')))
-                                            selected
-                                            @endif >{{ $project->name }}</option>
+                                    <option value="{{ $project->id }}" @if(in_array($project->id, $reqproject)) selected @endif>{{ $project->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -24,9 +22,7 @@
                                  <h5>Search organizations</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="organizations-select" name="organizations[]" placeholder="Select organizations">
                                     @foreach($organizations as $organization)
-                                    <option value="{{ $organization->id }}"@if(is_array(request('organizations')) && in_array($organization->id, request('organizations')))
-                                        selected
-                                        @endif >{{ $organization->name }}</option>
+                                    <option value="{{ $organization->id }}" @if(in_array($organization->id, $reqorganizations)) selected @endif>{{ $organization->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -34,9 +30,7 @@
                                 <h5>Search Repository</h5>	
                                 <select class="form-control globalSelect2" multiple="true" id="repo_ids" name="repo_ids[]" placeholder="Select Repos">
                                     @foreach($repo_names as $repo_name)
-                                    <option value="{{ $repo_name->id }}"@if(is_array(request('repo_ids')) && in_array($repo_name->id, request('repo_ids')))
-                                        selected
-                                        @endif>{{ $repo_name->name }}</option>
+                                    <option value="{{ $repo_name->id }}"  @if(in_array($repo_name->id, $reqrepoids)) selected @endif>{{ $repo_name->name }}</option>
                                     @endforeach
                                 </select> 
                             </div>
@@ -44,9 +38,7 @@
                                 <h5>Search Build By</h5>	
                                     <select class="form-control globalSelect2" multiple="true" id="platform-Users" name="users[]" placeholder="Select Users">
                                         @foreach($users as $user)
-                                        <option value="{{ $user->id }}"@if(is_array(request('users')) && in_array($user->id, request('users')))
-                                            selected
-                                            @endif>{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}" @if(in_array($user->id, $requsers)) selected @endif>{{ $user->name }}</option>
                                         @endforeach
                                     </select> 
                             </div>
@@ -128,6 +120,7 @@
                             <th width="10%">PR</th>
                             <th width="10%">Initiate From</th>
                             <th width="10%">Text</th>
+                            <th width="10%">Command</th>
                             <th width="5%">Status</th>
                             <th width="5%">Date</th>
                             <th width="5%">Job Status</th>
@@ -177,6 +170,14 @@
                                        {{ strlen($responseLog->text) > 10 ? substr($responseLog->text, 0, 10).'...' :  $responseLog->text }}
 								       <i class="fa fa-eye show_logs show-full-text" data-full-text="{{ nl2br($responseLog->text) }}" style="color: #808080;float: right;"></i>
                                     </span>
+                                </td>
+                                <td style="word-break: break-all">
+                                    @if($responseLog->command)
+                                    <span class="td-mini-container">
+                                       {{ strlen($responseLog->command) > 10 ? substr($responseLog->command, 0, 10).'...' :  $responseLog->command }}
+								       <i class="fa fa-eye show_logs show-full-command" data-full-text="{{ nl2br($responseLog->command) }}" style="color: #808080;float: right;"></i>
+                                    </span>
+                                    @endif
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $responseLog->status }}
@@ -254,11 +255,40 @@
         </div>
     </div>
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="show_full_command_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Command</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="show_full_command_modal_content">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section("styles")
 <style>
     /* CSS to make specific modal body scrollable */
     #show_full_text_modal .modal-body {
+      max-height: 400px; /* Maximum height for the scrollable area */
+      overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+    }
+
+    #show_full_command_modal .modal-body {
       max-height: 400px; /* Maximum height for the scrollable area */
       overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
     }
@@ -280,6 +310,13 @@ $( document ).ready(function() {
         $('#show_full_text_modal').modal('show');
         $('#show_full_text_modal_content').html(fullText);
     });
+
+    $(document).on('click', '.show-full-command', function() {
+        var fullCommand = $(this).data('full-text');
+        $('#show_full_command_modal').modal('show');
+        $('#show_full_command_modal_content').html(fullCommand);
+    });
+
 
     $(document).on('click', '.show-status-modal', function() {
             var id = $(this).attr('data-id');

@@ -16,7 +16,7 @@
         <h2 class="page-heading">Events</h2>
     </div>
 </div>
-{{-- @dd('hii'); --}}
+
 @include('partials.flash_messages')
 {{-- <p class="text-secondary">Calendar link:</p>
 <div class="border border-light p-2 my-3">

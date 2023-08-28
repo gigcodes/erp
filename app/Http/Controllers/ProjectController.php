@@ -232,6 +232,7 @@ class ProjectController extends Controller
                         'github_branch_state_name' => $branch_name,
                         'build_pr' => $build_pr,
                         'initiate_from' => $initiate_from,
+                        'command' => "",
                     ];
                     \App\BuildProcessHistory::create($record);
 
@@ -279,6 +280,7 @@ class ProjectController extends Controller
                             'github_branch_state_name' => $branch_name,
                             'build_pr' => $build_pr,
                             'initiate_from' => $initiate_from,
+                            'command' => "",
                         ];
 
                         \App\BuildProcessHistory::create($record);
@@ -293,6 +295,7 @@ class ProjectController extends Controller
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
+                            'command' => "",
                         ];
                         \App\BuildProcessHistory::create($record);
                         BuildProcessErrorLog::log([
@@ -317,6 +320,7 @@ class ProjectController extends Controller
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
                         'github_branch_state_name' => $branch_name,
+                        'command' => "",
                     ];
                     \App\BuildProcessHistory::create($record);
                     BuildProcessErrorLog::log([
@@ -343,6 +347,7 @@ class ProjectController extends Controller
                     'github_branch_state_name' => $branch_name,
                     'build_pr' => $build_pr,
                     'initiate_from' => $initiate_from,
+                     'command' => "",
                 ];
 
                 \App\BuildProcessHistory::create($record);
@@ -429,9 +434,9 @@ class ProjectController extends Controller
                     $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
-                        // $builds = $job->getBuilds();
+                         // $builds = $job->getBuilds();
 
-                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
+                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name . '<br> Server Env: ' . $serverenv . '<br> Verbosity : ' . $verbosity;
                         $latestBuildNumber = $latestBuildResult = '';
 
                         $job_api_url = "{$jenkins->getUrl()}/job/{$job_name}/api/json";
@@ -441,11 +446,13 @@ class ProjectController extends Controller
                         if ($job_info && $job_info['inQueue']) {
                             $latestBuildNumber = $job_info['nextBuildNumber'];
                             $latestBuildResult = 'WAITING';
+                            $command = "jenkins job in the queue";
                         } else {
                             $lastBuild = $job->getLastBuild();
                             if ($lastBuild) {
                                 $latestBuildNumber = $lastBuild->getNumber();
                                 $latestBuildResult = $lastBuild->getResult();
+                                $command = $lastBuild->getUrl() . '/' . $lastBuild->getBuiltOn();
                             }
                         }
 
@@ -460,15 +467,22 @@ class ProjectController extends Controller
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
                             'initiate_from' => $initiate_from,
+                            'command' => $command,
                         ];
 
                         \App\BuildProcessHistory::create($record);
 
                         return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
                     } else {
+
+                        $error_message = 'Jenkins job not created for ' .
+                        'Build Name: ' . $jobName . '<br>' .
+                        'Build Repository: ' . $repository . '<br>' .
+                        'Branch Name: ' . $branch_name;
+
                         BuildProcessErrorLog::log([
                             'project_id' => $request->project_id,
-                            'error_message' => 'Jenkins job not created',
+                            'error_message' => $error_message,
                             'error_code' => '500',
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
@@ -540,7 +554,15 @@ class ProjectController extends Controller
         $serverenvs = ProjectServerenv::get()->pluck('name', 'id');
         $projecttype = ProjectType::get()->pluck('name', 'id');
 
+       
+        $reqproject = $request->projects ?? [];
+        $reqorganizations = $request->organizations ?? [];
+        $reqrepoids = $request->repo_ids ?? [];
+        $requsers = $request->users ?? [];
         $reqstatus = $request->status ?? [];
+        $reqsBuildNumber = $request->search_build_number ?? ' ';
+        $reqsBuildName = $request->search_build_name ?? ' ';
+        $reqsBranchName = $request->search_branch_name ?? ' ';
 
         if ($id) {
             $responseValue = $responseLogs->where('store_website_id', $id)->get();
@@ -642,7 +664,7 @@ class ProjectController extends Controller
             }
         }
 
-        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqstatus', 'store_websites', 'serverenvs', 'projecttype'));
+        return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users','reqproject' ,'reqorganizations','reqrepoids','requsers','reqstatus','store_websites','serverenvs','projecttype'));
     }
 
     // Old concept in modal popup

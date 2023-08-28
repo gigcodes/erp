@@ -8665,16 +8665,15 @@ if (!\Auth::guest()) {
             }
         });
     });
-
-        $("#id_label_multiple_user_read").select2();
-        $("#id_label_multiple_user_write").select2();
-        $("#search_user").select2();
-        $('#id_label_task').select2({
+    $('#id_label_task').select2({
         minimumInputLength: 3 // only start searching when the user has input 3 or more characters
         });
-        $('#search_task').select2({
-        minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-        });
+    $('#search_task').select2({
+    minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+    });
+    $("#id_label_multiple_user_read").select2();
+    $("#id_label_multiple_user_write").select2();
+    $("#search_user").select2();
 
         $(document).on('click', '.filepermissionupdate', function (e) {
                 

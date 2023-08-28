@@ -13,7 +13,7 @@ class BuildProcessHistory extends Model
 
     protected $table = 'build_process_histories';
 
-    protected $fillable = ['id', 'store_website_id', 'status', 'text', 'build_name', 'build_number', 'created_by', 'github_organization_id', 'github_repository_id', 'github_branch_state_name', 'build_pr', 'initiate_from'];
+    protected $fillable = ['id', 'store_website_id', 'status', 'text', 'build_name', 'build_number', 'created_by', 'github_organization_id', 'github_repository_id', 'github_branch_state_name', 'build_pr', 'initiate_from','command'];
 
     public function project()
     {

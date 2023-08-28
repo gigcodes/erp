@@ -13,6 +13,8 @@ use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use Illuminate\Support\Collection;
+use App\Vendor;
+use App\User;
 
 class EventController extends Controller
 {
@@ -67,6 +69,14 @@ class EventController extends Controller
         $dateRangeType = $request->get('date_range_type');
         $eventType = $request->get('event_type');
         $eventcategoryId = $request->get('event_category_id');
+        $vendorId = $request->get('vendor_id');
+        $userId = $request->get('user_id');
+        $emailFrom = $request->get('from_address');
+        $vendorCategoryId = $request->get('vendor_category_id');
+        $vendorName = $request->get('vendor_name');
+        $vendorEmail = $request->get('vendor_email');
+        $vendorPhone = $request->get('vendor_phone');
+
 
         $errors = [];
         if (empty(trim($name))) {
@@ -93,10 +103,57 @@ class EventController extends Controller
             $endDate = null;
         }
 
+        if (empty(trim($eventcategoryId))) {
+            $errors['event_category_id'][] = 'event catagory is required';
+        }
+
+        if (empty(trim($userId))) {
+            $errors['user_id'][] = 'User is required';
+        }
+
+        if (empty(trim($emailFrom))) {
+            $errors['email_from_address'][] = 'From email is required';
+        }
+
         if (! empty($errors)) {
             return response()->json($errors, 400);
         }
 
+       
+
+        if($vendorId === null )
+        {
+            if (empty(trim($vendorCategoryId))) {
+                $errors['vendor_category_id'][] = 'Vendor catagory is required';
+            }
+    
+            if (empty(trim($vendorName))) {
+                $errors['vendor_name'][] = 'name is required';
+            }
+    
+            if (empty(trim($vendorEmail))) {
+                $errors['vendor_email'][] = 'email is required';
+            }
+    
+            if (empty(trim($vendorPhone))) {
+                $errors['vendor_phone'][] = 'Phone Number is required';
+            }
+
+            if (! empty($errors)) {
+                return response()->json($errors, 400);
+            }
+    
+            $vendor = new Vendor();
+            $vendor->category_id =  $vendorCategoryId;
+            $vendor->name =  $vendorName;
+            $vendor->email =  $vendorEmail;
+            $vendor->phone =  $vendorPhone;
+            $vendor->save();
+
+            $vendorId = $vendor->id;
+        }
+
+       
         // Event
         $event = new Event();
         $event->user_id = $userId;
@@ -109,6 +166,8 @@ class EventController extends Controller
         $event->event_type = $eventType;
         $event->date_range_type = $dateRangeType;
         $event->event_category_id = $eventcategoryId;
+        $event->event_user_id = $userId;
+        $event->vendor_id = $vendorId;
         $event->save();
 
         // Event Availabilities
@@ -122,6 +181,27 @@ class EventController extends Controller
                 $eventAvailability->save();
             }
         }
+
+        $subject = 'Event Scdhuled';
+        $message = "";
+        $user = User::find($event->user_id);
+        $eventLink = "https://us05web.zoom.us/j/6928700773?pwd=Qnp6V2VQWGJ1NkhYd3c4ZHdBTjFoZz09";
+        $emailClass = (new EventEmail($subject, $message, $event->user->email, $eventLink))->build();
+
+        $email = \App\Email::create([
+            'model_id' => $event->id,
+            'model_type' => Event::class,
+            'from' => $emailFrom,
+            'to' => $user->email,
+            'subject' => $subject,
+            'message' => $emailClass->render(),
+            'template' => '',
+            'additional_data' => '',
+            'status' => 'pre-send',
+            'store_website_id' => null,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         return response()->json([
             'code' => 200,
