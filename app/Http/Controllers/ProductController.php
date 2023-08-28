@@ -58,6 +58,7 @@ use App\PushToMagentoCondition;
 use App\Jobs\PushProductOnlyJob;
 use App\ProductTranslationHistory;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\TestPushProductOnlyJob;
 use App\CropImageHttpRequestResponse;
 use App\Jobs\Flow2PushProductOnlyJob;
 use Illuminate\Support\Facades\Input;
@@ -70,7 +71,6 @@ use App\Jobs\ImageApprovalPushProductOnlyJob;
 use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
-use App\Jobs\TestPushProductOnlyJob;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductController extends Controller

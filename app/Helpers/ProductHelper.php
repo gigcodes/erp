@@ -915,24 +915,25 @@ class ProductHelper extends Model
                 }
             }
         }
-        if($singleStore) {
-            $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->where("disable_push", 0)->limit(1)->get();
+        if ($singleStore) {
+            $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->where('disable_push', 0)->limit(1)->get();
         } else {
             $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->get();
         }
 
         $not_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
-        if($singleStore) {
-            $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->where("disable_push", 0)->limit(1)->get();
+        if ($singleStore) {
+            $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->where('disable_push', 0)->limit(1)->get();
         } else {
             $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->get();
         }
 
         $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
-        
-        if($singleStore) {
+
+        if ($singleStore) {
             $singleResult = [];
             $singleResult[] = $finalResult[0];
+
             return $singleResult;
         } else {
             return $finalResult;
