@@ -3,8 +3,8 @@
 namespace App\Github;
 
 use App\Task;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GithubTaskPullRequest extends Model
 {

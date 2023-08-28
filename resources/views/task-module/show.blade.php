@@ -270,7 +270,7 @@
                     @if(auth()->user()->checkPermission('activity-list'))
                         <div class="col-xs-12 col-md-2 pd-2">
                             <div class="form-group ml-3">
-                                <select id="search_by_user" class="form-control input-sm select2" name="selected_user">
+                                <select id="search_by_user" class="form-control select2" name="selected_user[]" multiple>
                                     <option value="">Select a User</option>
                                     @foreach ($users as $id => $user)
                                         <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
@@ -425,7 +425,8 @@
                                 <div class="cls_categoryfilter_box">
                                     <div class="cls_categoryfilter_first">
                                         <div class="">
-                                            <?php echo Form::select("category",['' => ''],null,["class" => "form-control  category_ globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.taskcategories'), 'data-placeholder' => 'Category To select..']); ?>
+                                            <?php //echo Form::select("category",['' => ''],null,["class" => "form-control select2" ,"style" => "width:100%;", 'data-ajax' => route('select2.taskcategories'), 'data-placeholder' => 'Category To select..']); ?>
+                                            {!! $task_categories_dropdown !!}
                                             {{-- <strong>Category:</strong> --}}
                                             {{-- {!! $task_categories_dropdown !!} --}}
                                             {{-- <select class="form-control input-sm" name="category" id="required_category" required>
@@ -720,12 +721,9 @@
                                                 Cus-{{$task->customer_id}}
                                                 <br>
                                                 @if(Auth::user()->isAdmin())
-                                                    @php
-                                                        $customer = \App\Customer::find($task->customer_id);
-                                                    @endphp
                                                     <span>
-                                        {{ isset($customer ) ? $customer->name : '' }}
-                                    </span>
+                                                        {{ isset($task->customer_name) ? $task->customer_name : '' }}
+                                                    </span>
                                                 @endif
                                             @endif
                                         </td>
@@ -914,6 +912,7 @@
                                                 @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id))
                                                     <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
                                                 @endif
+                                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-hubtask-log-history" title="Show create hubtask Logs" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                             </div>
                                         </td>
                                         <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
@@ -1508,6 +1507,35 @@
     @include("task-module.task-update-modal")
     @include("task-module.partials.time-history-modal")
     @include("task-module.partials.modal-status-color")
+
+    
+    <div id="task-create-log-listing" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+    
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Task Subject</th>
+                                    <th width="30%">Message</th>
+                                    <th width="30%">Updated by</th>
+                                    <th width="20%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="task-log-listing-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div id="create-d-task-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -3867,7 +3895,12 @@
                         },
                         success: function (response) {
                             $("#loading-image").hide();
-                            $("#taskGoogleDocListModal tbody").html(response.data);
+                            if(typeof response.data != 'undefined') {
+                                $("#taskGoogleDocListModal tbody").html(response.data);
+                            } else {
+                                // display unauthorized permission message
+                                $("#taskGoogleDocListModal tbody").html(response);
+                            }
                             $("#taskGoogleDocListModal").modal('show');
                         },
                         error: function(response) {
@@ -3955,7 +3988,13 @@
                         task_id
                     },
                     success: function (response) {
-                        $("#taskFileUploadedData").html(response.data);
+                        if(typeof response.data != 'undefined') {
+                            $("#taskFileUploadedData").html(response.data);
+                        } else {
+                            // display unauthorized permission message
+                            $("#taskFileUploadedData").html(response);
+                        }
+                        
                         $("#displayTaskFileUpload").modal("show")
                     },
                     error: function (response) {
@@ -3982,5 +4021,36 @@
                 }, 2500);
             })
         });
+
+        $(document).on('click', '.show-hubtask-log-history', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                url: '{{ route("task.log.histories.show", '') }}/' + id,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.task ? v.task.task_subject : ''} </td>
+                                        <td> ${v.error_message ? v.error_message : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#task-create-log-listing").find(".task-log-listing-view").html(html);
+                        $("#task-create-log-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
     </script>
 @endsection

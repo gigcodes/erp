@@ -874,7 +874,7 @@ class ProductHelper extends Model
         foreach ($storeCategories as $storeCategory) {
             // $storeBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->where('store_website_id', $storeCategory->store_website_id)->get();
             $storeBrands = $storeWebsiteBrands->where('store_website_id', $storeCategory->store_website_id);
-            
+
             if (! empty($storeBrands)) {
                 foreach ($storeBrands as $storeBrand) {
                     $websiteArray[] = $storeBrand->store_website_id;

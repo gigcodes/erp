@@ -7,6 +7,7 @@ use Auth;
 use Mail;
 use App\Email;
 use App\EmailLog;
+use App\LogRequest;
 use App\Wetransfer;
 use App\EmailRemark;
 use Illuminate\Http\Request;
@@ -17,7 +18,6 @@ use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use App\LogRequest;
 
 class EmailDataExtractionController extends Controller
 {
@@ -684,7 +684,6 @@ class EmailDataExtractionController extends Controller
             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\EmailDataExtractionController::class, 'downloadFromURL');
             curl_close($ch);
 
-
             if (isset($matches[1])) {
                 if (isset($matches[1][0])) {
                     $url = trim($matches[1][0]);
@@ -757,7 +756,7 @@ class EmailDataExtractionController extends Controller
 
         $urlResponse = json_decode($real); // respons decode
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $curlURL, 'POST',  json_encode([]) , $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
+        LogRequest::log($startTime, $curlURL, 'POST', json_encode([]), $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
         //dd($urlResponse);
 
@@ -794,7 +793,6 @@ class EmailDataExtractionController extends Controller
                 }
             }
         }
-       
     }
 
     public function bluckAction(Request $request)

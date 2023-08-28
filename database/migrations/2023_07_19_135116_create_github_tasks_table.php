@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateGithubTasksTable extends Migration
 {
@@ -16,8 +16,8 @@ class CreateGithubTasksTable extends Migration
         Schema::create('github_tasks', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string("task_name");
-            $table->integer("assign_to");
+            $table->string('task_name');
+            $table->integer('assign_to');
         });
     }
 

@@ -7,6 +7,9 @@
         <td>
         {{ $sdc->title }} 
         </td>
+        <td>
+           {{ $sdc->masterCategory?->title }} 
+        </td>
         @forelse($store_websites as $sw)
             @php 
                 $check = 0;

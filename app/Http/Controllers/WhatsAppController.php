@@ -35,6 +35,7 @@ use App\ColdLeads;
 use App\LegalCase;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
+use App\LogRequest;
 use App\ChatMessage;
 use App\Instruction;
 use App\MessageQueue;
@@ -56,7 +57,6 @@ use App\Helpers\MessageHelper;
 use GuzzleHttp\RequestOptions;
 use App\Hubstaff\HubstaffMember;
 use App\Marketing\WhatsappConfig;
-use App\Marketing\WhatsappBusinessAccounts;
 use App\Helpers\TranslationHelper;
 use Illuminate\Support\Facades\URL;
 use App\Mails\Manual\PurchaseExport;
@@ -67,11 +67,11 @@ use GuzzleHttp\Client as GuzzleClient;
 use App\Helpers\InstantMessagingHelper;
 use App\Hubstaff\HubstaffActivitySummary; //Purpose : Add Modal - DEVTASK-4359
 use GuzzleHttp\Exception\ClientException; //Purpose : Add Modal - DEVTASK-4236
+use App\Marketing\WhatsappBusinessAccounts;
 use IlluminUserFeedbackStatuspport\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\LogRequest;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2213,9 +2213,13 @@ class WhatsAppController extends FindByNumberController
 
                 return response()->json(['message' => $chat_message]);
             } elseif ($context == 'task') {
-                $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
+                if ($request->task_id == 'undefined') {
+                    $this->logchatmessage('#10', null, $request->message, 'If context conndition task is exit');
+                } else {
+                    $this->logchatmessage('#10', $request->task_id, $request->message, 'If context conndition task is exit');
+                }
                 $data['task_id'] = $request->task_id;
-                $data['is_audio'] = $request->get('is_audio',0);
+                $data['is_audio'] = $request->get('is_audio', 0);
                 $task = Task::find($request->task_id);
 
                 if ($task->is_statutory != 1) {
@@ -2450,20 +2454,19 @@ class WhatsAppController extends FindByNumberController
                 }
                 \Log::info('Start API CALL /rest/V1/ticket-counter/add');
                 if ($ticket) {
-                    $ticket_id=$ticket->ticket_id;
-                    $email=$ticket->email;
-                    $source_of_ticket=$ticket->source_of_ticket;
-                    $storeWebsite=\App\StoreWebsite::where('website', $source_of_ticket)->first();
-                    if($storeWebsite){
+                    $ticket_id = $ticket->ticket_id;
+                    $email = $ticket->email;
+                    $source_of_ticket = $ticket->source_of_ticket;
+                    $storeWebsite = \App\StoreWebsite::where('website', $source_of_ticket)->first();
+                    if ($storeWebsite) {
                         $storeWebsiteCode = $storeWebsite->storeCode;
                         $magento_url = $storeWebsite->magento_url;
                         $api_token = $storeWebsite->api_token;
-                        if( !empty ( $magento_url )  && !empty ($storeWebsiteCode)){
-
+                        if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                             $curl = curl_init();
-                            $url=trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
-                            curl_setopt_array($curl, array(
+                            $url = trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add";
+                            curl_setopt_array($curl, [
                                 CURLOPT_URL => trim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/ticket-counter/add",
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',
@@ -2472,43 +2475,43 @@ class WhatsAppController extends FindByNumberController
                                 CURLOPT_FOLLOWLOCATION => true,
                                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                 CURLOPT_CUSTOMREQUEST => 'PUT',
-                                CURLOPT_POSTFIELDS =>'{
+                                CURLOPT_POSTFIELDS => '{
                                 "ticketData":
                                 {
-                                    "ticket_id": "'.$ticket_id.'",
-                                    "email": "'.$email.'"
+                                    "ticket_id": "' . $ticket_id . '",
+                                    "email": "' . $email . '"
                                 }
                                 }
                                 ',
-                                CURLOPT_HTTPHEADER => array(
+                                CURLOPT_HTTPHEADER => [
                                     'Content-Type: application/json',
-                                    'Authorization: Bearer '.$api_token,
-                                ),
-                            ));
+                                    'Authorization: Bearer ' . $api_token,
+                                ],
+                            ]);
 
                             $response = curl_exec($curl);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                            \Log::info("API RESPONSE: ".$response);
+                            \Log::info('API RESPONSE: ' . $response);
                             curl_close($curl);
 
                             LogRequest::log($startTime, $url, 'PUT', '{
                                 "ticketData":
                                 {
-                                    "ticket_id": "'.$ticket_id.'",
-                                    "email": "'.$email.'"
+                                    "ticket_id": "' . $ticket_id . '",
+                                    "email": "' . $email . '"
                                 }
                                 }', json_decode($response), $httpcode, \App\Http\Controllers\WhatsAppController::class, 'sendMessage');
-
-                        }else{
+                        } else {
                             \Log::info('Magento URL and Store Website code is not found:');
                         }
-                    }else{
-                        \Log::info('Store Website not found: '.$source_of_ticket);
+                    } else {
+                        \Log::info('Store Website not found: ' . $source_of_ticket);
                     }
-                }else{
-                    \Log::info('Ticket Data Not Found ticket_id: '.$request->ticket_id);
+                } else {
+                    \Log::info('Ticket Data Not Found ticket_id: ' . $request->ticket_id);
                 }
                 \Log::info('END API CALL /rest/V1/ticket-counter/add');
+
                 return response()->json(['message' => $chat_message]);
             } else {
                 if ($context == 'priority') {
@@ -2584,7 +2587,7 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'issue') {
                     $sendTo = $request->get('sendTo', 'to_developer');
                     $params['issue_id'] = $request->get('issue_id');
-                    $params['is_audio'] = $request->get('is_audio',0);
+                    $params['is_audio'] = $request->get('is_audio', 0);
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId = $issue->assigned_to;
@@ -5468,7 +5471,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         $curl = curl_init();
-        $url = "https://api.wassenger.com/v1/messages";
+        $url = 'https://api.wassenger.com/v1/messages';
 
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -5533,7 +5536,7 @@ class WhatsAppController extends FindByNumberController
         // Get configs
         $config = \Config::get('apiwha.instances');
         $whatAppConfig = WhatsappConfig::where('number', $whatsapp_number)->where('status', 1)->first();
-        if (!$whatAppConfig) {
+        if (! $whatAppConfig) {
             // check if number is set or not then call from the table
             if (! isset($config[$whatsapp_number])) {
                 $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'wassenger')
@@ -5634,14 +5637,14 @@ class WhatsAppController extends FindByNumberController
                 $array['device'] = $array['instanceId'];
                 unset($array['body']);
                 unset($array['instanceId']);
-            } else if (isset($config[$whatsapp_number]['provider']) && $config[$whatsapp_number]['provider'] == 'official-whatsapp') {
+            } elseif (isset($config[$whatsapp_number]['provider']) && $config[$whatsapp_number]['provider'] == 'official-whatsapp') {
                 $apiCalled = true;
                 $whatsappApiController = new WhatsAppOfficialController($config[$whatsapp_number]['instance_id']);
                 $response = $whatsappApiController->sendMessage([
                     'type' => 'text',
                     'body' => $message,
                     'preview_url' => true,
-                    'number' => $whatsapp_number
+                    'number' => $whatsapp_number,
                 ]);
                 if ($response['status']) {
                     if ($chatMessage) {
@@ -5649,15 +5652,17 @@ class WhatsAppController extends FindByNumberController
                         $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_SUCCESS;
                         $chatMessage->save();
                     }
-                    \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') Message was sent to number '.$number.':'.$response['data']['messages'][0]['id'].' ['.json_encode($logDetail).'] ');
+                    \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Message was sent to number ' . $number . ':' . $response['data']['messages'][0]['id'] . ' [' . json_encode($logDetail) . '] ');
+
                     return $response['data']['messages'][0];
                 } else {
-                    \Log::channel('whatsapp')->debug('(file '.__FILE__.' line '.__LINE__.') cURL Error for number '.$number.': ['.json_encode($logDetail).'] ');
+                    \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') cURL Error for number ' . $number . ': [' . json_encode($logDetail) . '] ');
                     if ($chatMessage) {
                         $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
                         $chatMessage->error_info = json_encode($response);
                         $chatMessage->save();
                     }
+
                     return $response;
                 }
             } else {
@@ -6479,7 +6484,8 @@ class WhatsAppController extends FindByNumberController
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
     }
 
-    public function webhookOfficial(Request $request) {
+    public function webhookOfficial(Request $request)
+    {
         $entries = $request['entry'];
         foreach ($entries as $entry) {
             foreach ($entry['changes'] as $change) {
@@ -6497,13 +6503,13 @@ class WhatsAppController extends FindByNumberController
                             'number' => $message['from'],
                             'message_type' => $message['type'],
                             'message' => isset($message['text']) ? $message['text']['body'] : '',
-                            'user_id' => $user != null ? $user->id: null,
+                            'user_id' => $user != null ? $user->id : null,
                             'contact_id' => $contact != null ? $contact->id : null,
                             'supplier_id' => $supplier != null ? $supplier->id : null,
                             'vendor_id' => $vendor != null ? $vendor->id : null,
                             'dubbizle_id' => $dubbizle != null ? $dubbizle->id : null,
                             'customer_id' => $customer != null ? $customer->id : null,
-                            'account_id' => $businessAccount->id
+                            'account_id' => $businessAccount->id,
                         ];
                         ChatMessage::create($params);
                     }
@@ -6531,16 +6537,17 @@ class WhatsAppController extends FindByNumberController
         }
     }
 
-    public function webhookOfficialVerify(Request $request) {
+    public function webhookOfficialVerify(Request $request)
+    {
         $verifyToken = 'w59YnmcB4w1tzfxVYlPP';
         $mode = $request->get('hub.mode');
         $token = $request->get('hub.verify_token');
-        $challenge = $request->get("hub.challenge");
+        $challenge = $request->get('hub.challenge');
 
         // Check if a token and mode were sent
         if ($mode && $token) {
             // Check the mode and token sent are correct
-            if ($mode === "subscribe" && $token === $verifyToken) {
+            if ($mode === 'subscribe' && $token === $verifyToken) {
                 // Respond with 200 OK and challenge token from the request
                 return response()->setStatusCode(200)->setContent($challenge)->send();
             } else {
@@ -6548,6 +6555,7 @@ class WhatsAppController extends FindByNumberController
                 return response()->setStatusCode(403);
             }
         }
+
         return response()->setStatusCode(403);
     }
 }

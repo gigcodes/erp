@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Pinterest;
 
-use App\Http\Controllers\Controller;
-use App\PinterestBusinessAccountMails;
-use App\PinterestBusinessAccounts;
-use App\Setting;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Validator;
+use App\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\PinterestBusinessAccounts;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use App\PinterestBusinessAccountMails;
+use Illuminate\Support\Facades\Redirect;
 
 class PinterestAccountController extends Controller
 {
     /**
      * Get all the pinterest account
-     * @param Request $request
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
@@ -29,13 +29,12 @@ class PinterestAccountController extends Controller
                 $query->where('is_active', $request->is_active === 'active');
             }
         })->paginate(Setting::get('pagination'), ['*'], 'pinterest-business');
+
         return view('pinterest.index', compact('pinterestBusinessAccounts'));
     }
 
     /**
      * Add pinterest account details in DB
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function createAccount(Request $request): RedirectResponse
     {
@@ -58,6 +57,7 @@ class PinterestAccountController extends Controller
                 'pinterest_client_secret' => $request->pinterest_client_secret,
                 'is_active' => $request->is_active === 'true',
             ]);
+
             return Redirect::route('pinterest.accounts')
                 ->with('success', 'Account added successfully');
         } catch (\Exception $e) {
@@ -68,17 +68,15 @@ class PinterestAccountController extends Controller
 
     /**
      * Get Business account
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
      */
     public function getAccount(Request $request, $id): JsonResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccounts::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return response()->json(['status' => false, 'message' => 'Account not found']);
             }
+
             return response()->json(['status' => true, 'message' => 'Account found', 'data' => $pinterestBusinessAccount->toArray()]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
@@ -87,15 +85,12 @@ class PinterestAccountController extends Controller
 
     /**
      * update the business account
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function updateAccount(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccounts::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
@@ -127,15 +122,12 @@ class PinterestAccountController extends Controller
 
     /**
      * Delete business account
-     * @param Request $request
-     * @param $id
-     * @return RedirectResponse
      */
     public function deleteAccount(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestBusinessAccount = PinterestBusinessAccounts::findOrFail($id);
-            if (!$pinterestBusinessAccount) {
+            if (! $pinterestBusinessAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
@@ -152,13 +144,12 @@ class PinterestAccountController extends Controller
 
     /**
      * Generate authorize url and redirect it to get access token.
-     * @param Request $request
      */
     public function connectAccount(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccounts::findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
@@ -167,6 +158,7 @@ class PinterestAccountController extends Controller
             if ($authUrl) {
                 return Redirect::away($authUrl);
             }
+
             return Redirect::route('pinterest.accounts')
                 ->with('error', 'Unable to connect account');
         } catch (\Exception $e) {
@@ -177,19 +169,18 @@ class PinterestAccountController extends Controller
 
     /**
      * Update access token and refresh token for connected account.
-     * @param Request $request
      */
     public function loginAccount(Request $request): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccounts::findOrFail(base64_decode($request->state));
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
             $pinterest = new PinterestService($pinterestAccount->pinterest_client_id, $pinterestAccount->pinterest_client_secret, $pinterestAccount->id);
             $response = $pinterest->validateAccessTokenAndRefreshToken($request->all());
-            if (!$response['status']) {
+            if (! $response['status']) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', $response['message']);
             } else {
@@ -209,6 +200,7 @@ class PinterestAccountController extends Controller
                     return Redirect::route('pinterest.accounts')
                         ->with('error', $userResponse['message']);
                 }
+
                 return Redirect::route('pinterest.accounts')
                     ->with('success', 'Account connected successfully');
             }
@@ -220,14 +212,12 @@ class PinterestAccountController extends Controller
 
     /**
      * Refresh the token and account details
-     * @param Request $request
-     * @param $id
      */
     public function refreshAccount(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::with('account')->findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
@@ -237,6 +227,7 @@ class PinterestAccountController extends Controller
             if ($response['status']) {
                 $pinterestAccount->pinterest_account = $response['data']['username'];
                 $pinterestAccount->save();
+
                 return Redirect::route('pinterest.accounts')
                     ->with('success', 'Account refreshed successfully');
             } else {
@@ -251,18 +242,17 @@ class PinterestAccountController extends Controller
 
     /**
      * Disconnect account from pinterest.
-     * @param Request $request
-     * @param $id
      */
     public function disconnectAccount(Request $request, $id): RedirectResponse
     {
         try {
             $pinterestAccount = PinterestBusinessAccountMails::findOrFail($id);
-            if (!$pinterestAccount) {
+            if (! $pinterestAccount) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', 'No account found');
             }
             $pinterestAccount->delete();
+
             return Redirect::route('pinterest.accounts')
                 ->with('success', 'Account disconnected successfully');
         } catch (\Exception $e) {

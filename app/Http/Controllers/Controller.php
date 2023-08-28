@@ -39,49 +39,46 @@ class Controller extends BaseController
 
         //check by store_website_id and lang_code and key
         $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)->where('lang_code', $lang_code)->where('key', $key)->first();
-        
+
         if (! empty($translated_message)) {
             return $message = $translated_message->value;
         }
 
-        
         $return_message = ApiResponseMessage::where('store_website_id', $store_website_id)->where('key', $key)->first();
         if (! empty($return_message)) {
             $message = $return_message->value;
         }
 
         if (! empty($lang_code)) {
-
             //check by lang_code and key
-            if(empty($store_website_id)){
+            if (empty($store_website_id)) {
                 $translated_message = ApiResponseMessagesTranslation::where('lang_code', $lang_code)
                     ->where('key', $key)
                     ->first();
-    
+
                 if (! empty($translated_message)) {
-                  //  return $message = $translated_message->value;
+                    //  return $message = $translated_message->value;
                 }
             }
 
             $lan_name = WebsiteStoreView::where('code', $lang_code)->first();
-            
+
             if (isset($lan_name->name)) {
-                
                 //check by  lang_name and key
                 $translated_message = ApiResponseMessagesTranslation::where('lang_name', $lan_name->name)
                     ->where('key', $key)
                     ->first();
-    
+
                 if (! empty($translated_message)) {
-                   return $message = $translated_message->value;
+                    return $message = $translated_message->value;
                 }
 
                 $local_code = Language::where('name', $lan_name->name)->first();
-                
+
                 if (isset($local_code->locale)) {
                     $googleTranslate = new GoogleTranslate();
                     $translationString = GoogleTranslateController::translateProducts($googleTranslate, $local_code->locale, [$message]);
-                    
+
                     if ($translationString) {
                         $message = $translationString;
                         ApiResponseMessagesTranslation::create([

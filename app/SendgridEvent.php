@@ -53,4 +53,20 @@ class SendgridEvent extends Model
     {
         return config('sendgridevents.events_table_name');
     }
+
+    public function sender()
+    {
+        return $this->belongsTo(\App\Email::class, 'email_id');
+    }
+
+    public function getEventColorAttribute()
+    {
+        $eventColor = SendgridEventColor::where('name', $this->event)->first();
+
+        if ($eventColor) {
+            return $eventColor->color;
+        }
+
+        return '';
+    }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\LogRequest;
 use App\MailinglistEmail;
 use Illuminate\Console\Command;
-use App\LogRequest;
 
 class GetStatsFromEmailServers extends Command
 {
@@ -41,7 +41,7 @@ class GetStatsFromEmailServers extends Command
     {
         $mailEmails = MailinglistEmail::where('progress', 0)->get();
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        
+
         foreach ($mailEmails as $mailEmail) {
             $list = $mailEmail->audience;
 
@@ -67,7 +67,7 @@ class GetStatsFromEmailServers extends Command
 
                         // close curl resource to free up system resources
                         curl_close($ch);
-                        
+
                         $response = json_decode($output);
 
                         if ($response->statistics) {

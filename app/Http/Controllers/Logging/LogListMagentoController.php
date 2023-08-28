@@ -22,10 +22,10 @@ use App\PushToMagentoCondition;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LogListMagentoExport;
-use App\Loggers\LogListMagentoSyncStatus;
 use App\StoreMagentoApiSearchProduct;
 use App\ProductPushInformationHistory;
 use App\ProductPushInformationSummery;
+use App\Loggers\LogListMagentoSyncStatus;
 use GuzzleHttp\Exception\ClientException;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -276,11 +276,11 @@ class LogListMagentoController extends Controller
             $logListMagentos->where('products.sku', 'LIKE', '%' . $request->sku . '%');
         }
 
-        if (! empty($request->brand)) {
-            $logListMagentos->where('brands.name', 'LIKE', '%' . $request->brand . '%');
+        if (! empty($request->brand) && count(array_filter($request->brand)) > 0) {
+            $logListMagentos->whereIn('products.brand', $request->brand);
         }
 
-        if (! empty($request->category)) {
+        if (! empty($request->category) && count(array_filter($request->category)) > 0) {
             $categories = (new \App\Product)->matchedCategories($request->category);
             $logListMagentos->whereIn('categories.id', $categories);
         }
@@ -370,7 +370,12 @@ class LogListMagentoController extends Controller
                 $logListMagentos[$key]['log_user_name'] = '';
             }
         }
-        $conditions = PushToMagentoCondition::select('condition', 'status', 'upteam_status')->get();
+        $conditions = PushToMagentoCondition::select('condition', 'status', 'upteam_status');
+        if (! empty($request->conditions) && count(array_filter($request->conditions)) > 0) {
+            $conditions->whereIn('id', $request->conditions);
+        }
+        $conditions = $conditions->get();
+
         $users = \App\User::all();
         if ($request->ajax() and $request->type == 'product_log_list') {
             return response()->json([
@@ -385,11 +390,18 @@ class LogListMagentoController extends Controller
         }
         $filters = $request->all();
         // Show results
+        $allCategories = $this->get_categories();
+        $categoryPlucks = $allCategories->pluck('title', 'id')->toArray();
 
-        return view('logging.partials.magento_product_data_push_jouerny', compact('logListMagentos', 'filters', 'users', 'total_count', 'conditions'))
+        $allbrands = $this->get_brands();
+        $brandPlucks = $allbrands->pluck('name', 'id')->toArray();
+
+        $conditionPlucks = PushToMagentoCondition::pluck('condition', 'id')->toArray();
+
+        return view('logging.partials.magento_product_data_push_jouerny', compact('logListMagentos', 'filters', 'users', 'total_count', 'conditions', 'categoryPlucks', 'brandPlucks', 'conditionPlucks'))
             ->with('success', \Request::Session()->get('success'))
-            ->with('brands', $this->get_brands())
-            ->with('categories', $this->get_categories());
+            ->with('brands', $allbrands)
+            ->with('categories', $allCategories);
     }
 
     public function updateMagentoStatus(Request $request, $id)

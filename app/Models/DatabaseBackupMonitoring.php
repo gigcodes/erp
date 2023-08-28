@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DatabaseBackupMonitoring extends Model
 {
@@ -11,4 +11,8 @@ class DatabaseBackupMonitoring extends Model
 
     protected $table = 'database_backup_monitoring';
 
+    public function dbStatusColour()
+    {
+        return $this->belongsTo(DatabaseBackupMonitoringStatus::class, 'db_status_id');
+    }
 }

@@ -7,6 +7,7 @@ use Crypt;
 use Session;
 use Response;
 use App\Setting;
+use App\LogRequest;
 use Facebook\Facebook;
 use App\Social\SocialAdset;
 use App\Social\SocialConfig;
@@ -14,7 +15,6 @@ use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Http\Controllers\Controller;
-use App\LogRequest;
 
 class SocialAdsetController extends Controller
 {

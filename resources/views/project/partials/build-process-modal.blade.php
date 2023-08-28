@@ -26,7 +26,9 @@
                                         <select name="organization" id="build_organization" class="form-control select2" style="width: 100%!important">
                                             <option value="" selected disabled>-- Select a Organizations --</option>
                                             @forelse($organizations as $organization)
-                                                <option value="{{ $organization->id }}">{{ $organization->name }}</option>
+                                            <option value="{{ $organization->id }}" {{ $organization->id === 2 ? 'selected' : '' }}>
+                                                {{ $organization->name }}
+                                            </option>
                                             @empty
                                             @endforelse
                                         </select>

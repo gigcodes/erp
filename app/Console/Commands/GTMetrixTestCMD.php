@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use App\Setting;
 use Carbon\Carbon;
+use App\LogRequest;
 use App\CronJobReport;
 use App\WebsiteStoreView;
+use App\Helpers\LogHelper;
 use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 
 class GTMetrixTestCMD extends Command
 {
@@ -113,7 +113,7 @@ class GTMetrixTestCMD extends Command
                     $webiteUrl = $value['magento_url'];
                     $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $curl = curl_init();
-                    $url = $webiteUrl."/pub/sitemap/sitemap_gb_en.xml";
+                    $url = $webiteUrl . '/pub/sitemap/sitemap_gb_en.xml';
 
                     curl_setopt_array($curl, [
                         CURLOPT_URL => $url,
@@ -133,7 +133,7 @@ class GTMetrixTestCMD extends Command
 
                     $err = curl_error($curl);
                     curl_close($curl);
-                    
+
                     //$create = array();
                     if ($err) {
                         \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);

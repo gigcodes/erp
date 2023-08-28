@@ -10,9 +10,9 @@ use App\ChatMessage;
 use App\PrivateView;
 use App\CronJobReport;
 use App\ScheduledMessage;
+use App\Helpers\LogHelper;
 use App\CommunicationHistory;
 use Illuminate\Console\Command;
-use App\Helpers\LogHelper;
 
 class AutoMessenger extends Command
 {
@@ -66,7 +66,7 @@ class AutoMessenger extends Command
             $now = Carbon::now();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'CommunicationHistory model query was finished']);
-            
+
             foreach ($communication_histories as $history) {
                 $time_diff = Carbon::parse($history->created_at)->diffInHours($now);
                 // $time_diff = Carbon::parse($history->created_at)->diffInMinutes($now);
@@ -79,7 +79,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -113,7 +113,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -134,7 +134,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -155,7 +155,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -191,7 +191,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -218,7 +218,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
@@ -261,7 +261,7 @@ class AutoMessenger extends Command
 
                     $chat_message = ChatMessage::create($params);
 
-                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:'.$chat_message->id]);
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
                     // try {
                     // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($private_view->customer->phone, $private_view->customer->whatsapp_number, $params['message'], false, $chat_message->id);

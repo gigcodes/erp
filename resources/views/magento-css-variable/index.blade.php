@@ -66,6 +66,14 @@
                                     @endforelse
                                 </select>
                             </div>
+                            <div class="col-md-3 pd-sm">
+                                <select class="form-control select2" name="verify" id="verify">
+                                    <option value="">Select Log Status</option>
+                                    <option value="NotVerify" {{ (request('verify') == "NotVerify") ? "selected" : "" }} >Not Verified</option>
+                                    <option value="Error" {{ (request('verify') == "Error") ? "selected" : "" }} >Error</option>
+                                    <option value="Success" {{ (request('verify') == "Success") ? "selected" : "" }} >Success</option>
+                                </select>
+                            </div><br><br>
                             <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
@@ -85,6 +93,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magento-css-variable-create"> Create </button>
                         @if (auth()->user()->isAdmin())
                         <a class="btn btn-secondary ml-3" href="{{ route('magento-css-variable.logs') }}">Logs</a>
+                        <button class="btn btn-secondary ml-3" onclick="bulkUpdateVerify()"> Bulk Update Is Verified </button>&nbsp;
                         <button class="btn btn-secondary ml-3" onclick="bulkUpdateValues()"> Bulk Update Values </button>&nbsp;
                         {{Form::open(array('url'=>route('magento-css-variable.update-values-for-project'), 'class'=>'form-inline'))}}
                             <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
@@ -122,9 +131,9 @@
                             <th width="10%">Variable</th>
                             <th width="10%">Value</th>
                             <th width="10%">Created By</th>
-                            <th width="7%">Is Verified</th>
+                            <th width="10%">Is Verified</th>
                             <th width="7%">Log Status</th>
-                            <th width="9%">Action</th>
+                            <th width="6%">Action</th>
                         </tr>
                         @foreach ($magentoCssVariables as $key => $magentoCssVariable)
                             <tr data-id="{{ $magentoCssVariable->id }}">
@@ -167,13 +176,23 @@
                                     {{ $magentoCssVariable->user?->name }}
                                 </td>
                                 <td>
-                                    <span class="badge {{ $magentoCssVariable->is_verified == $magentoCssVariableModel::VERIFIED ? "badge-success" : "badge-danger"}}">{{ $magentoCssVariableModel::$verifiedOptions[$magentoCssVariable->is_verified] }}</span>
+                                <div class="d-flex">
+                                    <select class="form-control change-verified" name="change-verified">
+                                        <option value="">Please Select status</option>
+                                        <option value="1" {{ ($magentoCssVariable->is_verified == "1") ? "selected" : "" }} data-id ="{{$magentoCssVariable->id}}">Verified</option>
+                                        <option value="0" {{ ($magentoCssVariable->is_verified == "0") ? "selected" : "" }}  data-id ="{{$magentoCssVariable->id}}">Not verified</option>
+                                    </select>                  
                                     <button type="button" class="btn btn-xs btn-image load-verify-histories ml-2 pull-right" data-id="{{$magentoCssVariable->id}}" title="Load verify histories"> 
                                         <i class="fa fa-info-circle"></i>
                                     </button>
+                                  </div>
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
+                                    @if($magentoCssVariable->lastLog)
                                     {{ optional($magentoCssVariable->lastLog)->status }}
+                                    @else
+                                     Not Verified
+                                     @endif
                                 </td>
                                 <td>
                                     <button type="button" data-id="{{ $magentoCssVariable->id }}" class="btn btn-xs btn-edit-magento-css-variable">
@@ -192,11 +211,6 @@
                                     <button type="button" class="btn btn-xs btn-image load-job-logs" data-id="{{$magentoCssVariable->id}}" title="Job Logs"> 
                                         <i class="fa fa-info-circle"></i>
                                     </button>
-                                    {!! Form::open(['method' => 'POST', 'class' => 'verify-form', 'route' => ['magento-css-variable.verify', $magentoCssVariable->id], 'style'=>'display:inline']) !!}
-                                    <button type="submit" title="Verify value" class="btn btn-xs delete-button" onclick="return confirmVerify(event)">
-                                        <i class="fa fa-check" style="color: #808080;"></i>
-                                    </button>
-                                    {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach
@@ -233,15 +247,6 @@
         return false;
     }
 
-    function confirmVerify(event) {
-        event.preventDefault();
-        var confirmVerify = confirm("Are you sure you want to verify this item?");
-        if (confirmVerify) {
-            event.target.closest('.verify-form').submit();
-        }
-        return false;
-    }
-
     function bulkUpdateValues()
     {
         event.preventDefault();
@@ -273,9 +278,11 @@
             },
             beforeSend: function() {
                 $(this).attr('disabled', true);
+                $("#loading-image-preview").show();
             }
         }).done(function(data) {
             toastr["success"]("Bulk update values completed successfully!", "Message")
+            $("#loading-image-preview").hide();
             window.location.reload();
         }).fail(function(response) {
             toastr["error"](error.responseJSON.message);
@@ -367,6 +374,7 @@
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> ${(v.value != null) ? v.value : ' - ' } </td>
+                                        <td>${(v.is_verified == 1 ? "Verified" : "Not Verified")}</td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${v.created_at} </td>
                                     </tr>`;
@@ -446,5 +454,74 @@
         }
 	
 	});
+
+    $(document).on('change','.change-verified',function(e){
+      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+       var magentocssId = $('option:selected', this).attr('data-id');
+
+       var url = '{{ route("magento-css-variable.verify", ":id") }}';
+        url = url.replace(':id', magentocssId);
+
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : url ,
+          data : {
+            verfied : $('option:selected', this).val(),
+            id : magentocssId,
+          },
+          success : function (response){
+             toastr['success'](response.message, 'success');
+          },
+          error : function (response){
+            toastr['error']("An error occurred");
+          }
+        })
+      }
+  });
+
+  function bulkUpdateVerify()
+    {
+        event.preventDefault();
+        var selectedIds = [];
+
+		$(".bulk_select").each(function () {
+			if ($(this).prop("checked") == true) {
+				selectedIds.push($(this).val());
+			}
+		});
+
+		if (selectedIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(selectedIds);
+			return false;
+		}
+        $.ajax({
+            type: "post",
+            url: "{{ route('magento-css-variable.update-verified') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                selectedIds: selectedIds,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+                $("#loading-image-preview").show();
+            }
+        }).done(function(data) {
+            toastr["success"]("Bulk update values completed successfully!", "Message")
+            $("#loading-image-preview").hide();
+            window.location.reload();
+        }).fail(function(response) {
+            toastr["error"]("Something went wrong");
+        });
+    }
+
 </script>
 @endsection

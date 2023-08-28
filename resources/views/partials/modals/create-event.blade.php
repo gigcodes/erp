@@ -22,6 +22,84 @@
                             </label>
                           </div>
                     </div>
+                    <div class="form-group duration">
+                        <label for="event-name">Event Category</label>
+                        <select name="event_category_id" id="event_category_id" class="form-control select2">
+                            <option value="">-- Select category --</option>
+                            @php  $eventcatgories =  \App\Models\EventCategory::get(); @endphp
+                            @foreach ($eventcatgories as $cat)
+                                <option value="{{$cat->id}}">{{$cat->category}}</option>
+                            @endforeach
+                        </select>
+                        <span id="event_category_id_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group duration">
+                        <label for="event-name">Event User</label>
+                        <select name="user_id" id="user_id" class="form-control select2">
+                            <option value="">-- Select User --</option>
+                            @php  $users =  \App\User::get(); @endphp
+                            @foreach ($users as $user)
+                                <option value="{{$user->id}}">{{$user->name}}</option>
+                            @endforeach
+                        </select>
+                        <span id="user_id_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group duration">
+                        <label for="event-name">Event Vendor
+                            <button type="button" class="btn custom-button float-right mr-3 add-vendor">Add Vendor</button>
+                        </label>
+                        <select name="vendor_id" id="vendor_id" class="form-control select2">
+                            <option value="">-- Select Vendor --</option>
+                            @php  $vendors =  \App\Vendor::get(); @endphp
+                            @foreach ($vendors as $vendor)
+                                <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                      <div class="form-group duration" id="vendor-inputs" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Vendor category</label>
+                                    <select class="form-control" name="vendor_category_id"  placeholder="Category:">
+                                        @php  $categories =  \App\VendorCategory::get(); @endphp
+                                        <option value="">Select a Category</option>
+                                        @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                        @endforeach
+                                      </select>
+                                      <span id="vendor_category_id_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Vendor Name</label>
+                                    <input type="text" name="vendor_name" id="vendor_name" class="form-control" placeholder="Enter Vendor Name">
+                                    <span id="vendor_name_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-email">Email</label>
+                                    <input type="email" name="vendor_email" id="vendor_email" class="form-control" placeholder="Enter Email Name">
+                                    <span id="vendor_email_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vendor-name">Phone Number</label>
+                                    <input type="number" name="vendor_phone" id="vendor_phone" class="form-control" placeholder="Enter Phone Number">
+                                    <span id="vendor_phone_error" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-from-address">Email From Address</label>
+                        <input type="email" id="email_from_address" name="from_address" class="form-control" value="info@mio-moda.com">
+                        <span id="email_from_address_error" class="text-danger"></span>
+
+                    </div>
                     <div class="form-group">
                         <label for="event-name">Name</label>
                         <input id="event-name" name="name" class="form-control" type="text">
@@ -53,59 +131,158 @@
                     </div>
                     <div class="form-group">
                         <label for="event-start-date">Start Date</label>
-                        <input id="event-start-date" name="start_date" type="text" class="form-control event-dates" value="" placeholder="Select Start Date">
+                        <input type="date" name="start_date" id="event-start-date" value="{{ date('Y-m-d') }}" class="form-control input-sm" placeholder="Select Start Date">
                         <span id="start_date_error" class="text-danger"></span>
                     </div>
                     <div class="form-group" id="end-date-div">
                         <label for="event-end-date">End Date</label>
-                        <input id="event-end-date" name="end_date" type="text" class="form-control event-dates" value="" placeholder="Select End Date">
+                        <input type="date" name="end_date" id="event-end-date" value="{{ date('Y-m-d') }}" class="form-control input-sm" placeholder="Select End Date">
                         <span id="end_date_error" class="text-danger"></span>
                     </div>
-                    
+                                     
                     <div class="form-group">
                         <table class="table table-bordered table-hover">
                             <tbody>
-                                <tr>
+                                <tr class="day-row monday">
                                     <td><input type="checkbox" name="event_availability[1][day]"></td>
                                     <td>MON</td>
-                                    <td><input name="event_availability[1][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[1][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                        <input name="event_availability[1][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                 </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[1][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row tuesday">
                                     <td><input type="checkbox" name="event_availability[2][day]"></td>
                                     <td>TUE</td>
-                                    <td><input name="event_availability[2][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[2][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[2][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                         </div>
+                                        </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[2][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                     </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row wednesday">
                                     <td><input type="checkbox" name="event_availability[3][day]"></td>
                                     <td>WED</td>
-                                    <td><input name="event_availability[3][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[3][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[3][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[3][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                         </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row thursday">
                                     <td><input type="checkbox" name="event_availability[4][day]"></td>
                                     <td>THU</td>
-                                    <td><input name="event_availability[4][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[4][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[4][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                     </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                        <input name="event_availability[4][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                        <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                    </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row friday">
                                     <td><input type="checkbox" name="event_availability[5][day]"></td>
                                     <td>FRI</td>
-                                    <td><input name="event_availability[5][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[5][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                         <input name="event_availability[5][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                         <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                    </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[5][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row saturday">
                                     <td><input type="checkbox" name="event_availability[6][day]"></td>
                                     <td>SAT</td>
-                                    <td><input name="event_availability[6][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[6][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>  
+                                        <div class="input-group clockpicker">
+                                         <input name="event_availability[6][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
+                                         <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                    </div>
+                                        </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[6][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </td>
                                 </tr>
-                                <tr>
+                                <tr class="day-row sunday">
                                     <td><input type="checkbox" name="event_availability[7][day]"></td>
                                     <td>SUN</td>
-                                    <td><input name="event_availability[7][start_at]" class="form-control timepicker" placeholder="Start Time" type="text"></td>
-                                    <td><input name="event_availability[7][end_at]" class="form-control timepicker" placeholder="End Time" type="text"></td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input type="text" class="form-control clockpicker"  placeholder="Start Time" name="event_availability[7][start_at]">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                </td>
+                                    <td>
+                                        <div class="input-group clockpicker">
+                                            <input name="event_availability[7][end_at]" class="form-control clockpicker" placeholder="End Time" type="text">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                 
                                 </tr>
                             </tbody>
                         </table>
@@ -119,3 +296,97 @@
         </div>
     </div>
 </div>
+   
+<script type="text/javascript">
+$(document).ready(function() {
+
+    var days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+    function updateDayRows(startDate, endDate) {
+        $('.day-row').hide();
+    
+    var currentDate = new Date(startDate);
+    
+        while (currentDate <= endDate) {
+            var currentDay = currentDate.getDay();
+            $('.' + days[currentDay]).show();
+            
+            // Move to the next day
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+    }
+
+    function updateDayRowsWithEndDate(startDate, endDate) {
+        $('.day-row').hide();
+        var currentDay = startDate.getDay();
+        var lastDay = endDate.getDay();
+
+        for (var i = currentDay; i <= lastDay; i++) {
+            $('.' + days[i]).show();
+        }
+    }
+
+    function showAdditionalElements() {
+        $('.day-row, .clockpicker').show();
+    }
+
+    $('#event-start-date, #event-end-date').on('change', function() {
+        var startDate = new Date($('#event-start-date').val());
+        var endDate = new Date($('#event-end-date').val());
+        updateDayRows(startDate, endDate);
+    });
+
+    $('select[name="date_range_type"]').on('change', function() {
+        if ($(this).val() == 'within') {
+            $('#end-date-div').removeClass('hide');
+            var startDate = new Date($('#event-start-date').val());
+            var endDate = new Date($('#event-end-date').val());
+            updateDayRowsWithEndDate(startDate, endDate);
+        } else {
+            $('#end-date-div').addClass('hide');
+            var startDate = new Date($('#event-start-date').val());
+            updateDayRows(startDate, startDate);
+            showAdditionalElements(); // Hide additional elements
+        }
+    });
+
+    // Initialize day rows based on current day
+    var currentDay = new Date().getDay();
+    $('.day-row').hide();
+    $('.' + days[currentDay]).show();
+
+    $('.clockpicker').on('change', function() {
+        var startInput = $(this).closest('tr').find('.clockpicker[name$="[start_at]"]');
+        var endInput = $(this).closest('tr').find('.clockpicker[name$="[end_at]"]');
+        var selectedDuration = parseInt($('#event-duration').val()); // Get selected duration in minutes
+
+        if (startInput.val()) {
+            var start = moment(startInput.val(), 'HH:mm');
+            // var duration = moment.duration(durationSelect.val(), 'minutes');
+            var duration = moment.duration(selectedDuration, 'minutes');
+
+            var end = start.clone().add(duration);
+
+            endInput.val(end.format('HH:mm'));
+        }
+    });
+
+    $('.clockpicker').clockpicker({
+        autoclose: true,
+        doneText: 'Done',
+        placement: 'top' // Set the placement to 'top'
+
+    });
+
+});
+
+    $(document).ready(function() {
+        // Add Vendor button click event
+        $('.add-vendor').click(function() {
+            $('#vendor-inputs').toggle();
+            $("#vendor_id").css({
+                style: 'display: none;',
+            });
+        });
+    });
+</script>

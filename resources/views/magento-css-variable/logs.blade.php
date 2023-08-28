@@ -24,10 +24,16 @@
                 <div class="mt-3 col-md-12">
                     <form action="{{route('magento-css-variable.logs')}}" method="get" class="search">
                         <div class="col-lg-2">
-                            <input class="form-control" type="text" id="search_project" placeholder="Search Project" name="search_project" value="{{ $project ?? '' }}">
+                            <input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $error ?? '' }}">
                         </div>
                         <div class="col-lg-2">
-                            <input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $error ?? '' }}">
+                            <input class="form-control" type="text" id="search_command" placeholder="Search Command" name="search_command" value="{{ $command ?? '' }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" type="text" id="search_message" placeholder="Search Message" name="search_message" value="{{ $message ?? '' }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" type="date" name="date" value="{{ $date ?? '' }}">
                         </div>
                         <div class="col-lg-2">
                             <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
@@ -59,12 +65,15 @@
                             <th width="10%">Command</th>
                             <th width="10%">Message</th>
                             <th width="10%">Status</th>
+                            <th width="10%">Date</th>
                             <th width="10%">CSV Path</th>
                         </tr>
                         @foreach ($magentoCssVariableJobLogs as $key => $magentoCssVariableJobLog)
                             <tr data-id="{{ $magentoCssVariableJobLog->id }}">
                                 <td>{{ $magentoCssVariableJobLog->id }}</td>
-                                <td>{{ optional($magentoCssVariableJobLog->magentoCssVariable)->project?->name }}</td>
+                                <td class="expand-row" style="word-break: break-all">     
+                                    {{ $magentoCssVariableJobLog->formatted_magento_css_variable_id }}
+                                </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
                                        {{ strlen($magentoCssVariableJobLog->command) > 30 ? substr($magentoCssVariableJobLog->command, 0, 30).'...' :  $magentoCssVariableJobLog->command }}
@@ -84,10 +93,12 @@
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $magentoCssVariableJobLog->status }}
                                 </td>
-
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $magentoCssVariableJobLog->created_at }}
+                                </td>
                                 <td>
                                 @if( $magentoCssVariableJobLog->csv_file_path)
-                                <a class="btn btn-info mx-3" href="{{ route('admin.download.file', ['id' =>$magentoCssVariableJobLog->id]) }}"><i class="fa fa-download"></i>Csv File</a>
+                                <a class="btn btn-info mx-3" href="{{ route('admin.download.file', ['id' =>$magentoCssVariableJobLog->id]) }}" title="CSV Downlaod"><i class="fa fa-download"></i></a>
                                 @endif
                             </td>
                             </tr>

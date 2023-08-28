@@ -883,7 +883,7 @@ class PurchaseController extends Controller
         //Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
 
         $emailClass = (new PurchaseExport($path, $request->subject, $request->message))->build();
-        $from_email=\App\Helpers::getFromEmail();
+        $from_email = \App\Helpers::getFromEmail();
         $email = Email::create([
             'model_id' => $request->supplier_id,
             'model_type' => Supplier::class,
@@ -2688,7 +2688,7 @@ class PurchaseController extends Controller
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
-            $from_email=\App\Helpers::getFromEmail();
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,
@@ -2751,7 +2751,7 @@ class PurchaseController extends Controller
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->getSubject(), $content, $attachment));
-            $from_email=\App\Helpers::getFromEmail();
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
@@ -2778,11 +2778,11 @@ class PurchaseController extends Controller
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
-            $from_email=\App\Helpers::getFromEmail();
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
-                'from' =>  $from_email,
+                'from' => $from_email,
                 'to' => $request->recipient,
                 'subject' => "Resent: $email->subject",
                 'message' => $email->message,
@@ -2986,7 +2986,7 @@ class PurchaseController extends Controller
             }
 
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-            $from_email=\App\Helpers::getFromEmail();
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,

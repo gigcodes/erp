@@ -50,7 +50,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\IpLogController;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
@@ -95,6 +97,7 @@ use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\MailBoxController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Select2Controller;
 use App\Http\Controllers\SemrushController;
 use App\Http\Controllers\SeoToolController;
@@ -108,6 +111,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
 use App\Http\Controllers\BackLinkController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -120,13 +124,14 @@ use App\Http\Controllers\FacebookController;
 use App\Http\Controllers\HubstaffController;
 use App\Http\Controllers\KeywordsController;
 use App\Http\Controllers\LanguageController;
+
 use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PurchaseController;
-
 use App\Http\Controllers\RedisjobController;
 use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\SshLoginController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TestCaseController;
 use App\Http\Controllers\TodoListController;
@@ -173,6 +178,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TwiliochatController;
 use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
+use App\Http\Controllers\ZabbixTaskController;
 use App\Http\Controllers\AutoRefreshController;
 use App\Http\Controllers\BrandReviewController;
 use App\Http\Controllers\BugTrackingController;
@@ -192,6 +198,7 @@ use App\Http\Controllers\TaskHistoryController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Controllers\ChatMessagesController;
+use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\CompositionsController;
 use App\Http\Controllers\CropRejectedController;
 use App\Http\Controllers\DailyPlannerController;
@@ -202,6 +209,7 @@ use App\Http\Controllers\GoogleServerController;
 use App\Http\Controllers\HashtagPostsController;
 use App\Http\Controllers\MissingBrandController;
 use App\Http\Controllers\ProductColorController;
+use App\Http\Controllers\ProjectThemeController;
 use App\Http\Controllers\SEOAnalyticsController;
 use App\Http\Controllers\SitejabberQAController;
 use App\Http\Controllers\TaskCategoryController;
@@ -219,10 +227,13 @@ use App\Http\Controllers\MagentoModuleController;
 use App\Http\Controllers\ManageModulesController;
 use App\Http\Controllers\MasterControlController;
 use App\Http\Controllers\MasterDevTaskController;
+use App\Http\Controllers\MonitorServerController;
 use App\Http\Controllers\PictureColorsController;
 use App\Http\Controllers\ProductListerController;
 use App\Http\Controllers\QuickCustomerController;
 use App\Http\Controllers\SocialAccountController;
+use App\Http\Controllers\StatusMappingController;
+use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\VendorPaymentController;
 use App\Http\Controllers\VoucherCouponController;
 use App\Http\Controllers\BloggerPaymentController;
@@ -231,9 +242,11 @@ use App\Http\Controllers\BrandSizeChartController;
 use App\Http\Controllers\CaseReceivableController;
 use App\Http\Controllers\ColorReferenceController;
 use App\Http\Controllers\CompetitorPageController;
+use App\Http\Controllers\ConfigRefactorController;
 use App\Http\Controllers\ContactBloggerController;
 use App\Http\Controllers\ConversionRateController;
 use App\Http\Controllers\EmailAddressesController;
+use App\Http\Controllers\FilePermissionController;
 use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\InstagramPostsController;
@@ -248,6 +261,7 @@ use App\Http\Controllers\PurchaseStatusController;
 use App\Http\Controllers\ReturnExchangeController;
 use App\Http\Controllers\TargetLocationController;
 use App\Http\Controllers\TaskCategoriesController;
+use App\Http\Controllers\ThemeStructureController;
 use App\Http\Controllers\TwillioMessageController;
 use App\Http\Controllers\UserAvaibilityController;
 use App\Http\Controllers\UserManagementController;
@@ -255,6 +269,7 @@ use App\Http\Controllers\VendorCategoryController;
 use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\AffiliateResultController;
 use App\Http\Controllers\CategorySegmentController;
+use App\Http\Controllers\ChatGPT\ChatGPTController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\FcmNotificationController;
 use App\Http\Controllers\GoogleAffiliateController;
@@ -264,6 +279,7 @@ use App\Http\Controllers\GoogleTranslateController;
 use App\Http\Controllers\GoogleWebMasterController;
 use App\Http\Controllers\HubstaffPaymentController;
 use App\Http\Controllers\ListingPaymentsController;
+use App\Http\Controllers\MagentoLocationController;
 use App\Http\Controllers\MagentoSettingsController;
 use App\Http\Controllers\MonetaryAccountController;
 use App\Http\Controllers\ProductApproverController;
@@ -281,6 +297,7 @@ use App\Http\Controllers\DeliveryApprovalController;
 use App\Http\Controllers\DigitalMarketingController;
 use App\Http\Controllers\DocuemntCategoryController;
 use App\Http\Controllers\GoogleAdsAccountController;
+use App\Http\Controllers\GoogleDialogFlowController;
 use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GTMatrixErrorLogController;
 use App\Http\Controllers\InstagramProfileController;
@@ -291,10 +308,12 @@ use App\Http\Controllers\ProductSelectionController;
 use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\SupplierCategoryController;
+use App\Http\Controllers\VirtualminDomainController;
 use App\Http\Controllers\AutoReplyHashtagsController;
 use App\Http\Controllers\BrokenLinkCheckerController;
 use App\Http\Controllers\ChangeDescriptionController;
 use App\Http\Controllers\ContentManagementController;
+use App\Http\Controllers\DeploymentVersionController;
 use App\Http\Controllers\DiscountSalePriceController;
 use App\Http\Controllers\GoogleSearchImageController;
 use App\Http\Controllers\GoogleShoppingAdsController;
@@ -306,6 +325,7 @@ use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutySegmentController;
 use App\Http\Controllers\SocialAccountPostController;
 use App\Http\Controllers\SopShortcutCreateController;
+use App\Http\Controllers\ZabbixWebhookDataController;
 use App\Http\Controllers\ApiResponseMessageController;
 use App\Http\Controllers\AutoCommentHistoryController;
 use App\Http\Controllers\ChatbotMessageLogsController;
@@ -314,6 +334,8 @@ use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\HashtagPostCommentController;
 use App\Http\Controllers\HubstaffActivitiesController;
 use App\Http\Controllers\KeywordInstructionController;
+use App\Http\Controllers\MagentoCssVariableController;
+use App\Http\Controllers\MagentoUserFromErpController;
 use App\Http\Controllers\ManageTaskCategoryController;
 use App\Http\Controllers\ProjectFileManagerController;
 use App\Http\Controllers\SimplyDutyCategoryController;
@@ -325,6 +347,7 @@ use App\Http\Controllers\EmailContentHistoryController;
 use App\Http\Controllers\EmailDataExtractionController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
 use App\Http\Controllers\MessageQueueHistoryController;
+use App\Http\Controllers\MonitorJenkinsBuildController;
 use App\Http\Controllers\NewProductInventoryController;
 use App\Http\Controllers\PageNotesCategoriesController;
 use App\Http\Controllers\AttributeReplacementController;
@@ -345,37 +368,16 @@ use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\StoreWebsiteAnalyticsController;
 use App\Http\Controllers\UsersFeedbackHrTicketController;
 use App\Http\Controllers\GoogleCampaignLocationController;
-use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
+use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
-use App\Http\Controllers\MagentoModuleCronJobHistoryController;
-use App\Http\Controllers\GoogleDialogFlowController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
-use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
-use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
-use App\Http\Controllers\Pinterest\PinterestAccountController;
-use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
-use App\Http\Controllers\Pinterest\PinterestPinsController;
-use App\Http\Controllers\ChatGPT\ChatGPTController;
-use App\Http\Controllers\ConfigRefactorController;
-use App\Http\Controllers\Pinterest\PinterestCampaignsController;
-use App\Http\Controllers\MonitorJenkinsBuildController;
-use App\Http\Controllers\MagentoLocationController;
-use App\Http\Controllers\IpLogController;
-use App\Http\Controllers\DatabaseBackupMonitoringController;
-use App\Http\Controllers\SshLoginController;
-use App\Http\Controllers\FilePermissionController;
-use App\Http\Controllers\MagentoFrontendDocumentationController;
-use App\Http\Controllers\TechnicalDebtController;
-use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
-use App\Http\Controllers\ThemeStructureController;
 
 Auth::routes();
 
@@ -402,20 +404,21 @@ Route::prefix('youtube')->middleware('auth')->group(function () {
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
-use App\Http\Controllers\StatusMappingController;
+use App\Http\Controllers\Pinterest\PinterestAccountController;
+use App\Http\Controllers\MagentoBackendDocumentationController;
+use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\StoreWebsiteCountryShippingController;
+use App\Http\Controllers\MagentoFrontendDocumentationController;
+use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
-use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
-use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\MagentoCssVariableController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
-use App\Http\Controllers\MagentoUserFromErpController;
-use App\Http\Controllers\MonitorServerController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectThemeController;
-use App\Http\Controllers\ZabbixTaskController;
-use App\Http\Controllers\ZabbixWebhookDataController;
+use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
+use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
+use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
+use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -531,7 +534,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
-    Route::get('magento_modules/remark/{magento_module}/{type}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
@@ -551,7 +554,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/return_type_error/status', [MagentoModuleReturnTypeErrorStatusController::class, 'returnTypeHistory'])->name('magento_module.return_type.history');
     Route::resource('magento_module_return_types', MagentoModuleReturnTypeErrorStatusController::class);
-    
+
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
 
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
@@ -579,12 +582,13 @@ Route::middleware('auth')->group(function () {
     Route::post('zabbix-webhook-data/change-status', [ZabbixWebhookDataController::class, 'updateStatus'])->name('zabbix-webhook-data.change.status');
     Route::post('zabbix-webhook-data/store-remark', [ZabbixWebhookDataController::class, 'storeRemark'])->name('zabbix-webhook-data.store.remark');
     Route::post('zabbix-webhook-data/store-zabbix-status', [ZabbixWebhookDataController::class, 'storeZabbixStatus'])->name('zabbix-webhook-data.store-zabbix-status');
+    Route::post('zabbix-webhook-data/status-update', [ZabbixWebhookDataController::class, 'StatusColorUpdate'])->name('zabbix-webhook-data-color-update');
     Route::resource('zabbix-webhook-data', ZabbixWebhookDataController::class);
 
     Route::get('zabbix-task/assignee-histories/{zabbix_task}', [ZabbixTaskController::class, 'getAssigneeHistories'])->name('zabbix-task.get-assignee-histories');
     Route::resource('zabbix-task', ZabbixTaskController::class);
-    
-    // Config Refactors 
+
+    // Config Refactors
     Route::get('config-refactor/remark/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getRemarks'])->name('config-refactor.get_remarks');
     Route::get('config-refactor/status/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getStatuses'])->name('config-refactor.get_status_histories');
     Route::get('config-refactor/user/{config_refactor}', [ConfigRefactorController::class, 'getUsers'])->name('config-refactor.get_users_histories');
@@ -597,28 +601,29 @@ Route::middleware('auth')->group(function () {
     Route::resource('config-refactor', ConfigRefactorController::class);
 
     // Projects
-   // Route::resource('project', ProjectController::class);
-   Route::resource('project-theme', ProjectThemeController::class);
+    // Route::resource('project', ProjectController::class);
+    Route::resource('project-theme', ProjectThemeController::class);
 
-    Route::get('theme-structure/{id?}',[ThemeStructureController::class, 'index'])->name('theme-structure.index');
+    Route::get('theme-structure/{id?}', [ThemeStructureController::class, 'index'])->name('theme-structure.index');
     Route::get('/theme-structure/reload-tree/{id}', [ThemeStructureController::class, 'reloadTree']);
     Route::post('/theme-structure/delete-item', [ThemeStructureController::class, 'deleteItem'])->name('theme-structure.delete-item');
     Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
     Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
 
-    Route::get('project',[ProjectController::class, 'index'])->name('project.index');
-    Route::post('project',[ProjectController::class, 'store'])->name('project.store');
-    Route::post('project/serverenv-store',[ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
-    Route::post('project/project-type-store',[ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
+    Route::get('project', [ProjectController::class, 'index'])->name('project.index');
+    Route::post('project', [ProjectController::class, 'store'])->name('project.store');
+    Route::post('project/serverenv-store', [ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
+    Route::post('project/project-type-store', [ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
     Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
     Route::post('project/pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
     Route::get('project/build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
     Route::get('project/build-process-error-logs', [ProjectController::class, 'buildProcessErrorLogs'])->name('project.buildProcessErrorLogs');
     Route::get('project/build-process-status-logs', [ProjectController::class, 'buildProcessStatusLogs'])->name('project.buildProcessStatusLogs');
-    Route::get('project/{id}',[ProjectController::class, 'edit'])->name('project.edit');
-    Route::post('project/{id}',[ProjectController::class, 'update'])->name('project.update');
-    Route::delete('project/{id}/destroy',[ProjectController::class, 'destroy'])->name('project.destroy');
-    
+    Route::get('project/{id}', [ProjectController::class, 'edit'])->name('project.edit');
+    Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
+    Route::delete('project/{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('project/multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
+
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
 
@@ -638,22 +643,37 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/child-image-store', [MagentoFrontendDocumentationController::class, 'magentofrontendChildImage'])->name('magento-frontend-child-image-store');
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
     Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
-    Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class,'magentofrontenddelete'])->name('magento-frontend.destroy');
+    Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontenddelete'])->name('magento-frontend.destroy');
 
-
-
-    Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name("magento-css-variable.value-histories");
-    Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name("magento-css-variable.verify-histories");
-    Route::get('/magento-css-variable/job-logs/{id}', [MagentoCssVariableController::class, 'jobLogs'])->name("magento-css-variable.job-logs");
-    Route::get('/magento-css-variable/logs', [MagentoCssVariableController::class, 'logs'])->name("magento-css-variable.logs");
+    Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name('magento-css-variable.value-histories');
+    Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name('magento-css-variable.verify-histories');
+    Route::get('/magento-css-variable/job-logs/{id}', [MagentoCssVariableController::class, 'jobLogs'])->name('magento-css-variable.job-logs');
+    Route::get('/magento-css-variable/logs', [MagentoCssVariableController::class, 'logs'])->name('magento-css-variable.logs');
     Route::post('/magento-css-variable/update-value', [MagentoCssVariableController::class, 'updateValue'])->name("'magento-css-variable.update-value");
     Route::post('magento-css-variable/update-selected-values', [MagentoCssVariableController::class, 'updateSelectedValues'])->name('magento-css-variable.update-selected-values');
     Route::post('magento-css-variable/update-values-for-project', [MagentoCssVariableController::class, 'updateValuesForProject'])->name('magento-css-variable.update-values-for-project');
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
-    Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])-> name('admin.download.file');
-   
+    Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
+    Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
+
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
+    Route::get('magento-backend/documentation', [MagentoBackendDocumentationController::class, 'magentoBackendeDocs'])->name('magento.backend.listing');
+    Route::get('/get/backend-dropdown/list', [MagentoBackendDocumentationController::class, 'getBackendDropdownDatas'])->name('getBackendDropdownDatas');
+    Route::post('magento-backend/store', [MagentoBackendDocumentationController::class, 'magentoBackendStore'])->name('magento-backend-store');
+    Route::post('/magento-backend/updateOptions', [MagentoBackendDocumentationController::class, 'magentoBackendOptions'])->name('magento-backend.update.option');
+    Route::get('magento-backend-category/histories', [MagentoBackendDocumentationController::class, 'magentoBackendCategoryHistoryShow'])->name('magentobackend_category.histories.show');
+    Route::get('magento-backend-postman/histories', [MagentoBackendDocumentationController::class, 'magentoBackendPostmanHistoryShow'])->name('magentobackend_postman.histories.show');
+    Route::get('magento-backend-module/histories', [MagentoBackendDocumentationController::class, 'magentoBackendModuleHistoryShow'])->name('magentobackend_module.histories.show');
+    Route::post('magento-backend/remark/store', [MagentoBackendDocumentationController::class, 'magentobackendstoreRemark'])->name('magento-backend-remark-store');
+    Route::get('magento-backend-remark/histories', [MagentoBackendDocumentationController::class, 'magentoBackendRemarkHistoryShow'])->name('magentobackend_remark.histories.show');
+    Route::post('magento-backend/folder-store', [MagentoBackendDocumentationController::class, 'magentoStorebackendFolder'])->name('magento-backend-parent-folder-store');
+    Route::post('magento-backend/description/upload', [MagentoBackendDocumentationController::class, 'magentoBackendDescriptionUpload'])->name('magento-backend-description-upload');
+    Route::post('magento-backendadmin-config-store', [MagentoBackendDocumentationController::class, 'magentoStorebackendadminConfig'])->name('magento-backendadmin-config-store');
+    Route::post('magento-backend/admin/upload', [MagentoBackendDocumentationController::class, 'magentoBackendadminConfigUpload'])->name('magento-backend-admin-upload');
+    Route::get('magento-backend-description/histories', [MagentoBackendDocumentationController::class, 'magentoBackenddescriptionHistoryShow'])->name('magentobackend_description.histories.show');
+    Route::get('magento-backend-admin-config/histories', [MagentoBackendDocumentationController::class, 'magentoBackendAdminHistoryShow'])->name('magentobackend_admin.histories.show');
+    Route::delete('/magento-backend/delete/{id}', [MagentoBackendDocumentationController::class, 'magentobackenddelete'])->name('magento-backend.destroy');
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -1004,7 +1024,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //ajay singh
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
-    Route::get('products/description', [ProductController::class, 'productDescription']);
+    Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
 
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
@@ -1184,6 +1204,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('reply', ReplyController::class);
 
+    Route::post('reply/statuscolor', [ReplyController::class, 'statusColor'])->name('reply.statuscolor');
     Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
@@ -1203,6 +1224,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
 
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
+    Route::get('reply/log/lists', [ReplyController::class, 'replyLogList'])->name('reply.listing');
+    Route::post('reply-mulitiple/flag', [ReplyController::class, 'replyMulitiple'])->name('reply.mulitiple.flag');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -1296,7 +1319,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
     Route::post('show-images/resource', [ResourceImgController::class, 'showImagesResource'])->name('show-images/resource');
 
-
     Route::resource('benchmark', BenchmarkController::class);
 
     // adding lead routes
@@ -1357,6 +1379,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/mail/accounts/{id}', [PleskController::class, 'getMailAccounts'])->name('plesk.domains.mail-accounts');
         Route::post('/domains/mail/change-password', [PleskController::class, 'changePassword'])->name('plesk.domains.mail-accounts.change-password');
         Route::get('/domains/view/{id}', [PleskController::class, 'show'])->name('plesk.domains.view');
+    });
+
+    Route::prefix('virtualmin')->middleware('auth')->group(static function () {
+        Route::get('/domains', [VirtualminDomainController::class, 'index'])->name('virtualmin.domains');
+        Route::get('/domains/sync', [VirtualminDomainController::class, 'syncDomains'])->name('virtualmin.domains.sync');
+        Route::get('/domains/{id}/enable', [VirtualminDomainController::class, 'enableDomain'])->name('virtualmin.domains.enable');
+        Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
+        Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
+        Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
     });
 
     //plesk
@@ -1547,6 +1578,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/get-email-send-logs', [OrderController::class, 'getOrderEmailSendLog'])->name('order.get.email.send.logs');
     Route::get('order/{id}/get-sms-send-logs', [OrderController::class, 'getOrderSmsSendLog'])->name('order.get.sms.send.logs');
     Route::get('order/get-email-send-journey-logs', [OrderController::class, 'getOrderEmailSendJourneyLog'])->name('order.get.email.send.journey.logs');
+    Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
@@ -1568,8 +1600,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/status/flag', [OrderReportController::class, 'setFlag'])->name('order.status.flag');
 
     //emails
-    Route::post('email/reply-list-by-category',[EmailController::class,'getReplyListByCategory'])->name('getReplyListByCategory');
-    Route::post('email/reply-from-quick-reply',[EmailController::class,'getReplyListFromQuickReply'])->name('getReplyListFromQuickReply');
+    Route::post('email/reply-list-by-category', [EmailController::class, 'getReplyListByCategory'])->name('getReplyListByCategory');
+    Route::post('email/reply-from-quick-reply', [EmailController::class, 'getReplyListFromQuickReply'])->name('getReplyListFromQuickReply');
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
 
@@ -1588,6 +1620,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
+    Route::post('sendgrid/email/events/color', [EmailController::class, 'eventColor'])->name('email.event.color');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
     Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
@@ -1604,18 +1637,21 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
     Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
 
-    Route::post('email/get-category-log',[EmailController::class,'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
+    Route::post('email/get-category-log', [EmailController::class, 'getEmailCategoryChangeLogs'])->name('getEmailCategoryChangeLogs');
 
-    Route::post('email/get-status-log',[EmailController::class,'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
+    Route::post('email/get-status-log', [EmailController::class, 'getEmailStatusChangeLogs'])->name('getEmailStatusChangeLogs');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
     Route::post('change-email-category', [EmailController::class, 'changeEmailCategory'])->name('changeEmailCategory');
+    Route::post('change-email-status', [EmailController::class, 'changeEmailStatus'])->name('changeEmailStatus');
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
     Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
+    Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
+    Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -1741,6 +1777,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
     Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
     Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
+    Route::get('task/module/history/{id}', [TaskModuleController::class, 'taskModuleListLogHistory'])->name('task.log.histories.show');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2441,6 +2478,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('document/gettaskremark', [DocumentController::class, 'getTaskRemark'])->name('document.gettaskremark');
     Route::post('document/uploadocument', [DocumentController::class, 'uploadDocument'])->name('document.uploadDocument');
     Route::post('document/addremark', [DocumentController::class, 'addRemark'])->name('document.addRemark');
+    Route::get('document/shortcut-list', [DocumentController::class, 'listShorcut'])->name('documentShorcut.list');
 
     //Document Cateogry
     Route::post('documentcategory/add', [DocuemntCategoryController::class, 'addCategory'])->name('documentcategory.add');
@@ -2693,11 +2731,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('google-server', GoogleServerController::class);
     Route::post('log-google-cse', [GoogleServerController::class, 'logGoogleCse'])->name('log.google.cse');
 
-    Route::resource('email-addresses', EmailAddressesController::class);
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
     Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
+    Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
+    Route::get('email-addresses/run-job/lists', [EmailAddressesController::class, 'listEmailRunLogs'])->name('email-addresses.run-histories-listing');
+    Route::resource('email-addresses', EmailAddressesController::class);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -2751,7 +2791,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
-    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name("assets-manager.update-status");
+    Route::post('assets-manager/update-status', [AssetsManagerController::class, 'updateStatus'])->name('assets-manager.update-status');
     Route::post('assets-manager/payment-history', [AssetsManagerController::class, 'paymentHistory'])->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', [AssetsManagerController::class, 'assetManamentLog'])->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', [AssetsManagerController::class, 'getMagentoDevScriptUpdatesLogs']);
@@ -2804,10 +2844,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
         Route::post('/shortcut/platform/store', [CodeShortcutController::class, 'shortcutPlatformStore'])->name('code-shortcuts.platform.store');
         Route::get('/shortcut/notes', [CodeShortcutController::class, 'getShortcutnotes'])->name('code.get.Shortcut.notes');
-
+        Route::get('/folder/list', [CodeShortcutController::class, 'shortcutListFolder'])->name('code.get.Shortcut.folder.list');
+        Route::Post('/folder/create', [CodeShortcutController::class, 'shortcutCreateFolder'])->name('code.get.Shortcut.folder.create');
+        Route::post('/folder/edit', [CodeShortcutController::class, 'shortcutEditFolder']);
+        Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
+        Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
+        Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     });
-
-
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
@@ -2882,6 +2925,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
     Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq/mulitiple', [FaqPushController::class, 'mulitiplepushFaq']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -3069,6 +3113,11 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
     Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
     Route::get('timer/get-timer-alerts', [TimeDoctorController::class, 'getTimerAlerts'])->name('get.timer.alerts');
+    Route::get('time-doctor/list-user-account', [TimeDoctorController::class, 'listUserAccountList'])->name('time-doctor.list-user');
+    Route::Post('time-doctor/remark-user-account/store', [TimeDoctorController::class, 'listRemarkStore'])->name('time-doctor.remark.store');
+    Route::Post('time-doctor/remark-user-account/list', [TimeDoctorController::class, 'getRemarkStore'])->name('time-doctor.remark.get');
+    Route::post('time-doctor/validate', [TimeDoctorController::class, 'updateValidate'])->name('time-doctor.updateValidate');
+    Route::Post('time-doctor/due-date/list', [TimeDoctorController::class, 'getduedateHistory'])->name('time-doctor.due-date-history.get');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -3168,7 +3217,6 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
-
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
@@ -3915,7 +3963,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('marketing')->group(function () {
-
     Route::prefix('whatsapp-business-account')->group(function () {
         Route::get('', [WhatsappBusinessAccountController::class, 'index'])->name('whatsapp.business.account.index');
         Route::post('create', [WhatsappBusinessAccountController::class, 'createAccount'])->name('whatsapp.business.account.create');
@@ -4138,6 +4185,7 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/truncate', [WebsiteLogController::class, 'WebsiteLogTruncate'])->name('website.log.truncate');
     Route::get('website/search/log/error', [WebsiteLogController::class, 'websiteErrorShow'])->name('website.error.show');
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
+    Route::get('website/search/insert/code-shortcut', [WebsiteLogController::class, 'websiteInsertCodeShortcut'])->name('website.insert.code.shortcut');
 
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
     Route::post('uicheck/store', [UicheckController::class, 'store'])->name('uicheck.store');
@@ -4185,6 +4233,15 @@ Route::middleware('auth')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
         Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
+        Route::get('get-device-builder-datas', [UicheckController::class, 'getDeviceBuilderDatas'])->name('uicheck.get-device-builder-datas');
+        Route::get('device-builder-datas', [UicheckController::class, 'deviceBuilderDatas'])->name('uicheck.device-builder-datas');
+        Route::get('get-builder-html/{id}', [UicheckController::class, 'getBuilderHtml'])->name('uicheck.get-builder-html');
+        Route::get('get-builder-download-html/{id}', [UicheckController::class, 'getBuilderDownloadHtml'])->name('uicheck.get-builder-download-html');
+        Route::get('get-builder-download-history/{id}', [UicheckController::class, 'getBuilderDownloadHistory'])->name('uicheck.get-builder-download-history');
+        Route::post('fetch-device-builder-data', [UicheckController::class, 'fetchDeviceBuilderData'])->name('uicheck.fetch-device-builder-data');
+        Route::post('device-builder-datas/store-remark', [UicheckController::class, 'storeBuilderDataRemark'])->name('uicheck.store.builder-data-remark');
+        Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
+        Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
@@ -4206,7 +4263,10 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-delete-user-wise', [UicheckController::class, 'bulkDeleteUserWise'])->name('uicheck.bulk-delete-user-wise');
         Route::post('bulk-delete-user-wise-multiple', [UicheckController::class, 'bulkDeleteUserWiseMultiple'])->name('uicheck.bulk-delete-user-wise-multiple');
         Route::get('user-access-list', [UicheckController::class, 'userAccessList'])->name('uicheck.user-access-list');
-
+        Route::post('device-builder-status-store', [UicheckController::class, 'deviceBuilderStatusStore'])->name('uicheck.device-builder.status.store');
+        Route::post('device-builder-status-update', [UicheckController::class, 'deviceBuilderStatusColorUpdate'])->name('uicheck.device-builder.status.color.update');
+        Route::post('device-change-status', [UicheckController::class, 'updateDeviceUpdateStatus'])->name('uicheck.device.update.status');
+        Route::get('device-builder-datas/get-statuss/{id}', [UicheckController::class, 'getBuilderDataStatus'])->name('uicheck.get.builder-data-status');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -4356,9 +4416,13 @@ Route::middleware('auth')->group(function () {
     Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
+    Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
+
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
+    Route::post('event/add/remark', [EventController::class, 'addEventsRemarks'])->name('event.remark.add');
+    Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 
@@ -5000,14 +5064,17 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('/{id}/update', [PlanController::class, 'update'])->name('plan.update');
         Route::get('/delete/{id}', [PlanController::class, 'delete'])->name('plan.delete');
         Route::get('/{id}/plan-action', [PlanController::class, 'planAction']);
-        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn']);
-        Route::post('/plan-action/store', [PlanController::class, 'planActionStore']);
-        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore']);
-        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet']);
+        Route::get('/{id}/plan-action-addons', [PlanController::class, 'planActionAddOn'])->name('plan.action.addons');
+        Route::post('/plan-action/store', [PlanController::class, 'planActionStore'])->name('plan.action.store');
+        Route::post('/plan-action/solutions-store', [PlanController::class, 'planSolutionsStore'])->name('plan.solution.store');
+        Route::get('/plan-action/solutions-get/{id}', [PlanController::class, 'planSolutionsGet'])->name('plan.show.solutions');
 
         Route::post('plan/basis/create', [PlanController::class, 'newBasis'])->name('plan.create.basis');
         Route::post('plan/type/create', [PlanController::class, 'newType'])->name('plan.create.type');
         Route::post('plan/category/create', [PlanController::class, 'newCategory'])->name('plan.create.category');
+        Route::post('plan/status/update', [PlanController::class, 'changeStatusCategory'])->name('plan.status.update');
+        Route::post('plan/add/remark', [PlanController::class, 'addPlanRemarks'])->name('plan.reamrk.add');
+        Route::post('plan/list/remark', [PlanController::class, 'getRemarkList'])->name('plan.remark.list');
     });
 });
 Route::middleware('auth')->group(function () {
@@ -5061,8 +5128,13 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
     Route::get('shortcut-platform', [Select2Controller::class, 'shortcutplatform'])->name('select2.shortcutplatform');
     Route::get('shortcut-suppliers', [Select2Controller::class, 'shortcutSuppliers'])->name('select2.shortcutsuplliers');
-
-
+    Route::get('shortcut-folders', [Select2Controller::class, 'shortcutFolders'])->name('select2.shortcutfolders');
+    Route::get('shortcut-product-colors', [Select2Controller::class, 'productColors'])->name('select2.productsColors');
+    Route::get('shortcut-product-sizesystem', [Select2Controller::class, 'producsizeSystem'])->name('select2.productsSizesystem');
+    Route::get('shortcut-documentCategory', [Select2Controller::class, 'shortcutdocumentCategory'])->name('select2.documentCategory');
+    Route::get('vocher-platforms', [Select2Controller::class, 'vochuerPlatform'])->name('select2.vochers_platforms');
+    Route::get('vocher-emails', [Select2Controller::class, 'vochuerEmail'])->name('select2.vochers_emails');
+    Route::get('vocher-whatsapp/config', [Select2Controller::class, 'vochuerWhatsappconfig'])->name('select2.vochers_whatsapp_config');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
@@ -5227,7 +5299,8 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/voucher/code/delete', [VoucherCouponController::class, 'couponCodeDelete'])->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', [VoucherCouponController::class, 'couponCodeOrderDelete'])->name('voucher.code.order.delete');
     Route::post('/coupon-type/create', [VoucherCouponController::class, 'coupontypeStore'])->name('voucher.coupon.type.create');
-    Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');  
+    Route::get('/coupon-type/list', [VoucherCouponController::class, 'couponTypeList'])->name('voucher.coupon.type.list');
+    Route::get('vouchers/coupon-code/list', [VoucherCouponController::class, 'voucherscouponCodeList'])->name('list.voucher.coupon.code');
 });
 
 //TODOLIST::
@@ -5261,7 +5334,6 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
     Route::post('/remove/permission', [GoogleDocController::class, 'googleDocRemovePermission'])->name('.googleDocRemovePermission');
     Route::post('/add/mulitple/permission', [GoogleDocController::class, 'addMulitpleDocPermission'])->name('.addMulitpleDocPermission');
-
 });
 
 Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');
@@ -5301,7 +5373,7 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
     });
 
-    Route::prefix('content-status')->group(function() {
+    Route::prefix('content-status')->group(function () {
         Route::get('', [Seo\ContentStatusController::class, 'index'])->name('seo.content-status.index');
         Route::get('create', [Seo\ContentStatusController::class, 'create'])->name('seo.content-status.create');
         Route::post('store', [Seo\ContentStatusController::class, 'store'])->name('seo.content-status.store');
@@ -5436,7 +5508,6 @@ Route::prefix('magento-users')->middleware('auth')->group(function () {
     Route::post('account-status', [MagentoUserFromErpController::class, 'accountStatus'])->name('magento-user-from-erp.account-status');
 });
 
-
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
 Route::post('event-schedule-slot', [CalendarController::class, 'createSchedule'])->name('guest.create-schedule');
@@ -5444,15 +5515,19 @@ Route::get('ip/logs', [IpLogController::class, 'getIPLogs'])->name('get.ip.logs'
 Route::post('/whitelist-ip', [IpLogController::class, 'whitelistIP'])->name('whitelist-ip');
 Route::get('database/backup/lists', [DatabaseBackupMonitoringController::class, 'getDbBackupLists'])->name('get.backup.monitor.lists');
 Route::get('database/backup/error', [DatabaseBackupMonitoringController::class, 'dbErrorShow'])->name('db.error.show');
-Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');;
+Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'updateIsResolved'])->name('db.update.isResolved');
+Route::post('database/backup/store-status', [DatabaseBackupMonitoringController::class, 'storeDbStatus'])->name('db-store-status');
+Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
+Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
+
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
-
 
 Route::middleware('auth')->group(function () {
     Route::get('monitor-jenkins-build/list', [MonitorJenkinsBuildController::class, 'list'])->name('monitor-jenkins-build.list');
     Route::resource('monitor-jenkins-build', MonitorJenkinsBuildController::class);
     Route::get('jenkins-build/truncate', [MonitorJenkinsBuildController::class, 'truncateJenkinsbulids'])->name('monitor-jenkins-build.truncate');
+    Route::get('jenkins-build/insert-code-shortcut', [MonitorJenkinsBuildController::class, 'insertCodeShortcut'])->name('monitor-jenkins-insert-code-shortcut');
 });
 
 /** Website Monitor */
@@ -5466,8 +5541,14 @@ Route::middleware('auth')->group(function () {
     Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 });
 
-
 Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('technical-debt-lists');
 Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');
 Route::post('technical/store', [TechnicalDebtController::class, 'technicalDeptStore'])->name('technical-debt-store');
 Route::get('/technical/debt/remark', [TechnicalDebtController::class, 'technicalDebtGetRemark'])->name('technical-debt-remark');
+
+Route::middleware('auth')->group(function () {
+    Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
+    Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
+    Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
+    Route::post('restore-version-jenkins', [DeploymentVersionController::class, 'restoreRevision'])->name('deployement-restore-revision');
+});

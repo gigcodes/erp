@@ -46,16 +46,16 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
              'start_time' => Carbon::now(),
          ]);*/
 
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was started."]);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $now = Carbon::now()->toDateTimeString();
 
             // task page logic starting from here
             $tasks = \App\DeveloperTask::where('frequency', '>', 0)->where('reminder_message', '!=', '')->select(['*', \DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "tasks query finished."]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'tasks query finished.']);
 
-            if (!$tasks->isEmpty()) {
-                LogHelper::createCustomLogForCron($this->signature, ['message' => "tasks records was found."]);
+            if (! $tasks->isEmpty()) {
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'tasks records was found.']);
                 foreach ($tasks as $task) {
                     $templateMessage = "#DEVTASK-{$task->id} - {$task->subject} - " . $task->reminder_message;
                     $this->info('started for task #' . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
@@ -73,9 +73,8 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "Report endtime has been updated."]);
-            LogHelper::createCustomLogForCron($this->signature, ['message' => "cron was ended."]);
-            
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime has been updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
@@ -150,8 +149,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
                 'reply_from' => 'reminder',
             ]);
         }
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat message has been updated."]);
-        LogHelper::createCustomLogForCron($this->signature, ['message' => "Chat boat reply has been updated."]);
-        
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Chat message has been updated.']);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Chat boat reply has been updated.']);
     }
 }

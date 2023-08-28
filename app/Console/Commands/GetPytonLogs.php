@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use App\LogRequest;
 use App\Loggers\ScrapPythonLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use App\LogRequest;
 
 class GetPytonLogs extends Command
 {
@@ -95,7 +95,7 @@ class GetPytonLogs extends Command
 
         curl_close($curl);
         \Log::info($response);
-        
+
         return $response;
     }
 }

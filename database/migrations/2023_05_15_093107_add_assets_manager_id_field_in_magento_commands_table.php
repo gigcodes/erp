@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddAssetsManagerIdFieldInMagentoCommandsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddAssetsManagerIdFieldInMagentoCommandsTable extends Migration
     public function up()
     {
         Schema::table('magento_commands', function (Blueprint $table) {
-             $table->unsignedBigInteger("assets_manager_id")->nullable()->after('website_ids');
+            $table->unsignedBigInteger('assets_manager_id')->nullable()->after('website_ids');
         });
     }
 
@@ -26,7 +26,7 @@ class AddAssetsManagerIdFieldInMagentoCommandsTable extends Migration
     public function down()
     {
         Schema::table('magento_commands', function (Blueprint $table) {
-            $table->dropColumn("assets_manager_id");
+            $table->dropColumn('assets_manager_id');
         });
     }
 }

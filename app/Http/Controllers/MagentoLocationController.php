@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\MagentoModuleLocation;
-use Illuminate\Http\Request;
-use App\Http\Requests\MagentoModule\MagentoModuleLocationRequest;
 use App\TaskStatus;
+use Illuminate\Http\Request;
+use App\MagentoModuleLocation;
+use App\Http\Requests\MagentoModule\MagentoModuleLocationRequest;
 
 class MagentoLocationController extends Controller
 {
@@ -26,7 +26,6 @@ class MagentoLocationController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
             $items = MagentoModuleLocation::query();
 
             return datatables()->eloquent($items)->toJson();
@@ -61,7 +60,6 @@ class MagentoLocationController extends Controller
      */
     public function store(MagentoModuleLocationRequest $request)
     {
-        
         $input = $request->except(['_token']);
 
         $data = MagentoModuleLocation::create($input);
@@ -81,5 +79,4 @@ class MagentoLocationController extends Controller
             ], 500);
         }
     }
-
 }

@@ -2,35 +2,37 @@
 
 namespace App\Http\Controllers\Seo;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Seo\SeoProcessStatus;
-use Illuminate\Http\Request;
 
 class ContentStatusController extends Controller
 {
-    private $view = "seo/content";
+    private $view = 'seo/content';
 
     public function index(Request $request)
     {
-        $status = SeoProcessStatus::query()->orderBy('id','desc');
+        $status = SeoProcessStatus::query()->orderBy('id', 'desc');
 
-        if(!empty($request->type)) {
+        if (! empty($request->type)) {
             $status = $status->where('type', $request->type);
         }
+
         return datatables()->eloquent($status)
-            ->addColumn('action', function($val) {
-                $action = "";
+            ->addColumn('action', function ($val) {
+                $action = '';
                 $editUrl = route('seo.content-status.edit', $val->id);
                 $action .= "<buttonc type='button' data-url='$editUrl' class='btn btn-secondary btn-sm editStatusBtn'>Edit</button>";
+
                 return $action;
             })
-            ->editColumn('created_at', function($val) {
+            ->editColumn('created_at', function ($val) {
                 return date('Y-m-d h:i A', strtotime($val->created_at));
             })
-            ->editColumn('type', function($val) {
-                if($val->type == "seo_approval") {
+            ->editColumn('type', function ($val) {
+                if ($val->type == 'seo_approval') {
                     return "<span class='badge badge-sm'>SEO</span>";
-                } else if($val->type == 'publish') {
+                } elseif ($val->type == 'publish') {
                     return "<span class='badge badge-sm'>Publish</span>";
                 }
             })
@@ -41,12 +43,13 @@ class ContentStatusController extends Controller
 
     public function create()
     {
-        $data['actionUrl'] = route("seo.content-status.store");
+        $data['actionUrl'] = route('seo.content-status.store');
         $html = view("{$this->view}/ajax/status-form", $data)->render();
+
         return response()->json([
             'success' => true,
             'data' => $html,
-            'title' => "Add Status",
+            'title' => 'Add Status',
         ]);
     }
 
@@ -65,12 +68,13 @@ class ContentStatusController extends Controller
     public function edit(int $id)
     {
         $data['status'] = SeoProcessStatus::find($id);
-        $data['actionUrl'] = route("seo.content-status.update", $id);
+        $data['actionUrl'] = route('seo.content-status.update', $id);
         $html = view("{$this->view}/ajax/status-form", $data)->render();
+
         return response()->json([
             'success' => true,
             'data' => $html,
-            'title' => "Edit Status",
+            'title' => 'Edit Status',
         ]);
     }
 

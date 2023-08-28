@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use File;
+use View;
 use Storage;
 use App\Task;
 use App\Team;
@@ -42,9 +43,9 @@ use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffTask;
 use GuzzleHttp\RequestOptions;
 use App\Github\GithubRepository;
-use App\Github\GithubOrganization;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
+use App\Github\GithubOrganization;
 use Illuminate\Support\Facades\DB;
 use App\DeveoperTaskPullRequestMerge;
 use Illuminate\Support\Facades\Cache;
@@ -54,7 +55,6 @@ use GuzzleHttp\Exception\ClientException;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
-use View;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
@@ -83,9 +83,9 @@ class DevelopmentController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClientObj = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
         return $githubClientObj;
     }
@@ -425,16 +425,16 @@ class DevelopmentController extends Controller
         }
 
         if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
         if ((int) $request->get('master_user_id') > 0) {
-            $issues = $issues->where('developer_tasks.master_user_id', $request->get('master_user_id'));
+            $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('master_user_id'));
         }
         if ((int) $request->get('team_lead_id') > 0) {
-            $issues = $issues->where('developer_tasks.team_lead_id', $request->get('team_lead_id'));
+            $issues = $issues->whereIn('developer_tasks.team_lead_id', $request->get('team_lead_id'));
         }
         if ((int) $request->get('tester_id') > 0) {
-            $issues = $issues->where('developer_tasks.tester_id', $request->get('tester_id'));
+            $issues = $issues->whereIn('developer_tasks.tester_id', $request->get('tester_id'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
@@ -895,7 +895,7 @@ class DevelopmentController extends Controller
             $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
         if ((int) $request->get('lead') > 0) {
-            $issues = $issues->where('developer_tasks.master_user_id', $request->get('lead'));
+            $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('lead'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
@@ -1943,10 +1943,10 @@ class DevelopmentController extends Controller
     {
         $newBranchName = 'DEVTASK-' . $taskId;
 
-        $githubRepository  = GithubRepository::find($repositoryId);
+        $githubRepository = GithubRepository::find($repositoryId);
         $organization = $githubRepository->organization;
 
-        if(empty($organization)){
+        if (empty($organization)) {
             return false;
         }
 
@@ -2181,10 +2181,10 @@ class DevelopmentController extends Controller
             if ($teamUser) {
                 $team = $teamUser->team;
                 if ($team) {
-                    if(strlen($team->user_id) > 0 && $team->user_id > 0){
+                    if (strlen($team->user_id) > 0 && $team->user_id > 0) {
                         $task->team_lead_id = $team->user_id;
                         $task->save();
-                    }else if(strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0){
+                    } elseif (strlen($team->second_lead_id) > 0 && $team->second_lead_id > 0) {
                         $task->team_lead_id = $team->second_lead_id;
                         $task->save();
                     }
@@ -4280,7 +4280,7 @@ class DevelopmentController extends Controller
 
             return respJson(200, '', [
                 'data' => $single,
-                'user'=> $single->assignedUser ?? null
+                'user' => $single->assignedUser ?? null,
             ]);
         } catch (\Throwable $th) {
             return respException($th);
@@ -4843,57 +4843,56 @@ class DevelopmentController extends Controller
     public function showTaskEstimateTime(Request $request)
     {
         try {
-                
-                $developerTaskID = DeveloperTaskHistory::where([
-                    'model'=> DeveloperTask::class,
-                    'attribute' => "estimation_minute"
-                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
-                
-                $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
-                ->whereIn("developer_tasks_history.id", $developerTaskID)
-                ->where(function($query) use ($request) {
-                    if(isset($request->task_id)) {
-                        if(str_contains($request->task_id, "DEVTASK")){
-                            $query= $query->where('developer_tasks.id', trim($request->task_id, "DEVTASK-"));
-                        }
+            $developerTaskID = DeveloperTaskHistory::where([
+                'model' => DeveloperTask::class,
+                'attribute' => 'estimation_minute',
+            ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+
+            $developerTaskHistory = DeveloperTaskHistory::join('developer_tasks', 'developer_tasks.id', 'developer_tasks_history.developer_task_id')
+            ->whereIn('developer_tasks_history.id', $developerTaskID)
+            ->where(function ($query) use ($request) {
+                if (isset($request->task_id)) {
+                    if (str_contains($request->task_id, 'DEVTASK')) {
+                        $query = $query->where('developer_tasks.id', trim($request->task_id, 'DEVTASK-'));
                     }
-                    return $query;
-                })
-                ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->get();
+                }
 
+                return $query;
+            })
+            ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->get();
 
-                    $t_developerTaskID = DeveloperTaskHistory::where([
-                        'model'=> Task::class,
-                        'attribute' => "estimation_minute"
-                    ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
-                    
-                    $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
-                    ->whereIn("developer_tasks_history.id", $t_developerTaskID)
-                    ->where(function($query) use ($request) {
-                        if(isset($request->task_id)) {
-                            if(!str_contains($request->task_id, "DEVTASK")){
-                                $query= $query->where('tasks.id', trim($request->task_id, "TASK-"));
-                            }
-                        }
-                        return $query;
-                    })
-                    ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->get();
+            $t_developerTaskID = DeveloperTaskHistory::where([
+                'model' => Task::class,
+                'attribute' => 'estimation_minute',
+            ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
 
-
-                if(isset($request->task_id)){
-                    if(str_contains($request->task_id, "DEVTASK")){
-                        $t_developerTaskHistory = [];
+            $t_developerTaskHistory = DeveloperTaskHistory::join('tasks', 'tasks.id', 'developer_tasks_history.developer_task_id')
+            ->whereIn('developer_tasks_history.id', $t_developerTaskID)
+            ->where(function ($query) use ($request) {
+                if (isset($request->task_id)) {
+                    if (! str_contains($request->task_id, 'DEVTASK')) {
+                        $query = $query->where('tasks.id', trim($request->task_id, 'TASK-'));
                     }
-                    if(!str_contains($request->task_id, "DEVTASK")){
-                        $developerTaskHistory = [];
-                    }
-                }  
-                return view('development.partials.estimate-list', compact('developerTaskHistory', 't_developerTaskHistory'));
-                    // return view('task-module.partials.estimate-list', compact('t_developerTaskHistory'));
+                }
 
-            
+                return $query;
+            })
+            ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->get();
+
+            if (isset($request->task_id)) {
+                if (str_contains($request->task_id, 'DEVTASK')) {
+                    $t_developerTaskHistory = [];
+                }
+                if (! str_contains($request->task_id, 'DEVTASK')) {
+                    $developerTaskHistory = [];
+                }
+            }
+
+            return view('development.partials.estimate-list', compact('developerTaskHistory', 't_developerTaskHistory'));
+            // return view('task-module.partials.estimate-list', compact('t_developerTaskHistory'));
         } catch (Exception $e) {
             dd($e);
+
             return '';
         }
     }
@@ -4901,52 +4900,53 @@ class DevelopmentController extends Controller
     public function showTaskEstimateTimeAlert(Request $request)
     {
         try {
-                
-                $developerTaskID = DeveloperTaskHistory::where([
-                    'model'=> DeveloperTask::class,
-                    'attribute' => "estimation_minute"
-                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
-                
-                $developerTaskHistory = DeveloperTaskHistory::join("developer_tasks","developer_tasks.id", 'developer_tasks_history.developer_task_id')
-                ->whereIn("developer_tasks_history.id", $developerTaskID)
-                ->where(function($query) use ($request) {
-                    if(isset($request->task_id)) {
-                        if(str_contains($request->task_id, "DEVTASK")){
-                            $query= $query->where('developer_tasks.id', trim($request->task_id, "DEVTASK-"));
-                        }
+            $developerTaskID = DeveloperTaskHistory::where([
+                'model' => DeveloperTask::class,
+                'attribute' => 'estimation_minute',
+            ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+
+            $developerTaskHistory = DeveloperTaskHistory::join('developer_tasks', 'developer_tasks.id', 'developer_tasks_history.developer_task_id')
+            ->whereIn('developer_tasks_history.id', $developerTaskID)
+            ->where(function ($query) use ($request) {
+                if (isset($request->task_id)) {
+                    if (str_contains($request->task_id, 'DEVTASK')) {
+                        $query = $query->where('developer_tasks.id', trim($request->task_id, 'DEVTASK-'));
                     }
-                    return $query;
-                })
-                ->where('developer_tasks_history.is_approved', 0)
-                ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->count();
+                }
 
+                return $query;
+            })
+            ->where('developer_tasks_history.is_approved', 0)
+            ->select('developer_tasks.*', 'developer_tasks_history.*', 'developer_tasks.id as task_id')->count();
 
-                $t_developerTaskID = DeveloperTaskHistory::where([
-                    'model'=> Task::class,
-                    'attribute' => "estimation_minute"
-                ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
-                
-                $t_developerTaskHistory = DeveloperTaskHistory::join("tasks","tasks.id", 'developer_tasks_history.developer_task_id')
-                ->whereIn("developer_tasks_history.id", $t_developerTaskID)
-                ->where(function($query) use ($request) {
-                    if(isset($request->task_id)) {
-                        if(!str_contains($request->task_id, "DEVTASK")){
-                            $query= $query->where('tasks.id', trim($request->task_id, "TASK-"));
-                        }
+            $t_developerTaskID = DeveloperTaskHistory::where([
+                'model' => Task::class,
+                'attribute' => 'estimation_minute',
+            ])->orderBy('id', 'desc')->limit(10)->groupBy('developer_task_id')->select('developer_task_id', DB::raw('max(id) as id'))->get()->pluck('id')->toArray();
+
+            $t_developerTaskHistory = DeveloperTaskHistory::join('tasks', 'tasks.id', 'developer_tasks_history.developer_task_id')
+            ->whereIn('developer_tasks_history.id', $t_developerTaskID)
+            ->where(function ($query) use ($request) {
+                if (isset($request->task_id)) {
+                    if (! str_contains($request->task_id, 'DEVTASK')) {
+                        $query = $query->where('tasks.id', trim($request->task_id, 'TASK-'));
                     }
-                    return $query;
-                })
-                ->where('developer_tasks_history.is_approved', 0)
-                ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->count();
+                }
 
-                $totalUnApproved = $developerTaskHistory + $t_developerTaskHistory;
-                
-                return response()->json([
-                    'code' => 200,
-                    'count' => $totalUnApproved
-                ]);
+                return $query;
+            })
+            ->where('developer_tasks_history.is_approved', 0)
+            ->select('tasks.*', 'developer_tasks_history.*', 'tasks.id as task_id')->count();
+
+            $totalUnApproved = $developerTaskHistory + $t_developerTaskHistory;
+
+            return response()->json([
+                'code' => 200,
+                'count' => $totalUnApproved,
+            ]);
         } catch (Exception $e) {
             dd($e);
+
             return '';
         }
     }

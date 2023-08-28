@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\Task;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\ZabbixStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ZabbixWebhookData extends Model
 {
@@ -25,22 +26,27 @@ class ZabbixWebhookData extends Model
         'event_id',
         'zabbix_status_id',
         'remarks',
-        'zabbix_task_id'
+        'zabbix_task_id',
     ];
 
     public function getShortMessageAttribute()
     {
-        return strlen($this->message) > 15 ? substr($this->message, 0, 15).'...' :  $this->message;
+        return strlen($this->message) > 15 ? substr($this->message, 0, 15) . '...' : $this->message;
     }
 
     public function getShortOperationalDataAttribute()
     {
-        return strlen($this->operational_data) > 15 ? substr($this->operational_data, 0, 15).'...' :  $this->operational_data;
+        return strlen($this->operational_data) > 15 ? substr($this->operational_data, 0, 15) . '...' : $this->operational_data;
     }
 
     // This is belongsTo tasks table not a zabbix_tasks table
     public function zabbixTask()
     {
         return $this->belongsTo(Task::class, 'zabbix_task_id');
+    }
+
+    public function zabbixStatusColour()
+    {
+        return $this->belongsTo(ZabbixStatus::class, 'zabbix_status_id');
     }
 }

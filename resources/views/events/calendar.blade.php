@@ -10,12 +10,14 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css"> 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.css">
 
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Events</h2>
     </div>
 </div>
+
 @include('partials.flash_messages')
 {{-- <p class="text-secondary">Calendar link:</p>
 <div class="border border-light p-2 my-3">
@@ -120,7 +122,7 @@
         color: white!important;
         border: 1px solid #6c757d;
     }
-    .duration .select2-container, .date-range-type .select2-container {
+    .duration .select2-container, .date-range-type .select2-container  {
         display: block;
     }
     .fc-unthemed td.fc-today {
@@ -133,8 +135,16 @@
     .fc-disabled-day {
         visibility:hidden;
     }
+    .day-row {
+        display: none;
+    }
 </style>
 @include('partials.modals.user-event-modal')
+@include('events.event-category-create')
+
+<div id="loading-image-preview"
+style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+</div>
 
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
@@ -145,6 +155,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.js"></script>
+
 <script>
     let calendar;
     document.addEventListener('DOMContentLoaded', function() {
@@ -159,17 +171,22 @@
                     }
                 },
                 publicEvent: {
-                    text: 'Public Event List',
+                    text: 'Event Lists',
                     click: function() {
-                        window.location.href = '{{ route('event.public') }}'; 
+                        window.open('{{ route('event.public') }}', '_blank');
                     }
-                }
-                
+                },
+                createCategory: {
+                    text: 'Create Category',
+                    click: function() {
+                        $("#event-create-category-modal").modal("show");
+                    }
+                },
             },
             header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'createEvent publicEvent dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+            right: 'createCategory createEvent publicEvent dayGridMonth,timeGridWeek,timeGridDay,listMonth'
             },
             defaultView: 'dayGridMonth',
             allDaySlot: false,
@@ -344,14 +361,6 @@
             format: 'YYYY-MM-DD'
         });
 
-        $('select[name="date_range_type"]').on('change', function() {
-            if($(this).val() == 'within') {
-                $('#event-end-date').val("");
-                $('#end-date-div').removeClass('hide')
-            } else {
-                $('#end-date-div').addClass('hide');
-            } 
-        });
 
         $(document).on("submit", "#create-event-submit-form", function(e) {
             e.preventDefault();
@@ -361,14 +370,19 @@
                 url: $form.attr("action"),
                 data: $form.serialize(),
                 dataType: "json",
+                beforeSend: function() {
+                 $("#loading-image-preview").show();
+                },
                 success: function(data) {
                     if (data.code == 200) {
+                        $("#loading-image-preview").hide();
                         $form[0].reset();
                         $("#create-event-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
                         location.reload();
                     } else {
                         toastr['error'](data.message, 'Message');
+                        $("#loading-image-preview").hide();
                     }
                 },
                 error: function(xhr, status, error) {

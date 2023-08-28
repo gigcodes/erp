@@ -70,10 +70,19 @@ class MissingBrandController extends Controller
         }
 
         if (! empty($request->select)) {
-            $missingBrands = $missingBrands->where('supplier', $request->select);
+            $missingBrands = $missingBrands->WhereIn('supplier', $request->select);
+        }
+
+        if (! empty($request->brand)) {
+            $missingBrands = $missingBrands->whereIn('name', $request->brand);
+        }
+        if (! empty($request->date)) {
+            $missingBrands = $missingBrands->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
+        $brands = MissingBrand::select('name')->groupBy('name')->get();
+
         $missingBrands = $missingBrands->orderBy('name', 'Asc')->paginate(20);
         if ($request->ajax()) {
             return response()->json([
@@ -85,7 +94,7 @@ class MissingBrandController extends Controller
 
         $title = 'Missing Brands';
 
-        return view('missingbrand.index', ['missingBrands' => $missingBrands, 'title' => $title, 'scrapers' => $scrapers]);
+        return view('missingbrand.index', ['missingBrands' => $missingBrands, 'title' => $title, 'scrapers' => $scrapers, 'brands' => $brands]);
     }
 
     public function store(Request $request, Brand $brand)
