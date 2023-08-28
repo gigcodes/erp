@@ -1016,6 +1016,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/{id}/quickDownload', [ProductController::class, 'quickDownload'])->name('products.quick.download');
     Route::post('products/{id}/quickUpload', [ProductController::class, 'quickUpload'])->name('products.quick.upload');
     Route::any('products/{id}/listMagento', [ProductController::class, 'listMagento']);
+    Route::any('products/pushProductTest', [ProductController::class, 'pushProductTest'])->name('products.push.product.test');
     Route::post('products/multilistMagento', [ProductController::class, 'multilistMagento']);
 
     Route::post('products/{id}/unlistMagento', [ProductController::class, 'unlistMagento']);

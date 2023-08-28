@@ -2,7 +2,7 @@
 @php
     $syncStatus = \App\Loggers\LogListMagentoSyncStatus::where('name', $item->sync_status)->first();
 @endphp
-			    <tr style="background-color: {{$syncStatus->color}}!important;">
+			    <tr style="background-color: {{$syncStatus?->color}}!important;">
                   <td>
                     <a class="show-product-information text-dark" data-id="{{ $item->product_id }}" href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a>
                   </td>
