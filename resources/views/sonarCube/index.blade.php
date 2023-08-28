@@ -242,21 +242,18 @@ $(document).on('submit', '#sonar-project-create-form', function(e){
                 button.prop('disabled', false);
                 button.removeClass('disabled');
             },
-            success: function(response) {
-                toastr["success"](response.message);
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status === 422) {
-                    var errors = JSON.parse(xhr.responseText).errors;
-                    customFnErrors(self, errors);
-                } else if (xhr.status === 400) {
-                    toastr["error"]("Project with the same name already exists.");
+             }).done(function(response) {
+                if(response.code == 200)
+                {
+                    toastr["success"](response.message);
+                      location.reload();
                 } else {
-                    Swal.fire('Oops...', 'Something went wrong with ajax!', 'error');
+                    toastr["error"](response.message);
                 }
-            },
+        }).fail(function(response) {
+            toastr["error"]("something went wrong");
         });
+       
     });
 
     function listprojects() {
