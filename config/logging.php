@@ -221,6 +221,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        
+        'github_error' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/github_error.log'),
+            'level' => 'error',
+        ],
     ],
 
 ];
