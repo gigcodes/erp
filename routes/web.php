@@ -622,6 +622,7 @@ Route::middleware('auth')->group(function () {
     Route::get('project/{id}', [ProjectController::class, 'edit'])->name('project.edit');
     Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::delete('project/{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('project/multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
 
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
@@ -4419,6 +4420,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
+    Route::post('event/add/remark', [EventController::class, 'addEventsRemarks'])->name('event.remark.add');
+    Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
 });
 

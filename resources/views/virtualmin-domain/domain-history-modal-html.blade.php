@@ -29,10 +29,9 @@
                    {{ strlen($domainHistory->output) > 30 ? substr($domainHistory->output, 0, 30).'...' :  $domainHistory->output }}
                 </span>
                 <span class="td-full-container hidden">
-                    {{ $domainHistory->output }}
+                    {!! nl2br(e($domainHistory->output)) !!}
                 </span>
             </td>
-            
             <td class="expand-row" style="word-break: break-all">
                 <span class="td-mini-container">
                    {{ strlen($domainHistory->user->name) > 30 ? substr($domainHistory->user->name, 0, 30).'...' :  $domainHistory->user->name }}

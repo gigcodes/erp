@@ -39,6 +39,7 @@
                 </div>
                 <div class="col-6">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary" onclick="bulkBuildProcess()"> Run Mulitple Build Process </button>
                         <a href="{{ route('project.buildProcessErrorLogs') }}" class="btn btn-secondary"> Build Process Error Logs </a>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#serverenv-create"> Create Serverenv </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#projecttype-create"> Create Project Type </button>
@@ -63,6 +64,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="project-list">
                         <tr>
+                            <th width="2%"></th>
                             <th width="2%">ID</th>
                             <th width="10%">Project Name</th>
                             <th width="10%">Project Type</th>
@@ -73,6 +75,7 @@
                         </tr>
                         @foreach ($projects as $key => $project)
                             <tr data-id="{{ $project->id }}">
+								<td><input type="checkbox" name="bulk_process_select[]" class="d-inline bulk_build_process_select" value="{{$project->id}}"></td>
                                 <td>{{ $project->id }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -183,6 +186,65 @@
 @include('project.partials.serverenv-create-modal')
 @include('project.partials.projecttype-create-modal')
 @include('project.partials.build-process-modal')
+
+<div id="build-multiple-process-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Build Process</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="build-mulitiple-process">
+                            <input type="hidden" class="build_process_project_id" name="project_id" value="">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <strong>Organizations:</strong>
+                                        <select name="organization" id="build_bulk_organization" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Organizations --</option>
+                                            @forelse($organizations as $organization)
+                                            <option value="{{ $organization->id }}" {{ $organization->id === 2 ? 'selected' : '' }}>
+                                                {{ $organization->name }}
+                                            </option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <strong>Repository:</strong>
+                                        <select name="repository" id="build_bulk_repository" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Repository --</option>
+                                        </select>
+                                    </div>
+                                </div>                            
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <strong>Branch Name:</strong>
+                                        <select name="branch_name" id="build_bulk_branch_name" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Branch --</option>
+                                        </select>
+                                    </div>
+                                </div>                        
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input type="hidden" name="initiate_from" value="Project Page - Build Process">
+                                        <button data-id=""class="btn btn-secondary update-mulitple-build-process">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $('.select2').select2();
@@ -406,5 +468,138 @@
 
         branchDropdown();
     });
+
+    function bulkBuildProcess()
+    {
+        event.preventDefault();
+        var selectedIds = [];
+
+		$(".bulk_build_process_select").each(function () {
+			if ($(this).prop("checked") == true) {
+				selectedIds.push($(this).val());
+			}
+		});
+
+		if (selectedIds.length == 0) {
+			alert('Please select any row');
+			return false;
+		}
+
+		if(confirm('Are you sure you want to perform this action?')==false)
+		{
+			console.log(selectedIds);
+			return false;
+		}
+
+        $("#build-multiple-process-modal").modal("show");
+
+        $(document).on('submit', 'form#build-mulitiple-process', function(e){
+            e.preventDefault();
+             var self = $(this);           
+             var formData = new FormData(document.getElementById("build-mulitiple-process"));
+            formData.append('selectedIds', selectedIds);
+            var button = $(this).find('[type="submit"]');
+         
+            $.ajax({
+                    type: "post",
+                    url: "{{ route('project.Multiple.buildProcess') }}",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    data:formData,
+                    beforeSend: function() {
+                        $(this).attr('disabled', true);
+                        $("#loading-image-preview").show();
+                    }
+                    }).done(function(data) {
+                        toastr["success"]("Bulk update values completed successfully!", "Message")
+                        $("#loading-image-preview").hide();
+                        window.location.reload();
+                    }).fail(function() {
+                        toastr["error"]("something Went Wrong");
+                        $("#loading-image-preview").hide();
+                        window.location.reload();
+                    });
+                });
+        }
+
+    $(document).ready(function () {
+        function RepositoryDropdown() {
+            var selectedOrganizationId = $('#build_bulk_organization').val();
+            if (!selectedOrganizationId) {
+                $('#build_bulk_repository').html('<option value="" selected disabled>-- Select a Repository --</option>');
+                return;
+            }
+
+            var url = "{{ route('project.getGithubRepo') }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_organization: selectedOrganizationId,
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                var dynamicOptions = response.data;
+                $('#build_bulk_repository').html(dynamicOptions);
+                var defaultRepoId = 353671452; 
+                $("#build_bulk_repository").val(defaultRepoId);
+                $("#build_bulk_repository").trigger("change");
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        }
+
+        $("#build_bulk_organization").on('change', function(e) {
+            RepositoryDropdown();
+        });
+
+        RepositoryDropdown();
+    });
+
+    $(document).ready(function () {
+        function branchDropdown() {
+            var selectedReponId = 353671452;
+            if (!selectedReponId) {
+                $('#build_bulk_branch_name').html('<option value="" selected disabled>-- Select a Branches --</option>');
+                return;
+            }
+
+            var url = "{{ route('project.getGithubBranches') }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: "GET",
+                url: url,
+                data: {
+                    build_repository: selectedReponId,
+                },
+                beforeSend: function() {
+                    $("#loading-image-preview").show();
+                }
+            }).done(function(response) {
+                var dynamicOptions = response.data;
+                $('#build_bulk_branch_name').html(dynamicOptions);
+                var defaultBranchName = "stage"; 
+                $("#build_bulk_branch_name").val(defaultBranchName);
+                $("#build_bulk_branch_name").trigger("change");
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {});
+        }
+
+        $("#build_bulk_repository").on('change', function(e) {
+            branchDropdown();
+        });
+
+        branchDropdown();
+    });
+
 </script>
 @endsection
