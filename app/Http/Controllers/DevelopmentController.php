@@ -4299,7 +4299,7 @@ class DevelopmentController extends Controller
                     $params['status'] = 2;
                     $params['sent_to_user_id'] = $single->user_id;
                     ChatMessage::create($params);
-                    $single->estimate_date = request('estimatedEndDateTime'); // Assign for validation purpose in below function. 
+                    $single->estimate_date = request('estimatedEndDateTime'); // Assign for validation purpose in below function.
                     $single->updateStartDate($new);
 
                     return respJson(200, 'Successfully updated.');
