@@ -3305,6 +3305,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
                                         </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('sonarqube.list.page')}}">Sonar Cube</a>
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                                         </li>
