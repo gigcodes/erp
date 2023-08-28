@@ -157,6 +157,7 @@ use App\Http\Controllers\ScrapLogsController;
 use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\SERankingController;
 use App\Http\Controllers\SkuFormatController;
+use App\Http\Controllers\SonarQubeController;
 use App\Http\Controllers\TaskTypesController;
 use App\Http\Controllers\TemplatesController;
 use App\Http\Controllers\UpdateLogController;
@@ -308,10 +309,12 @@ use App\Http\Controllers\ProductSelectionController;
 use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\SupplierCategoryController;
+use App\Http\Controllers\VirtualminDomainController;
 use App\Http\Controllers\AutoReplyHashtagsController;
 use App\Http\Controllers\BrokenLinkCheckerController;
 use App\Http\Controllers\ChangeDescriptionController;
 use App\Http\Controllers\ContentManagementController;
+use App\Http\Controllers\DeploymentVersionController;
 use App\Http\Controllers\DiscountSalePriceController;
 use App\Http\Controllers\GoogleSearchImageController;
 use App\Http\Controllers\GoogleShoppingAdsController;
@@ -375,10 +378,6 @@ use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
-use App\Http\Controllers\InstagramAutomatedMessagesController;
-use App\Http\Controllers\DeploymentVersionController;
-use App\Http\Controllers\MagentoBackendDocumentationController;
-
 
 Auth::routes();
 
@@ -405,7 +404,9 @@ Route::prefix('youtube')->middleware('auth')->group(function () {
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
+use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
+use App\Http\Controllers\MagentoBackendDocumentationController;
 use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 use App\Http\Controllers\StoreWebsiteCountryShippingController;
 use App\Http\Controllers\MagentoFrontendDocumentationController;
@@ -419,7 +420,6 @@ use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
-use App\Http\Controllers\VirtualminDomainController;
 
 Auth::routes();
 
@@ -623,6 +623,7 @@ Route::middleware('auth')->group(function () {
     Route::get('project/{id}', [ProjectController::class, 'edit'])->name('project.edit');
     Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::delete('project/{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('project/multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
 
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
@@ -655,6 +656,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-css-variable/verify/{id}', [MagentoCssVariableController::class, 'verify'])->name('magento-css-variable.verify');
     Route::get('/magento-css-variable/download-csv/{id}', [MagentoCssVariableController::class, 'download'])->name('admin.download.file');
     Route::post('magento-css-variable/update-verified', [MagentoCssVariableController::class, 'updateSelectedVerified'])->name('magento-css-variable.update-verified');
+    Route::post('magento-css-variable/sync', [MagentoCssVariableController::class, 'syncVariables'])->name('magento-css-variable.sync');
+
 
     Route::resource('magento-css-variable', MagentoCssVariableController::class);
 
@@ -674,10 +677,6 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-backend-description/histories', [MagentoBackendDocumentationController::class, 'magentoBackenddescriptionHistoryShow'])->name('magentobackend_description.histories.show');
     Route::get('magento-backend-admin-config/histories', [MagentoBackendDocumentationController::class, 'magentoBackendAdminHistoryShow'])->name('magentobackend_admin.histories.show');
     Route::delete('/magento-backend/delete/{id}', [MagentoBackendDocumentationController::class, 'magentobackenddelete'])->name('magento-backend.destroy');
-
-
-
-
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -1393,6 +1392,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
     });
 
+    Route::group(['prefix' => 'sonarqube'], function () {
+        Route::post('project/create', [SonarqubeController::class, 'createProject'])->name('sonarqube.createProject');
+        Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
+        Route::get('issues/search', [SonarqubeController::class, 'searchIssues'])->name('sonarqube.list.page');
+        Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
+    });
+
     //plesk
     Route::prefix('content-management')->middleware('auth')->group(static function () {
         Route::get('/', [ContentManagementController::class, 'index'])->name('content-management.index');
@@ -1650,13 +1656,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('change-email-category', [EmailController::class, 'changeEmailCategory'])->name('changeEmailCategory');
     Route::post('change-email-status', [EmailController::class, 'changeEmailStatus'])->name('changeEmailStatus');
 
-
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
     Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
     Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
     Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
-
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -2743,7 +2747,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
     Route::get('email-addresses/run-job/lists', [EmailAddressesController::class, 'listEmailRunLogs'])->name('email-addresses.run-histories-listing');
     Route::resource('email-addresses', EmailAddressesController::class);
-
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -4274,7 +4277,6 @@ Route::middleware('auth')->group(function () {
         Route::post('device-change-status', [UicheckController::class, 'updateDeviceUpdateStatus'])->name('uicheck.device.update.status');
         Route::get('device-builder-datas/get-statuss/{id}', [UicheckController::class, 'getBuilderDataStatus'])->name('uicheck.get.builder-data-status');
 
-
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
             Route::get('dates', [UicheckController::class, 'historyDates'])->name('uicheck.history.dates');
@@ -5082,7 +5084,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('plan/status/update', [PlanController::class, 'changeStatusCategory'])->name('plan.status.update');
         Route::post('plan/add/remark', [PlanController::class, 'addPlanRemarks'])->name('plan.reamrk.add');
         Route::post('plan/list/remark', [PlanController::class, 'getRemarkList'])->name('plan.remark.list');
-
     });
 });
 Route::middleware('auth')->group(function () {
@@ -5527,7 +5528,6 @@ Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'u
 Route::post('database/backup/store-status', [DatabaseBackupMonitoringController::class, 'storeDbStatus'])->name('db-store-status');
 Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
 Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
-
 
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');

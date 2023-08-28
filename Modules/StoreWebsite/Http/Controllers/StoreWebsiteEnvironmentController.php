@@ -46,7 +46,7 @@ class StoreWebsiteEnvironmentController extends Controller
         $paths = StoreWebsiteEnvironment::pluck('path', 'path');
 
         $historyStatuses = StoreWebsiteEnvironmentHistoryStatus::all();
-        
+
         $env_paths = StoreWebsiteEnvironment::groupBy('path');
         $env_store_websites = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id')->select(['store_website_environments.store_website_id', 'sw.title as store_website_name', 'store_website_environments.path']);
         if ($request->store_websites) {
@@ -64,14 +64,14 @@ class StoreWebsiteEnvironmentController extends Controller
         $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id', 'path', 'value')->get()->toArray();
 
         $result = [];
-        $defaultHistoryStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', "LIKE", '%Default%')->select('color')->first();
+        $defaultHistoryStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', 'LIKE', '%Default%')->select('color')->first();
         array_walk($environments, function ($value, $key) use (&$result, $defaultHistoryStatus) {
-            $value['status_color'] = "";
+            $value['status_color'] = '';
             // Default color.
             if ($defaultHistoryStatus) {
                 $value['status_color'] = $defaultHistoryStatus->color;
             }
-            // If history exists then overwrite default color. 
+            // If history exists then overwrite default color.
             if (isset($value['latest_store_website_environment_history']) && isset($value['latest_store_website_environment_history']['status'])) {
                 $historyStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', $value['latest_store_website_environment_history']['status'])->select('color')->first();
                 if ($historyStatus) {
@@ -89,7 +89,7 @@ class StoreWebsiteEnvironmentController extends Controller
             'env_paths' => $env_paths,
             'env_store_websites' => $env_store_websites,
             'environments' => $result,
-            'historyStatuses' => $historyStatuses
+            'historyStatuses' => $historyStatuses,
         ]);
     }
 
@@ -456,5 +456,4 @@ class StoreWebsiteEnvironmentController extends Controller
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
-   
 }

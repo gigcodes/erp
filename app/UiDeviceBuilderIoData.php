@@ -20,7 +20,7 @@ class UiDeviceBuilderIoData extends Model
         'builder_created_by',
         'builder_last_updated_by',
         'status_id',
-        'task_id'
+        'task_id',
     ];
 
     // Define custom accessors
@@ -39,9 +39,10 @@ class UiDeviceBuilderIoData extends Model
     {
         if ($timestamp) {
             $timestampInSeconds = $timestamp / 1000; // Convert milliseconds to seconds
+
             return Carbon::createFromTimestamp($timestampInSeconds)->format('Y-m-d H:i:s');
         }
-        
+
         return null;
     }
 

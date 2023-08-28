@@ -684,15 +684,21 @@ class UserController extends Controller
     public function addSystemIp(Request $request)
     {
         if ($request->ip) {
-            $shell_cmd = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f add -i ' . $request->ip . ' -c ' . $request->get('comment', ''));
+            $shell_bash_cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f add -i ' . $request->ip . ' -c ' . $request->get('comment', '');
+            $shell_cmd = shell_exec($shell_bash_cmd);
 
+            // Decode the JSON string into a PHP array
+            $data = json_decode($shell_cmd, true);
             UserSysyemIp::create([
-                'index_txt' => $shell_cmd['index'] ?? 'null',
+                'index_txt' => $data['index'] ?? 'null',
                 'ip' => $request->ip,
                 'user_id' => $request->user_id ?? null,
                 'other_user_name' => $request->other_user_name ?? null,
                 'notes' => $request->comment ?? null,
                 'source' => 'system',
+                'command' => $shell_bash_cmd,
+                'status' => $data['status'] ?? '',
+                'message' => $data['message'] ?? '',
             ]);
 
             $userID = $request->user_id ?? null;

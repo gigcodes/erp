@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
-use App\SiteDevelopmentCategory;
-use App\PostmanRequestCreate;
 use App\MagentoModule;
+use App\PostmanRequestCreate;
+use App\SiteDevelopmentCategory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoBackendDocumentation extends Model
 {
@@ -30,10 +30,8 @@ class MagentoBackendDocumentation extends Model
         return $this->belongsTo(MagentoModule::class, 'mageneto_module_id', 'id');
     }
 
-
     public function user()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-    
 }

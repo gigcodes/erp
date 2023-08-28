@@ -3,22 +3,22 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use App\User;
 use App\Event;
+use App\Vendor;
 use Carbon\Carbon;
 use App\AssetsManager;
 use App\EventAvailability;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
-use Illuminate\Support\Collection;
-use App\Models\EventCategory;
-use App\Vendor;
-use App\User;
 use App\Models\EventRemarkHistory;
 use App\TodoList;
 use App\TodoStatus;
 use App\ToDoListRemarkHistoryLog;
+use Illuminate\Support\Collection;
 
 class EventController extends Controller
 {
@@ -120,7 +120,6 @@ class EventController extends Controller
         $vendorEmail = $request->get('vendor_email');
         $vendorPhone = $request->get('vendor_phone');
 
-
         $errors = [];
         if (empty(trim($name))) {
             $errors['name'][] = 'Name is required';
@@ -162,22 +161,19 @@ class EventController extends Controller
             return response()->json($errors, 400);
         }
 
-       
-
-        if($vendorId === null )
-        {
+        if ($vendorId === null) {
             if (empty(trim($vendorCategoryId))) {
                 $errors['vendor_category_id'][] = 'Vendor catagory is required';
             }
-    
+
             if (empty(trim($vendorName))) {
                 $errors['vendor_name'][] = 'name is required';
             }
-    
+
             if (empty(trim($vendorEmail))) {
                 $errors['vendor_email'][] = 'email is required';
             }
-    
+
             if (empty(trim($vendorPhone))) {
                 $errors['vendor_phone'][] = 'Phone Number is required';
             }
@@ -185,18 +181,17 @@ class EventController extends Controller
             if (! empty($errors)) {
                 return response()->json($errors, 400);
             }
-    
+
             $vendor = new Vendor();
-            $vendor->category_id =  $vendorCategoryId;
-            $vendor->name =  $vendorName;
-            $vendor->email =  $vendorEmail;
-            $vendor->phone =  $vendorPhone;
+            $vendor->category_id = $vendorCategoryId;
+            $vendor->name = $vendorName;
+            $vendor->email = $vendorEmail;
+            $vendor->phone = $vendorPhone;
             $vendor->save();
 
             $vendorId = $vendor->id;
         }
 
-       
         // Event
         $event = new Event();
         $event->user_id = $userId;
@@ -226,9 +221,9 @@ class EventController extends Controller
         }
 
         $subject = 'Event Scdhuled';
-        $message = "";
+        $message = '';
         $user = User::find($event->user_id);
-        $eventLink = "https://us05web.zoom.us/j/6928700773?pwd=Qnp6V2VQWGJ1NkhYd3c4ZHdBTjFoZz09";
+        $eventLink = 'https://us05web.zoom.us/j/6928700773?pwd=Qnp6V2VQWGJ1NkhYd3c4ZHdBTjFoZz09';
         $emailClass = (new EventEmail($subject, $message, $event->user->email, $eventLink))->build();
 
         $email = \App\Email::create([

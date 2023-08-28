@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class DeploymentVersion extends Model
+class GitHubAction extends Model
 {
     use HasFactory;
 
-    public $table = 'deployment_versioning';
+    protected $table = 'github_actions';
 }

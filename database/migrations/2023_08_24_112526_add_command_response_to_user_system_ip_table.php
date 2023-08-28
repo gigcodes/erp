@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCommandToBuildProcessHistoriesTable extends Migration
+class AddCommandResponseToUserSystemIpTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddCommandToBuildProcessHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::table('build_process_histories', function (Blueprint $table) {
+        Schema::table('user_system_ip', function (Blueprint $table) {
             $table->text('command')->nullable();
+            $table->string('status')->nullable();
+            $table->text('message')->nullable();
         });
     }
 
@@ -25,8 +27,10 @@ class AddCommandToBuildProcessHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::table('build_process_histories', function (Blueprint $table) {
+        Schema::table('user_system_ip', function (Blueprint $table) {
             $table->dropColumn('command');
+            $table->dropColumn('status');
+            $table->dropColumn('message');
         });
     }
 }

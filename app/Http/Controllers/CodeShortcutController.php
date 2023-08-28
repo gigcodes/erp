@@ -223,5 +223,4 @@ class CodeShortcutController extends Controller
 
         return redirect()->route('code-shortcuts')->withSuccess('data Removed succesfully!');
     }
-   
 }

@@ -3308,6 +3308,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
                                         </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('sonarqube.list.page')}}">Sonar Cube</a>
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                                         </li>
@@ -5441,6 +5444,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <th>User</th>
                                 <th>Source</th>
                                 <th>Comment</th>
+                                <th>Command</th>
+                                <th>Status</th>
+                                <th>Message</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -6726,19 +6732,20 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             success: function(result) {
 
 
-                 const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
+                // I feel below code not need. 
+                //  const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
 
-                t += '<option value="">Select user</option>';
-                arr.forEach(([key,value]) => {
-                    t+=`<option value="${key}">${value}</option>`
-                })
-                //$.each(arr, function([key, value], j) {
-                 //   console.log('index->', i , 'j index', j );
-                 //   t += '<option value="' + i + '">' + j + '</option>'
-                //});
-                t += '<option value="other">Other</option>';
-                // console.log(t);
-                $("#ipusers").html(t);
+                // t += '<option value="">Select user</option>';
+                // arr.forEach(([key,value]) => {
+                //     t+=`<option value="${key}">${value}</option>`
+                // })
+                // //$.each(arr, function([key, value], j) {
+                //  //   console.log('index->', i , 'j index', j );
+                //  //   t += '<option value="' + i + '">' + j + '</option>'
+                // //});
+                // t += '<option value="other">Other</option>';
+                // // console.log(t);
+                // $("#ipusers").html(t);
                 console.log(result.usersystemips);
                 $.each(result.usersystemips, function(k, v) {
                     ip += '<tr>';
@@ -6747,6 +6754,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
                     ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
+                    ip += '<td> ' + v.command + ' </td>';
+                    ip += '<td> ' + v.status + ' </td>';
+                    ip += '<td> ' + v.message + ' </td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
                     ip += '</tr>';
