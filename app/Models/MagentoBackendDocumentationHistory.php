@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
-use App\SiteDevelopmentCategory;
-use App\PostmanRequestCreate;
 use App\MagentoModule;
+use App\PostmanRequestCreate;
+use App\SiteDevelopmentCategory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoBackendDocumentationHistory extends Model
 {
@@ -49,5 +49,4 @@ class MagentoBackendDocumentationHistory extends Model
     {
         return $this->belongsTo(MagentoModule::class, 'new_id');
     }
-
 }

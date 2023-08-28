@@ -25,12 +25,11 @@ class VirtualminDomain extends Model
     {
         $isEnabledText = '';
         if ($this->is_enabled === 1) {
-            $isEnabledText = 'Enabled';        
+            $isEnabledText = 'Enabled';
         } else {
             $isEnabledText = 'Disabled';
         }
+
         return $isEnabledText;
     }
-   
-
 }

@@ -56,8 +56,8 @@ use App\MagentoSettingUpdateResponseLog;
 use Illuminate\Support\Facades\Validator;
 use App\Models\StoreWebsiteApiTokenHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\StoreWebsiteBuilderApiKeyHistory;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class StoreWebsiteController extends Controller
 {
@@ -106,7 +106,7 @@ class StoreWebsiteController extends Controller
             $history->updated_by = Auth::user()->id;
             $history->save();
         }
-        
+
         return redirect()->back()->with('success', 'API key updated successfully');
     }
 
