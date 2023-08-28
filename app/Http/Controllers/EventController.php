@@ -6,7 +6,9 @@ use Auth;
 use App\User;
 use App\Event;
 use App\Vendor;
+use App\TodoList;
 use Carbon\Carbon;
+use App\TodoStatus;
 use App\AssetsManager;
 use App\EventAvailability;
 use Illuminate\Support\Str;
@@ -14,10 +16,8 @@ use Illuminate\Http\Request;
 use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
-use App\Models\EventRemarkHistory;
-use App\TodoList;
-use App\TodoStatus;
 use App\ToDoListRemarkHistoryLog;
+use App\Models\EventRemarkHistory;
 use Illuminate\Support\Collection;
 
 class EventController extends Controller
@@ -46,48 +46,48 @@ class EventController extends Controller
 
         $requestData = $request->all();
 
-         if (! empty($requestData)) {
-            if($request->search_name) {
-                $events =  $events->where('name', 'LIKE', '%' . $request->search_name . '%');
+        if (! empty($requestData)) {
+            if ($request->search_name) {
+                $events = $events->where('name', 'LIKE', '%' . $request->search_name . '%');
             }
-    
-            if($request->search_description) {
-                $events =  $events->where('description', 'LIKE', '%' . $request->search_description . '%');
+
+            if ($request->search_description) {
+                $events = $events->where('description', 'LIKE', '%' . $request->search_description . '%');
             }
-    
-            if($request->search_duration) {
-                $events =  $events->where('duration_in_min', 'LIKE', '%' . $request->search_duration . '%');
+
+            if ($request->search_duration) {
+                $events = $events->where('duration_in_min', 'LIKE', '%' . $request->search_duration . '%');
             }
-    
-            if($request->search_date_range_type) {
-                $events =  $events->where('date_range_type', 'LIKE', '%' . $request->search_date_range_type . '%');
+
+            if ($request->search_date_range_type) {
+                $events = $events->where('date_range_type', 'LIKE', '%' . $request->search_date_range_type . '%');
             }
-    
-            if($request->date) {
-                $events =  $events->where('created_at', 'LIKE', '%' . $request->date . '%');
+
+            if ($request->date) {
+                $events = $events->where('created_at', 'LIKE', '%' . $request->date . '%');
             }
-    
-            if($request->search_event_type) {
-                $events =  $events->where('event_type', 'LIKE', '%' . $request->search_event_type . '%');
+
+            if ($request->search_event_type) {
+                $events = $events->where('event_type', 'LIKE', '%' . $request->search_event_type . '%');
             }
-            if($request->search_event_type == "ToDo") {
-                $todo = TodoStatus::where('name','=','Completed')->first();
+            if ($request->search_event_type == 'ToDo') {
+                $todo = TodoStatus::where('name', '=', 'Completed')->first();
                 $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
             }
-        }  else {
-            $todo = TodoStatus::where('name','=','Completed')->first();
+        } else {
+            $todo = TodoStatus::where('name', '=', 'Completed')->first();
             $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
         }
 
         $events = $events->latest()->paginate(25);
-      
+
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('events.partials.index', compact('events'))->render(),
             ], 200);
         }
 
-        return view('events.index', compact('events','todoLists','todo'));
+        return view('events.index', compact('events', 'todoLists', 'todo'));
     }
 
     public function store(Request $request)
@@ -773,42 +773,38 @@ class EventController extends Controller
 
     public function addEventsRemarks(Request $request)
     {
-        if($request->event_type == "event-list")
-        { 
+        if ($request->event_type == 'event-list') {
             $eventRemark = Event::where('id', $request->event_id)->first();
             $eventRemark->remarks = $request->remark;
             $eventRemark->save();
-    
+
             $eventRemarkhistory = new EventRemarkHistory();
             $eventRemarkhistory->event_id = $request->event_id;
             $eventRemarkhistory->remarks = $request->remark;
             $eventRemarkhistory->user_id = \Auth::id();
             $eventRemarkhistory->save();
-    
+
             return response()->json(['code' => 500, 'message' => 'Event Remark Added Successfully!']);
-
         } else {
-
             $todoRemark = TodoList::where('id', $request->event_id)->first();
-            $todoOldRemark =  $todoRemark->remark;
+            $todoOldRemark = $todoRemark->remark;
             $todoRemark->remark = $request->remark;
             $todoRemark->save();
-    
+
             $todoRemarkHistory = new ToDoListRemarkHistoryLog();
             $todoRemarkHistory->user_id = Auth::user()->id;
             $todoRemarkHistory->todo_list_id = $request->event_id;
             $todoRemarkHistory->remark = $request->remark;
-            $todoRemarkHistory->old_remark = $todoOldRemark?? '';
+            $todoRemarkHistory->old_remark = $todoOldRemark ?? '';
             $todoRemarkHistory->save();
-            return response()->json(['code' => 500, 'message' => 'Todo List Remark Added Successfully!']);
 
+            return response()->json(['code' => 500, 'message' => 'Todo List Remark Added Successfully!']);
         }
     }
 
     public function getEventremarkList(Request $request)
     {
-        if($request-> event_type == "event-list")
-        {
+        if ($request->event_type == 'event-list') {
             $taskRemarkData = EventRemarkHistory::where('event_id', '=', $request->eventId)->get();
 
             $html = '';
@@ -821,7 +817,7 @@ class EventController extends Controller
                 $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remarks . "'></i></td>";
             }
         } else {
-             $taskRemarkData = ToDoListRemarkHistoryLog::where('todo_list_id', '=', $request->eventId)->get();
+            $taskRemarkData = ToDoListRemarkHistoryLog::where('todo_list_id', '=', $request->eventId)->get();
 
             $html = '';
             foreach ($taskRemarkData as $taskRemark) {
