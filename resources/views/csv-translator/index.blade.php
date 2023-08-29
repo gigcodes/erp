@@ -152,10 +152,10 @@
 </div>
 
 <div class="float-right my-3">
-    {{-- @if(auth()->user()->hasRole('Lead Translator')) --}}
+    @if(auth()->user()->hasRole('Lead Translator'))
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-secondary btn_import">Import CSV</button>
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
-    {{-- @endif --}}
+    @endif
     <a class="btn btn-secondary btn_export" href="#" target="_self">Export CSV</a>
 </div>
 
@@ -164,7 +164,7 @@
     <table class="table table-bordered text-wrap csvData-table w-100" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
-            {{-- @if(auth()->user()->hasRole('Lead Translator')) --}}
+            @if(auth()->user()->hasRole('Lead Translator'))
                 <th>Id</th>
                 <th>Keyword</th>
                 <th>En</th>
@@ -179,12 +179,12 @@
                 <th>ZH</th>
                 <th>AR</th>
                 <th>UR</th>
-                {{-- @else
+                @else
                 @php $language = json_decode($lang);@endphp
                 @foreach ($language as $columToDraw)
                     <th>{{$columToDraw->data}}</th>
-                @endforeach --}}
-                {{-- @endif --}}
+                @endforeach
+                @endif
             </tr>
             
 
@@ -439,7 +439,7 @@
     var cols;
 </script>
 
-{{-- @if(auth()->user()->hasRole('Lead Translator')) --}}
+@if(auth()->user()->hasRole('Lead Translator'))
     <script>   
         cols =  [{ data: 'id' },
             { data: 'key' },
@@ -479,13 +479,13 @@
             { data: 'ur',render: function(data, type, row, meta) {
                 return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } }]
-//     </script>
-{{-- // @else --}}
-//     <script>
-//         cols = <?php echo $lang; ?>;
-//     </script>
-{{-- // @endif --}}
-//     <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+ </script>
+ @else
+   <script>
+        cols = <?php echo $lang; ?>;
+    </script>
+ @endif
+   <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
 
 
 <script>
