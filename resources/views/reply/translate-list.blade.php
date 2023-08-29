@@ -21,22 +21,34 @@
         <h2 class="page-heading">Quick Replies Translate List</h2>
         <div class="pull-left">
             <div class="row">
-                <div class="col-md-12 ml-sm-4">            
+                <div class="col-md-12 ml-sm-6">            
                     <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-6 pd-sm">
+                            <div class="col-md-4 pd-sm">
                                 {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
                             </div>
-                            <div class="col-md-5 pd-sm">
+                            <div class="col-md-3 pd-sm">
+                                <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
+                                    <option  Value="">Select lang</option>
+                                    @foreach ($getLangs as $r)
+                                    <option  Value="{{$r->translate_to}}"  {{ (request('lang') == $r->translate_to ? "selected" : "") }} >{{$r->translate_to}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
                             
-
                             <div class="col-md-1 pd-sm">
-                                 <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                            </div>
+                            </div>    
+                            <div class="col-md-1 pd-sm">
+                                <a href="{{ route('reply.replyTranslateList') }}" class="btn btn-image" id="">
+                                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
+                                </a>
+                            </div>                            
                         </div>
                     </form>
                 </div>
