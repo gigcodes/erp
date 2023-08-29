@@ -221,7 +221,7 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
-        
+
         'github_error' => [
             'driver' => 'daily',
             'path' => storage_path('logs/github_error.log'),

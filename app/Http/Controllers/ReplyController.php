@@ -541,7 +541,7 @@ class ReplyController extends Controller
 
         $replyTranslatorStatuses = ReplyTranslatorStatus::all();
 
-        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses','getLangs'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function quickRepliesPermissions(Request $request)

@@ -102,13 +102,13 @@ class MagentoCssVariableController extends Controller
         $magentoCssVariable->create_by = Auth::user()->id;
         $magentoCssVariable->save();
 
-        $action = "Add";
+        $action = 'Add';
         $projectName = $magentoCssVariable->project->name;
         $filepath = $data['file_path'];
-        $magentoCssVariableId =  $magentoCssVariable->id;
+        $magentoCssVariableId = $magentoCssVariable->id;
 
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
-        
+
         \Log::info('Start Magento Css Variable Update Vaule');
 
         $result = exec($command, $output, $return_var);
@@ -156,15 +156,15 @@ class MagentoCssVariableController extends Controller
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
-        return response()->json(
-            [
-                'code' => 500,
-                'data' => [],
-                'message' =>  $message,
-            ]
-        );
-     }
-}
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => $message,
+                ]
+            );
+        }
+    }
 
     public function edit(Request $request, $id)
     {
@@ -219,13 +219,13 @@ class MagentoCssVariableController extends Controller
             $history->save();
         }
 
-        $action = "update";
+        $action = 'update';
         $projectName = $magentoCssVariable->project->name;
         $filepath = $data['file_path'];
-        $magentoCssVariableId =  $magentoCssVariable->id;
+        $magentoCssVariableId = $magentoCssVariable->id;
 
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
-        
+
         \Log::info('Start Magento Css Variable Update Vaule');
 
         $result = exec($command, $output, $return_var);
@@ -273,32 +273,31 @@ class MagentoCssVariableController extends Controller
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
-        return response()->json(
-            [
-                'code' => 500,
-                'data' => [],
-                'message' =>  $message,
-            ]
-        );
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => $message,
+                ]
+            );
         }
     }
 
     public function destroy($id)
     {
         $magentoCssVariable = MagentoCssVariable::findOrFail($id);
-        
-        $action = "delete";
+
+        $action = 'delete';
         $projectName = $magentoCssVariable->project->name;
         $filepath = $magentoCssVariable->file_path;
-        $magentoCssVariableId =  $magentoCssVariable->id;
+        $magentoCssVariableId = $magentoCssVariable->id;
         $variable = $magentoCssVariable->variable;
         $value = $magentoCssVariable->value;
 
         $magentoCssVariable->delete();
 
-       
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $variable . ' -v ' . $value;
-        
+
         \Log::info('Start Magento Css Variable Update Vaule');
 
         $result = exec($command, $output, $return_var);
@@ -316,8 +315,7 @@ class MagentoCssVariableController extends Controller
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
         }
-        if($output)
-        {
+        if ($output) {
             $response = json_decode($output[0]);
             if (isset($response->status) && ($response->status == 'true' || $response->status)) {
                 $message = 'Magento CSS variable updated successfully!';
@@ -345,7 +343,7 @@ class MagentoCssVariableController extends Controller
                 ]);
             }
         }
-       
+
         return redirect()->route('magento-css-variable.index')
             ->with('success', 'Magento CSS variable deleted successfully');
     }
@@ -560,7 +558,7 @@ class MagentoCssVariableController extends Controller
             // Get the path to the stored CSV file
             $fullFilePath = Storage::disk('public')->path($filePath);
 
-            $action = "bulk";
+            $action = 'bulk';
             // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
@@ -610,8 +608,8 @@ class MagentoCssVariableController extends Controller
                 if (isset($response->message) && $response->message != '') {
                     $message = $response->message;
                 }
-                 $selectedIds = implode(',', $selectedIds); 
-                 // Maintain Error Log here in new table.
+                $selectedIds = implode(',', $selectedIds);
+                // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
                     'command' => $cmd,
@@ -658,7 +656,7 @@ class MagentoCssVariableController extends Controller
             // Get the path to the stored CSV file
             $fullFilePath = Storage::disk('public')->path($filePath);
 
-            $action = "signleUpdate";
+            $action = 'signleUpdate';
             // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
@@ -759,7 +757,7 @@ class MagentoCssVariableController extends Controller
     public function syncVariables(Request $request)
     {
         $action = $request->sync;
-        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action ;
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action;
 
         \Log::info('Start Magento Css Variable Update Vaule');
 
