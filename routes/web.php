@@ -4425,7 +4425,7 @@ Route::middleware('auth')->group(function () {
     Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');
     Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
-    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
+    Route::get('all/events', [EventController::class, 'publicEvents'])->name('event.public');
     Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
 
     Route::resource('event', EventController::class);
