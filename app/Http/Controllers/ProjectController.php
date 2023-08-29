@@ -9,6 +9,7 @@ use App\Helpers\GithubTrait;
 use Illuminate\Http\Request;
 use App\BuildProcessErrorLog;
 use App\Models\ProjectServerenv;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -160,6 +161,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => '',
+                'user_id' =>  $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data can not be empty!']);
@@ -173,6 +175,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => '',
+                'user_id' =>  $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data not found!']);
@@ -185,6 +188,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
+                'user_id' =>  $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
@@ -207,6 +211,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
+                'user_id' =>  $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select projects for build process!']);
@@ -243,6 +248,7 @@ class ProjectController extends Controller
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
                         'github_branch_state_name' => $branch_name,
+                        'user_id' => $user_id,
                     ]);
 
                     continue;
@@ -307,6 +313,7 @@ class ProjectController extends Controller
                             'github_branch_state_name' => $branch_name,
                             'build_pr' => $build_pr,
                             'initiate_from' => $initiate_from,
+                            'user_id' => $user_id,
                         ]);
                     }
                 } catch (\Exception $e) {
@@ -324,6 +331,7 @@ class ProjectController extends Controller
                     ];
                     \App\BuildProcessHistory::create($record);
                     BuildProcessErrorLog::log([
+                        'user_id' =>  $user_id,
                         'project_id' => $proj,
                         'error_message' => $e->getMessage(),
                         'error_code' => '500',
@@ -359,6 +367,7 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
+                    'user_id' =>  $user_id,
                 ]);
             }
         }
@@ -384,6 +393,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => '',
+                'user_id' => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select repository']);
@@ -396,6 +406,7 @@ class ProjectController extends Controller
                 'github_organization_id' => $organization,
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
+                'user_id' => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select Branch']);
@@ -408,6 +419,7 @@ class ProjectController extends Controller
                 'github_organization_id' => $organization,
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
+                'user_id' => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please Enter Job Name']);
@@ -486,6 +498,7 @@ class ProjectController extends Controller
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
+                            'user_id' => Auth::user()->id,
                         ]);
 
                         return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
@@ -498,6 +511,7 @@ class ProjectController extends Controller
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
                         'github_branch_state_name' => $branch_name,
+                        'user_id' => Auth::user()->id,
                     ]);
 
                     return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -509,6 +523,7 @@ class ProjectController extends Controller
                         'github_organization_id' => $organization,
                         'github_repository_id' => $repository_id,
                         'github_branch_state_name' => $branch_name,
+                        'user_id' => Auth::user()->id,
                     ]);
 
                     return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -846,8 +861,10 @@ class ProjectController extends Controller
 
     public function buildMultipleProcess(Request $request)
     {
+        $user_id = Auth::user()->id;
         $selectedIdsString = $request->input('selectedIds');
         $projectIds = explode(',', $selectedIdsString);
+        $responseResults = [];
 
         foreach ($projectIds as $projectId) {
             $project = Project::find($projectId);
@@ -865,6 +882,7 @@ class ProjectController extends Controller
                     'github_organization_id' => '',
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => '',
+                    'user_id' => $user_id ,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please select repository']);
@@ -877,6 +895,7 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
+                    'user_id' => $user_id ,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please select Branch']);
@@ -889,16 +908,14 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
+                    'user_id' => $user_id ,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please Enter Job Name']);
             }
 
             if (! empty($projectId)) {
-                $project = Project::find($projectId);
-
-                if ($project) {
-                    $repositoryData = \App\Github\GithubRepository::find($request->repository);
+                $repositoryData = \App\Github\GithubRepository::find($request->repository);
 
                     $repository = $request->repository;
                     if ($repositoryData) {
@@ -919,7 +936,6 @@ class ProjectController extends Controller
                             $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
                             $latestBuildNumber = $latestBuildResult = '';
 
-                            // dd($buildDetail);
                             $job_api_url = "{$jenkins->getUrl()}/job/{$jobName}/api/json";
                             $job_info = json_decode(file_get_contents($job_api_url), true);
                             // Check if the job has any build in the queue
@@ -949,8 +965,13 @@ class ProjectController extends Controller
 
                             \App\BuildProcessHistory::create($record);
 
-                            return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
-                        } else {
+
+                        $responseResults[] = [
+                                'project_id' => $projectId,
+                                'code' => 200,
+                                'message' => 'Process built successfully.',
+                        ];
+                     } else {
                             BuildProcessErrorLog::log([
                                 'project_id' => $projectId,
                                 'error_message' => 'Jenkins job not created',
@@ -958,6 +979,7 @@ class ProjectController extends Controller
                                 'github_organization_id' => $organization,
                                 'github_repository_id' => $repository_id,
                                 'github_branch_state_name' => $branch_name,
+                                'user_id' => $user_id,
                             ]);
 
                             return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
@@ -970,6 +992,7 @@ class ProjectController extends Controller
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
+                            'user_id' => $user_id,
                         ]);
 
                         return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -981,14 +1004,14 @@ class ProjectController extends Controller
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
                             'github_branch_state_name' => $branch_name,
+                            'user_id' => $user_id,
                         ]);
 
                         return response()->json(['code' => 500, 'message' => $e->getMessage()]);
                     }
-                }
             }
-
-            return response()->json(['code' => 500, 'message' => 'Project Data is not available.']);
         }
+
+        return response()->json($responseResults);
     }
 }

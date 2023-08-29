@@ -27,6 +27,8 @@
                             <th width="10%">Branch</th>
                             <th width="10%">Error Message</th>
                             <th width="10%">Error Code</th>
+                            <th width="10%">Created By</th>
+                            <th width="10%">Created At</th>
                         </tr>
                         @foreach ($buildProcessErrorLogs as $key => $buildProcessErrorLog)
                             <tr data-id="{{ $buildProcessErrorLog->id }}">
@@ -53,6 +55,12 @@
                                 </td>
                                 <td class="expand-row" style="word-break: break-all">
                                     {{ $buildProcessErrorLog->error_code }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $buildProcessErrorLog->user?->name }}
+                                </td>
+                                <td class="expand-row" style="word-break: break-all">
+                                    {{ $buildProcessErrorLog->created_at }}
                                 </td>
                             </tr>
                         @endforeach
