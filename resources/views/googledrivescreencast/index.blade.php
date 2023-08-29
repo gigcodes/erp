@@ -65,6 +65,9 @@
                                         </select>
                                     </div>
 				                    @endif
+                                    <div class="form-group m-1">
+                                        <input class="form-control" type="text" id="remark" placeholder="Search Remark" name="remark" value="{{ request('remark') ?? '' }}">
+                                    </div>
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
