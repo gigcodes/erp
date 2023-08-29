@@ -313,11 +313,20 @@
 									</button>
 								</td> --}}
 								@if (Auth::user()->isAdmin())
-									<td class="expand-row-msg uicheck-username" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 12, '..')}} @else   @endif</span>
-										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
+									<td class="expand-row-msg uicheck-username" data-name="username" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1" data-old_user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" data-id="{{$uiDevData->id}}">
+										{{-- <span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 12, '..')}} @else   @endif</span>
+										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span> --}}
+										
+										<select name="users" id="device-new-user" class="form-control device-new-user-change select2" style="width: 100%!important">
+											<option value="">-- Select Username --</option>
+											@forelse($allUsers as $key => $user)
+												<option value="{{ $user->id }}" @if($user->id == $uiDevData->user_accessable_user_id) selected @endif>{{ $user->name }}</option>
+											@empty
+											@endforelse
+										</select>
+										
 										<div class="flex items-center gap-5">
-											<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+											<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}}, {{$uiDevData->id}});"></i>
 											<input class="mt-0 shadow-none" data-id="{{$uiDevData->uicheck_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
 										</div>
 									</td>
@@ -584,7 +593,9 @@
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>User name</th>
+								<th>Updated By</th>
+								<th>Old User</th>
+								<th>New User</th>
 								<th>Timestamp</th>
 							</tr>
 						</thead>
@@ -991,6 +1002,48 @@
 			toastr['error'](response.message);
 		});
 	});	
+
+	$(document).on("change", ".device-new-user-change", function(e) {
+		e.preventDefault();
+		var id = $(this).parent().data('id');
+		var uicheck_id = $(this).parent().data('uicheck_id');
+		var device_no = $(this).parent().data('device_no');
+		var old_user_accessable_user_id = $(this).parent().data("old_user_accessable_user_id");
+
+		if (!id) {
+			toastr['error']("Id not found, Some issue in this record. Status not changed");
+			return;
+		}
+
+		var new_user_accessable_user_id = $(this).val();
+
+		$.ajax({
+			url: "{{route('uicheck.responsive.user.change')}}",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id: uicheck_id,
+				device_no : device_no,
+				old_user_accessable_user_id : old_user_accessable_user_id,
+				new_user_accessable_user_id: new_user_accessable_user_id,
+				"_token": "{{ csrf_token() }}",
+			},
+			beforeSend: function() {
+				
+			},
+			success: function(response) {
+				if (response.code == 200) {
+					//$(".statuschanges").val("");
+					toastr['success'](response.message);
+					// window.location.reload();
+				} else {
+					toastr['error'](response.message);
+				}
+			}
+		}).fail(function(response) {
+			toastr['error'](response.message);
+		});
+	});
 
 	function bulkUserAccessDelete()
     {
@@ -1782,12 +1835,13 @@
 	});
 
 	@if (Auth::user()->isAdmin())
-	function funGetUserHistory(uicheck_id) { 
+	function funGetUserHistory(uicheck_id, ui_device_id) { 
 		$.ajax({
 			type: "get",
 			url: "{{route('uicheck.userhistory')}}",
 			data: {
-				uicheck_id
+				uicheck_id,
+				ui_device_id
 			},
 			beforeSend: function () {
 				$("#loading-image").show();
