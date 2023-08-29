@@ -4362,7 +4362,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 @endphp
             @endif --}}
             <div id="showLatestEstimateTime" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-xl">
+                <div class="modal-dialog modal-xl"  style="width: 100% !important; max-width: 1700px !important;">
 
                     <!-- Modal content-->
                     <div class="modal-content">
