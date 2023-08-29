@@ -3228,6 +3228,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             Responsive</a>
                                     </li>
                                     <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('uicheck.device-builder-datas') }}">U I Device Builder Datas</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
                                             Languages</a>
                                     </li>
