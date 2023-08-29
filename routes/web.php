@@ -378,6 +378,7 @@ use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
+use App\Http\Controllers\GitHubActionController;
 
 Auth::routes();
 
@@ -5561,4 +5562,8 @@ Route::middleware('auth')->group(function () {
     Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
     Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
     Route::post('restore-version-jenkins', [DeploymentVersionController::class, 'restoreRevision'])->name('deployement-restore-revision');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/git-actions', [GitHubActionController::class, 'index'])->name('git-action-lists');
 });
