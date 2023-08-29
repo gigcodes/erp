@@ -314,7 +314,7 @@ class DeveloperTask extends Model
             $newStartDate = Carbon::parse($new);
             $estimateDate = Carbon::parse($this->estimate_date);
             if ($newStartDate->gte($estimateDate)) {
-                throw new Exception('Start date must be less then Estimate date.');
+                throw new Exception('Estimate start date time must be less then Estimate end date time.');
             }
         }
         $count = DeveloperTaskHistory::query()
@@ -325,10 +325,12 @@ class DeveloperTask extends Model
         if ($count) {
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
         } else {
-            $this->start_date = $new;
-            $this->save();
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
         }
+
+        unset($this->attributes['estimate_date']); // Unset Assigned value
+        $this->start_date = $new;
+        $this->save();
     }
 
     public function updateEstimateDate($new)
@@ -340,7 +342,7 @@ class DeveloperTask extends Model
             $startDate = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
             if ($newEstimateDate->lte($startDate)) {
-                throw new Exception('Estimate date must be greater then start date.');
+                throw new Exception('Estimate end date time must be greater then Estimate start date time.');
             }
         }
 
@@ -352,10 +354,11 @@ class DeveloperTask extends Model
         if ($count) {
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
         } else {
-            $this->estimate_date = $new;
-            $this->save();
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
         }
+
+        $this->estimate_date = $new;
+        $this->save();
     }
 
     public function updateEstimateDueDate($new)

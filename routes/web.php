@@ -378,6 +378,7 @@ use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
+use App\Http\Controllers\GitHubActionController;
 
 Auth::routes();
 
@@ -4251,6 +4252,7 @@ Route::middleware('auth')->group(function () {
         Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
         Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
+        Route::post('responsive/user/change', [UicheckController::class, 'responseDeviceUserChange'])->name('uicheck.responsive.user.change');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
@@ -4423,7 +4425,7 @@ Route::middleware('auth')->group(function () {
     Route::get('event/get-event-alerts', [EventController::class, 'getEventAlerts'])->name('event.getEventAlerts');
     Route::post('event/save-alert-log', [EventController::class, 'saveAlertLog'])->name('event.saveAlertLog');
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
-    Route::get('event/public', [EventController::class, 'publicEvents'])->name('event.public');
+    Route::get('all/events', [EventController::class, 'publicEvents'])->name('event.public');
     Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
 
     Route::resource('event', EventController::class);
@@ -5559,4 +5561,8 @@ Route::middleware('auth')->group(function () {
     Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
     Route::get('/deploye-version/history/{id}', [DeploymentVersionController::class, 'deployVersionHistory'])->name('deployement-version-history');
     Route::post('restore-version-jenkins', [DeploymentVersionController::class, 'restoreRevision'])->name('deployement-restore-revision');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/git-actions', [GitHubActionController::class, 'index'])->name('git-action-lists');
 });

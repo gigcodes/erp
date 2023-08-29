@@ -33,6 +33,7 @@
                                 <option value="">-- Select Event type --</option>
                                 <option value="PU" {{ (request('search_event_type') == "PU") ? "selected" : "" }}>public</option>
                                 <option value="PR" {{ (request('search_event_type') == "PR") ? "selected" : "" }}>private</option>
+                                <option value="ToDo" {{ (request('search_event_type') == "ToDo") ? "selected" : "" }}>Todo list</option>
                             </select>
                         </div>      
                         <div class="col-lg-2">
@@ -83,9 +84,10 @@
                         <th>End Date</th>
                         <th>Created At</th>
                         <th>Remark</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </thead>
-                    <tbody class="infinite-scroll-pending-inner">
+                    <tbody>
                         @foreach ($events as $event)
                             <tr>
                                 <td> {{ $event->name }} </td>
@@ -108,13 +110,14 @@
                                     <div style="width: 100%;">
                                       <div class="d-flex">
                                         <input type="text" name="event_remark_pop" class="form-control remark-event{{$event->id}}" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
-                                        <button type="button" class="btn btn-sm btn-image add_event_remark" title="Send message" data-event_id="{{$event->id}}">
+                                        <button type="button" class="btn btn-sm btn-image add_event_remark" title="Send message" data-event_type="event-list" data-event_id="{{$event->id}}">
                                             <img src="{{asset('images/filled-sent.png')}}">
                                         </button>
-                                      <button data-event_id="{{$event->id}}" class="btn btn-xs btn-image show-event-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                      <button data-event_id="{{$event->id}}" data-event_type="event-list" class="btn btn-xs btn-image show-event-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
                                       </div>
                                     </div>
                                   </td>
+                                <td> - </td>
                                 <td>
                                     <i class="fa fa-calendar reschedule-event" data-id="{{ $event->id }}"></i>
                                     <i class="fa fa-trash fa-trash-bin-record" data-id="{{ $event->id }}"></i>
@@ -124,9 +127,46 @@
                                 </td>
                             </tr>
                         @endforeach()
+                        @foreach ($todoLists as $todoList)
+                        <tr>
+                            <td> {{ $todoList->title }} </td>
+                            <td> Todo List</td>
+                            <td class="expand-row"> 
+                              -
+                            </td>
+                            <td> {{ $todoList->subject }} </td>
+                            <td> - </td>
+                            <td> Within a date range</td>
+                            <td> {{ $todoList->todo_date }} </td>
+                            <td> {{ $todoList->todo_date }} </td>
+                            <td> {{ $todoList->created_at }} </td>
+                            <td>
+                                <div style="width: 100%;">
+                                  <div class="d-flex">
+                                    <input type="text" name="event_remark_pop" class="form-control remark-event{{$todoList->id}}" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
+                                    <button type="button" class="btn btn-sm btn-image add_event_remark" title="Send message" data-event_type="todo-list" data-event_id="{{$todoList->id}}">
+                                        <img src="{{asset('images/filled-sent.png')}}">
+                                    </button>
+                                  <button data-event_id="{{$todoList->id}}" class="btn btn-xs btn-image show-event-remark" data-event_type="todo-list" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                  </div>
+                                </div>
+                              </td>
+                            <td>
+                                <select name="status" id="status" class="form-control" onchange="statusChange({{$todoList->id}}, this.value)" data-id="{{$todoList->id}}">
+                                    <option>--Select--</option>
+                                      <option value="{{$todo->id}}"> Completed</option>
+                                  </select>
+
+                            </td>
+                            <td> - </td>
+                        </tr>
+                    @endforeach
+
                     </tbody>
                 </table>
-                {!! $events->appends(Request::except('page'))->links() !!}
+               @if($todoLists)
+                 {{ $todoLists->appends(Request::except('page'))->links() }}
+                @endif
             </div>
         </div>
     </div>
@@ -335,6 +375,7 @@
             e.preventDefault();
             var thiss = $(this);
             var event_id = $(this).data('event_id');
+            var event_type = $(this).data('event_type');
             var remark = $(`.remark-event`+event_id).val();
 
             $.ajax({
@@ -346,6 +387,7 @@
                 data: {
                 event_id : event_id,
                 remark : remark,
+                event_type : event_type,
                 },
                 beforeSend: function () {
                     $("#loading-image-preview").show();
@@ -353,6 +395,7 @@
             }).done(function (response) {
                     $("#loading-image-preview").hide();
                     toastr['success'](response.message);
+                    location.reload();
             }).fail(function (response) {
                 $("#loading-image-preview").hide();
                 toastr['error'](response.message);
@@ -362,6 +405,8 @@
     $(document).on("click",".show-event-remark",function(e) {
         e.preventDefault();
         var event_id = $(this).data('event_id');
+        var event_type = $(this).data('event_type');
+
         $.ajax({
             type: "POST",
             url: "{{ route('event.remark.list') }}",
@@ -370,6 +415,7 @@
             },
             data: {
               eventId : event_id,
+              event_type : event_type,
             },
             beforeSend: function () {
                 $("#loading-image-preview").show();
@@ -383,6 +429,33 @@
             toastr['error'](response.message);
         });
     });
+
+    function statusChange(id, xvla) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('todolist.status.update') }}",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "id": id,
+                    "status":xvla
+                },
+                dataType: "json",
+                success: function(message) {
+                    $c = message.length;
+                    if ($c == 0) {
+                        alert('No History Exist');
+                    } else {
+                        toastr['success'](message.message, 'success');
+                        location.reload();
+                    }
+                },
+                error: function(error) {
+                    toastr['error'](error, 'error');
+                }
+
+            });
+
+        }
 
     </script>
 @endsection

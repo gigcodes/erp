@@ -479,13 +479,13 @@
             { data: 'ur',render: function(data, type, row, meta) {
                 return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } }]
- </script>
- @else
-   <script>
-        cols = <?php echo $lang; ?>;
     </script>
+ @else
+    <script>
+        cols = <?php echo $lang; ?>;
+  </script>
  @endif
-   <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+    <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
 
 
 <script>

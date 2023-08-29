@@ -54,6 +54,7 @@ use Illuminate\Support\Facades\Validator;
 use App\UiDeviceBuilderIoDataRemarkHistory;
 use App\UiDeviceBuilderIoDataStatusHistory;
 use App\UiDeviceBuilderIoDataDownloadHistory;
+use App\UiDeviceUserHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UicheckController extends Controller
@@ -1356,6 +1357,52 @@ class UicheckController extends Controller
         }
     }
 
+    public function responseDeviceUserChange(Request $request)
+    {
+        try {
+            $uiDevDatas = UiDevice::where('id', $request->id)
+                    ->where('device_no', $request->device_no)
+                    ->where('uicheck_id', $request->uicheck_id)
+                    ->first();
+
+            if ($uiDevDatas) {
+                // check new user already assigned another device. 
+                $newUserAllDevices = UiDevice::where('user_id', $request->new_user_accessable_user_id)
+                    ->where('uicheck_id', $request->uicheck_id)->count();
+
+                if ($newUserAllDevices == 0) {
+                    $userAllDevices = UiDevice::where('user_id', $uiDevDatas->user_id)
+                        ->where('uicheck_id', $request->uicheck_id)->get();
+
+                    foreach ($userAllDevices as $userAllDevice) {
+                        $old_user_id = $userAllDevice->user_id;
+                        $userAllDevice->update(['user_id' => $request->new_user_accessable_user_id]);
+
+                        UiDeviceUserHistory::create([
+                            'ui_device_id' => $userAllDevice->id,
+                            'uicheck_id' => $request->uicheck_id,
+                            'user_id' => \Auth::user()->id,
+                            'new_user_id' => $request->new_user_accessable_user_id,
+                            'old_user_id' => $old_user_id,
+                        ]);
+                    }
+
+                    UicheckUserAccess::where('uicheck_id', $request->uicheck_id)
+                        ->where('user_id', $uiDevDatas->user_id)
+                        ->update(['user_id' => $request->new_user_accessable_user_id]);
+
+                    return response()->json(['code' => 200, 'message' => 'User updated succesfully']);
+                } else {
+                    return response()->json(['code' => 500, 'message' => 'This user already assigned, Please choose different user']);
+                }
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Device not found']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
     public function responseDeviceStatusChange(Request $request)
     {
         try {
@@ -2014,10 +2061,32 @@ class UicheckController extends Controller
         }
     }
 
+    // OLD
+    // public function userHistory(Request $request)
+    // {
+    //     try {
+    //         $userAccess = UicheckUserAccess::with('user')->where('uicheck_id', $request->uicheck_id)->orderBy('id', 'desc')->get();
+
+    //         return response()->json([
+    //             'status' => true,
+    //             'data' => view('uicheck.user-history', compact('userAccess'))->render(),
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => true,
+    //             'data' => view('uicheck.user-history')->render(),
+    //         ]);
+    //     }
+    // }
+    // NEW 
     public function userHistory(Request $request)
     {
         try {
-            $userAccess = UicheckUserAccess::with('user')->where('uicheck_id', $request->uicheck_id)->orderBy('id', 'desc')->get();
+            $userAccess = UiDeviceUserHistory::with('user')
+                ->where('uicheck_id', $request->uicheck_id)
+                ->where('ui_device_id', $request->ui_device_id)
+                ->orderBy('id', 'desc')
+                ->get();
 
             return response()->json([
                 'status' => true,

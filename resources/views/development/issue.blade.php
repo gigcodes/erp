@@ -331,6 +331,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     data: {
                         id: id,
                         value: $('input[name="start_dates'+id+'"]').val(),
+                        estimatedEndDateTime: $('input[name="estimate_date'+id+'"]').val(),
                     }
                 }).done(function(res) {
                     // siteLoader(0);

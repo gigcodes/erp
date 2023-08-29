@@ -2249,6 +2249,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/event">Event</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/all/events">All Event list</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -3228,6 +3231,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             Responsive</a>
                                     </li>
                                     <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('uicheck.device-builder-datas') }}">U I Device Builder Datas</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
                                             Languages</a>
                                     </li>
@@ -3307,6 +3313,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('sonarqube.list.page')}}">Sonar Cube</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('git-action-lists')}}">Git Actions</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
