@@ -44,6 +44,10 @@
                 </select>        
             </div>
             <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_actor" placeholder="Search git Actor" name="search_actor"
+                value="{{ request('search_actor') ?? '' }}">
+            </div>
+            <div class="col-lg-2">
                 <input class="form-control" type="text" id="search_event" placeholder="Search Event name" name="search_event"
                     value="{{ request('search_event') ?? '' }}">
             </div>
@@ -51,13 +55,17 @@
                 <input class="form-control" type="text" id="search_job" placeholder="Search Job" name="search_job"
                     value="{{ request('search_job') ?? '' }}">
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2"><br>
                 <input class="form-control" type="text" id="search_ref_name" placeholder="Search Git Ref Name" name="search_ref_name"
                     value="{{ request('search_ref_name') ?? '' }}">
             </div>
             <div class="col-lg-2"><br>
                 <input class="form-control" type="text" id="search_ref_type" placeholder="Search type" name="search_ref_type"
                 value="{{ request('search_ref_type') ?? '' }}">
+            </div>
+            <div class="col-lg-2"><br>
+                <input class="form-control" type="text" id="search_runner" placeholder="Search Runner" name="search_runner"
+                value="{{ request('search_runner') ?? '' }}">
             </div>
             <div class="col-lg-2"><br>
                 <input class="form-control" type="date" name="date" value="{{ request('date') ?? '' }}">

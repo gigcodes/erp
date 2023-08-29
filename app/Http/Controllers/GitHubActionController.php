@@ -54,10 +54,10 @@ class GitHubActionController extends Controller
             $gitactions = $gitactions->Where('github_api_url', $request->api_url);
         }
         if ($request->ref_url) {
-            $gitactions = $gitactions->WhereIn('github_ref', $request->ref_url);
+            $gitactions = $gitactions->Where('github_ref', $request->ref_url);
         }
         if ($request->repo) {
-            $gitactions = $gitactions->WhereIn('github_repository', $request->repo);
+            $gitactions = $gitactions->Where('github_repository', $request->repo);
         }
         if ($request->date) {
             $gitactions = $gitactions->where('created_at', 'LIKE', '%' . $request->date . '%');
@@ -71,6 +71,13 @@ class GitHubActionController extends Controller
         if ($request->search_ref_type) {
             $gitactions = $gitactions->where('github_ref_type', 'LIKE', '%' . $request->search_ref_type . '%');
         }
+        if ($request->search_actor) {
+            $gitactions = $gitactions->where('github_actor', 'LIKE', '%' . $request->search_actor . '%');
+        }
+        if ($request->search_runner) {
+            $gitactions = $gitactions->where('runner_name', 'LIKE', '%' . $request->search_runner . '%');
+        }
+
 
         $gitactions = $gitactions->latest()->paginate(\App\Setting::get('pagination', 10));
 
