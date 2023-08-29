@@ -47,7 +47,7 @@ return [
         'namespace' => 'Brotzka\DotenvEditor\Http\Controllers',
         'prefix' => 'env-manager',
         'as' => 'env-manager',
-        'middleware' => ['auth'],
+        'middleware' => ['web', 'auth'],
     ],
     //  'route' => '/enveditor',
 ];
