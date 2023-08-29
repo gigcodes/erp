@@ -31,7 +31,7 @@
                                 <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
                                     <option  Value="">Select lang</option>
                                     @foreach ($getLangs as $r)
-                                    <option  Value="{{$r->translate_to}}"  {{ (request('lang') == $r->translate_to ? "selected" : "") }} >{{$r->translate_to}}</option>
+                                    <option  Value="{{$r}}"  {{ (request('lang') == $r ? "selected" : "") }} >{{$r}}</option>
                                     @endforeach
                                 </select>
                             </div>

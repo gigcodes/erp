@@ -485,8 +485,7 @@ class ReplyController extends Controller
         ->where('model', 'Store Website')->where('replies.is_flagged', '1')
         ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
 
-
-        $getLangs =  \App\TranslateReplies::Select('id','translate_to')->get();
+        $getLangs = \App\TranslateReplies::distinct('translate_to')->pluck('translate_to');
 
         if ($storeWebsite > 0) {
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
