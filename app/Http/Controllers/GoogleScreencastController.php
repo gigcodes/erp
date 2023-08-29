@@ -69,6 +69,12 @@ class GoogleScreencastController extends Controller
                 $q->where('user_id', $keyword);
             });
         }
+        if ($keyword = request('remark')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('remarks', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+        
         if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {
             $data->whereIn('developer_task_id', $taskIds)->orWhere('user_id', Auth::id())->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.write)");
         }
@@ -85,15 +91,25 @@ class GoogleScreencastController extends Controller
      */
     public function create(Request $request)
     {
-        $data = $this->validate($request, [
-            'task_id' => ['required'],
+        $isAdmin = Auth::user()->isAdmin();
+
+        $validationRules = [
             'file' => ['required'],
             'file.*' => ['required'],
             'file_creation_date' => ['required'],
             'file_read' => ['sometimes'],
             'file_write' => ['sometimes'],
             'remarks' => ['sometimes'],
-        ]);
+        ];
+
+        if ($isAdmin) {
+            $validationRules['task_id'] = ['sometimes'];
+        } else {
+            $validationRules['task_id'] = ['required'];
+        }
+
+        $data = $this->validate($request, $validationRules);
+
         foreach ($data['file'] as $file) {
             $class = '';
 
