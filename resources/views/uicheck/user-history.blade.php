@@ -3,6 +3,8 @@
         <tr>
             <td>{{$loop->iteration}}</td>
             <td>{{$access->user->name}}</td>
+            <td>{{$access->oldUser?->name}}</td>
+            <td>{{$access->newUser?->name}}</td>
             <td>{{$access->created_at}}</td>
         </tr>
     @empty

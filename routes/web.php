@@ -4252,6 +4252,7 @@ Route::middleware('auth')->group(function () {
         Route::post('device-builder-datas/store-task', [UicheckController::class, 'builderIOTaskstore'])->name('uicheck.store.builder-io-task');
         Route::get('device-builder-datas/get-remarks/{id}', [UicheckController::class, 'getBuilderDataRemarks'])->name('uicheck.get.builder-data-remark');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
+        Route::post('responsive/user/change', [UicheckController::class, 'responseDeviceUserChange'])->name('uicheck.responsive.user.change');
         Route::post('responsive/approve', [UicheckController::class, 'responseDeviceIsApprovedChange'])->name('uicheck.responsive.approve');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
