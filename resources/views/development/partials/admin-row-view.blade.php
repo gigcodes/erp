@@ -31,7 +31,7 @@
             @endforeach
         </select>
     </td>
-    <td class="p-2">{{ Carbon\Carbon::parse($module->created_at)->format('d-m H:i') }}</td>
+    <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
     <td style="vertical-align: middle;word-break: break-all;">
         <p>{{ $issue->subject ?? 'N/A' }}</p>
     </td>
@@ -72,9 +72,9 @@
     <td data-id="{{ $issue->id }}">
         <div class="form-group">		
 			@if ($issue->status == 'Approved')
-				<span>{{ $issue->status }}</span>: {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : 0 }}
-            @elseif ($issue->developerTaskHistory)
-                <span style="color:#337ab7"><strong>Unapproved</strong></span>: {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : 0 }}
+				<span>{{ $issue->status }}</span>: {{ $issue->estimate_minutes ? $issue->estimate_minutes : 0 }}
+            @elseif ($issue->estimate_minutes)
+                <span style="color:#337ab7"><strong>Unapproved</strong></span>: {{ $issue->estimate_minutes ? $issue->estimate_minutes : 0 }}
             @else
 				<span style="color:#337ab7"><strong>Unapproved</strong> </span>
             @endif

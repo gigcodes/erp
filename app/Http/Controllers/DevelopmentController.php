@@ -4299,6 +4299,7 @@ class DevelopmentController extends Controller
                     $params['status'] = 2;
                     $params['sent_to_user_id'] = $single->user_id;
                     ChatMessage::create($params);
+                    $single->estimate_date = request('estimatedEndDateTime'); // Assign for validation purpose in below function.
                     $single->updateStartDate($new);
 
                     return respJson(200, 'Successfully updated.');
@@ -4400,6 +4401,7 @@ class DevelopmentController extends Controller
         $remark = request('remark');
 
         if ($issue = DeveloperTask::find(request('issue_id'))) {
+            $old = $issue->estimate_minutes;
             $issue->estimate_minutes = $new;
             $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
             $issue->save();
@@ -4416,7 +4418,7 @@ class DevelopmentController extends Controller
                 'developer_task_id' => $issue->id,
                 'model' => \App\DeveloperTask::class,
                 'attribute' => 'estimation_minute',
-                'old_value' => $issue->estimate_minutes,
+                'old_value' => $old,
                 'new_value' => $new,
                 'remark' => $remark ?: null,
                 'user_id' => loginId(),

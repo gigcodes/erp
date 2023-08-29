@@ -100,6 +100,7 @@ if(typeof estimatefunTaskInformationUpdates === 'undefined') {
                     data: {
                         id: estimateCurrTaskInformationTaskId,
                         value: mdl.find('input[name="start_date"]').val(),
+                        estimatedEndDateTime: mdl.find('input[name="estimate_date"]').val(),
                     }
                 }).done(function(res) {
                     siteLoader(0);
