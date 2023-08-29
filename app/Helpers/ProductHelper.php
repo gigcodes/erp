@@ -895,7 +895,7 @@ class ProductHelper extends Model
         return $websiteArray;
     }
 
-    public static function getStoreWebsiteNameByTag($id, $product = null)
+    public static function getStoreWebsiteNameByTag($id, $product = null, $singleStore = false)
     {
         $product = ($product) ? $product : Product::find($id);
 
@@ -915,14 +915,29 @@ class ProductHelper extends Model
                 }
             }
         }
-        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->get();
+        if ($singleStore) {
+            $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->where('disable_push', 0)->limit(1)->get();
+        } else {
+            $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->get();
+        }
 
         $not_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
-        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->get();
+        if ($singleStore) {
+            $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->where('disable_push', 0)->limit(1)->get();
+        } else {
+            $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->get();
+        }
 
         $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
 
-        return $finalResult;
+        if ($singleStore) {
+            $singleResult = [];
+            $singleResult[] = $finalResult[0];
+
+            return $singleResult;
+        } else {
+            return $finalResult;
+        }
     }
 
     public static function getStoreWebsiteNameFromPushed($id, $product = null)

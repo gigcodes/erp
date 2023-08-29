@@ -393,7 +393,13 @@
 
                             <div class="form-group" style="margin-left:15px;">
                                 <input type="button" class="btn btn-secondary delete-out-of_stock" value="Delete OutOfStock products"/>
-                            </div>  
+                            </div>
+                            
+                            <div class="form-group" style="margin-left:15px;">
+                                <a href="{{ route('products.push.product.test') }}" class="btn btn-secondary">
+                                    Push Product Test
+                                </a>
+                            </div>
                         </div>
                         @endif
                     </div>

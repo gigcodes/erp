@@ -58,6 +58,7 @@ use App\PushToMagentoCondition;
 use App\Jobs\PushProductOnlyJob;
 use App\ProductTranslationHistory;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\TestPushProductOnlyJob;
 use App\CropImageHttpRequestResponse;
 use App\Jobs\Flow2PushProductOnlyJob;
 use Illuminate\Support\Facades\Input;
@@ -2185,6 +2186,25 @@ class ProductController extends Controller
                 'result' => 'productNotFound',
                 'status' => 'error',
             ]);
+        }
+    }
+
+    public function pushProductTest(Request $request)
+    {
+        try {
+            $products = ProductHelper::getProducts(StatusHelper::$finalApproval, 1);
+            $product = $products->first();
+            TestPushProductOnlyJob::dispatchSync($product);
+
+            return Redirect::Back()->with('success', 'Push product test initiated for this product #' . $product->id . '. You can check the logs on <a href="' . route('list.magento.logging') . '">Log List Magento</a> page.');
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+
+            $logId = LogListMagento::log($product->id, $msg, 'info');
+            ProductPushErrorLog::log('', $product->id, $msg, 'php', $logId->store_website_id, '', '', $logId->id);
+            $this->updateLogUserId($logId);
+
+            return Redirect::Back()->with('error', 'Push product test failed for this product #' . $product->id . '. You can check the logs on <a href="' . route('list.magento.logging') . '">Log List Magento</a> page.');
         }
     }
 
