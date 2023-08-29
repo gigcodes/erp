@@ -37,4 +37,45 @@ class GitHubActionController extends Controller
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
         }
     }
+
+    public function index(Request $request)
+    {
+        $gitactions = new GitHubAction();
+
+
+        $apiUrls =  GitHubAction::distinct('github_api_url')->pluck('github_api_url');
+        $refUrls =  GitHubAction::distinct('github_ref')->pluck('github_ref');
+        $repos = GitHubAction::distinct('github_repository')->pluck('github_repository');
+
+        if ($request->search_event) {
+            $gitactions = $gitactions->where('github_event_name', 'LIKE', '%' . $request->search_error . '%');
+        }
+        if ($request->api_url) {
+            $gitactions = $gitactions->Where('github_api_url', $request->api_url);
+        }
+        if ($request->ref_url) {
+            $gitactions = $gitactions->WhereIn('github_ref', $request->ref_url);
+        }
+        if ($request->repo) {
+            $gitactions = $gitactions->WhereIn('github_repository', $request->repo);
+        }
+        if ($request->date) {
+            $gitactions = $gitactions->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        if ($request->search_job) {
+            $gitactions = $gitactions->where('github_job', 'LIKE', '%' . $request->search_job . '%');
+        }
+        if ($request->search_ref_name) {
+            $gitactions = $gitactions->where('github_ref_name', 'LIKE', '%' . $request->search_ref_name . '%');
+        }
+        if ($request->search_ref_type) {
+            $gitactions = $gitactions->where('github_ref_type', 'LIKE', '%' . $request->search_ref_type . '%');
+        }
+
+        $gitactions = $gitactions->latest()->paginate(\App\Setting::get('pagination', 10));
+
+
+        return view('git-actions.git-action-list', compact('gitactions','apiUrls','repos','refUrls'));
+
+    }
 }
