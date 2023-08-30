@@ -60,6 +60,8 @@ class MagentoBackendDocumentationController extends Controller
         $magentobackenddoc->bug = $request->bug;
         $magentobackenddoc->bug_details = $request->bug_details;
         $magentobackenddoc->bug_resolution = $request->bug_resolution;
+        $magentobackenddoc->template_file = $request->template_file;
+        
         $magentobackenddoc->updated_by = Auth::id();
         $magentobackenddoc->save();
 

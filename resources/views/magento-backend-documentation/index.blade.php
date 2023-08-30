@@ -135,7 +135,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                Magento Documentation<span id="total-count"></span>
+                Magento BackEnd Documentation<span id="total-count"></span>
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -219,11 +219,12 @@
                         <th width="10%"> PostMan Api </th>
                         <th width="10%"> Magneto Module </th>
                         <th width="20%"> Description </th>
-                        <th width="20%"> Admin configuration </th>
-                        <th width="20%"> Remark </th>
-                        <th width="30%"> Bug </th>
-                        <th width="30%"> Bug details </th>
-                        <th width="30%"> Bug solutions </th>    
+                        <th width="10%"> Admin configuration </th>
+                        <th width="10%"> Remark </th>
+                        <th width="10%"> Bug </th>
+                        <th width="20%"> Template Files </th>
+                        <th width="10%"> Bug details </th>
+                        <th width="20%"> Bug solutions </th>    
                         <th width="30%"> Updated by </th>   
                         <th width="5%"> Created At </th>   
                         <th> Action </th>              
@@ -382,8 +383,8 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="50%">Old Remark</th>
-                                    <th width="50%">New remark</th>
+                                    <th width="50%">Old description</th>
+                                    <th width="50%">New description</th>
                                     <th width="30%">Updated by</th>
                                     <th width="20%">Created Date</th>
                                 </tr>
@@ -698,6 +699,23 @@
                         }
                     },
                     {
+                        data: 'template_file',
+                        name: 'magento_backend_docs.template_file',
+                        render: function(data, type, row, meta) {
+                            var shortJobName = '';
+                            if (data !== null) {
+                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                            }
+
+                            return `<td class="expand-row" style="word-break: break-all">
+                                <div class="expand-row" style="word-break: break-all">
+                                        <span class="td-mini-container">${shortJobName}</span>
+                                        <span class="td-full-container hidden">${data}</span>
+                                </div>
+                                    </td>`;
+                        }
+                    },
+                    {
                         data: 'bug_details',
                         name: 'magento_backend_docs.bug_details',
                         render: function(data, type, row, meta) {
@@ -713,7 +731,7 @@
                                 </div>
                                     </td>`;
                         }
-                    },
+                    },                  
                     {
                         data: 'bug_resolution',
                         name: 'magento_backend_docs.bug_resolution',
@@ -752,18 +770,24 @@
                         data: 'created_at',
                         name: 'magento_frontend_docs.created_at',
                         render: function(data, type, row, meta) {
-                            var date = '';
+                            var formattedDate = '';
+                            
                             if (data !== null) {
-                                date = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                var dateObject = new Date(data);  
+                                var year = dateObject.getFullYear();
+                                var month = String(dateObject.getMonth() + 1).padStart(2, '0');  
+                                var day = String(dateObject.getDate()).padStart(2, '0');
+                                
+                                formattedDate = `${year}-${month}-${day}`;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
                                 <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${date}</span>
-                                        <span class="td-full-container hidden">${data}</span>
+                                    <span class="td-mini-container">${formattedDate}</span>
+                                    <span class="td-full-container hidden">${formattedDate}</span>
                                 </div>
-                                    </td>`;
-                         }
+                            </td>`;
+                        }
                     },
                     {
                         render: function(data, type, row, meta) {

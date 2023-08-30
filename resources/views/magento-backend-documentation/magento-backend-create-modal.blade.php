@@ -34,6 +34,18 @@
                         </div>
                     </div>
                     <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Template File</label>
+                            {!! Form::text('template_file', null, [
+                                'id' => 'template_file',
+                                'placeholder' => 'Magento Backend Template File',
+                                'class' => 'form-control template_file',
+                                'required' => 'required',
+                            ]) !!}
+
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="form-group custom-select2">
                             <label>Api</label>
                             <select class="w-100 js-example-basic-multiple js-states" id="post_man_api"
