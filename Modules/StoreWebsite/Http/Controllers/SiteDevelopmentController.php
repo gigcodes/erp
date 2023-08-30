@@ -1256,7 +1256,7 @@ class SiteDevelopmentController extends Controller
         $allCategories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_development_categories.builder_io', 'site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
+        $categories = SiteDevelopmentCategory::select('site_development_categories.id', 'site_development_categories.builder_io', 'site_development_categories.master_category_id as site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_development_categories.created_at', 'site_development_categories.updated_at',
             DB::raw('count(site_developments.id) as cnt')
         )
             ->joinSub($site_dev, 'site_dev', function ($join) {
