@@ -634,6 +634,11 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/store', [MagentoFrontendDocumentationController::class, 'magentofrontendStore'])->name('magento-frontend-store');
     Route::post('magento-frontend/remark/store', [MagentoFrontendDocumentationController::class, 'magentofrontendstoreRemark'])->name('magento-frontend-remark-store');
     Route::get('magento-frontend/remark', [MagentoFrontendDocumentationController::class, 'magentofrontendgetRemarks'])->name('magento-frontend-get-remarks');
+    Route::get('magento-frontend/location', [MagentoFrontendDocumentationController::class, 'magentoLocationget'])->name('magento-location-list');
+    Route::get('magento-frontend/admin', [MagentoFrontendDocumentationController::class, 'magentoAdminget'])->name('magento-admin-list');
+    Route::get('magento-frontend/frontend', [MagentoFrontendDocumentationController::class, 'magentoFrontend'])->name('magento-frontend-list');
+
+
     Route::get('/magento-frontend/edit/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendEdit'])->name('magento_frontend_edit');
     Route::post('/magento-frontend/updateOptions', [MagentoFrontendDocumentationController::class, 'magentofrontendOptions'])->name('magento_frontend.update.option');
     Route::post('/magento-frontend/update/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontendUpdate'])->name('magento_frontend.update');
@@ -5146,6 +5151,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('vocher-platforms', [Select2Controller::class, 'vochuerPlatform'])->name('select2.vochers_platforms');
     Route::get('vocher-emails', [Select2Controller::class, 'vochuerEmail'])->name('select2.vochers_emails');
     Route::get('vocher-whatsapp/config', [Select2Controller::class, 'vochuerWhatsappconfig'])->name('select2.vochers_whatsapp_config');
+    Route::get('magento-frontend/category', [Select2Controller::class, 'magentoCreateFromCategory'])->name('select2.magento-frontend-category');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');

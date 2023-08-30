@@ -135,7 +135,7 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">
-                Magento Documentation<span id="total-count"></span>
+                Magento FrontEnd Documentation<span id="total-count"></span>
             </h2>
             <form method="POST" action="#" id="dateform">
 
@@ -201,7 +201,7 @@
 
                     <div class="pull-right pr-5">
                         <button type="button" class="btn btn-secondary" data-toggle="modal"
-                            data-target="#create-magento-frontend-docs"> Magento Module Create </button>
+                            data-target="#create-magento-frontend-docs"> Create Magento FrontEnd Documentation </button>
                     </div>
                 </div>
             </form>
@@ -224,7 +224,7 @@
                         <th width="10%"> Frontend configuration </th>    
                         <th width="10%"> File Name </th>   
                         <th width="10%"> Updated by </th>   
-                        <th width="10%"> Created At </th>   
+                        <th width="6%"> Created At </th>   
                         <th> Action </th>              
                     </tr>
                 </thead>
@@ -293,11 +293,16 @@
 
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
+    @include('magento-frontend-documentation.location-list')
+    @include('magento-frontend-documentation.front-list-history')
+    @include('magento-frontend-documentation.admin-list-history')
     @include('magento-frontend-documentation.magento-frontend-history')
     @include('magento-frontend-documentation.partials.magento-frontend-category-history')
     @include('magento-frontend-documentation.partials.magento-frontend-parent-folder-history')
     @include('magento-frontend-documentation.partials.child-folder-image')
     @include('magento-frontend-documentation.partials.magento-frontend-child-folder-history')
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
@@ -458,42 +463,67 @@
                         data: 'location',
                         name: 'magento_frontend_docs.location',
                         render: function(data, type, row, meta) {
-                            var status_array = ['Disabled', 'Enable'];
-                            data=(data == null) ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex  items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`;
-                            return data;
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-location-remark" data-type="location" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt=""> </button>`;
+
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
+
+                                return `<div class="flex justify-left items-center" style="position: relative;">
+                                                            ${datas} ${remark_history_button}
+                                        </div>`;
                         }
                     },
                     {
                         data: 'admin_configuration',
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
-                            if (data !== null) {
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-admin-remark" data-type="AdminConfig" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                           
+                                if (data !== null) {
                                 admin_Config= data.length > 30 ? data.substring(0, 30) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
+                            let table = `<td class="expand-row" style="word-break: break-all">
                                        <div class="expand-row" style="word-break: break-all">
                                         <span class="td-mini-container">${admin_Config}</span>
                                         <span class="td-full-container hidden">${data}</span>
                                         </div>
                                     </td>`;
+
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                                        ${table} ${remark_history_button}
+                                    </div>`;
                         }
                     },
                     {
                         data: 'frontend_configuration',
                         name: 'magento_frontend_docs.frontend_configuration',
                         render: function(data, type, row, meta) {
+
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-frontnend-remark" data-type="FrontEndConfig" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
                             var shortJobName = '';
                             if (data !== null) {
                                 shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
+                            let table = `<td class="expand-row" style="word-break: break-all">
                                 <div class="expand-row" style="word-break: break-all">
                                         <span class="td-mini-container">${shortJobName}</span>
                                         <span class="td-full-container hidden">${data}</span>
                                 </div>
                                     </td>`;
+
+                    
+                                return `<div class="flex justify-left items-center" style="position: relative;">
+                                                        ${table} ${remark_history_button}
+                                    </div>`;
                         }
                     },
                     {
@@ -555,19 +585,25 @@
                         data: 'created_at',
                         name: 'magento_frontend_docs.created_at',
                         render: function(data, type, row, meta) {
-                            var date = '';
+                            var formattedDate = '';
+                            
                             if (data !== null) {
-                                date = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                var dateObject = new Date(data);  // Assuming 'data' is in a valid date format
+                                var year = dateObject.getFullYear();
+                                var month = String(dateObject.getMonth() + 1).padStart(2, '0');  // Months are zero-based
+                                var day = String(dateObject.getDate()).padStart(2, '0');
+                                
+                                formattedDate = `${year}-${month}-${day}`;
                             }
-
                             return `<td class="expand-row" style="word-break: break-all">
                                 <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${date}</span>
-                                        <span class="td-full-container hidden">${data}</span>
+                                    <span class="td-mini-container">${formattedDate}</span>
+                                    <span class="td-full-container hidden">${formattedDate}</span>
                                 </div>
-                                    </td>`;
-                         }
+                            </td>`;
+                        }
                     },
+
                     {
                         render: function(data, type, row, meta) {
 
@@ -654,6 +690,139 @@
             });
         }
 
+        $(document).on('click', '.load-location-remark', function() {
+            var id = $(this).attr('data-id');
+            var location = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-location-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    location:location,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.location;
+                            old_location = v.old_location;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${location}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#location-magneto-frontend-list").find(".location-magnetolist-view").html(html);
+                        $("#location-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on('click', '.load-admin-remark', function() {
+            var id = $(this).attr('data-id');
+            var admin = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-admin-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    admin:admin,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.admin_configuration;
+                            old_location = v.old_admin_configuration;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${remarkText}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#admin-magneto-frontend-list").find(".admin-magnetolist-view").html(html);
+                        $("#admin-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on('click', '.load-frontnend-remark', function() {
+            var id = $(this).attr('data-id');
+            var admin = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-frontend-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    admin:admin,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.old_admin_configuration;
+                            old_location = v.frontend_configuration;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${remarkText}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                    </tr>`;
+                        });
+                        $("#frontend-magneto-frontend-list").find(".frontend-magnetolist-view").html(html);
+                        $("#frontend-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
 
@@ -682,8 +851,8 @@
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
-                        $("#remark-magneto-frontend-list").find(".remark-magnetolist-view").html(html);
-                        $("#remark-magneto-frontend-list").modal("show");
+                        $("#frontend-magneto-frontend-list").find(".frontend-magnetolist-view").html(html);
+                        $("#frontend-magneto-frontend-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
@@ -716,6 +885,8 @@
             $("#magento_module_edit_form #location").val(response.data.location);
             $("#magento_module_edit_form #admin_configuration").val(response.data.admin_configuration);
             $("#magento_module_edit_form #frontend_configuration").val(response.data.frontend_configuration);
+            $("#magento_module_edit_form #parent_folder").val(response.data.parent_folder);
+            $("#magento_module_edit_form #child_folder").val(response.data.child_folder);
             $("#magento_module_edit_form #filename").val(response.data.child_folder_image);
 			var image = "/magentofrontend-child-image/" + response.data.child_folder_image; 
 			$('#magento_module_edit_form #filename').attr('src', image);

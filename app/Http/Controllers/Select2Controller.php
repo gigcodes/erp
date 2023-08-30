@@ -829,4 +829,33 @@ class Select2Controller extends Controller
 
         return response()->json($result);
     }
+
+    public function magentoCreateFromCategory(Request $request)
+    {
+        $magnetoCategories =  \App\SiteDevelopmentCategory::wherenotNull('title')->get()->pluck('id', 'title');
+
+        if (! empty($request->q)) {
+            $magnetoCategories->where(function ($q) use ($request) {
+                $q->where('title', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $result = [];
+
+        if (empty($magnetoCategories)) {
+            $result['items'][] = [
+                'id' => '',
+                'text' => 'categories not available',
+            ];
+        } else {
+            foreach ($magnetoCategories as $key => $email) {
+                $result['items'][] = [
+                    'id' => $email,
+                    'text' => $key,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
 }

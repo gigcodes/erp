@@ -61,6 +61,8 @@ class MagentoFrontendDocumentationController extends Controller
         $magentofrontenddoc->location = $request->location;
         $magentofrontenddoc->admin_configuration = $request->admin_configuration;
         $magentofrontenddoc->frontend_configuration = $request->frontend_configuration;
+        $magentofrontenddoc->parent_folder = $request->parent_folder;
+        $magentofrontenddoc->child_folder  = $request->child_folder;
         $magentofrontenddoc->read = $request->read ? implode(',', $request->read) : null;
         $magentofrontenddoc->write = $request->write ? implode(',', $request->write) : null;
         $magentofrontenddoc->save();
@@ -96,6 +98,26 @@ class MagentoFrontendDocumentationController extends Controller
         $magnetohistory->frontend_configuration = $request->frontend_configuration;
         $magnetohistory->updated_by = \Auth::id();
         $magnetohistory->save();
+
+        if($request->child_folder)
+        { 
+            $magentofrontendremark = new MagentoFrontendChildFolder();
+            $magentofrontendremark->magento_frontend_docs_id = $magentofrontenddoc->id;
+            $magentofrontendremark->child_folder_name = $request->child_folder;
+            $magentofrontendremark->user_id = \Auth::id();
+            $magentofrontendremark->save();
+
+        }
+
+        if($request->parent_folder)
+        {
+            $magentofrontendremark = new MagentoFrontendParentFolder();
+            $magentofrontendremark->magento_frontend_docs_id = $magentofrontenddoc->id;;
+            $magentofrontendremark->parent_folder_name = $request->parent_folder;
+            $magentofrontendremark->user_id = \Auth::id();
+            $magentofrontendremark->save();
+        }
+       
 
         return response()->json([
             'status' => true,
@@ -133,6 +155,44 @@ class MagentoFrontendDocumentationController extends Controller
         ], 200);
     }
 
+    public function magentoLocationget(Request $request)
+    {
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('location_type',$request->location)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    
+    public function magentoFrontend(Request $request)
+    {
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('frontend_type',$request->admin)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentoAdminget(Request $request)
+    {
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('admint_type',$request->admin)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    
     public function magentofrontendEdit($id)
     {
         $magento_module = MagentoFrontendDocumentation::find($id);
@@ -176,9 +236,15 @@ class MagentoFrontendDocumentationController extends Controller
     public function magentofrontendUpdate(Request $request)
     {
         $oldData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
+        $oldlocation =$oldData->location;
+        $oldAdminConfig =$oldData->admin_configuration;
+        $oldFrontEndConfig =$oldData->frontend_configuration;
+
         $oldData->location = $request->location;
         $oldData->admin_configuration = $request->admin_configuration;
         $oldData->frontend_configuration = $request->frontend_configuration;
+        $oldData->child_folder = $request->child_folder;
+        $oldData->parent_folder = $request->parent_folder;
         $oldData->save();
 
         if ($request->hasFile('child_folder_image')) {
@@ -203,8 +269,31 @@ class MagentoFrontendDocumentationController extends Controller
         $magnetohistory->frontend_configuration = $request->frontend_configuration;
         $magnetohistory->frontend_configuration = $request->frontend_configuration;
         $magnetohistory->updated_by = \Auth::id();
-        $magnetohistory->save();
+       
+        if ($oldlocation != $request->location)
+        {
+            $magnetohistory->old_location = $oldlocation;
+            $magnetohistory->location_type = "location";
+            $magnetohistory->save();
+        }
 
+         
+        if ($oldAdminConfig != $request->admin_configuration)
+        {
+            $magnetohistory->old_admin_configuration = $oldAdminConfig;
+            $magnetohistory->admint_type = "AdminConfig";
+            $magnetohistory->save();
+        }
+
+        if ($oldFrontEndConfig != $request->frontend_configuration)
+        {
+            $magnetohistory->old_frontend_configuration = $oldAdminConfig;
+            $magnetohistory->frontend_type = "FrontEndConfig";
+            $magnetohistory->save();
+        }
+
+        $magnetohistory->save();
+     
         return response()->json([
             'status' => true,
             'message' => 'Updated successfully',
