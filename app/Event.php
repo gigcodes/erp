@@ -30,10 +30,13 @@ class Event extends Model
 
     const ASSET = 'AS';
 
+    const VIRTUALMINDOMAIN = 'VD';
+
     public static $eventTypes = [
         self::PRIVATE => 'Private',
         self::PUBLIC => 'Public',
         self::ASSET => 'Assets',
+        self::VIRTUALMINDOMAIN => 'Virtualmin Domain',
     ];
 
     public function user()
