@@ -896,7 +896,15 @@ class UicheckController extends Controller
         try {
             if ($single = Uicheck::find(request('id'))) {
                 $key = request('type') == 'developer' ? 'lock_developer' : 'lock_admin';
-                $single->updateElement($key, $single->$key ? 0 : 1);
+                // $single->updateElement($key, $single->$key ? 0 : 1);
+                // Have to update the lock status for separate user wise. So the above code hide. 
+                // Below logic is - It will lock uicheck in user wise.
+                $uicheckUserAccess = UicheckUserAccess::where('uicheck_id', request('id'))->where('user_id', request('user_accessable_user_id'))->first();
+                if ($uicheckUserAccess) {
+                    $uicheckUserAccess->$key = $uicheckUserAccess->$key ? 0 : 1;
+                    $uicheckUserAccess->save();
+                }
+
 
                 return respJson(200, 'Record updated successfully.', []);
             }
@@ -1284,14 +1292,14 @@ class UicheckController extends Controller
             if ($isAdmin) {
                 if ($request->show_inactive == 'inactive') {
                     $show_inactive = 1;
-                    $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 1);
+                    $uiDevDatas = $uiDevDatas->where('uua.lock_developer', 1);
                 } elseif ($request->show_inactive == 'active') {
-                    $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
+                    $uiDevDatas = $uiDevDatas->where('uua.lock_developer', 0);
                 }
             // otherwise show all.
             } else {
                 // Non admin user - Show only lock = 0 records
-                $uiDevDatas = $uiDevDatas->where('uic.lock_developer', 0);
+                $uiDevDatas = $uiDevDatas->where('uua.lock_developer', 0);
             }
 
             if ($request->status != '') {
@@ -1331,12 +1339,12 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where('ui_devices.user_id', $request->user);
             }
 
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 'uic.lock_developer',
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 'uua.lock_developer',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'),
                 'u.id AS user_accessable_user_id', // New - Separate row for every user
                 'u.name AS user_accessable' // New - Separate row for every user
                 // DB::raw('GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable') // Old
-            )->orderBy('uic.id', 'DESC')->groupBy(['ui_devices.uicheck_id', 'u.id'])->paginate(30);
+            )->orderBy('ui_devices.id', 'DESC')->groupBy(['ui_devices.uicheck_id', 'u.id'])->paginate(30);
 
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
@@ -2056,6 +2064,7 @@ class UicheckController extends Controller
             UicheckUserAccess::create([
                 'user_id' => $userId ?? 0,
                 'uicheck_id' => $uicheck->id,
+                'lock_developer' => 1, // By default we have to lock for developer - New requirement.
             ]);
         } catch (\Exception $e) {
         }
