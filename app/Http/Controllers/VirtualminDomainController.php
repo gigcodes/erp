@@ -108,6 +108,32 @@ class VirtualminDomainController extends Controller
         }
     }
 
+    public function updateDates()
+    {
+        if ($new = request('value')) {
+            try {
+                if ($virtualminDomain = VirtualminDomain::find(request('domain_id'))) {
+                    if (request('column_name') == 'start_date') {
+                        $virtualminDomain->start_date = $new;
+                    }
+                    if (request('column_name') == 'expiry_date') {
+                        $virtualminDomain->expiry_date = $new;
+                    }
+
+                    $virtualminDomain->save();
+
+                    return respJson(200, 'Successfully updated.');
+                }
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
+            }
+
+            return respJson(404, 'No data found.');
+        }
+
+        return respJson(400, 'Value is required.');
+    }
+
     public function domainShow(Request $request)
     {
         $perPage = 5;

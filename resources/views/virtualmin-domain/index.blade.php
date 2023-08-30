@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="{{asset('css/bootstrap-datetimepicker.min.css')}}">
+@endsection
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -54,6 +57,8 @@
                             <th width="5%">ID</th>
                             <th width="10%">Name</th>
                             <th width="20%">Status</th>
+                            <th width="20%">Start Date</th>
+                            <th width="20%">Expiry Date</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($domains as $key => $domain)
@@ -74,6 +79,24 @@
                                     <span class="td-full-container hidden">
                                         {{ $domain->is_enabled_text }}
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="form-group d-flex">
+                                        <div class='input-group date start-date virtualmin-date-time-pickers'>
+                                            <input type="text" class="form-control" name="start_date-{{$domain->id}}" value="{{$domain->start_date}}" autocomplete="off" />
+                                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                        </div>
+                                        <div style="max-width: 30px;"><button class="btn btn-sm btn-image" title="Start Date" onclick="funUpdateDates('start_date', {{$domain->id}})"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group d-flex">
+                                        <div class='input-group date expiry-date virtualmin-date-time-pickers'>
+                                            <input type="text" class="form-control" name="expiry_date-{{$domain->id}}" value="{{$domain->expiry_date}}" autocomplete="off" />
+                                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                        </div>
+                                        <div style="max-width: 30px;"><button class="btn btn-sm btn-image" title="Expiry Date" onclick="funUpdateDates('expiry_date', {{$domain->id}})"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                    </div>
                                 </td>
                                 <td>
                                     @if ($domain->is_enabled === 0)
@@ -143,11 +166,44 @@
         </div>
     </div>
 </div>
+@endsection
 
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        
-    })
+    jQuery(document).ready(function() {
+        applyDateTimePicker(jQuery('.virtualmin-date-time-pickers'));
+    });
+
+    function applyDateTimePicker(eles) {
+        if (eles.length) {
+            eles.datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss',
+                sideBySide: true,
+            });
+        }
+    }
+
+    function funUpdateDates(type,id) {
+        if (confirm('Are you sure, do you want to update?')) {
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('virtualmin.domains.update-dates') }}",
+                type: 'POST',
+                data: {
+                    domain_id: id,
+                    column_name: type,
+                    value: $('input[name=' + type + '-' + id + ']').val(),
+                }
+            }).done(function(res) {
+                siteSuccessAlert(res);
+            }).fail(function(err) {
+                siteErrorAlert(err);
+            });
+        }
+    }
 
     function Showactionbtn(id) {
         $(".action-btn-tr-" + id).toggleClass('d-none')

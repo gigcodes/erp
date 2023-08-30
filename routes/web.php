@@ -1387,6 +1387,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::prefix('virtualmin')->middleware('auth')->group(static function () {
         Route::get('/domains', [VirtualminDomainController::class, 'index'])->name('virtualmin.domains');
         Route::get('/domains/sync', [VirtualminDomainController::class, 'syncDomains'])->name('virtualmin.domains.sync');
+        Route::post('/domains/update-dates', [VirtualminDomainController::class, 'updateDates'])->name('virtualmin.domains.update-dates');
         Route::get('/domains/{id}/enable', [VirtualminDomainController::class, 'enableDomain'])->name('virtualmin.domains.enable');
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
