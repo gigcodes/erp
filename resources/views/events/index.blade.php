@@ -89,7 +89,7 @@
                     </thead>
                     <tbody>
                         @foreach ($events as $event)
-                            <tr>
+                            <tr style="background-color: {{$event->statuscolor?->color}}";>
                                 <td> {{ $event->name }} </td>
                                 <td> {{ $event->event_type == "PU" ? "Public" : "Private"}} </td>
                                 <td class="expand-row"> 
@@ -117,7 +117,16 @@
                                       </div>
                                     </div>
                                   </td>
-                                <td> - </td>
+                                <td>  
+                                    <select name="status" id="status" class="form-control"  onchange="statusEventsChange(this)" data-id="{{$event->id}}"  data-type="event">
+                                        <option  Value="">Select Status</option>
+                                        @foreach ($todolistStatus as $todolistStat)
+                                        <option  Value="{{$todolistStat->id}}"   @if($event->statuscolor?->id == $todolistStat->id)
+                                            selected
+                                        @endif>{{$todolistStat->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
                                 <td>
                                     <i class="fa fa-calendar reschedule-event" data-id="{{ $event->id }}"></i>
                                     <i class="fa fa-trash fa-trash-bin-record" data-id="{{ $event->id }}"></i>
@@ -128,7 +137,7 @@
                             </tr>
                         @endforeach()
                         @foreach ($todoLists as $todoList)
-                        <tr>
+                        <tr style="background-color: {{$todoList->color?->color}}";>
                             <td> {{ $todoList->title }} </td>
                             <td> Todo List</td>
                             <td class="expand-row"> 
@@ -152,11 +161,14 @@
                                 </div>
                               </td>
                             <td>
-                                <select name="status" id="status" class="form-control" onchange="statusChange({{$todoList->id}}, this.value)" data-id="{{$todoList->id}}">
-                                    <option>--Select--</option>
-                                      <option value="{{$todo->id}}"> Completed</option>
-                                  </select>
-
+                                <select name="status" id="status" class="form-control"  onchange="statusEventsChange(this)" data-id="{{$todoList->id}}"  data-type="todo">
+                                    <option  Value="">Select Status</option>
+                                    @foreach ($todolistStatus as $todolistStat)
+                                    <option  Value="{{$todolistStat->id}}"  @if($todoList->color?->id == $todolistStat->status)
+                                        selected
+                                    @endif>{{$todolistStat->name}}</option>
+                                    @endforeach
+                                </select>
                             </td>
                             <td> - </td>
                         </tr>
@@ -430,14 +442,18 @@
         });
     });
 
-    function statusChange(id, xvla) {
+    function statusEventsChange(selectElement) {
+        var event_id = selectElement.getAttribute('data-id');
+        var event_type = selectElement.getAttribute('data-type');
+        var selectedValue = selectElement.value; 
             $.ajax({
                 type: "POST",
-                url: "{{ route('todolist.status.update') }}",
+                url: "{{ route('allevents.status.update') }}",
                 data: {
                     "_token": "{{ csrf_token() }}",
-                    "id": id,
-                    "status":xvla
+                    "id": event_id,
+                    "status":selectedValue,
+                    "type":event_type,
                 },
                 dataType: "json",
                 success: function(message) {

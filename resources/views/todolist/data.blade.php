@@ -9,7 +9,7 @@
 
           @foreach ($todolists as $todolist)
 
-            <tr>
+            <tr style="background-color: {{$todolist->color?->color}}";>
 			        <td>{{ $todolist->id ?? '' }}</td>
              <td>{{ $todolist->title ?? '' }}</td>
              <td>{{ $todolist->subject ?? '' }}</td>

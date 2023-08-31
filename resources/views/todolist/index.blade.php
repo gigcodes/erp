@@ -382,6 +382,10 @@
                                 <div class="alert alert-danger">{{ $errors->first('status_name') }}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Color:</strong>
+                            <input type="color" name="status_color" class="form-control" value="{{ old('status_color') }}">
+                        </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

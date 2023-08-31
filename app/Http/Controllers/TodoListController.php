@@ -195,6 +195,7 @@ class TodoListController extends Controller
         try {
             $todoStatus = new TodoStatus();
             $todoStatus->name = $request->status_name;
+            $todoStatus->color = $request->status_color;
             $todoStatus->save();
 
             return redirect()->back()->with('success', 'Your Todo status has been Added!');
