@@ -17,6 +17,8 @@ class VirtualminDomain extends Model
     protected $fillable = [
         'name',
         'is_enabled',
+        'start_date',
+        'expiry_date'
     ];
 
     protected $appends = ['is_enabled_text'];

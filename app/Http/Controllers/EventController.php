@@ -18,6 +18,7 @@ use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use App\ToDoListRemarkHistoryLog;
 use App\Models\EventRemarkHistory;
+use App\VirtualminDomain;
 use Illuminate\Support\Collection;
 
 class EventController extends Controller
@@ -545,7 +546,34 @@ class EventController extends Controller
             }
         }
 
-        $merged = $eventSchedules->concat($userPrivateEventCollection)->concat($myAssets);
+        // Virtualmin Domain Expiry 
+        $virtualminDomainCollections = new Collection();
+        if ($admin) {
+            $virtualminDomains = VirtualminDomain::whereNotNull('expiry_date')
+                ->where(function ($query) use ($start, $end) {
+                    $query->WhereBetween('expiry_date', [$start, $end]);
+                })
+                ->get();
+
+            $cStartDate = Carbon::parse($start);
+            $cEndDate = Carbon::parse($end);
+            foreach ($virtualminDomains as $virtualminDomain) {
+                $cDueDate = Carbon::parse($virtualminDomain->expiry_date);
+                if (($cDueDate->month == $cStartDate->month && $cDueDate->year == $cStartDate->year)) {
+                    $virtualminDomainCollections->push((object) [
+                        'virtualmin_domain_id' => $virtualminDomain->id,
+                        'subject' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
+                        'title' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
+                        'description' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
+                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'event_type' => 'VD',
+                    ]);
+                }
+            }
+        }
+
+        $merged = $eventSchedules->concat($userPrivateEventCollection)->concat($myAssets)->concat($virtualminDomainCollections);
 
         return response()->json($merged);
     }
