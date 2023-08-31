@@ -165,10 +165,6 @@ class EventController extends Controller
             $errors['email_from_address'][] = 'From email is required';
         }
 
-        if (! empty($errors)) {
-            return response()->json($errors, 400);
-        }
-
         if ($vendorId === null) {
             if (empty(trim($vendorCategoryId))) {
                 $errors['vendor_category_id'][] = 'Vendor catagory is required';
@@ -177,26 +173,21 @@ class EventController extends Controller
             if (empty(trim($vendorName))) {
                 $errors['vendor_name'][] = 'name is required';
             }
+        }
 
-            if (empty(trim($vendorEmail))) {
-                $errors['vendor_email'][] = 'email is required';
-            }
+        if (! empty($errors)) {
+            return response()->json($errors, 400);
+        }
 
-            if (empty(trim($vendorPhone))) {
-                $errors['vendor_phone'][] = 'Phone Number is required';
-            }
-
-            if (! empty($errors)) {
-                return response()->json($errors, 400);
-            }
-
+        if($eventcategoryId & $vendorName)
+        {
             $vendor = new Vendor();
             $vendor->category_id = $vendorCategoryId;
             $vendor->name = $vendorName;
             $vendor->email = $vendorEmail;
             $vendor->phone = $vendorPhone;
             $vendor->save();
-
+    
             $vendorId = $vendor->id;
         }
 

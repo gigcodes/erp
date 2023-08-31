@@ -1,8 +1,8 @@
-<div id="magneto-frontend-historylist" class="modal fade" role="dialog">
+<div id="admin-magneto-frontend-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Magento FronrEnd History</h4>
+                <h4 class="modal-title">Admin History</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -11,14 +11,15 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="10%">No</th>
-                                <th width="25%">Location</th>
-                                <th width="25%">Admin Configuration</th>
-                                <th width="25%">Frontend Configuration</th>
-                                <th width="25%">Updated By</th>                   
+                                <th width="5%">No</th>
+                                <th width="25%">Old admin</th>
+                                <th width="25%">New admin</th>
+                                <th width="25%">Updated BY</th>
+                                <th width="25%">Created Date</th>
+                                <th width="5%">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="magneto-historylist-view">
+                        <tbody class="admin-magnetolist-view">
                         </tbody>
                     </table>
                 </div>

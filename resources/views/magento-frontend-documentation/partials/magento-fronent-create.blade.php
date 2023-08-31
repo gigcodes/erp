@@ -13,20 +13,10 @@
                 <div class="modal-body">
                     <div class="col-sm-12">
                         <div class="form-group">
-                            <label>category</label>
-                            <select class="form-control select-multiple" id="category-select"
-                                name="magento_docs_category_id" required>
-                                @php
-                                    $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')
-                                        ->wherenotNull('title')
-                                        ->get();
-                                @endphp
-
-                                <option value="">Select Category</option>
-                                @foreach ($storecategories as $storecategory)
-                                    <option value="{{ $storecategory->id }}">{{ $storecategory->title }}</option>
-                                @endforeach
-                            </select>
+                            <div class="form-group">
+                                {!! Form::label('magento_docs_category_id', 'Category', ['class' => 'form-control-label']) !!}
+                                <?php echo Form::select("magento_docs_category_id",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.magento-frontend-category'), 'data-placeholder' => 'Add Categories']); ?>
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-12">
@@ -58,6 +48,26 @@
                                 'id' => 'frontend_configuration',
                                 'placeholder' => 'Magento Frontend configuration',
                                 'class' => 'form-control frontend_configuration',
+                            ]) !!}
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Parent Folder</label>
+                            {!! Form::text('parent_folder', null, [
+                                'id' => 'parent_folder',
+                                'placeholder' => 'Parent Folder',
+                                'class' => 'form-control parent_folder',
+                            ]) !!}
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Child Folder</label>
+                            {!! Form::text('child_folder', null, [
+                                'id' => 'child_folder',
+                                'placeholder' => 'Child Folder',
+                                'class' => 'form-control child_folder',
                             ]) !!}
                         </div>
                     </div>
@@ -145,12 +155,8 @@
                 button.removeClass('disabled');
             },
             success: function(data) {
-                // $('#moduleCreateModal #magento_module_form').trigger('reset');
-                // $('#moduleCreateModal #magento_module_form').find('.error-help-block').remove();
-                // $('#moduleCreateModal #magento_module_form').find('.invalid-feedback').remove();
-                // $('#moduleCreateModal #magento_module_form').find('.alert').remove();
-                $('#magento-frontend-create').modal('hide');
-                // oTable.draw();
+                $('#moduleCreateModal #magento_module_form').trigger('reset');
+                $('#create-magento-frontend-docs').modal('hide');
                 toastr["success"](data.message);
             },
             error: function(xhr, status, error) { // if error occured
