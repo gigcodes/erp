@@ -45,6 +45,7 @@ class EventController extends Controller
         $todoLists = [];
         $todo = [];
 
+        $todolistStatus = TodoStatus::get();
         $requestData = $request->all();
 
         if (! empty($requestData)) {
@@ -73,11 +74,17 @@ class EventController extends Controller
             }
             if ($request->search_event_type == 'ToDo') {
                 $todo = TodoStatus::where('name', '=', 'Completed')->first();
-                $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
+                if($todo)
+                {
+                    $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
+                }
             }
         } else {
             $todo = TodoStatus::where('name', '=', 'Completed')->first();
-            $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
+            if($todo)
+            {
+                $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
+            }
         }
 
         $events = $events->latest()->paginate(25);
@@ -88,7 +95,7 @@ class EventController extends Controller
             ], 200);
         }
 
-        return view('events.index', compact('events', 'todoLists', 'todo'));
+        return view('events.index', compact('events', 'todoLists', 'todo','todolistStatus'));
     }
 
     public function store(Request $request)
@@ -859,5 +866,27 @@ class EventController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
+    }
+
+    public function statusUpdate(Request $request)
+    {
+        $event = [];
+        $todolists = [];
+
+        if($request->type == "todo")
+        {
+            $todolists = TodoList::findorfail($request->id);
+            $todolists->status = $request->status;
+            $todolists->save();
+        }
+     
+        if($request->type == "event")
+        {
+            $event = Event::findorfail($request->id);
+            $event->status = $request->status;
+            $event->save();
+        }
+
+        return response()->json(['code' => 200, 'todo' => $todolists,'event' => $event ,'message' => 'YourStatus has been Updated Succeesfully!']);
     }
 }

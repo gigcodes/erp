@@ -50,12 +50,12 @@ class TodoListController extends Controller
             //dd($statuses);
             if ($request->ajax()) {
                 return response()->json([
-                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories'))->render(),
+                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories','statuses'))->render(),
                     'links' => (string) $todolists->render(),
                 ], 200);
             }
 
-            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories'));
+            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories','statuses'));
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
@@ -195,6 +195,7 @@ class TodoListController extends Controller
         try {
             $todoStatus = new TodoStatus();
             $todoStatus->name = $request->status_name;
+            $todoStatus->color = $request->status_color;
             $todoStatus->save();
 
             return redirect()->back()->with('success', 'Your Todo status has been Added!');
@@ -236,5 +237,18 @@ class TodoListController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
+    }
+
+    public function StatusColorUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = TodoStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

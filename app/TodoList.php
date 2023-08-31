@@ -19,4 +19,9 @@ class TodoList extends Model
     {
         return $this->hasOne(TodoCategory::class, 'id', 'todo_category_id');
     }
+
+    public function color()
+    {
+        return $this->belongsTo(TodoStatus::class, 'status');
+    }
 }

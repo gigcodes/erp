@@ -4436,6 +4436,7 @@ Route::middleware('auth')->group(function () {
     Route::post('event/add/remark', [EventController::class, 'addEventsRemarks'])->name('event.remark.add');
     Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
+    Route::post('/status/update', [EventController::class, 'statusUpdate'])->name('allevents.status.update');
 });
 
 Route::prefix('calendar/public')->group(function () {
@@ -5326,6 +5327,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
     Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
+    Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-update');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
@@ -5531,6 +5533,7 @@ Route::get('/update-is-resolved', [DatabaseBackupMonitoringController::class, 'u
 Route::post('database/backup/store-status', [DatabaseBackupMonitoringController::class, 'storeDbStatus'])->name('db-store-status');
 Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
 Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
+
 
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');

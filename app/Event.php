@@ -44,6 +44,11 @@ class Event extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function statuscolor()
+    {
+        return $this->belongsTo(TodoStatus::class, 'status');
+    }
+
     public function eventAvailabilities()
     {
         return $this->hasMany(\App\EventAvailability::class);
