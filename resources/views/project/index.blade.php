@@ -10,9 +10,11 @@
                     <form action="{{ route('project.index') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-4 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
+                                <h5> Search Keywords </h5>
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
                             <div class="col-md-4">
+                                <h5> Search Projects </h5>
                                 <?php 
 									if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
 									else{ $store_websites_search = []; }
@@ -26,7 +28,7 @@
 								</select>
                             </div>
                             
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
+                            <div class="col-md-4 pd-sm pl-0 mt-2"><br><br>
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
