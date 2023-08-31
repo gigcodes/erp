@@ -9,6 +9,7 @@ use App\Helpers\GithubTrait;
 use Illuminate\Http\Request;
 use App\BuildProcessErrorLog;
 use App\Models\ProjectServerenv;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
@@ -550,9 +551,39 @@ class ProjectController extends Controller
     {
         $buildProcessErrorLogs = BuildProcessErrorLog::with('project');
 
+        if ($request->search_branch) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->where('github_branch_state_name', 'LIKE', '%' . $request->search_branch . '%');
+        }
+        if ($request->error_code) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->where('error_code', 'LIKE', '%' . $request->error_code . '%');
+        }
+        if ($request->error_msg) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->where('error_message', 'LIKE', '%' . $request->error_msg . '%');
+        }
+        if ($request->project_search) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->WhereIn('project_id', $request->project_search);
+        }
+        if ($request->orgs) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->WhereIn('github_organization_id', $request->orgs);
+        }
+        if ($request->repos) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->WhereIn('github_repository_id', $request->repos);
+        }
+        if ($request->usersIds) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->WhereIn('user_id', $request->usersIds);
+        }
+        if ($request->date) {
+            $buildProcessErrorLogs = $buildProcessErrorLogs->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
         $buildProcessErrorLogs = $buildProcessErrorLogs->orderBy('id', 'desc')->paginate(10);
 
-        return view('project.build-process-error-logs', compact('buildProcessErrorLogs'));
+        $projects = Project::all();
+        $organizations = \App\Github\GithubOrganization::All();
+        $repositories = \App\Github\GithubRepository::All();
+        $users = User::All();
+
+        return view('project.build-process-error-logs', compact('buildProcessErrorLogs','projects','organizations','repositories','users'));
     }
 
     // New concept in page
