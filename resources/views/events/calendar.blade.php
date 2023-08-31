@@ -9,8 +9,7 @@
 <link rel="stylesheet" href="{{ URL::asset('css/user-calendar.css') }}" />
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css"> 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.css">
+
 
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -122,16 +121,10 @@
         color: white!important;
         border: 1px solid #6c757d;
     }
-    .duration .select2-container, .date-range-type .select2-container  {
-        display: block;
-    }
     .fc-unthemed td.fc-today {
         background: #f1f1f1;
     }
 
-    .event-type-label {
-        display: contents
-    }
     .fc-disabled-day {
         visibility:hidden;
     }
@@ -154,8 +147,6 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.js"></script> 
-<script src="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.js"></script>
 
 <script>
     let calendar;
@@ -359,39 +350,6 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
         $('input.timepicker').timepicker({}); 
         $('.event-dates').datetimepicker({
             format: 'YYYY-MM-DD'
-        });
-
-
-        $(document).on("submit", "#create-event-submit-form", function(e) {
-            e.preventDefault();
-            var $form = $(this).closest("form");
-            $.ajax({
-                type: "POST",
-                url: $form.attr("action"),
-                data: $form.serialize(),
-                dataType: "json",
-                beforeSend: function() {
-                 $("#loading-image-preview").show();
-                },
-                success: function(data) {
-                    if (data.code == 200) {
-                        $("#loading-image-preview").hide();
-                        $form[0].reset();
-                        $("#create-event-modal").modal("hide");
-                        toastr['success'](data.message, 'Message');
-                        location.reload();
-                    } else {
-                        toastr['error'](data.message, 'Message');
-                        $("#loading-image-preview").hide();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var errors = xhr.responseJSON;
-                    $.each(errors, function(key, val) {
-                        $("#create-event-submit-form " + "#" + key + "_error").text(val[0]);
-                    });
-                }
-            });
         });
     });
 </script>

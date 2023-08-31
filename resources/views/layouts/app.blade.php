@@ -221,7 +221,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
       max-height: 500px; /* Maximum height for the scrollable area */
       overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
     }
-
+   
+    .duration .select2-container, .date-range-type .select2-container  {
+        display: block;
+    }
+    .event-type-label {
+        display: contents
+    }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
@@ -326,8 +332,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.css"> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.css">
     @yield("styles")
     <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/timepicker@1.14.0/jquery.timepicker.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: '{{env('FCM_API_KEY')}}',
@@ -487,6 +497,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         background-color: yellow;
     }
 
+     /* .duration .select2-container, .date-range-type .select2-container  {
+        display: block;
+    } */
     </style>
     @stack("styles")
 </head>
@@ -7902,8 +7915,119 @@ if (!\Auth::guest()) {
     });
 
     $(document).on('click','#create_event',function(e){
-        e.preventDefault();
+        e.preventDefault();     
+        $('.select2').select2();
         $('#create-event-modal').modal('show');
+
+        var days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+        function updateDayRows(startDate, endDate) {
+            $('.day-row').hide();
+
+        var currentDate = new Date(startDate);
+
+            while (currentDate <= endDate) {
+                var currentDay = currentDate.getDay();
+                $('.' + days[currentDay]).show();
+                
+                // Move to the next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        function updateDayRowsWithEndDate(startDate, endDate) {
+            $('.day-row').hide();
+            var currentDay = startDate.getDay();
+            var lastDay = endDate.getDay();
+
+            for (var i = currentDay; i <= lastDay; i++) {
+                $('.' + days[i]).show();
+            }
+        }
+
+        function showAdditionalElements() {
+            $('.day-row, .clockpicker').show();
+        }
+
+        $('#event-start-date, #event-end-date').on('change', function() {
+            var startDate = new Date($('#event-start-date').val());
+            var endDate = new Date($('#event-end-date').val());
+            updateDayRows(startDate, endDate);
+        });
+
+        $('select[name="date_range_type"]').on('change', function() {
+            if ($(this).val() == 'within') {
+                $('#end-date-div').removeClass('hide');
+                var startDate = new Date($('#event-start-date').val());
+                var endDate = new Date($('#event-end-date').val());
+                updateDayRowsWithEndDate(startDate, endDate);
+            } else {
+                $('#end-date-div').addClass('hide');
+                var startDate = new Date($('#event-start-date').val());
+                updateDayRows(startDate, startDate);
+                showAdditionalElements(); // Hide additional elements
+            }
+        });
+
+        // Initialize day rows based on current day
+        var currentDay = new Date().getDay();
+        $('.day-row').hide();
+        $('.' + days[currentDay]).show();
+
+        $('.clockpicker').on('change', function() {
+            var startInput = $(this).closest('tr').find('.clockpicker[name$="[start_at]"]');
+            var endInput = $(this).closest('tr').find('.clockpicker[name$="[end_at]"]');
+            var selectedDuration = parseInt($('#event-duration').val()); // Get selected duration in minutes
+
+            if (startInput.val()) {
+                var start = moment(startInput.val(), 'HH:mm');
+                // var duration = moment.duration(durationSelect.val(), 'minutes');
+                var duration = moment.duration(selectedDuration, 'minutes');
+
+                var end = start.clone().add(duration);
+
+                endInput.val(end.format('HH:mm'));
+            }
+        });
+
+        $('.clockpicker').clockpicker({
+            autoclose: true,
+            doneText: 'Done',
+            placement: 'top' // Set the placement to 'top'
+
+        });
+    });
+
+    $(document).on("submit", "#create-event-submit-form", function(e) {
+            e.preventDefault();
+            var $form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                url: $form.attr("action"),
+                data: $form.serialize(),
+                dataType: "json",
+                beforeSend: function() {
+                 $("#loading-image-preview").show();
+                },
+                success: function(data) {
+                    if (data.code == 200) {
+                        $("#loading-image-preview").hide();
+                        $form[0].reset();
+                        $("#create-event-modal").modal("hide");
+                        toastr['success'](data.message, 'Message');
+                    } else {
+                        toastr['error'](data.message, 'Message');
+                        $("#loading-image-preview").hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errors = xhr.responseJSON;
+                    $.each(errors, function(key, val) {
+                        $("#create-event-submit-form " + "#" + key + "_error").text(val[0]);
+                    });
+                    $("#loading-image-preview").hide();
+                }
+            });
     });
 
     $(document).on('click','#database-backup-monitoring',function(e){      
