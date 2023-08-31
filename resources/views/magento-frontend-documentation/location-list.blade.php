@@ -11,12 +11,12 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="10%">No</th>
-                                <th width="50%">Old Location</th>
-                                <th width="50%">New Location</th>
-                                <th width="20%">Updated BY</th>
-                                <th width="20%">Created Date</th>
-                                <th width="20%">Action</th>
+                                <th width="5%">No</th>
+                                <th width="25%">Old Location</th>
+                                <th width="25%">New Location</th>
+                                <th width="25%">Updated BY</th>
+                                <th width="25%">Created Date</th>
+                                <th width="5%">Action</th>
                             </tr>
                         </thead>
                         <tbody class="location-magnetolist-view">

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Parent Folder History</h4>
+                <h4 class="modal-title">Folder History</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -11,12 +11,12 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="10%">No</th>
-                                <th width="50%">Folder Name</th>
-                                <th width="50%">Image</th>
-                                <th width="20%">Updated BY</th>
-                                <th width="20%">Created Date</th>
-                                <th width="20%">Action</th>
+                                <th width="5%">No</th>
+                                <th width="25%">Folder Name</th>
+                                <th width="30%">Image</th>
+                                <th width="25%">Updated BY</th>
+                                <th width="25%">Created Date</th>
+                                <th width="5%">Action</th>
                             </tr>
                         </thead>
                         <tbody class="magneto-frontend-parent-view">

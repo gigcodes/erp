@@ -220,8 +220,8 @@
                         <th> child folder </th>
                         <th> Remark </th>
                         <th> Location </th>
-                        <th width="10%"> Admin Configuration </th>
-                        <th width="10%"> Frontend configuration </th>    
+                        <th> Admin Configuration </th>
+                        <th> Frontend configuration </th>    
                         <th width="10%"> File Name </th>   
                         <th width="10%"> Updated by </th>   
                         <th width="6%"> Created At </th>   
@@ -479,23 +479,16 @@
                         data: 'admin_configuration',
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
-
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-admin-remark" data-type="AdminConfig" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                            
-                                if (data !== null) {
-                                admin_Config= data.length > 30 ? data.substring(0, 30) + '...' : data;
-                            }
-
-                            let table = `<td class="expand-row" style="word-break: break-all">
-                                       <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${admin_Config}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                        </div>
-                                    </td>`;
+                                let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
 
                             return `<div class="flex justify-left items-center" style="position: relative;">
-                                                        ${table} ${remark_history_button}
+                                                        ${datas} ${remark_history_button}
                                     </div>`;
                         }
                     },
@@ -510,19 +503,17 @@
 
                             var shortJobName = '';
                             if (data !== null) {
-                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                shortJobName = data.length > 25 ? data.substring(0, 25) + '...' : data;
                             }
 
-                            let table = `<td class="expand-row" style="word-break: break-all">
-                                <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${shortJobName}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                </div>
-                                    </td>`;
+                            let datas =
+                                `<div class="data-content">
+                                        ${shortJobName == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${shortJobName}">${setStringLength(shortJobName, 25)}</div><div class="flex items-center justify-left td-full-container hidden" title="${shortJobName}">${shortJobName}</div></div>`}
+                                </div>`;
 
                     
                                 return `<div class="flex justify-left items-center" style="position: relative;">
-                                                        ${table} ${remark_history_button}
+                                                        ${datas} ${remark_history_button}
                                     </div>`;
                         }
                     },
@@ -720,7 +711,7 @@
                                             ${old_location}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
@@ -764,7 +755,7 @@
                                             ${old_location}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
@@ -808,7 +799,7 @@
                                             ${old_location}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
@@ -847,7 +838,7 @@
                                             ${remarkText}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
@@ -1037,7 +1028,7 @@
                                         <td> ${v.new_category ? v.new_category.title : ''} </td>
                                         <td> ${v.old_category ? v.old_category.title : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#category-listing").find(".category-listing-view").html(html);
@@ -1162,7 +1153,7 @@
                                             ${imageTag}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${folderName}'></i></td>
                                     </tr>`;
                         });
@@ -1207,7 +1198,7 @@
                                             ${imageTag}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${folderName}'></i></td>
                                     </tr>`;
                         });
