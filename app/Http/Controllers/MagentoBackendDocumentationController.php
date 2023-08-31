@@ -280,7 +280,7 @@ class MagentoBackendDocumentationController extends Controller
     {
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
 
-        $backendId = $request->magento_back_end_id;
+        $backendId = $request->magento_backend_id;
         $newData = $magentobackenddoc->google_drive_file_id;
         $columnname = 'description';
 
@@ -315,7 +315,7 @@ class MagentoBackendDocumentationController extends Controller
     {
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
 
-        $backendId = $request->magento_back_end_id;
+        $backendId = $request->magento_backend_id;
         $newData = $magentobackenddoc->google_drive_file_id;
         $columnname = 'admin_configuration';
 
@@ -325,7 +325,7 @@ class MagentoBackendDocumentationController extends Controller
         $magnetohistory->new_value = $newData;
         $magnetohistory->user_id = \Auth::id();
         $magnetohistory->save();
-
+ 
         if ($request->hasFile('child_folder_image')) {
             foreach ($request->child_folder_image as $file) {
                 $magentobackenddoc->admin_configuration_file_name = $file->getClientOriginalName();

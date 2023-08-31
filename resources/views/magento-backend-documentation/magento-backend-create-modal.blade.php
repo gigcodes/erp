@@ -190,9 +190,9 @@
                 button.removeClass('disabled');
             },
             success: function(data) {
-                $('#magento-backend-create').modal('hide');
-                // oTable.draw();
                 toastr["success"](data.message);
+                $('#create-magento-backend-docs').modal('hide');
+                window.location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if (xhr.status == 422) {

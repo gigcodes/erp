@@ -214,20 +214,20 @@
             <table class="table table-bordered" id="magento_backend_docs_table">
                 <thead>
                     <tr>
-                        <th> Id </th>
-                        <th width="10%"> Site developement Category </th>
+                        <th width="2%"> Id </th>
+                        <th width="10%"> Site Development Category </th>
                         <th width="10%"> PostMan Api </th>
-                        <th width="10%"> Magneto Module </th>
-                        <th width="20%"> Description </th>
-                        <th width="10%"> Admin configuration </th>
+                        <th width="10%"> Magento Module </th>
+                        <th width="10%"> Description </th>
+                        <th width="10%"> Admin Configuration </th>
                         <th width="10%"> Remark </th>
-                        <th width="10%"> Bug </th>
-                        <th width="20%"> Template Files </th>
-                        <th width="10%"> Bug details </th>
-                        <th width="20%"> Bug solutions </th>    
-                        <th width="30%"> Updated by </th>   
-                        <th width="5%"> Created At </th>   
-                        <th> Action </th>              
+                        <th width="10%"> Feature </th>
+                        <th width="8%"> Template Files </th>
+                        <th width="8%"> Bug Details </th>
+                        <th width="5%"> Bug Solutions </th>
+                        <th width="5%"> Updated by </th>
+                        <th width="5%"> Created At </th>
+                        <th width="1%"> Action </th>         
                     </tr>
                 </thead>
                 <tbody>
@@ -270,11 +270,11 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="10%">No</th>
-                                    <th width="30%">Old Category</th>
-                                    <th width="30%">New Category</th>
-                                    <th width="30%">Updated by</th>
-                                    <th width="20%">Created Date</th>
+                                    <th width="5%">No</th>
+                                    <th width="25%">Old Category</th>
+                                    <th width="25%">New Category</th>
+                                    <th width="25%">Updated by</th>
+                                    <th width="25%">Created Date</th>
                                 </tr>
                             </thead>
                             <tbody class="category-backend-listing-view">
@@ -298,11 +298,11 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="10%">No</th>
-                                    <th width="50%">Old Api</th>
-                                    <th width="50%">New Api</th>
-                                    <th width="30%">Updated by</th>
-                                    <th width="20%">Created Date</th>
+                                    <th width="5%">No</th>
+                                    <th width="30%">Old Api</th>
+                                    <th width="30%">New Api</th>
+                                    <th width="25%">Updated by</th>
+                                    <th width="25%">Created Date</th>
                                 </tr>
                             </thead>
                             <tbody class="postman-backend-listing-view">
@@ -327,10 +327,10 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="50%">Old Module</th>
-                                    <th width="50%">New Module</th>
+                                    <th width="25%">Old Module</th>
+                                    <th width="25%">New Module</th>
                                     <th width="30%">Updated by</th>
-                                    <th width="20%">Created Date</th>
+                                    <th width="25%">Created Date</th>
                                 </tr>
                             </thead>
                             <tbody class="module-backend-listing-view">
@@ -354,11 +354,11 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="10%">No</th>
-                                    <th width="50%">Old Remark</th>
-                                    <th width="50%">New remark</th>
+                                    <th width="5%">No</th>
+                                    <th width="25%">Old Remark</th>
+                                    <th width="25%">New remark</th>
                                     <th width="30%">Updated by</th>
-                                    <th width="20%">Created Date</th>
+                                    <th width="25%">Created Date</th>
                                 </tr>
                             </thead>
                             <tbody class="remark-backend-listing-view">
@@ -383,10 +383,10 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="50%">Old description</th>
-                                    <th width="50%">New description</th>
+                                    <th width="25%">Old description</th>
+                                    <th width="25%">New description</th>
                                     <th width="30%">Updated by</th>
-                                    <th width="20%">Created Date</th>
+                                    <th width="25%">Created Date</th>
                                 </tr>
                             </thead>
                             <tbody class="description-backend-listing-view">
@@ -411,8 +411,8 @@
                             <thead>
                                 <tr>
                                     <th width="10%">No</th>
-                                    <th width="50%">Old adminConfig</th>
-                                    <th width="50%">New adminConfig</th>
+                                    <th width="30%">Old adminConfig</th>
+                                    <th width="30%">New adminConfig</th>
                                     <th width="30%">Updated by</th>
                                     <th width="20%">Created Date</th>
                                 </tr>
@@ -687,7 +687,7 @@
                         name: 'magento_backend_docs.features',
                         render: function(data, type, row, meta) {
                             if (data !== null) {
-                                admin_Config= data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                admin_Config= data.length > 12 ? data.substring(0, 12) + '...' : data;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
@@ -704,7 +704,7 @@
                         render: function(data, type, row, meta) {
                             var shortJobName = '';
                             if (data !== null) {
-                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                shortJobName = data.length > 15 ? data.substring(0, 15) + '...' : data;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
@@ -721,7 +721,7 @@
                         render: function(data, type, row, meta) {
                             var shortJobName = '';
                             if (data !== null) {
-                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                shortJobName = data.length > 10 ? data.substring(0, 10) + '...' : data;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
@@ -738,7 +738,7 @@
                         render: function(data, type, row, meta) {
                             var shortJobName = '';
                             if (data !== null) {
-                                shortJobName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                shortJobName = data.length > 5 ? data.substring(0, 5) + '...' : data;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
@@ -755,7 +755,7 @@
                         render: function(data, type, row, meta) {
                             var userName = '';
                             if (data !== null) {
-                                userName = data.length > 30 ? data.substring(0, 30) + '...' : data;
+                                userName = data.length > 5 ? data.substring(0, 5) + '...' : data;
                             }
 
                             return `<td class="expand-row" style="word-break: break-all">
@@ -818,7 +818,7 @@
 
         $('#dateform').on('submit', function(e) {
             e.preventDefault();
-            magentofrontendTable.draw();
+            magentobackendTable.draw();
 
             return false;
         });
@@ -826,7 +826,7 @@
         $(document).on('click', '#searchReset', function(e) {
             $('#dateform').trigger("reset");
             e.preventDefault();
-            magentofrontendTable.draw();
+            magentobackendTable.draw();
         });
 
         $(document).on('change', '.edit_mm', function() {
@@ -882,7 +882,7 @@
                                         <td> ${v.site_developement_new_category ? v.site_developement_new_category.title : ''} </td>
                                         <td> ${v.site_developement_old_category ? v.site_developement_old_category.title : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#category-backend-listing").find(".category-backend-listing-view").html(html);
@@ -912,7 +912,7 @@
                                         <td> ${v.postmanoldrequestapi ? v.postmanoldrequestapi.request_url : ''} </td>
                                         <td> ${v.postmannewrequestapi ? v.postmannewrequestapi.request_url : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#postman-backend-listing").find(".postman-backend-listing-view").html(html);
@@ -943,7 +943,7 @@
                                         <td> ${v.magneteoldmodule ? v.magneteoldmodule.module : ''} </td>
                                         <td> ${v.magnetenewmodule ? v.magnetenewmodule.module : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#module-backend-listing").find(".module-backend-listing-view").html(html);
@@ -977,7 +977,7 @@
                     $("#"+selector+"_" + row_id).val('');
                     $("#send_to_" + row_id).val('');
                     toastr["success"](response.message);
-                    magentofrontendTable.draw();
+                    magentobackendTable.draw();
                 } else {
                     toastr["error"](response.message);
                 }
@@ -1015,7 +1015,7 @@
                                         <td> ${v.old_value ? v.old_value : ''} </td>
                                         <td> ${v.new_value ? v.new_value : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#remark-backend-listing").find(".remark-backend-listing-view").html(html);
@@ -1050,7 +1050,7 @@
                     $("#"+selector+"_" + row_id).val('');
                     $("#send_to_" + row_id).val('');
                     toastr["success"](response.message);
-                    magentofrontendTable.draw();
+                    magentobackendTable.draw();
                 } else {
                     toastr["error"](response.message);
                 }
@@ -1099,7 +1099,7 @@
             },
             success: function(response) {
                 $('#apiDataAddModal #magento_frontend_parent_image_form').trigger('reset');
-                magentofrontendTable.draw();
+                magentobackendTable.draw();
                 toastr["success"](response.message);
             },
             error: function(xhr, status, error) { // if error occured
@@ -1138,7 +1138,8 @@
                     $("#"+selector+"_" + row_id).val('');
                     $("#send_to_" + row_id).val('');
                     toastr["success"](response.message);
-                    magentofrontendTable.draw();
+                    $("#loading-image").show();
+                    magentobackendTable.draw();
                 } else {
                     toastr["error"](response.message);
                 }
@@ -1161,8 +1162,8 @@
         });
 
         $(document).on("click", ".upload-child-folder-image-modal", function() {
-            let magento_frontend_id = $(this).data('id');
-            $("#childImageAddModal").find('[name="magento_frontend_id"]').val(magento_frontend_id);
+            let magento_backend_id = $(this).data('id');
+            $("#childImageAddModal").find('[name="magento_backend_id"]').val(magento_backend_id);
             $('#childImageAddModal').modal('show');
         });
        
@@ -1185,7 +1186,7 @@
                                         <td> ${v.old_value ? v.old_value : ''} </td>
                                         <td> ${v.new_value ? v.new_value : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
                         $("#description-backend-listing").find(".description-backend-listing-view").html(html);
@@ -1247,6 +1248,14 @@
                         }
                     });
                 }
+    });
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
     });
 
     </script>
