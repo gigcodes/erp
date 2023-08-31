@@ -164,7 +164,7 @@
                                 <select name="status" id="status" class="form-control"  onchange="statusEventsChange(this)" data-id="{{$todoList->id}}"  data-type="todo">
                                     <option  Value="">Select Status</option>
                                     @foreach ($todolistStatus as $todolistStat)
-                                    <option  Value="{{$todolistStat->id}}"  @if($todoList->color?->id == $todolistStat->status)
+                                    <option  Value="{{$todolistStat->id}}"  @if($todoList->color?->id == $todolistStat->id)
                                         selected
                                     @endif>{{$todolistStat->name}}</option>
                                     @endforeach
