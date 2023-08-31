@@ -5325,6 +5325,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
     Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
+    Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-update');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
