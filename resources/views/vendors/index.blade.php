@@ -525,6 +525,16 @@
         $(mini).toggleClass('hidden');
     });
 
+    $(function() {
+        $('#createVendorForm input[name="email"]').on('change', function() {
+            $('#createVendorForm input[name="gmail"]').val($(this).val());
+        });
+
+        $('#vendorEditModal input[name="email"]').on('change', function() {
+            $('#vendorEditModal input[name="gmail"]').val($(this).val());
+        });
+    });
+
     $('.selectpicker').select2({
         tags: true,
         width: '100%',
@@ -819,18 +829,26 @@
 
         $('#vendorEditModal form').attr('action', url);
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
-        $('#vendor_name').val(vendor.name);
-        $('#vendor_address').val(vendor.address);
-        $('#vendor_phone').val(vendor.phone);
-        $('#vendor_email').val(vendor.email);
-        $('#vendor_social_handle').val(vendor.social_handle);
-        $('#vendor_website').val(vendor.website);
-        $('#vendor_login').val(vendor.login);
-        $('#vendor_password').val(vendor.password);
-        $('#vendor_gst').val(vendor.gst);
-        $('#vendor_account_name').val(vendor.account_name);
-        $('#vendor_account_iban').val(vendor.account_iban);
-        $('#vendor_account_swift').val(vendor.account_swift);
+        $('#vendorEditModal #vendor_name').val(vendor.name);
+        $('#vendorEditModal #vendor_address').val(vendor.address);
+        $('#vendorEditModal #vendor_phone').val(vendor.phone);
+        $('#vendorEditModal #vendor_email').val(vendor.email);
+        $('#vendorEditModal #vendor_social_handle').val(vendor.social_handle);
+        $('#vendorEditModal #vendor_website').val(vendor.website);
+        $('#vendorEditModal #vendor_login').val(vendor.login);
+        $('#vendorEditModal #vendor_password').val(vendor.password);
+        $('#vendorEditModal #vendor_gst').val(vendor.gst);
+        $('#vendorEditModal #vendor_account_name').val(vendor.account_name);
+        $('#vendorEditModal #vendor_account_iban').val(vendor.account_iban);
+        $('#vendorEditModal #vendor_account_swift').val(vendor.account_swift);
+        $('#vendorEditModal #vendor_frequency_of_payment').val(vendor.frequency_of_payment);
+        $('#vendorEditModal #vendor_bank_name').val(vendor.bank_name);
+        $('#vendorEditModal #vendor_bank_address').val(vendor.bank_address);
+        $('#vendorEditModal #vendor_city').val(vendor.city);
+        $('#vendorEditModal #vendor_country').val(vendor.country);
+        $('#vendorEditModal #vendor_ifsc_code').val(vendor.ifsc_code);
+        $('#vendorEditModal #vendor_remark').val(vendor.remark);
+
     });
 
     $(document).on('click', '.create-agent', function() {

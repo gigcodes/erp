@@ -269,7 +269,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <input type="number" name="phone" class="form-control" value="{{ old('phone') }}" id="vendor_phone" placeholder="Phone:">
+              <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" id="vendor_phone" placeholder="Phone:">
                @if ($errors->has('phone'))
                 <div class="alert alert-danger">{{$errors->first('phone')}}</div>
                @endif
@@ -349,7 +349,7 @@
           </div>
           <div class="col-md-6">
   		      <div class="form-group">
-              <input type="text" name="frequency_of_payment" class="form-control" value="{{ old('frequency_of_payment') }}" placeholder="Frequency of Payment:">
+              <input type="text" name="frequency_of_payment" class="form-control" value="{{ old('frequency_of_payment') }}" id="vendor_frequency_of_payment" placeholder="Frequency of Payment:">
               @if ($errors->has('frequency_of_payment'))
                 <div class="alert alert-danger">{{$errors->first('frequency_of_payment')}}</div>
               @endif
@@ -357,7 +357,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <input type="text" name="bank_name" class="form-control" value="{{ old('bank_name') }}" placeholder="Bank Name:">
+              <input type="text" name="bank_name" class="form-control" value="{{ old('bank_name') }}" id="vendor_bank_name" placeholder="Bank Name:">
               @if ($errors->has('bank_name'))
                 <div class="alert alert-danger">{{$errors->first('bank_name')}}</div>
               @endif
@@ -365,7 +365,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <textarea name="bank_address" class="form-control" placeholder="Bank Address:" style="height:34px;">{{ old('bank_address') }}</textarea>
+              <textarea name="bank_address" class="form-control" placeholder="Bank Address:" id="vendor_bank_address" style="height:34px;">{{ old('bank_address') }}</textarea>
               @if ($errors->has('bank_address'))
                 <div class="alert alert-danger">{{$errors->first('bank_address')}}</div>
               @endif
@@ -373,7 +373,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <input type="text" name="city" class="form-control" value="{{ old('city') }}" placeholder="City:">
+              <input type="text" name="city" class="form-control" value="{{ old('city') }}" id="vendor_city" placeholder="City:">
                @if ($errors->has('city'))
                 <div class="alert alert-danger">{{$errors->first('city')}}</div>
               @endif
@@ -381,7 +381,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <input type="text" name="country" class="form-control" value="{{ old('country') }}" placeholder="Country:">
+              <input type="text" name="country" class="form-control" value="{{ old('country') }}" id="vendor_country" placeholder="Country:">
                @if ($errors->has('country'))
                 <div class="alert alert-danger">{{$errors->first('country')}}</div>
               @endif
@@ -389,7 +389,7 @@
            </div>
            <div class="col-md-6">
               <div class="form-group">
-                <input type="text" name="ifsc_code" class="form-control" value="{{ old('ifsc_code') }}" placeholder="IFSC:">
+                <input type="text" name="ifsc_code" class="form-control" value="{{ old('ifsc_code') }}" id="vendor_ifsc_code" placeholder="IFSC:">
                 @if ($errors->has('ifsc_code'))
                   <div class="alert alert-danger">{{$errors->first('ifsc_code')}}</div>
                 @endif
@@ -397,7 +397,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <textarea name="remark" class="form-control" placeholder="Remark:" style="height: 34px;">{{ old('remark') }}</textarea>
+              <textarea name="remark" class="form-control" placeholder="Remark:" id="vendor_remark" style="height: 34px;">{{ old('remark') }}</textarea>
                 @if ($errors->has('remark'))
                 <div class="alert alert-danger">{{$errors->first('remark')}}</div>
               @endif
