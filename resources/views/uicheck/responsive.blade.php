@@ -255,7 +255,8 @@
 				<thead>
 					<tr>
 						<th></th>
-						<th >#</th>
+						<th>#</th>
+						<th style="width: 5%">Uicheck ID</th>
 						<th style="width: auto">Categories</th>
 						<th style="width: auto">Website</th>
 						{{-- <th>Upload file</th> --}}
@@ -295,6 +296,7 @@
 						@endphp
 							<tr>
 								<td><input type="checkbox" name="bulk_delete[]" class="d-inline bulk_delete" value="{{$uiDevData->uicheck_id}}"></td>
+								<td>{{$uiDevData->id}}</td>
 								<td>{{$uiDevData->uicheck_id}}</td>
 								<td class="expand-row-msg uicheck-username" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
 									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->title, 12, '..')}} @else   @endif</span>
@@ -327,7 +329,7 @@
 										
 										<div class="flex items-center gap-5">
 											<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}}, {{$uiDevData->id}});"></i>
-											<input class="mt-0 shadow-none" data-id="{{$uiDevData->uicheck_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
+											<input class="mt-0 shadow-none" data-id="{{$uiDevData->uicheck_id}}" data-user_accessable_user_id="{{$uiDevData->user_accessable_user_id}}" title="Hide for Developer" type="checkbox" name="lock_developer" id="lock_developer" value="1" {{ $uiDevData->lock_developer ? 'checked="checked"' : '' }} >
 										</div>
 									</td>
 								@endif
@@ -1570,6 +1572,7 @@
 		$(document).on("change", "#lock_developer", function(e) {
 			console.log("te");
 			var id=$(this).attr('data-id');
+			var user_accessable_user_id=$(this).attr('data-user_accessable_user_id');
 			var type="developer";
 			
 			if (confirm('Are you sure, do you want to perform this action?')) {
@@ -1580,7 +1583,8 @@
 					data: {
 						_token: "{{ csrf_token() }}",
 						id: id,
-						type: type
+						type: type,
+						user_accessable_user_id: user_accessable_user_id
 					},
 					beforeSend: function() {},
 					success: function(response) {

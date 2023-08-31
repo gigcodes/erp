@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UicheckUserAccess extends Model
 {
-    protected $fillable = ['user_id', 'uicheck_id'];
+    protected $fillable = ['user_id', 'uicheck_id', 'lock_developer', 'lock_admin'];
 
     public function user()
     {
