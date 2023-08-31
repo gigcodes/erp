@@ -4,7 +4,7 @@
         <div class="modal-content">
             <form id="magento_frontend_child_image_form" class="form mb-15" enctype="multipart/form-data">
             @csrf
-            {!! Form::hidden('magento_frontend_id', null, ['id'=>'magento_frontend_id']) !!}
+            {!! Form::hidden('magento_backend_id', null, ['id'=>'magento_backend_id']) !!}
             <div class="modal-header">
                 <h4 class="modal-title">Add Admin Config file</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
