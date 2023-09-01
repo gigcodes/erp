@@ -223,7 +223,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#magentoModuleVerifiedStatusList"> List Verified Status </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleLocationCreateModal"> Module Location Create  </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleReturnTypeCreateModal"> Module Return Type Error Create  </button>
-
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#m2ErrorStatusCreateModal">M2 Error Status Create</button>
                     </div>
                 </div>
             </form>
@@ -282,6 +282,7 @@
                         <th> Review Standard </th>
                         <th> Return Type Error </th>
                         <th> Return Type Error Status </th>
+                        <th> M2 Error Status </th>
                         <th> Dependancies </th>
                         <th> Action </th>
     
@@ -345,6 +346,9 @@
     @include('magento_module.used-at-history-listing')
     {{-- moduleReturnTypeCreateModal --}}
     @include('magento-return-type-status.form_modal')
+    {{-- m2ErrorStatusCreateModal --}}
+    @include('magento-m2-error-status.form_modal')
+    @include('magento-m2-error-status.m2-error-status-history')
      {{-- moduleReturnTypeHistoryModal --}}
     @include('magento-return-type-status.return-type-history')
      {{-- moduleDependcyModal --}}
@@ -976,6 +980,28 @@
                                 return `<div class="flex items-center justify-left">${data}</div>`;
                             }
                             
+                        }
+                    },
+                    {
+                        data: 'm2_error_status_id',
+                        name: 'magento_modules.m2_error_status_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var m2ErrorStatuses = row['m2_error_status'];
+                            var m2ErrorStatuses =  m2ErrorStatuses.replace(/&quot;/g, '"');
+                            if(m2ErrorStatuses && m2ErrorStatuses != "" ){
+                                var dev_html = '<select id="m2_error_status_id" class="form-control edit_mm" name="m2_error_status_id"><option selected="selected" value="">Select Status </option>';
+                                var m2ErrorStatuses = JSON.parse(m2ErrorStatuses);
+                                m2ErrorStatuses.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.m2_error_status_name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+
+                            let history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-m2-error-status-history ml-2" data-id="${row['id']}" title="Load histories"> <i class="fa fa-info-circle"> </button>`;
+
+                            return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
                         }
                     },
                      {
@@ -1671,6 +1697,33 @@
                         });
                         $("#return-type-listing").find(".return-type-listing-view").html(html);
                         $("#return-type-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-m2-error-status-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.get-m2-error-status-histories', '')}}/" + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_m2_error_status ? v.old_m2_error_status.m2_error_status_name : ''} </td>
+                                        <td> ${v.new_m2_error_status ? v.new_m2_error_status.m2_error_status_name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#m2-error-status-listing").find(".m2-error-status-listing-view").html(html);
+                        $("#m2-error-status-listing").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
