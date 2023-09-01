@@ -44,7 +44,7 @@ class EventController extends Controller
         $events = Event::myEvents(Auth::user()->id);
         $todoLists = [];
         $todo = [];
-
+    
         $todolistStatus = TodoStatus::get();
         $requestData = $request->all();
 
@@ -87,7 +87,7 @@ class EventController extends Controller
             }
         }
 
-        $events = $events->latest()->paginate(25);
+        $events = $events->latest()->withTrashed()->paginate(25);
 
         if ($request->ajax()) {
             return response()->json([
@@ -121,7 +121,7 @@ class EventController extends Controller
         $eventType = $request->get('event_type');
         $eventcategoryId = $request->get('event_category_id');
         $vendorId = $request->get('vendor_id');
-        $userId = $request->get('user_id');
+        $eventuserId = $request->get('event_user_id');
         $emailFrom = $request->get('from_address');
         $vendorCategoryId = $request->get('vendor_category_id');
         $vendorName = $request->get('vendor_name');
@@ -157,8 +157,8 @@ class EventController extends Controller
             $errors['event_category_id'][] = 'event catagory is required';
         }
 
-        if (empty(trim($userId))) {
-            $errors['user_id'][] = 'User is required';
+        if (empty(trim($eventuserId))) {
+            $errors['event_user_id'][] = 'User is required';
         }
 
         if (empty(trim($emailFrom))) {
@@ -203,7 +203,7 @@ class EventController extends Controller
         $event->event_type = $eventType;
         $event->date_range_type = $dateRangeType;
         $event->event_category_id = $eventcategoryId;
-        $event->event_user_id = $userId;
+        $event->event_user_id = $eventuserId;
         $event->vendor_id = $vendorId;
         $event->save();
 
@@ -221,7 +221,7 @@ class EventController extends Controller
 
         $subject = 'Event Scdhuled';
         $message = '';
-        $user = User::find($event->user_id);
+        $user = User::find($event->event_user_id);
         $eventLink = 'https://us05web.zoom.us/j/6928700773?pwd=Qnp6V2VQWGJ1NkhYd3c4ZHdBTjFoZz09';
         $emailClass = (new EventEmail($subject, $message, $event->user->email, $eventLink))->build();
 
@@ -439,11 +439,10 @@ class EventController extends Controller
                 ];
             });
 
-        // Private Events
+        // Private & Public Events
         $userPrivateEvents = Event::join('event_availabilities', 'event_availabilities.event_id', '=', 'events.id')
             ->select('events.*', 'event_availabilities.numeric_day', 'event_availabilities.start_at', 'event_availabilities.end_at')
             ->where('user_id', $userId)
-            ->where('event_type', 'PR')
             ->where(function ($query) use ($start, $end) {
                 $query->orWhereBetween('start_date', [$start, $end])
                     ->orWhereBetween('end_date', [$start, $end])
