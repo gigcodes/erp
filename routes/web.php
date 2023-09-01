@@ -541,6 +541,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
+    Route::get('magento_modules/m2-error-assignee-history', [MagentoModuleController::class, 'getM2ErrorAssigneeHistories'])->name('magento_module.m2-error-assignee-history');
     Route::get('/reviewstandard', [MagentoModuleController::class, 'reviewStandardHistories'])->name('magento_module.review.standard.histories');
     Route::post('magento_modules/dependency', [MagentoModuleController::class, 'storedependency'])->name('magento_module_dependency.store');
     Route::get('magento_modules/dependency/{id}', [MagentoModuleController::class, 'getDependencyRemarks'])->name('magento_module_dependency.remarks');

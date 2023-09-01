@@ -26,6 +26,7 @@ use App\Models\MagentoModuleReturnTypeErrorStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
+use App\MagentoModuleM2ErrorAssigneeHistory;
 use App\Models\MagentoModuleM2ErrorStatus;
 use App\Models\MagentoModuleM2ErrorStatusHistory;
 
@@ -489,7 +490,7 @@ class MagentoModuleController extends Controller
 
     public function getM2ErrorStatusHistories($magento_module)
     {
-        $histories = MagentoModuleM2ErrorStatusHistory::with(['user', 'newM2ErrorStatus', 'oldM2ErrorStatus'])->where('magento_module_id', $magento_module)->get();
+        $histories = MagentoModuleM2ErrorStatusHistory::with(['user', 'newM2ErrorStatus', 'oldM2ErrorStatus'])->where('magento_module_id', $magento_module)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -565,6 +566,11 @@ class MagentoModuleController extends Controller
         if ($request->columnName == 'm2_error_status_id') {
             $oldStatusId = $oldData->m2_error_status_id;
             $this->saveM2ErrorStatusHistory($oldData, $oldStatusId, $request->data);
+        }
+
+        if ($request->columnName == 'm2_error_assignee') {
+            $oldStatusId = $oldData->m2_error_assignee;
+            $this->saveM2ErrorAssigneeHistory($oldData, $oldStatusId, $request->data);
         }
 
         if ($request->columnName == 'api') {
@@ -1055,6 +1061,18 @@ class MagentoModuleController extends Controller
         return true;
     }
 
+    protected function saveM2ErrorAssigneeHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleM2ErrorAssigneeHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_assignee_id = $oldStatusId;
+        $history->new_assignee_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -1066,6 +1084,18 @@ class MagentoModuleController extends Controller
         }
 
         return redirect()->back()->with('success', 'The verified status color updated successfully.');
+    }
+
+    public function getM2ErrorAssigneeHistories(Request $request)
+    {
+        $histories = MagentoModuleM2ErrorAssigneeHistory::with(['user', 'newAssignee', 'oldAssignee'])->where('magento_module_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get histories',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function verifiedByUser(Request $request)

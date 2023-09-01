@@ -283,6 +283,7 @@
                         <th> Return Type Error </th>
                         <th> Return Type Error Status </th>
                         <th> M2 Error Status </th>
+                        <th> M2 Error Assignee </th>
                         <th> Dependancies </th>
                         <th> Action </th>
     
@@ -349,6 +350,7 @@
     {{-- m2ErrorStatusCreateModal --}}
     @include('magento-m2-error-status.form_modal')
     @include('magento-m2-error-status.m2-error-status-history')
+    @include('magento_module.magento-m2-error-assignee-list')
      {{-- moduleReturnTypeHistoryModal --}}
     @include('magento-return-type-status.return-type-history')
      {{-- moduleDependcyModal --}}
@@ -1004,6 +1006,27 @@
                             return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
                         }
                     },
+                    {
+                        data: 'm2_error_assignee',
+                        name: 'm2_error_assignee',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['developer_list'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="m2_error_assignee" class="form-control edit_mm" name="m2_error_assignee"><option selected="selected" value="">Select user </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            let history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-m2-error-assignee-history ml-2" data-id="${row['id']}" title="Assignee Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+
+                            return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
+                        }
+                    },
                      {
                         data: 'dependency',
                         name: 'magento_modules.dependency',
@@ -1486,6 +1509,37 @@
                 }
             });
         });
+
+        $(document).on('click', '.load-m2-error-assignee-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.m2-error-assignee-history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_assignee ? v.old_assignee.name : ''} </td>
+                                        <td> ${v.new_assignee ? v.new_assignee.name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-m2-error-assignee-list").find(".magento-m2-error-assignee-list-view").html(html);
+                        $("#magento-m2-error-assignee-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
         // Load Api Modal
         $(document).on('click', '.show-api-modal', function() {
             var id = $(this).attr('data-id');
