@@ -18,6 +18,7 @@ use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use App\ToDoListRemarkHistoryLog;
 use App\Models\EventRemarkHistory;
+use App\Remark;
 use App\VirtualminDomain;
 use Illuminate\Support\Collection;
 
@@ -480,6 +481,10 @@ class EventController extends Controller
         // Asset manager
         $myAssets = new Collection();
         $admin = $user->isAdmin();
+
+        $cStartDate = Carbon::parse($start);
+        $cEndDate = Carbon::parse($end);
+
         if ($admin) {
             $assetsManagers = AssetsManager::where([
                 'active' => 1,
@@ -493,9 +498,7 @@ class EventController extends Controller
                     ]);
             })
             ->get();
-
-            $cStartDate = Carbon::parse($start);
-            $cEndDate = Carbon::parse($end);
+            
             foreach ($assetsManagers as $assetsManager) {
                 $cDueDate = Carbon::parse($assetsManager->due_date);
                 // Monthly Payment Cycle - Logic
@@ -553,8 +556,6 @@ class EventController extends Controller
                 })
                 ->get();
 
-            $cStartDate = Carbon::parse($start);
-            $cEndDate = Carbon::parse($end);
             foreach ($virtualminDomains as $virtualminDomain) {
                 $cDueDate = Carbon::parse($virtualminDomain->expiry_date);
                 if (($cDueDate->month == $cStartDate->month && $cDueDate->year == $cStartDate->year)) {
@@ -571,7 +572,36 @@ class EventController extends Controller
             }
         }
 
-        $merged = $eventSchedules->concat($userPrivateEventCollection)->concat($myAssets)->concat($virtualminDomainCollections);
+        // Task Notes (Remarks)
+        $taskRemarkCollections = new Collection();
+        $taskRemarks = Remark::where([
+                'module_type' => 'task-note',
+                'is_hide' => 0
+            ])
+            ->where(function ($query) use ($start, $end) {
+                $query->WhereBetween('created_at', [$start, $end]);
+            })
+            ->get();
+
+        foreach ($taskRemarks as $taskRemark) {
+            $taskRemarkCreated = Carbon::parse($taskRemark->created_at);
+            if (($taskRemarkCreated->month == $cStartDate->month && $taskRemarkCreated->year == $cStartDate->year)) {
+                $taskRemarkCollections->push((object) [
+                    'remark_id' => $taskRemark->id,
+                    'subject' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
+                    'title' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
+                    'description' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
+                    'start' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                    'end' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                    'event_type' => 'TR', // Task Remark
+                ]);
+            }
+        }
+
+        $merged = $eventSchedules->concat($userPrivateEventCollection)
+            ->concat($myAssets)
+            ->concat($virtualminDomainCollections)
+            ->concat($taskRemarkCollections);
 
         return response()->json($merged);
     }
