@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\MagentoModuleM2ErrorStatus;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MagentoModuleReturnTypeErrorStatus;
 
@@ -45,6 +46,8 @@ class MagentoModule extends Model
         'used_at',
         'return_type_error',
         'return_type_error_status',
+        'm2_error_status_id',
+        'm2_error_assignee',
     ];
 
     public function module_category()
@@ -60,6 +63,11 @@ class MagentoModule extends Model
     public function module_error_status_type()
     {
         return $this->belongsTo(MagentoModuleReturnTypeErrorStatus::class, 'return_type_error_status');
+    }
+
+    public function module_m2_error_status()
+    {
+        return $this->belongsTo(MagentoModuleM2ErrorStatus::class, 'm2_error_status_id');
     }
 
     public function store_website()
