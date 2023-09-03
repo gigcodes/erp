@@ -5502,4 +5502,24 @@ class OrderController extends Controller
 
         return  $emails;
     }
+
+    public function orderStatusColorCode(Request $request)
+    {
+        $orderstatus = new OrderStatus();
+
+        $allorderStatus = OrderStatus::all();
+
+        $orderstatus = $orderstatus->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('orders.order-status-color-list', compact('orderstatus','allorderStatus'));
+    }
+
+    public function orderStatusColorCodeUpdate(Request $request)
+    {
+        $orderstatus =  OrderStatus::find($request->orderId);
+        $orderstatus->color = $request->colorValue;
+        $orderstatus->save();
+
+        return response()->json(['code' => 200, 'orderstatus' => $orderstatus,'message' => 'Color Code has been Updated Succeesfully!']);
+    }
 }

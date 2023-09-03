@@ -145,6 +145,7 @@
         <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
         <a href="#" class="btn btn-xs btn-secondary delete-orders">Archive</a>
         <a href="#" class="btn btn-xs update-customer btn-secondary">Update</a>
+        <a href="{{ route('order.status.color') }}" class="btn btn-xs btn-secondary">Add Color Code For Order Status</a>
     </div>
   </div>
 </div>
@@ -204,8 +205,7 @@
 
             @foreach ($order_items as $items)
 
-
-            <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
+            <tr style="background-color: {{$order->status?->color}}"; class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="text-center"><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
                   </span>

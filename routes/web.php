@@ -1604,6 +1604,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
     Route::post('order/change-return-status', [OrderController::class, 'returnStatus'])->name('order.change_return_status');
+    Route::get('order/status/color-code', [OrderController::class, 'orderStatusColorCode'])->name('order.status.color');
+    Route::post('order/status/Update', [OrderController::class, 'orderStatusColorCodeUpdate'])->name('order.status.color.Update');
 
     Route::resource('order', OrderController::class);
 
