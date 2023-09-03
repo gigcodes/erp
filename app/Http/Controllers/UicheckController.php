@@ -2313,7 +2313,8 @@ class UicheckController extends Controller
                 ->whereNotNull('uicheck_user_accesses.user_id')
                 ->whereNotNull('uicheck_user_accesses.uicheck_id')
                 ->select('uicheck_user_accesses.*', 'uichecks.uicheck_type_id', 'uichecks.website_id', 'users.name as username', 'store_websites.title as website', 'uicheck_types.name as type', DB::raw('count(*) as total'))
-                ->groupBy('uicheck_user_accesses.user_id', 'uichecks.website_id', 'uichecks.uicheck_type_id');
+                ->groupBy('uicheck_user_accesses.user_id', 'uichecks.website_id', 'uichecks.uicheck_type_id')
+                ->orderBy('uicheck_user_accesses.updated_at', 'DESC');
 
             $keyword = $request->get('keyword');
             if ($keyword != '') {

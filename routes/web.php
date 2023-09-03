@@ -533,6 +533,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
     Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
+    Route::get('magento_modules/get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
     Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
@@ -540,6 +541,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
+    Route::get('magento_modules/m2-error-assignee-history', [MagentoModuleController::class, 'getM2ErrorAssigneeHistories'])->name('magento_module.m2-error-assignee-history');
     Route::get('/reviewstandard', [MagentoModuleController::class, 'reviewStandardHistories'])->name('magento_module.review.standard.histories');
     Route::post('magento_modules/dependency', [MagentoModuleController::class, 'storedependency'])->name('magento_module_dependency.store');
     Route::get('magento_modules/dependency/{id}', [MagentoModuleController::class, 'getDependencyRemarks'])->name('magento_module_dependency.remarks');
@@ -558,6 +560,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_module_return_types', MagentoModuleReturnTypeErrorStatusController::class);
 
     Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
+    Route::post('magento_modules/store-m2-error-status', [MagentoModuleController::class, 'storeM2ErrorStatus'])->name('magento_modules.store-m2-error-status');
 
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
 

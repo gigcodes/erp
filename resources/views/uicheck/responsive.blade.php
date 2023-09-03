@@ -104,6 +104,10 @@
 	.select2-search__field:placeholder-shown {
 		width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
 	}
+
+	#list-user-access-modal .bulk_user_access {
+		height: 15px;
+	}
 </style>
 @endsection
 
@@ -787,7 +791,7 @@
 
 <!-- List user access modal-->
 <div id="list-user-access-modal" class="modal fade in" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">User Access Details</h4>
@@ -796,16 +800,16 @@
         <div class="modal-body">
 			<div class="row">
 				<div class="col-md-12">
-					<form action="" method="GET" id="user-access-search-form" style="margin-left:auto">
-						<div class="col-12 pb-3">
+					<div class="d-flex pb-3">
+						<form action="" method="GET" id="user-access-search-form" style="margin-left:auto">
 							<input type="text" name="keyword" class="user-access-search-input" placeholder="Keyword">
 							<button type="submit" class="btn btn-secondary btn-google-doc-search-menu"><i class="fa fa-search"></i></button>
-						</div>
-					</form>
-					<button class="btn btn-secondary my-3" onclick="bulkUserAccessDelete()"> Bulk Delete </button>&nbsp;
+						</form>
+						<button class="btn btn-secondary ml-2" onclick="bulkUserAccessDelete()"> Bulk Delete </button>&nbsp;
+					</div>
 				</div>
 			</div>
-          <table class="table">
+          <table class="table table-bordered">
             <thead class="thead-light">
               <tr>
 				<th></th>
@@ -814,6 +818,7 @@
                 <th>Website</th>
                 <th>Type</th>
                 <th>Total Uicheck count</th>
+                <th>Updated At</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -1284,6 +1289,7 @@
 			html += "<td>" + userAccess.website + "</td>";
 			html += "<td>" + userAccess.type + "</td>";
 			html += "<td>" + userAccess.total + "</td>";
+			html += "<td>" + userAccess.updated_at + "</td>";
 			html += '<td><a class="user-access-delete" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+' style="cursor: pointer;"><i class="fa fa-trash" aria-hidden="true"></i></a> <a style="padding-left: 10px;cursor: pointer;"class="user-access-reassign" data-type="code" data-user_id='+userAccess.user_id+' data-uicheck_type='+userAccess.uicheck_type_id+' data-uicheck_website='+userAccess.website_id+'><i class="fa fa-refresh" aria-hidden="true"></i></a></td>';
 			html += "</tr>";
 			});

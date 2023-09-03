@@ -197,7 +197,7 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
                     var i = document.createElement('i');
                     i.className = 'fa fa-remove delete-event';
                     i.id = 'event-id-'+info.event.extendedProps.event_id;
-                    i.title = 'Delete Event'
+                    i.title = 'Cancel Event'
                     i.onclick = function() {
                         removeEvent(info.event);
                     }
@@ -300,7 +300,7 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
     }
 
     function removeEvent(event) {
-        if (confirm('Are you sure you want to delete this event?')) {
+        if (confirm('Are you sure you want to Cancel this event?')) {
             event.remove();
             const xhttp = new XMLHttpRequest();
             const token = '{{ csrf_token() }}';

@@ -26,6 +26,9 @@ use App\Models\MagentoModuleReturnTypeErrorStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
+use App\MagentoModuleM2ErrorAssigneeHistory;
+use App\Models\MagentoModuleM2ErrorStatus;
+use App\Models\MagentoModuleM2ErrorStatusHistory;
 
 class MagentoModuleController extends Controller
 {
@@ -58,6 +61,8 @@ class MagentoModuleController extends Controller
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
         $verified_status_array = $verified_status->pluck('name', 'id');
+        $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
+        $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
             ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
@@ -157,7 +162,7 @@ class MagentoModuleController extends Controller
         $store_websites = $store_websites->pluck('website', 'id');
         $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
-        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors'));
+        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors'));
         // }
     }
 
@@ -175,6 +180,7 @@ class MagentoModuleController extends Controller
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
+        $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
 
         $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
@@ -248,7 +254,7 @@ class MagentoModuleController extends Controller
         }
         $items->groupBy('magento_modules.module');
 
-        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
+        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('m2_error_status', $m2_error_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
     }
 
     /**
@@ -482,6 +488,18 @@ class MagentoModuleController extends Controller
         ], 200);
     }
 
+    public function getM2ErrorStatusHistories($magento_module)
+    {
+        $histories = MagentoModuleM2ErrorStatusHistory::with(['user', 'newM2ErrorStatus', 'oldM2ErrorStatus'])->where('magento_module_id', $magento_module)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get verified status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function getVerifiedStatusHistories($magento_module, $type)
     {
         $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus', 'oldStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
@@ -544,6 +562,17 @@ class MagentoModuleController extends Controller
             $oldStatusId = $oldData->return_type_error_status;
             $this->saveReturnTypeHistory($oldData, $oldStatusId, $request->data);
         }
+
+        if ($request->columnName == 'm2_error_status_id') {
+            $oldStatusId = $oldData->m2_error_status_id;
+            $this->saveM2ErrorStatusHistory($oldData, $oldStatusId, $request->data);
+        }
+
+        if ($request->columnName == 'm2_error_assignee') {
+            $oldStatusId = $oldData->m2_error_assignee;
+            $this->saveM2ErrorAssigneeHistory($oldData, $oldStatusId, $request->data);
+        }
+
         if ($request->columnName == 'api') {
             $history = new MagentoModuleApiValueHistory();
             $history->magento_module_id = $request->id;
@@ -586,6 +615,18 @@ class MagentoModuleController extends Controller
         $history->magento_module_id = $magentoModule->id;
         $history->old_location_id = $oldStatusId;
         $history->new_location_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
+    protected function saveM2ErrorStatusHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleM2ErrorStatusHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_m2_error_status_id = $oldStatusId;
+        $history->new_m2_error_status_id = $newStatusId;
         $history->user_id = Auth::user()->id;
         $history->save();
 
@@ -968,6 +1009,32 @@ class MagentoModuleController extends Controller
         }
     }
 
+    public function storeM2ErrorStatus(Request $request)
+    {
+        $this->validate($request, [
+            'm2_error_status_name' => 'required|max:150|unique:magento_module_m2_error_statuses',
+        ]);
+
+        $input = $request->except(['_token']);
+
+        $data = MagentoModuleM2ErrorStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
     protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
         $history = new MagentoModuleVerifiedStatusHistory();
@@ -994,6 +1061,18 @@ class MagentoModuleController extends Controller
         return true;
     }
 
+    protected function saveM2ErrorAssigneeHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleM2ErrorAssigneeHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_assignee_id = $oldStatusId;
+        $history->new_assignee_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -1005,6 +1084,18 @@ class MagentoModuleController extends Controller
         }
 
         return redirect()->back()->with('success', 'The verified status color updated successfully.');
+    }
+
+    public function getM2ErrorAssigneeHistories(Request $request)
+    {
+        $histories = MagentoModuleM2ErrorAssigneeHistory::with(['user', 'newAssignee', 'oldAssignee'])->where('magento_module_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get histories',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function verifiedByUser(Request $request)

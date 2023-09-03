@@ -89,7 +89,14 @@
                     </thead>
                     <tbody>
                         @foreach ($events as $event)
-                            <tr style="background-color: {{$event->statuscolor?->color}}";>
+                        @php 
+                            if($event->deleted_at) {
+                                $backgroundColor = " ";
+                            } else{
+                                $backgroundColor =  $event->statuscolor?->color;
+                            }
+                        @endphp
+                        <tr style="background-color: {{ $backgroundColor }};">
                                 <td> {{ $event->name }} </td>
                                 <td> {{ $event->event_type == "PU" ? "Public" : "Private"}} </td>
                                 <td class="expand-row"> 
@@ -117,15 +124,17 @@
                                       </div>
                                     </div>
                                   </td>
-                                <td>  
-                                    <select name="status" id="status" class="form-control"  onchange="statusEventsChange(this)" data-id="{{$event->id}}"  data-type="event">
-                                        <option  Value="">Select Status</option>
-                                        @foreach ($todolistStatus as $todolistStat)
-                                        <option  Value="{{$todolistStat->id}}"   @if($event->statuscolor?->id == $todolistStat->id)
-                                            selected
-                                        @endif>{{$todolistStat->name}}</option>
-                                        @endforeach
-                                    </select>
+                                  <td style="text-align: center;">
+                                    @if($event->deleted_at)
+                                        Cancelled Event
+                                    @else
+                                        <select name="status" id="status" class="form-control" onchange="statusEventsChange(this)" data-id="{{$event->id}}" data-type="event">
+                                            <option value="">Select Status</option>
+                                            @foreach ($todolistStatus as $todolistStat)
+                                                <option value="{{$todolistStat->id}}" @if($event->statuscolor?->id == $todolistStat->id) selected @endif>{{$todolistStat->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                 </td>
                                 <td>
                                     <i class="fa fa-calendar reschedule-event" data-id="{{ $event->id }}"></i>

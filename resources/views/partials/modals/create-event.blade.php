@@ -35,14 +35,14 @@
                     </div>
                     <div class="form-group duration">
                         <label for="event-name">Event User</label>
-                        <select name="user_id" id="user_id" class="form-control select2">
+                        <select name="event_user_id" id="event_user_id" class="form-control select2">
                             <option value="">-- Select User --</option>
                             @php  $users =  \App\User::get(); @endphp
                             @foreach ($users as $user)
                                 <option value="{{$user->id}}">{{$user->name}}</option>
                             @endforeach
                         </select>
-                        <span id="user_id_error" class="text-danger"></span>
+                        <span id="event_user_id_error" class="text-danger"></span>
                     </div>
                     <div class="form-group duration">
                         <label for="event-name">Event Vendor
@@ -355,14 +355,13 @@ $(document).ready(function() {
     $('.day-row').hide();
     $('.' + days[currentDay]).show();
 
-    $('.clockpicker').on('change', function() {
+    $('.clockpicker[name$="[start_at]"], #event-duration').on('change', function() {
         var startInput = $(this).closest('tr').find('.clockpicker[name$="[start_at]"]');
         var endInput = $(this).closest('tr').find('.clockpicker[name$="[end_at]"]');
         var selectedDuration = parseInt($('#event-duration').val()); // Get selected duration in minutes
 
-        if (startInput.val()) {
+        if (startInput.val() && !isNaN(selectedDuration)) {
             var start = moment(startInput.val(), 'HH:mm');
-            // var duration = moment.duration(durationSelect.val(), 'minutes');
             var duration = moment.duration(selectedDuration, 'minutes');
 
             var end = start.clone().add(duration);
