@@ -208,7 +208,8 @@ class MagentoFrontendDocumentationController extends Controller
     public function magentofrontendOptions(Request $request)
     {
         $oldData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
-        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data,'user_id' => \Auth::id()]);
+
         $newData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
 
         if ($request->columnName == 'store_website_category_id') {
@@ -288,7 +289,7 @@ class MagentoFrontendDocumentationController extends Controller
 
         if ($oldFrontEndConfig != $request->frontend_configuration)
         {
-            $magnetohistory->old_frontend_configuration = $oldAdminConfig;
+            $magnetohistory->old_frontend_configuration = $oldFrontEndConfig;
             $magnetohistory->frontend_type = "FrontEndConfig";
             $magnetohistory->save();
         }
