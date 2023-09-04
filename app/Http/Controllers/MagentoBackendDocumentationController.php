@@ -10,7 +10,7 @@ use App\SiteDevelopmentCategory;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\Models\MagentoBackendDocumentation;
 use App\Models\MagentoBackendDocumentationHistory;
-
+use App\User;
 class MagentoBackendDocumentationController extends Controller
 {
     public function magentoBackendeDocs(Request $request)
@@ -33,12 +33,41 @@ class MagentoBackendDocumentationController extends Controller
             ->join('postman_request_creates', 'postman_request_creates.id', '=', 'magento_backend_docs.post_man_api_id')
             ->join('magento_modules', 'magento_modules.id', '=', 'magento_backend_docs.mageneto_module_id');
 
+            if (isset($request->search_features)) {
+                $items->where('magento_backend_docs.features', 'LIKE', '%' . $request->search_features . '%');
+            }
+            if (isset($request->search_template_file)) {
+                $items->where('magento_backend_docs.template_file', 'LIKE', '%' . $request->search_template_file . '%');
+            }
+            if (isset($request->search_bug_details)) {
+                $items->where('magento_backend_docs.bug_details', 'LIKE', '%' . $request->search_bug_details . '%');
+            }
+            if (isset($request->search_template_file)) {
+                $items->where('magento_backend_docs.template_file', 'LIKE', '%' . $request->search_template_file . '%');
+            }
+            if (isset($request->search_bug_solution)) {
+                $items->where('magento_backend_docs.bug_resolution', 'LIKE', '%' . $request->search_bug_solution . '%');
+            }
+            if (isset($request->date)) {
+                $items->where('magento_backend_docs.created_at', 'LIKE', '%' . $request->date . '%');
+            }
+            if (isset($request->postman_api)) {
+                $items->whereIn('magento_backend_docs.post_man_api_id', $request->postman_api);
+            }
+            if (isset($request->categoryname)) {
+                $items->whereIn('magento_backend_docs.site_development_category_id', $request->categoryname);
+            }
+            if (isset($request->modules)) {
+                $items->whereIn('magento_backend_docs.mageneto_module_id', $request->modules);
+            }
+          
+
             return datatables()->eloquent($items)->addColumn('categories', $storecategories)->addColumn('postManAPi', $postManAPi)->addColumn('magentoModules', $magentoModules)->toJson();
         } else {
-            return view('magento-backend-documentation.index', $storecategories);
+            return view('magento-backend-documentation.index', compact('storecategories','postManAPi','magentoModules'));
         }
 
-        return view('magento-backend-documentation.index', $storecategories);
+        return view('magento-backend-documentation.index', compact('storecategories','postManAPi','magentoModules'));
     }
 
     public function getBackendDropdownDatas(Request $request)
@@ -359,6 +388,130 @@ class MagentoBackendDocumentationController extends Controller
         return response()->json(['message' => 'Magento backend deleted successfully.']);
     }
 
+    public function magentoBackendEdit($id)
+    {
+        $magento_module = MagentoBackendDocumentation::find($id);
+        $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
+        $postManAPi = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
+        $magentoModules = MagentoModule::select('module', 'id')->groupBy('module')->get();
+
+        if ($magento_module) {
+            return response()->json(['code' => 200, 'data' => $magento_module, 'storecategories' => $storecategories,'postManAPi' => $postManAPi,'magentoModules' => $magentoModules]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
+    }
+
+    public function magentoBackendUpdate(Request $request)
+    {
+        $oldData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
+        $oldfeatures =$oldData->features;
+        $old_bug_details =$oldData->bug_details;
+        $old_template_file =$oldData->template_file;
+        $old_bug_resolution = $oldData->bug_resolution;
+
+        $oldData->features = $request->features;
+        $oldData->bug_details = $request->bug_details;
+        $oldData->template_file = $request->template_file;
+        $oldData->bug_resolution = $request->bug_resolution;
+        $oldData->updated_by =  \Auth::id();
+        $oldData->save();
+
+        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory->magento_backend_docs_id = $oldData->id;
+        $magnetohistory->new_template_file = $request->template_file;
+        $magnetohistory->new_features = $request->features;
+        $magnetohistory->new_bug_details = $request->bug_details;
+        $magnetohistory->new_bug_solutions = $request->bug_resolution;
+        $magnetohistory->user_id = \Auth::id();
+       
+        if ($oldfeatures != $request->features)
+        {
+            $magnetohistory->old_features = $oldfeatures;
+            $magnetohistory->feature_type = "features";
+            $magnetohistory->save();
+        }
+
+         
+        if ($old_bug_details != $request->bug_details)
+        {
+            $magnetohistory->old_bug_details = $old_bug_details;
+            $magnetohistory->old_bug_type = "BugDeatils";
+            $magnetohistory->save();
+        }
+
+        if ($old_template_file != $request->template_file)
+        {
+            $magnetohistory->old_template_file = $old_template_file;
+            $magnetohistory->template_file_type = "TemplateFile";
+            $magnetohistory->save();
+        }
+
+        if ($old_bug_resolution != $request->bug_resolution)
+        {
+            $magnetohistory->old_bug_solutions = $old_bug_resolution;
+            $magnetohistory->old_bug_solutuion_type = "BugResolution";
+            $magnetohistory->save();
+        }
+
+        $magnetohistory->save();
+     
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully',
+            'status_name' => 'success',
+            'code' => 200,
+        ], 200);
+    }
+
+    public function magentoFeatureget(Request $request)
+    {
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('feature_type',$request->location)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentoTemplateget(Request $request)
+    {
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('template_file_type',$request->location)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentoBugDetailget(Request $request)
+    {
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_type',$request->location)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+    
+
+    public function magentoBugSolutionget(Request $request)
+    {
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_solutuion_type',$request->location)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $remarks,
+            'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
     private function magentoBackendHistorysave($backendId, $oldId, $newData, $columnname)
     {
         $magnetohistory = new MagentoBackendDocumentationHistory();
