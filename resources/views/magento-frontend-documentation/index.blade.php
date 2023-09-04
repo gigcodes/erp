@@ -142,7 +142,8 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <select class="form-control select-multiple category_name" id="category-select" name="magento_docs_category_id">
+                            <h5>Search Category</h5>
+                            <select class="form-control globalSelect2 category_name" multiple="true" id="category-select" name="magento_docs_category_id[]">
                                 @php
                                  $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
                                  @endphp
@@ -157,7 +158,8 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <select class="form-control select-multiple location_name" id="location_select" name="location_name">
+                            <h5>Search locations</h5>
+                            <select class="form-control  globalSelect2 location_name" multiple="true" id="location_select" name="location_name[]">
                                 @php
                                  $locations = \App\Models\MagentoFrontendDocumentation::select('location', 'id')->get();
                                  @endphp
@@ -172,6 +174,7 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
+                            <h5>Search Admin config</h5>
                             <input name="search_admin_config" type="text" class="form-control search_admin_config" value="{{ request('status') }}"
                                     placeholder="search Admin Config" id="search_admin_config">
                         </div>
@@ -179,27 +182,27 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
+                            <h5>Search Frontend config</h5>
                             <input name="search_frontend_confid" type="text" class="form-control search_frontend_config" value="{{ request('status') }}"
                             placeholder="search Frontend Config" id="search_frontend_config">                     
                           </div>
                     </div>
 
-                    <div class="col-xs-2 col-sm-1 pt-2 ">
-                        <div class="d-flex" >
+                    <div class="col-xs-2 col-sm-1 pt-2 "><br>
+                        <div class="d-flex">
                             <div class="form-group pull-left ">
                                 <button type="submit" class="btn btn-image search">
                                     <img src="/images/search.png" alt="Search" style="cursor: inherit;">
                                 </button>
                             </div>
                             <div class="form-group pull-left ">
-                                <button type="submit" id="searchReset" class="btn btn-image search ml-3">
-                                    <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
-                                </button>
+                                <a href="{{route('magento_frontend_listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pull-right pr-5">
+                    <div class="pull-right pr-5"><br>
+                        <h5></h5>
                         <button type="button" class="btn btn-secondary" data-toggle="modal"
                             data-target="#create-magento-frontend-docs"> Create Magento FrontEnd Documentation </button>
                     </div>
@@ -408,7 +411,7 @@
                                 `<input type="text" id="parent_folder_${row['id']}" name="parent_folder" class="form-control parent_folder-input" placeholder="parent folder" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-parent-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-parent-folder ml-2"  data-id="${row['id']}" title="Parent Folder History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-parent-folder-modal" type="submit" id="submit_message" data-id="${row['id']}" data-toggle="modal" data-target="#parentImageAddModal"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
                             
@@ -430,7 +433,7 @@
                             let Upload_button =  `<button style="display: inline-block;width: 10%" class="btn btn-sm upload-child-folder-image-modal" type="submit" id="submit_message"  data-target="#childImageAddModal" data-id="${row['id']}"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
                             
                             let remark_history_button =
-                            `<button type="button" class="btn btn-xs btn-image load-module-child-folder ml-2"  data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                            `<button type="button" class="btn btn-xs btn-image load-module-child-folder ml-2"  data-id="${row['id']}" title="Child Folder History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -448,7 +451,7 @@
                                 `<input type="text" id="remark_${row['id']}" name="remark" class="form-control remark-input" placeholder="Remark" />`;
 
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-type="general" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-type="general" data-id="${row['id']}" title="Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
@@ -463,7 +466,7 @@
                         data: 'location',
                         name: 'magento_frontend_docs.location',
                         render: function(data, type, row, meta) {
-                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-location-remark" data-type="location" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt=""> </button>`;
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-location-remark" data-type="location" data-id="${row['id']}" title="Location history"> <img src="/images/chat.png" alt=""> </button>`;
 
                             let datas =
                                 `<div class="data-content">
@@ -480,7 +483,7 @@
                         name: 'magento_frontend_docs.admin_configuration',
                         render: function(data, type, row, meta) {
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-admin-remark" data-type="AdminConfig" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                                `<button type="button" class="btn btn-xs btn-image load-admin-remark" data-type="AdminConfig" data-id="${row['id']}" title="Admin Config History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
                            
                                 let datas =
                                 `<div class="data-content">
@@ -496,23 +499,15 @@
                         data: 'frontend_configuration',
                         name: 'magento_frontend_docs.frontend_configuration',
                         render: function(data, type, row, meta) {
-
-
                             let remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-frontnend-remark" data-type="FrontEndConfig" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
-
-                            var shortJobName = '';
-                            if (data !== null) {
-                                shortJobName = data.length > 25 ? data.substring(0, 25) + '...' : data;
-                            }
-
-                            let datas =
+                                `<button type="button" class="btn btn-xs btn-image load-frontnend-remark" data-type="FrontEndConfig" data-id="${row['id']}" title="Frontend Config History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+                           
+                                let datas =
                                 `<div class="data-content">
-                                        ${shortJobName == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${shortJobName}">${setStringLength(shortJobName, 25)}</div><div class="flex items-center justify-left td-full-container hidden" title="${shortJobName}">${shortJobName}</div></div>`}
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
                                 </div>`;
 
-                    
-                                return `<div class="flex justify-left items-center" style="position: relative;">
+                            return `<div class="flex justify-left items-center" style="position: relative;">
                                                         ${datas} ${remark_history_button}
                                     </div>`;
                         }
@@ -522,6 +517,7 @@
                         render: function(data, type, row, meta) {
                             // Extract file_name and google_drive_file_id from the row data
                             let file_name = data.file_name;
+                            let fullFimeName = data.file_name;;
                             if (file_name !== null) {
                                 file_name = file_name.length > 20 ? file_name.substring(0, 15) + '...' : file_name;
                             }
@@ -530,7 +526,7 @@
                             let file_name_html = (file_name == null) ? '' : `
                             <div class="expand-row" style="word-break: break-all">
                                         <span class="td-mini-container">${file_name}</span>
-                                        <span class="td-full-container hidden">${file_name}</span>
+                                        <span class="td-full-container hidden">${fullFimeName}</span>
                                 </div>`;
 
                             let action_buttons = '';
@@ -842,8 +838,8 @@
                                         <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
                                     </tr>`;
                         });
-                        $("#frontend-magneto-frontend-list").find(".frontend-magnetolist-view").html(html);
-                        $("#frontend-magneto-frontend-list").modal("show");
+                        $("#remark-magneto-frontend-list").find(".remark-magnetolist-view").html(html);
+                        $("#remark-magneto-frontend-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
@@ -853,12 +849,12 @@
         });
                 
         $(document).on('click', '.expand-row', function () {
-        var selection = window.getSelection();
-        if (selection.toString().length === 0) {
-            $(this).find('.td-mini-container').toggleClass('hidden');
-            $(this).find('.td-full-container').toggleClass('hidden');
-        }
-    });
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
 
      //edit module
      $(document).on('click', '.edit-module', function() {
@@ -930,9 +926,7 @@
         var self = $(this);
         let formData = new FormData(document.getElementById("magento_module_edit_form"));
         var magento_module_id = $('#magento_module_edit_form #id').val();
-        console.log(formData, magento_module_id);
         var button = $(this).find('[type="submit"]');
-        console.log("#magento_module_edit_form submit");
         $.ajax({
             url: '{{ route("magento_frontend.update", '') }}/' + magento_module_id,
             type: "POST",
