@@ -245,6 +245,7 @@ class MagentoFrontendDocumentationController extends Controller
         $oldData->frontend_configuration = $request->frontend_configuration;
         $oldData->child_folder = $request->child_folder;
         $oldData->parent_folder = $request->parent_folder;
+        $oldData->user_id =  \Auth::id();
         $oldData->save();
 
         if ($request->hasFile('child_folder_image')) {
