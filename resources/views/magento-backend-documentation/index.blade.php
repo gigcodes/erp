@@ -126,7 +126,6 @@
     </style>
 @endsection
 
-
 @section('content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;z-index: 9999;" />
@@ -142,64 +141,85 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {{-- <select class="form-control select-multiple category_name" id="category-select" name="magento_docs_category_id">
-                                @php
-                                 $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
-                                 @endphp
-     
+                            <h5>Search Category</h5>
+                            <select class="form-control  globalSelect2 category_name" multiple="true" id="category-select" name="magento_docs_category_id[]">
                                  <option value="">Select Category</option>
                                  @foreach ($storecategories as $storecategory)
                                      <option value="{{ $storecategory->id }}">{{ $storecategory->title }}</option>
                                  @endforeach
-                             </select> --}}
+                             </select>
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {{-- <select class="form-control select-multiple location_name" id="location_select" name="location_name">
-                                @php
-                                 $locations = \App\Models\MagentoFrontendDocumentation::select('location', 'id')->get();
-                                 @endphp
-     
-                                 <option value="">Select locations</option>
-                                 @foreach ($locations as $location)
-                                     <option value="{{ $location->location }}">{{ $location->location }}</option>
+                            <h5>Search PostMan Api</h5>
+                            <select class="form-control  globalSelect2 postman_api" multiple="true" id="postman_apis" name="postman_apis[]">
+                                 <option value="">Select PostMan Api</option>
+                                 @foreach ($postManAPi as $api)
+                                     <option value="{{ $api->id }}">{{ $api->request_url }}</option>
                                  @endforeach
-                             </select> --}}
+                             </select>
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {{-- <input name="search_admin_config" type="text" class="form-control search_admin_config" value="{{ request('status') }}"
-                                    placeholder="search Admin Config" id="search_admin_config"> --}}
+                            <h5>Search Mageneto Modules</h5>
+                            <select class="form-control  globalSelect2 modules" multiple="true" id="modules" name="modules[]">
+                                 <option value="">Select Mageneto Modules</option>
+                                 @foreach ($magentoModules as $module)
+                                     <option value="{{ $module->id }}">{{ $module->module }}</option>
+                                 @endforeach
+                             </select>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            <h5>Search Features</h5>
+                            <input name="search_features" type="text" class="form-control search_features" value="{{ request('search_features') }}"
+                                    placeholder="search Features" id="search_features">
                         </div>
                     </div>
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            {{-- <input name="search_frontend_confid" type="text" class="form-control search_frontend_config" value="{{ request('status') }}"
-                            placeholder="search Frontend Config" id="search_frontend_config">                      --}}
+                            <h5>Search Template File</h5>
+                            <input name="search_template_file" type="text" class="form-control search_template_file" value="{{ request('search_template_file') }}"
+                            placeholder="search Template File" id="search_template_file">                     
+                          </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            <h5>Search Bug Details</h5>
+                            <input name="search_bug_details" type="text" class="form-control search_bug_details" value="{{ request('search_bug_details') }}"
+                            placeholder="Search Bug Detail" id="search_bug_details">                     
+                          </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            <h5>Search Bug Solutions</h5>
+                            <input name="search_bug_solution" type="text" class="form-control search_bug_solution" value="{{ request('search_bug_solution') }}"
+                            placeholder="Search Bug Solutions" id="search_bug_solution">                     
                           </div>
                     </div>
 
-                    <div class="col-xs-2 col-sm-1 pt-2 ">
+                    <div class="col-xs-2 col-sm-1 pt-2 "><br>
                         <div class="d-flex" >
                             <div class="form-group pull-left ">
-                                {{-- <button type="submit" class="btn btn-image search">
+                                <button type="submit" class="btn btn-image search">
                                     <img src="/images/search.png" alt="Search" style="cursor: inherit;">
-                                </button> --}}
+                                </button>
                             </div>
                             <div class="form-group pull-left ">
-                                {{-- <button type="submit" id="searchReset" class="btn btn-image search ml-3">
-                                    <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
-                                </button> --}}
+                                <a href="{{route('magento.backend.listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pull-right pr-5">
+                    <div class="pull-right pr-5"><br>
                         <button type="button" class="btn btn-secondary" data-toggle="modal"
                             data-target="#create-magento-backend-docs"> Magento Backend Create </button>
                     </div>
@@ -250,7 +270,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        @include('magento-frontend-documentation.partials.edit-form')
+                        @include('magento-backend-documentation.edit-form')
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -460,10 +480,10 @@
           </div>
         </div>
       </div>
-
-      
-    
-    
+    @include('magento-backend-documentation.bug-solution-list-history')
+    @include('magento-backend-documentation.bug-details-hisrory')
+    @include('magento-backend-documentation.template-file-history')
+    @include('magento-backend-documentation.feature-list-history')
     @include('magento-backend-documentation.magento-backend-create-modal')
     @include('magento-backend-documentation.admin-config-file')
 
@@ -509,10 +529,15 @@
                 ajax: {
                     "url": "{{ route('magento.backend.listing') }}",
                     data: function(d) {
-                        // d.categoryname = $('.category_name').val();
-                        // d.frontend_configuration = $('.search_frontend_config').val();
-                        // d.admin_configuration = $('.search_admin_config').val();
-                        // d.location = $('.location_name').val();   
+                        d.categoryname = $('.category_name').val();
+                        d.postman_api = $('.postman_api').val();
+                        d.modules = $('.modules').val();
+                        d.user_names = $('.user_names').val();  
+                        d.search_features = $('.search_features').val();
+                        d.search_template_file = $('.search_template_file').val();
+                        d.search_bug_details = $('.search_bug_details').val();  
+                        d.search_bug_solution = $('.search_bug_solution').val();  
+                        d.date = $('.date').val();  
                     },
                 },
                 columnDefs: [{
@@ -686,72 +711,89 @@
                         data: 'features',
                         name: 'magento_backend_docs.features',
                         render: function(data, type, row, meta) {
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-feature" data-type="features" data-id="${row['id']}" title="Feature history"> <img src="/images/chat.png" alt=""> </button>`;
+
+
                             if (data !== null) {
                                 admin_Config= data.length > 12 ? data.substring(0, 12) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
-                                       <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${admin_Config}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                        </div>
-                                    </td>`;
-                        }
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
+
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                                    ${datas} ${remark_history_button}
+                                </div>`;
+                         }
                     },
                     {
                         data: 'template_file',
                         name: 'magento_backend_docs.template_file',
                         render: function(data, type, row, meta) {
-                            var shortJobName = '';
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-template" data-type="TemplateFile" data-id="${row['id']}" title="TemplateFile history"> <img src="/images/chat.png" alt=""> </button>`;
+
+
                             if (data !== null) {
-                                shortJobName = data.length > 15 ? data.substring(0, 15) + '...' : data;
+                                admin_Config= data.length > 12 ? data.substring(0, 12) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
-                                <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${shortJobName}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                </div>
-                                    </td>`;
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
+
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                                    ${datas} ${remark_history_button}
+                                </div>`;
                         }
                     },
                     {
                         data: 'bug_details',
                         name: 'magento_backend_docs.bug_details',
                         render: function(data, type, row, meta) {
-                            var shortJobName = '';
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-bugdetails" data-type="BugDeatils" data-id="${row['id']}" title="TemplateFile history"> <img src="/images/chat.png" alt=""> </button>`;
+
+
                             if (data !== null) {
-                                shortJobName = data.length > 10 ? data.substring(0, 10) + '...' : data;
+                                admin_Config= data.length > 12 ? data.substring(0, 12) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
-                                <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${shortJobName}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                </div>
-                                    </td>`;
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
+
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                                    ${datas} ${remark_history_button}
+                                </div>`;
                         }
                     },                  
                     {
                         data: 'bug_resolution',
                         name: 'magento_backend_docs.bug_resolution',
                         render: function(data, type, row, meta) {
-                            var shortJobName = '';
+                            let remark_history_button = `<button type="button" class="btn btn-xs btn-image load-bugsolutions" data-type="BugResolution" data-id="${row['id']}" title="BugResolution history"> <img src="/images/chat.png" alt=""> </button>`;
+
+
                             if (data !== null) {
-                                shortJobName = data.length > 5 ? data.substring(0, 5) + '...' : data;
+                                admin_Config= data.length > 12 ? data.substring(0, 12) + '...' : data;
                             }
 
-                            return `<td class="expand-row" style="word-break: break-all">
-                                <div class="expand-row" style="word-break: break-all">
-                                        <span class="td-mini-container">${shortJobName}</span>
-                                        <span class="td-full-container hidden">${data}</span>
-                                </div>
-                                    </td>`;
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                </div>`;
+
+                            return `<div class="flex justify-left items-center" style="position: relative;">
+                                                    ${datas} ${remark_history_button}
+                                </div>`;
                         }
                     },
                     {
                         data: 'user.name',
-                        name: 'magento_frontend_docs.user_id',
+                        name: 'magento_frontend_docs.updated_by',
                         render: function(data, type, row, meta) {
                             var userName = '';
                             if (data !== null) {
@@ -792,6 +834,9 @@
                     {
                         render: function(data, type, row, meta) {
 
+                            let edit_button =
+                                `<button type="button" class="btn btn-xs btn-image edit-module ml-2" data-type="general" data-id="${row['id']}" title="Edit messages"> <img src="/images/edit.png" alt="" style="cursor: default;"> </button>`;
+
                             var del_data = "";
                             <?php if (auth()->user() && auth()->user()->isAdmin()) { ?>
                             del_data =
@@ -799,7 +844,7 @@
                             <?php } ?>
 
                         
-                            return `<div class="flex justify-left items-center">${del_data} </div>`;
+                            return `<div class="flex justify-left items-center">${edit_button} ${del_data} </div>`;
         
                         }
                     },
@@ -815,6 +860,80 @@
             });
 
         });
+
+
+        //edit module
+     $(document).on('click', '.edit-module', function() {
+        var moduleId = $(this).data("id");
+        var url = "{{ route('magento_backend_edit', ['id' => ':id']) }}";
+        url = url.replace(':id', moduleId);    
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "GET",
+            url: url,
+        }).done(function(response) {
+            $("#magento_module_edit_form #id").val(response.data.id);
+            $("#magento_module_edit_form #features").val(response.data.features);
+            $("#magento_module_edit_form #template_file").val(response.data.template_file);
+            $("#magento_module_edit_form #bug_details").val(response.data.bug_details);
+            $("#magento_module_edit_form #bug_resolution").val(response.data.bug_resolution);
+            // $("#magento_module_edit_form #bug").val(response.data.bug);
+            // $("#magento_module_edit_form #filename").val(response.data.child_folder_image);
+			// var image = "/magentofrontend-child-image/" + response.data.child_folder_image; 
+			// $('#magento_module_edit_form #filename').attr('src', image);
+            $("#moduleEditModal").modal("show");
+        }).fail(function (response) {
+            $("#loading-image-preview").hide();
+            console.log("Sorry, something went wrong");
+        });
+    });
+
+
+    $(document).on('submit', '#magento_module_edit_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("magento_module_edit_form"));
+        var magento_module_id = $('#magento_module_edit_form #id').val();
+        var button = $(this).find('[type="submit"]');
+        $.ajax({
+            url: '{{ route("magento_backend.update", '') }}/' + magento_module_id,
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Update');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#moduleCreateModal #magento_module_edit_form').find('.error-help-block').remove();
+                $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
+                $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
+                toastr["success"](response.message);
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
+
 
         $('#dateform').on('submit', function(e) {
             e.preventDefault();
@@ -1228,6 +1347,185 @@
                 }
             });
         });
+
+
+        $(document).on('click', '.load-feature', function() {
+            var id = $(this).attr('data-id');
+            var location = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-feature-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    location:location,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.new_features;
+                            old_location = v.old_features;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${location}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#feature-magneto-frontend-list").find(".feature-magnetolist-view").html(html);
+                        $("#feature-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on('click', '.load-template', function() {
+            var id = $(this).attr('data-id');
+            var location = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-template-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    location:location,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.new_template_file;
+                            old_location = v.old_template_file;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${location}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#template-magneto-frontend-list").find(".template-magnetolist-view").html(html);
+                        $("#template-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+
+        $(document).on('click', '.load-bugdetails', function() {
+            var id = $(this).attr('data-id');
+            var location = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-bug-detail-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    location:location,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.new_bug_details;
+                            old_location = v.old_bug_details;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${location}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#bug-detail-magneto-frontend-list").find(".bug-detail-magnetolist-view").html(html);
+                        $("#bug-detail-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+
+        $(document).on('click', '.load-bugsolutions', function() {
+            var id = $(this).attr('data-id');
+            var location = $(this).attr('data-type');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento-bug-solution-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                    location:location,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            remarkText=v.new_bug_solutions;
+                            old_location = v.old_bug_solutions;
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> 
+                                            ${location}
+                                        </td>
+                                        <td> 
+                                            ${old_location}
+                                        </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#bug-solution-magneto-frontend-list").find(".bug-solution-magnetolist-view").html(html);
+                        $("#bug-solution-magneto-frontend-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+
+
+       
 
         $(document).on('click', '.load-backend-delete', function () {
         var id = $(this).attr('data-id');

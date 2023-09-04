@@ -685,6 +685,14 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-backend-description/histories', [MagentoBackendDocumentationController::class, 'magentoBackenddescriptionHistoryShow'])->name('magentobackend_description.histories.show');
     Route::get('magento-backend-admin-config/histories', [MagentoBackendDocumentationController::class, 'magentoBackendAdminHistoryShow'])->name('magentobackend_admin.histories.show');
     Route::delete('/magento-backend/delete/{id}', [MagentoBackendDocumentationController::class, 'magentobackenddelete'])->name('magento-backend.destroy');
+    Route::get('/magento-backend/edit/{id}', [MagentoBackendDocumentationController::class, 'magentoBackendEdit'])->name('magento_backend_edit');
+    Route::post('/magento-backend/update/{id}', [MagentoBackendDocumentationController::class, 'magentoBackendUpdate'])->name('magento_backend.update');
+    Route::get('magento-backend/feature', [MagentoBackendDocumentationController::class, 'magentoFeatureget'])->name('magento-feature-list');
+    Route::get('magento-backend/template', [MagentoBackendDocumentationController::class, 'magentoTemplateget'])->name('magento-template-list');
+    Route::get('magento-backend/details', [MagentoBackendDocumentationController::class, 'magentoBugDetailget'])->name('magento-bug-detail-list');
+    Route::get('magento-backend/solutions', [MagentoBackendDocumentationController::class, 'magentoBugSolutionget'])->name('magento-bug-solution-list');
+
+
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
